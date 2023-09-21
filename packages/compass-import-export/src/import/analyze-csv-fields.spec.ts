@@ -134,6 +134,11 @@ describe('analyzeCSVFields', function () {
       expectedDetected = 'mixed';
     }
 
+    if (type === 'regex') {
+      // we detect regex, but we select string
+      expectedDetected = 'string';
+    }
+
     it(`detects ${expectedDetected} for ${basename} with ignoreEmptyStrings=true`, async function () {
       const abortController = new AbortController();
       const progressCallback = sinon.spy();

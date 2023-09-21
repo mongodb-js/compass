@@ -16,7 +16,7 @@ import {
 } from '../modules/regular-indexes';
 import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
-  fetchSearchIndexes,
+  refreshSearchIndexes,
   SearchIndexesStatuses,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
@@ -63,7 +63,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
-          ? SearchIndexesStatuses.PENDING
+          ? SearchIndexesStatuses.NOT_READY
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
     },
@@ -109,7 +109,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
 
     globalAppRegistry.on('refresh-data', () => {
       void store.dispatch(fetchIndexes());
-      void store.dispatch(fetchSearchIndexes());
+      void store.dispatch(refreshSearchIndexes());
     });
 
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');

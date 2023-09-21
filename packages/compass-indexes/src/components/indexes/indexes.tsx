@@ -43,7 +43,7 @@ type IndexesProps = {
 
 function isRefreshingStatus(status: SearchIndexesStatus) {
   return (
-    status === SearchIndexesStatuses.PENDING ||
+    status === SearchIndexesStatuses.FETCHING ||
     status === SearchIndexesStatuses.REFRESHING
   );
 }
