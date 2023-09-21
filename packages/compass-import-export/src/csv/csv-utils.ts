@@ -345,6 +345,19 @@ export function placeValue(
   }
 }
 
+export function overrideDetectedFieldType(fieldType: CSVParsableFieldType) {
+  // We can detect regex, but we don't want to automatically select it due to
+  // the fact that URL paths often look like regexes. It is still useful to
+  // detect it, though, because then when the user manually selects regexp we
+  // can still warn if all the values for that field don't look like regular
+  // expressions.
+  if (fieldType === 'regex') {
+    return 'string';
+  }
+
+  return fieldType;
+}
+
 export function makeDocFromCSV(
   chunk: Record<string, string>,
   header: string[],
@@ -379,18 +392,22 @@ export function makeDocFromCSV(
 
     let type = included[fieldName];
     if (type === 'mixed') {
-      type = detectCSVFieldType(
-        original,
-        fieldName,
-        ignoreEmptyStrings
-      ) as CSVParsableFieldType;
+      type = overrideDetectedFieldType(
+        detectCSVFieldType(
+          original,
+          fieldName,
+          ignoreEmptyStrings
+        ) as CSVParsableFieldType
+      );
     }
     if (type === 'number') {
-      type = detectCSVFieldType(
-        original,
-        fieldName,
-        ignoreEmptyStrings
-      ) as CSVParsableFieldType;
+      type = overrideDetectedFieldType(
+        detectCSVFieldType(
+          original,
+          fieldName,
+          ignoreEmptyStrings
+        ) as CSVParsableFieldType
+      );
       if (!['int', 'long', 'double'].includes(type)) {
         throw new Error(
           `"${original}" is not a number (found "${type}") [Col ${index}]`

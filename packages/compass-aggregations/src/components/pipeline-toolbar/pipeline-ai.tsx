@@ -36,6 +36,7 @@ type PipelineAIProps = {
   didSucceed: boolean;
   isFetching: boolean;
   errorMessage?: string;
+  errorCode?: string;
   onCancelRequest(): void;
   isAggregationGeneratedFromQuery: boolean;
   onResetIsAggregationGeneratedFromQuery(): void;
@@ -51,6 +52,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   didSucceed,
   onCancelRequest,
   errorMessage,
+  errorCode,
   isAggregationGeneratedFromQuery,
   onResetIsAggregationGeneratedFromQuery,
 }) => {
@@ -77,6 +79,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       didSucceed={didSucceed}
       onCancelRequest={onCancelRequest}
       errorMessage={errorMessage}
+      errorCode={errorCode}
       isAggregationGeneratedFromQuery={isAggregationGeneratedFromQuery}
       onResetIsAggregationGeneratedFromQuery={
         onResetIsAggregationGeneratedFromQuery
@@ -97,6 +100,7 @@ const ConnectedPipelineAI = connect(
       isFetching: state.pipelineBuilder.aiPipeline.status === 'fetching',
       didSucceed: state.pipelineBuilder.aiPipeline.status === 'success',
       errorMessage: state.pipelineBuilder.aiPipeline.errorMessage,
+      errorCode: state.pipelineBuilder.aiPipeline.errorCode,
     };
   },
   {

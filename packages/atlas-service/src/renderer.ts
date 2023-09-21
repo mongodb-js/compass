@@ -146,12 +146,12 @@ export class AtlasService {
 
 export { AtlasSignIn } from './components/atlas-signin';
 
+export { AtlasServiceError } from './util';
 export type {
   AtlasUserInfo,
   AtlasUserConfig,
   IntrospectInfo,
   Token,
-  AtlasServiceError,
   AIQuery,
   AIAggregation,
 } from './util';

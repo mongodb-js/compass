@@ -130,18 +130,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   );
 
   useEffect(() => {
-    // Reset the name and definition when modal is closed.
-    if (!isModalOpen) {
+    if (isModalOpen) {
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
+    } else {
+      // Reset the name and definition when modal is closed.
+      setIndexName('');
+      setIndexDefinition('{}');
       setParsingError(undefined);
     }
-  }, [isModalOpen]);
-
-  useEffect(() => {
-    setIndexName(initialIndexName);
-    setIndexDefinition(initialIndexDefinition);
-  }, [initialIndexName, initialIndexDefinition]);
+  }, [isModalOpen, initialIndexName, initialIndexDefinition]);
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {
