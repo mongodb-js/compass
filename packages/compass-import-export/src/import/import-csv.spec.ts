@@ -1073,7 +1073,7 @@ function checkType(path: PathPart[], value: any, type: string) {
       break;
 
     case 'regex':
-      expect(value._bsontype, joinedPath).to.equal('BSONRegExp');
+      expect(typeof value, joinedPath).to.equal('string');
       break;
 
     case 'minKey':
