@@ -602,10 +602,9 @@ export const dropSearchIndex = (
 export const runAggregateSearchIndex = (
   name: string
 ): IndexesThunkAction<void> => {
-  return function (_dispatch, getState) {
+  return function (_dispatch, getState, { globalAppRegistry }) {
     const {
       searchIndexes: { indexes },
-      appRegistry: { globalAppRegistry },
       namespace,
     } = getState();
     const searchIndex = indexes.find((x) => x.name === name);
@@ -623,7 +622,7 @@ export const runAggregateSearchIndex = (
         },
       },
     ]);
-    globalAppRegistry.emit('search-indexes-run-aggregate', {
+    globalAppRegistry?.emit('search-indexes-run-aggregate', {
       ns: namespace,
       aggregation: {
         pipelineText: pipeline,

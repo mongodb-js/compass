@@ -259,14 +259,22 @@ describe('search-indexes module', function () {
   });
 
   it('runs aggreate for a search index', async function () {
-    await store.dispatch(fetchSearchIndexes());
-
     const emitSpy = sinon.spy();
-    sinon.replace(
-      store.getState().appRegistry.globalAppRegistry,
-      'emit',
-      emitSpy
+    const store = setupStore(
+      {
+        globalAppRegistry: {
+          on: sinon.spy(),
+          getStore: sinon.spy(),
+          emit: emitSpy,
+        } as any,
+      },
+      {
+        isConnected: () => true,
+        getSearchIndexes: () => Promise.resolve(searchIndexes),
+      }
     );
+
+    await store.dispatch(fetchSearchIndexes());
 
     store.dispatch(runAggregateSearchIndex('default'));
 

@@ -56,10 +56,6 @@ const configureStore = (options: ConfigureStoreOptions) => {
   const store = createStore(
     reducer,
     {
-      appRegistry: {
-        localAppRegistry: options.localAppRegistry,
-        globalAppRegistry: options.globalAppRegistry,
-      },
       dataService: options.dataProvider.dataProvider,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -71,7 +67,12 @@ const configureStore = (options: ConfigureStoreOptions) => {
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
     },
-    applyMiddleware(thunk.withExtraArgument({}))
+    applyMiddleware(
+      thunk.withExtraArgument({
+        localAppRegistry: options.localAppRegistry,
+        globalAppRegistry: options.globalAppRegistry,
+      })
+    )
   );
 
   // Set the app registry if preset. This must happen first.

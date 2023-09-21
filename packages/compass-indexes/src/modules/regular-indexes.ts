@@ -1,6 +1,5 @@
 import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { cloneDeep } from 'lodash';
@@ -231,10 +230,10 @@ const setError = (error: string | null): SetErrorAction => ({
 const _handleIndexesChanged = (
   indexes: RegularIndex[]
 ): IndexesThunkAction<void> => {
-  return (dispatch) => {
+  return (dispatch, _, { localAppRegistry }) => {
     dispatch(setRegularIndexes(indexes));
     dispatch(setIsRefreshing(false));
-    dispatch(localAppRegistryEmit('indexes-changed', indexes));
+    localAppRegistry?.emit('indexes-changed', indexes);
   };
 };
 
@@ -331,10 +330,27 @@ export const inProgressIndexFailed = ({
   error,
 });
 
-export const dropFailedIndex = (id: string): IndexesThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(inProgressIndexRemoved(id));
-    void dispatch(fetchIndexes());
+export const dropIndex = (name: string): IndexesThunkAction<void> => {
+  return (dispatch, getState, { localAppRegistry }) => {
+    const { indexes } = getState().regularIndexes;
+    const index = indexes.find((x) => x.name === name);
+
+    if (!index) {
+      return;
+    }
+
+    if (index.extra.status === 'failed') {
+      dispatch(inProgressIndexRemoved(index.id));
+      void dispatch(fetchIndexes());
+      return;
+    }
+    localAppRegistry?.emit('toggle-drop-index-modal', true, index.name);
+  };
+};
+
+export const showCreateModal = (): IndexesThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry?.emit('open-create-index-modal');
   };
 };
 
