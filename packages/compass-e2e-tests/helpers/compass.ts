@@ -518,6 +518,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // root without this flag
     '--no-sandbox',
 
+    // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
+    '--atlasServiceBackendPreset=atlas-dev',
+
     // chomedriver options
     // TODO: cant get this to work
     //`--log-path=${chromedriverLogPath}`,
