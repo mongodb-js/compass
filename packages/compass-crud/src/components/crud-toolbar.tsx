@@ -18,8 +18,8 @@ import {
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
-
 import { AddDataMenu } from './add-data-menu';
+import { usePreference } from 'compass-preferences-model';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -172,6 +172,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     [count, page]
   );
 
+  const enableExplainPlan = usePreference('enableExplainPlan', React);
+
   return (
     <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
@@ -183,7 +185,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             buttonLabel="Find"
             onApply={onApplyClicked}
             onReset={onResetClicked}
-            showExplainButton
+            showExplainButton={enableExplainPlan}
             insights={
               isCollectionScan
                 ? {

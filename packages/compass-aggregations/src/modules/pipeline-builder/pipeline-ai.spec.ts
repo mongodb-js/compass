@@ -122,6 +122,7 @@ describe('AIPipelineReducer', function () {
           status: 'ready',
           aiPromptText: '',
           errorMessage: undefined,
+          errorCode: undefined,
           isInputVisible: false,
           aiPipelineFetchId: -1,
           isAggregationGeneratedFromQuery: false,

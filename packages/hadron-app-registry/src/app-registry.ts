@@ -1,5 +1,4 @@
 import type { Store as RefluxStore } from 'reflux';
-import Reflux from 'reflux';
 import EventEmitter from 'eventemitter3';
 import { Actions } from './actions';
 
@@ -9,12 +8,6 @@ import { Actions } from './actions';
  * that we would expect.
  */
 const INT8_MAX = 127;
-
-/**
- * Returning a fake store when asking for a store that does not
- * exist.
- */
-const STUB_STORE = Reflux.createStore({});
 
 interface Role {
   name: string;
@@ -161,13 +154,8 @@ export class AppRegistry {
    *
    * @returns {Store} The store.
    */
-  getStore(name: string): Store {
-    const store = this.stores[name];
-    if (store === undefined) {
-      this.storeMisses[name] = (this.storeMisses[name] || 0) + 1;
-      return STUB_STORE;
-    }
-    return store;
+  getStore(name: string): Store | undefined {
+    return this.stores[name];
   }
 
   /**
@@ -386,5 +374,10 @@ export class AppRegistry {
     return aOrder - bOrder;
   }
 }
+
+/**
+ * Create a global app registry and prevent modification.
+ */
+export const globalAppRegistry = Object.freeze(new AppRegistry());
 
 export type { Role };

@@ -23,6 +23,10 @@ function getTopologyDescription(topologyDescription) {
 
 const store = createStore(reducer);
 
+store.getInstance = () => {
+  return store.getState().instance;
+};
+
 store.refreshInstance = async (globalAppRegistry, refreshOptions) => {
   const { instance, dataService } = store.getState();
 
@@ -247,6 +251,20 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
+  appRegistry.on('database-dropped', async () => {
+    const { instance, dataService } = store.getState();
+    await instance.fetchDatabases({ dataService, force: true });
+  });
+
+  appRegistry.on('collection-dropped', async (namespace) => {
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(namespace);
+    await instance.fetchDatabases({ dataService, force: true });
+    const db = instance.databases.get(database);
+    // If it was last collection, there will be no db returned
+    await db?.fetchCollections({ dataService, force: true });
+  });
+
   // Event emitted when the Databases grid needs to be refreshed
   // We additionally refresh the list of collections as well
   // since there is the side navigation which could be in expanded mode
@@ -268,7 +286,6 @@ store.onActivated = (appRegistry) => {
     if (!instance.databases.get(database)) {
       await instance.fetchDatabases({ dataService, force: true });
     }
-
     const db = instance.databases.get(database);
     if (db) {
       await db.fetchCollectionsDetails({ dataService, force: true });
@@ -297,37 +314,61 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('active-collection-dropped', async (ns) => {
-    const { instance, dataService } = store.getState();
-    const { database } = toNS(ns);
-    await store.fetchDatabaseDetails(database);
-    const db = instance.databases.get(database);
-    await db.fetchCollections({ dataService, force: true });
-
-    if (db.collectionsLength) {
-      appRegistry.emit('select-database', database);
-    } else {
-      appRegistry.emit('open-instance-workspace', 'Databases');
-    }
+  appRegistry.on('active-collection-dropped', (ns) => {
+    // This callback will fire after drop collection happened, we force it into
+    // a microtask to allow drop collections event handler to force start
+    // databases and collections list update before we run our check here
+    queueMicrotask(async () => {
+      const { instance, dataService } = store.getState();
+      const { database } = toNS(ns);
+      await instance.fetchDatabases({ dataService });
+      const db = instance.databases.get(database);
+      await db?.fetchCollections({ dataService });
+      if (db?.collectionsLength) {
+        appRegistry.emit('select-database', database);
+      } else {
+        appRegistry.emit('open-instance-workspace', 'Databases');
+      }
+    });
   });
 
   appRegistry.on('active-database-dropped', async () => {
     appRegistry.emit('open-instance-workspace', 'Databases');
   });
 
-  appRegistry.on('collections-list-select-collection', async ({ ns }) => {
+  /**
+   * Opens collection in the current active tab. No-op if currently open tab has
+   * the same namespace. Additional `query` and `agrregation` props can be
+   * passed with the namespace to open tab with initial query or aggregation
+   * pipeline
+   */
+  const openCollectionInSameTab = async ({ ns, ...extraMetadata }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
-  });
+    appRegistry.emit('select-namespace', {
+      ...metadata,
+      ...extraMetadata,
+    });
+  };
 
-  appRegistry.on('sidebar-select-collection', async ({ ns }) => {
-    const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
-  });
+  appRegistry.on('collections-list-select-collection', openCollectionInSameTab);
+  appRegistry.on('sidebar-select-collection', openCollectionInSameTab);
+  appRegistry.on(
+    'collection-workspace-select-namespace',
+    openCollectionInSameTab
+  );
+  appRegistry.on('collection-tab-select-collection', openCollectionInSameTab);
 
-  const openCollectionInNewTab = async ({ ns }) => {
+  /**
+   * Opens collection in a new tab. Additional `query` and `agrregation` props
+   * can be passed with the namespace to open tab with initial query or
+   * aggregation pipeline
+   */
+  const openCollectionInNewTab = async ({ ns, ...extraMetadata }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('open-namespace-in-new-tab', metadata);
+    appRegistry.emit('open-namespace-in-new-tab', {
+      ...metadata,
+      ...extraMetadata,
+    });
   };
 
   appRegistry.on('sidebar-open-collection-in-new-tab', openCollectionInNewTab);
@@ -335,8 +376,13 @@ store.onActivated = (appRegistry) => {
     'import-export-open-collection-in-new-tab',
     openCollectionInNewTab
   );
+  appRegistry.on(
+    'collection-workspace-open-collection-in-new-tab',
+    openCollectionInNewTab
+  );
+  appRegistry.on('my-queries-open-saved-item', openCollectionInNewTab);
 
-  appRegistry.on('sidebar-modify-view', async ({ ns }) => {
+  const openModifyView = async ({ ns, sameTab }) => {
     const coll = await store.fetchCollectionDetails(ns);
     if (coll.sourceId && coll.pipeline) {
       // `modify-view` is currently implemented in a way where we are basically
@@ -349,13 +395,21 @@ store.onActivated = (appRegistry) => {
       const metadata = await store.fetchCollectionMetadata(coll.sourceId);
       metadata.sourcePipeline = coll.pipeline;
       metadata.editViewName = coll.ns;
-      appRegistry.emit('open-namespace-in-new-tab', metadata);
+      appRegistry.emit(
+        sameTab ? 'select-namespace' : 'open-namespace-in-new-tab',
+        metadata
+      );
     } else {
       debug(
         'Tried to modify the view on a collection with required metadata missing',
         coll.toJSON()
       );
     }
+  };
+
+  appRegistry.on('sidebar-modify-view', openModifyView);
+  appRegistry.on('collection-tab-modify-view', ({ ns }) => {
+    openModifyView({ ns, sameTab: true });
   });
 
   appRegistry.on('sidebar-duplicate-view', async ({ ns }) => {
@@ -379,7 +433,6 @@ store.onActivated = (appRegistry) => {
     async function (namespace) {
       // Force-refresh specified namespace to update collections list and get
       // collection info / stats (in case of opening result collection we're
-
       // always assuming the namespace wasn't yet updated)
       await store.refreshNamespace(toNS(namespace));
       // Now we can get the metadata from already fetched collection and open a

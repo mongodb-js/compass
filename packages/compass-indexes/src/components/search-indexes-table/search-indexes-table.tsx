@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
@@ -18,7 +18,9 @@ import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
-  openModalForCreation,
+  pollSearchIndexes,
+  showCreateModal,
+  showUpdateModal,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
@@ -28,20 +30,25 @@ import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 
+const POLLING_INTERVAL = 5000;
+
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
+  onEditIndex: (name: string) => void;
   openCreateModal: () => void;
+  onPollIndexes: () => void;
   status: SearchIndexesStatus;
 };
 
 function isReadyStatus(status: SearchIndexesStatus) {
   return (
     status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === SearchIndexesStatuses.REFRESHING ||
+    status === SearchIndexesStatuses.POLLING
   );
 }
 
@@ -82,6 +89,7 @@ const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
   PENDING: BadgeVariant.Yellow,
   READY: BadgeVariant.Green,
   STALE: BadgeVariant.LightGray,
+  DELETING: BadgeVariant.Red,
 };
 
 function IndexStatus({
@@ -138,11 +146,13 @@ function SearchIndexDetails({
       className={searchIndexDetailsStyles}
       data-testid={`search-indexes-details-${indexName}`}
     >
-      {badges.map((badge) => (
-        <Badge key={badge.name} className={badge.className}>
-          {badge.name}
-        </Badge>
-      ))}
+      {badges.length === 0
+        ? '[empty]'
+        : badges.map((badge) => (
+            <Badge key={badge.name} className={badge.className}>
+              {badge.name}
+            </Badge>
+          ))}
     </div>
   );
 }
@@ -155,9 +165,18 @@ export const SearchIndexesTable: React.FunctionComponent<
   readOnly,
   onSortTable,
   openCreateModal,
+  onEditIndex,
   status,
   onDropIndex,
+  onPollIndexes,
 }) => {
+  useEffect(() => {
+    const id = setInterval(onPollIndexes, POLLING_INTERVAL);
+    return () => {
+      clearInterval(id);
+    };
+  }, [onPollIndexes]);
+
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -192,13 +211,20 @@ export const SearchIndexesTable: React.FunctionComponent<
           ),
         },
       ],
+      actions: (
+        <IndexActions
+          index={index}
+          onDropIndex={onDropIndex}
+          onEditIndex={onEditIndex}
+        />
+      ),
+      // TODO(COMPASS-7206): details for the nested row
       details: (
         <SearchIndexDetails
           indexName={index.name}
           definition={index.latestDefinition}
         />
       ),
-      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
     };
   });
 
@@ -223,7 +249,9 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
-  openCreateModal: openModalForCreation,
+  openCreateModal: showCreateModal,
+  onEditIndex: showUpdateModal,
+  onPollIndexes: pollSearchIndexes,
 };
 
 export default connect(

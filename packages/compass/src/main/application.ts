@@ -112,6 +112,7 @@ class CompassApplication {
     const config = {
       'compass-dev': {
         atlasApiBaseUrl: 'http://localhost:8080',
+        atlasApiUnauthBaseUrl: 'http://localhost:8080',
         atlasLogin: {
           clientId: '0oajzdcznmE8GEyio297',
           issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -120,6 +121,7 @@ class CompassApplication {
       },
       compass: {
         atlasApiBaseUrl: 'https://compass.mongodb.com',
+        atlasApiUnauthBaseUrl: 'https://compass.mongodb.com',
         atlasLogin: {
           clientId: '0oajzdcznmE8GEyio297',
           issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -128,6 +130,8 @@ class CompassApplication {
       },
       'atlas-dev': {
         atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+        atlasApiUnauthBaseUrl:
+          'https://cloud-dev.mongodb.com/api/private/unauth',
         atlasLogin: {
           clientId: '0oaq1le5jlzxCuTbu357',
           issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -136,6 +140,7 @@ class CompassApplication {
       },
       atlas: {
         atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+        atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
         atlasLogin: {
           clientId: '0oajzdcznmE8GEyio297',
           issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -149,6 +154,8 @@ class CompassApplication {
     const atlasServiceConfig = defaultsDeep(
       {
         atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
+        atlasApiUnauthBaseUrl:
+          process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
         atlasLogin: {
           clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
           issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,

@@ -3,14 +3,14 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, IconButton, TextInput } from '../leafygreen';
+import { Banner, Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
-import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
+import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
+import { BannerVariant } from '../..';
 
 const containerStyles = css({
   display: 'flex',
@@ -101,7 +101,7 @@ const buttonHighlightLightModeStyles = css({
 const loaderContainerStyles = css({
   padding: spacing[1],
   display: 'inline-flex',
-  width: DEFAULT_ROBOT_SIZE + spacing[2],
+  width: DEFAULT_AI_ENTRY_SIZE + spacing[2],
   justifyContent: 'space-around',
 });
 
@@ -114,8 +114,15 @@ const buttonResetStyles = css({
 });
 
 const closeAIButtonStyles = css(buttonResetStyles, focusRing, {
-  padding: spacing[1],
+  height: spacing[4] + spacing[1],
+  display: 'flex',
+  alignItems: 'center',
+  padding: `${spacing[1]}px ${spacing[2]}px`,
   position: 'absolute',
+});
+
+const aiEntryContainerStyles = css({
+  display: 'flex',
 });
 
 const closeText = 'Close AI Helper';
@@ -148,6 +155,7 @@ type GenerativeAIInputProps = {
   aiPromptText: string;
   didSucceed: boolean;
   errorMessage?: string;
+  errorCode?: string;
   isFetching?: boolean;
   placeholder?: string;
   show: boolean;
@@ -167,6 +175,7 @@ function GenerativeAIInput({
   aiPromptText,
   didSucceed,
   errorMessage,
+  errorCode,
   isFetching,
   placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
@@ -245,26 +254,6 @@ function GenerativeAIInput({
             }
             onKeyDown={onTextInputKeyDown}
           />
-          <button
-            className={closeAIButtonStyles}
-            data-testid="close-ai-button"
-            aria-label={closeText}
-            title={closeText}
-            onClick={() => onClose()}
-          >
-            <AIGuideCue
-              showGuideCue={isAggregationGeneratedFromQuery}
-              onCloseGuideCue={() => {
-                onResetIsAggregationGeneratedFromQuery?.();
-              }}
-              refEl={guideCueRef}
-              title="Aggregation generated"
-              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
-            />
-            <span ref={guideCueRef}>
-              <RobotSVG />
-            </span>
-          </button>
           <div className={floatingButtonsContainerStyles}>
             {isFetching ? (
               <div className={loaderContainerStyles}>
@@ -328,6 +317,26 @@ function GenerativeAIInput({
               )}
             </Button>
           </div>
+          <button
+            className={closeAIButtonStyles}
+            data-testid="close-ai-button"
+            aria-label={closeText}
+            title={closeText}
+            onClick={() => onClose()}
+          >
+            <AIGuideCue
+              showGuideCue={isAggregationGeneratedFromQuery}
+              onCloseGuideCue={() => {
+                onResetIsAggregationGeneratedFromQuery?.();
+              }}
+              refEl={guideCueRef}
+              title="Aggregation generated"
+              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+            />
+            <span className={aiEntryContainerStyles} ref={guideCueRef}>
+              <Icon glyph="Sparkle" />
+            </span>
+          </button>
         </div>
         {didSucceed && onSubmitFeedback && (
           <AIFeedback onSubmitFeedback={onSubmitFeedback} />
@@ -335,13 +344,94 @@ function GenerativeAIInput({
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
-          <ErrorSummary data-testid="ai-error-msg" errors={errorMessage}>
-            {errorMessage}
-          </ErrorSummary>
+          <Banner data-testid="ai-error-msg" variant={BannerVariant.Danger}>
+            <AIError errorCode={errorCode} errorMessage={errorMessage} />
+          </Banner>
         </div>
       )}
     </div>
   );
 }
+
+const AIError = ({
+  errorCode,
+  errorMessage,
+}: {
+  errorCode?: string;
+  errorMessage: string;
+}) => {
+  // NOTE: this error is not coming from the HTTP endpoint.
+  if (!errorCode) {
+    return <>{errorMessage}</>;
+  }
+
+  // NOTE: this should never happen in Data Explorer as the frontend update would happen
+  // in coordination with the api changes.
+  if (errorCode === 'NOT_SUPPORTED') {
+    return (
+      <>
+        Sorry, this version of Compass is no longer suitable to generate
+        queries. Please update to the latest version to access all the features.
+      </>
+    );
+  }
+
+  if (errorCode === 'USER_INPUT_TOO_LONG') {
+    return (
+      <>
+        Looks like your input exceeds the allowed length. Please reduce it and
+        submit your prompt again.
+      </>
+    );
+  }
+
+  if (errorCode === 'PROMPT_TOO_LONG') {
+    // TODO: https://jira.mongodb.org/browse/COMPASS-6866,
+    // the following errors are probably better handled at service or backend level, by retrying the
+    // call without the schema and additional parameters, since users are not
+    // able to fix the issue on their own it cases where the schema is too big.
+    return (
+      <>
+        Sorry, your collections have too many fields to process. Please try
+        using this feature on a collection with smaller documents.
+      </>
+    );
+  }
+
+  if (errorCode === 'TOO_MANY_REQUESTS') {
+    return (
+      <>
+        Sorry, we are receiving too many requests in a short period of time.
+        Please wait a few minutes and try again.
+      </>
+    );
+  }
+
+  if (errorCode === 'GATEWAY_TIMEOUT') {
+    return (
+      <>
+        It took too long to generate your query, please check your connection
+        and try again. If the problem persists, contact our support team.
+      </>
+    );
+  }
+
+  if (errorCode === 'QUERY_GENERATION_FAILED') {
+    return (
+      <>
+        Something went wrong, please try again later. If the error persists, try
+        changing your prompt.
+      </>
+    );
+  }
+
+  // We received an errorCode that is not actionable (INTERNAL_SERVER_ERROR, QUERY_GENERATION_FAILED), or unknown.
+  return (
+    <>
+      Something went wrong, please try again later. If the error persists,
+      contact our support team.
+    </>
+  );
+};
 
 export { GenerativeAIInput };

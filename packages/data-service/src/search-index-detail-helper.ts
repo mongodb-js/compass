@@ -5,7 +5,8 @@ export type SearchIndexStatus =
   | 'FAILED'
   | 'PENDING'
   | 'READY'
-  | 'STALE';
+  | 'STALE'
+  | 'DELETING';
 
 export type SearchIndex = {
   id: string;

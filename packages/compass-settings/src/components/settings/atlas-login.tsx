@@ -6,7 +6,6 @@ import {
   Icon,
   KeylineCard,
   Label,
-  MongoDBLogoMark,
   SpinLoader,
   Subtitle,
   Toggle,
@@ -106,11 +105,8 @@ export const AtlasLoginSettings: React.FunctionComponent<{
         )}
       >
         <Subtitle className={atlasLoginHeadingTitleStyles}>
-          <MongoDBLogoMark
-            color={darkMode ? 'white' : 'black'}
-            height={18}
-          ></MongoDBLogoMark>
-          <span>AI Query and Aggregation</span>
+          <Icon glyph="Sparkle" />
+          <span>Use Generative AI</span>
           <Badge variant="blue">Preview</Badge>
         </Subtitle>
         <div className={atlasLoginControlsStyles}>
@@ -166,8 +162,8 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             htmlFor="use-ai-toggle"
             className={atlasLoginToggleControlLabelStyles}
           >
-            Use AI to generate queries and aggregations with a natural language
-            text input on the query bar and aggregation page.
+            Enable natural language prompts to generate queries and
+            aggregations.
           </Label>
         </div>
         {isSignedIn && !isAIFeatureEnabled && (

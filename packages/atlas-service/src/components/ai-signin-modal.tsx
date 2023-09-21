@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Badge,
+  Body,
   Icon,
-  Link,
   MarketingModal,
   SpinLoader,
   css,
@@ -32,10 +32,6 @@ const titleDarkModeStyles = css({
   marginTop: spacing[4],
 });
 
-const descriptionStyles = css({
-  textAlign: 'start',
-});
-
 const descriptionDarkModeStyles = css({
   // Same as above, adjusting dark mode that is for no good reason is different
   // from light mode
@@ -44,18 +40,7 @@ const descriptionDarkModeStyles = css({
 });
 
 const paragraphStyles = css({
-  margin: 0,
-  '&:not(:last-child)': {
-    marginBottom: spacing[3],
-  },
-});
-
-const badgeStyles = css({
-  verticalAlign: 'super',
-});
-
-const linkStyles = css({
-  display: 'inline',
+  marginBottom: spacing[2],
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
@@ -70,14 +55,11 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
     <MarketingModal
       darkMode={darkMode}
       graphic={<AISignInImageBanner></AISignInImageBanner>}
-      // @ts-expect-error leafygreen only allows strings, but we need to pass
-      // badge component
+      // @ts-expect-error leafygreen only allows strings, but we
+      // override styles.
       title={
         <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
-          Build faster with AI&nbsp;
-          <Badge className={badgeStyles} variant="blue">
-            Experimental
-          </Badge>
+          Use natural language to generate queries and pipelines
         </div>
       }
       open={isSignInModalVisible}
@@ -109,24 +91,13 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       linkText="Not now"
       onLinkClick={onSignInModalClose}
     >
-      <div
-        className={cx(descriptionStyles, darkMode && descriptionDarkModeStyles)}
-      >
-        <p className={paragraphStyles}>
-          Atlas users can now quickly generate queries and aggregations with
-          MongoDB’s AI-powered features, available today in Compass.
-        </p>
-        <p className={paragraphStyles}>
-          To understand how your data is used with AI partners,{' '}
-          <Link
-            className={linkStyles}
-            href="https://www.mongodb.com/docs/compass/current/faq/#how-do-i-view-and-modify-my-privacy-settings-"
-            hideExternalIcon={true}
-          >
-            learn more in the docs
-          </Link>
-          .
-        </p>
+      <div className={cx(darkMode && descriptionDarkModeStyles)}>
+        <Body className={paragraphStyles}>
+          Atlas users can now quickly create queries and aggregations with
+          MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
+          in Compass.
+        </Body>
+        <Badge variant="blue">Preview</Badge>
       </div>
     </MarketingModal>
   );

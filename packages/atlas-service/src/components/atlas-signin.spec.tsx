@@ -98,8 +98,7 @@ describe('AtlasSignIn', function () {
       await store.dispatch(signIn());
       const enableAIFeaturePromise = store.dispatch(enableAIFeature());
 
-      expect(screen.getByText(/Your usage of this feature is subject to/)).to
-        .exist;
+      expect(screen.getByText(/usage of it is subject to/)).to.exist;
 
       userEvent.click(
         screen.getByRole('button', { name: /Agree and continue/ })
@@ -116,8 +115,7 @@ describe('AtlasSignIn', function () {
       await store.dispatch(signIn());
       const enableAIFeaturePromise = store.dispatch(enableAIFeature());
 
-      expect(screen.getByText(/Your usage of this feature is subject to/)).to
-        .exist;
+      expect(screen.getByText(/usage of it is subject to/)).to.exist;
 
       userEvent.click(screen.getByRole('button', { name: /Cancel/ }));
 

@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
+    enableAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -47,6 +48,11 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
     atlasServiceConfigPreset: 'compass-dev' | 'compass' | 'atlas-dev' | 'atlas';
+    // Features that are enabled by default in Compass, but are disabled in Data
+    // Explorer
+    enableExplainPlan: boolean;
+    enableImportExport: boolean;
+    enableAggregationBuilderRunPipeline: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -408,7 +414,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable MongoDB Shell',
-      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+      long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
@@ -427,6 +433,18 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  enableAIFeatures: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -617,10 +635,9 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   /**
    * Chooses atlas service backend configuration from preset
-   *  - compas-dev: locally running compass kanopy backend (localhost)
+   *  - compass-dev: locally running compass kanopy backend (localhost)
    *  - compass:    compass kanopy backend (compass.mongodb.com)
    *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
    *  - atlas:      mms backend (cloud.mongodb.com)
@@ -634,8 +651,41 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
-      .default('compass'),
+      .default('atlas-dev'),
     type: 'string',
+  },
+
+  enableImportExport: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable import / export feature',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableAggregationBuilderRunPipeline: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable "Run Pipeline" feature in aggregation builder',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableExplainPlan: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable explain plan feature in CRUD and aggregation view',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,
@@ -1009,6 +1059,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
+        enableAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
