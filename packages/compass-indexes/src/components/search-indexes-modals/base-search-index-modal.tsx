@@ -165,9 +165,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const onChangeTemplate = useCallback(
     (template: SearchTemplate) => {
-      editorRef.current?.applySnippet(template.snippet);
       rafraf(() => {
         editorRef.current?.focus();
+        editorRef.current?.applySnippet(template.snippet);
+        editorRef.current?.prettify();
       });
     },
     [editorRef]
