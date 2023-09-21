@@ -6,16 +6,23 @@ import type { SearchIndex } from 'mongodb-data-service';
 type IndexActionsProps = {
   index: SearchIndex;
   onDropIndex: (name: string) => void;
+  onEditIndex: (name: string) => void;
 };
 
-type SearchIndexAction = 'drop';
+type SearchIndexAction = 'drop' | 'edit';
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   onDropIndex,
+  onEditIndex,
 }) => {
   const indexActions: GroupedItemAction<SearchIndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<SearchIndexAction>[] = [
+      {
+        action: 'edit',
+        label: `Edit Index ${index.name}`,
+        icon: 'Edit',
+      },
       {
         action: 'drop',
         label: `Drop Index ${index.name}`,
@@ -29,10 +36,12 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: SearchIndexAction) => {
       if (action === 'drop') {
-        void onDropIndex(index.name);
+        onDropIndex(index.name);
+      } else if (action === 'edit') {
+        onEditIndex(index.name);
       }
     },
-    [onDropIndex, index]
+    [onDropIndex, onEditIndex, index]
   );
 
   return (

@@ -64,5 +64,3 @@ export * from './create-index';
 export * from './drop-index';
 export * from './hide-index';
 export * from './unhide-index';
-export * from './create-search-index';
-export * from './drop-search-index';

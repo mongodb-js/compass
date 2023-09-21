@@ -158,7 +158,9 @@ describe('Collection ai query', function () {
         Selectors.QueryBarAIErrorMessageBanner
       );
       await errorBanner.waitForDisplayed();
-      expect(await errorBanner.getText()).to.equal('500 Internal Server Error');
+      expect(await errorBanner.getText()).to.equal(
+        'Something went wrong, please try again later. If the error persists, contact our support team.'
+      );
     });
   });
 });

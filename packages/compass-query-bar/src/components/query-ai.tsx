@@ -49,6 +49,7 @@ const ConnectedQueryAI = connect(
       isFetching: state.aiQuery.status === 'fetching',
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
+      errorCode: state.aiQuery.errorCode,
     };
   },
   {

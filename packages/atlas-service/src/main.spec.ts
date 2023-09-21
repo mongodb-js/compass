@@ -299,7 +299,7 @@ describe('AtlasServiceMain', function () {
         } catch (err) {
           expect(err).to.have.property(
             'message',
-            'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+            'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
           );
         }
       });
@@ -339,6 +339,7 @@ describe('AtlasServiceMain', function () {
           ok: false,
           status: 500,
           statusText: 'Internal Server Error',
+          json: sandbox.stub().rejects(new Error('invalid json')),
         }) as any;
 
         try {
@@ -349,7 +350,7 @@ describe('AtlasServiceMain', function () {
           });
           expect.fail(`Expected ${functionName} to throw`);
         } catch (err) {
-          expect(err).to.have.property('message', '500 Internal Server Error');
+          expect(err).to.have.property('message', '500: Internal Server Error');
         }
       });
     });
@@ -367,7 +368,7 @@ describe('AtlasServiceMain', function () {
       });
     });
 
-    it('should throw network error if res is not ok', async function () {
+    it('should throw network error if res is not an atlas error', async function () {
       try {
         await throwIfNotOk({
           ok: false,
@@ -380,7 +381,7 @@ describe('AtlasServiceMain', function () {
         expect.fail('Expected throwIfNotOk to throw');
       } catch (err) {
         expect(err).to.have.property('name', 'NetworkError');
-        expect(err).to.have.property('message', '500 Whoops');
+        expect(err).to.have.property('message', '500: Whoops');
       }
     });
 
@@ -402,6 +403,9 @@ describe('AtlasServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('name', 'ServerError');
         expect(err).to.have.property('message', 'ExampleCode: tortillas');
+        expect(err).to.have.property('detail', 'tortillas');
+        expect(err).to.have.property('errorCode', 'ExampleCode');
+        expect(err).to.have.property('statusCode', 500);
       }
     });
   });

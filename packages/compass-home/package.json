@@ -71,6 +71,7 @@
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",
     "mocha": "^10.2.0",
+    "mongodb-collection-model": "^5.11.0",
     "mongodb-data-service": "^22.11.0",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",

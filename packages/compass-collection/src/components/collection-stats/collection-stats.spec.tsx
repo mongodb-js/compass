@@ -1,35 +1,14 @@
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-
 import CollectionStats from '../collection-stats';
 
 describe('CollectionStats [Component]', function () {
-  beforeEach(function () {
-    (window as any).hadronApp = {
-      appRegistry: new AppRegistry(),
-    };
-  });
-
-  afterEach(function () {
-    delete (window as any).hadronApp;
-  });
-
   describe('when rendered', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      render(
-        <CollectionStats
-          documentCount=""
-          storageSize=""
-          avgDocumentSize=""
-          indexCount=""
-          totalIndexSize=""
-          avgIndexSize=""
-        />
-      );
+      render(<CollectionStats stats={null} />);
     });
 
     it('renders the correct root classname', function () {
@@ -46,17 +25,7 @@ describe('CollectionStats [Component]', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      render(
-        <CollectionStats
-          isTimeSeries={true}
-          documentCount=""
-          storageSize=""
-          avgDocumentSize=""
-          indexCount=""
-          totalIndexSize=""
-          avgIndexSize=""
-        />
-      );
+      render(<CollectionStats isTimeSeries={true} stats={null} />);
     });
 
     it('does not render the document stats', function () {

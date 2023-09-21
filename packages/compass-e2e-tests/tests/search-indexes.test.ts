@@ -45,6 +45,96 @@ function getRandomNumber() {
   return Math.floor(Math.random() * 2 ** 20);
 }
 
+async function createSearchIndex(
+  browser: CompassBrowser,
+  indexName: string,
+  indexDefinition: string
+): Promise<void> {
+  await browser.clickVisible(Selectors.CreateIndexDropdownButton);
+  await browser
+    .$(Selectors.createIndexDropdownAction('search-indexes'))
+    .waitForDisplayed();
+  await browser.clickVisible(
+    Selectors.createIndexDropdownAction('search-indexes')
+  );
+
+  const modal = await browser.$(Selectors.SearchIndexModal);
+  await modal.waitForDisplayed();
+
+  await browser.setValueVisible(Selectors.SearchIndexName, indexName);
+  await browser.setCodemirrorEditorValue(
+    Selectors.SearchIndexDefinition,
+    indexDefinition
+  );
+
+  await browser.clickVisible(Selectors.SearchIndexConfirmButton);
+  await modal.waitForDisplayed({ reverse: true });
+}
+
+async function updateSearchIndex(
+  browser: CompassBrowser,
+  indexName: string,
+  indexDefinition: string
+) {
+  const indexRowSelector = Selectors.searchIndexRow(indexName);
+  const indexRow = await browser.$(indexRowSelector);
+  await indexRow.waitForDisplayed();
+
+  await browser.hover(indexRowSelector);
+  await browser.clickVisible(Selectors.searchIndexEditButton(indexName));
+
+  const modal = await browser.$(Selectors.SearchIndexModal);
+  await modal.waitForDisplayed();
+
+  await browser.setCodemirrorEditorValue(
+    Selectors.SearchIndexDefinition,
+    indexDefinition
+  );
+
+  await browser.clickVisible(Selectors.SearchIndexConfirmButton);
+  await modal.waitForDisplayed({ reverse: true });
+}
+
+async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
+  const indexRowSelector = Selectors.searchIndexRow(indexName);
+  const indexRow = await browser.$(indexRowSelector);
+  await indexRow.waitForDisplayed();
+
+  await browser.hover(indexRowSelector);
+  await browser.clickVisible(Selectors.searchIndexDropButton(indexName));
+
+  const modal = await browser.$(Selectors.ConfirmationModal);
+  await modal.waitForDisplayed();
+
+  const confirmInput = await browser.$(Selectors.ConfirmationModalInput);
+  await confirmInput.waitForDisplayed();
+  await confirmInput.setValue(indexName);
+
+  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+  await modal.waitForDisplayed({ reverse: true });
+
+  await browser.waitUntil(async () => {
+    return await indexRow.waitForExist({ reverse: true });
+  });
+}
+
+async function verifyIndexDetails(
+  browser: CompassBrowser,
+  indexName: string,
+  details: string
+) {
+  const indexRowSelector = Selectors.searchIndexRow(indexName);
+  const indexRow = await browser.$(indexRowSelector);
+  await indexRow.waitForDisplayed();
+  await browser.hover(indexRowSelector);
+  await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
+
+  const text = await browser
+    .$(Selectors.searchIndexDetails(indexName))
+    .getText();
+  expect(text.toLowerCase()).to.equal(details.toLowerCase());
+}
+
 describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -161,24 +251,47 @@ describe('Search Indexes', function () {
         await browser.clickVisible(
           Selectors.indexesSegmentedTab('search-indexes')
         );
-        await browser.createSearchIndex(indexName, INDEX_DEFINITION);
+        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
         await browser.waitForAnimations(Selectors.SearchIndexList);
 
-        const rowSelector = Selectors.searchIndexRow(indexName);
-
-        // View it
-        await browser.$(rowSelector).waitForDisplayed();
-        await browser.waitUntil(async function () {
-          const text = await browser.$(rowSelector).getText();
-          return text.indexOf('PENDING') > -1;
-        });
+        // Verify it was added.
+        // As we added index definition with no fields and only
+        // dynamic mapping, the details should display 'Dynamic Mappings'
+        await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
 
         // Drop it
-        await browser.dropSearchIndex(indexName);
-        // todo: check the index status to be either DELETING or the row disappears
+        await dropSearchIndex(browser, indexName);
       });
 
-      it('allows users to update and view search indexes');
+      it('allows users to update and view search indexes', async function () {
+        const indexName = `e2e_search_index_${getRandomNumber()}`;
+        await browser.clickVisible(
+          Selectors.indexesSegmentedTab('search-indexes')
+        );
+        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
+        await browser.waitForAnimations(Selectors.SearchIndexList);
+
+        // Verify it was added.
+        // As we added index definition with no fields and only
+        // dynamic mapping, the details should display 'Dynamic Mappings'
+        await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
+
+        // Edit it
+        await updateSearchIndex(
+          browser,
+          indexName,
+          JSON.stringify({
+            mappings: {
+              dynamic: false,
+            },
+          })
+        );
+
+        // Verify its updating/updated.
+        // As we set the new definition to have no dynamic mappings
+        // with no fields, the index details should have '[empty]' value.
+        await verifyIndexDetails(browser, indexName, '[empty]');
+      });
       it('runs a search aggregation with index name');
     });
   }

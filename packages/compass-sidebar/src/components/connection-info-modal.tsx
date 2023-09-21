@@ -4,7 +4,6 @@ import { InfoModal, Body, css, spacing } from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { ConnectionOptions } from '../modules/connection-options';
-import { ENTERPRISE, COMMUNITY } from '../constants/server-version';
 
 type Collection = {
   id: string;
@@ -83,13 +82,29 @@ export function ConnectionInfoModal({
   );
 }
 
-function getVersionDistro(isEnterprise?: boolean): string {
+function getVersionDistro({
+  isEnterprise,
+  isAtlas,
+  isLocalAtlas,
+}: {
+  isEnterprise?: boolean;
+  isAtlas?: boolean;
+  isLocalAtlas?: boolean;
+}): string {
+  if (isAtlas) {
+    return 'Atlas';
+  }
+
+  if (isLocalAtlas) {
+    return 'AtlasLocalDev';
+  }
+
   // it is unknown until instance details are loaded
   if (typeof isEnterprise === 'undefined') {
     return '';
   }
 
-  return isEnterprise ? ENTERPRISE : COMMUNITY;
+  return isEnterprise ? 'Enterprise' : 'Community';
 }
 
 type InfoParameters = {
@@ -192,9 +207,11 @@ function getVersionInfo({ instance }: InfoParameters): ConnectionInfo {
     term: 'Edition',
     description: instance.dataLake.isDataLake
       ? `Atlas Data Federation ${instance.dataLake.version ?? ''}`
-      : `MongoDB ${instance.build.version} ${getVersionDistro(
-          instance.build.isEnterprise
-        )}`,
+      : `MongoDB ${instance.build.version} ${getVersionDistro({
+          isEnterprise: instance.build.isEnterprise,
+          isLocalAtlas: instance.isLocalAtlas,
+          isAtlas: instance.isAtlas,
+        })}`,
   };
 }
 

@@ -1,12 +1,15 @@
 import { expect } from 'chai';
 import {
   SearchIndexesStatuses,
-  closeModal,
-  openModalForCreation,
-  saveIndex,
-  fetchSearchIndexes,
+  closeCreateModal,
+  showCreateModal,
+  createIndex,
+  refreshSearchIndexes as fetchSearchIndexes,
   sortSearchIndexes,
   dropSearchIndex,
+  showUpdateModal,
+  closeUpdateModal,
+  updateIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -25,10 +28,12 @@ describe('search-indexes module', function () {
   beforeEach(function () {
     dataProvider = {
       createSearchIndex: sinon.spy(),
+      updateSearchIndex: sinon.spy(),
     };
 
     store = setupStore(
       {
+        namespace: 'citibike.trips',
         isSearchIndexesSupported: true,
       },
       dataProvider
@@ -59,7 +64,7 @@ describe('search-indexes module', function () {
       store.dispatch(fetchSearchIndexes);
 
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
     });
 
     it('does nothing if there is no dataService', function () {
@@ -70,7 +75,7 @@ describe('search-indexes module', function () {
 
     it('fetches the indexes', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
       await store.dispatch(fetchSearchIndexes());
 
@@ -80,7 +85,7 @@ describe('search-indexes module', function () {
 
     it('sets the status to REFRESHING if the status is READY', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
       await store.dispatch(fetchSearchIndexes());
 
@@ -122,7 +127,11 @@ describe('search-indexes module', function () {
           name: 'default',
           status: 'READY',
           queryable: true,
-          latestDefinition: {},
+          latestDefinition: {
+            mappings: {
+              dynamic: false,
+            },
+          },
         },
       ]);
       expect(state.searchIndexes.sortColumn).to.equal('Name and Fields');
@@ -167,7 +176,11 @@ describe('search-indexes module', function () {
           name: 'default',
           status: 'READY',
           queryable: true,
-          latestDefinition: {},
+          latestDefinition: {
+            mappings: {
+              dynamic: false,
+            },
+          },
         },
         {
           id: '2',
@@ -180,21 +193,74 @@ describe('search-indexes module', function () {
     });
   });
 
-  it('opens the modal for creation', function () {
-    store.dispatch(openModalForCreation());
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+  context('create search index', function () {
+    it('opens the modal for creation', function () {
+      store.dispatch(showCreateModal());
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+    });
+
+    it('closes an open modal for creation', function () {
+      store.dispatch(showCreateModal());
+      store.dispatch(closeCreateModal());
+      expect(
+        store.getState().searchIndexes.createIndex.isModalOpen
+      ).to.be.false;
+    });
+
+    it('creates the index when data is valid', async function () {
+      await store.dispatch(createIndex('indexName', {}));
+      expect(
+        store.getState().searchIndexes.createIndex.isModalOpen
+      ).to.be.false;
+      expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+    });
   });
 
-  it('closes an open modal', function () {
-    store.dispatch(openModalForCreation());
-    store.dispatch(closeModal());
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
-  });
+  context('update search index', function () {
+    const UPDATE_INDEX = searchIndexes[0];
+    beforeEach(async function () {
+      await store.dispatch(fetchSearchIndexes());
+      store.dispatch(showUpdateModal(UPDATE_INDEX.name));
+    });
+    it('closes an open modal for update', function () {
+      store.dispatch(closeUpdateModal());
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+    });
 
-  it('creates the index when data is valid', async function () {
-    await store.dispatch(saveIndex('indexName', {}));
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
-    expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+    it('updates the index when data is valid and does not match existing definition', async function () {
+      await store.dispatch(
+        updateIndex(UPDATE_INDEX.name, { something: 'else' })
+      );
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(1);
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).firstCall.args
+      ).to.deep.equal([
+        'citibike.trips',
+        UPDATE_INDEX.name,
+        {
+          something: 'else',
+        },
+      ]);
+    });
+
+    it('does not update the index when data is valid and matches existing definition', async function () {
+      await store.dispatch(
+        updateIndex(UPDATE_INDEX.name, UPDATE_INDEX.latestDefinition)
+      );
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(0);
+    });
   });
 
   context('drop search index', function () {

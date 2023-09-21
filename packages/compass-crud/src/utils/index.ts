@@ -18,17 +18,28 @@ export const fieldStringLen = (value: unknown) => {
   return length === 0 ? 1 : length;
 };
 
-export function hasArrayOfLength(el: Document | Element, len = 250) {
+export function shouldShowUnboundArrayInsight(
+  el: Document | Element,
+  thresholdLength = 250
+) {
   if (el.isRoot() || el.currentType === 'Object') {
     for (const child of el.elements ?? []) {
-      if (hasArrayOfLength(child, len)) {
+      if (shouldShowUnboundArrayInsight(child, thresholdLength)) {
         return true;
       }
     }
     return false;
   }
   if (el.currentType === 'Array') {
-    return (el.elements?.size ?? 0) >= len;
+    return (
+      el.elements &&
+      el.elements.size >= thresholdLength &&
+      el.elements.some((el) => {
+        return ['Object', 'Document', 'ObjectId', 'String'].includes(
+          el.currentType
+        );
+      })
+    );
   }
   return false;
 }
@@ -46,7 +57,7 @@ export function getInsightsForDocument(
     insights.push(PerformanceSignals.get('bloated-document'));
   }
 
-  if (hasArrayOfLength(doc, 250)) {
+  if (shouldShowUnboundArrayInsight(doc)) {
     insights.push(PerformanceSignals.get('unbound-array'));
   }
 

@@ -74,6 +74,7 @@ describe('SidebarStore [Store]', function () {
               isGenuine: true,
             },
             isAtlas: false,
+            isLocalAtlas: false,
             isWritable: false,
             refreshingStatus: 'initial',
             topologyDescription: {
