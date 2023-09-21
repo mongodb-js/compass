@@ -4,7 +4,7 @@ import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import React from 'react';
@@ -112,11 +112,13 @@ describe('Create Search Index Modal', function () {
       );
       userEvent.click(staticFieldMappingOption);
 
-      const indexDef = getCodemirrorEditorValue('definition-of-search-index');
+      await waitFor(() => {
+        const indexDef = getCodemirrorEditorValue('definition-of-search-index');
 
-      expect(indexDef).to.equal(
-        normalizedTemplateNamed('Static field mappings')
-      );
+        expect(indexDef).to.equal(
+          normalizedTemplateNamed('Static field mappings')
+        );
+      });
     });
   });
 });
