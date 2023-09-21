@@ -845,6 +845,18 @@ export class ElementList implements Iterable<Element> {
     });
   }
 
+  some(
+    predicate: (value: Element, index: number, array: Element[]) => unknown
+  ): boolean {
+    return this.elements.some(predicate);
+  }
+
+  every(
+    predicate: (value: Element, index: number, array: Element[]) => unknown
+  ): boolean {
+    return this.elements.every(predicate);
+  }
+
   get firstElement(): Element | undefined {
     return this.elements[0];
   }
