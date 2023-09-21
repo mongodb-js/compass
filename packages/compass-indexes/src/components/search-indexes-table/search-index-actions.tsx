@@ -4,6 +4,7 @@ import {
   Button,
   ItemActionGroup,
   css,
+  cx,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { SearchIndex } from 'mongodb-data-service';
@@ -59,7 +60,11 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
 
   return (
     <div className={actionGroupStyles}>
-      <Button size="xsmall" onClick={() => onRunAggregateIndex(index.name)}>
+      <Button
+        className={cx([!index.queryable && css({ visibility: 'hidden' })])}
+        size="xsmall"
+        onClick={() => onRunAggregateIndex(index.name)}
+      >
         Aggregate
       </Button>
       <ItemActionGroup<SearchIndexAction>
