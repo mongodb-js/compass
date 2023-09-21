@@ -16,17 +16,15 @@ import {
   ErrorSummary,
   Body,
   Banner,
+  rafraf,
 } from '@mongodb-js/compass-components';
-import {
-  CodemirrorMultilineEditor,
-  EditorRef,
-} from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import { rafraf } from '@mongodb-js/compass-components';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
