@@ -1,3 +1,4 @@
+import { ATLAS_SEARCH_TEMPLATES } from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
@@ -8,6 +9,15 @@ import userEvent from '@testing-library/user-event';
 
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+
+function normalizedTemplateNamed(name: string) {
+  const snippet =
+    ATLAS_SEARCH_TEMPLATES.find((t) => t.name === name)?.snippet || '';
+  // code mirror 'changes' the template placeholders, so let's do the same
+  // this regexp removes `tab` markers to their default value, for example:
+  // ${1:default} => default
+  return snippet.replace(/\${\d:([<>a-z ]+)}/gm, '$1');
+}
 
 describe('Create Search Index Modal', function () {
   let onSubmitSpy: SinonSpy;
@@ -86,6 +96,27 @@ describe('Create Search Index Modal', function () {
 
       userEvent.click(submitButton);
       expect(onSubmitSpy).to.have.been.calledOnceWithExactly('default', {});
+    });
+  });
+
+  describe('templates', function () {
+    it('replaces the contents of the index editor when a template is selected', async function () {
+      const dropDown = screen
+        .getByText('Dynamic field mappings')
+        .closest('button')!;
+
+      userEvent.click(dropDown);
+
+      const staticFieldMappingOption = await screen.findByText(
+        'Static field mappings'
+      );
+      userEvent.click(staticFieldMappingOption);
+
+      const indexDef = getCodemirrorEditorValue('definition-of-search-index');
+
+      expect(indexDef).to.equal(
+        normalizedTemplateNamed('Static field mappings')
+      );
     });
   });
 });

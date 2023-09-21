@@ -50,7 +50,7 @@ const templateToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[3],
-  overflow: 'auto',
+  overflow: 'hidden',
   padding: spacing[1],
 });
 
@@ -240,7 +240,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               </Link>
             </div>
             <div className={templateToolbarDropdownStyles}>
-              <SearchIndexTemplateDropdown onTemplate={onChangeTemplate} />
+              <SearchIndexTemplateDropdown
+                tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                onTemplate={onChangeTemplate}
+              />
             </div>
           </section>
           <CodemirrorMultilineEditor

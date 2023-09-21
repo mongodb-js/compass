@@ -19,7 +19,12 @@ describe('Search Index Template Dropdown', function () {
   beforeEach(function () {
     onTemplateSpy = sinon.spy();
 
-    render(<SearchIndexTemplateDropdown onTemplate={onTemplateSpy} />);
+    render(
+      <SearchIndexTemplateDropdown
+        tooltip="Tooltip"
+        onTemplate={onTemplateSpy}
+      />
+    );
   });
 
   afterEach(cleanup);
