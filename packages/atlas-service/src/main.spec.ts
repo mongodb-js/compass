@@ -124,7 +124,9 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
       expect(userInfo).to.have.property('sub', '1234');
     });
 
@@ -139,7 +141,42 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
+    });
+
+    it('should fail with oidc-plugin error first if auth failed', async function () {
+      AtlasService['fetch'] = sandbox.stub().resolves({
+        ok: false,
+        json: sandbox.stub().rejects(),
+        status: 401,
+        statusText: 'Unauthorized',
+      });
+      AtlasService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            REQUEST_TOKEN_CALLBACK: sandbox
+              .stub()
+              .rejects(
+                new Error(
+                  'Failed to request token for some specific plugin reason'
+                )
+              ),
+            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
+          },
+        },
+      } as any;
+
+      try {
+        await AtlasService.signIn();
+        expect.fail('Expected AtlasService.signIn to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'Failed to request token for some specific plugin reason'
+        );
+      }
     });
   });
 

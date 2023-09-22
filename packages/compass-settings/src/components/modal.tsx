@@ -76,7 +76,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 
   if (isOIDCEnabled) {
     settings.push({
-      name: 'OIDC (Preview)',
+      name: 'OIDC and Atlas Login (Preview)',
       component: OIDCSettings,
     });
   }
@@ -133,7 +133,12 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isOIDCEnabled: !!state.settings.settings.enableOidc,
+      isOIDCEnabled:
+        !!state.settings.settings.enableOidc ||
+        // because oidc options overlap with atlas login used for ai feature
+        !!state.settings.settings.enableAIWithoutRolloutAccess ||
+        !!state.settings.settings.enableAIExperience ||
+        !!state.settings.settings.enableAIFeatures,
       hasChangedSettings: state.settings.updatedFields.length > 0,
     };
   },
