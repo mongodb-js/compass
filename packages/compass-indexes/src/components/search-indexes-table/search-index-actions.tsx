@@ -61,6 +61,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   return (
     <div className={actionGroupStyles}>
       <Button
+        data-testid="search-index-actions-aggregate-action"
         className={cx([!index.queryable && css({ visibility: 'hidden' })])}
         size="xsmall"
         onClick={() => onRunAggregateIndex(index.name)}

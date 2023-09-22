@@ -339,6 +339,7 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
       return;
     }
 
+    // todo: fix this
     if (index.extra.status === 'failed') {
       dispatch(inProgressIndexRemoved(index.id));
       void dispatch(fetchIndexes());
