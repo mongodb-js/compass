@@ -168,7 +168,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       rafraf(() => {
         editorRef.current?.focus();
         editorRef.current?.applySnippet(template.snippet);
-        editorRef.current?.prettify();
       });
     },
     [editorRef]

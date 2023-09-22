@@ -6,19 +6,45 @@ import {
   Option,
   Icon,
   css,
-  spacing,
   Tooltip,
 } from '@mongodb-js/compass-components';
 
-const dropdownStyles = css({
+const dropdownLabelStyles = css({
   display: 'flex',
-  overflow: 'hidden',
-  gap: 0,
+  pointerEvents: 'auto', // leafy green specifies none in the label, which is wrong
 });
 
-const overlapDropdownLabelStyles = css({
-  marginLeft: -spacing[3],
+const fillParentStyles = css({
+  flexGrow: 1,
 });
+
+type SearchIndexTemplateDropdownLabelProps = {
+  label: string;
+  tooltip: string;
+};
+
+const SearchIndexTemplateDropdownLabel: React.FunctionComponent<
+  SearchIndexTemplateDropdownLabelProps
+> = ({ label, tooltip }) => (
+  <div className={dropdownLabelStyles}>
+    <span className={fillParentStyles}>{label}</span>
+    <Tooltip
+      align="right"
+      triggerEvent="hover"
+      trigger={({ children, ...props }) => (
+        <div {...props}>
+          <Icon
+            data-testid="search-template-info-icon"
+            glyph="InfoWithCircle"
+          />
+          {children}
+        </div>
+      )}
+    >
+      {tooltip}
+    </Tooltip>
+  </div>
+);
 
 type SearchIndexTemplateDropdownProps = {
   tooltip: string;
@@ -39,36 +65,24 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
   );
 
   return (
-    <section className={dropdownStyles}>
-      <Select
-        value={templateValue}
-        allowDeselect={false}
-        onChange={onChooseTemplate}
-        label={'Template'}
-      >
-        {ATLAS_SEARCH_TEMPLATES.map((template, idx) => (
-          <Option key={idx} value={`${idx}`}>
-            {template.name}
-          </Option>
-        ))}
-      </Select>
-      <Tooltip
-        align="right"
-        triggerEvent="hover"
-        trigger={({ children, ...props }) => (
-          <>
-            {children}
-            <Icon
-              {...props}
-              data-testid="search-template-info-icon"
-              className={overlapDropdownLabelStyles}
-              glyph="InfoWithCircle"
-            />
-          </>
-        )}
-      >
-        {tooltip}
-      </Tooltip>
-    </section>
+    <Select
+      value={templateValue}
+      allowDeselect={false}
+      onChange={onChooseTemplate}
+      label={
+        (
+          <SearchIndexTemplateDropdownLabel
+            label="Template"
+            tooltip={tooltip}
+          />
+        ) as unknown as string
+      }
+    >
+      {ATLAS_SEARCH_TEMPLATES.map((template, idx) => (
+        <Option key={idx} value={`${idx}`}>
+          {template.name}
+        </Option>
+      ))}
+    </Select>
   );
 };
