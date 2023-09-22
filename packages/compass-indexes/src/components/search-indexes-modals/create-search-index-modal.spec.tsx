@@ -14,7 +14,7 @@ import { setupStore } from '../../../test/setup-store';
 
 const renderModal = (createSearchIndexSpy = sinon.spy()) => {
   const store = setupStore(
-    { namespace: 'test.test' },
+    { namespace: 'test.test', isSearchIndexesSupported: true },
     {
       createSearchIndex: createSearchIndexSpy,
     }

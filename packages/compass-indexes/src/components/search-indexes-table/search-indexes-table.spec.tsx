@@ -30,6 +30,7 @@ const renderIndexList = (
       onSortTable={onSortTableSpy}
       onDropIndex={() => {}}
       onEditIndex={() => {}}
+      onPollIndexes={() => {}}
       openCreateModal={openCreateSpy}
       {...props}
     />
@@ -97,7 +98,10 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  for (const status of [SearchIndexesStatuses.PENDING]) {
+  for (const status of [
+    SearchIndexesStatuses.FETCHING,
+    SearchIndexesStatuses.NOT_READY,
+  ]) {
     it(`does not render the list if the status is ${status}`, function () {
       renderIndexList({
         status,

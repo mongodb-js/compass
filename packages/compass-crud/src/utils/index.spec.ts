@@ -1,7 +1,11 @@
 import { expect } from 'chai';
 
-import { objectContainsRegularExpression, hasArrayOfLength } from './';
+import {
+  objectContainsRegularExpression,
+  shouldShowUnboundArrayInsight,
+} from './';
 import Document from 'hadron-document';
+import { BSON } from 'bson';
 
 describe('objectContainsRegularExpression', function () {
   it('tells whether an object contains a regular expression', function () {
@@ -15,31 +19,24 @@ describe('objectContainsRegularExpression', function () {
   });
 });
 
-describe('hasArrayOfLength', function () {
-  it('should return true when document contains array of certain length', function () {
-    expect(hasArrayOfLength(new Document({ foo: [1] }), 1)).to.eq(true);
-    expect(
-      hasArrayOfLength(new Document({ foo: { bar: { buz: { bla: [1] } } } }), 1)
-    ).to.eq(true);
+describe('shouldShowUnboundArrayInsight', function () {
+  it('should return true when document matches criteria', function () {
+    const values = [{ a: 1 }, new BSON.ObjectId(), 'a'];
+
+    for (const val of values) {
+      const doc = new Document({ a: [val] });
+      expect(shouldShowUnboundArrayInsight(doc, 1)).to.eq(true);
+      const nested = new Document({ a: { b: { c: [val] } } });
+      expect(shouldShowUnboundArrayInsight(nested, 1)).to.eq(true);
+    }
   });
 
-  it("should return false when document doesn't contain arrays of certain length", function () {
-    expect(hasArrayOfLength(new Document({ foo: [1] }), 5)).to.eq(false);
-    expect(
-      hasArrayOfLength(new Document({ foo: { bar: { buz: { bla: [1] } } } }), 5)
-    ).to.eq(false);
-  });
-
-  it('should return false when there are no arrays in the document', function () {
-    expect(
-      hasArrayOfLength(
-        new Document({
-          foo: true,
-          bar: 123,
-          buz: 'nope',
-          test: { nested: { but: { not: { array: true } } } },
-        })
-      )
-    ).to.eq(false);
+  it("should return false when document doesn't match criteria", function () {
+    const tooSmall = new Document({ a: [{}] });
+    expect(shouldShowUnboundArrayInsight(tooSmall, 5)).to.eq(false);
+    const wrongType = new Document({ a: [1.2] });
+    expect(shouldShowUnboundArrayInsight(wrongType, 1)).to.eq(false);
+    const noArray = new Document({ a: { b: { c: true } } });
+    expect(shouldShowUnboundArrayInsight(noArray, 1)).to.eq(false);
   });
 });

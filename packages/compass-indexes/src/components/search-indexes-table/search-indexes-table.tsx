@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
@@ -18,6 +18,7 @@ import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
+  pollSearchIndexes,
   showCreateModal,
   showUpdateModal,
 } from '../../modules/search-indexes';
@@ -29,6 +30,8 @@ import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 
+const POLLING_INTERVAL = 5000;
+
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
@@ -37,13 +40,15 @@ type SearchIndexesTableProps = {
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
   openCreateModal: () => void;
+  onPollIndexes: () => void;
   status: SearchIndexesStatus;
 };
 
 function isReadyStatus(status: SearchIndexesStatus) {
   return (
     status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === SearchIndexesStatuses.REFRESHING ||
+    status === SearchIndexesStatuses.POLLING
   );
 }
 
@@ -163,7 +168,15 @@ export const SearchIndexesTable: React.FunctionComponent<
   onEditIndex,
   status,
   onDropIndex,
+  onPollIndexes,
 }) => {
+  useEffect(() => {
+    const id = setInterval(onPollIndexes, POLLING_INTERVAL);
+    return () => {
+      clearInterval(id);
+    };
+  }, [onPollIndexes]);
+
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -238,6 +251,7 @@ const mapDispatch = {
   onDropIndex: dropSearchIndex,
   openCreateModal: showCreateModal,
   onEditIndex: showUpdateModal,
+  onPollIndexes: pollSearchIndexes,
 };
 
 export default connect(
