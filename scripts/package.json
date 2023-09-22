@@ -42,7 +42,7 @@
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "@mongodb-js/webpack-config-compass": "^1.2.0",
     "commander": "^11.0.0",
-    "electron": "^26.2.1",
+    "electron": "^26.2.2",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
