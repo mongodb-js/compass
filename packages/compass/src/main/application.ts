@@ -109,6 +109,13 @@ class CompassApplication {
   }
 
   private static async setupAtlasService() {
+    /**
+     * Atlas service backend configurations.
+     *  - compass-dev: locally running compass kanopy backend (localhost)
+     *  - compass:    compass kanopy backend (compass.mongodb.com)
+     *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
+     *  - atlas:      mms backend (cloud.mongodb.com)
+     */
     const config = {
       'compass-dev': {
         atlasApiBaseUrl: 'http://localhost:8080',
@@ -149,7 +156,7 @@ class CompassApplication {
       },
     } as const;
 
-    const { atlasServiceConfigPreset } = preferences.getPreferences();
+    const { atlasServiceBackendPreset } = preferences.getPreferences();
 
     const atlasServiceConfig = defaultsDeep(
       {
@@ -162,7 +169,7 @@ class CompassApplication {
         },
         authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
       },
-      config[atlasServiceConfigPreset]
+      config[atlasServiceBackendPreset]
     );
 
     await AtlasService.init(atlasServiceConfig);
