@@ -188,7 +188,7 @@ export class AtlasService {
         detached: true,
       });
       child.unref();
-      return;
+      return child;
     }
     return shell.openExternal(url);
   }
