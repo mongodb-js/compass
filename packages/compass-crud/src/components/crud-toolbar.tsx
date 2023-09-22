@@ -95,6 +95,7 @@ export type CrudToolbarProps = {
   error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
+  openBulkUpdateDialog: () => void;
   instanceDescription: string;
   isExportable: boolean;
   isWritable: boolean;
@@ -121,6 +122,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   error,
   getPage,
   insertDataHandler,
+  openBulkUpdateDialog,
   instanceDescription,
   isExportable,
   isWritable,
@@ -225,6 +227,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             size={ButtonSize.XSmall}
             data-testid="bulk-update-button"
             leftGlyph={<Icon glyph="Edit" />}
+            onClick={openBulkUpdateDialog}
           >
             Update
           </Button>

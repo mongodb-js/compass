@@ -345,6 +345,18 @@ type InsertState = {
   isCommentNeeded: boolean;
 };
 
+export type UpdatePreview = {
+  before: Document;
+  after: Document;
+};
+
+type BulkUpdateState = {
+  previews: UpdatePreview[];
+  update: BSONObject;
+  isOpen: boolean;
+  error: null | Error;
+};
+
 export type TableState = {
   doc: Document | null;
   path: (string | number)[];
@@ -379,6 +391,7 @@ type CrudState = {
   view: DocumentView;
   count: number | null;
   insert: InsertState;
+  bulkUpdate: BulkUpdateState;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -437,6 +450,7 @@ class CrudStoreImpl
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
+      bulkUpdate: this.getInitialBulkUpdateState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
       isDataLake: false,
@@ -470,6 +484,15 @@ class CrudStoreImpl
       jsonView: false,
       isOpen: false,
       isCommentNeeded: true,
+    };
+  }
+
+  getInitialBulkUpdateState(): BulkUpdateState {
+    return {
+      error: null,
+      isOpen: false,
+      previews: [],
+      updateText: '{}',
     };
   }
 
@@ -957,6 +980,15 @@ class CrudStoreImpl
   }
 
   /**
+   * Closing the bulk update dialog just resets the state to the default.
+   */
+  closeBulkUpdateDialog() {
+    this.setState({
+      bulkUpdate: this.getInitialBulkUpdateState(),
+    });
+  }
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -1025,6 +1057,23 @@ class CrudStoreImpl
         isCommentNeeded: true,
       },
     });
+  }
+
+  async openBulkUpdateDialog() {
+    await Promise.resolve(); // TODO
+
+    this.setState({
+      bulkUpdate: {
+        isOpen: true,
+        previews: [],
+        update: {},
+        error: null,
+      },
+    });
+  }
+
+  async updateBulkUpdatePreview(update: BSONObject) {
+    // TODO
   }
 
   /**
