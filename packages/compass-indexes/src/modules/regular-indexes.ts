@@ -339,9 +339,9 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
       return;
     }
 
-    // todo: fix this
     if (index.extra.status === 'failed') {
-      dispatch(inProgressIndexRemoved(index.id));
+      // todo: COMPASS-7084 (existing bug)
+      dispatch(inProgressIndexRemoved(String(index.extra.id)));
       void dispatch(fetchIndexes());
       return;
     }

@@ -302,6 +302,7 @@ describe('search-indexes module', function () {
     const emitSpy = sinon.spy();
     const store = setupStore(
       {
+        isSearchIndexesSupported: true,
         globalAppRegistry: {
           on: sinon.spy(),
           getStore: sinon.spy(),
