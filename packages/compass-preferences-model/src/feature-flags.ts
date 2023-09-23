@@ -108,7 +108,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6599
    */
   enableAtlasSearchIndexManagement: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
