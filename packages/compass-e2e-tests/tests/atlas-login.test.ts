@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  Selectors,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
@@ -126,11 +131,12 @@ describe('Atlas Login', function () {
   describe('in settings', function () {
     it('should sign in user when clicking on "Log in with Atlas" button', async function () {
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$('button=Log in with Atlas');
+
+      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const loginStatus = browser.$('[data-testid="atlas-login-status"]');
+      const loginStatus = browser.$(Selectors.AtlasLoginStatus);
       await browser.waitUntil(async () => {
         return (
           (await loginStatus.getText()).trim() ===
@@ -141,11 +147,11 @@ describe('Atlas Login', function () {
 
     it('should allow to accept TOS when signed in', async function () {
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$('button=Log in with Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const loginStatus = browser.$('[data-testid="atlas-login-status"]');
+      const loginStatus = browser.$(Selectors.AtlasLoginStatus);
       await browser.waitUntil(async () => {
         return (
           (await loginStatus.getText()).trim() ===
@@ -153,14 +159,16 @@ describe('Atlas Login', function () {
         );
       });
 
-      const acceptTOSToggle = browser.$('button#use-ai-toggle');
+      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
 
       await acceptTOSToggle.waitForClickable();
       await acceptTOSToggle.click();
 
-      const agreeAndContinueButton = browser.$('button=Agree and continue');
+      const agreeAndContinueButton = browser.$(
+        Selectors.AgreeAndContinueButton
+      );
 
       await agreeAndContinueButton.waitForClickable();
       await agreeAndContinueButton.click();
@@ -170,11 +178,11 @@ describe('Atlas Login', function () {
 
     it('should sign out user when "Disconnect" clicked', async function () {
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$('button=Log in with Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const loginStatus = browser.$('[data-testid="atlas-login-status"]');
+      const loginStatus = browser.$(Selectors.AtlasLoginStatus);
 
       await browser.waitUntil(async () => {
         return (
@@ -183,7 +191,9 @@ describe('Atlas Login', function () {
         );
       });
 
-      const disconnectButton = browser.$('button=Disconnect');
+      const disconnectButton = browser.$(
+        Selectors.DisconnectAtlasAccountButton
+      );
       await disconnectButton.waitForClickable();
       await disconnectButton.click();
 
@@ -201,11 +211,11 @@ describe('Atlas Login', function () {
       };
 
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$('button=Log in with Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const errorToast = browser.$('#atlas-sign-in-error');
+      const errorToast = browser.$(Selectors.AtlasLoginErrorToast);
 
       expect(await errorToast.getText()).to.match(
         /Sign in failed\n\nAuth failed/
@@ -225,16 +235,18 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const agreeAndContinueButton = browser.$('button=Agree and continue');
+      const agreeAndContinueButton = browser.$(
+        Selectors.AgreeAndContinueButton
+      );
       await agreeAndContinueButton.waitForClickable();
       await agreeAndContinueButton.click();
 
       // If the flow failed, we will not see the input
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       await aiInput.waitForDisplayed();
     });
 
@@ -247,7 +259,7 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
@@ -257,7 +269,7 @@ describe('Atlas Login', function () {
       await cancelButton.waitForClickable();
       await cancelButton.click();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -267,7 +279,7 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
@@ -275,7 +287,7 @@ describe('Atlas Login', function () {
       await cancelButton.waitForClickable();
       await cancelButton.click();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -285,17 +297,19 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const agreeAndContinueButton = browser.$('button=Agree and continue');
+      const agreeAndContinueButton = browser.$(
+        Selectors.AgreeAndContinueButton
+      );
       await agreeAndContinueButton.waitForClickable();
       await agreeAndContinueButton.click();
 
       await browser.openSettingsModal('Feature Preview');
 
-      const acceptTOSToggle = browser.$('button#use-ai-toggle');
+      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
       await acceptTOSToggle.waitForClickable();
       await acceptTOSToggle.click();
 
@@ -303,7 +317,7 @@ describe('Atlas Login', function () {
 
       await browser.closeSettingsModal();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -321,16 +335,18 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const agreeAndContinueButton = browser.$('button=Agree and continue');
+      const agreeAndContinueButton = browser.$(
+        Selectors.AgreeAndContinueButton
+      );
       await agreeAndContinueButton.waitForClickable();
       await agreeAndContinueButton.click();
 
       // If the flow failed, we will not see the input
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       await aiInput.waitForDisplayed();
     });
 
@@ -343,7 +359,7 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
@@ -353,7 +369,7 @@ describe('Atlas Login', function () {
       await cancelButton.waitForClickable();
       await cancelButton.click();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -363,7 +379,7 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
@@ -371,7 +387,7 @@ describe('Atlas Login', function () {
       await cancelButton.waitForClickable();
       await cancelButton.click();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -381,17 +397,19 @@ describe('Atlas Login', function () {
       await generateQueryButton.waitForClickable();
       await generateQueryButton.click();
 
-      const logInButton = browser.$('button*=Log in to Atlas');
+      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
       await logInButton.waitForClickable();
       await logInButton.click();
 
-      const agreeAndContinueButton = browser.$('button=Agree and continue');
+      const agreeAndContinueButton = browser.$(
+        Selectors.AgreeAndContinueButton
+      );
       await agreeAndContinueButton.waitForClickable();
       await agreeAndContinueButton.click();
 
       await browser.openSettingsModal('Feature Preview');
 
-      const acceptTOSToggle = browser.$('button#use-ai-toggle');
+      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
       await acceptTOSToggle.waitForClickable();
       await acceptTOSToggle.click();
 
@@ -399,7 +417,7 @@ describe('Atlas Login', function () {
 
       await browser.closeSettingsModal();
 
-      const aiInput = browser.$('[data-testid="ai-user-text-input"]');
+      const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
