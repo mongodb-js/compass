@@ -516,6 +516,7 @@ export class AtlasService {
       ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
@@ -542,16 +543,15 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const body = new URLSearchParams([
-      ['token', token ?? ''],
-      ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-    ]);
-
     const res = await this.fetch(url.toString(), {
       method: 'POST',
-      body,
+      body: new URLSearchParams([
+        ['token', token ?? ''],
+        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+      ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
