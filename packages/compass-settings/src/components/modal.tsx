@@ -27,7 +27,7 @@ type Settings = {
 
 type SettingsModalProps = {
   isOpen: boolean;
-  isOIDCEnabled: boolean;
+  isOIDCTabEnabled: boolean;
   onMount?: () => void;
   onClose: () => void;
   onSave: () => void;
@@ -59,7 +59,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onMount,
   onClose,
   onSave,
-  isOIDCEnabled,
+  isOIDCTabEnabled,
   hasChangedSettings,
 }) => {
   const onMountRef = useRef(onMount);
@@ -74,9 +74,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { name: 'Privacy', component: PrivacySettings },
   ];
 
-  if (isOIDCEnabled) {
+  if (isOIDCTabEnabled) {
     settings.push({
-      name: 'OIDC and Atlas Login (Preview)',
+      name: 'OIDC (Preview)',
       component: OIDCSettings,
     });
   }
@@ -133,7 +133,7 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isOIDCEnabled:
+      isOIDCTabEnabled:
         !!state.settings.settings.enableOidc ||
         // because oidc options overlap with atlas login used for ai feature
         !!state.settings.settings.enableAIWithoutRolloutAccess ||

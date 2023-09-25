@@ -562,8 +562,7 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short:
-        'Browser command to use for the MongoDB server OIDC Authentication and Atlas Login',
+      short: 'Browser command to use for authentication',
       long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider for the server connection or when logging in to your Atlas Cloud account. Leave this empty for default browser.',
     },
     validator: z.string().optional(),
