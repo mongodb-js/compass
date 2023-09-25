@@ -12,8 +12,8 @@ import reducer, {
   updateFieldName,
   changeFields,
   CHANGE_FIELDS,
-} from '../create-index/fields';
-import { ActionTypes as ErrorActionTypes } from '../error';
+} from './fields';
+import { ActionTypes as ErrorActionTypes } from './error';
 
 describe('create index fields module', function () {
   describe('#reducer', function () {

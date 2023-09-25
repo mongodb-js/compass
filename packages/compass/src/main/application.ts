@@ -1,7 +1,7 @@
 import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
-import type { BrowserWindow } from 'electron';
+import type { BrowserWindow, Event } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
@@ -15,7 +15,7 @@ import preferences, {
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
-
+import { defaultsDeep } from 'lodash';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -109,7 +109,71 @@ class CompassApplication {
   }
 
   private static async setupAtlasService() {
-    await AtlasService.init();
+    /**
+     * Atlas service backend configurations.
+     *  - compass-dev: locally running compass kanopy backend (localhost)
+     *  - compass:    compass kanopy backend (compass.mongodb.com)
+     *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
+     *  - atlas:      mms backend (cloud.mongodb.com)
+     */
+    const config = {
+      'compass-dev': {
+        atlasApiBaseUrl: 'http://localhost:8080',
+        atlasApiUnauthBaseUrl: 'http://localhost:8080',
+        atlasLogin: {
+          clientId: '0oajzdcznmE8GEyio297',
+          issuer: 'https://auth.mongodb.com/oauth2/default',
+        },
+        authPortalUrl: 'https://account.mongodb.com/account/login',
+      },
+      compass: {
+        atlasApiBaseUrl: 'https://compass.mongodb.com',
+        atlasApiUnauthBaseUrl: 'https://compass.mongodb.com',
+        atlasLogin: {
+          clientId: '0oajzdcznmE8GEyio297',
+          issuer: 'https://auth.mongodb.com/oauth2/default',
+        },
+        authPortalUrl: 'https://account.mongodb.com/account/login',
+      },
+      'atlas-dev': {
+        atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+        atlasApiUnauthBaseUrl:
+          'https://cloud-dev.mongodb.com/api/private/unauth',
+        atlasLogin: {
+          clientId: '0oaq1le5jlzxCuTbu357',
+          issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+        },
+        authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+      },
+      atlas: {
+        atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+        atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+        atlasLogin: {
+          clientId: '0oajzdcznmE8GEyio297',
+          issuer: 'https://auth.mongodb.com/oauth2/default',
+        },
+        authPortalUrl: 'https://account.mongodb.com/account/login',
+      },
+    } as const;
+
+    const { atlasServiceBackendPreset } = preferences.getPreferences();
+
+    const atlasServiceConfig = defaultsDeep(
+      {
+        atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
+        atlasApiUnauthBaseUrl:
+          process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+        atlasLogin: {
+          clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
+          issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
+        },
+        authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+      },
+      config[atlasServiceBackendPreset]
+    );
+
+    await AtlasService.init(atlasServiceConfig);
+
     this.addExitHandler(() => {
       return AtlasService.onExit();
     });

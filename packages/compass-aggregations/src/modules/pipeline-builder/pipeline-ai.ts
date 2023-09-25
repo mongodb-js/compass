@@ -11,7 +11,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
-import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
@@ -22,6 +22,7 @@ type AIPipelineStatus = 'ready' | 'fetching' | 'success';
 
 export type AIPipelineState = {
   errorMessage: string | undefined;
+  errorCode: string | undefined;
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIPipelineStatus;
@@ -33,6 +34,7 @@ export const initialState: AIPipelineState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,
+  errorCode: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
   isAggregationGeneratedFromQuery: false,
@@ -134,7 +136,8 @@ type AIPipelineStartedAction = {
 type AIPipelineFailedAction = {
   type: AIPipelineActionTypes.AIPipelineFailed;
   errorMessage: string;
-  networkErrorCode?: number;
+  statusCode?: number;
+  errorCode?: string;
 };
 
 export type PipelineGeneratedFromQueryAction = {
@@ -144,30 +147,34 @@ export type PipelineGeneratedFromQueryAction = {
 
 type FailedResponseTrackMessage = {
   editor_view_type: 'stages' | 'text';
-  errorCode?: number;
+  statusCode?: number;
   errorMessage: string;
   errorName: string;
+  errorCode?: string;
 };
 
 function trackAndLogFailed({
   editor_view_type,
-  errorCode,
+  statusCode,
   errorMessage,
   errorName,
+  errorCode,
 }: FailedResponseTrackMessage) {
   log.warn(
     mongoLogId(1_001_000_230),
     'AIPipeline',
     'AI pipeline request failed',
     {
-      errorCode,
+      statusCode,
       errorMessage,
       errorName,
+      errorCode,
     }
   );
   track('AI Response Failed', () => ({
     editor_view_type,
-    error_code: errorCode,
+    error_code: errorCode || '',
+    status_code: statusCode,
     error_name: errorName,
   }));
 }
@@ -243,13 +250,14 @@ export const runAIPipelineGeneration = (
       }
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
-        errorMessage: (err as AtlasServiceNetworkError).message,
+        statusCode: (err as AtlasServiceError).statusCode,
+        errorCode: (err as AtlasServiceError).errorCode,
+        errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if ((err as AtlasServiceNetworkError).statusCode === 401) {
+      if ((err as AtlasServiceError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -259,8 +267,9 @@ export const runAIPipelineGeneration = (
       }
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: (err as AtlasServiceNetworkError).message,
-        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
+        errorMessage: (err as AtlasServiceError).message,
+        statusCode: (err as AtlasServiceError).statusCode ?? -1,
+        errorCode: (err as AtlasServiceError).errorCode,
       });
       return;
     } finally {
@@ -286,7 +295,7 @@ export const runAIPipelineGeneration = (
     } catch (err) {
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as Error).message,
         errorName: 'empty_pipeline_error',
       });
@@ -297,20 +306,22 @@ export const runAIPipelineGeneration = (
       return;
     }
 
+    pipelineBuilder.reset(pipelineText);
+
     log.info(
       mongoLogId(1_001_000_228),
       'AIPipeline',
       'AI pipeline request succeeded',
       {
-        pipelineText,
+        editorViewType: editor_view_type,
+        syntaxErrors: !!(pipelineBuilder.syntaxError?.length > 0),
+        shape: pipelineBuilder.stages.map((stage) => stage.operator),
       }
     );
 
-    pipelineBuilder.reset(pipelineText);
-
-    track('AI Prompt Generated', () => ({
+    track('AI Response Generated', () => ({
       editor_view_type,
-      syntax_errors: true,
+      syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
       query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
     }));
 
@@ -423,17 +434,17 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     )
   ) {
     // If fetching query failed due to authentication error, reset the state to
-    // hide the input and show the "Ask AI" button again: this should start the
+    // hide the input and show the "Generate aggregation" button again: this should start the
     // sign in flow for the user when clicked
-    if (action.networkErrorCode === 401) {
+    if (action.statusCode === 401) {
       return { ...initialState };
     }
-
     return {
       ...state,
       status: 'ready',
       aiPipelineFetchId: -1,
       errorMessage: action.errorMessage,
+      errorCode: action.errorCode,
     };
   }
 

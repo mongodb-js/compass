@@ -120,11 +120,11 @@ describe('importJSON', function () {
           docsProcessed: totalRows,
           dbErrors: [],
           dbStats: {
-            nInserted: totalRows,
-            nMatched: 0,
-            nModified: 0,
-            nRemoved: 0,
-            nUpserted: 0,
+            insertedCount: totalRows,
+            matchedCount: 0,
+            modifiedCount: 0,
+            deletedCount: 0,
+            upsertedCount: 0,
             ok: Math.ceil(totalRows / 1000),
             writeConcernErrors: [],
             writeErrors: [],
@@ -190,11 +190,11 @@ describe('importJSON', function () {
       docsWritten: 1,
       dbErrors: [],
       dbStats: {
-        nInserted: 1,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: 1,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: 1,
         writeConcernErrors: [],
         writeErrors: [],
@@ -240,11 +240,11 @@ describe('importJSON', function () {
       docsWritten: 2000,
       dbErrors: [],
       dbStats: {
-        nInserted: 2000,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: 2000,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: 2, // expected two batches
         writeConcernErrors: [],
         writeErrors: [],
@@ -470,7 +470,7 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.nInserted).to.equal(1);
+    expect(result.dbStats.insertedCount).to.equal(1);
 
     expect(progressCallback.callCount).to.equal(2);
     expect(errorCallback.callCount).to.equal(1);
@@ -552,7 +552,7 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.nInserted).to.equal(0);
+    expect(result.dbStats.insertedCount).to.equal(0);
 
     expect(progressCallback.callCount).to.equal(2);
     expect(errorCallback.callCount).to.equal(3); // yes one more MongoBulkWriteError than items in the batch
@@ -611,11 +611,11 @@ describe('importJSON', function () {
       docsWritten: 0,
       dbErrors: [],
       dbStats: {
-        nInserted: 0,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: 0,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: 0,
         writeConcernErrors: [],
         writeErrors: [],

@@ -361,7 +361,14 @@ describe('Logging and Telemetry integration', function () {
       });
 
       it('does not contain warnings about missing optional dependencies', function () {
-        const ids = logs.map(({ id }) => id);
+        const ids = logs
+          // TODO(MONGOSH-1594): Remove this filter after the next mongosh upgrade,
+          // this error comes from the devtools-connect bundled in mongosh
+          .filter(
+            ({ ctx, attr }) =>
+              !(ctx === 'mongosh-deps' && attr.name === 'saslprep')
+          )
+          .map(({ id }) => id);
         expect(ids).not.to.contain(
           1_000_000_041,
           `Expected log to not contain warnings about missing dependencies, but got ${JSON.stringify(

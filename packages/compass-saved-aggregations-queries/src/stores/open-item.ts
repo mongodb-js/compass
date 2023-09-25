@@ -208,24 +208,12 @@ const openItem =
     database: string,
     collection: string
   ): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
-    const { dataService, instance, appRegistry } = getState();
+  (dispatch, getState) => {
+    const { appRegistry } = getState();
 
-    if (!instance || !dataService || !appRegistry) {
+    if (!appRegistry) {
       return;
     }
-
-    const coll = await instance.getNamespace({
-      dataService,
-      database,
-      collection,
-    });
-
-    if (!coll) {
-      return;
-    }
-
-    const metadata = await coll.fetchMetadata({ dataService });
 
     track(
       item.type === 'aggregation'
@@ -237,8 +225,8 @@ const openItem =
       }
     );
 
-    appRegistry.emit('open-namespace-in-new-tab', {
-      ...metadata,
+    appRegistry.emit('my-queries-open-saved-item', {
+      ns: `${database}.${collection}`,
       aggregation: item.type === 'aggregation' ? item.aggregation : null,
       query: item.type === 'query' ? item.query : null,
     });

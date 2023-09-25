@@ -38,14 +38,14 @@ interface DataLake {
 }
 
 interface Server {
-  type: string
-  address: string
+  type: string;
+  address: string;
 }
 
 interface TopologyDescription {
-  type: string,
-  servers: Server[],
-  setName: string
+  type: string;
+  servers: Server[];
+  setName: string;
 }
 
 declare class MongoDBInstanceProps {
@@ -59,6 +59,7 @@ declare class MongoDBInstanceProps {
   refreshingStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   refreshingStatusError: string | null;
   isAtlas: boolean;
+  isLocalAtlas: boolean;
   atlasVersion: string;
   isRefreshing: boolean;
   isTopologyWritable: boolean;
@@ -74,7 +75,7 @@ declare class MongoDBInstanceProps {
   auth: AuthInfo;
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
-  topologyDescription: TopologyDescription
+  topologyDescription: TopologyDescription;
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {
@@ -98,6 +99,7 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
     collection: string;
   }): Promise<Collection | null>;
   removeAllListeners(): void;
+  on(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived?: boolean }): this;
 }
 

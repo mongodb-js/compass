@@ -52,19 +52,19 @@ function mongodbServerErrorToJSError({
 }
 
 const numKeys = [
-  'nInserted',
-  'nMatched',
-  'nModified',
-  'nRemoved',
-  'nUpserted',
+  'insertedCount',
+  'matchedCount',
+  'modifiedCount',
+  'deletedCount',
+  'upsertedCount',
   // Even though it's a boolean, treating it as num might allow us to see
   // how many batches finished "correctly" if `stopOnErrors` is `false` if
   // we ever need that
   'ok',
-] as const;
+] as const; // `as const satisfies readonly (keyof BulkWriteResult)[]` once prettier understands this syntax
 
-type BulkOpResult = {
-  [numkey in typeof numKeys[number]]?: number;
+type NumericBulkWriteResult = {
+  [numkey in keyof BulkWriteResult & typeof numKeys[number]]?: number;
 };
 
 export type CollectionStreamProgress = {
@@ -73,13 +73,7 @@ export type CollectionStreamProgress = {
   errors: CollectionStreamProgressError[];
 };
 
-export type CollectionStreamStats = {
-  ok: number;
-  nInserted: number;
-  nMatched: number;
-  nModified: number;
-  nRemoved: number;
-  nUpserted: number;
+export type CollectionStreamStats = Required<NumericBulkWriteResult> & {
   writeErrors: WriteCollectionStreamProgressError[];
   writeConcernErrors: WriteCollectionStreamProgressError[];
 };
@@ -109,11 +103,11 @@ export class WritableCollectionStream extends Writable {
 
     this._stats = {
       ok: 0,
-      nInserted: 0,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
+      insertedCount: 0,
+      matchedCount: 0,
+      modifiedCount: 0,
+      deletedCount: 0,
+      upsertedCount: 0,
       writeErrors: [],
       writeConcernErrors: [],
     };
@@ -153,7 +147,7 @@ export class WritableCollectionStream extends Writable {
 
     this.batch = [];
 
-    let result: BulkOpResult & Partial<BulkWriteResult>;
+    let result: NumericBulkWriteResult & Partial<BulkWriteResult>;
 
     try {
       result = await this.dataService.bulkWrite(
@@ -176,12 +170,12 @@ export class WritableCollectionStream extends Writable {
       if (bulkWriteError.code === 6371202) {
         this.BATCH_SIZE = 1;
 
-        let nInserted = 0;
+        let insertedCount = 0;
 
         for (const doc of documents) {
           try {
             await this.dataService.insertOne(this.ns, doc);
-            nInserted += 1;
+            insertedCount += 1;
           } catch (insertOneByOneError: any) {
             this._errors.push(insertOneByOneError as Error);
 
@@ -191,7 +185,7 @@ export class WritableCollectionStream extends Writable {
           }
         }
 
-        result = { ok: 1, nInserted };
+        result = { ok: 1, insertedCount };
       } else {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
@@ -207,7 +201,7 @@ export class WritableCollectionStream extends Writable {
     // this OR expression here
     this._mergeBulkOpResult(result || {});
 
-    this.docsWritten = this._stats.nInserted;
+    this.docsWritten = this._stats.insertedCount;
     this.docsProcessed += documents.length;
     this._batchCounter++;
 
@@ -239,10 +233,12 @@ export class WritableCollectionStream extends Writable {
     return undefined;
   }
 
-  _mergeBulkOpResult(result: BulkOpResult & Partial<BulkWriteResult> = {}) {
-    numKeys.forEach((key) => {
+  _mergeBulkOpResult(
+    result: NumericBulkWriteResult & Partial<BulkWriteResult> = {}
+  ) {
+    for (const key of numKeys) {
       this._stats[key] += result[key] || 0;
-    });
+    }
 
     this._stats.writeErrors.push(
       ...(result?.getWriteErrors?.() || []).map(mongodbServerErrorToJSError)

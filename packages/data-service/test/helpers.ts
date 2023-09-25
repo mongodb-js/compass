@@ -1,46 +1,44 @@
-import type { MongoClient } from 'mongodb';
+import type { MongoClient, Document } from 'mongodb';
 import { ConnectionString } from 'mongodb-connection-string-url';
+
+import type { SearchIndex } from '../src/search-index-detail-helper';
+
+const ALLOWED_COMMANDS = [
+  'listDatabases',
+  'connectionStatus',
+  'getCmdLineOpts',
+  'hostInfo',
+  'buildInfo',
+  'getParameter',
+  'atlasVersion',
+  'collMod',
+] as const;
 
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
-  commands: Partial<{
-    connectionStatus: unknown;
-    getCmdLineOpts: unknown;
-    hostInfo: unknown;
-    buildInfo: unknown;
-    getParameter: unknown;
-    atlasVersion: unknown;
-    listDatabases: unknown;
-    collMod: unknown;
-  }>;
+  commands: Partial<Record<typeof ALLOWED_COMMANDS[number], unknown>>;
   collections: Record<string, string[] | Error>;
+  searchIndexes: Record<string, Record<string, SearchIndex[] | Error>>;
   clientOptions: Record<string, unknown>;
+  hasAdminDotAtlasCliEntry: boolean;
 };
 
 export function createMongoClientMock({
   hosts = [{ host: 'localhost', port: 9999 }],
   commands = {},
   collections = {},
+  searchIndexes = {},
   clientOptions = {},
+  hasAdminDotAtlasCliEntry = false,
 }: Partial<ClientMockOptions> = {}): {
   client: MongoClient;
   connectionString: string;
 } {
   const db = {
-    command(spec: any) {
+    command(spec: Document) {
       const cmd = Object.keys(spec).find((key) =>
-        [
-          'listDatabases',
-          'connectionStatus',
-          'getCmdLineOpts',
-          'hostInfo',
-          'buildInfo',
-          'getParameter',
-          'atlasVersion',
-          'collMod',
-        ].includes(key)
+        ALLOWED_COMMANDS.includes(key as typeof ALLOWED_COMMANDS[number])
       );
-
       if (cmd && commands[cmd]) {
         const command = commands[cmd];
         const result = typeof command === 'function' ? command(this) : command;
@@ -82,6 +80,42 @@ export function createMongoClientMock({
               return Promise.resolve(
                 colls.map((name) => ({ name, type: 'collection' }))
               );
+            },
+          };
+        },
+        collection(collectionName: string) {
+          return {
+            listSearchIndexes() {
+              return {
+                toArray() {
+                  const indexes =
+                    searchIndexes[databaseName][collectionName] ?? [];
+                  if (indexes instanceof Error) {
+                    return Promise.reject(indexes);
+                  }
+                  return Promise.resolve(indexes);
+                },
+                close() {
+                  /* ignore */
+                },
+              };
+            },
+            createSearchIndex({ name }: { name: string }) {
+              return Promise.resolve(name);
+            },
+            updateSearchIndex() {
+              return Promise.resolve();
+            },
+            dropSearchIndex() {
+              return Promise.resolve();
+            },
+            countDocuments(query: Document) {
+              return databaseName === 'admin' &&
+                collectionName === 'atlascli' &&
+                query.managedClusterType === 'atlasCliLocalDevCluster' &&
+                hasAdminDotAtlasCliEntry
+                ? 1
+                : 0;
             },
           };
         },

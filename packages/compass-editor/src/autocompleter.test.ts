@@ -1,15 +1,13 @@
 import { expect } from 'chai';
-import type { Completion } from './autocompleter';
-import { wrapField } from './autocompleter';
 import { completer } from './autocompleter';
 
 describe('completer', function () {
-  const simpleCompletions: Completion[] = [
-    { value: 'foo', version: '0.0.0', meta: 'stage' },
-    { value: 'Foo', version: '0.0.0', meta: 'stage' },
-    { value: 'bar', version: '1.0.0', meta: 'accumulator' },
-    { value: 'buz', version: '2.0.0', meta: 'expr:array' },
-    { value: 'barbar', version: '2.0.0', meta: 'expr:bool' },
+  const simpleCompletions = [
+    { value: 'foo', version: '0.0.0', meta: 'stage' as const },
+    { value: 'Foo', version: '0.0.0', meta: 'stage' as const },
+    { value: 'bar', version: '1.0.0', meta: 'accumulator' as const },
+    { value: 'buz', version: '2.0.0', meta: 'expr:array' as const },
+    { value: 'barbar', version: '2.0.0', meta: 'expr:bool' as const },
   ];
 
   function getCompletionValues(
@@ -66,28 +64,5 @@ describe('completer', function () {
       { value: 'foo', description: 'ObjectId' },
       { value: 'bar', description: 'Int32' },
     ]);
-  });
-
-  describe('wrapField', function () {
-    it('should leave identifier as-is if its roughly valid', function () {
-      expect(wrapField('foo')).to.eq('foo');
-      expect(wrapField('bar_buz')).to.eq('bar_buz');
-      expect(wrapField('$something')).to.eq('$something');
-      expect(wrapField('_or_other')).to.eq('_or_other');
-      expect(wrapField('number1')).to.eq('number1');
-    });
-
-    it("should wrap field in quotes when it's rougly not a valid js identifier", function () {
-      expect(wrapField('123foobar')).to.eq('"123foobar"');
-      expect(wrapField('bar@buz')).to.eq('"bar@buz"');
-      expect(wrapField('foo bar')).to.eq('"foo bar"');
-      expect(wrapField('with.a.dot')).to.eq('"with.a.dot"');
-      expect(wrapField('bla; process.exit(1); var foo')).to.eq(
-        '"bla; process.exit(1); var foo"'
-      );
-      expect(wrapField('quotes"in"the"middle')).to.eq(
-        '"quotes\\"in\\"the\\"middle"'
-      );
-    });
   });
 });

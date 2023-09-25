@@ -117,11 +117,11 @@ describe('importCSV', function () {
           docsWritten: totalRows,
           dbErrors: [],
           dbStats: {
-            nInserted: totalRows,
-            nMatched: 0,
-            nModified: 0,
-            nRemoved: 0,
-            nUpserted: 0,
+            insertedCount: totalRows,
+            matchedCount: 0,
+            modifiedCount: 0,
+            deletedCount: 0,
+            upsertedCount: 0,
             ok: Math.ceil(totalRows / 1000),
             writeConcernErrors: [],
             writeErrors: [],
@@ -268,11 +268,11 @@ describe('importCSV', function () {
           docsWritten: totalRows,
           dbErrors: [],
           dbStats: {
-            nInserted: totalRows,
-            nMatched: 0,
-            nModified: 0,
-            nRemoved: 0,
-            nUpserted: 0,
+            insertedCount: totalRows,
+            matchedCount: 0,
+            modifiedCount: 0,
+            deletedCount: 0,
+            upsertedCount: 0,
             ok: Math.ceil(totalRows / 1000),
             writeConcernErrors: [],
             writeErrors: [],
@@ -360,11 +360,11 @@ describe('importCSV', function () {
       docsWritten: totalRows,
       dbErrors: [],
       dbStats: {
-        nInserted: totalRows,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: totalRows,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: Math.ceil(totalRows / 1000),
         writeConcernErrors: [],
         writeErrors: [],
@@ -433,11 +433,11 @@ describe('importCSV', function () {
       docsWritten: 2000,
       dbErrors: [],
       dbStats: {
-        nInserted: 2000,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: 2000,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: 2, // expected two batches
         writeConcernErrors: [],
         writeErrors: [],
@@ -670,7 +670,7 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.nInserted).to.equal(1);
+    expect(result.dbStats.insertedCount).to.equal(1);
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(2);
@@ -778,7 +778,7 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.nInserted).to.equal(0);
+    expect(result.dbStats.insertedCount).to.equal(0);
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(4); // yes one more MongoBulkWriteError than items in the batch
@@ -855,11 +855,11 @@ describe('importCSV', function () {
       docsWritten: 0,
       dbErrors: [],
       dbStats: {
-        nInserted: 0,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: 0,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         ok: 0,
         writeConcernErrors: [],
         writeErrors: [],
@@ -1073,7 +1073,7 @@ function checkType(path: PathPart[], value: any, type: string) {
       break;
 
     case 'regex':
-      expect(value._bsontype, joinedPath).to.equal('BSONRegExp');
+      expect(typeof value, joinedPath).to.equal('string');
       break;
 
     case 'minKey':

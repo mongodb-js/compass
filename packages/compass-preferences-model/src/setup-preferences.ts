@@ -50,7 +50,7 @@ export async function setupPreferences(
 
   ipcMain.handle(
     'compass:save-preferences',
-    (event: Event, attributes: Partial<AllPreferences>) => {
+    (event: unknown, attributes: Partial<AllPreferences>) => {
       return preferences.savePreferences(attributes);
     }
   );

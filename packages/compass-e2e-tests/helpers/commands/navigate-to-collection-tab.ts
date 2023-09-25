@@ -28,6 +28,7 @@ async function navigateToCollection(
   const sidebarFilterInputElement = await browser.$(
     Selectors.SidebarFilterInput
   );
+  await sidebarFilterInputElement.clearValue();
   await sidebarFilterInputElement.setValue(collectionName);
   const collectionElement = await browser.$(collectionSelector);
 

@@ -3,13 +3,29 @@ import Icon from '@leafygreen-ui/icon';
 
 type IndexDirection = number | unknown;
 
-const IndexIcon = ({ direction }: { direction: IndexDirection }) => {
+const IndexIcon = ({
+  className,
+  direction,
+}: {
+  className?: string;
+  direction: IndexDirection;
+}) => {
   return direction === 1 ? (
-    <Icon glyph="ArrowUp" size="small" aria-label="Ascending index" />
+    <Icon
+      className={className}
+      glyph="ArrowUp"
+      size="small"
+      aria-label="Ascending index"
+    />
   ) : direction === -1 ? (
-    <Icon glyph="ArrowDown" size="small" aria-label="Descending index" />
+    <Icon
+      className={className}
+      glyph="ArrowDown"
+      size="small"
+      aria-label="Descending index"
+    />
   ) : (
-    <span>({String(direction)})</span>
+    <span className={className}>({String(direction)})</span>
   );
 };
 

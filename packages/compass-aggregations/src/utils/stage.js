@@ -1,29 +1,17 @@
-import semver from 'semver';
 import toNS from 'mongodb-ns';
 import {
   ADL,
-  STAGE_OPERATORS,
   ATLAS,
+  ON_PREM,
+  STAGE_OPERATORS,
+  OUT_STAGES,
   TIME_SERIES,
   VIEW,
   COLLECTION,
-  OUT_STAGES,
+  getFilteredCompletions,
 } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 import { STAGE_HELP_BASE_URL } from '../constants';
-
-function supportsVersion(operator, serverVersion) {
-  const versionWithoutPrerelease = semver.coerce(serverVersion);
-  return semver.gte(versionWithoutPrerelease, operator?.version);
-}
-
-function supportsNamespace(operator, namespaceType) {
-  return operator?.namespaces?.includes(namespaceType);
-}
-
-function supportsEnv(operator, env) {
-  return operator?.env?.includes(env);
-}
 
 export function isAtlasOnly(operatorEnv) {
   return operatorEnv?.every((env) => env === ATLAS);
@@ -56,8 +44,7 @@ export const filterStageOperators = (options) => {
 
   const namespaceType = isTimeSeries
     ? TIME_SERIES
-    : // we identify a view looking for a source
-    // namespace (sourceName) in collstats
+    : // we identify a view looking for a source namespace (sourceName) in stats
     sourceName
     ? VIEW
     : COLLECTION;
@@ -73,16 +60,22 @@ export const filterStageOperators = (options) => {
     return FilteredStagesCache.get(cacheKey);
   }
 
-  const filteredStages = STAGE_OPERATORS.filter((op) =>
-    disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
-  )
-    .filter((op) => supportsVersion(op, serverVersion))
-    .filter((op) => supportsNamespace(op, namespaceType))
-
-    // we want to display Atlas-only stages
-    // also when connected to on-prem / localhost
-    // in order to improve their discoverability:
-    .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env));
+  const filteredStages = getFilteredCompletions({
+    serverVersion,
+    meta: ['stage'],
+    stage: {
+      namespace: namespaceType,
+      env:
+        env === ON_PREM
+          ? // we want to display Atlas-only stages
+            // also when connected to on-prem / localhost
+            // in order to improve their discoverability:
+            [env, ATLAS]
+          : env,
+    },
+  }).filter((op) => {
+    return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
+  });
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 
@@ -90,7 +83,7 @@ export const filterStageOperators = (options) => {
 };
 
 /**
- * @param {unknown} stage
+ * @param {unknown | undefined} stage
  * @returns {string | undefined}
  */
 export function getStageOperator(stage) {
@@ -174,6 +167,7 @@ function getDestinationNamespaceFromOutStage(namespace, stageValue) {
 }
 
 const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map((stage) => stage.value));
+
 const ATLAS_ONLY_OPERATOR_NAMES = new Set(
   STAGE_OPERATORS.filter((stage) => isAtlasOnly(stage.env)).map(
     (stage) => stage.value
@@ -181,7 +175,7 @@ const ATLAS_ONLY_OPERATOR_NAMES = new Set(
 );
 
 /**
- * @param {string} stageOperator
+ * @param {string | undefined} stageOperator
  * @returns {boolean}
  */
 export function isOutputStage(stageOperator) {
@@ -190,7 +184,7 @@ export function isOutputStage(stageOperator) {
 
 /**
  *
- * @param {string} stageOperator
+ * @param {string | undefined} stageOperator
  * @returns {boolean}
  */
 export function isAtlasOnlyStage(stageOperator) {

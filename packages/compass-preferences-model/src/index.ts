@@ -28,6 +28,7 @@ export {
   capMaxTimeMSAtPreferenceLimit,
   setupPreferencesAndUser,
   getActiveUser,
+  useIsAIFeatureEnabled,
 } from './utils';
 export type { User } from './storage';
 

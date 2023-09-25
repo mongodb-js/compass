@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
 import preferencesAccess from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 
@@ -25,6 +26,12 @@ describe('AtlasServiceMain', function () {
       },
       'http://example.com/v1/revoke?client_id=1234abcd': {
         ok: true,
+      },
+      'http://example.com/unauth/ai/api/v1/hello/': {
+        ok: true,
+        json() {
+          return { features: {} };
+        },
       },
     }[url];
   });
@@ -50,34 +57,52 @@ describe('AtlasServiceMain', function () {
     destroy: sandbox.stub(),
   };
 
+  const defaultConfig = {
+    atlasApiBaseUrl: 'http://example.com',
+    atlasApiUnauthBaseUrl: 'http://example.com/unauth',
+    atlasLogin: {
+      issuer: 'http://example.com',
+      clientId: '1234abcd',
+    },
+    authPortalUrl: 'http://example.com',
+  };
+
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const userStore = AtlasService['atlasUserConfigStore'];
-  const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-  const issuer = process.env.COMPASS_OIDC_ISSUER;
-  const clientId = process.env.COMPASS_CLIENT_ID;
+  const getActiveCompassUser = AtlasService['getActiveCompassUser'];
 
-  beforeEach(function () {
+  let cloudFeatureRolloutAccess: UserPreferences['cloudFeatureRolloutAccess'];
+
+  beforeEach(async function () {
     AtlasService['ipcMain'] = { handle: sandbox.stub() };
     AtlasService['fetch'] = mockFetch as any;
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
+    AtlasService['getActiveCompassUser'] = () =>
+      Promise.resolve({
+        id: 'test',
+        createdAt: new Date(),
+        lastUsed: new Date(),
+      });
 
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
-    process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
-    process.env.COMPASS_CLIENT_ID = '1234abcd';
+    AtlasService['config'] = defaultConfig;
 
     AtlasService['setupPlugin']();
     AtlasService['attachOidcPluginLoggerEvents']();
+
+    cloudFeatureRolloutAccess =
+      preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+    await preferencesAccess.savePreferences({
+      cloudFeatureRolloutAccess: {
+        GEN_AI_COMPASS: true,
+      },
+    });
   });
 
-  afterEach(function () {
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = apiBaseUrl;
-    process.env.COMPASS_OIDC_ISSUER = issuer;
-    process.env.COMPASS_CLIENT_ID = clientId;
-
+  afterEach(async function () {
     AtlasService['fetch'] = fetch;
     AtlasService['atlasUserConfigStore'] = userStore;
     AtlasService['ipcMain'] = ipcMain;
@@ -86,6 +111,9 @@ describe('AtlasServiceMain', function () {
     AtlasService['oidcPluginLogger'].removeAllListeners();
     AtlasService['signInPromise'] = null;
     AtlasService['currentUser'] = null;
+    AtlasService['getActiveCompassUser'] = getActiveCompassUser;
+
+    await preferencesAccess.savePreferences({ cloudFeatureRolloutAccess });
 
     sandbox.resetHistory();
   });
@@ -96,7 +124,9 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
       expect(userInfo).to.have.property('sub', '1234');
     });
 
@@ -111,33 +141,40 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
     });
 
-    it('should throw if COMPASS_OIDC_ISSUER is not set', async function () {
-      delete process.env.COMPASS_OIDC_ISSUER;
+    it('should fail with oidc-plugin error first if auth failed', async function () {
+      AtlasService['fetch'] = sandbox.stub().resolves({
+        ok: false,
+        json: sandbox.stub().rejects(),
+        status: 401,
+        statusText: 'Unauthorized',
+      });
+      AtlasService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            REQUEST_TOKEN_CALLBACK: sandbox
+              .stub()
+              .rejects(
+                new Error(
+                  'Failed to request token for some specific plugin reason'
+                )
+              ),
+            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
+          },
+        },
+      } as any;
 
       try {
         await AtlasService.signIn();
-        expect.fail('Expected AtlasService.signIn() to throw');
+        expect.fail('Expected AtlasService.signIn to throw');
       } catch (err) {
         expect(err).to.have.property(
           'message',
-          'COMPASS_OIDC_ISSUER is required'
-        );
-      }
-    });
-
-    it('should throw if COMPASS_CLIENT_ID is not set', async function () {
-      delete process.env.COMPASS_CLIENT_ID;
-
-      try {
-        await AtlasService.signIn();
-        expect.fail('Expected AtlasService.signIn() to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'COMPASS_CLIENT_ID is required'
+          'Failed to request token for some specific plugin reason'
         );
       }
     });
@@ -299,7 +336,7 @@ describe('AtlasServiceMain', function () {
         } catch (err) {
           expect(err).to.have.property(
             'message',
-            'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+            'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
           );
         }
       });
@@ -339,6 +376,7 @@ describe('AtlasServiceMain', function () {
           ok: false,
           status: 500,
           statusText: 'Internal Server Error',
+          json: sandbox.stub().rejects(new Error('invalid json')),
         }) as any;
 
         try {
@@ -349,25 +387,7 @@ describe('AtlasServiceMain', function () {
           });
           expect.fail(`Expected ${functionName} to throw`);
         } catch (err) {
-          expect(err).to.have.property('message', '500 Internal Server Error');
-        }
-      });
-
-      it('should throw if COMPASS_ATLAS_SERVICE_BASE_URL is not set', async function () {
-        delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-
-        try {
-          await AtlasService[functionName]({
-            userInput: 'test',
-            collectionName: 'test.test',
-            databaseName: 'peanut',
-          });
-          expect.fail('Expected AtlasService.signIn() to throw');
-        } catch (err) {
-          expect(err).to.have.property(
-            'message',
-            'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
-          );
+          expect(err).to.have.property('message', '500: Internal Server Error');
         }
       });
     });
@@ -385,7 +405,7 @@ describe('AtlasServiceMain', function () {
       });
     });
 
-    it('should throw network error if res is not ok', async function () {
+    it('should throw network error if res is not an atlas error', async function () {
       try {
         await throwIfNotOk({
           ok: false,
@@ -398,7 +418,7 @@ describe('AtlasServiceMain', function () {
         expect.fail('Expected throwIfNotOk to throw');
       } catch (err) {
         expect(err).to.have.property('name', 'NetworkError');
-        expect(err).to.have.property('message', '500 Whoops');
+        expect(err).to.have.property('message', '500: Whoops');
       }
     });
 
@@ -411,6 +431,7 @@ describe('AtlasServiceMain', function () {
           json() {
             return Promise.resolve({
               errorCode: 'ExampleCode',
+              error: 500,
               detail: 'tortillas',
             });
           },
@@ -419,13 +440,16 @@ describe('AtlasServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('name', 'ServerError');
         expect(err).to.have.property('message', 'ExampleCode: tortillas');
+        expect(err).to.have.property('detail', 'tortillas');
+        expect(err).to.have.property('errorCode', 'ExampleCode');
+        expect(err).to.have.property('statusCode', 500);
       }
     });
   });
 
   describe('init', function () {
     it('should try to restore service state by fetching user info', async function () {
-      await AtlasService.init();
+      await AtlasService.init(defaultConfig);
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
@@ -452,6 +476,7 @@ describe('AtlasServiceMain', function () {
       'getUserInfo',
       'introspect',
       'revoke',
+      'getAIFeatureEnablement',
       'getAggregationFromUserInput',
       'getQueryFromUserInput',
     ]) {
@@ -474,7 +499,7 @@ describe('AtlasServiceMain', function () {
       const logger = new EventEmitter();
       AtlasService['openExternal'] = sandbox.stub().resolves();
       AtlasService['oidcPluginLogger'] = logger;
-      await AtlasService.init();
+      await AtlasService.init(defaultConfig);
       expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
@@ -512,6 +537,129 @@ describe('AtlasServiceMain', function () {
       ).to.deep.eq({
         auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
       });
+    });
+  });
+
+  describe('setupAIAccess', function () {
+    beforeEach(async function () {
+      await preferencesAccess.savePreferences({
+        cloudFeatureRolloutAccess: undefined,
+      });
+    });
+
+    it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: {
+              GEN_AI_COMPASS: {
+                enabled: true,
+              },
+            },
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: true,
+      });
+    });
+
+    it('should set the cloudFeatureRolloutAccess false when returned false', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: {
+              GEN_AI_COMPASS: {
+                enabled: false,
+              },
+            },
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: false,
+      });
+    });
+
+    it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: null,
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: false,
+      });
+    });
+
+    it('should not set the cloudFeatureRolloutAccess false when returned false', async function () {
+      const fetchStub = sandbox.stub().throws(new Error('error'));
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal(undefined);
     });
   });
 });

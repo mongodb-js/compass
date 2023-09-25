@@ -61,7 +61,9 @@ describe('AtlasLoginSettings', function () {
       .exist;
 
     expect(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ })
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      })
     ).to.have.attribute('aria-checked', 'false');
   });
 
@@ -92,11 +94,15 @@ describe('AtlasLoginSettings', function () {
     ).to.exist;
 
     expect(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ })
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      })
     ).to.have.attribute('aria-checked', 'false');
 
     expect(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ })
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      })
     ).to.have.attribute('disabled');
   });
 
@@ -229,11 +235,15 @@ describe('AtlasLoginSettings', function () {
     await store.dispatch(signIn());
 
     expect(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ })
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      })
     ).to.have.attribute('aria-checked', 'false');
 
     userEvent.click(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ }),
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      }),
       undefined,
       { skipPointerEventsCheck: true }
     );
@@ -242,7 +252,9 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('switch', { name: /Use AI to generate queries/ })
+        screen.getByRole('switch', {
+          name: /Enable natural language prompts to generate/,
+        })
       ).to.have.attribute('aria-checked', 'true');
     });
   });
@@ -261,11 +273,15 @@ describe('AtlasLoginSettings', function () {
     await store.dispatch(signIn());
 
     expect(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ })
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      })
     ).to.have.attribute('aria-checked', 'true');
 
     userEvent.click(
-      screen.getByRole('switch', { name: /Use AI to generate queries/ }),
+      screen.getByRole('switch', {
+        name: /Enable natural language prompts to generate/,
+      }),
       undefined,
       { skipPointerEventsCheck: true }
     );
@@ -274,7 +290,9 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('switch', { name: /Use AI to generate queries/ })
+        screen.getByRole('switch', {
+          name: /Enable natural language prompts to generate/,
+        })
       ).to.have.attribute('aria-checked', 'false');
     });
   });

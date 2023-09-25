@@ -9,14 +9,14 @@ import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import error, { clearError, handleError } from '../error';
+import error, { clearError, handleError } from './error';
 import inProgress, { toggleInProgress } from '../in-progress';
 import isVisible, { toggleIsVisible } from '../is-visible';
 import fields from '../create-index/fields';
 import type { IndexField } from '../create-index/fields';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
-import type { InProgressIndex } from '../in-progress-indexes';
+import type { InProgressIndex } from '../regular-indexes';
 
 import schemaFields from '../create-index/schema-fields';
 import { resetForm } from '../reset-form';
@@ -241,6 +241,7 @@ export const createIndex = () => {
       geo:
         state.fields.filter(({ type }: { type: string }) => type === '2dsphere')
           .length > 0,
+      atlas_search: false,
     };
 
     try {
@@ -256,10 +257,10 @@ export const createIndex = () => {
       dispatch(
         localAppRegistryEmit('in-progress-indexes-removed', inProgressIndex.id)
       );
-      dispatch(localAppRegistryEmit('refresh-data'));
+      dispatch(localAppRegistryEmit('refresh-regular-indexes'));
     } catch (err) {
       dispatch(toggleInProgress(false));
-      dispatch(handleError(err as Error));
+      dispatch(handleError((err as Error).message));
       dispatch(
         localAppRegistryEmit('in-progress-indexes-failed', {
           inProgressIndexId: inProgressIndex.id,

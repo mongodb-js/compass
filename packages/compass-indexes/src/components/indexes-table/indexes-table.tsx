@@ -1,28 +1,18 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import {
   css,
+  cx,
   Table,
   TableHeader,
   Row,
   Cell,
-  cx,
   spacing,
   palette,
-  IndexKeysBadge,
   KeylineCard,
   useDOMRect,
 } from '@mongodb-js/compass-components';
 
-import TypeField from './type-field';
-import SizeField from './size-field';
-import UsageField from './usage-field';
-import PropertyField from './property-field';
-import type {
-  IndexDefinition,
-  SortColumn,
-  SortDirection,
-} from '../../modules/indexes';
-import IndexActions from './index-actions';
+import type { SortDirection } from '../../modules';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
@@ -81,54 +71,37 @@ const spaceProviderStyles = css({
   overflow: 'hidden',
 });
 
-type IndexesTableProps = {
-  indexes: IndexDefinition[];
-  canModifyIndex: boolean;
-  serverVersion: string;
-  onSortTable: (column: SortColumn, direction: SortDirection) => void;
-  onDeleteIndex: (index: IndexDefinition) => void;
-  onHideIndex: (name: string) => void;
-  onUnhideIndex: (name: string) => void;
+type IndexInfo = {
+  key: string;
+  'data-testid': string;
+  fields: {
+    key?: string;
+    'data-testid': string;
+    children: React.ReactNode;
+  }[];
+  actions?: React.ReactNode;
+  details?: React.ReactNode;
 };
 
-export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
-  indexes,
+export type IndexesTableProps<Column extends string> = {
+  ['data-testid']: string;
+  ['aria-label']: string;
+  columns: readonly Column[];
+  data: IndexInfo[];
+  canModifyIndex?: boolean;
+  onSortTable: (column: Column, direction: SortDirection) => void;
+};
+
+export function IndexesTable<Column extends string>({
+  ['data-testid']: dataTestId,
+  ['aria-label']: ariaLabel,
+  columns: sortColumns,
   canModifyIndex,
-  serverVersion,
+  data,
   onSortTable,
-  onDeleteIndex,
-  onHideIndex,
-  onUnhideIndex,
-}) => {
+}: IndexesTableProps<Column>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
-  const columns = useMemo(() => {
-    const sortColumns: SortColumn[] = [
-      'Name and Definition',
-      'Type',
-      'Size',
-      'Usage',
-      'Properties',
-    ];
-    const _columns = sortColumns.map((name) => {
-      return (
-        <TableHeader
-          data-testid={`index-header-${name}`}
-          label={name}
-          key={name}
-          className={tableHeaderStyles}
-          handleSort={(direction) => {
-            onSortTable(name, direction);
-          }}
-        />
-      );
-    });
-    // Actions column
-    if (canModifyIndex) {
-      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
-    }
-    return _columns;
-  }, [canModifyIndex, onSortTable]);
 
   useEffect(() => {
     /**
@@ -165,78 +138,96 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
     }
   }, [availableHeightInContainer]);
 
+  const columns = useMemo(() => {
+    const _columns = sortColumns.map((name) => {
+      return (
+        <TableHeader
+          data-testid={`${dataTestId}-header-${name}`}
+          label={name}
+          key={name}
+          className={tableHeaderStyles}
+          handleSort={(direction: SortDirection) => {
+            onSortTable(name, direction);
+          }}
+        />
+      );
+    });
+    // Actions column
+    if (canModifyIndex) {
+      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
+    }
+    return _columns;
+  }, [canModifyIndex, onSortTable, sortColumns]);
+
   return (
     <div className={spaceProviderStyles} {...rectProps}>
-      <KeylineCard ref={cardRef} data-testid="indexes" className={cardStyles}>
+      <KeylineCard
+        ref={cardRef}
+        data-testid={dataTestId}
+        className={cardStyles}
+      >
         <Table
           className={tableStyles}
-          data={indexes}
           columns={columns}
-          data-testid="indexes-list"
-          aria-label="Indexes List Table"
+          data={data}
+          data-testid={`${dataTestId}-list`}
+          aria-label={`${ariaLabel} List Table`}
         >
-          {({ datum: index }) => (
-            <Row
-              key={index.name}
-              data-testid={`index-row-${index.name}`}
-              className={rowStyles}
-            >
-              <Cell data-testid="index-name-field" className={cellStyles}>
-                {index.name}
-              </Cell>
-              <Cell data-testid="index-type-field" className={cellStyles}>
-                <TypeField type={index.type} extra={index.extra} />
-              </Cell>
-              <Cell data-testid="index-size-field" className={cellStyles}>
-                <SizeField
-                  size={index.size}
-                  relativeSize={index.relativeSize}
-                />
-              </Cell>
-              <Cell data-testid="index-usage-field" className={cellStyles}>
-                <UsageField usage={index.usageCount} since={index.usageSince} />
-              </Cell>
-              <Cell data-testid="index-property-field" className={cellStyles}>
-                <PropertyField
-                  cardinality={index.cardinality}
-                  extra={index.extra}
-                  properties={index.properties}
-                />
-              </Cell>
-              {/* Index actions column is conditional */}
-              {canModifyIndex && (
-                <Cell data-testid="index-actions-field" className={cellStyles}>
-                  {index.name !== '_id_' &&
-                    index.extra.status !== 'inprogress' && (
+          {({ datum: info, index }) => {
+            return (
+              <Row
+                key={info.key}
+                data-testid={`${dataTestId}-${info['data-testid']}`}
+                className={rowStyles}
+              >
+                {info.fields.map((field) => {
+                  return (
+                    <Cell
+                      key={field.key ?? `${info.key}-${index}`}
+                      data-testid={`${dataTestId}-${field['data-testid']}`}
+                      className={cellStyles}
+                    >
+                      {field.children}
+                    </Cell>
+                  );
+                })}
+                {/* Index actions column is conditional */}
+                {canModifyIndex && (
+                  <Cell
+                    data-testid={`${dataTestId}-actions-field`}
+                    className={cellStyles}
+                  >
+                    {info.actions && (
                       <div
                         className={cx(
                           indexActionsCellStyles,
                           'index-actions-cell'
                         )}
                       >
-                        <IndexActions
-                          index={index}
-                          serverVersion={serverVersion}
-                          onDeleteIndex={onDeleteIndex}
-                          onHideIndex={onHideIndex}
-                          onUnhideIndex={onUnhideIndex}
-                        ></IndexActions>
+                        {info.actions}
                       </div>
                     )}
-                </Cell>
-              )}
-              <Row>
-                <Cell
-                  className={cx(nestedRowCellStyles, cellStyles)}
-                  colSpan={canModifyIndex ? 6 : 5}
-                >
-                  <IndexKeysBadge keys={index.fields} />
-                </Cell>
+                  </Cell>
+                )}
+                {info.details && (
+                  <Row>
+                    <Cell
+                      className={cx(nestedRowCellStyles, cellStyles)}
+                      colSpan={
+                        canModifyIndex
+                          ? info.fields.length + 1
+                          : info.fields.length
+                      }
+                    >
+                      {info.details}
+                    </Cell>
+                  </Row>
+                )}
               </Row>
-            </Row>
-          )}
+            );
+          }}
         </Table>
       </KeylineCard>
     </div>
   );
-};
+}

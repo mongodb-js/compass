@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
@@ -40,6 +40,7 @@ const renderStagePreview = (
 };
 
 describe('StagePreview', function () {
+  afterEach(cleanup);
   it('renders empty content when stage is disabled', function () {
     renderStagePreview({
       isDisabled: true,
@@ -100,6 +101,28 @@ describe('StagePreview', function () {
   it('renders list of documents', function () {
     renderStagePreview({
       shouldRenderStage: true,
+      documents: [{ _id: 1 }, { _id: 2 }],
+    });
+    const docs = screen.getAllByTestId('readonly-document');
+    expect(docs).to.have.length(2);
+  });
+  it('renders missing search index text for $search', function () {
+    renderStagePreview({
+      shouldRenderStage: true,
+      stageOperator: '$search',
+      documents: [],
+    });
+    expect(screen.getByText('No results found')).to.exist;
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+  it('renders $search preview docs', function () {
+    renderStagePreview({
+      shouldRenderStage: true,
+      stageOperator: '$search',
       documents: [{ _id: 1 }, { _id: 2 }],
     });
     const docs = screen.getAllByTestId('readonly-document');

@@ -1,7 +1,9 @@
 import assert from 'assert';
 import { ObjectId } from 'bson';
-import { expect } from 'chai';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
+import { MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
@@ -18,6 +20,10 @@ import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import type { SearchIndex } from './search-index-detail-helper';
+
+const { expect } = chai;
+chai.use(chaiAsPromised);
 
 const TEST_DOCS = [
   {
@@ -1123,6 +1129,58 @@ describe('DataService', function () {
         expect(stop.callCount).to.equal(1);
       });
     });
+
+    describe('#isListSearchIndexesSupported', function () {
+      it('returns false', async function () {
+        expect(
+          await dataService.isListSearchIndexesSupported(testNamespace)
+        ).to.be.false;
+      });
+    });
+
+    describe('#getSearchIndexes', function () {
+      it('throws an error', async function () {
+        await expect(
+          dataService.getSearchIndexes(testNamespace)
+        ).to.be.rejectedWith(
+          MongoServerError,
+          "Unrecognized pipeline stage name: '$listSearchIndexes'"
+        );
+      });
+    });
+
+    describe('#createSearchIndex', function () {
+      it('throws an error', async function () {
+        await expect(
+          dataService.createSearchIndex(testNamespace, 'my-index', {})
+        ).to.be.rejectedWith(
+          MongoServerError,
+          "no such command: 'createSearchIndexes'"
+        );
+      });
+    });
+
+    describe('#updateSearchIndex', function () {
+      it('throws an error', async function () {
+        await expect(
+          dataService.updateSearchIndex(testNamespace, 'my-index', {})
+        ).to.be.rejectedWith(
+          MongoServerError,
+          "no such command: 'updateSearchIndex'"
+        );
+      });
+    });
+
+    describe('#dropSearchIndex', function () {
+      it('throws an error', async function () {
+        await expect(
+          dataService.dropSearchIndex(testNamespace, 'my-index')
+        ).to.be.rejectedWith(
+          MongoServerError,
+          "no such command: 'dropSearchIndex'"
+        );
+      });
+    });
   });
 
   context('with mocked client', function () {
@@ -1481,6 +1539,114 @@ describe('DataService', function () {
           validator: { $jsonSchema: {} },
         });
         expect(dataService['_crudClient']).to.equal(fakeClonedClient);
+      });
+    });
+
+    describe('#isListSearchIndexesSupported', function () {
+      it('resolves to true if listSearchIndexes succeeds', async function () {
+        const searchIndexes: SearchIndex[] = [
+          {
+            id: '1',
+            name: 'a',
+            status: 'READY',
+            queryable: true,
+            latestDefinition: {},
+          },
+          {
+            id: '2',
+            name: 'b',
+            status: 'READY',
+            queryable: true,
+            latestDefinition: {},
+          },
+        ];
+
+        const dataService: any = createDataServiceWithMockedClient({
+          searchIndexes: {
+            test: {
+              test: searchIndexes,
+            },
+          },
+        });
+        expect(
+          await dataService.isListSearchIndexesSupported('test.test')
+        ).to.be.true;
+      });
+
+      it('resolves to false if listSearchIndexes fails', async function () {
+        const dataService: any = createDataServiceWithMockedClient({
+          searchIndexes: {
+            test: {
+              test: new Error('fake error'),
+            },
+          },
+        });
+        expect(
+          await dataService.isListSearchIndexesSupported('test.test')
+        ).to.be.false;
+      });
+    });
+
+    describe('#getSearchIndexes', function () {
+      it('returns the search indexes', async function () {
+        const searchIndexes: SearchIndex[] = [
+          {
+            id: '1',
+            name: 'a',
+            status: 'READY',
+            queryable: true,
+            latestDefinition: {},
+          },
+          {
+            id: '2',
+            name: 'b',
+            status: 'READY',
+            queryable: true,
+            latestDefinition: {},
+          },
+        ];
+
+        const dataService: any = createDataServiceWithMockedClient({
+          searchIndexes: {
+            test: {
+              test: searchIndexes,
+            },
+          },
+        });
+        expect(await dataService.getSearchIndexes('test.test')).to.deep.equal(
+          searchIndexes
+        );
+      });
+    });
+
+    describe('#createSearchIndex', function () {
+      it('creates a search index', async function () {
+        const dataService: any = createDataServiceWithMockedClient({});
+        expect(
+          await dataService.createSearchIndex('test.test', 'my-index', {
+            mappings: { dynamic: true },
+          })
+        ).to.deep.equal('my-index');
+      });
+    });
+
+    describe('#updateSearchIndex', function () {
+      it('updates a search index', async function () {
+        const dataService: any = createDataServiceWithMockedClient({});
+        expect(
+          await dataService.updateSearchIndex('test.test', 'my-index', {
+            mappings: { dynamic: true },
+          })
+        ).to.be.undefined;
+      });
+    });
+
+    describe('#dropSearchIndex', function () {
+      it('drops a search index', async function () {
+        const dataService: any = createDataServiceWithMockedClient({});
+        expect(
+          await dataService.dropSearchIndex('test.test', 'my-index')
+        ).to.be.undefined;
       });
     });
   });

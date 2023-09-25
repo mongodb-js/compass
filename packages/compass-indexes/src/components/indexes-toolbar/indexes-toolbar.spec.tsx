@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
+import preferencesAccess from 'compass-preferences-model';
 
 import { IndexesToolbar } from './indexes-toolbar';
 
@@ -16,14 +17,16 @@ const renderIndexesToolbar = (
     <IndexesToolbar
       hasTooManyIndexes={false}
       errorMessage={null}
-      isReadonly={false}
       isReadonlyView={false}
       readOnly={false}
       isWritable={true}
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
       onRefreshIndexes={() => {}}
+      isAtlasSearchSupported={false}
       isRefreshing={false}
+      onChangeIndexView={() => {}}
+      onClickCreateAtlasSearchIndex={() => {}}
       {...props}
     />
   );
@@ -34,14 +37,87 @@ describe('IndexesToolbar Component', function () {
   afterEach(cleanup);
 
   describe('when rendered', function () {
-    beforeEach(function () {
-      renderIndexesToolbar();
+    describe('with atlas search index management is disabled', function () {
+      let sandbox: sinon.SinonSandbox;
+
+      afterEach(function () {
+        return sandbox.restore();
+      });
+
+      beforeEach(function () {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(preferencesAccess, 'getPreferences').returns({
+          enableAtlasSearchIndexManagement: false,
+          showInsights: true,
+        } as any);
+
+        renderIndexesToolbar({});
+      });
+
+      it('should render the create index button enabled', function () {
+        expect(
+          screen.getByText('Create Index').closest('button')
+        ).to.not.have.attr('disabled');
+      });
     });
 
-    it('should render the create index button enabled', function () {
-      expect(
-        screen.getByText('Create Index').closest('button')
-      ).to.not.have.attr('disabled');
+    describe('with atlas search index management is enabled', function () {
+      describe('when cluster has Atlas Search available', function () {
+        let sandbox: sinon.SinonSandbox;
+
+        afterEach(function () {
+          return sandbox.restore();
+        });
+
+        beforeEach(function () {
+          sandbox = sinon.createSandbox();
+          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+            enableAtlasSearchIndexManagement: true,
+            showInsights: true,
+          } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: true });
+        });
+
+        it('should render the create index dropdown button enabled', async function () {
+          const createSplitDropdown = screen.getByTestId(
+            'multiple-index-types-creation-dropdown-show-actions'
+          );
+          expect(createSplitDropdown).to.exist;
+          expect(createSplitDropdown).to.not.have.attr('disabled');
+
+          userEvent.click(createSplitDropdown);
+
+          expect((await screen.findByText('Index')).closest('button')).to.be
+            .visible;
+          expect((await screen.findByText('Search Index')).closest('button')).to
+            .be.visible;
+        });
+      });
+
+      describe('when cluster does not support Atlas Search', function () {
+        let sandbox: sinon.SinonSandbox;
+
+        afterEach(function () {
+          return sandbox.restore();
+        });
+
+        beforeEach(function () {
+          sandbox = sinon.createSandbox();
+          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+            enableAtlasSearchIndexManagement: true,
+            showInsights: true,
+          } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: false });
+        });
+
+        it('should render the create index button only', function () {
+          expect(
+            screen.getByText('Create Index').closest('button')
+          ).to.not.have.attr('disabled');
+        });
+      });
     });
 
     it('should not render a warning', function () {
@@ -64,18 +140,6 @@ describe('IndexesToolbar Component', function () {
     it('should render a warning', function () {
       expect(screen.getByText('Readonly views may not contain indexes.')).to.be
         .visible;
-    });
-  });
-
-  describe('when it is readonly', function () {
-    beforeEach(function () {
-      renderIndexesToolbar({
-        isReadonly: true,
-      });
-    });
-
-    it('should not render the create index button', function () {
-      expect(screen.queryByText('Create Index')).to.not.exist;
     });
   });
 
@@ -191,6 +255,83 @@ describe('IndexesToolbar Component', function () {
           errorMessage: 'Something bad happened',
         });
         expect(() => screen.getByTestId('insight-badge-button')).to.throw;
+      });
+    });
+  });
+
+  describe('segment control', function () {
+    describe('available when atlas search management is active', function () {
+      let sandbox: sinon.SinonSandbox;
+      let onChangeViewCallback: sinon.SinonSpy;
+
+      afterEach(function () {
+        return sandbox.restore();
+      });
+
+      beforeEach(function () {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(preferencesAccess, 'getPreferences').returns({
+          enableAtlasSearchIndexManagement: true,
+          showInsights: true,
+        } as any);
+
+        onChangeViewCallback = sinon.spy();
+      });
+
+      describe('when atlas search is supported in the cluster', function () {
+        let onClickCreateAtlasSearchIndexSpy: () => void;
+
+        beforeEach(function () {
+          onClickCreateAtlasSearchIndexSpy = sinon.spy();
+          renderIndexesToolbar({
+            isAtlasSearchSupported: true,
+            onChangeIndexView: onChangeViewCallback,
+            onClickCreateAtlasSearchIndex: onClickCreateAtlasSearchIndexSpy,
+          });
+        });
+
+        it('should change to search indexes when the segment control is clicked', function () {
+          const segmentControl = screen.getByText('Search Indexes');
+          userEvent.click(segmentControl);
+
+          expect(onChangeViewCallback).to.have.been.calledOnce;
+          expect(onChangeViewCallback.firstCall.args[0]).to.equal(
+            'search-indexes'
+          );
+        });
+
+        describe('when create search index button is clicked', function () {
+          it('should open the search index popup', async function () {
+            userEvent.click(screen.getByText('Create').closest('button')!);
+
+            const searchIndexButtonWrapper = await screen.findByText(
+              'Search Index'
+            );
+            const searchIndexButton =
+              searchIndexButtonWrapper.closest('button')!;
+
+            userEvent.click(searchIndexButton);
+
+            expect(onClickCreateAtlasSearchIndexSpy).to.have.been.calledOnce;
+          });
+        });
+      });
+
+      describe('when atlas search is not supported in the cluster', function () {
+        beforeEach(function () {
+          renderIndexesToolbar({
+            isAtlasSearchSupported: false,
+            onChangeIndexView: onChangeViewCallback,
+          });
+        });
+
+        it('should not change to search indexes', function () {
+          const segmentControl = screen.getByText('Search Indexes');
+          userEvent.click(segmentControl);
+
+          expect(segmentControl.closest('button')).to.have.attr('disabled');
+          expect(onChangeViewCallback).to.not.have.been.calledOnce;
+        });
       });
     });
   });

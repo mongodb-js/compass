@@ -8,7 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import { z, ZodError } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
+    enableAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -43,6 +44,19 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    // This preference is not a great fit for user preferences, but everything
+    // except for user preferences doesn't allow required preferences to be
+    // defined, so we are sticking it here
+    atlasServiceBackendPreset:
+      | 'compass-dev'
+      | 'compass'
+      | 'atlas-dev'
+      | 'atlas';
+    // Features that are enabled by default in Compass, but are disabled in Data
+    // Explorer
+    enableExplainPlan: boolean;
+    enableImportExport: boolean;
+    enableAggregationBuilderRunPipeline: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -50,6 +64,9 @@ export type InternalUserPreferences = {
   // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
+  cloudFeatureRolloutAccess?: {
+    GEN_AI_COMPASS?: boolean;
+  };
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
@@ -346,6 +363,23 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
   /**
+   * Enable/disable the AI services. This is currently set
+   * in the atlas-service initialization where we make a request to the
+   * ai endpoint to check what's enabled for the user (incremental rollout).
+   */
+  cloudFeatureRolloutAccess: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        GEN_AI_COMPASS: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
+  },
+  /**
    * Master switch to disable all network traffic
    * and make Compass behave like Isolated edition always,
    * i.e. no network traffic other than the one to the db server
@@ -384,7 +418,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable MongoDB Shell',
-      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+      long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
@@ -403,6 +437,18 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  enableAIFeatures: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -503,7 +549,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Device Auth Flow Checkbox',
-      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication for MongoDB server OIDC Authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
@@ -516,8 +562,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Browser command to use for OIDC Authentication',
-      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
+      short: 'Browser command to use for authentication',
+      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider for the server connection or when logging in to your Atlas Cloud account. Leave this empty for default browser.',
     },
     validator: z.string().optional(),
     type: 'string',
@@ -531,7 +577,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -593,6 +639,60 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+
+  /**
+   * Chooses atlas service backend configuration from preset
+   *  - compass-dev: locally running compass kanopy backend (localhost)
+   *  - compass:    compass kanopy backend (compass.mongodb.com)
+   *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas:      mms backend (cloud.mongodb.com)
+   */
+  atlasServiceBackendPreset: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Configuration used by atlas service',
+    },
+    validator: z
+      .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
+      .default('atlas'),
+    type: 'string',
+  },
+
+  enableImportExport: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable import / export feature',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableAggregationBuilderRunPipeline: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable "Run Pipeline" feature in aggregation builder',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableExplainPlan: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable explain plan feature in CRUD and aggregation view',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   ...allFeatureFlagsProps,
 };
 
@@ -856,7 +956,7 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
-      if (err instanceof ZodError) {
+      if (err instanceof z.ZodError) {
         throw err;
       }
     }
@@ -964,6 +1064,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
+        enableAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
