@@ -656,8 +656,8 @@ export const runAggregateSearchIndex = (
           $search: {
             index: name,
             text: {
-              query: '${1:string}',
-              path: '${2:string}',
+              query: 'string',
+              path: 'string',
             },
           },
         },
