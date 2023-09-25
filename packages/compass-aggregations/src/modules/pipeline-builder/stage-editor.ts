@@ -7,7 +7,6 @@ import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
-import type { ENVS } from '@mongodb-js/mongodb-constants';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
@@ -417,19 +416,11 @@ const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
 
 function getStageSnippet(
   stageOperator: string | null,
-  env: string,
   shouldAddComment: boolean,
   escaped = false
 ) {
   const stage = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).find(
-    (stageOp) => {
-      return (
-        stageOp.value === stageOperator &&
-        (stageOp.env as readonly typeof ENVS[number][]).includes(
-          env as typeof ENVS[number]
-        )
-      );
-    }
+    (stageOp) => stageOp.value === stageOperator
   );
 
   if (!stage) {
@@ -450,7 +441,6 @@ export const changeStageOperator = (
 > => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const {
-      env,
       comments,
       pipelineBuilder: {
         stageEditor: { stages },
@@ -470,7 +460,6 @@ export const changeStageOperator = (
 
     const currentSnippet = getStageSnippet(
       stageInStore.stageOperator,
-      env,
       comments,
       // We're getting escaped snippet here because on insert to the editor, it
       // will replace anchors with their names (i.e., `${anchor}` will be
@@ -500,7 +489,7 @@ export const changeStageOperator = (
     // can be applied to the editor (this will be picked up by the UI and passed
     // the the editor to start snippet completion)
     if (!currentValue || currentSnippet === currentValue) {
-      newSnippet = getStageSnippet(stage.operator, env, comments);
+      newSnippet = getStageSnippet(stage.operator, comments);
     }
 
     dispatch(loadPreviewForStagesFrom(id));
