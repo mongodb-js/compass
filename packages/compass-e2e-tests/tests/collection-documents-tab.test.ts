@@ -6,7 +6,7 @@ import type { Telemetry } from '../helpers/telemetry';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import type { Element } from 'webdriverio';
+import type { Element, ElementArray } from 'webdriverio';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
@@ -16,7 +16,8 @@ interface RecentQuery {
 }
 
 async function getRecentQueries(
-  browser: CompassBrowser
+  browser: CompassBrowser,
+  expectQueries = false
 ): Promise<RecentQuery[]> {
   const history = await browser.$(Selectors.QueryBarHistory);
   if (!(await history.isDisplayed())) {
@@ -24,11 +25,22 @@ async function getRecentQueries(
     await history.waitForDisplayed();
   }
 
-  const queryTags = await browser.$$(
-    '[data-testid="query-history-query-attributes"]'
-  );
+  let queryTags;
+  await browser.waitUntil(async () => {
+    queryTags = await browser.$$(
+      '[data-testid="query-history-query-attributes"]'
+    );
+    // Usually we expect to find some recents and the most common failure is
+    // that we read out the queries before they are rendered.
+    if (expectQueries) {
+      // Keep going until we find something or timeout if we never do
+      return queryTags.length > 0;
+    }
+    return true;
+  });
+
   return Promise.all(
-    queryTags.map(async (queryTag) => {
+    (queryTags as unknown as ElementArray).map(async (queryTag) => {
       const attributeTags = await queryTag.$$(
         '[data-testid="query-history-query-attribute"]'
       );
@@ -138,7 +150,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    const queries = await getRecentQueries(browser);
+    const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([{ Filter: '{\n i: 5\n}' }]);
   });
 
@@ -168,7 +180,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    const queries = await getRecentQueries(browser);
+    const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
         Filter: '{\n i: {\n  $gt: 5\n }\n}',
@@ -215,7 +227,7 @@ describe('Collection documents tab', function () {
     const displayText = await documentListActionBarMessageElement.getText();
     expect(displayText).to.equal('1 – 1 of 1');
 
-    const queries = await getRecentQueries(browser);
+    const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
         Filter: "{\n $where: 'function() { return sleep(10000) || true; }'\n}",
