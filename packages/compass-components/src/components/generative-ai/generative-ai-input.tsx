@@ -416,20 +416,11 @@ const AIError = ({
     );
   }
 
-  if (errorCode === 'QUERY_GENERATION_FAILED') {
-    return (
-      <>
-        Something went wrong, please try again later. If the error persists, try
-        changing your prompt.
-      </>
-    );
-  }
-
   // We received an errorCode that is not actionable (INTERNAL_SERVER_ERROR, QUERY_GENERATION_FAILED), or unknown.
   return (
     <>
-      Something went wrong, please try again later. If the error persists,
-      contact our support team.
+      Sorry, we were unable to generate the query, please try again. If the
+      error persists, try changing your prompt.
     </>
   );
 };
