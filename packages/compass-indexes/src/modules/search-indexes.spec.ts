@@ -323,6 +323,6 @@ describe('search-indexes module', function () {
     const callArgs = emitSpy.firstCall.args;
     expect(callArgs[0]).to.equal('search-indexes-run-aggregate');
     expect(callArgs[1]).to.have.property('ns');
-    expect(callArgs[1]).to.have.property('aggregation');
+    expect(callArgs[1]).to.have.property('pipelineText');
   });
 });

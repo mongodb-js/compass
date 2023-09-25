@@ -649,27 +649,19 @@ export const runAggregateSearchIndex = (
     if (!searchIndex) {
       return;
     }
-    const pipeline = JSON.stringify([
-      {
-        $search: {
-          index: name,
-          text: {
-            query: 'string',
-            path: 'string',
-          },
-        },
-      },
-    ]);
     globalAppRegistry?.emit('search-indexes-run-aggregate', {
       ns: namespace,
-      aggregation: {
-        pipelineText: pipeline,
-        autoPreview: true,
-        name: null,
-        id: null,
-        collationString: null,
-        comments: null,
-      },
+      pipelineText: JSON.stringify([
+        {
+          $search: {
+            index: name,
+            text: {
+              query: '${1:string}',
+              path: '${2:string}',
+            },
+          },
+        },
+      ]),
     });
   };
 };
