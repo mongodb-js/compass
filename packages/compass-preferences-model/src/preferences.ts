@@ -549,7 +549,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Device Auth Flow Checkbox',
-      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication for MongoDB server OIDC Authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
@@ -562,8 +562,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Browser command to use for OIDC Authentication',
-      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
+      short: 'Browser command to use for authentication',
+      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider for the server connection or when logging in to your Atlas Cloud account. Leave this empty for default browser.',
     },
     validator: z.string().optional(),
     type: 'string',
@@ -577,7 +577,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

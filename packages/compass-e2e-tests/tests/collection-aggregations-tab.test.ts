@@ -274,7 +274,7 @@ describe('Collection aggregations tab', function () {
     if (serverSatisfies('>= 5.3.0')) {
       expectedAggregations.push('$fill');
     }
-    if (serverSatisfies('>= 7.0.2')) {
+    if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
 

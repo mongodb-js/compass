@@ -544,6 +544,12 @@ const fetchIndexes = (
       // previous list of indexes is shown to the user.
       if (newStatus === 'FETCHING') {
         dispatch(setError((err as Error).message));
+      } else {
+        // If fetch fails for refresh or polling, set the status to READY again.
+        dispatch({
+          type: ActionTypes.SetStatus,
+          status: SearchIndexesStatuses.READY,
+        });
       }
     }
   };
@@ -607,7 +613,7 @@ export const dropSearchIndex = (
       variant: 'danger',
       requiredInputText: name,
       description:
-        'If you drop default, all queries using it will no longer function',
+        'If you drop this index, all queries using it will no longer function.',
     });
     if (!isConfirmed) {
       return;
