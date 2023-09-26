@@ -55,9 +55,10 @@ const fetch = (() => {
 })();
 
 const backendBaseUrl =
-  BACKEND === 'atlas-dev'
+  process.env.AI_TESTS_BACKEND_URL ||
+  (BACKEND === 'atlas-dev'
     ? 'https://cloud-dev.mongodb.com/api/private'
-    : 'http://localhost:8080';
+    : 'http://localhost:8080');
 
 let httpErrors = 0;
 
