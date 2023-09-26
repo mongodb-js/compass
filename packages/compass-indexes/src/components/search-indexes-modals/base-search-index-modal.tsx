@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   ModalFooter,
@@ -16,11 +16,15 @@ import {
   ErrorSummary,
   Body,
   Banner,
+  rafraf,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
+import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -36,8 +40,22 @@ function parseShellBSON(source: string): Document[] {
 const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
   gap: spacing[3],
+});
+
+const templateToolbarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[3],
+  padding: spacing[1],
+});
+
+const templateToolbarTextDescriptionStyles = css({
+  width: '60%',
+});
+
+const templateToolbarDropdownStyles = css({
+  width: '40%',
 });
 
 const formContainerStyles = css({
@@ -80,6 +98,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onSubmit,
   onClose,
 }) => {
+  const editorRef = useRef<EditorRef>(null);
+
   const [indexName, setIndexName] = useState(initialIndexName);
   const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
@@ -141,6 +161,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     onSubmit(indexName, indexDefinitionDoc);
   }, [onSubmit, parsingError, indexName, indexDefinition]);
 
+  const onChangeTemplate = useCallback(
+    (template: SearchTemplate) => {
+      rafraf(() => {
+        editorRef.current?.focus();
+        editorRef.current?.applySnippet(template.snippet);
+      });
+    },
+    [editorRef]
+  );
+
   return (
     <Modal
       open={isModalOpen}
@@ -182,32 +212,43 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               <HorizontalRule />
             </>
           )}
-          <section>
-            <Label htmlFor="definition-of-search-index">Index Definition</Label>
-            <br />
-            {mode === 'create' && (
-              <Body>
-                By default, search indexes will have the following search
-                configurations. You can refine this later.
-              </Body>
-            )}
-            <Link
-              href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
-              target="_blank"
-              hideExternalIcon={true}
-            >
-              View Atlas Search tutorials{' '}
-              <Icon size="small" glyph="OpenNewTab"></Icon>
-            </Link>
-            <CodemirrorMultilineEditor
-              id="definition-of-search-index"
-              data-testid="definition-of-search-index"
-              className={editorStyles}
-              text={indexDefinition}
-              onChangeText={onSearchIndexDefinitionChanged}
-              minLines={16}
-            />
+          <section className={templateToolbarStyles}>
+            <div className={templateToolbarTextDescriptionStyles}>
+              <Label htmlFor="definition-of-search-index">
+                Index Definition
+              </Label>
+              <br />
+              {mode === 'create' && (
+                <Body>
+                  By default, search indexes will have the following search
+                  configurations. You can refine this later.
+                </Body>
+              )}
+              <Link
+                href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+                target="_blank"
+                hideExternalIcon={true}
+              >
+                View Atlas Search tutorials{' '}
+                <Icon size="small" glyph="OpenNewTab"></Icon>
+              </Link>
+            </div>
+            <div className={templateToolbarDropdownStyles}>
+              <SearchIndexTemplateDropdown
+                tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                onTemplate={onChangeTemplate}
+              />
+            </div>
           </section>
+          <CodemirrorMultilineEditor
+            ref={editorRef}
+            id="definition-of-search-index"
+            data-testid="definition-of-search-index"
+            className={editorStyles}
+            text={indexDefinition}
+            onChangeText={onSearchIndexDefinitionChanged}
+            minLines={16}
+          />
         </div>
         {parsingError && <WarningSummary warnings={parsingError} />}
         {!parsingError && error && <ErrorSummary errors={error} />}

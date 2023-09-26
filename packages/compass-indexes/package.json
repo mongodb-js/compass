@@ -60,6 +60,7 @@
     "@mongodb-js/compass-editor": "^0.13.0",
     "@mongodb-js/compass-logging": "^1.2.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.11",
+    "@mongodb-js/mongodb-constants": "^0.8.4",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.14.0",
     "react": "^17.0.2"
@@ -74,6 +75,7 @@
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
+    "ejson-shell-parser": "^1.2.4",
     "electron": "^26.2.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
@@ -93,14 +95,14 @@
     "redux-thunk": "^2.4.1",
     "semver": "^5.4.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1",
-    "ejson-shell-parser": "^1.2.4"
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.14.0",
     "@mongodb-js/compass-editor": "^0.13.0",
     "@mongodb-js/compass-logging": "^1.2.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.11",
+    "@mongodb-js/mongodb-constants": "^0.8.4",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.14.0"
   }
