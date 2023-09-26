@@ -1,3 +1,4 @@
+'use strict';
 // To run these tests locally:
 // > ATLAS_PUBLIC_KEY="..." \
 //   ATLAS_PRIVATE_KEY="..." \
