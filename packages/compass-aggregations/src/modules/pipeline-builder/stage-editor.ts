@@ -25,6 +25,7 @@ import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
+import type { ServerEnvironment } from './../env';
 import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
@@ -416,12 +417,18 @@ const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
 
 function getStageSnippet(
   stageOperator: string | null,
+  env: ServerEnvironment,
   shouldAddComment: boolean,
   escaped = false
 ) {
-  const stage = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).find(
+  const stages = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).filter(
     (stageOp) => stageOp.value === stageOperator
   );
+
+  const stage =
+    stages.find((stageOp) =>
+      (stageOp.env as readonly ServerEnvironment[]).includes(env)
+    ) ?? stages[0];
 
   if (!stage) {
     return `{}`;
@@ -441,6 +448,7 @@ export const changeStageOperator = (
 > => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const {
+      env,
       comments,
       pipelineBuilder: {
         stageEditor: { stages },
@@ -460,6 +468,7 @@ export const changeStageOperator = (
 
     const currentSnippet = getStageSnippet(
       stageInStore.stageOperator,
+      env,
       comments,
       // We're getting escaped snippet here because on insert to the editor, it
       // will replace anchors with their names (i.e., `${anchor}` will be
@@ -489,7 +498,7 @@ export const changeStageOperator = (
     // can be applied to the editor (this will be picked up by the UI and passed
     // the the editor to start snippet completion)
     if (!currentValue || currentSnippet === currentValue) {
-      newSnippet = getStageSnippet(stage.operator, comments);
+      newSnippet = getStageSnippet(stage.operator, env, comments);
     }
 
     dispatch(loadPreviewForStagesFrom(id));
