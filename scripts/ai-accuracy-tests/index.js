@@ -9,9 +9,9 @@ const fs = require('fs').promises;
 const os = require('os');
 const assert = require('assert');
 const ejsonShellParser = require('ejson-shell-parser');
-const MongoClient = require('mongodb').MongoClient;
-const EJSON = require('bson').EJSON;
-const getSimplifiedSchema = require('mongodb-schema').getSimplifiedSchema;
+const { MongoClient } = require('mongodb');
+const { EJSON } = require('bson');
+const { getSimplifiedSchema } = require('mongodb-schema');
 const path = require('path');
 
 const DigestClient = require('digest-fetch');
