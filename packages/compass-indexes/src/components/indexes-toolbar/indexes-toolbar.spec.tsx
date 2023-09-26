@@ -24,6 +24,7 @@ const renderIndexesToolbar = (
       onChangeIndexView={() => {}}
       onCreateRegularIndex={() => {}}
       onCreateSearchIndex={() => {}}
+      initialIndexView="regular-indexes"
       {...props}
     />
   );

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model';
 import {
@@ -54,6 +54,7 @@ export type IndexView = 'regular-indexes' | 'search-indexes';
 
 type IndexesToolbarProps = {
   // passed props:
+  initialIndexView: IndexView;
   errorMessage: string | null;
   hasTooManyIndexes: boolean;
   isRefreshing: boolean;
@@ -71,6 +72,7 @@ type IndexesToolbarProps = {
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
+  initialIndexView,
   errorMessage,
   isReadonlyView,
   isWritable,
@@ -84,6 +86,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onChangeIndexView,
   readOnly, // preferences readOnly.
 }) => {
+  const [currentIndexView, setCurrentIndexView] =
+    useState<IndexView>(initialIndexView);
+
+  useEffect(() => {
+    setCurrentIndexView(initialIndexView);
+  }, [initialIndexView]);
+
   const isSearchManagementActive = usePreference(
     'enableAtlasSearchIndexManagement',
     React
@@ -94,6 +103,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onChangeIndexesSegment = useCallback(
     (value: string) => {
       const newView = value as IndexView;
+
+      setCurrentIndexView(newView);
       onChangeIndexView(newView);
     },
     [onChangeIndexView]
@@ -161,7 +172,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 onChange={onChangeIndexesSegment}
                 className={alignSelfEndStyles}
                 label="Viewing"
-                defaultValue="regular-indexes"
+                value={currentIndexView}
                 data-testid="indexes-segment-controls"
               >
                 <SegmentedControlOption

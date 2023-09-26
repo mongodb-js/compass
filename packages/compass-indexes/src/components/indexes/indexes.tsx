@@ -93,6 +93,10 @@ export function Indexes({
     [loadIndexes]
   );
 
+  const onAtlasSearchIndexCreated = useCallback(() => {
+    setCurrentIndexesView('search-indexes');
+  }, []);
+
   useEffect(() => {
     loadIndexes();
   }, [loadIndexes]);
@@ -105,6 +109,7 @@ export function Indexes({
         isRefreshing={isRefreshing}
         onRefreshIndexes={onRefreshIndexes}
         onChangeIndexView={changeIndexView}
+        initialIndexView={currentIndexesView}
       />
       {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
         <RegularIndexesTable />
@@ -112,7 +117,7 @@ export function Indexes({
       {!isReadonlyView && currentIndexesView === 'search-indexes' && (
         <SearchIndexesTable />
       )}
-      <CreateSearchIndexModal />
+      <CreateSearchIndexModal onIndexCreated={onAtlasSearchIndexCreated} />
       <UpdateSearchIndexModal />
     </div>
   );
