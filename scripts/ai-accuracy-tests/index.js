@@ -5,7 +5,7 @@
 //   AI_TESTS_ATTEMPTS_PER_TEST=100 \
 //     node scripts/ai-accuracy-tests/index.js
 
-const MongoCluster = require('mongodb-runner').MongoCluster;
+const { MongoCluster } = require('mongodb-runner');
 const fs = require('fs').promises;
 const os = require('os');
 const assert = require('assert');
