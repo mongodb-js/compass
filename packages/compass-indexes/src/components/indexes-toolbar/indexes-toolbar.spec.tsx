@@ -2,7 +2,6 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
 import preferencesAccess from 'compass-preferences-model';
 
@@ -11,8 +10,6 @@ import { IndexesToolbar } from './indexes-toolbar';
 const renderIndexesToolbar = (
   props: Partial<React.ComponentProps<typeof IndexesToolbar>> = {}
 ) => {
-  const appRegistry = new AppRegistry();
-
   render(
     <IndexesToolbar
       hasTooManyIndexes={false}
@@ -20,13 +17,13 @@ const renderIndexesToolbar = (
       isReadonlyView={false}
       readOnly={false}
       isWritable={true}
-      localAppRegistry={appRegistry}
       writeStateDescription={undefined}
       onRefreshIndexes={() => {}}
       isAtlasSearchSupported={false}
       isRefreshing={false}
       onChangeIndexView={() => {}}
-      onClickCreateAtlasSearchIndex={() => {}}
+      onCreateRegularIndex={() => {}}
+      onCreateSearchIndex={() => {}}
       {...props}
     />
   );
@@ -185,26 +182,78 @@ describe('IndexesToolbar Component', function () {
     });
   });
 
-  describe('when the create index button is clicked', function () {
-    let emitSpy: sinon.SinonSpy;
+  describe('allows creating of indexes', function () {
+    let sandbox: sinon.SinonSandbox;
     beforeEach(function () {
-      const appRegistry = new AppRegistry();
-      emitSpy = sinon.spy();
-      sinon.replace(appRegistry, 'emit', emitSpy);
-      renderIndexesToolbar({
-        localAppRegistry: appRegistry,
-      });
-      expect(emitSpy).to.not.have.been.called;
+      sandbox = sinon.createSandbox();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableAtlasSearchIndexManagement: true,
+      } as any);
+    });
+    afterEach(function () {
+      sandbox.restore();
+    });
+    context('when search indexes is not supported', function () {
+      it('calls onCreateRegularIndex when index button is clicked', function () {
+        const onCreateRegularIndexSpy = sinon.spy();
+        renderIndexesToolbar({
+          onCreateRegularIndex: onCreateRegularIndexSpy,
+        });
+        expect(onCreateRegularIndexSpy).to.not.have.been.called;
 
-      const createIndexButton = screen.getByTestId(
-        'open-create-index-modal-button'
-      );
-      userEvent.click(createIndexButton);
+        screen.getByTestId('open-create-index-modal-button').click();
+
+        expect(onCreateRegularIndexSpy).to.have.been.calledOnce;
+      });
     });
 
-    it('should emit "open-create-index-modal" on the local app registry', function () {
-      expect(emitSpy).to.have.been.calledOnce;
-      expect(emitSpy.firstCall.args[0]).to.equal('open-create-index-modal');
+    context('when search indexes is supported', function () {
+      it('calls onCreateRegularIndex when index button is clicked', function () {
+        const onCreateRegularIndexSpy = sinon.spy();
+        renderIndexesToolbar({
+          isAtlasSearchSupported: true,
+          onCreateRegularIndex: onCreateRegularIndexSpy,
+        });
+
+        // open the dropdown
+        screen
+          .getByTestId('multiple-index-types-creation-dropdown-show-actions')
+          .click();
+
+        expect(onCreateRegularIndexSpy).to.not.have.been.called;
+
+        // click the button
+        screen
+          .getByTestId(
+            'multiple-index-types-creation-dropdown-createRegularIndex-action'
+          )
+          .click();
+
+        expect(onCreateRegularIndexSpy).to.have.been.calledOnce;
+      });
+      it('calls onCreateSearchIndex when index button is clicked', function () {
+        const onCreateSearchIndexSpy = sinon.spy();
+        renderIndexesToolbar({
+          isAtlasSearchSupported: true,
+          onCreateSearchIndex: onCreateSearchIndexSpy,
+        });
+
+        // open the dropdown
+        screen
+          .getByTestId('multiple-index-types-creation-dropdown-show-actions')
+          .click();
+
+        expect(onCreateSearchIndexSpy).to.not.have.been.called;
+
+        // click the button
+        screen
+          .getByTestId(
+            'multiple-index-types-creation-dropdown-createSearchIndex-action'
+          )
+          .click();
+
+        expect(onCreateSearchIndexSpy).to.have.been.calledOnce;
+      });
     });
   });
 
@@ -260,79 +309,45 @@ describe('IndexesToolbar Component', function () {
   });
 
   describe('segment control', function () {
-    describe('available when atlas search management is active', function () {
-      let sandbox: sinon.SinonSandbox;
-      let onChangeViewCallback: sinon.SinonSpy;
+    let sandbox: sinon.SinonSandbox;
+    let onChangeViewCallback: sinon.SinonSpy;
 
-      afterEach(function () {
-        return sandbox.restore();
+    afterEach(function () {
+      return sandbox.restore();
+    });
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableAtlasSearchIndexManagement: true,
+        showInsights: true,
+      } as any);
+
+      onChangeViewCallback = sinon.spy();
+    });
+
+    it('when it supports search management, it changes tab view', function () {
+      renderIndexesToolbar({
+        isAtlasSearchSupported: true,
+        onChangeIndexView: onChangeViewCallback,
       });
+      const segmentControl = screen.getByText('Search Indexes');
+      userEvent.click(segmentControl);
 
-      beforeEach(function () {
-        sandbox = sinon.createSandbox();
-        sandbox.stub(preferencesAccess, 'getPreferences').returns({
-          enableAtlasSearchIndexManagement: true,
-          showInsights: true,
-        } as any);
+      expect(onChangeViewCallback).to.have.been.calledOnce;
+      expect(onChangeViewCallback.firstCall.args[0]).to.equal('search-indexes');
+    });
 
-        onChangeViewCallback = sinon.spy();
+    it('when it does not support search management, it renders tab as disabled', function () {
+      renderIndexesToolbar({
+        isAtlasSearchSupported: false,
+        onChangeIndexView: onChangeViewCallback,
       });
+      const segmentControl = screen.getByText('Search Indexes');
+      userEvent.click(segmentControl);
 
-      describe('when atlas search is supported in the cluster', function () {
-        let onClickCreateAtlasSearchIndexSpy: () => void;
-
-        beforeEach(function () {
-          onClickCreateAtlasSearchIndexSpy = sinon.spy();
-          renderIndexesToolbar({
-            isAtlasSearchSupported: true,
-            onChangeIndexView: onChangeViewCallback,
-            onClickCreateAtlasSearchIndex: onClickCreateAtlasSearchIndexSpy,
-          });
-        });
-
-        it('should change to search indexes when the segment control is clicked', function () {
-          const segmentControl = screen.getByText('Search Indexes');
-          userEvent.click(segmentControl);
-
-          expect(onChangeViewCallback).to.have.been.calledOnce;
-          expect(onChangeViewCallback.firstCall.args[0]).to.equal(
-            'search-indexes'
-          );
-        });
-
-        describe('when create search index button is clicked', function () {
-          it('should open the search index popup', async function () {
-            userEvent.click(screen.getByText('Create').closest('button')!);
-
-            const searchIndexButtonWrapper = await screen.findByText(
-              'Search Index'
-            );
-            const searchIndexButton =
-              searchIndexButtonWrapper.closest('button')!;
-
-            userEvent.click(searchIndexButton);
-
-            expect(onClickCreateAtlasSearchIndexSpy).to.have.been.calledOnce;
-          });
-        });
-      });
-
-      describe('when atlas search is not supported in the cluster', function () {
-        beforeEach(function () {
-          renderIndexesToolbar({
-            isAtlasSearchSupported: false,
-            onChangeIndexView: onChangeViewCallback,
-          });
-        });
-
-        it('should not change to search indexes', function () {
-          const segmentControl = screen.getByText('Search Indexes');
-          userEvent.click(segmentControl);
-
-          expect(segmentControl.closest('button')).to.have.attr('disabled');
-          expect(onChangeViewCallback).to.not.have.been.calledOnce;
-        });
-      });
+      expect(segmentControl.closest('button')).to.have.attr('disabled');
+      expect(onChangeViewCallback).to.not.have.been.calledOnce;
     });
   });
 });

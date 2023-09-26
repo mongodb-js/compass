@@ -18,6 +18,7 @@ export type CollectionTabOptions = {
   localAppRegistry: AppRegistry;
   query?: unknown;
   aggregation?: unknown;
+  pipelineText?: string;
   editViewName?: string;
 } & CollectionMetadata;
 
@@ -29,6 +30,7 @@ export function configureStore(options: CollectionTabOptions) {
     query,
     aggregation,
     editViewName,
+    pipelineText,
     ...collectionMetadata
   } = options;
 
@@ -61,6 +63,11 @@ export function configureStore(options: CollectionTabOptions) {
     .get(database)
     ?.collections.get(collection, 'name');
 
+  // If aggregation is passed or we opened view to edit source pipeline,
+  // select aggregation tab right away
+  const currentTab =
+    aggregation || editViewName || pipelineText ? 'Aggregations' : 'Documents';
+
   const store = createStore(
     reducer,
     {
@@ -80,9 +87,8 @@ export function configureStore(options: CollectionTabOptions) {
       stats: collectionModel ? pickCollectionStats(collectionModel) : null,
       initialQuery: query,
       initialAggregation: aggregation,
-      // If aggregation is passed or we opened view to edit source pipeline,
-      // select aggregation tab right away
-      currentTab: aggregation || editViewName ? 'Aggregations' : 'Documents',
+      initialPipelineText: pipelineText,
+      currentTab,
       editViewName,
     },
     applyMiddleware(
