@@ -22,7 +22,7 @@ const renderModal = (createSearchIndexSpy = sinon.spy()) => {
   store.dispatch(showCreateModal());
   render(
     <Provider store={store}>
-      <CreateSearchIndexModal />
+      <CreateSearchIndexModal onIndexCreated={() => {}} />
     </Provider>
   );
   return store;
