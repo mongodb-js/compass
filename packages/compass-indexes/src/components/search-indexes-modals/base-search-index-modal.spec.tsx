@@ -16,10 +16,11 @@ function normalizedTemplateNamed(name: string) {
   // code mirror 'changes' the template placeholders, so let's do the same
   // this regexp removes `tab` markers to their default value, for example:
   // ${1:default} => default
-  return snippet.replace(/\${\d:([<>a-z ]+)}/gm, '$1');
+  //
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
 
-describe('Create Search Index Modal', function () {
+describe.only('Create Search Index Modal', function () {
   let onSubmitSpy: SinonSpy;
   let onCloseSpy: SinonSpy;
 

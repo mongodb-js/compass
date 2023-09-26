@@ -69,13 +69,9 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
       value={templateValue}
       allowDeselect={false}
       onChange={onChooseTemplate}
+      /* @ts-expect-error The label can be any React component, however, the type definition forces a string. */
       label={
-        (
-          <SearchIndexTemplateDropdownLabel
-            label="Template"
-            tooltip={tooltip}
-          />
-        ) as unknown as string
+        <SearchIndexTemplateDropdownLabel label="Template" tooltip={tooltip} />
       }
     >
       {ATLAS_SEARCH_TEMPLATES.map((template, idx) => (
