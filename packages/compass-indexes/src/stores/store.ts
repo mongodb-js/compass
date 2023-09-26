@@ -21,6 +21,7 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
+import { setFields } from '../modules/fields';
 
 export type IndexesDataService = Pick<
   DataService,
@@ -64,6 +65,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      fields: [],
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
@@ -100,6 +102,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
         store.dispatch(inProgressIndexFailed(data));
       }
     );
+
+    localAppRegistry.on('fields-changed', (fields) => {
+      store.dispatch(setFields(fields.autocompleteFields));
+    });
   }
 
   if (options.globalAppRegistry) {

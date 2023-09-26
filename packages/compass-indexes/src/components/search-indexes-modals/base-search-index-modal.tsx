@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Modal,
   ModalFooter,
@@ -17,10 +17,14 @@ import {
   Body,
   Banner,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  createSearchIndexAutocompleter,
+} from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import type { Field } from '../../modules/fields';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -64,6 +68,7 @@ type BaseSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
+  fields: Field[];
   onSubmit: (indexName: string, indexDefinition: Document) => void;
   onClose: () => void;
 };
@@ -77,6 +82,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   isModalOpen,
   isBusy,
   error,
+  fields,
   onSubmit,
   onClose,
 }) => {
@@ -140,6 +146,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
     onSubmit(indexName, indexDefinitionDoc);
   }, [onSubmit, parsingError, indexName, indexDefinition]);
+
+  const completer = useMemo(
+    () =>
+      createSearchIndexAutocompleter({
+        fields,
+      }),
+    [fields]
+  );
 
   return (
     <Modal
@@ -206,6 +220,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               text={indexDefinition}
               onChangeText={onSearchIndexDefinitionChanged}
               minLines={16}
+              completer={completer}
             />
           </section>
         </div>
