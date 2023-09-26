@@ -40,7 +40,6 @@ function parseShellBSON(source: string): Document[] {
 const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
   gap: spacing[3],
 });
 
@@ -48,7 +47,6 @@ const templateToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[3],
-  overflow: 'hidden',
   padding: spacing[1],
 });
 
