@@ -24,6 +24,15 @@ const actionGroupStyles = css({
   gap: spacing[2],
 });
 
+const runAggregateStyles = css({
+  // Because leafygreen buttons have transition: all by default and this causes
+  // a lag when trying to hide the buttons, because the browser will transition
+  // properties like display or visibility
+  transitionProperty: 'background-color, box-shadow, border-color',
+});
+
+const notQueryableAggregateStyles = css({ visibility: 'hidden' });
+
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   onRunAggregateIndex,
@@ -62,7 +71,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     <div className={actionGroupStyles}>
       <Button
         data-testid="search-index-actions-aggregate-action"
-        className={cx([!index.queryable && css({ visibility: 'hidden' })])}
+        className={cx(
+          runAggregateStyles,
+          !index.queryable && notQueryableAggregateStyles
+        )}
         size="xsmall"
         onClick={() => onRunAggregateIndex(index.name)}
       >
