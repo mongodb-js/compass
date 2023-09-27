@@ -111,10 +111,9 @@ async function main(): Promise<void> {
   try {
     await CompassApplication.init(mode, globalPreferences);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    await handleUncaughtException(e as Error).then((e) => console.error(e));
-    // eslint-disable-next-line no-console
-    await CompassApplication.runExitHandlers().then((e) => console.error(e));
+    await handleUncaughtException(e as Error);
+    await CompassApplication.runExitHandlers().finally(() => app.exit(1));
+    return;
   }
 
   if (mode === 'CLI') {
