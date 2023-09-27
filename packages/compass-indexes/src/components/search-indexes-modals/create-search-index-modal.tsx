@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { closeCreateModal, createIndex } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -22,13 +22,6 @@ type CreateSearchIndexModalProps = {
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
 > = ({ isModalOpen, isBusy, error, onCreateIndex, onCloseModal }) => {
-  const onSubmit = useCallback(
-    (indexName: string, indexDefinition: Document) => {
-      onCreateIndex(indexName, indexDefinition);
-    },
-    [onCreateIndex]
-  );
-
   return (
     <BaseSearchIndexModal
       mode={'create'}
@@ -37,7 +30,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      onSubmit={onSubmit}
+      onSubmit={onCreateIndex}
       onClose={onCloseModal}
     />
   );
