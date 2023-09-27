@@ -10,8 +10,8 @@ import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import path from 'path';
 import { expect } from 'chai';
-import { promisify } from 'util';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { AcceptTOSToggle } from '../helpers/selectors';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -54,15 +54,14 @@ describe('Atlas Login', function () {
       getTokenPayload(metadata) {
         return getTokenPayload(metadata);
       },
-      async overrideRequestHandler(_url, req, res) {
+      overrideRequestHandler(_url, req, res) {
         const url = new URL(_url);
-        const end = promisify(res.end.bind(res));
 
         switch (url.pathname) {
           case '/auth-portal-redirect':
             res.statusCode = 307;
             res.setHeader('Location', url.searchParams.get('fromURI') ?? '');
-            await end();
+            res.end();
             break;
           case '/v1/userinfo':
             if (isAuthorised(req)) {
@@ -76,16 +75,16 @@ describe('Atlas Login', function () {
                   login: 'test@example.com',
                 })
               );
-              await end();
+              res.end();
             } else {
               res.statusCode = 401;
-              await end();
+              res.end();
             }
             break;
           case '/v1/introspect':
             res.statusCode = 200;
             res.write(JSON.stringify({ active: isAuthorised(req) }));
-            await end();
+            res.end();
             break;
         }
       },
@@ -132,9 +131,7 @@ describe('Atlas Login', function () {
     it('should sign in user when clicking on "Log in with Atlas" button', async function () {
       await browser.openSettingsModal('Feature Preview');
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const loginStatus = browser.$(Selectors.AtlasLoginStatus);
       await browser.waitUntil(async () => {
@@ -147,9 +144,8 @@ describe('Atlas Login', function () {
 
     it('should allow to accept TOS when signed in', async function () {
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const loginStatus = browser.$(Selectors.AtlasLoginStatus);
       await browser.waitUntil(async () => {
@@ -163,24 +159,16 @@ describe('Atlas Login', function () {
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
 
-      await acceptTOSToggle.waitForClickable();
-      await acceptTOSToggle.click();
+      await browser.clickVisible(acceptTOSToggle);
 
-      const agreeAndContinueButton = browser.$(
-        Selectors.AgreeAndContinueButton
-      );
-
-      await agreeAndContinueButton.waitForClickable();
-      await agreeAndContinueButton.click();
+      await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('true');
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const loginStatus = browser.$(Selectors.AtlasLoginStatus);
 
@@ -191,11 +179,7 @@ describe('Atlas Login', function () {
         );
       });
 
-      const disconnectButton = browser.$(
-        Selectors.DisconnectAtlasAccountButton
-      );
-      await disconnectButton.waitForClickable();
-      await disconnectButton.click();
+      await browser.clickVisible(Selectors.DisconnectAtlasAccountButton);
 
       await browser.waitUntil(async () => {
         return (
@@ -211,9 +195,7 @@ describe('Atlas Login', function () {
       };
 
       await browser.openSettingsModal('Feature Preview');
-      const logInButton = browser.$(Selectors.LogInWithAtlasButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const errorToast = browser.$(Selectors.AtlasLoginErrorToast);
 
@@ -231,19 +213,11 @@ describe('Atlas Login', function () {
     });
 
     it('should allow to sign in and accept TOS when clicking AI CTA', async function () {
-      const generateQueryButton = browser.$('button*=Generate query');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible('button*=Generate query');
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const agreeAndContinueButton = browser.$(
-        Selectors.AgreeAndContinueButton
-      );
-      await agreeAndContinueButton.waitForClickable();
-      await agreeAndContinueButton.click();
+      await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
       // If the flow failed, we will not see the input
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
@@ -256,18 +230,13 @@ describe('Atlas Login', function () {
       };
 
       const generateQueryButton = browser.$('button*=Generate query');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
       // Because leafygreen doesn't render a button there and we don't have any
       // control over it
-      const cancelButton = browser.$('span=Not now');
-      await cancelButton.waitForClickable();
-      await cancelButton.click();
+      await browser.clickVisible('span=Not now');
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
@@ -276,16 +245,11 @@ describe('Atlas Login', function () {
 
     it('should not show AI input if declined TOS', async function () {
       const generateQueryButton = browser.$('button*=Generate query');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const cancelButton = browser.$('button=Cancel');
-      await cancelButton.waitForClickable();
-      await cancelButton.click();
+      await browser.clickVisible('button=Cancel');
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
@@ -294,24 +258,16 @@ describe('Atlas Login', function () {
 
     it('should hide AI input if declined TOS after sign in', async function () {
       const generateQueryButton = browser.$('button*=Generate query');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const agreeAndContinueButton = browser.$(
-        Selectors.AgreeAndContinueButton
-      );
-      await agreeAndContinueButton.waitForClickable();
-      await agreeAndContinueButton.click();
+      await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
       await browser.openSettingsModal('Feature Preview');
 
       const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
-      await acceptTOSToggle.waitForClickable();
-      await acceptTOSToggle.click();
+      await browser.clickVisible(AcceptTOSToggle);
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
 
@@ -332,18 +288,11 @@ describe('Atlas Login', function () {
 
     it('should allow to sign in and accept TOS when clicking AI CTA', async function () {
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const agreeAndContinueButton = browser.$(
-        Selectors.AgreeAndContinueButton
-      );
-      await agreeAndContinueButton.waitForClickable();
-      await agreeAndContinueButton.click();
+      await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
       // If the flow failed, we will not see the input
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
@@ -356,18 +305,13 @@ describe('Atlas Login', function () {
       };
 
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
       // Because leafygreen doesn't render a button there and we don't have any
       // control over it
-      const cancelButton = browser.$('span=Not now');
-      await cancelButton.waitForClickable();
-      await cancelButton.click();
+      await browser.clickVisible('span=Not now');
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
@@ -376,16 +320,11 @@ describe('Atlas Login', function () {
 
     it('should not show AI input if declined TOS', async function () {
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const cancelButton = browser.$('button=Cancel');
-      await cancelButton.waitForClickable();
-      await cancelButton.click();
+      await browser.clickVisible('button=Cancel');
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
@@ -394,24 +333,16 @@ describe('Atlas Login', function () {
 
     it('should hide AI input if declined TOS after sign in', async function () {
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await generateQueryButton.waitForClickable();
-      await generateQueryButton.click();
+      await browser.clickVisible(generateQueryButton);
 
-      const logInButton = browser.$(Selectors.LogInWithAtlasModalButton);
-      await logInButton.waitForClickable();
-      await logInButton.click();
+      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
-      const agreeAndContinueButton = browser.$(
-        Selectors.AgreeAndContinueButton
-      );
-      await agreeAndContinueButton.waitForClickable();
-      await agreeAndContinueButton.click();
+      await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
       await browser.openSettingsModal('Feature Preview');
 
       const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
-      await acceptTOSToggle.waitForClickable();
-      await acceptTOSToggle.click();
+      await browser.clickVisible(acceptTOSToggle);
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
 
