@@ -1,8 +1,10 @@
 const timer = require('d3-timer');
 const React = require('react');
 const PropTypes = require('prop-types');
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
+const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
 
 // const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
 
@@ -92,6 +94,7 @@ class CurrentOpComponent extends React.Component {
    * @param {Object} data - The row data.
    */
   showOperationDetails(data) {
+    track('CurrentOp showOperationDetails');
     Actions.showOperationDetails(data);
   }
 
