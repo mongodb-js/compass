@@ -12,6 +12,7 @@ const renderIndexesToolbar = (
 ) => {
   render(
     <IndexesToolbar
+      indexView="regular-indexes"
       hasTooManyIndexes={false}
       errorMessage={null}
       isReadonlyView={false}

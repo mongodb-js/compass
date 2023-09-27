@@ -14,7 +14,7 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
-  enableAIExperience: boolean;
+  enableGenAIExperience: boolean;
   enableAIWithoutRolloutAccess: boolean;
   enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
@@ -31,7 +31,7 @@ export const featureFlags: Required<{
    * Feature flag for enabling the natural text input on the query bar.
    * Epic: COMPASS-6866
    */
-  enableAIExperience: {
+  enableGenAIExperience: {
     stage: 'released',
     description: {
       short: 'Compass AI Features',
