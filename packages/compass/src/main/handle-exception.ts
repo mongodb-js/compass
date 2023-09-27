@@ -3,12 +3,21 @@ import cleanStack from 'clean-stack';
 import ensureError from 'ensure-error';
 import COMPASS_ICON from './icon';
 
-async function handleException(err: Error): Promise<void> {
+type ExceptionTypes = 'uncaughtException' | 'unhandledRejection';
+
+async function handleException(
+  err: Error,
+  type: ExceptionTypes
+): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.error(`handling ${type}`, err);
   err = ensureError(err);
   const stack = cleanStack(err.stack || '');
 
+  const exceptionType =
+    type === 'uncaughtException' ? 'uncaught error' : 'unhandled error';
   const detail = `${app.getName()} version ${app.getVersion()}\nStacktrace:\n${stack}`;
-  const message = `${app.getName()} has encountered an unexpected error`;
+  const message = `${app.getName()} has encountered an ${exceptionType}`;
 
   // eslint-disable-next-line no-console
   console.error(`${message}: ${detail}`);
@@ -43,17 +52,12 @@ async function handleException(err: Error): Promise<void> {
   await showErrorMessageBox();
 }
 
-
 function handleUncaughtException(err: Error): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.error('handling uncaughtException', err);
-  return handleException(err);
+  return handleException(err, 'uncaughtException');
 }
 
 function handleUnhandledRejection(err: Error): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.error('handling unhandledRejection', err);
-  return handleException(err);
+  return handleException(err, 'unhandledRejection');
 }
 
 export { handleUncaughtException, handleUnhandledRejection };
