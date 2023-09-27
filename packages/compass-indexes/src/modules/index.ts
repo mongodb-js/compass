@@ -3,7 +3,7 @@ import type { Action, AnyAction } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
 import dataService from './data-service';
 import isWritable from './is-writable';
-import indexList from './index-list';
+import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
 import description from './description';
 import regularIndexes from './regular-indexes';
@@ -15,7 +15,7 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 const reducer = combineReducers({
   isWritable,
   isReadonlyView,
-  indexList,
+  indexView,
   description,
   dataService,
   serverVersion,

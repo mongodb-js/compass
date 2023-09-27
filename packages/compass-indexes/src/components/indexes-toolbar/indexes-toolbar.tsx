@@ -25,8 +25,8 @@ import {
   showCreateModal as onCreateSearchIndex,
 } from '../../modules/search-indexes';
 import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-indexes';
-import type { IndexView } from '../../modules/index-list';
-import { changeIndexView } from '../../modules/index-list';
+import type { IndexView } from '../../modules/index-view';
+import { changeIndexView } from '../../modules/index-view';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,

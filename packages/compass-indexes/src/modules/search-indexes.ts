@@ -16,7 +16,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
 import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
-import { changedToSearchIndexes } from './index-list';
+import { changedToSearchIndexes } from './index-view';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 

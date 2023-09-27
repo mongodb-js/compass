@@ -218,7 +218,7 @@ describe('search-indexes module', function () {
 
     it('opens the search index view when an index is created', async function () {
       await store.dispatch(createIndex('indexName', {}));
-      expect(store.getState().indexList).to.eq('search-indexes');
+      expect(store.getState().indexView).to.eq('search-indexes');
     });
   });
 

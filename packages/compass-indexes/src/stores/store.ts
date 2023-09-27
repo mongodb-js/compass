@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
-import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-list';
+import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import {
   fetchIndexes,
   inProgressIndexAdded,
@@ -22,7 +22,7 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { changedToRegularIndexes } from '../modules/index-list';
+import { changedToRegularIndexes } from '../modules/index-view';
 
 export type IndexesDataService = Pick<
   DataService,

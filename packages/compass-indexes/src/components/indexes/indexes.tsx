@@ -16,7 +16,7 @@ import {
   CreateSearchIndexModal,
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
-import type { IndexView } from '../../modules/index-list';
+import type { IndexView } from '../../modules/index-view';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -112,12 +112,12 @@ const mapState = ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
-  indexList,
+  indexView,
 }: RootState) => ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
-  currentIndexesView: indexList,
+  currentIndexesView: indexView,
 });
 
 const mapDispatch = {

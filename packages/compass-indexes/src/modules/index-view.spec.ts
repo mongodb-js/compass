@@ -4,9 +4,9 @@ import reducer, {
   INITIAL_STATE,
   changedToRegularIndexes,
   changedToSearchIndexes,
-} from './index-list';
+} from './index-view';
 
-describe('index-list view module', function () {
+describe('index-view view module', function () {
   describe('#reducer', function () {
     context('when an action is not valid', function () {
       it('returns the state', function () {
