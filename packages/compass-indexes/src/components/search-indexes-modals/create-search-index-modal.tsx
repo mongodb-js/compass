@@ -17,25 +17,16 @@ type CreateSearchIndexModalProps = {
   error: string | undefined;
   onCreateIndex: (indexName: string, indexDefinition: Document) => void;
   onCloseModal: () => void;
-  onIndexCreated: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({
-  isModalOpen,
-  isBusy,
-  error,
-  onCreateIndex,
-  onCloseModal,
-  onIndexCreated,
-}) => {
+> = ({ isModalOpen, isBusy, error, onCreateIndex, onCloseModal }) => {
   const onSubmit = useCallback(
     (indexName: string, indexDefinition: Document) => {
       onCreateIndex(indexName, indexDefinition);
-      onIndexCreated();
     },
-    [onCreateIndex, onIndexCreated]
+    [onCreateIndex]
   );
 
   return (
