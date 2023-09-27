@@ -108,7 +108,14 @@ async function main(): Promise<void> {
     });
   }
 
-  await CompassApplication.init(mode, globalPreferences);
+  try {
+    await CompassApplication.init(mode, globalPreferences);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    await handleUncaughtException(e as Error).then((e) => console.error(e));
+    // eslint-disable-next-line no-console
+    await CompassApplication.runExitHandlers().then((e) => console.error(e));
+  }
 
   if (mode === 'CLI') {
     let exitCode = 0;
