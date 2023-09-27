@@ -18,25 +18,22 @@ import { searchIndexes as indexes } from './../../../test/fixtures/search-indexe
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
 ) => {
-  const onSortTableSpy = sinon.spy();
-  const openCreateSpy = sinon.spy();
-
+  const noop = () => {};
   render(
     <SearchIndexesTable
       indexes={indexes}
       status="READY"
       isWritable={true}
       readOnly={false}
-      onSortTable={onSortTableSpy}
-      onDropIndex={() => {}}
-      onEditIndex={() => {}}
-      onPollIndexes={() => {}}
-      openCreateModal={openCreateSpy}
+      onSortTable={noop}
+      onDropIndex={noop}
+      onEditIndex={noop}
+      onPollIndexes={noop}
+      openCreateModal={noop}
+      onRunAggregateIndex={noop}
       {...props}
     />
   );
-
-  return { onSortTableSpy, openCreateSpy };
 };
 
 describe('SearchIndexesTable Component', function () {
@@ -114,8 +111,10 @@ describe('SearchIndexesTable Component', function () {
   }
 
   it('renders the zero state rather than the table if there are no indexes', function () {
-    const { openCreateSpy } = renderIndexList({
+    const openCreateSpy = sinon.spy();
+    renderIndexList({
       indexes: [],
+      openCreateModal: openCreateSpy,
     });
 
     expect(() => {
@@ -132,7 +131,10 @@ describe('SearchIndexesTable Component', function () {
 
   for (const column of ['Name and Fields', 'Status']) {
     it(`sorts table by ${column}`, function () {
-      const { onSortTableSpy } = renderIndexList();
+      const onSortTableSpy = sinon.spy();
+      renderIndexList({
+        onSortTable: onSortTableSpy,
+      });
 
       const indexesList = screen.getByTestId('search-indexes-list');
 

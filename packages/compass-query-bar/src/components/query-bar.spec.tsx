@@ -125,8 +125,8 @@ describe('QueryBar Component', function () {
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableAIExperience: true,
-        enableAIFeatures: true,
+        enableGenAIExperience: true,
+        enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
@@ -172,14 +172,14 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('with enableAIExperience ai disabled', function () {
+  describe('with enableGenAIExperience ai disabled', function () {
     let sandbox: sinon.SinonSandbox;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableAIExperience: false,
-        enableAIFeatures: true,
+        enableGenAIExperience: false,
+        enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
@@ -198,14 +198,14 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('with enableAIFeatures ai disabled', function () {
+  describe('with enableGenAIFeatures ai disabled', function () {
     let sandbox: sinon.SinonSandbox;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableAIExperience: true,
-        enableAIFeatures: false,
+        enableGenAIExperience: true,
+        enableGenAIFeatures: false,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
