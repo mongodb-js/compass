@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
 import { Button, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
+
+const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
 
 const serverStatsToolbarStyles = css({
   display: 'flex',
@@ -63,6 +66,12 @@ function ServerStatsToolbar({
   }, []);
 
   const onPlayPauseClicked = useCallback(() => {
+    if (isPaused) {
+      track('Performance Resumed');
+    }
+    else {
+      track('Performance Paused');
+    }
     setPaused(!isPaused)
     Actions.pause();
   }, [ isPaused ]);
