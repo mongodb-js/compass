@@ -41,7 +41,7 @@ import preferences from 'compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser } from 'compass-preferences-model';
+import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
 import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
@@ -92,11 +92,7 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (
-    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
-      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
-    !preferences.getPreferences().enableAIFeatures
-  ) {
+  if (!isAIFeatureEnabled()) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );

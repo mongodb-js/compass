@@ -29,6 +29,7 @@ export {
   setupPreferencesAndUser,
   getActiveUser,
   useIsAIFeatureEnabled,
+  isAIFeatureEnabled,
 } from './utils';
 export type { User } from './storage';
 

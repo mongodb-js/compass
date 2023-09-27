@@ -726,10 +726,12 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
     }
     // Double-checking that Compass app path exists, not only the metadata
     await fs.stat(metadata.appPath);
+    debug('Existing Compass found', metadata);
     return metadata;
-  } catch (e) {
+  } catch (e: any) {
+    debug('Existing Compass build not found', e);
     throw new Error(
-      "Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests"
+      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${e.message}`
     );
   }
 }

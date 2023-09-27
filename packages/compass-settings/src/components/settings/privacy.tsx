@@ -10,7 +10,7 @@ import type { RootState } from '../../stores';
 const privacyFields = [
   'autoUpdates',
   'enableMaps',
-  'enableAIFeatures',
+  'enableGenAIFeatures',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
@@ -21,7 +21,7 @@ export const PrivacySettings: React.FunctionComponent<{
   const privacyFieldsShown = useMemo(() => {
     return isAIFeatureRolledOutToUser
       ? privacyFields
-      : privacyFields.filter((field) => field !== 'enableAIFeatures');
+      : privacyFields.filter((field) => field !== 'enableGenAIFeatures');
   }, [isAIFeatureRolledOutToUser]);
 
   return (

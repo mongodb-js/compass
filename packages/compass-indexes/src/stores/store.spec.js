@@ -47,12 +47,6 @@ describe('IndexesStore [Store]', function () {
     });
   });
 
-  it('activates the app registry module', function () {
-    expect(store.getState().appRegistry.globalAppRegistry).to.deep.equal(
-      appRegistry
-    );
-  });
-
   it('sets the namespace', function () {
     expect(store.getState().namespace).to.equal('test.coll');
   });
