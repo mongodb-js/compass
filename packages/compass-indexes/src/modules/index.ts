@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import type { Action, AnyAction } from 'redux';
-import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import dataService from './data-service';
 import isWritable from './is-writable';
 import isReadonlyView from './is-readonly-view';
@@ -15,7 +15,6 @@ const reducer = combineReducers({
   isWritable,
   isReadonlyView,
   description,
-  appRegistry,
   dataService,
   serverVersion,
   namespace,
@@ -26,15 +25,19 @@ const reducer = combineReducers({
 export type SortDirection = 'asc' | 'desc';
 
 export type RootState = ReturnType<typeof reducer>;
+export type IndexesExtraArgs = {
+  globalAppRegistry?: AppRegistry;
+  localAppRegistry?: AppRegistry;
+};
 export type IndexesThunkDispatch<A extends AnyAction> = ThunkDispatch<
   RootState,
-  unknown,
+  IndexesExtraArgs,
   A
 >;
 export type IndexesThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   RootState,
-  unknown,
+  IndexesExtraArgs,
   A
 >;
 

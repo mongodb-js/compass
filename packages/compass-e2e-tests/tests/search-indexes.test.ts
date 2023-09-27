@@ -292,7 +292,35 @@ describe('Search Indexes', function () {
         // with no fields, the index details should have '[empty]' value.
         await verifyIndexDetails(browser, indexName, '[empty]');
       });
-      it('runs a search aggregation with index name');
+
+      it('runs a search aggregation with index name', async function () {
+        const indexName = `e2e_search_index_${getRandomNumber()}`;
+        await browser.clickVisible(
+          Selectors.indexesSegmentedTab('search-indexes')
+        );
+        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
+        await browser.waitForAnimations(Selectors.SearchIndexList);
+
+        const indexRowSelector = Selectors.searchIndexRow(indexName);
+        const indexRow = await browser.$(indexRowSelector);
+        await indexRow.waitForDisplayed();
+
+        await browser.hover(indexRowSelector);
+
+        // We show the aggregate button only when the index is queryable. So we wait.
+        const aggregateButtonSelector =
+          Selectors.searchIndexAggregateButton(indexName);
+        await browser.$(aggregateButtonSelector).waitForDisplayed();
+        await browser.clickVisible(aggregateButtonSelector);
+
+        const namespace = await browser.getActiveTabNamespace();
+        expect(namespace).to.equal(`${DB_NAME}.${collectionName}`);
+
+        const workspaceTabText = await browser
+          .$(Selectors.SelectedWorkspaceTabButton)
+          .getText();
+        expect(workspaceTabText).to.contain('Aggregations');
+      });
     });
   }
 });
