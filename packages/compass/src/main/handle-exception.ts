@@ -9,8 +9,6 @@ async function handleException(
   err: Error,
   type: ExceptionTypes
 ): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.error(`handling ${type}`, err);
   err = ensureError(err);
   const stack = cleanStack(err.stack || '');
 
