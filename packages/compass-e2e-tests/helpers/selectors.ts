@@ -950,6 +950,10 @@ export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
 export const searchIndexExpandButton = (name: string) =>
   `${searchIndexRow(name)} button:first-child`;
+export const searchIndexAggregateButton = (name: string) =>
+  `${searchIndexRow(
+    name
+  )} [data-testid="search-index-actions-aggregate-action"]`;
 export const searchIndexDropButton = (name: string) =>
   `${searchIndexRow(name)} [data-testid="search-index-actions-drop-action"]`;
 export const searchIndexEditButton = (name: string) =>

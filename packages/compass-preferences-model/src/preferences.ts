@@ -26,7 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
-    enableAIFeatures: boolean;
+    enableGenAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -439,7 +439,7 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
-  enableAIFeatures: {
+  enableGenAIFeatures: {
     ui: true,
     cli: true,
     global: true,
@@ -447,7 +447,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable AI Features',
       long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
     },
-    deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
+    deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -1064,7 +1064,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
-        enableAIFeatures: true,
+        enableGenAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
