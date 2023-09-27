@@ -136,6 +136,44 @@ describe('storage', function () {
       ).to.deep.equal(getDefaultPreferences());
     });
 
+    it('when invalid json is stored, it sets the defaults', async function () {
+      const storage = new StoragePreferences(tmpDir);
+
+      const preferencesFile = getPreferencesFile(tmpDir);
+      await fs.mkdir(getPreferencesFolder(tmpDir));
+      await fs.writeFile(preferencesFile, '{}}', 'utf-8');
+
+      // Ensure it exists
+      expect(async () => await fs.access(preferencesFile)).to.not.throw;
+
+      await storage.setup();
+
+      expect(
+        JSON.parse((await fs.readFile(preferencesFile)).toString())
+      ).to.deep.equal(getDefaultPreferences());
+    });
+
+    it('when invalid value is stored, it sets the defaults', async function () {
+      const storage = new StoragePreferences(tmpDir);
+
+      const preferencesFile = getPreferencesFile(tmpDir);
+      await fs.mkdir(getPreferencesFolder(tmpDir));
+      await fs.writeFile(
+        preferencesFile,
+        JSON.stringify({ enableMaps: 'a string' }),
+        'utf-8'
+      );
+
+      // Ensure it exists
+      expect(async () => await fs.access(preferencesFile)).to.not.throw;
+
+      await storage.setup();
+
+      expect(
+        JSON.parse((await fs.readFile(preferencesFile)).toString())
+      ).to.deep.equal(getDefaultPreferences());
+    });
+
     it('updates preferences', async function () {
       const storage = new StoragePreferences(tmpDir);
       await storage.setup();

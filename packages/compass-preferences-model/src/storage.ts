@@ -74,11 +74,16 @@ export class StoragePreferences extends BasePreferencesStorage {
     try {
       this.preferences = await this.readPreferences();
     } catch (e) {
-      if ((e as any).code !== 'ENOENT') {
-        throw e;
+      if (
+        (e as any).code === 'ENOENT' || // First time user
+        e instanceof z.ZodError || // Invalid preference values
+        e instanceof SyntaxError // Invalid json
+      ) {
+        // Create the file for the first time
+        await this.userData.write(this.file, this.defaultPreferences);
+        return;
       }
-      // Create the file for the first time
-      await this.userData.write(this.file, this.defaultPreferences);
+      throw e;
     }
   }
 
