@@ -76,7 +76,6 @@ export class StoragePreferences extends BasePreferencesStorage {
     } catch (e) {
       if (
         (e as any).code === 'ENOENT' || // First time user
-        e instanceof z.ZodError || // Invalid preference values
         e instanceof SyntaxError // Invalid json
       ) {
         // Create the file for the first time
