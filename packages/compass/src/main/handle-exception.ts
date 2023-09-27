@@ -3,9 +3,7 @@ import cleanStack from 'clean-stack';
 import ensureError from 'ensure-error';
 import COMPASS_ICON from './icon';
 
-async function handleUncaughtException(err: Error): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.error('handling uncaughtException', err);
+async function handleException(err: Error): Promise<void> {
   err = ensureError(err);
   const stack = cleanStack(err.stack || '');
 
@@ -45,4 +43,17 @@ async function handleUncaughtException(err: Error): Promise<void> {
   await showErrorMessageBox();
 }
 
-export { handleUncaughtException };
+
+function handleUncaughtException(err: Error): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.error('handling uncaughtException', err);
+  return handleException(err);
+}
+
+function handleUnhandledRejection(err: Error): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.error('handling unhandledRejection', err);
+  return handleException(err);
+}
+
+export { handleUncaughtException, handleUnhandledRejection };
