@@ -288,12 +288,12 @@ const mapState = ({
   description,
   serverVersion,
   searchIndexes,
-  indexList,
+  indexView,
 }: RootState) => ({
   isWritable,
   isReadonlyView,
   writeStateDescription: description,
-  indexView: indexList,
+  indexView,
   serverVersion,
   isAtlasSearchSupported:
     searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,

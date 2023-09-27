@@ -62,7 +62,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
-      indexList: INDEX_LIST_INITIAL_STATE,
+      indexView: INDEX_LIST_INITIAL_STATE,
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
