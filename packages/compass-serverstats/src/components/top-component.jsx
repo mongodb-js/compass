@@ -29,8 +29,12 @@ class TopComponent extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
-    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
-    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
+    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(
+      this.hide.bind(this)
+    );
+    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(
+      this.show.bind(this)
+    );
 
     if (!DBErrorStore.ops.top) {
       this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
@@ -124,7 +128,7 @@ class TopComponent extends React.Component {
    * @returns {React.Component} The table.
    */
   renderGraph() {
-    const rows = this.state.data.map(function(row, i) {
+    const rows = this.state.data.map(function (row, i) {
       const styleLoad = { width: `${row.loadPercent}%` };
       const styleLoadR = { width: `${row.loadPercentR}%` };
       const styleLoadW = { width: `${row.loadPercentW}%` };
@@ -139,8 +143,12 @@ class TopComponent extends React.Component {
             <span>%</span>
           </div>
           <div className="rt-lists__rw" style={styleLoad}>
-            <div className="rt-lists__r" style={styleLoadR}>R</div>
-            <div className="rt-lists__w" style={styleLoadW}>W</div>
+            <div className="rt-lists__r" style={styleLoadR}>
+              R
+            </div>
+            <div className="rt-lists__w" style={styleLoadW}>
+              W
+            </div>
           </div>
         </li>
       );
@@ -152,9 +160,7 @@ class TopComponent extends React.Component {
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
         <div className="rt-lists__listdiv" id="div-scroll">
-          <ul className="rt-lists__list">
-            {rows}
-          </ul>
+          <ul className="rt-lists__list">{rows}</ul>
         </div>
       </div>
     );
@@ -178,7 +184,7 @@ class TopComponent extends React.Component {
 
 TopComponent.propTypes = {
   store: PropTypes.any.isRequired,
-  interval: PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired,
 };
 
 TopComponent.displayName = 'TopComponent';
