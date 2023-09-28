@@ -108,7 +108,13 @@ async function main(): Promise<void> {
     });
   }
 
-  await CompassApplication.init(mode, globalPreferences);
+  try {
+    await CompassApplication.init(mode, globalPreferences);
+  } catch (e) {
+    await handleUncaughtException(e as Error);
+    await CompassApplication.runExitHandlers().finally(() => app.exit(1));
+    return;
+  }
 
   if (mode === 'CLI') {
     let exitCode = 0;
