@@ -91,15 +91,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   const showInsights = usePreference('showInsights', React) && !errorMessage;
-
-  const onChangeIndexesSegment = useCallback(
-    (value: string) => {
-      const newView = value as IndexView;
-      onChangeIndexView(newView);
-    },
-    [onChangeIndexView]
-  );
-
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -159,7 +150,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
             {isSearchManagementActive && (
               <SegmentedControl
-                onChange={onChangeIndexesSegment}
+                onChange={(evt) => onChangeIndexView(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
                 value={indexView}
