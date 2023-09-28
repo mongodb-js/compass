@@ -38,6 +38,7 @@ describe('Create Search Index Modal', function () {
         onSubmit={onSubmitSpy}
         onClose={onCloseSpy}
         error={'Invalid index definition.'}
+        fields={[]}
       />
     );
   });
