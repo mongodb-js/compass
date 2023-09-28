@@ -18,22 +18,26 @@ import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 
+const DEFAULT_PROPS = {
+  regularIndexes: { indexes: [], error: null, isRefreshing: false },
+  searchIndexes: {
+    indexes: [],
+    error: null,
+    status: 'PENDING',
+    createIndex: {
+      isModalOpen: false,
+    },
+    updateIndex: {
+      isModalOpen: false,
+    },
+  },
+};
+
 const renderIndexes = (props: Partial<typeof Store> = {}) => {
   const store = setupStore();
 
   const allProps: Partial<typeof Store> = {
-    regularIndexes: { indexes: [], error: null, isRefreshing: false },
-    searchIndexes: {
-      indexes: [],
-      error: null,
-      status: 'PENDING',
-      createIndex: {
-        isModalOpen: false,
-      },
-      updateIndex: {
-        isModalOpen: false,
-      },
-    },
+    ...DEFAULT_PROPS,
     ...props,
   };
 
@@ -318,6 +322,28 @@ describe('Indexes Component', function () {
       fireEvent.click(refreshButton);
 
       expect(spy.callCount).to.equal(2);
+    });
+
+    it('switches to the search indexes table when a search index is created', async function () {
+      renderIndexes({
+        // render with the create search index modal open
+        ...DEFAULT_PROPS,
+        searchIndexes: {
+          ...DEFAULT_PROPS.searchIndexes,
+          createIndex: {
+            ...DEFAULT_PROPS.searchIndexes.createIndex,
+            isModalOpen: true,
+          },
+        },
+      });
+
+      // check that the search indexes table is not visible
+      expect(screen.queryByTestId('search-indexes')).is.null;
+      // click the create index button
+      (await screen.findByTestId('search-index-submit-button')).click();
+      // we are not creating the index (due to the test)
+      // but we are switch, so we will see the zero-graphic
+      expect(await screen.findByText('No search indexes yet')).is.visible;
     });
   });
 });
