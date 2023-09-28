@@ -27,5 +27,5 @@ export const changeIndexView = (view: IndexView): ChangeIndexViewAction => ({
   view: view,
 });
 
-export const changedToRegularIndexes = () => changeIndexView('regular-indexes');
-export const changedToSearchIndexes = () => changeIndexView('search-indexes');
+export const switchToRegularIndexes = () => changeIndexView('regular-indexes');
+export const switchToSearchIndexes = () => changeIndexView('search-indexes');

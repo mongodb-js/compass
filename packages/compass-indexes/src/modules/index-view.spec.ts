@@ -2,8 +2,8 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  changedToRegularIndexes,
-  changedToSearchIndexes,
+  switchToRegularIndexes,
+  switchToSearchIndexes,
 } from './index-view';
 
 describe('index-view view module', function () {
@@ -16,17 +16,17 @@ describe('index-view view module', function () {
       });
     });
 
-    context('when an action is changedToRegularIndexes', function () {
+    context('when an action is switchToRegularIndexes', function () {
       it('state is regular-indexes', function () {
-        expect(reducer(INITIAL_STATE, changedToRegularIndexes())).to.equal(
+        expect(reducer(INITIAL_STATE, switchToRegularIndexes())).to.equal(
           'regular-indexes'
         );
       });
     });
 
-    context('when an action is changedToSearchIndexes', function () {
+    context('when an action is switchToSearchIndexes', function () {
       it('state is search-indexes', function () {
-        expect(reducer(INITIAL_STATE, changedToSearchIndexes())).to.equal(
+        expect(reducer(INITIAL_STATE, switchToSearchIndexes())).to.equal(
           'search-indexes'
         );
       });

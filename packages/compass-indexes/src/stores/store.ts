@@ -22,7 +22,7 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { changedToRegularIndexes } from '../modules/index-view';
+import { switchToRegularIndexes } from '../modules/index-view';
 
 export type IndexesDataService = Pick<
   DataService,
@@ -91,7 +91,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       'in-progress-indexes-added',
       (index: InProgressIndex) => {
         store.dispatch(inProgressIndexAdded(index));
-        store.dispatch(changedToRegularIndexes());
+        store.dispatch(switchToRegularIndexes());
       }
     );
 
