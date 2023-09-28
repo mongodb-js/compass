@@ -58,6 +58,7 @@
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
+    "@types/write-file-atomic": "^4.0.1",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
@@ -67,6 +68,7 @@
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4",
+    "write-file-atomic": "^5.0.1",
     "zod": "^3.22.2"
   }
 }

@@ -7,7 +7,7 @@ import type { RegularIndex } from '../../modules/regular-indexes';
 type IndexActionsProps = {
   index: RegularIndex;
   serverVersion: string;
-  onDeleteIndex: (index: RegularIndex) => void;
+  onDeleteIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
 };
@@ -64,7 +64,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
-        onDeleteIndex(index);
+        onDeleteIndex(index.name);
       } else if (action === 'hide') {
         onHideIndex(index.name);
       } else if (action === 'unhide') {

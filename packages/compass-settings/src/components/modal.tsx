@@ -19,6 +19,7 @@ import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model';
 
 type Settings = {
   name: string;
@@ -27,7 +28,7 @@ type Settings = {
 
 type SettingsModalProps = {
   isOpen: boolean;
-  isOIDCTabEnabled: boolean;
+  isOIDCEnabled: boolean;
   onMount?: () => void;
   onClose: () => void;
   onSave: () => void;
@@ -59,9 +60,10 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onMount,
   onClose,
   onSave,
-  isOIDCTabEnabled,
+  isOIDCEnabled,
   hasChangedSettings,
 }) => {
+  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
   const onMountRef = useRef(onMount);
 
   useEffect(() => {
@@ -74,7 +76,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { name: 'Privacy', component: PrivacySettings },
   ];
 
-  if (isOIDCTabEnabled) {
+  if (
+    isOIDCEnabled ||
+    // because oidc options overlap with atlas login used for ai feature
+    aiFeatureEnabled
+  ) {
     settings.push({
       name: 'OIDC (Preview)',
       component: OIDCSettings,
@@ -133,12 +139,7 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isOIDCTabEnabled:
-        !!state.settings.settings.enableOidc ||
-        // because oidc options overlap with atlas login used for ai feature
-        !!state.settings.settings.enableAIWithoutRolloutAccess ||
-        !!state.settings.settings.enableAIExperience ||
-        !!state.settings.settings.enableAIFeatures,
+      isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
     };
   },
