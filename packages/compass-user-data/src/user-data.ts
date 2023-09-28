@@ -4,6 +4,7 @@ import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
+import writeFile from 'write-file-atomic';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
@@ -172,7 +173,7 @@ export class UserData<T extends z.Schema> {
     const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
-      await fs.writeFile(absolutePath, this.serialize(content), {
+      await writeFile(absolutePath, this.serialize(content), {
         encoding: 'utf-8',
       });
       return true;
