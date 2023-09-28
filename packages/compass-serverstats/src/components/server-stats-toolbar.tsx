@@ -1,6 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
-import { Button, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Icon,
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import Actions from '../actions';
@@ -12,7 +20,7 @@ const serverStatsToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  padding: spacing[3]
+  padding: spacing[3],
 });
 
 const serverStatsToolbarDarkThemeStyles = css({
@@ -28,7 +36,7 @@ const serverStatsToolbarLightThemeStyles = css({
 const timeStyles = css({
   padding: `${spacing[2]}px ${spacing[5]}px`,
   borderRadius: '3px',
-  marginLeft: spacing[2]
+  marginLeft: spacing[2],
 });
 
 const timeLightThemeStyles = css({
@@ -46,41 +54,40 @@ export type TimeScrubEventDispatcher = {
 };
 
 type ServerStatsToolbarProps = {
-  eventDispatcher: TimeScrubEventDispatcher
-}
+  eventDispatcher: TimeScrubEventDispatcher;
+};
 
-function ServerStatsToolbar({
-  eventDispatcher
-}: ServerStatsToolbarProps) {
+function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
   const darkMode = useDarkMode();
 
-  const [ time, setTime ] = useState('00:00:00');
-  const [ isPaused, setPaused ] = useState(ServerStatsStore.isPaused);
+  const [time, setTime] = useState('00:00:00');
+  const [isPaused, setPaused] = useState((ServerStatsStore as any).isPaused);
 
   useEffect(() => {
-    eventDispatcher.on('newXValue', xDate => {
+    eventDispatcher.on('newXValue', (xDate) => {
       // When the cursor position results in a new time on the graphs, by user
       // scrubbing or live viewing, we receive a new time to display.
-      setTime(d3.time.format.utc('%X')(xDate));
+      setTime((d3 as any).time.format.utc('%X')(xDate) as string);
     });
   }, []);
 
   const onPlayPauseClicked = useCallback(() => {
     if (isPaused) {
       track('Performance Resumed');
-    }
-    else {
+    } else {
       track('Performance Paused');
     }
-    setPaused(!isPaused)
+    setPaused(!isPaused);
     Actions.pause();
-  }, [ isPaused ]);
+  }, [isPaused]);
 
   return (
     <div
-      className={cx(serverStatsToolbarStyles, darkMode ?
-          serverStatsToolbarDarkThemeStyles :
-          serverStatsToolbarLightThemeStyles
+      className={cx(
+        serverStatsToolbarStyles,
+        darkMode
+          ? serverStatsToolbarDarkThemeStyles
+          : serverStatsToolbarLightThemeStyles
       )}
     >
       <Button
@@ -91,13 +98,16 @@ function ServerStatsToolbar({
         {isPaused ? 'Play' : 'Pause'}
       </Button>
       <div
-        className={cx(timeStyles, darkMode ? timeDarkThemeStyles : timeLightThemeStyles)}
+        className={cx(
+          timeStyles,
+          darkMode ? timeDarkThemeStyles : timeLightThemeStyles
+        )}
         data-testid="server-stats-time"
-      >{time}</div>
+      >
+        {time}
+      </div>
     </div>
   );
 }
 
-export {
-  ServerStatsToolbar
-};
+export { ServerStatsToolbar };

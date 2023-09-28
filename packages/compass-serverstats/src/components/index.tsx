@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Banner,
   LeafyGreenProvider,
-  Theme,
   css,
   cx,
   spacing,
@@ -28,7 +27,7 @@ const REFRESH_STATS_INTERVAL_MS = 1000;
 const workspaceContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'auto'
+  overflow: 'auto',
 });
 
 const workspaceBackgroundStyles = css({
@@ -50,13 +49,13 @@ const workspaceStyles = css({
 
 const mongosWarningStyles = css({
   margin: spacing[2],
-  marginBottom: 0
+  marginBottom: 0,
 });
 
 function PerformancePanel({
-  eventDispatcher
+  eventDispatcher,
 }: {
-  eventDispatcher: TimeScrubEventDispatcher
+  eventDispatcher: TimeScrubEventDispatcher;
 }) {
   return (
     <div>
@@ -85,22 +84,25 @@ function PerformancePanelMsgs() {
     // Trigger the component refresh when stores are updated.
     ServerStatsStore.listen(() => {
       forceUpdate({});
-    });
+    }, ServerStatsStore);
     TopStore.listen(() => {
       forceUpdate({});
-    });
+    }, TopStore);
   }, []);
 
   return (
     <div>
-      {ServerStatsStore.isMongos && (
+      {(ServerStatsStore as any).isMongos && (
         <Banner className={mongosWarningStyles} variant="warning">
-          Top command is not available for mongos, some charts may not show any data.
+          Top command is not available for mongos, some charts may not show any
+          data.
         </Banner>
       )}
-      {TopStore.topUnableToRetrieveSomeCollections && (
+      {(TopStore as any).topUnableToRetrieveSomeCollections && (
         <Banner className={mongosWarningStyles} variant="warning">
-          Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.
+          Top command is unable to retrieve information about certain
+          collections, resulting in incomplete data being displayed on the
+          charts.
         </Banner>
       )}
     </div>
@@ -121,22 +123,15 @@ function PerformanceComponent() {
     };
   }, []);
 
-  const {
-    className: scrollbarStyles
-  } = useScrollbars();
+  const { className: scrollbarStyles } = useScrollbars();
 
   return (
     <section className="rt-perf">
       <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
-      <LeafyGreenProvider theme={{
-        theme: Theme.Dark,
-        enabled: true
-      }}>
+      <LeafyGreenProvider darkMode>
         <div className={cx(workspaceContainerStyles, scrollbarStyles)}>
           <PerformancePanelMsgs />
-          <PerformancePanel
-            eventDispatcher={eventDispatcher.current}
-          />
+          <PerformancePanel eventDispatcher={eventDispatcher.current} />
         </div>
       </LeafyGreenProvider>
     </section>
