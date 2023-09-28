@@ -359,10 +359,11 @@ export default function reducer(
     return {
       ...state,
       updateIndex: {
+        // We do not clear the indexName here to avoid flicker created by LG
+        // Modal as it closes.
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
-        indexName: '',
       },
     };
   }

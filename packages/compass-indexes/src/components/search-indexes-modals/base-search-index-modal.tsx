@@ -129,10 +129,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     if (isModalOpen) {
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
-    } else {
-      // Reset the name and definition when modal is closed.
-      setIndexName('');
-      setIndexDefinition('{}');
       setParsingError(undefined);
     }
   }, [isModalOpen, initialIndexName, initialIndexDefinition]);
