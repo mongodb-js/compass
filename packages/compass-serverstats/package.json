@@ -47,7 +47,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@mongodb-js/webpack-config-compass": "^1.2.0",
-    "@types/d3": "^7.4.1",
+    "@types/d3": "^3.5.x",
     "@types/enzyme": "^3.10.14",
     "chai": "^4.1.2",
     "d3": "^3.5.17",
