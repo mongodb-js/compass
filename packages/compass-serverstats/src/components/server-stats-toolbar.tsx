@@ -69,7 +69,7 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
       // scrubbing or live viewing, we receive a new time to display.
       setTime((d3 as any).time.format.utc('%X')(xDate) as string);
     });
-  }, []);
+  }, [eventDispatcher]);
 
   const onPlayPauseClicked = useCallback(() => {
     if (isPaused) {
