@@ -6,7 +6,7 @@ const NO_USAGE_STATS =
   ' or the user is not authorized to execute it.';
 
 export const getUsageTooltip = (usage?: number): string => {
-  return usage == null
+  return usage === null || usage === undefined
     ? NO_USAGE_STATS
     : `${usage} index hits since index creation or last server restart`;
 };
@@ -27,7 +27,7 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
         <span {...props}>
           {children}
           <Body>
-            {usage == null ? (
+            {usage === null || usage === undefined ? (
               'Usage data unavailable'
             ) : (
               <>
