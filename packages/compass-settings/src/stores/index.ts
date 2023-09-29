@@ -82,24 +82,20 @@ const onActivated = ({
 }) => {
   const store = configureStore();
 
-  globalAppRegistry.on('open-compass-settings', () => {
+  const onOpenSettings = () => {
     void store.dispatch(openModal());
-  });
+  };
 
-  ipcRenderer?.on('window:show-settings', () => {
-    void store.dispatch(openModal());
-  });
+  globalAppRegistry.on('open-compass-settings', onOpenSettings);
+  ipcRenderer?.on('window:show-settings', onOpenSettings);
 
-  return { store };
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
+      ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
+    },
+  };
 };
 
-const onDeactivated = ({
-  globalAppRegistry,
-}: {
-  globalAppRegistry: AppRegistry;
-}) => {
-  globalAppRegistry.removeAllListeners('open-compass-settings');
-  ipcRenderer?.removeAllListeners('window:show-settings');
-};
-
-export { onActivated, onDeactivated };
+export { onActivated };

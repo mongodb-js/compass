@@ -1,6 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import SettingsPlugin from './components/index';
-import { onActivated, onDeactivated } from './stores';
+import { onActivated } from './stores';
 
 function activate(): void {
   // noop
@@ -13,8 +13,7 @@ function deactivate(): void {
 export const CompassSettingsPlugin = registerHadronPlugin({
   name: 'CompassSettings',
   component: SettingsPlugin,
-  onActivated,
-  onDeactivated,
+  activate: onActivated,
 });
 
 export { activate, deactivate };

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import type { Store as ReduxStore } from 'redux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import { AppRegistry, globalAppRegistry } from './app-registry';
@@ -77,7 +77,7 @@ export const AppRegistryProvider: React.FunctionComponent<{
     const shouldCleanUp = cleanUpOnUnmountRef.current;
     return () => {
       if (shouldCleanUp) {
-        localAppRegistry.cleanup();
+        localAppRegistry.deactivate();
       }
     };
   }, [globalAppRegistry, localAppRegistry]);
@@ -99,13 +99,16 @@ type RegistryOptions = {
 type HadronPluginConfig<T> = {
   name: string;
   component: React.ComponentType<T>;
-  onActivated: (options: RegistryOptions & T) => {
+  activate: (options: RegistryOptions & T) => {
     store: Store;
     actions?: Actions;
+    deactivate?: () => void;
   };
-  onDeactivated: (options: RegistryOptions) => void;
 
-  /** Only for plugins that are used as roles */
+  /**
+   * If provided, will register a plugin under the role name, allowing to render
+   * multiple plugins under the same role name when registered
+   */
   roleName?: string;
   order?: number;
 };
@@ -125,15 +128,12 @@ export function registerHadronPlugin<T>(config: HadronPluginConfig<T>) {
       return (
         localAppRegistry.getPlugin(registryName) ??
         (() => {
-          const plugin = config.onActivated({
+          const plugin = config.activate({
             globalAppRegistry,
             localAppRegistry,
             ...props,
           });
-          localAppRegistry.registerPlugin(registryName, {
-            ...plugin,
-            onDeactivated: config.onDeactivated,
-          });
+          localAppRegistry.registerPlugin(registryName, plugin);
           return plugin;
         })()
       );
@@ -154,5 +154,36 @@ export function registerHadronPlugin<T>(config: HadronPluginConfig<T>) {
     );
   };
   HadronPlugin.displayName = config.name;
+  if (config.roleName) {
+    globalAppRegistry.registerRole(config.roleName, {
+      name: config.name,
+      order: config.order,
+      component: HadronPlugin,
+    });
+  }
   return HadronPlugin;
+}
+
+export function HadronRole<T>({ name, ...props }: { name: string } & T) {
+  const nameRef = useRef(name);
+  const initialPropsRef = useRef(props);
+  const globalAppRegistry = useGlobalAppRegistry();
+
+  const roles = useMemo(() => {
+    return globalAppRegistry
+      .getRole(nameRef.current)
+      ?.sort(({ order: a = Infinity }, { order: b = Infinity }) => {
+        return b - a;
+      })
+      .map((role) => {
+        return (
+          <role.component
+            key={role.name}
+            {...initialPropsRef.current}
+          ></role.component>
+        );
+      });
+  }, [globalAppRegistry]);
+
+  return <>{roles}</>;
 }

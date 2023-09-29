@@ -18,7 +18,7 @@ function deactivate(): void {
 export const CompassHomePlugin = registerHadronPlugin({
   name: 'CompassHome',
   component: Home,
-  onActivated({ localAppRegistry }) {
+  activate({ localAppRegistry }) {
     // TODO: This is where we should be subscribing to appRegistry instead of
     // passing it directly to the component. Keeping it as-is as cleaning up
     // compass-home is a bigger refactor that is not in scope
@@ -30,9 +30,6 @@ export const CompassHomePlugin = registerHadronPlugin({
         state: { appRegistry: localAppRegistry },
       },
     };
-  },
-  onDeactivated() {
-    // TODO: Unsubscribe from all the events etc
   },
 });
 

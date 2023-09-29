@@ -12,10 +12,7 @@ const INT8_MAX = 127;
 export type Plugin = {
   store: unknown;
   actions?: Record<string, unknown>;
-  onDeactivated(options: {
-    localAppRegistry: AppRegistry;
-    globalAppRegistry: AppRegistry;
-  }): void;
+  deactivate?: () => void;
 };
 
 interface Role {
@@ -26,7 +23,6 @@ interface Role {
   storeName?: string;
   configureStore?: (storeSetup: any) => any;
   order?: number;
-  hasQueryHistory?: boolean;
 }
 
 type Store = Partial<
@@ -278,14 +274,13 @@ export class AppRegistry {
     return this;
   }
 
-  cleanup() {
+  deactivate() {
     for (const plugin of Object.values(this.plugins)) {
-      plugin.onDeactivated({
-        localAppRegistry: this,
-        globalAppRegistry: globalAppRegistry,
-      });
+      plugin.deactivate?.();
     }
-    // TODO: remove all listeners
+    for (const eventName of this.eventNames()) {
+      this.removeAllListeners(eventName);
+    }
   }
 
   /**
