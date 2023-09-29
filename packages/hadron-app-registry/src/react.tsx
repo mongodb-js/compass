@@ -60,10 +60,32 @@ function useLocalAppRegistry() {
  * local app registry to accomodate local plugin scoping
  */
 export const AppRegistryProvider: React.FunctionComponent<{
+  /**
+   * localAppRegistry to be set in React context. By default will be created
+   * when this component renders. Can be used to preserve appRegistry state even
+   * if AppRegistryProvider is unmounted
+   *
+   * @example
+   * function CollectionTab({ id }) {
+   *   return (
+   *     <AppRegistryProvider
+   *       appRegistry={getRegistryForTabId(id)}
+   *       deactivateOnUnmount={false}
+   *     >
+   *       ...
+   *     </AppRegistryProvider>
+   *   )
+   * }
+   */
   appRegistry?: AppRegistry;
-  cleanUpOnUnmount?: boolean;
-}> = ({ children, appRegistry, cleanUpOnUnmount = true }) => {
-  const cleanUpOnUnmountRef = useRef(cleanUpOnUnmount);
+
+  /**
+   * Deactivates all active plugins and remove all event listeners from the app
+   * registry when provider unmounts. Default is `true`
+   */
+  deactivateOnUnmount?: boolean;
+}> = ({ children, appRegistry, deactivateOnUnmount = true }) => {
+  const deactivateOnUnmountRef = useRef(deactivateOnUnmount);
   const globalAppRegistry = useGlobalAppRegistry();
   const isTopLevelProvider = useContext(LocalAppRegistryContext) === null;
   const [localAppRegistry] = useState(() => {
@@ -74,9 +96,9 @@ export const AppRegistryProvider: React.FunctionComponent<{
   });
 
   useEffect(() => {
-    const shouldCleanUp = cleanUpOnUnmountRef.current;
+    const shouldDeactivate = deactivateOnUnmountRef.current;
     return () => {
-      if (shouldCleanUp) {
+      if (shouldDeactivate) {
         localAppRegistry.deactivate();
       }
     };
@@ -99,9 +121,26 @@ type RegistryOptions = {
 type HadronPluginConfig<T> = {
   name: string;
   component: React.ComponentType<T>;
+  /**
+   * Plugin activation method, will receive any props passed to the component,
+   * and global and local app registry instances to subscribe to any relevant
+   * events. Should return plugin store and an optional deactivate method to
+   * clean up subscriptions or any other store-related state
+   */
   activate: (options: RegistryOptions & T) => {
+    /**
+     * Redux or reflux store that will be automatically passed to a
+     * corresponding provider
+     */
     store: Store;
+    /**
+     * Optional, only relevant for plugins still using reflux
+     */
     actions?: Actions;
+    /**
+     * Optional, can be used to clean up plugin subscriptions when it is
+     * deactivated by app registry scope
+     */
     deactivate?: () => void;
   };
 
@@ -117,10 +156,37 @@ function isReduxStore(store: any): store is ReduxStore {
   return Object.prototype.hasOwnProperty.call(store, 'dispatch');
 }
 
+/**
+ * Creates a hadron plugin that will be automatically activated on first render
+ * and cleaned up when localAppRegistry unmounts
+ *
+ * @example
+ * const CreateCollectionPlugin = registerHadronPlugin({
+ *   name: 'CreateCollection',
+ *   component: CreateCollectionModal,
+ *   activate({ globalAppRegistry }) {
+ *     const store = configureStore(...);
+ *     const openCreateCollectionModal = (ns) => {
+ *       store.dispatch(openModal(ns));
+ *     }
+ *     globalAppRegistry.on('create-collection', openCreateCollectionModal);
+ *     return {
+ *       store,
+ *       deactivate() {
+ *         globalAppRegistry.removeEventListener(
+ *           'create-collection',
+ *           openCreateCollectionModal
+ *         );
+ *       }
+ *     }
+ *   }
+ * });
+ */
 export function registerHadronPlugin<T>(config: HadronPluginConfig<T>) {
   const Component = config.component;
   const registryName = `${config.name}.Plugin`;
   const HadronPlugin: React.FunctionComponent<T> = (props) => {
+    const propsRef = useRef(props);
     const globalAppRegistry = useGlobalAppRegistry();
     const localAppRegistry = useLocalAppRegistry();
 
@@ -131,7 +197,7 @@ export function registerHadronPlugin<T>(config: HadronPluginConfig<T>) {
           const plugin = config.activate({
             globalAppRegistry,
             localAppRegistry,
-            ...props,
+            ...propsRef.current,
           });
           localAppRegistry.registerPlugin(registryName, plugin);
           return plugin;
@@ -142,14 +208,14 @@ export function registerHadronPlugin<T>(config: HadronPluginConfig<T>) {
     if (isReduxStore(store)) {
       return (
         <ReduxStoreProvider store={store}>
-          <Component {...props}></Component>
+          <Component {...propsRef.current}></Component>
         </ReduxStoreProvider>
       );
     }
 
     return (
       <LegacyRefluxProvider store={store} actions={actions}>
-        <Component {...props}></Component>
+        <Component {...propsRef.current}></Component>
       </LegacyRefluxProvider>
     );
   };
