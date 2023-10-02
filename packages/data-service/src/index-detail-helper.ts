@@ -9,7 +9,7 @@ export type IndexInfo = {
 
 export type IndexStats = {
   name: string;
-  usageCount: number;
+  usageCount?: number;
   usageHost?: string;
   usageSince?: Date;
 };
@@ -124,7 +124,6 @@ export function createIndexDefinition(
 ): IndexDefinition {
   indexStats ??= {
     name,
-    usageCount: 0,
     usageHost: '',
     usageSince: new Date(0),
   };
