@@ -699,7 +699,7 @@ class Target {
         version: debianVersion,
         bin: this.productName,
         section: debianSection,
-        depends: ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4'],
+        depends: ['libsecret-1-0', 'gnome-keyring'],
         mimeType
       },
       rpm: {
@@ -715,10 +715,8 @@ class Target {
         },
         bin: this.productName,
         requires: [
-          'libXScrnSaver',
           'gnome-keyring',
           'libsecret',
-          'GConf2'
         ],
         categories: rhelCategories,
         license: license,
