@@ -215,6 +215,11 @@ describe('search-indexes module', function () {
       ).to.be.false;
       expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
     });
+
+    it('opens the search index view when an index is created', async function () {
+      await store.dispatch(createIndex('indexName', {}));
+      expect(store.getState().indexView).to.eq('search-indexes');
+    });
   });
 
   context('update search index', function () {
