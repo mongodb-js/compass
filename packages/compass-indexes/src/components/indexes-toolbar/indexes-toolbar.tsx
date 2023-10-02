@@ -25,6 +25,8 @@ import {
   showCreateModal as onCreateSearchIndex,
 } from '../../modules/search-indexes';
 import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-indexes';
+import type { IndexView } from '../../modules/index-view';
+import { changeIndexView } from '../../modules/index-view';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -50,10 +52,8 @@ const createIndexButtonContainerStyles = css({
   width: 'fit-content',
 });
 
-export type IndexView = 'regular-indexes' | 'search-indexes';
-
 type IndexesToolbarProps = {
-  // passed props:
+  indexView: IndexView;
   errorMessage: string | null;
   hasTooManyIndexes: boolean;
   isRefreshing: boolean;
@@ -71,6 +71,7 @@ type IndexesToolbarProps = {
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
+  indexView,
   errorMessage,
   isReadonlyView,
   isWritable,
@@ -90,15 +91,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   const showInsights = usePreference('showInsights', React) && !errorMessage;
-
-  const onChangeIndexesSegment = useCallback(
-    (value: string) => {
-      const newView = value as IndexView;
-      onChangeIndexView(newView);
-    },
-    [onChangeIndexView]
-  );
-
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -158,10 +150,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
             {isSearchManagementActive && (
               <SegmentedControl
-                onChange={onChangeIndexesSegment}
+                onChange={(evt) => onChangeIndexView(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
-                defaultValue="regular-indexes"
+                value={indexView}
                 data-testid="indexes-segment-controls"
               >
                 <SegmentedControlOption
@@ -287,10 +279,12 @@ const mapState = ({
   description,
   serverVersion,
   searchIndexes,
+  indexView,
 }: RootState) => ({
   isWritable,
   isReadonlyView,
   writeStateDescription: description,
+  indexView,
   serverVersion,
   isAtlasSearchSupported:
     searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
@@ -299,6 +293,7 @@ const mapState = ({
 const mapDispatch = {
   onCreateRegularIndex,
   onCreateSearchIndex,
+  onChangeIndexView: changeIndexView,
 };
 
 export default connect(
