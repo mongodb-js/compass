@@ -1,7 +1,7 @@
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import '../setup-hadron-distribution';
 
-import { app, dialog } from 'electron';
+import { app, dialog, crashReporter } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
 import { initialize as initializeElectronRemote } from '@electron/remote/main';
 import {
@@ -16,6 +16,8 @@ import {
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
 import { installEarlyOpenUrlListener } from './window-manager';
+
+crashReporter.start({ uploadToServer: false });
 
 initializeElectronRemote();
 installEarlyLoggingListener();
