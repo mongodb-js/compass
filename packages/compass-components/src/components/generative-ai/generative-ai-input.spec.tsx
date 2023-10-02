@@ -101,7 +101,7 @@ describe('GenerativeAIInput Component', function () {
       ],
       [
         'QUERY_GENERATION_FAILED',
-        'Something went wrong, please try again later. If the error persists, try changing your prompt.',
+        'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.',
       ],
     ].forEach(([errorCode, expectedText]) => {
       it(`renders an error for ${errorCode}`, function () {
@@ -135,7 +135,7 @@ describe('GenerativeAIInput Component', function () {
 
       const errorMsg = screen.getByTestId('ai-error-msg');
       expect(errorMsg).to.have.text(
-        'Something went wrong, please try again later. If the error persists, contact our support team.'
+        'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'
       );
       expect(errorMsg).to.be.visible;
     });

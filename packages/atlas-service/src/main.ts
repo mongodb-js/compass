@@ -41,7 +41,7 @@ import preferences from 'compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser } from 'compass-preferences-model';
+import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
 import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
@@ -92,11 +92,7 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (
-    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
-      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
-    !preferences.getPreferences().enableAIFeatures
-  ) {
+  if (!isAIFeatureEnabled()) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -516,6 +512,7 @@ export class AtlasService {
       ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
@@ -542,16 +539,15 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const body = new URLSearchParams([
-      ['token', token ?? ''],
-      ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-    ]);
-
     const res = await this.fetch(url.toString(), {
       method: 'POST',
-      body,
+      body: new URLSearchParams([
+        ['token', token ?? ''],
+        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+      ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });

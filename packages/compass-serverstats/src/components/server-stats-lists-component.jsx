@@ -14,14 +14,17 @@ class ServerStatsListsComponent extends React.Component {
       <div className="listview">
         <DetailViewComponent />
         <TopComponent interval={this.props.interval} store={TopStore} />
-        <CurrentOpComponent interval={this.props.interval} store={CurrentOpStore} />
+        <CurrentOpComponent
+          interval={this.props.interval}
+          store={CurrentOpStore}
+        />
       </div>
     );
   }
 }
 
 ServerStatsListsComponent.propTypes = {
-  interval: PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired,
 };
 
 module.exports = ServerStatsListsComponent;

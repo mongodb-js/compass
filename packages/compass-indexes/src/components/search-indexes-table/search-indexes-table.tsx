@@ -18,6 +18,7 @@ import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
+  runAggregateSearchIndex,
   pollSearchIndexes,
   showCreateModal,
   showUpdateModal,
@@ -39,6 +40,7 @@ type SearchIndexesTableProps = {
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
+  onRunAggregateIndex: (name: string) => void;
   openCreateModal: () => void;
   onPollIndexes: () => void;
   status: SearchIndexesStatus;
@@ -168,6 +170,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onEditIndex,
   status,
   onDropIndex,
+  onRunAggregateIndex,
   onPollIndexes,
 }) => {
   useEffect(() => {
@@ -216,6 +219,7 @@ export const SearchIndexesTable: React.FunctionComponent<
           index={index}
           onDropIndex={onDropIndex}
           onEditIndex={onEditIndex}
+          onRunAggregateIndex={onRunAggregateIndex}
         />
       ),
       // TODO(COMPASS-7206): details for the nested row
@@ -249,6 +253,7 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
+  onRunAggregateIndex: runAggregateSearchIndex,
   openCreateModal: showCreateModal,
   onEditIndex: showUpdateModal,
   onPollIndexes: pollSearchIndexes,

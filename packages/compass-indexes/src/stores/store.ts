@@ -7,6 +7,7 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
+import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import {
   fetchIndexes,
   inProgressIndexAdded,
@@ -21,6 +22,8 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
+import { setFields } from '../modules/fields';
+import { switchToRegularIndexes } from '../modules/index-view';
 
 export type IndexesDataService = Pick<
   DataService,
@@ -56,14 +59,12 @@ const configureStore = (options: ConfigureStoreOptions) => {
   const store = createStore(
     reducer,
     {
-      appRegistry: {
-        localAppRegistry: options.localAppRegistry,
-        globalAppRegistry: options.globalAppRegistry,
-      },
       dataService: options.dataProvider.dataProvider,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      fields: [],
+      indexView: INDEX_LIST_INITIAL_STATE,
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
@@ -71,7 +72,12 @@ const configureStore = (options: ConfigureStoreOptions) => {
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
     },
-    applyMiddleware(thunk.withExtraArgument({}))
+    applyMiddleware(
+      thunk.withExtraArgument({
+        localAppRegistry: options.localAppRegistry,
+        globalAppRegistry: options.globalAppRegistry,
+      })
+    )
   );
 
   // Set the app registry if preset. This must happen first.
@@ -87,6 +93,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       'in-progress-indexes-added',
       (index: InProgressIndex) => {
         store.dispatch(inProgressIndexAdded(index));
+        store.dispatch(switchToRegularIndexes());
       }
     );
 
@@ -100,6 +107,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
         store.dispatch(inProgressIndexFailed(data));
       }
     );
+
+    localAppRegistry.on('fields-changed', (fields) => {
+      store.dispatch(setFields(fields.autocompleteFields));
+    });
   }
 
   if (options.globalAppRegistry) {
@@ -114,6 +125,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
     if (instanceStore) {
       const instance = instanceStore.getState().instance;
+
       // set the initial values
       store.dispatch(writeStateChanged(instance.isWritable));
       store.dispatch(getDescription(instance.description));

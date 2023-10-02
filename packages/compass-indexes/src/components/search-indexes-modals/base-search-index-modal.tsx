@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   Modal,
   ModalFooter,
@@ -16,11 +22,20 @@ import {
   ErrorSummary,
   Body,
   Banner,
+  rafraf,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { Annotation } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  createSearchIndexAutocompleter,
+} from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
+import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
+import type { Field } from '../../modules/fields';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -36,8 +51,22 @@ function parseShellBSON(source: string): Document[] {
 const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
   gap: spacing[3],
+});
+
+const templateToolbarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[3],
+  padding: spacing[1],
+});
+
+const templateToolbarTextDescriptionStyles = css({
+  width: '60%',
+});
+
+const templateToolbarDropdownStyles = css({
+  width: '40%',
 });
 
 const formContainerStyles = css({
@@ -57,6 +86,11 @@ const footerStyles = css({
   gap: spacing[2],
 });
 
+type ParsingError = {
+  message: string;
+  pos: number | undefined;
+};
+
 type BaseSearchIndexModalProps = {
   mode: 'create' | 'update';
   initialIndexName: string;
@@ -64,6 +98,7 @@ type BaseSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
+  fields: Field[];
   onSubmit: (indexName: string, indexDefinition: Document) => void;
   onClose: () => void;
 };
@@ -77,16 +112,37 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   isModalOpen,
   isBusy,
   error,
+  fields,
   onSubmit,
   onClose,
 }) => {
+  const editorRef = useRef<EditorRef>(null);
+
   const [indexName, setIndexName] = useState(initialIndexName);
   const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
   );
-  const [parsingError, setParsingError] = useState<string | undefined>(
+  const [parsingError, setParsingError] = useState<ParsingError | undefined>(
     undefined
   );
+
+  // https://github.com/mongodb-js/ejson-shell-parser/blob/master/src/index.ts#L30
+  // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
+  const annotations = useMemo<Annotation[]>(() => {
+    if (parsingError && parsingError.pos) {
+      const pos = Math.max(parsingError.pos - 4, 0);
+      return [
+        {
+          message: parsingError.message,
+          severity: 'error',
+          from: pos,
+          to: pos,
+        },
+      ];
+    }
+
+    return [];
+  }, [parsingError]);
 
   useTrackOnChange(
     'COMPASS-SEARCH-INDEXES-UI',
@@ -109,10 +165,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     if (isModalOpen) {
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
-    } else {
-      // Reset the name and definition when modal is closed.
-      setIndexName('');
-      setIndexDefinition('{}');
       setParsingError(undefined);
     }
   }, [isModalOpen, initialIndexName, initialIndexDefinition]);
@@ -125,7 +177,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         parseShellBSON(newDefinition);
         setIndexDefinition(newDefinition);
       } catch (ex) {
-        setParsingError((ex as Error).message);
+        setParsingError(ex as ParsingError);
       }
     },
     [setIndexDefinition, setParsingError]
@@ -133,13 +185,30 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const onSubmitIndex = useCallback(() => {
     if (parsingError) {
-      setParsingError('The index definition is invalid.');
       return;
     }
 
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
     onSubmit(indexName, indexDefinitionDoc);
   }, [onSubmit, parsingError, indexName, indexDefinition]);
+
+  const onChangeTemplate = useCallback(
+    (template: SearchTemplate) => {
+      rafraf(() => {
+        editorRef.current?.focus();
+        editorRef.current?.applySnippet(template.snippet);
+      });
+    },
+    [editorRef]
+  );
+
+  const completer = useMemo(
+    () =>
+      createSearchIndexAutocompleter({
+        fields,
+      }),
+    [fields]
+  );
 
   return (
     <Modal
@@ -182,34 +251,47 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               <HorizontalRule />
             </>
           )}
-          <section>
-            <Label htmlFor="definition-of-search-index">Index Definition</Label>
-            <br />
-            {mode === 'create' && (
-              <Body>
-                By default, search indexes will have the following search
-                configurations. You can refine this later.
-              </Body>
-            )}
-            <Link
-              href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
-              target="_blank"
-              hideExternalIcon={true}
-            >
-              View Atlas Search tutorials{' '}
-              <Icon size="small" glyph="OpenNewTab"></Icon>
-            </Link>
-            <CodemirrorMultilineEditor
-              id="definition-of-search-index"
-              data-testid="definition-of-search-index"
-              className={editorStyles}
-              text={indexDefinition}
-              onChangeText={onSearchIndexDefinitionChanged}
-              minLines={16}
-            />
+          <section className={templateToolbarStyles}>
+            <div className={templateToolbarTextDescriptionStyles}>
+              <Label htmlFor="definition-of-search-index">
+                Index Definition
+              </Label>
+              <br />
+              {mode === 'create' && (
+                <Body>
+                  By default, search indexes will have the following search
+                  configurations. You can refine this later.
+                </Body>
+              )}
+              <Link
+                href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+                target="_blank"
+                hideExternalIcon={true}
+              >
+                View Atlas Search tutorials{' '}
+                <Icon size="small" glyph="OpenNewTab"></Icon>
+              </Link>
+            </div>
+            <div className={templateToolbarDropdownStyles}>
+              <SearchIndexTemplateDropdown
+                tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                onTemplate={onChangeTemplate}
+              />
+            </div>
           </section>
+          <CodemirrorMultilineEditor
+            ref={editorRef}
+            id="definition-of-search-index"
+            data-testid="definition-of-search-index"
+            className={editorStyles}
+            text={indexDefinition}
+            annotations={annotations}
+            onChangeText={onSearchIndexDefinitionChanged}
+            minLines={16}
+            completer={completer}
+          />
         </div>
-        {parsingError && <WarningSummary warnings={parsingError} />}
+        {parsingError && <WarningSummary warnings={parsingError.message} />}
         {!parsingError && error && <ErrorSummary errors={error} />}
         {mode === 'update' && (
           <Banner>

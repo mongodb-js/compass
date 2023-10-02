@@ -9,7 +9,7 @@ const TopStore = require('./stores/top-store');
 const INSTANCE_TAB_ROLE = {
   component: PerformanceComponent,
   name: 'Performance',
-  order: 3
+  order: 3,
 };
 
 /**
@@ -28,9 +28,18 @@ function activate(appRegistry) {
  * Deactivate all the components in the RTSS package.
  */
 function deactivate() {
-  global.hadronApp.appRegistry.deregisterRole('Instance.Tab', INSTANCE_TAB_ROLE);
-  global.hadronApp.appRegistry.deregisterStore('RTSS.ServerStatsStore', ServerStatsStore);
-  global.hadronApp.appRegistry.deregisterStore('RTSS.CurrentOpStore', CurrentOpStore);
+  global.hadronApp.appRegistry.deregisterRole(
+    'Instance.Tab',
+    INSTANCE_TAB_ROLE
+  );
+  global.hadronApp.appRegistry.deregisterStore(
+    'RTSS.ServerStatsStore',
+    ServerStatsStore
+  );
+  global.hadronApp.appRegistry.deregisterStore(
+    'RTSS.CurrentOpStore',
+    CurrentOpStore
+  );
   global.hadronApp.appRegistry.deregisterStore('RTSS.TopStore', TopStore);
 }
 

@@ -16,6 +16,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
 import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
+import { switchToSearchIndexes } from './index-view';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -359,10 +360,11 @@ export default function reducer(
     return {
       ...state,
       updateIndex: {
+        // We do not clear the indexName here to avoid flicker created by LG
+        // Modal as it closes.
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
-        indexName: '',
       },
     };
   }
@@ -452,6 +454,8 @@ export const createIndex = (
       timeout: 5000,
       variant: 'success',
     });
+
+    void dispatch(switchToSearchIndexes());
     void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
   };
 };
@@ -640,6 +644,35 @@ export const dropSearchIndex = (
         variant: 'warning',
       });
     }
+  };
+};
+
+export const runAggregateSearchIndex = (
+  name: string
+): IndexesThunkAction<void> => {
+  return function (_dispatch, getState, { globalAppRegistry }) {
+    const {
+      searchIndexes: { indexes },
+      namespace,
+    } = getState();
+    const searchIndex = indexes.find((x) => x.name === name);
+    if (!searchIndex) {
+      return;
+    }
+    globalAppRegistry?.emit('search-indexes-run-aggregate', {
+      ns: namespace,
+      pipelineText: JSON.stringify([
+        {
+          $search: {
+            index: name,
+            text: {
+              query: 'string',
+              path: 'string',
+            },
+          },
+        },
+      ]),
+    });
   };
 };
 
