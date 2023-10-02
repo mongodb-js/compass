@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   Modal,
   ModalFooter,
@@ -18,13 +24,17 @@ import {
   Banner,
   rafraf,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  createSearchIndexAutocompleter,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
+import type { Field } from '../../modules/fields';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -82,6 +92,7 @@ type BaseSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
+  fields: Field[];
   onSubmit: (indexName: string, indexDefinition: Document) => void;
   onClose: () => void;
 };
@@ -95,6 +106,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   isModalOpen,
   isBusy,
   error,
+  fields,
   onSubmit,
   onClose,
 }) => {
@@ -169,6 +181,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       });
     },
     [editorRef]
+  );
+
+  const completer = useMemo(
+    () =>
+      createSearchIndexAutocompleter({
+        fields,
+      }),
+    [fields]
   );
 
   return (
@@ -248,6 +268,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             text={indexDefinition}
             onChangeText={onSearchIndexDefinitionChanged}
             minLines={16}
+            completer={completer}
           />
         </div>
         {parsingError && <WarningSummary warnings={parsingError} />}
