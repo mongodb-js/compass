@@ -33,10 +33,6 @@ import { ZeroGraphic } from './zero-graphic';
 
 export const POLLING_INTERVAL = 5000;
 
-function noop() {
-  return;
-}
-
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
@@ -179,7 +175,7 @@ export const SearchIndexesTable: React.FunctionComponent<
 }) => {
   useEffect(() => {
     if (!isWritable) {
-      return noop;
+      return;
     }
 
     const id = setInterval(onPollIndexes, POLLING_INTERVAL);
