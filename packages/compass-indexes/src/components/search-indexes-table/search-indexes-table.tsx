@@ -31,7 +31,11 @@ import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 
-const POLLING_INTERVAL = 5000;
+export const POLLING_INTERVAL = 5000;
+
+function noop() {
+  return;
+}
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
@@ -174,11 +178,15 @@ export const SearchIndexesTable: React.FunctionComponent<
   onPollIndexes,
 }) => {
   useEffect(() => {
+    if (!isWritable) {
+      return noop;
+    }
+
     const id = setInterval(onPollIndexes, POLLING_INTERVAL);
     return () => {
       clearInterval(id);
     };
-  }, [onPollIndexes]);
+  }, [onPollIndexes, isWritable]);
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search

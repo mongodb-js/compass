@@ -5,13 +5,14 @@ import {
   screen,
   fireEvent,
   within,
+  waitFor,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
 import type { Document } from 'mongodb';
 
-import { SearchIndexesTable } from './search-indexes-table';
+import { POLLING_INTERVAL, SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
 
@@ -36,7 +37,7 @@ const renderIndexList = (
   );
 };
 
-describe('SearchIndexesTable Component', function () {
+describe.only('SearchIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
@@ -182,6 +183,27 @@ describe('SearchIndexesTable Component', function () {
       expect(editIndexActions.length).to.equal(indexes.length);
       editIndexActions[0].click();
       expect(onEditIndexSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('connectivity', function () {
+    it('does not poll the index for changes in offline mode', function () {
+      const onPollIndexesSpy = sinon.spy();
+      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: false });
+
+      expect(onPollIndexesSpy.callCount).to.equal(0);
+    });
+
+    it('does poll the index for changes in online mode', async function () {
+      const onPollIndexesSpy = sinon.spy();
+      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: true });
+
+      await waitFor(
+        () => {
+          expect(onPollIndexesSpy.callCount).to.be.greaterThanOrEqual(1);
+        },
+        { timeout: POLLING_INTERVAL * 2 }
+      );
     });
   });
 });
