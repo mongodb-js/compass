@@ -37,7 +37,7 @@ const renderIndexList = (
   );
 };
 
-describe.only('SearchIndexesTable Component', function () {
+describe('SearchIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
