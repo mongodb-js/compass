@@ -24,6 +24,7 @@ import {
   Banner,
   rafraf,
 } from '@mongodb-js/compass-components';
+import type { Annotation } from '@mongodb-js/compass-editor';
 import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
@@ -85,6 +86,11 @@ const footerStyles = css({
   gap: spacing[2],
 });
 
+type ParsingError = {
+  message: string;
+  pos: number | undefined;
+};
+
 type BaseSearchIndexModalProps = {
   mode: 'create' | 'update';
   initialIndexName: string;
@@ -116,9 +122,27 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
   );
-  const [parsingError, setParsingError] = useState<string | undefined>(
+  const [parsingError, setParsingError] = useState<ParsingError | undefined>(
     undefined
   );
+
+  // https://github.com/mongodb-js/ejson-shell-parser/blob/master/src/index.ts#L30
+  // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
+  const annotations = useMemo<Annotation[]>(() => {
+    if (parsingError && parsingError.pos) {
+      const pos = Math.max(parsingError.pos - 4, 0);
+      return [
+        {
+          message: parsingError.message,
+          severity: 'error',
+          from: pos,
+          to: pos,
+        },
+      ];
+    }
+
+    return [];
+  }, [parsingError]);
 
   useTrackOnChange(
     'COMPASS-SEARCH-INDEXES-UI',
@@ -157,7 +181,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         parseShellBSON(newDefinition);
         setIndexDefinition(newDefinition);
       } catch (ex) {
-        setParsingError((ex as Error).message);
+        setParsingError(ex as ParsingError);
       }
     },
     [setIndexDefinition, setParsingError]
@@ -165,7 +189,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const onSubmitIndex = useCallback(() => {
     if (parsingError) {
-      setParsingError('The index definition is invalid.');
       return;
     }
 
@@ -266,12 +289,13 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             data-testid="definition-of-search-index"
             className={editorStyles}
             text={indexDefinition}
+            annotations={annotations}
             onChangeText={onSearchIndexDefinitionChanged}
             minLines={16}
             completer={completer}
           />
         </div>
-        {parsingError && <WarningSummary warnings={parsingError} />}
+        {parsingError && <WarningSummary warnings={parsingError.message} />}
         {!parsingError && error && <ErrorSummary errors={error} />}
         {mode === 'update' && (
           <Banner>
