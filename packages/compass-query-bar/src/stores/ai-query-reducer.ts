@@ -201,7 +201,6 @@ export const runAIQuery = (
         // If we already aborted so we ignore the error.
         return;
       }
-
       trackAndLogFailed({
         errorName: 'request_error',
         statusCode: (err as AtlasServiceError).statusCode || err?.code,
