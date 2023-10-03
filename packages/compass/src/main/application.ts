@@ -148,7 +148,7 @@ class CompassApplication {
       'atlas-local': {
         atlasApiBaseUrl: 'http://localhost:8080',
         atlasApiUnauthBaseUrl:
-          'https://cloud-dev.mongodb.com/api/private/unauth',
+          'http://localhost:8080/api/private/unauth',
         atlasLogin: {
           clientId: '0oaq1le5jlzxCuTbu357',
           issuer: 'https://auth-qa.mongodb.com/oauth2/default',
