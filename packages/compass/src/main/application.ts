@@ -146,7 +146,7 @@ class CompassApplication {
         authPortalUrl: 'https://account-dev.mongodb.com/account/login',
       },
       'atlas-local': {
-        atlasApiBaseUrl: 'http://localhost:8080',
+        atlasApiBaseUrl: 'http://localhost:8080/api/private',
         atlasApiUnauthBaseUrl:
           'http://localhost:8080/api/private/unauth',
         atlasLogin: {
