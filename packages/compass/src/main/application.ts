@@ -113,6 +113,7 @@ class CompassApplication {
      * Atlas service backend configurations.
      *  - compass-dev: locally running compass kanopy backend (localhost)
      *  - compass:    compass kanopy backend (compass.mongodb.com)
+     *  - atlas-local: local mms backend (localhost)
      *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
      *  - atlas:      mms backend (cloud.mongodb.com)
      */
