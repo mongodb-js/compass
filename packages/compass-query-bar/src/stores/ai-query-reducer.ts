@@ -196,15 +196,16 @@ export const runAIQuery = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err) {
+    } catch (err: any) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
+
       trackAndLogFailed({
         errorName: 'request_error',
-        statusCode: (err as AtlasServiceError).statusCode,
-        errorCode: (err as AtlasServiceError).errorCode,
+        statusCode: (err as AtlasServiceError).statusCode || err?.code,
+        errorCode: (err as AtlasServiceError).errorCode || err?.name,
         errorMessage: (err as AtlasServiceError).message,
       });
       // We're going to reset input state with this error, show the error in the
