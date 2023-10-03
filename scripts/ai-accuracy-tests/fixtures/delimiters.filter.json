@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "_id": "1",
+      "filter": true
+    },
+    {
+      "_id": "2",
+      "filter": false
+    }
+  ]
+}

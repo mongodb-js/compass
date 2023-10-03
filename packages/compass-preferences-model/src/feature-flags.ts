@@ -14,7 +14,8 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
-  enableAIExperience: boolean;
+  enableGenAIExperience: boolean;
+  enableAIWithoutRolloutAccess: boolean;
   enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
@@ -30,11 +31,23 @@ export const featureFlags: Required<{
    * Feature flag for enabling the natural text input on the query bar.
    * Epic: COMPASS-6866
    */
-  enableAIExperience: {
-    stage: 'preview',
+  enableGenAIExperience: {
+    stage: 'released',
     description: {
       short: 'Compass AI Features',
       long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
+    },
+  },
+
+  /**
+   * Temporary feature flag for bypassing our incremental rollout for ai access.
+   * Ticket to remove: COMPASS-7226
+   */
+  enableAIWithoutRolloutAccess: {
+    stage: 'development',
+    description: {
+      short: 'Enable AI Features Without Rollout Access',
+      long: 'Bypass the public preview rollout access for the AI features in Compass. Do not use this feature with sensitive data.',
     },
   },
 
@@ -95,7 +108,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6599
    */
   enableAtlasSearchIndexManagement: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',

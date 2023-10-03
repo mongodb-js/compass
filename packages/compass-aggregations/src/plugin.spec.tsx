@@ -6,9 +6,7 @@ import Aggregations from './plugin';
 
 const renderPlugin = () => {
   const store = configureStore();
-  render(
-    <Aggregations showExportButton={true} showRunButton={true} store={store} />
-  );
+  render(<Aggregations store={store} />);
 };
 
 describe('Aggregations [Plugin]', function () {

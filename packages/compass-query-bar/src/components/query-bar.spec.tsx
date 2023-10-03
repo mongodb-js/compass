@@ -125,7 +125,8 @@ describe('QueryBar Component', function () {
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableAIExperience: true,
+        enableGenAIExperience: true,
+        enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
@@ -150,9 +151,9 @@ describe('QueryBar Component', function () {
         );
       });
 
-      it('renders the ask ai button', function () {
-        expect(screen.getByText('Ask AI')).to.exist;
-        expect(screen.getByTestId('ai-experience-ask-ai-button')).to.exist;
+      it('renders the ai entry button', function () {
+        expect(screen.getByText('Generate query')).to.exist;
+        expect(screen.getByTestId('ai-experience-query-entry-button')).to.exist;
       });
     });
 
@@ -163,21 +164,48 @@ describe('QueryBar Component', function () {
         });
       });
 
-      it('does not render the ask ai button, but renders the placeholder', function () {
-        expect(screen.getByText('Ask AI')).to.exist;
-        expect(screen.queryByTestId('ai-experience-ask-ai-button')).to.not
+      it('does not render the ai entry button, but renders the placeholder', function () {
+        expect(screen.getByText('Generate query')).to.exist;
+        expect(screen.queryByTestId('ai-experience-query-entry-button')).to.not
           .exist;
       });
     });
   });
 
-  describe('with ai disabled', function () {
+  describe('with enableGenAIExperience ai disabled', function () {
     let sandbox: sinon.SinonSandbox;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableAIExperience: false,
+        enableGenAIExperience: false,
+        enableGenAIFeatures: true,
+        cloudFeatureRolloutAccess: {
+          GEN_AI_COMPASS: true,
+        },
+      } as any);
+      renderQueryBar({
+        queryOptionsLayout: ['filter'],
+      });
+    });
+
+    afterEach(function () {
+      return sandbox.restore();
+    });
+
+    it('does not render the ask ai button', function () {
+      expect(screen.queryByText('Ask AI')).to.not.exist;
+    });
+  });
+
+  describe('with enableGenAIFeatures ai disabled', function () {
+    let sandbox: sinon.SinonSandbox;
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableGenAIExperience: true,
+        enableGenAIFeatures: false,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },

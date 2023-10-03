@@ -40,10 +40,11 @@ describe('Collection ai query', function () {
     setMockAtlasServerResponse = _setMockAtlasServerResponse;
 
     process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE = endpoint;
+    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
     compass = await beforeTests({
-      extraSpawnArgs: ['--enableAIExperience'],
+      extraSpawnArgs: ['--enableGenAIExperience'],
     });
     browser = compass.browser;
   });
@@ -84,8 +85,8 @@ describe('Collection ai query', function () {
     });
 
     it('makes request to the server and updates the query bar with the response', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);
@@ -137,8 +138,8 @@ describe('Collection ai query', function () {
     });
 
     it('the error is shown to the user', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);
@@ -157,7 +158,9 @@ describe('Collection ai query', function () {
         Selectors.QueryBarAIErrorMessageBanner
       );
       await errorBanner.waitForDisplayed();
-      expect(await errorBanner.getText()).to.equal('500 Internal Server Error');
+      expect(await errorBanner.getText()).to.equal(
+        'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'
+      );
     });
   });
 });

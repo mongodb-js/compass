@@ -1,35 +1,56 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { Document } from 'mongodb';
+import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
 
-import { EmptyContent, Button, Link } from '@mongodb-js/compass-components';
+import { BadgeVariant } from '@mongodb-js/compass-components';
+import {
+  EmptyContent,
+  Button,
+  Link,
+  Badge,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
-  openModalForCreation,
+  dropSearchIndex,
+  runAggregateSearchIndex,
+  pollSearchIndexes,
+  showCreateModal,
+  showUpdateModal,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
+import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
+
+const POLLING_INTERVAL = 5000;
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  onDropIndex: (name: string) => void;
+  onEditIndex: (name: string) => void;
+  onRunAggregateIndex: (name: string) => void;
   openCreateModal: () => void;
+  onPollIndexes: () => void;
   status: SearchIndexesStatus;
 };
 
 function isReadyStatus(status: SearchIndexesStatus) {
   return (
     status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === SearchIndexesStatuses.REFRESHING ||
+    status === SearchIndexesStatuses.POLLING
   );
 }
 
@@ -64,6 +85,80 @@ function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
   );
 }
 
+const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
+  BUILDING: BadgeVariant.Blue,
+  FAILED: BadgeVariant.Red,
+  PENDING: BadgeVariant.Yellow,
+  READY: BadgeVariant.Green,
+  STALE: BadgeVariant.LightGray,
+  DELETING: BadgeVariant.Red,
+};
+
+function IndexStatus({
+  status,
+  'data-testid': dataTestId,
+}: {
+  status: SearchIndexStatus;
+  'data-testid': string;
+}) {
+  const variant = statusBadgeVariants[status];
+  return (
+    <Badge variant={variant} data-testid={dataTestId}>
+      {status}
+    </Badge>
+  );
+}
+
+const searchIndexDetailsStyles = css({
+  display: 'inline-flex',
+  gap: spacing[1],
+});
+
+const searchIndexFieldStyles = css({
+  // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
+  textTransform: 'none',
+  gap: spacing[1],
+});
+
+function SearchIndexDetails({
+  indexName,
+  definition,
+}: {
+  indexName: string;
+  definition: Document;
+}) {
+  const badges: { name: string; className?: string }[] = [];
+  if (definition.mappings?.dynamic) {
+    badges.push({
+      name: 'Dynamic Mappings',
+      className: undefined,
+    });
+  }
+
+  if (definition.mappings?.fields) {
+    badges.push(
+      ...Object.keys(definition.mappings.fields as Document).map((name) => ({
+        name,
+        className: searchIndexFieldStyles,
+      }))
+    );
+  }
+  return (
+    <div
+      className={searchIndexDetailsStyles}
+      data-testid={`search-indexes-details-${indexName}`}
+    >
+      {badges.length === 0
+        ? '[empty]'
+        : badges.map((badge) => (
+            <Badge key={badge.name} className={badge.className}>
+              {badge.name}
+            </Badge>
+          ))}
+    </div>
+  );
+}
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
@@ -72,8 +167,19 @@ export const SearchIndexesTable: React.FunctionComponent<
   readOnly,
   onSortTable,
   openCreateModal,
+  onEditIndex,
   status,
+  onDropIndex,
+  onRunAggregateIndex,
+  onPollIndexes,
 }) => {
+  useEffect(() => {
+    const id = setInterval(onPollIndexes, POLLING_INTERVAL);
+    return () => {
+      clearInterval(id);
+    };
+  }, [onPollIndexes]);
+
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -100,11 +206,29 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
         {
           'data-testid': 'status-field',
-          children: index.status, // TODO(COMPASS-7205): show some badge, not just text
+          children: (
+            <IndexStatus
+              status={index.status}
+              data-testid={`search-indexes-status-${index.name}`}
+            />
+          ),
         },
       ],
-
+      actions: (
+        <IndexActions
+          index={index}
+          onDropIndex={onDropIndex}
+          onEditIndex={onEditIndex}
+          onRunAggregateIndex={onRunAggregateIndex}
+        />
+      ),
       // TODO(COMPASS-7206): details for the nested row
+      details: (
+        <SearchIndexDetails
+          indexName={index.name}
+          definition={index.latestDefinition}
+        />
+      ),
     };
   });
 
@@ -128,7 +252,11 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
-  openCreateModal: openModalForCreation,
+  onDropIndex: dropSearchIndex,
+  onRunAggregateIndex: runAggregateSearchIndex,
+  openCreateModal: showCreateModal,
+  onEditIndex: showUpdateModal,
+  onPollIndexes: pollSearchIndexes,
 };
 
 export default connect(

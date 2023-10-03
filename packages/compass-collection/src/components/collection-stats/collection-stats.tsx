@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import numeral from 'numeral';
 import { css, Tooltip, spacing } from '@mongodb-js/compass-components';
-
-import DocumentStatsItem from '../document-stats-item';
-import IndexStatsItem from '../index-stats-item';
+import type { CollectionState } from '../../modules/collection-tab';
+import CollectionStatsItem from '../collection-stats-item';
 
 const collectionStatsStyles = css({
   textAlign: 'right',
@@ -31,24 +31,61 @@ const tooltipIndexeListStyles = css({
 });
 
 type CollectionStatsProps = {
-  documentCount: string;
-  storageSize: string;
-  avgDocumentSize: string;
-  indexCount: string;
-  totalIndexSize: string;
-  avgIndexSize: string;
+  stats: CollectionState['stats'];
   isTimeSeries?: boolean;
+};
+
+const INVALID = 'N/A';
+
+const avg = (size: number, count: number) => {
+  if (count <= 0) {
+    return 0;
+  }
+  return size / count;
+};
+
+const isNumber = (val: any): val is number => {
+  return typeof val === 'number' && !isNaN(val);
+};
+
+const format = (value: any, format = 'a') => {
+  if (!isNumber(value)) {
+    return INVALID;
+  }
+  const precision = value <= 1000 ? '0' : '0.0';
+  return numeral(value).format(precision + format);
 };
 
 const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   isTimeSeries,
-  documentCount,
-  storageSize,
-  avgDocumentSize,
-  indexCount,
-  totalIndexSize,
-  avgIndexSize,
+  stats,
 }: CollectionStatsProps) => {
+  const {
+    documentCount,
+    storageSize,
+    avgDocumentSize,
+    indexCount,
+    totalIndexSize,
+    avgIndexSize,
+  } = useMemo(() => {
+    const {
+      document_count = NaN,
+      storage_size = NaN,
+      free_storage_size = NaN,
+      avg_document_size = NaN,
+      index_count = NaN,
+      index_size = NaN,
+    } = stats ?? {};
+    return {
+      documentCount: format(document_count),
+      storageSize: format(storage_size - free_storage_size, 'b'),
+      avgDocumentSize: format(avg_document_size, 'b'),
+      indexCount: format(index_count),
+      totalIndexSize: format(index_size, 'b'),
+      avgIndexSize: format(avg(index_size, index_count), 'b'),
+    };
+  }, [stats]);
+
   return (
     <div data-testid="collection-stats" className={collectionStatsStyles}>
       <Tooltip
@@ -60,9 +97,19 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
           <span {...props}>
             <div className={collectionStatsBodyStyles}>
               {!isTimeSeries && (
-                <DocumentStatsItem documentCount={documentCount} />
+                <CollectionStatsItem
+                  data-testid="document"
+                  label="Documents"
+                  value={documentCount}
+                />
               )}
-              {!isTimeSeries && <IndexStatsItem indexCount={indexCount} />}
+              {!isTimeSeries && (
+                <CollectionStatsItem
+                  data-testid="index"
+                  label="Indexes"
+                  value={indexCount}
+                />
+              )}
             </div>
             {children}
           </span>

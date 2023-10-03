@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { GenerativeAIInput } from '@mongodb-js/compass-components';
+import { GenerativeAIInput, openToast } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model';
@@ -25,6 +25,12 @@ const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
     feedback,
     text,
   }));
+
+  openToast('pipeline-ai-feedback-submitted', {
+    variant: 'success',
+    title: 'Your feedback has been submitted.',
+    timeout: 10_000,
+  });
 };
 
 type PipelineAIProps = {
@@ -36,6 +42,7 @@ type PipelineAIProps = {
   didSucceed: boolean;
   isFetching: boolean;
   errorMessage?: string;
+  errorCode?: string;
   onCancelRequest(): void;
   isAggregationGeneratedFromQuery: boolean;
   onResetIsAggregationGeneratedFromQuery(): void;
@@ -51,6 +58,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   didSucceed,
   onCancelRequest,
   errorMessage,
+  errorCode,
   isAggregationGeneratedFromQuery,
   onResetIsAggregationGeneratedFromQuery,
 }) => {
@@ -77,6 +85,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       didSucceed={didSucceed}
       onCancelRequest={onCancelRequest}
       errorMessage={errorMessage}
+      errorCode={errorCode}
       isAggregationGeneratedFromQuery={isAggregationGeneratedFromQuery}
       onResetIsAggregationGeneratedFromQuery={
         onResetIsAggregationGeneratedFromQuery
@@ -97,6 +106,7 @@ const ConnectedPipelineAI = connect(
       isFetching: state.pipelineBuilder.aiPipeline.status === 'fetching',
       didSucceed: state.pipelineBuilder.aiPipeline.status === 'success',
       errorMessage: state.pipelineBuilder.aiPipeline.errorMessage,
+      errorCode: state.pipelineBuilder.aiPipeline.errorCode,
     };
   },
   {

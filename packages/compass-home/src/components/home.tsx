@@ -42,6 +42,7 @@ import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -149,6 +150,10 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+function showCollectionSubMenu({ isReadonly }: { isReadonly: boolean }) {
+  void ipc.ipcRenderer?.call('window:show-collection-submenu', { isReadonly });
+}
+
 function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
@@ -219,11 +224,12 @@ function Home({
     });
   }
 
-  function onSelectNamespace(meta: { namespace: string }) {
+  function onSelectNamespace(meta: CollectionMetadata) {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(meta.namespace),
     });
+    showCollectionSubMenu({ isReadonly: meta.isReadonly });
   }
 
   function onInstanceWorkspaceOpenTap() {
@@ -234,18 +240,12 @@ function Home({
     });
   }
 
-  function onOpenNamespaceInNewTab(meta: { namespace: string }) {
+  function onOpenNamespaceInNewTab(meta: CollectionMetadata) {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(meta.namespace),
     });
-  }
-
-  function onAllTabsClosed() {
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(''),
-    });
+    showCollectionSubMenu({ isReadonly: meta.isReadonly });
   }
 
   const onDataServiceDisconnected = useCallback(() => {
@@ -296,7 +296,6 @@ function Home({
     appRegistry.on('select-namespace', onSelectNamespace);
     appRegistry.on('open-instance-workspace', onInstanceWorkspaceOpenTap);
     appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
-    appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
 
     return () => {
       // Clean up the app registry listeners.
@@ -318,7 +317,6 @@ function Home({
         'open-namespace-in-new-tab',
         onOpenNamespaceInNewTab
       );
-      appRegistry.removeListener('all-collection-tabs-closed', onAllTabsClosed);
     };
   }, [appRegistry, onDataServiceDisconnected]);
 

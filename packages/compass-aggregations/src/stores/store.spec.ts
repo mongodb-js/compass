@@ -226,6 +226,7 @@ describe('Aggregation Store', function () {
             aiPipelineFetchId: -1,
             aiPromptText: 'group by price',
             errorMessage: undefined,
+            errorCode: undefined,
             isAggregationGeneratedFromQuery: true,
             isInputVisible: true,
             status: 'success',

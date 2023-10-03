@@ -21,6 +21,7 @@ type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
 export type AIQueryState = {
   errorMessage: string | undefined;
+  errorCode: string | undefined;
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIQueryStatus;
@@ -31,6 +32,7 @@ export const initialState: AIQueryState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,
+  errorCode: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
 };
@@ -40,7 +42,6 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
@@ -97,7 +98,8 @@ type AIQueryStartedAction = {
 type AIQueryFailedAction = {
   type: AIQueryActionTypes.AIQueryFailed;
   errorMessage: string;
-  networkErrorCode?: number;
+  statusCode?: number;
+  errorCode?: string;
 };
 
 export type AIQuerySucceededAction = {
@@ -105,30 +107,30 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
-export type AIQueryReturnedAggregationAction = {
-  type: AIQueryActionTypes.AIQueryReturnedAggregation;
-};
-
 type FailedResponseTrackMessage = {
-  errorCode?: number;
+  statusCode?: number;
+  errorCode?: string;
   errorName: string;
   errorMessage: string;
 };
 
 function trackAndLogFailed({
+  statusCode,
   errorCode,
   errorName,
   errorMessage,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
-    errorCode,
+    statusCode,
     errorMessage,
     errorName,
+    errorCode,
   });
   track('AI Response Failed', () => ({
     editor_view_type: 'find',
     error_name: errorName,
-    error_code: errorCode,
+    status_code: statusCode,
+    error_code: errorCode ?? '',
   }));
 }
 
@@ -136,10 +138,7 @@ export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  | AIQueryStartedAction
-  | AIQueryFailedAction
-  | AIQuerySucceededAction
-  | AIQueryReturnedAggregationAction
+  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
@@ -204,7 +203,8 @@ export const runAIQuery = (
       }
       trackAndLogFailed({
         errorName: 'request_error',
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
+        errorCode: (err as AtlasServiceError).errorCode,
         errorMessage: (err as AtlasServiceError).message,
       });
       // We're going to reset input state with this error, show the error in the
@@ -220,7 +220,8 @@ export const runAIQuery = (
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: (err as AtlasServiceError).message,
-        networkErrorCode: (err as AtlasServiceError).statusCode ?? -1,
+        statusCode: (err as AtlasServiceError).statusCode ?? -1,
+        errorCode: (err as AtlasServiceError).errorCode,
       });
       return;
     } finally {
@@ -246,7 +247,7 @@ export const runAIQuery = (
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: err?.message,
       });
       dispatch({
@@ -258,21 +259,20 @@ export const runAIQuery = (
 
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
+      const aggregation = jsonResponse?.content?.aggregation;
+
       // The query endpoint may return the aggregation property in addition to filter, project, etc..
       // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
-      if (query.aggregation) {
+      if (aggregation) {
         localAppRegistry?.emit('generate-aggregation-from-query', {
           userInput,
-          aggregation: query.aggregation,
+          aggregation,
         });
         const msg =
           'Query requires stages from aggregation framework therefore an aggregation was generated.';
         trackAndLogFailed({
           errorName: 'ai_generated_aggregation_instead_of_query',
           errorMessage: msg,
-        });
-        dispatch({
-          type: AIQueryActionTypes.AIQueryReturnedAggregation,
         });
         return;
       }
@@ -300,9 +300,7 @@ export const runAIQuery = (
       'AIQuery',
       'AI query request succeeded',
       {
-        query: {
-          ...queryFields,
-        },
+        shape: Object.keys(generatedFields),
       }
     );
     track('AI Response Generated', () => ({
@@ -385,9 +383,9 @@ const aiQueryReducer: Reducer<AIQueryState> = (
 
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
     // If fetching query failed due to authentication error, reset the state to
-    // hide the input and show the "Ask AI" button again: this should start the
-    // sign in flow for the user when clicked
-    if (action.networkErrorCode === 401) {
+    // hide the input and show the "Generate query" button again: this should start
+    // the sign in flow for the user when clicked
+    if (action.statusCode === 401) {
       return { ...initialState };
     }
 
@@ -396,6 +394,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       status: 'ready',
       aiQueryFetchId: -1,
       errorMessage: action.errorMessage,
+      errorCode: action.errorCode,
     };
   }
 

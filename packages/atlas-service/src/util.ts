@@ -85,7 +85,7 @@ export function validateAIFeatureEnablementResponse(
 ): asserts response is AIFeatureEnablement {
   const { features } = response;
 
-  if (typeof features !== 'object' || features === null) {
+  if (typeof features !== 'object') {
     throw new Error('Unexpected response: expected features to be an object');
   }
 }
@@ -95,7 +95,8 @@ export type AIQuery = {
     query: Record<
       'filter' | 'project' | 'collation' | 'sort' | 'skip' | 'limit',
       string
-    > & { aggregation?: { pipeline: string } };
+    >;
+    aggregation?: { pipeline: string };
   };
 };
 
@@ -108,11 +109,13 @@ export function validateAIQueryResponse(
     throw new Error('Unexpected response: expected content to be an object');
   }
 
-  if (hasExtraneousKeys(content, ['query'])) {
-    throw new Error('Unexpected keys in response: expected query');
+  if (hasExtraneousKeys(content, ['query', 'aggregation'])) {
+    throw new Error(
+      'Unexpected keys in response: expected query and aggregation'
+    );
   }
 
-  const { query } = content;
+  const { query, aggregation } = content;
 
   if (typeof query !== 'object' || query === null) {
     throw new Error('Unexpected response: expected query to be an object');
@@ -126,7 +129,6 @@ export function validateAIQueryResponse(
       'sort',
       'skip',
       'limit',
-      'aggregation',
     ])
   ) {
     throw new Error(
@@ -151,13 +153,31 @@ export function validateAIQueryResponse(
     }
   }
 
-  if (query.aggregation && typeof query.aggregation.pipeline !== 'string') {
+  if (aggregation && typeof aggregation.pipeline !== 'string') {
     throw new Error(
       `Unexpected response: expected aggregation pipeline to be a string, got ${util.inspect(
-        query.aggregation
+        aggregation
       )}`
     );
   }
 }
 
-export type AtlasServiceError = Error & { statusCode: number };
+// See: https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
+export class AtlasServiceError extends Error {
+  statusCode: number;
+  errorCode: string;
+  detail: string;
+
+  constructor(
+    name: 'NetworkError' | 'ServerError',
+    statusCode: number,
+    detail: string,
+    errorCode: string
+  ) {
+    super(`${errorCode}: ${detail}`);
+    this.name = name;
+    this.statusCode = statusCode;
+    this.errorCode = errorCode;
+    this.detail = detail;
+  }
+}

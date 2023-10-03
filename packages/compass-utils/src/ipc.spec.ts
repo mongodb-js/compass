@@ -35,6 +35,14 @@ describe('ipc', function () {
         });
       });
     }),
+    throwsErrorWithExtraParams: sandbox.stub().rejects(
+      Object.assign(new Error('Error!'), {
+        name: 'SpecialError',
+        foo: 1,
+        bar: 'a',
+        nonSerializeable() {},
+      })
+    ),
   };
 
   afterEach(function () {
@@ -84,6 +92,33 @@ describe('ipc', function () {
       expect.fail('Expected bar() to throw');
     } catch (err) {
       expect(err).to.have.property('message', 'Whoops!');
+    }
+  });
+
+  it('should pass extra properies from thrown errors', async function () {
+    ipcExpose(
+      'Test',
+      mockHandler,
+      ['throwsErrorWithExtraParams'],
+      mockIpc,
+      true
+    );
+    const { throwsErrorWithExtraParams } = ipcInvoke<
+      typeof mockHandler,
+      'throwsErrorWithExtraParams'
+    >('Test', ['throwsErrorWithExtraParams'], mockIpc);
+
+    try {
+      await throwsErrorWithExtraParams();
+      expect.fail('Expected throwsErrorWithExtraParams() to throw');
+    } catch (err) {
+      expect(err).to.have.property('name', 'SpecialError');
+      expect(err).to.have.property('message', 'Error!');
+      expect(err).to.have.property('stack');
+      expect(err).to.have.property('foo', 1);
+      expect(err).to.have.property('bar', 'a');
+      // Testing that non-serializeable values are ignored
+      expect(err).to.not.have.property('nonSerializeable');
     }
   });
 

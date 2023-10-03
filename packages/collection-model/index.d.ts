@@ -1,7 +1,51 @@
 import type toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
-type Namespace = ReturnType<typeof toNS>;
+type CollectionMetadata = {
+  /**
+   * Collection namespace (<database>.<collection>)
+   */
+  namespace: string;
+  /**
+   * Indicates that colleciton is read only
+   */
+  isReadonly: boolean;
+  /**
+   * Indicates that colleciton is a time series collection
+   */
+  isTimeSeries: boolean;
+  /**
+   * Indicates that collection is clustered / has a clustered index
+   */
+  isClustered: boolean;
+  /**
+   * Indicates that collection has encrypted fields in it
+   */
+  isFLE: boolean;
+  /**
+   * Indicates that MongoDB server supports search indexes (property is exposed
+   * on collection because the check is relevant for collection tab and requires
+   * collection namespace to perform the check)
+   */
+  isSearchIndexesSupported: boolean;
+  /**
+   * View source namespace (<database>.<collection>)
+   */
+  sourceName?: string;
+  /**
+   * Indicates if a source collection is read only
+   */
+  sourceReadonly?: boolean;
+  /**
+   * View source view namespace (this is the same as metadata namespace if
+   * present)
+   */
+  sourceViewon?: string;
+  /**
+   * Aggregation pipeline view definition
+   */
+  sourcePipeline?: unknown[];
+};
 
 interface Collection {
   _id: string;
@@ -40,18 +84,10 @@ interface Collection {
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
-  fetchMetadata(opts: { dataService: DataService }): Promise<{
-    namespace: string;
-    isReadonly: boolean;
-    isTimeSeries: boolean;
-    isClustered: boolean;
-    isFLE: boolean;
-    isSearchIndexesSupported: boolean;
-    sourceName?: string;
-    sourceReadonly?: boolean;
-    sourceViewon?: string;
-    sourcePipeline?: unknown[];
-  }>;
+  fetchMetadata(opts: {
+    dataService: DataService;
+  }): Promise<CollectionMetadata>;
+  on(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived: boolean }): this;
 }
 
@@ -63,4 +99,4 @@ interface CollectionCollection extends Array<Collection> {
 }
 
 export default Collection;
-export { CollectionCollection };
+export { CollectionCollection, CollectionMetadata };

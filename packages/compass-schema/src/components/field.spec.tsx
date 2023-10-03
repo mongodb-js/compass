@@ -3,11 +3,15 @@ import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import userEvent from '@testing-library/user-event';
-import type { PrimitiveSchemaType, SchemaType } from 'mongodb-schema';
-import { Decimal128 } from 'bson';
+import {
+  parseSchema,
+  type PrimitiveSchemaType,
+  type SchemaType,
+} from 'mongodb-schema';
+import { BSON, Decimal128 } from 'bson';
 
 import configureActions from '../actions';
-import Field from './field';
+import Field, { shouldShowUnboundArrayInsight } from './field';
 
 describe('Field', function () {
   let container: HTMLElement;
@@ -223,5 +227,32 @@ describe('Field', function () {
       expect(within(container).getByText('Decimal128')).to.be.visible;
       expect(within(container).queryByText('Int32')).to.not.exist;
     });
+  });
+});
+
+describe('shouldShowUnboundArrayInsight', function () {
+  async function getTypesForValue(val: any) {
+    return (await parseSchema([{ a: val }])).fields[0].types;
+  }
+
+  it('should return true when document matches criteria', async function () {
+    const schemas = await Promise.all(
+      [{ a: 1 }, new BSON.ObjectId(), 'a'].map((val) => {
+        return getTypesForValue([val]);
+      })
+    );
+
+    for (const schemaType of schemas) {
+      expect(shouldShowUnboundArrayInsight(schemaType, 1)).to.eq(true);
+    }
+  });
+
+  it("should return false when document doesn't match criteria", async function () {
+    const tooSmall = await getTypesForValue([1, 2, 3]);
+    expect(shouldShowUnboundArrayInsight(tooSmall, 5)).to.eq(false);
+    const wrongType = await getTypesForValue([1.2]);
+    expect(shouldShowUnboundArrayInsight(wrongType, 1)).to.eq(false);
+    const notArray = await getTypesForValue(true);
+    expect(shouldShowUnboundArrayInsight(notArray, 1)).to.eq(false);
   });
 });

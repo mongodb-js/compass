@@ -53,6 +53,9 @@ function CreateIndexModal({
     (track) => {
       if (isVisible) {
         track('Screen', { name: 'create_index_modal' });
+        track('Index Create Opened', {
+          atlas_search: false,
+        });
       }
     },
     [isVisible],

@@ -169,17 +169,13 @@ export function trackNewConnectionEvent(
 ): void {
   try {
     const callback = async () => {
-      const {
-        dataLake,
-        genuineMongoDB,
-        host,
-        build,
-        isAtlas: isAtlasInstance,
-      } = await dataService.instance();
+      const { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas } =
+        await dataService.instance();
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
-        is_atlas: isAtlasInstance,
+        is_atlas: isAtlas,
+        is_local_atlas: isLocalAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
         is_genuine: genuineMongoDB.isGenuine,

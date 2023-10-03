@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
+    enableGenAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -46,7 +47,16 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
-    atlasServiceConfigPreset: 'compass-dev' | 'compass' | 'atlas-dev' | 'atlas';
+    atlasServiceBackendPreset:
+      | 'compass-dev'
+      | 'compass'
+      | 'atlas-dev'
+      | 'atlas';
+    // Features that are enabled by default in Compass, but are disabled in Data
+    // Explorer
+    enableExplainPlan: boolean;
+    enableImportExport: boolean;
+    enableAggregationBuilderRunPipeline: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -408,7 +418,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable MongoDB Shell',
-      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+      long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
@@ -427,6 +437,18 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  enableGenAIFeatures: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -527,7 +549,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Device Auth Flow Checkbox',
-      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication for MongoDB server OIDC Authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
@@ -540,8 +562,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Browser command to use for OIDC Authentication',
-      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
+      short: 'Browser command to use for authentication',
+      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider for the server connection or when logging in to your Atlas Cloud account. Leave this empty for default browser.',
     },
     validator: z.string().optional(),
     type: 'string',
@@ -555,7 +577,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -620,12 +642,12 @@ export const storedUserPreferencesProps: Required<{
 
   /**
    * Chooses atlas service backend configuration from preset
-   *  - compas-dev: locally running compass kanopy backend (localhost)
+   *  - compass-dev: locally running compass kanopy backend (localhost)
    *  - compass:    compass kanopy backend (compass.mongodb.com)
    *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
    *  - atlas:      mms backend (cloud.mongodb.com)
    */
-  atlasServiceConfigPreset: {
+  atlasServiceBackendPreset: {
     ui: true,
     cli: true,
     global: true,
@@ -634,8 +656,41 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
-      .default('compass'),
+      .default('atlas'),
     type: 'string',
+  },
+
+  enableImportExport: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable import / export feature',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableAggregationBuilderRunPipeline: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable "Run Pipeline" feature in aggregation builder',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableExplainPlan: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable explain plan feature in CRUD and aggregation view',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,
@@ -1009,6 +1064,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
+        enableGenAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,

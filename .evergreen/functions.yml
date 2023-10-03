@@ -40,7 +40,7 @@ variables:
     # WARN: This version is behind our electron runtime, but updating it will
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
-    # TODO: https://jira.mongodb.org/browse/COMPASS-6915 
+    # TODO: https://jira.mongodb.org/browse/COMPASS-6915
     NODE_JS_VERSION: '16.20.2'
     NPM_VERSION: '8.19.4'
     # secrets
@@ -77,6 +77,8 @@ variables:
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
+    E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
+    E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -321,38 +323,42 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          COMPASS_APP_PATH: ${appPath}
-          COMPASS_APP_NAME: ${packagerOptions.name}
+          COMPASS_APP_PATH_ORIGINAL: ${appPath}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          set -x
 
           # Check the app bundle size.
           npm run --workspace mongodb-compass check-bundled-app-size
 
-          echo "Unpacking ${app_archive_name} ..."
+          if [[ "$IS_WINDOWS" == "true" ]]; then
+            COMPASS_OUTDIR="$COMPASS_APP_PATH_ORIGINAL"
+          else
+            # Unpack outside the Compass working tree to avoid interactions with
+            # npm packages from inside it.
+            # (This doesn't seem to work on Windows without issues around being
+            # able to spawn the extracted executable, unfortunately.)
+            COMPASS_OUTDIR="$PWD/../tmp/from-packaged"
+          fi
+
+          mkdir -p "$COMPASS_OUTDIR"
+          echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
 
           # Unpack the app archive
           if [[ "${app_archive_name}" == *.zip ]]; then
-            COMPASS_OUTDIR="$COMPASS_APP_PATH"
-            if [[ "$IS_OSX" == "true" ]]; then
-              # unzip on macos needs a different path to avoid nesting the .app
-              # inside another .app dir
-              COMPASS_OUTDIR=$(dirname "$COMPASS_APP_PATH")
-            fi
-            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
-            mkdir -p "$COMPASS_OUTDIR"
             unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_OUTDIR"
           else
-            COMPASS_OUTDIR="packages/compass/dist"
-            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
-            mkdir -p "$COMPASS_OUTDIR"
             tar -xzf "packages/compass/dist/${app_archive_name}" -C "$COMPASS_OUTDIR"
           fi
 
           # Print folder content to confirm that it worked
-          ls -la packages/compass/dist
+          ls -la "$COMPASS_OUTDIR"
+
+          if [[ "$IS_WINDOWS" == "true" ]]; then
+            chmod +x "$COMPASS_OUTDIR"/*.exe
+          fi
 
   e2e-coverage:
     - command: shell.exec
@@ -385,7 +391,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          COMPASS_APP_PATH: ${appPath}
+          COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
@@ -396,10 +402,15 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
 
+          if [[ "$IS_WINDOWS" == "true" ]]; then
+            export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
+          else
+            export COMPASS_APP_PATH="$PWD/../tmp/from-packaged/$(basename "$COMPASS_APP_PATH_ORIGINAL")"
+          fi
           echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
 
           if [[ "$IS_OSX" == "true" ]]; then
-            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"
+            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/COMPASS-7102)"
             export COMPASS_E2E_DISABLE_KEYCHAIN_USAGE="true"
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"

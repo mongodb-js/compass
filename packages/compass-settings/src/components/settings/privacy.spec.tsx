@@ -7,6 +7,19 @@ import { PrivacySettings } from './privacy';
 import { configureStore } from '../../stores';
 import { fetchSettings } from '../../stores/settings';
 
+function renderPrivacySettings(
+  store,
+  props: Partial<React.ComponentProps<typeof PrivacySettings>> = {}
+) {
+  const component = () => (
+    <Provider store={store}>
+      <PrivacySettings {...props} />
+    </Provider>
+  );
+  render(component());
+  return screen.getByTestId('privacy-settings');
+}
+
 describe('PrivacySettings', function () {
   let container: HTMLElement;
   let store: ReturnType<typeof configureStore>;
@@ -18,35 +31,48 @@ describe('PrivacySettings', function () {
   beforeEach(async function () {
     store = configureStore();
     await store.dispatch(fetchSettings());
-    const component = () => (
-      <Provider store={store}>
-        <PrivacySettings />
-      </Provider>
-    );
-    render(component());
-    container = screen.getByTestId('privacy-settings');
   });
 
   afterEach(function () {
     cleanup();
   });
 
-  [
-    'autoUpdates',
-    'enableMaps',
-    'trackUsageStatistics',
-    'enableFeedbackPanel',
-  ].forEach((option) => {
-    it(`renders ${option}`, function () {
-      expect(within(container).getByTestId(option)).to.exist;
+  describe('when rendered', function () {
+    beforeEach(function () {
+      container = renderPrivacySettings(store);
     });
-    it(`changes ${option} value when option is clicked`, function () {
-      const checkbox = within(container).getByTestId(option);
-      const initialValue = getSettings()[option];
-      userEvent.click(checkbox, undefined, {
-        skipPointerEventsCheck: true,
+
+    [
+      'autoUpdates',
+      'enableMaps',
+      'trackUsageStatistics',
+      'enableFeedbackPanel',
+    ].forEach((option) => {
+      it(`renders ${option}`, function () {
+        expect(within(container).getByTestId(option)).to.exist;
       });
-      expect(getSettings()).to.have.property(option, !initialValue);
+      it(`changes ${option} value when option is clicked`, function () {
+        const checkbox = within(container).getByTestId(option);
+        const initialValue = getSettings()[option];
+        userEvent.click(checkbox, undefined, {
+          skipPointerEventsCheck: true,
+        });
+        expect(getSettings()).to.have.property(option, !initialValue);
+      });
     });
+  });
+
+  it('does not render enableGenAIFeatures when isAIFeatureRolledOutToUser is false', function () {
+    container = renderPrivacySettings(store, {
+      isAIFeatureRolledOutToUser: false,
+    });
+    expect(within(container).queryByTestId('enableGenAIFeatures')).to.not.exist;
+  });
+
+  it('renders enableGenAIFeatures when GisAIFeatureRolledOutToUser is true', function () {
+    container = renderPrivacySettings(store, {
+      isAIFeatureRolledOutToUser: true,
+    });
+    expect(within(container).getByTestId('enableGenAIFeatures')).to.be.visible;
   });
 });

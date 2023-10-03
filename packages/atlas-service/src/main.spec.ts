@@ -27,7 +27,7 @@ describe('AtlasServiceMain', function () {
       'http://example.com/v1/revoke?client_id=1234abcd': {
         ok: true,
       },
-      'http://example.com/ai/api/v1/hello/': {
+      'http://example.com/unauth/ai/api/v1/hello/': {
         ok: true,
         json() {
           return { features: {} };
@@ -59,6 +59,7 @@ describe('AtlasServiceMain', function () {
 
   const defaultConfig = {
     atlasApiBaseUrl: 'http://example.com',
+    atlasApiUnauthBaseUrl: 'http://example.com/unauth',
     atlasLogin: {
       issuer: 'http://example.com',
       clientId: '1234abcd',
@@ -123,7 +124,9 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
       expect(userInfo).to.have.property('sub', '1234');
     });
 
@@ -138,7 +141,42 @@ describe('AtlasServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+        // two times because we need to explicitly request token first to show a
+        // proper error message from oidc plugin in case of failed sign in
+      ).to.have.been.calledTwice;
+    });
+
+    it('should fail with oidc-plugin error first if auth failed', async function () {
+      AtlasService['fetch'] = sandbox.stub().resolves({
+        ok: false,
+        json: sandbox.stub().rejects(),
+        status: 401,
+        statusText: 'Unauthorized',
+      });
+      AtlasService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            REQUEST_TOKEN_CALLBACK: sandbox
+              .stub()
+              .rejects(
+                new Error(
+                  'Failed to request token for some specific plugin reason'
+                )
+              ),
+            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
+          },
+        },
+      } as any;
+
+      try {
+        await AtlasService.signIn();
+        expect.fail('Expected AtlasService.signIn to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'Failed to request token for some specific plugin reason'
+        );
+      }
     });
   });
 
@@ -298,7 +336,7 @@ describe('AtlasServiceMain', function () {
         } catch (err) {
           expect(err).to.have.property(
             'message',
-            'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+            'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
           );
         }
       });
@@ -338,6 +376,7 @@ describe('AtlasServiceMain', function () {
           ok: false,
           status: 500,
           statusText: 'Internal Server Error',
+          json: sandbox.stub().rejects(new Error('invalid json')),
         }) as any;
 
         try {
@@ -348,7 +387,7 @@ describe('AtlasServiceMain', function () {
           });
           expect.fail(`Expected ${functionName} to throw`);
         } catch (err) {
-          expect(err).to.have.property('message', '500 Internal Server Error');
+          expect(err).to.have.property('message', '500: Internal Server Error');
         }
       });
     });
@@ -366,7 +405,7 @@ describe('AtlasServiceMain', function () {
       });
     });
 
-    it('should throw network error if res is not ok', async function () {
+    it('should throw network error if res is not an atlas error', async function () {
       try {
         await throwIfNotOk({
           ok: false,
@@ -379,7 +418,7 @@ describe('AtlasServiceMain', function () {
         expect.fail('Expected throwIfNotOk to throw');
       } catch (err) {
         expect(err).to.have.property('name', 'NetworkError');
-        expect(err).to.have.property('message', '500 Whoops');
+        expect(err).to.have.property('message', '500: Whoops');
       }
     });
 
@@ -401,6 +440,9 @@ describe('AtlasServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('name', 'ServerError');
         expect(err).to.have.property('message', 'ExampleCode: tortillas');
+        expect(err).to.have.property('detail', 'tortillas');
+        expect(err).to.have.property('errorCode', 'ExampleCode');
+        expect(err).to.have.property('statusCode', 500);
       }
     });
   });
@@ -529,7 +571,7 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
@@ -562,7 +604,36 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: false,
+      });
+    });
+
+    it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: null,
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
@@ -584,7 +655,7 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;

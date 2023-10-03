@@ -20,61 +20,38 @@ const realTimeLineChart = require('compass-serverstats').d3.realTimeLineChart;
 
 const el = document.getElementById('myChart');
 const data = {
-  "dataSets" : [
+  dataSets: [
     {
-      "line" : "virtual",
-      "count" : [
-        2.48,
-        2.48,
-        2.49
-      ],
-      "active" : true
+      line: 'virtual',
+      count: [2.48, 2.48, 2.49],
+      active: true,
     },
     {
-      "line" : "resident",
-      "count" : [
-        0.02,
-        0.02,
-        0.02
-      ],
-      "active":true
+      line: 'resident',
+      count: [0.02, 0.02, 0.02],
+      active: true,
     },
     {
-      "line" : "mapped",
-      "count" : [
-        0,
-        0,
-        0
-      ],
-      "active":true
-    }
+      line: 'mapped',
+      count: [0, 0, 0],
+      active: true,
+    },
   ],
-  "localTime" : [
-    "2016-10-30T07:12:05.077Z",
-    "2016-10-30T07:12:06.069Z",
-    "2016-10-30T07:12:07.153Z"
+  localTime: [
+    '2016-10-30T07:12:05.077Z',
+    '2016-10-30T07:12:06.069Z',
+    '2016-10-30T07:12:07.153Z',
   ],
-  "skip" : [
-    false,
-    false,
-    false
-  ],
-  "yDomain" : [
-    0,
-    2.49
-  ],
-  "xLength" : 60,
-  "labels" : {
-    "title" : "memory",
-    "keys" : [
-      "vsize",
-      "resident",
-      "mapped"
-    ],
-    "yAxis" : "GB"
+  skip: [false, false, false],
+  yDomain: [0, 2.49],
+  xLength: 60,
+  labels: {
+    title: 'memory',
+    keys: ['vsize', 'resident', 'mapped'],
+    yAxis: 'GB',
   },
-  "keyLength" : 6,
-  "paused" : false
+  keyLength: 6,
+  paused: false,
 };
 
 d3.select(el).datum(data).call(realTimeLineChart());
@@ -105,7 +82,6 @@ For completeness, below is a list of directories present in this module:
 - `lib` compiled version of your components (plain javascript instead of `jsx`) and styles (`css` instead of `less`). Never change anything here as this entire folder gets automatically created and overwritten.
 - `src` components, actions and stores source code, as well as style files. This is the place to implement your own components. `npm run compile` will use `./src` as input and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
-
 
 [npm_img]: https://img.shields.io/npm/v/mongodb-component-template.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-component-template

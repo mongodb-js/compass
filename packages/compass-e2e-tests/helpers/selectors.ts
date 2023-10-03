@@ -319,8 +319,7 @@ export const CreateCollectionFLE2CheckboxLabel =
   '[data-testid="fle2-fields"] [data-testid="fle2-fields-label"]';
 export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
-export const CollectionHeaderFLE2Badge =
-  '[data-testid="collection-header-badge-fle2"]';
+export const CollectionHeaderFLE2Badge = '[data-testid="collection-badge-fle"]';
 export const CreateCollectionFLE2EncryptedFields =
   '[data-testid="fle2-encryptedFields"]';
 export const CreateCollectionFLE2KeyEncryptionKey =
@@ -916,6 +915,7 @@ export const explainPlanSummaryStat = (
 };
 
 // Indexes tab
+type IndexesType = 'regular-indexes' | 'search-indexes';
 export const IndexList = '[data-testid="indexes-list"]';
 export const indexComponent = (name: string): string => {
   return `[data-testid="indexes-row-${name}"]`;
@@ -934,10 +934,44 @@ export const indexOptionInput = (
   return `[data-testid="create-index-modal-${fieldName}-${type}"]`;
 };
 
+export const indexesSegmentedTab = (name: IndexesType) => {
+  return `[data-testid="indexes-segment-controls"] [data-testid="${name}-tab"] button`;
+};
+
+// Search Index
+export const SearchIndexList = '[data-testid="search-indexes"]';
+export const SearchIndexModal = '[data-testid="search-index-modal"]';
+export const SearchIndexName = '[data-testid="name-of-search-index"]';
+export const SearchIndexDefinition =
+  '[data-testid="definition-of-search-index"]';
+export const SearchIndexConfirmButton =
+  '[data-testid="search-index-submit-button"]';
+export const searchIndexRow = (name: string) =>
+  `[data-testid="search-indexes-row-${name}"]`;
+export const searchIndexExpandButton = (name: string) =>
+  `${searchIndexRow(name)} button:first-child`;
+export const searchIndexAggregateButton = (name: string) =>
+  `${searchIndexRow(
+    name
+  )} [data-testid="search-index-actions-aggregate-action"]`;
+export const searchIndexDropButton = (name: string) =>
+  `${searchIndexRow(name)} [data-testid="search-index-actions-drop-action"]`;
+export const searchIndexEditButton = (name: string) =>
+  `${searchIndexRow(name)} [data-testid="search-index-actions-edit-action"]`;
+export const searchIndexDetails = (name: string) =>
+  `[data-testid="search-indexes-details-${name}"]`;
+
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
+export const CreateIndexDropdownButton =
+  '[data-testid="multiple-index-types-creation-dropdown-show-actions"]';
+export const createIndexDropdownAction = (type: IndexesType) => {
+  const action =
+    type === 'regular-indexes' ? 'createRegularIndex' : 'createSearchIndex';
+  return `[data-testid="multiple-index-types-creation-dropdown-${action}-action"]`;
+};
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
@@ -1032,8 +1066,8 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
-export const QueryBarAskAIButton =
-  '[data-testid="open-ai-query-ask-ai-button"]';
+export const QueryBarAIEntryButton =
+  '[data-testid="open-ai-query-entry-button"]';
 export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
 export const QueryBarAIGenerateQueryButton =
   '[data-testid="ai-generate-button"]';
@@ -1090,6 +1124,8 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
+export const ConfirmationModalInput =
+  '[data-testid="confirmation-modal"] input';
 export const ConfirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
@@ -1138,3 +1174,12 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 // Insights
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
+
+// Atlas login
+export const LogInWithAtlasButton = 'button=Log in with Atlas';
+export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
+export const DisconnectAtlasAccountButton = 'button=Disconnect';
+export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
+export const AtlasLoginErrorToast = '#atlas-sign-in-error';
+export const AcceptTOSToggle = 'button#use-ai-toggle';
+export const AgreeAndContinueButton = 'button=Agree and continue';

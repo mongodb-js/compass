@@ -2,7 +2,7 @@ import { ipcMain, shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import type { AtlasServiceError } from './renderer';
+import { AtlasServiceError } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -41,7 +41,8 @@ import preferences from 'compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser } from 'compass-preferences-model';
+import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -72,28 +73,26 @@ export async function throwIfNotOk(
     return;
   }
 
-  let serverErrorName = 'NetworkError';
-  let serverErrorMessage = `${res.status} ${res.statusText}`;
-  // We try to parse the response to see if the server returned any information
-  // we can show a user.
-  try {
-    const messageJSON = await res.json();
-    if (isServerError(messageJSON)) {
-      serverErrorName = 'ServerError';
-      serverErrorMessage = `${messageJSON.errorCode}: ${messageJSON.detail}`;
-    }
-  } catch (err) {
-    // no-op, use the default status and statusText in the message.
+  const messageJSON = await res.json().catch(() => undefined);
+  if (messageJSON && isServerError(messageJSON)) {
+    throw new AtlasServiceError(
+      'ServerError',
+      res.status,
+      messageJSON.detail ?? 'Internal server error',
+      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
+    );
+  } else {
+    throw new AtlasServiceError(
+      'NetworkError',
+      res.status,
+      res.statusText,
+      `${res.status}`
+    );
   }
-
-  const err = new Error(serverErrorMessage);
-  err.name = serverErrorName;
-  (err as AtlasServiceError).statusCode = res.status;
-  throw err;
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS) {
+  if (!isAIFeatureEnabled()) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -124,6 +123,7 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
 
 export type AtlasServiceConfig = {
   atlasApiBaseUrl: string;
+  atlasApiUnauthBaseUrl: string;
   atlasLogin: {
     clientId: string;
     issuer: string;
@@ -169,8 +169,24 @@ export class AtlasService {
 
   private static config: AtlasServiceConfig;
 
-  private static openExternal(...args: Parameters<typeof shell.openExternal>) {
-    return shell?.openExternal(...args);
+  private static openExternal(url: string) {
+    const { browserCommandForOIDCAuth } = preferences.getPreferences();
+    if (browserCommandForOIDCAuth) {
+      // NB: While it's possible to pass `openBrowser.command` option directly
+      // to oidc-plugin properties, it's not possible to do dynamically. To
+      // avoid recreating oidc-plugin every time user changes
+      // `browserCommandForOIDCAuth` preference (which will cause loosing
+      // internal plugin auth state), we copy oidc-plugin `openBrowser.command`
+      // option handling to our openExternal method
+      const child = spawn(browserCommandForOIDCAuth, [url], {
+        shell: true,
+        stdio: 'ignore',
+        detached: true,
+      });
+      child.unref();
+      return child;
+    }
+    return shell.openExternal(url);
   }
 
   private static getAllowedAuthFlows(): AuthFlowType[] {
@@ -332,12 +348,16 @@ export class AtlasService {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
         try {
+          // We first request oauth token just so we can get a proper auth error
+          // from oidc-plugin. If we only run getUserInfo, the only thing users
+          // will see is "401 unauthorized" as the reason for sign in failure
+          await this.requestOAuthToken({ signal });
+          const userInfo = await this.getUserInfo({ signal });
           log.info(
             mongoLogId(1_001_000_219),
             'AtlasService',
             'Signed in successfully'
           );
-          const userInfo = await this.getUserInfo({ signal });
           track('Atlas Sign In Success', getTrackingUserInfo(userInfo));
           return userInfo;
         } catch (err) {
@@ -492,6 +512,7 @@ export class AtlasService {
       ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
@@ -518,16 +539,15 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const body = new URLSearchParams([
-      ['token', token ?? ''],
-      ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-    ]);
-
     const res = await this.fetch(url.toString(), {
       method: 'POST',
-      body,
+      body: new URLSearchParams([
+        ['token', token ?? ''],
+        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+      ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
@@ -539,10 +559,16 @@ export class AtlasService {
     throwIfNetworkTrafficDisabled();
 
     const userId = (await this.getActiveCompassUser()).id;
+    const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
+    log.info(
+      mongoLogId(1_001_000_227),
+      'AtlasService',
+      'Fetching if the AI feature is enabled via hello endpoint',
+      { userId, url }
     );
+
+    const res = await this.fetch(url);
 
     await throwIfNotOk(res);
 
@@ -554,19 +580,13 @@ export class AtlasService {
   }
 
   static async setupAIAccess(): Promise<void> {
-    log.info(
-      mongoLogId(1_001_000_227),
-      'AtlasService',
-      'Fetching if the AI feature is enabled'
-    );
-
     try {
       throwIfNetworkTrafficDisabled();
 
       const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
-        !!featureResponse.features.GEN_AI_COMPASS?.enabled;
+        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       log.info(
         mongoLogId(1_001_000_229),
@@ -574,6 +594,7 @@ export class AtlasService {
         'Fetched if the AI feature is enabled',
         {
           enabled: isAIFeatureEnabled,
+          featureResponse,
         }
       );
 
@@ -633,24 +654,42 @@ export class AtlasService {
       });
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
-          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
         );
       }
     }
 
     const token = await this.maybeGetToken({ signal });
+    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`,
+    log.info(
+      mongoLogId(1_001_000_247),
+      'AtlasService',
+      'Running aggregation generation request',
       {
-        signal: signal as NodeFetchAbortSignal | undefined,
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token ?? ''}`,
-          'Content-Type': 'application/json',
-        },
-        body: msgBody,
+        url,
+        userInput,
+        collectionName,
+        databaseName,
+        messageBodyLength: msgBody.length,
       }
+    );
+
+    const res = await this.fetch(url, {
+      signal: signal as NodeFetchAbortSignal | undefined,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: msgBody,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_248),
+      'AtlasService',
+      'Received aggregation generation response',
+      { status: res.status, statusText: res.statusText }
     );
 
     await throwIfNotOk(res);
@@ -702,24 +741,42 @@ export class AtlasService {
       });
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
-          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
         );
       }
     }
 
     const token = await this.maybeGetToken({ signal });
+    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`,
+    log.info(
+      mongoLogId(1_001_000_249),
+      'AtlasService',
+      'Running query generation request',
       {
-        signal: signal as NodeFetchAbortSignal | undefined,
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token ?? ''}`,
-          'Content-Type': 'application/json',
-        },
-        body: msgBody,
+        url,
+        userInput,
+        collectionName,
+        databaseName,
+        messageBodyLength: msgBody.length,
       }
+    );
+
+    const res = await this.fetch(url, {
+      signal: signal as NodeFetchAbortSignal | undefined,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: msgBody,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_250),
+      'AtlasService',
+      'Received query generation response',
+      { status: res.status, statusText: res.statusText }
     );
 
     await throwIfNotOk(res);
