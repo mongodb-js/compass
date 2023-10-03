@@ -136,20 +136,19 @@ class CompassApplication {
         },
         authPortalUrl: 'https://account.mongodb.com/account/login',
       },
-      'atlas-dev': {
-        atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
-        atlasApiUnauthBaseUrl:
-          'https://cloud-dev.mongodb.com/api/private/unauth',
+      'atlas-local': {
+        atlasApiBaseUrl: 'http://localhost:8080/api/private',
+        atlasApiUnauthBaseUrl: 'http://localhost:8080/api/private/unauth',
         atlasLogin: {
           clientId: '0oaq1le5jlzxCuTbu357',
           issuer: 'https://auth-qa.mongodb.com/oauth2/default',
         },
         authPortalUrl: 'https://account-dev.mongodb.com/account/login',
       },
-      'atlas-local': {
-        atlasApiBaseUrl: 'http://localhost:8080/api/private',
+      'atlas-dev': {
+        atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
         atlasApiUnauthBaseUrl:
-          'http://localhost:8080/api/private/unauth',
+          'https://cloud-dev.mongodb.com/api/private/unauth',
         atlasLogin: {
           clientId: '0oaq1le5jlzxCuTbu357',
           issuer: 'https://auth-qa.mongodb.com/oauth2/default',
