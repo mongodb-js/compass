@@ -519,12 +519,13 @@ const fetchIndexes = (
   return async (dispatch, getState) => {
     const {
       isReadonlyView,
+      isWritable,
       dataService,
       namespace,
       searchIndexes: { sortColumn, sortOrder, status },
     } = getState();
 
-    if (isReadonlyView) {
+    if (isReadonlyView || !isWritable) {
       return;
     }
 

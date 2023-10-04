@@ -31,7 +31,7 @@ import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 
-const POLLING_INTERVAL = 5000;
+export const POLLING_INTERVAL = 5000;
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
