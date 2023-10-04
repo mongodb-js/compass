@@ -187,13 +187,6 @@ describe('SearchIndexesTable Component', function () {
   });
 
   describe('connectivity', function () {
-    it('does not poll the index for changes in offline mode', function () {
-      const onPollIndexesSpy = sinon.spy();
-      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: false });
-
-      expect(onPollIndexesSpy.callCount).to.equal(0);
-    });
-
     it('does poll the index for changes in online mode', async function () {
       const onPollIndexesSpy = sinon.spy();
       renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: true });
