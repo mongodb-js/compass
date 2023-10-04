@@ -117,10 +117,7 @@ const tabKeymap: KeyBinding[] = [
       // `indentWithTab` will indent when `Tab` is pressed without any selection (like
       // in browser devtools for example). Instead we want to input the tab symbol in
       //  that case, to have behavior similar to VSCode's editors.
-      if (
-        state.selection.ranges.length === 1 &&
-        state.selection.ranges[0].from === state.selection.ranges[0].to
-      ) {
+      if (!state.selection.ranges.some((range) => !range.empty)) {
         dispatch(
           state.update(state.replaceSelection('\t'), {
             scrollIntoView: true,
