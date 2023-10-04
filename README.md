@@ -59,7 +59,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
 - [**@mongodb-js/ssh-tunnel**](packages/ssh-tunnel): Yet another ssh tunnel based on ssh2
-- [**app-migrations**](packages/app-migrations): Helper for application schema migrations
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
