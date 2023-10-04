@@ -11,8 +11,7 @@ RUN apt-get update -y && \
     libkrb5-dev \
     libsecret-1-dev \
     net-tools \
-    libstdc++6 \
-    gnome-keyring
+    libstdc++6
 
 ENV COMPASS_RUN_DOCKER_TESTS="true"
 

@@ -699,7 +699,7 @@ class Target {
         version: debianVersion,
         bin: this.productName,
         section: debianSection,
-        depends: ['libsecret-1-0', 'gnome-keyring'],
+        depends: ['libsecret-1-0'],
         mimeType
       },
       rpm: {
@@ -715,7 +715,6 @@ class Target {
         },
         bin: this.productName,
         requires: [
-          'gnome-keyring',
           'libsecret',
         ],
         categories: rhelCategories,
