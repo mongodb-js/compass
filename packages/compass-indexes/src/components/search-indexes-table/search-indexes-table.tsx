@@ -174,15 +174,11 @@ export const SearchIndexesTable: React.FunctionComponent<
   onPollIndexes,
 }) => {
   useEffect(() => {
-    if (!isWritable) {
-      return;
-    }
-
     const id = setInterval(onPollIndexes, POLLING_INTERVAL);
     return () => {
       clearInterval(id);
     };
-  }, [onPollIndexes, isWritable]);
+  }, [onPollIndexes]);
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
