@@ -228,7 +228,7 @@
     "darkreader": "^4.9.40",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^26.2.2",
+    "electron": "^25.8.4",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",
