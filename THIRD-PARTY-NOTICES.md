@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Oct 04 2023.
+This document was automatically generated on Thu Oct 05 2023.
 
 ## List of dependencies
 
@@ -611,7 +611,7 @@ This document was automatically generated on Wed Oct 04 2023.
 | **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**                                            | 3.1.1        | ISC                                 |
 | **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**                                            | 4.0.0        | ISC                                 |
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                       | 21.1.1       | ISC                                 |
-| **[zod](#bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731)**                                                | 3.22.2       | MIT                                 |
+| **[zod](#7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566)**                                                | 3.22.3       | MIT                                 |
 
 ## Package details
 
@@ -41457,9 +41457,9 @@ License files:
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731"></a>
+<a id="7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566"></a>
 
-### [zod](https://www.npmjs.com/package/zod) (version 3.22.2)
+### [zod](https://www.npmjs.com/package/zod) (version 3.22.3)
 
 License tags: MIT
 
