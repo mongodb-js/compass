@@ -172,14 +172,12 @@
   "dependencies": {
     "@mongosh/node-runtime-worker-thread": "^2.0.0",
     "clipboard": "^2.0.6",
+    "electron": "^25.8.4",
     "kerberos": "^2.0.1",
     "keytar": "^7.9.0",
     "mongodb-client-encryption": "^6.0.0",
     "os-dns-native": "^1.2.0",
     "system-ca": "^1.0.2"
-  },
-  "peerDependencies": {
-    "electron": "^25.8.4"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
