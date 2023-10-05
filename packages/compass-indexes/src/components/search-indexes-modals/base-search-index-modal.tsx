@@ -32,7 +32,7 @@ import {
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
 import type { Field } from '../../modules/fields';
@@ -160,8 +160,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       }
     },
     [isModalOpen, mode],
-    undefined,
-    React
+    undefined
   );
 
   useEffect(() => {

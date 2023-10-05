@@ -10,7 +10,7 @@ import {
   Toggle,
   InfoModal,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const toggleStyles = css({
   marginTop: spacing[3],
@@ -57,8 +57,7 @@ export default function CSFLEConnectionModal({
       }
     },
     [open],
-    undefined,
-    React
+    undefined
   );
 
   return (

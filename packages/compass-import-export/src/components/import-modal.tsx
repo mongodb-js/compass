@@ -16,7 +16,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import { FINISHED_STATUSES, STARTED } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
@@ -162,8 +162,7 @@ function ImportModal({
       }
     },
     [isOpen],
-    undefined,
-    React
+    undefined
   );
 
   if (isOpen && !fileName && errors.length === 0) {

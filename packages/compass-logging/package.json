@@ -19,16 +19,22 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "provier.js"
   ],
   "license": "SSPL",
   "peerDependencies": {
     "hadron-ipc": "^3.2.3"
   },
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./provider": "./dist/provider.js"
+  },
   "compass:main": "src/index.ts",
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -50,7 +56,8 @@
   "dependencies": {
     "debug": "^4.3.4",
     "is-electron-renderer": "^2.0.1",
-    "mongodb-log-writer": "^1.3.0"
+    "mongodb-log-writer": "^1.3.0",
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.10",
