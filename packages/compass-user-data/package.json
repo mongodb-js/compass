@@ -69,6 +69,6 @@
     "sinon": "^9.2.3",
     "typescript": "^5.0.4",
     "write-file-atomic": "^5.0.1",
-    "zod": "^3.22.2"
+    "zod": "^3.22.3"
   }
 }
