@@ -80,5 +80,8 @@
     "packages/*",
     "configs/*",
     "scripts"
-  ]
+  ],
+  "dependencies": {
+    "electron": "^25.9.0"
+  }
 }
