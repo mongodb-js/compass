@@ -14,7 +14,7 @@ import {
 import { dropDatabase } from '../modules/drop-database/drop-database';
 import { toggleIsVisible } from '../modules/is-visible';
 import type { RootState } from '../modules/drop-database/drop-database';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const progressContainerStyles = css({
   display: 'flex',

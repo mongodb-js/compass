@@ -17,7 +17,7 @@ import {
   spacing,
   createElectronFileInputBackend,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import {
   closeExport,

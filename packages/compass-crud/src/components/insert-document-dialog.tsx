@@ -17,7 +17,7 @@ import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**
  * The insert invalid message.

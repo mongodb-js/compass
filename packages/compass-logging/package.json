@@ -19,16 +19,22 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "provier.js"
   ],
   "license": "SSPL",
   "peerDependencies": {
     "hadron-ipc": "^3.2.0"
   },
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./provider": "./provider.js"
+  },
   "compass:main": "src/index.ts",
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./provider.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

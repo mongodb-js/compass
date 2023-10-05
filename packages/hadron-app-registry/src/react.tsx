@@ -222,9 +222,15 @@ function isReduxStore(store: any): store is ReduxStore {
 export function registerHadronPlugin<
   T,
   S extends Record<string, () => unknown>
->(config: HadronPluginConfig<T, S>, services?: S) {
+>(
+  config: HadronPluginConfig<T, S>,
+  services?: S
+): React.FunctionComponent<T> & {
+  name: string;
+  $$services: Registries & Services<S>;
+} {
   const Component = config.component;
-  const HadronPlugin: React.FunctionComponent<T> = (props) => {
+  const PluginComponent: React.FunctionComponent<T> = (props) => {
     const globalAppRegistry = useGlobalAppRegistry();
     const localAppRegistry = useLocalAppRegistry();
     const _services = Object.fromEntries(
@@ -262,6 +268,13 @@ export function registerHadronPlugin<
       </LegacyRefluxProvider>
     );
   };
-  HadronPlugin.displayName = config.name;
+  const HadronPlugin = Object.assign(PluginComponent, {
+    displayName: config.name,
+    $$services: {} as Registries & Services<S>,
+  });
   return HadronPlugin;
 }
+
+export type HadronPluginServices<T> = T extends { $$services: infer S }
+  ? S
+  : never;

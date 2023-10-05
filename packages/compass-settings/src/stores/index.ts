@@ -13,18 +13,22 @@ import atlasLoginReducer, {
   atlasServiceTokenRefreshFailed,
   atlasServiceUserConfigChanged,
 } from './atlas-login';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
-export function configureStore({
-  preferencesSandbox,
-  atlasService,
-}: {
-  preferencesSandbox?: Public<PreferencesSandbox>;
-  atlasService?: Public<AtlasService>;
-} = {}) {
-  preferencesSandbox ??= new PreferencesSandbox();
-  atlasService ??= new AtlasService();
+type ThunkExtraArg = {
+  preferencesSandbox: Public<PreferencesSandbox>;
+  atlasService: Public<AtlasService>;
+  logger: LoggerAndTelemetry;
+};
+
+export function configureStore(
+  options: Pick<ThunkExtraArg, 'logger'> & Partial<ThunkExtraArg>
+) {
+  const preferencesSandbox =
+    options?.preferencesSandbox ?? new PreferencesSandbox();
+  const atlasService = options?.atlasService ?? new AtlasService();
 
   const store = createStore(
     combineReducers({
@@ -35,7 +39,11 @@ export function configureStore({
       atlasLogin: ReturnType<typeof atlasLoginReducer>;
     }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
     applyMiddleware(
-      thunk.withExtraArgument({ preferencesSandbox, atlasService })
+      thunk.withExtraArgument({
+        preferencesSandbox,
+        atlasService,
+        logger: options.logger,
+      })
     )
   );
 
@@ -65,21 +73,16 @@ export type RootState = ReturnType<
 export type SettingsThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<
-  R,
-  RootState,
-  {
-    preferencesSandbox: Public<PreferencesSandbox>;
-    atlasService: Public<AtlasService>;
-  },
-  A
->;
+> = ThunkAction<R, RootState, ThunkExtraArg, A>;
 
 const onActivated = (
   _: unknown,
-  { globalAppRegistry }: { globalAppRegistry: AppRegistry }
+  {
+    globalAppRegistry,
+    logger,
+  }: { globalAppRegistry: AppRegistry; logger: LoggerAndTelemetry }
 ) => {
-  const store = configureStore();
+  const store = configureStore({ logger });
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());

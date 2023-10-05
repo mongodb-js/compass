@@ -68,6 +68,7 @@ import { setupTheme } from './theme';
 
 import { setupIntercom } from './intercom';
 
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
@@ -179,12 +180,14 @@ const Application = View.extend({
 
     ReactDOM.render(
       <React.StrictMode>
-        <AppRegistryProvider>
-          <CompassHomePlugin
-            appName={remote.app.getName()}
-            getAutoConnectInfo={getAutoConnectInfo}
-          ></CompassHomePlugin>
-        </AppRegistryProvider>
+        <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
+          <AppRegistryProvider>
+            <CompassHomePlugin
+              appName={remote.app.getName()}
+              getAutoConnectInfo={getAutoConnectInfo}
+            ></CompassHomePlugin>
+          </AppRegistryProvider>
+        </LoggerAndTelemetryProvider>
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );

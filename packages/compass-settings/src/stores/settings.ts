@@ -1,13 +1,10 @@
 import type { Reducer } from 'redux';
 import type { SettingsThunkAction } from '.';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
 import { cancelAtlasLoginAttempt } from './atlas-login';
-
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
 export type State = { isModalOpen: boolean } & (
   | {
@@ -123,15 +120,15 @@ export const fetchSettings = (): SettingsThunkAction<Promise<void>> => {
   return async (
     dispatch,
     _getState,
-    { preferencesSandbox: sandbox }
+    { preferencesSandbox: sandbox, logger }
   ): Promise<void> => {
     try {
       dispatch({ type: ActionTypes.SettingsFetchedStart });
       await sandbox.setupSandbox();
       await dispatch(syncSandboxStateToStore());
     } catch (e) {
-      log.warn(
-        mongoLogId(1_001_000_145),
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_145),
         'Settings',
         'Failed to fetch settings',
         { message: (e as Error).message }
@@ -147,7 +144,7 @@ export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
   return async (
     dispatch,
     getState,
-    { preferencesSandbox: sandbox }
+    { preferencesSandbox: sandbox, logger }
   ): Promise<void> => {
     const { loadingState } = getState().settings;
     if (loadingState === 'loading') {
@@ -163,8 +160,8 @@ export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
       // can fail if user input doesn't pass validation.
       await sandbox.updateField(field, value);
     } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_223),
+      logger.log.error(
+        logger.mongoLogId(1_001_000_223),
         'Settings',
         'Failed to change settings value',
         { error: (err as Error).stack }
@@ -194,7 +191,7 @@ export const saveSettings = (): SettingsThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { preferencesSandbox: sandbox }
+    { preferencesSandbox: sandbox, logger }
   ): Promise<void> => {
     const { loadingState } = getState().settings;
     if (loadingState === 'loading') {
@@ -208,8 +205,8 @@ export const saveSettings = (): SettingsThunkAction<Promise<void>> => {
         type: ActionTypes.SettingsSaved,
       });
     } catch (e) {
-      log.warn(
-        mongoLogId(1_001_000_146),
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_146),
         'Settings',
         'Failed to update settings',
         { message: (e as Error).message }

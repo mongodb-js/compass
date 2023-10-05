@@ -20,7 +20,7 @@ import { dropIndex } from '../../modules/drop-index';
 import { resetForm } from '../../modules/reset-form';
 
 import type { RootState } from '../../modules/drop-index';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const messageStyles = css({
   display: 'flex',

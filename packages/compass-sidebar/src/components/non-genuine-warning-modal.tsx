@@ -8,7 +8,7 @@ import {
   Body,
   BannerVariant,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const modalBodyStyles = css({
   marginTop: spacing[3],
