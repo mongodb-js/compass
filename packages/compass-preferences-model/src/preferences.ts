@@ -50,6 +50,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     atlasServiceBackendPreset:
       | 'compass-dev'
       | 'compass'
+      | 'atlas-local'
       | 'atlas-dev'
       | 'atlas';
     // Features that are enabled by default in Compass, but are disabled in Data
@@ -644,8 +645,9 @@ export const storedUserPreferencesProps: Required<{
    * Chooses atlas service backend configuration from preset
    *  - compass-dev: locally running compass kanopy backend (localhost)
    *  - compass:    compass kanopy backend (compass.mongodb.com)
-   *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
-   *  - atlas:      mms backend (cloud.mongodb.com)
+   *  - atlas-local: local mms backend (http://localhost:8080)
+   *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas:       mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
     ui: true,
@@ -655,7 +657,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Configuration used by atlas service',
     },
     validator: z
-      .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
+      .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas-local', 'atlas'])
       .default('atlas'),
     type: 'string',
   },

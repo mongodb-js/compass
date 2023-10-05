@@ -8,6 +8,10 @@ const contentStyles = css({
   width: '600px',
   letterSpacing: 0,
   padding: 0,
+  // The LG modal applies transform: translate3d(0, 0, 0) style to the modal
+  // content and this messes up the autocompleter within the modal. So we clear
+  // the transform here.
+  transform: 'none',
 });
 
 const modalFullScreenStyles = css({

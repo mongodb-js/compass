@@ -57,8 +57,7 @@ Templates:
             }
             return `${comment}\n\n${defs}
         const client = await MongoClient.connect(
-          '${spec.options.uri}',
-          { useNewUrlParser: true, useUnifiedTopology: true }
+          '${spec.options.uri}'
         );
         const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
         ${cmd}

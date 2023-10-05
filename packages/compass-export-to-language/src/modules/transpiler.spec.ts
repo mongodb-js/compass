@@ -102,8 +102,7 @@ const filter = {
 };
 
 const client = await MongoClient.connect(
-  'mongodb://foo:bar@mongodb.net',
-  { useNewUrlParser: true, useUnifiedTopology: true }
+  'mongodb://foo:bar@mongodb.net'
 );
 const coll = client.db('namespace').collection('');
 const cursor = coll.find(filter);
@@ -215,8 +214,7 @@ const filter = {
 };
 
 const client = await MongoClient.connect(
-  '${uri}',
-  { useNewUrlParser: true, useUnifiedTopology: true }
+  '${uri}'
 );
 const coll = client.db('namespace').collection('');
 const cursor = coll.find(filter);

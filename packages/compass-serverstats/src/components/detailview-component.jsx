@@ -13,8 +13,12 @@ class DetailViewComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.show.bind(this));
-    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.hide.bind(this));
+    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(
+      this.show.bind(this)
+    );
+    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(
+      this.hide.bind(this)
+    );
   }
 
   componentWillUnmount() {
@@ -68,7 +72,7 @@ class DetailViewComponent extends React.Component {
   }
 
   renderZero() {
-    return (<div style={{ display: this.state.display }} />);
+    return <div style={{ display: this.state.display }} />;
   }
 
   renderGraph() {
@@ -76,40 +80,68 @@ class DetailViewComponent extends React.Component {
       <div className="rt-details" style={{ display: this.state.display }}>
         <header className="rt-details__header">
           <h2 className="rt-details__headerlabel">operation details</h2>
-          <div className="rt-details__closebutton" >
-            <Button darkMode size="xsmall" leftGlyph={<Icon glyph="X"/>} onClick={this.hideOperationDetails.bind(this)}>Close</Button>
+          <div className="rt-details__closebutton">
+            <Button
+              darkMode
+              size="xsmall"
+              leftGlyph={<Icon glyph="X" />}
+              onClick={this.hideOperationDetails.bind(this)}
+            >
+              Close
+            </Button>
           </div>
         </header>
         <div className="rt-details__body">
           <div className="rt-details__opinfo">
             <div className="rt-details__op">{this.state.data.op}</div>
-            <div className="rt-details__collection-slow">{this.state.data.ns}</div>
-            <div className="rt-details__time">{this.state.data.ms_running + ' ms'}</div>
+            <div className="rt-details__collection-slow">
+              {this.state.data.ns}
+            </div>
+            <div className="rt-details__time">
+              {this.state.data.ms_running + ' ms'}
+            </div>
           </div>
           <ul className="rt-details__list">
             <li className="rt-details__item">
               <div className="rt-details__datatype">opid</div>
-              <div className="rt-details__datatype-val">{this.state.data.opid}</div>
+              <div className="rt-details__datatype-val">
+                {this.state.data.opid}
+              </div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">client s</div>
-              <div className="rt-details__datatype-val">{this.state.data.client}</div>
+              <div className="rt-details__datatype-val">
+                {this.state.data.client}
+              </div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">active</div>
-              <div className="rt-details__datatype-val">{this.state.data.active}</div>
+              <div className="rt-details__datatype-val">
+                {this.state.data.active}
+              </div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">wait lock</div>
-              <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
+              <div className="rt-details__datatype-val">
+                {this.state.data.waitingForLock}
+              </div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">
-                <Button variant="danger" size="xsmall" darkMode onClick={this.killOp.bind(this)}>Kill Op</Button>
+                <Button
+                  variant="danger"
+                  size="xsmall"
+                  darkMode
+                  onClick={this.killOp.bind(this)}
+                >
+                  Kill Op
+                </Button>
               </div>
             </li>
           </ul>
-          <div className="rt-details__raw"><span>{JSON.stringify(this.state.data, this.removeMs, 4)}</span></div>
+          <div className="rt-details__raw">
+            <span>{JSON.stringify(this.state.data, this.removeMs, 4)}</span>
+          </div>
         </div>
       </div>
     );

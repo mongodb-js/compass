@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -37,17 +37,24 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
-    "@mongodb-js/connection-storage": "^0.5.0",
+    "@mongodb-js/connection-storage": "^0.6.0",
     "@mongodb-js/devtools-docker-test-envs": "^1.2.5",
     "@mongodb-js/monorepo-tools": "^1.1.1",
-    "@mongodb-js/webpack-config-compass": "^1.2.0",
+    "@mongodb-js/webpack-config-compass": "^1.2.1",
     "commander": "^11.0.0",
+    "decomment": "^0.9.5",
+    "digest-fetch": "^2.0.3",
+    "ejson-shell-parser": "^1.2.4",
     "electron": "^26.2.2",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
     "make-fetch-happen": "^8.0.14",
+    "mongodb": "^6.1.0",
     "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-runner": "^5.4.4",
+    "mongodb-schema": "^11.2.2",
+    "node-fetch": "^2.7.0",
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",

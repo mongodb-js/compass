@@ -20,6 +20,7 @@ import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
 import * as searchIndexesSlice from './search-indexes';
+import { writeStateChanged } from './is-writable';
 
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
@@ -60,6 +61,18 @@ describe('search-indexes module', function () {
       store.dispatch(readonlyViewChanged(true));
 
       expect(store.getState().isReadonlyView).to.equal(true);
+      expect(getSearchIndexesStub.callCount).to.equal(0);
+
+      store.dispatch(fetchSearchIndexes);
+
+      expect(getSearchIndexesStub.callCount).to.equal(0);
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+    });
+
+    it('does nothing if isWritable is false (offline mode)', function () {
+      store.dispatch(writeStateChanged(false));
+
+      expect(store.getState().isWritable).to.equal(false);
       expect(getSearchIndexesStub.callCount).to.equal(0);
 
       store.dispatch(fetchSearchIndexes);
