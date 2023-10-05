@@ -58,8 +58,7 @@
     "bson": "^6.0.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
-    "mongodb-connection-string-url": "^2.6.0",
-    "zod": "^3.22.2"
+    "mongodb-connection-string-url": "^2.6.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.9",
