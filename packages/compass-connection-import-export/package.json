@@ -52,6 +52,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.15.0",
+    "electron": "^25.8.4",
     "hadron-ipc": "^3.2.1",
     "mongodb-data-service": "^22.12.0",
     "react": "^17.0.2"

@@ -61,6 +61,7 @@
     "@mongodb-js/compass-utils": "^0.5.0",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.0",
+    "electron": "^25.8.4",
     "hadron-document": "^8.4.1",
     "react": "^17.0.2"
   },

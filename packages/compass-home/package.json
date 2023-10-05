@@ -51,6 +51,7 @@
     "@mongodb-js/compass-logging": "^1.2.1",
     "@mongodb-js/compass-welcome": "^0.14.0",
     "@mongodb-js/connection-storage": "^0.6.0",
+    "electron": "^25.8.4",
     "compass-preferences-model": "^2.15.0",
     "hadron-app-registry": "^9.0.11",
     "hadron-ipc": "^3.2.1",

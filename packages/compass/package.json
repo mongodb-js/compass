@@ -178,6 +178,9 @@
     "os-dns-native": "^1.2.0",
     "system-ca": "^1.0.2"
   },
+  "peerDependencies": {
+    "electron": "^25.8.4"
+  },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
     "@electron/remote": "^2.0.11",

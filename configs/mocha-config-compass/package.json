@@ -38,5 +38,8 @@
     "sinon-chai": "^3.7.0",
     "ts-node": "^10.9.1",
     "why-is-node-running": "^2.2.2"
+  },
+  "peerDependencies": {
+    "electron": "^25.8.4"
   }
 }
