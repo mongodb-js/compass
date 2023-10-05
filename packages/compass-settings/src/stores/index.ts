@@ -75,11 +75,10 @@ export type SettingsThunkAction<
   A
 >;
 
-const onActivated = ({
-  globalAppRegistry,
-}: {
-  globalAppRegistry: AppRegistry;
-}) => {
+const onActivated = (
+  _: unknown,
+  { globalAppRegistry }: { globalAppRegistry: AppRegistry }
+) => {
   const store = configureStore();
 
   const onOpenSettings = () => {
