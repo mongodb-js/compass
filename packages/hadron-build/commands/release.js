@@ -192,7 +192,7 @@ const fixCompass5333 = (CONFIG, done) => {
 const writeVersionFile = (CONFIG, done) => {
   return CONFIG.write('version', CONFIG.version)
     .then(dest => {
-      cli.debug(format('version written to `%s`', dest));
+      cli.debug(format('version `%s` written to `%s`', CONFIG.version, dest));
       if (done) {
         done(null, true);
       }

@@ -288,6 +288,7 @@ class Target {
     }
     debug(`Writing ${contents.length} bytes to ${dest}`);
     await fs.promises.writeFile(dest, contents);
+    return dest; // this is logged where it is used
   }
 
   /**
