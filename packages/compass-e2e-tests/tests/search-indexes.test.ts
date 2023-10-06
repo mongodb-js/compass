@@ -228,16 +228,18 @@ describe('Search Indexes', function () {
 
   for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
-      before(function () {
+      before(async function () {
         if (!connectionString) {
           return this.skip();
         }
         currentConnectionString = connectionString;
         /**
-         * Increasing the timeout to 4mins to allow for Search Index
+         * Increasing the timeout to 4mins (from 2mins) to allow for Search Index
          * to be created and be queryable on Atlas.
          */
-        this.timeout(240_000);
+        await browser.setTimeout({
+          implicit: 240_000,
+        });
       });
 
       it('allows users to create a regular indexes', async function () {
