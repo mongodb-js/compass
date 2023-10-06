@@ -45,7 +45,7 @@
     "decomment": "^0.9.5",
     "digest-fetch": "^2.0.3",
     "ejson-shell-parser": "^1.2.4",
-    "electron": "^26.2.2",
+    "electron": "^25.8.4",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
