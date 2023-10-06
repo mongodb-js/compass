@@ -334,7 +334,7 @@ const CollectionCollection = AmpersandCollection.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetch({ dataService, fetchInfo = true }) {
+    async fetch({ dataService }) {
       const databaseName = getParentByType(this, 'Database')?.getId();
 
       if (!databaseName) {
@@ -354,7 +354,11 @@ const CollectionCollection = AmpersandCollection.extend(
       const collections = await dataService.listCollections(
         databaseName,
         {},
-        { nameOnly: !fetchInfo, privileges: instanceModel.auth.privileges }
+        {
+          // Always fetch collections with info
+          nameOnly: false,
+          privileges: instanceModel.auth.privileges,
+        }
       );
 
       this.set(
@@ -370,7 +374,7 @@ const CollectionCollection = AmpersandCollection.extend(
             return {
               _id,
               type,
-              ...(fetchInfo && pickCollectionInfo(rest)),
+              ...pickCollectionInfo(rest),
             };
           })
       );
