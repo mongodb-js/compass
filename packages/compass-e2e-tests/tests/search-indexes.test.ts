@@ -233,6 +233,11 @@ describe('Search Indexes', function () {
           return this.skip();
         }
         currentConnectionString = connectionString;
+        /**
+         * Increasing the timeout to 4mins to allow for Search Index
+         * to be created and be queryable on Atlas.
+         */
+        this.timeout(240_000);
       });
 
       it('allows users to create a regular indexes', async function () {
