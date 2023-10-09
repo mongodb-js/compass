@@ -1,6 +1,5 @@
 import React from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { palette } from '@leafygreen-ui/palette';
+import { css, cx, palette } from '@mongodb-js/compass-components';
 
 export const aiEntrySVGStyles = css({
   alignSelf: 'center',
