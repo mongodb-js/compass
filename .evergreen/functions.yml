@@ -93,6 +93,34 @@ post:
         - src/.evergreen/logs/*
       remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
+  - command: s3.put
+    params:
+      <<: *save-artifact-params-private
+      local_file: src/.sbom/dependencies.json
+      remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
+      content_type: application/json
+      optional: true
+  - command: s3.put
+    params:
+      <<: *save-artifact-params-private
+      local_file: src/.sbom/snyk-test-result.json
+      remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.json
+      content_type: application/json
+      optional: true
+  - command: s3.put
+    params:
+      <<: *save-artifact-params-private
+      local_file: src/.sbom/snyk-test-result.html
+      remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.html
+      content_type: text/html
+      optional: true
+  - command: s3.put
+    params:
+      <<: *save-artifact-params-private
+      local_file: src/.sbom/vulnerability-report.md
+      remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
+      content_type: text/markdown
+      optional: true
   - command: attach.results
     params:
       file_location: src/packages/compass-e2e-tests/.log/report.json
@@ -614,31 +642,3 @@ functions:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
             exit $return_code
           fi
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-private
-        local_file: src/.sbom/dependencies.json
-        remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
-        content_type: application/json
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-private
-        local_file: src/.sbom/snyk-test-result.json
-        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.json
-        content_type: application/json
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-private
-        local_file: src/.sbom/snyk-test-result.html
-        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.html
-        content_type: text/html
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-private
-        local_file: src/.sbom/vulnerability-report.md
-        remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
-        content_type: text/markdown
-        optional: true
