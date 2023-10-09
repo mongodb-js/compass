@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-generative-ai",
-  "productName": "compass-generative-ai Plugin",
-  "description": "Generative AI Plugin for Compass",
+  "productName": "compass-generative-ai",
+  "description": "Generative AI aspects for Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -58,13 +58,10 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.15.0",
-    "react": "*",
-    "react-dom": "*"
+    "react": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.15.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "@mongodb-js/compass-components": "^1.15.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.9",
@@ -83,10 +80,11 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.11",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }
