@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  AIExperienceEntry,
   Button,
   MoreOptionsToggle,
   PerformanceSignals,
@@ -9,6 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
 import type { RootState } from '../../../modules';
 import {
   exportAggregationResults,

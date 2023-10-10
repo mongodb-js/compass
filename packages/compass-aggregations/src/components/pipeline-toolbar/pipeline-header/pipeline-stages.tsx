@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  AIExperienceEntry,
   Pipeline,
   Stage,
   Description,
@@ -11,6 +10,7 @@ import {
   Button,
   Icon,
 } from '@mongodb-js/compass-components';
+import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model';
 
 import type { RootState } from '../../../modules';
