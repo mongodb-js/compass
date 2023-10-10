@@ -98,6 +98,14 @@ const SIGNALS = [
     primaryActionButtonIcon: 'Plus',
   },
   {
+    id: 'atlas-text-regex-usage-in-query',
+    title: 'Alternate text search options available',
+    description:
+      "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+    learnMoreLink: 'https://www.mongodb.com/cloud/atlas/lp/search-1',
+    primaryActionButtonLabel: 'Create Search index',
+  },
+  {
     id: 'bloated-document',
     title: 'Possibly bloated document',
     description:
