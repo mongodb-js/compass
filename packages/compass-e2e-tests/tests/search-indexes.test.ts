@@ -41,6 +41,11 @@ const INDEX_DEFINITION = JSON.stringify({
   },
 });
 
+// The current timeout (2mins) is not enough for the search indexes to be created
+// and be queryable on Atlas. So we are increasing the timeout to 4mins.
+// This can not be more than 4mins as the mocha timeout is 4mins.
+const WAIT_TIMEOUT = 240_000;
+
 function getRandomNumber() {
   return Math.floor(Math.random() * 2 ** 20);
 }
@@ -114,7 +119,10 @@ async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
   await modal.waitForDisplayed({ reverse: true });
 
   await browser.waitUntil(async () => {
-    return await indexRow.waitForExist({ reverse: true });
+    return await indexRow.waitForExist({
+      reverse: true,
+      timeout: WAIT_TIMEOUT,
+    });
   });
 }
 
@@ -125,7 +133,7 @@ async function verifyIndexDetails(
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
   const indexRow = await browser.$(indexRowSelector);
-  await indexRow.waitForDisplayed();
+  await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
 
@@ -228,18 +236,11 @@ describe('Search Indexes', function () {
 
   for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
-      before(async function () {
+      before(function () {
         if (!connectionString) {
           return this.skip();
         }
         currentConnectionString = connectionString;
-        /**
-         * Increasing the timeout to 4mins (from 2mins) to allow for Search Index
-         * to be created and be queryable on Atlas.
-         */
-        await browser.setTimeout({
-          implicit: 240_000,
-        });
       });
 
       it('allows users to create a regular indexes', async function () {
@@ -310,7 +311,7 @@ describe('Search Indexes', function () {
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
         const indexRow = await browser.$(indexRowSelector);
-        await indexRow.waitForDisplayed();
+        await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
 
         await browser.hover(indexRowSelector);
 
