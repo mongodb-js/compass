@@ -153,7 +153,7 @@ const DatabaseModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetchCollections({ dataService, fetchInfo = false, force = false }) {
+    async fetchCollections({ dataService, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
         return;
       }
@@ -162,7 +162,7 @@ const DatabaseModel = AmpersandModel.extend(
         const newStatus =
           this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
-        await this.collections.fetch({ dataService, fetchInfo, force });
+        await this.collections.fetch({ dataService, force });
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
         this.set({
@@ -180,7 +180,6 @@ const DatabaseModel = AmpersandModel.extend(
     }) {
       await this.fetchCollections({
         dataService,
-        fetchInfo: !nameOnly,
         force,
       });
 
@@ -192,7 +191,12 @@ const DatabaseModel = AmpersandModel.extend(
       // the allSettled call here
       await Promise.allSettled(
         this.collections.map((coll) => {
-          return coll.fetch({ dataService, fetchInfo: false, force });
+          return coll.fetch({
+            dataService,
+            // We already fetched it with fetchCollections
+            fetchInfo: false,
+            force
+          });
         })
       );
     },

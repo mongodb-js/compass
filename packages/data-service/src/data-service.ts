@@ -1006,10 +1006,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
         collStats[0]
       );
     } catch (error) {
-      if (!(error as Error).message.includes('is a view, not a collection')) {
-        throw error;
+      const message = (error as Error).message;
+      // We ignore errors for fetching collStats when requesting on an
+      // unsupported collection type: either a view or a ADF
+      if (
+        message.includes('not valid for Data Lake') ||
+        message.includes('is a view, not a collection')
+      ) {
+        return this._buildCollectionStats(databaseName, collectionName, {});
       }
-      return this._buildCollectionStats(databaseName, collectionName, {});
+      throw error;
     }
   }
 
