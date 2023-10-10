@@ -1042,6 +1042,34 @@ describe('store', function () {
           await listener;
         });
       });
+
+      context('when the document has invalid bson', function () {
+        // this is invalid ObjectId
+        const jsonDoc = '{"_id": {"$oid": ""}}';
+
+        beforeEach(function () {
+          store.state.insert.jsonView = true;
+          store.state.insert.doc = {};
+          store.state.insert.jsonDoc = jsonDoc;
+        });
+
+        it('does not insert the document and sets the error', async function () {
+          const listener = waitForState(store, (state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.deep.equal({});
+            expect(state.insert.jsonDoc).to.equal(jsonDoc);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.mode).to.equal('error');
+          });
+
+          store.insertDocument();
+
+          await listener;
+        });
+      });
     });
 
     context('when there is an error', function () {
