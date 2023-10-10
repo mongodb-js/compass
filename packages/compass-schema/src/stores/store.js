@@ -195,13 +195,6 @@ const configureStore = (options = {}) => {
 
     onSchemaSampled() {
       this.geoLayers = {};
-
-      process.nextTick(() => {
-        this.globalAppRegistry.emit('compass:schema:schema-sampled', {
-          ...this.state,
-          geo: this.geoLayers,
-        });
-      });
     },
 
     geoLayerAdded(field, layer) {

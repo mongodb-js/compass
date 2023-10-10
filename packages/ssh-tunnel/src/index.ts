@@ -90,7 +90,7 @@ export class SshTunnel extends EventEmitter {
               this.rawConfig.socks5Username === user &&
               this.rawConfig.socks5Password === pass;
             debug('validating auth parameters', success);
-            process.nextTick(cb, success);
+            queueMicrotask(() => cb(success));
           }
         )
       );
