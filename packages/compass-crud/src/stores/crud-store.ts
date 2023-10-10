@@ -1201,14 +1201,14 @@ class CrudStoreImpl
 
     let doc: BSONObject;
 
-    if (this.state.insert.jsonView) {
-      doc = HadronDocument.FromEJSON(
-        this.state.insert.jsonDoc ?? ''
-      ).generateObject();
-    } else {
-      doc = this.state.insert.doc!.generateObject();
-    }
     try {
+      if (this.state.insert.jsonView) {
+        doc = HadronDocument.FromEJSON(
+          this.state.insert.jsonDoc ?? ''
+        ).generateObject();
+      } else {
+        doc = this.state.insert.doc!.generateObject();
+      }
       await this.dataService.insertOne(this.state.ns, doc);
 
       const payload = {

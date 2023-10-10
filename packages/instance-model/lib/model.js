@@ -285,7 +285,6 @@ const InstanceModel = AmpersandModel.extend(
       fetchDatabases = false,
       fetchDbStats = false,
       fetchCollections = false,
-      fetchCollInfo = false,
       fetchCollStats = false,
     }) {
       this.set({
@@ -310,7 +309,6 @@ const InstanceModel = AmpersandModel.extend(
             if (shouldRefresh(db.collectionsStatus, fetchCollections)) {
               return db.fetchCollections({
                 dataService,
-                fetchInfo: fetchCollInfo,
                 force: true,
               });
             }
@@ -330,10 +328,8 @@ const InstanceModel = AmpersandModel.extend(
                   if (shouldRefresh(coll.status, fetchCollStats)) {
                     return coll.fetch({
                       dataService,
-                      // When fetchCollInfo is true, we skip fetching collection
-                      // info returned by listCollections command as we already
-                      // did that in the previous step
-                      fetchInfo: !fetchCollInfo,
+                      // We already fetched it with fetchCollections
+                      fetchInfo: false,
                       force: true,
                     });
                   }
