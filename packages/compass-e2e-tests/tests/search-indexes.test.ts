@@ -11,29 +11,12 @@ import type { Compass } from '../helpers/compass';
 import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
 import { type Db, MongoClient } from 'mongodb';
+import { setupLocalAtlas, tearDownLocalAtlas } from '../scripts/atlascli';
 
 type Connection = {
   name: string;
   connectionString?: string;
 };
-
-const connectionsWithNoSearchSupport: Connection[] = [
-  {
-    name: 'Local Connection',
-    connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
-  },
-  {
-    name: 'Atlas Free Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH,
-  },
-];
-const connectionsWithSearchSupport: Connection[] = [
-  {
-    name: 'Atlas Dedicated Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
-  },
-  // todo: atlas local dev
-];
 
 const INDEX_DEFINITION = JSON.stringify({
   mappings: {
@@ -135,7 +118,7 @@ async function verifyIndexDetails(
   expect(text.toLowerCase()).to.equal(details.toLowerCase());
 }
 
-describe('Search Indexes', function () {
+describe.only('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
@@ -199,128 +182,184 @@ describe('Search Indexes', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  for (const { name, connectionString } of connectionsWithNoSearchSupport) {
-    context(`does not support search indexes in ${name}`, function () {
-      before(function () {
-        if (!connectionString) {
-          return this.skip();
-        }
-        currentConnectionString = connectionString;
-      });
-
-      it('allows users to create a regular index', async function () {
-        const indexName = await browser.createIndex({
-          fieldName: 'e2e_tests_index',
-          indexType: 'text',
+  context('does not support search indexes', function () {
+    const connectionsWithNoSearchSupport: Connection[] = [
+      {
+        name: 'Local Connection',
+        connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
+      },
+      {
+        name: 'Atlas Free Cluster',
+        connectionString: process.env.E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH,
+      },
+    ];
+    for (const { name, connectionString } of connectionsWithNoSearchSupport) {
+      context(`does not support search indexes in ${name}`, function () {
+        before(function () {
+          if (!connectionString) {
+            return this.skip();
+          }
+          currentConnectionString = connectionString;
         });
-        await browser.dropIndex(indexName);
-      });
 
-      it('renders search indexes tab disabled', async function () {
-        const searchTab = await browser.$(
-          Selectors.indexesSegmentedTab('search-indexes')
-        );
-        const isTabClickable = await searchTab.isClickable();
-        expect(isTabClickable).to.be.false;
-      });
-    });
-  }
-
-  for (const { name, connectionString } of connectionsWithSearchSupport) {
-    context(`supports search indexes in ${name}`, function () {
-      before(function () {
-        if (!connectionString) {
-          return this.skip();
-        }
-        currentConnectionString = connectionString;
-      });
-
-      it('allows users to create a regular indexes', async function () {
-        await browser.clickVisible(
-          Selectors.indexesSegmentedTab('regular-indexes')
-        );
-        const indexName = await browser.createIndex({
-          fieldName: 'e2e_tests_index',
-          indexType: 'text',
+        it('allows users to create a regular index', async function () {
+          const indexName = await browser.createIndex({
+            fieldName: 'e2e_tests_index',
+            indexType: 'text',
+          });
+          await browser.dropIndex(indexName);
         });
-        await browser.dropIndex(indexName);
+
+        it('renders search indexes tab disabled', async function () {
+          const searchTab = await browser.$(
+            Selectors.indexesSegmentedTab('search-indexes')
+          );
+          const isTabClickable = await searchTab.isClickable();
+          expect(isTabClickable).to.be.false;
+        });
       });
+    }
+  });
 
-      it('allows users to create, view and drop search indexes', async function () {
-        const indexName = `e2e_search_index_${getRandomNumber()}`;
-        await browser.clickVisible(
-          Selectors.indexesSegmentedTab('search-indexes')
+  context('supports search indexes', function () {
+    const connectionsWithSearchSupport: Connection[] = [
+      {
+        name: 'Atlas Dedicated Cluster',
+        connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
+      },
+    ];
+
+    const LOCAL_ATLAS_PORT = '27090';
+    const LOCAL_ATLAS_NAME = 'e2eTestsAtlas';
+    let hasLocalAtlas = false;
+
+    before(async function () {
+      // Currently local atlas is only supported on macOS
+      if (process.platform !== 'darwin') {
+        return;
+      }
+      try {
+        const { connectionString } = await setupLocalAtlas(
+          LOCAL_ATLAS_PORT,
+          LOCAL_ATLAS_PORT
         );
-        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
-
-        // Verify it was added.
-        // As we added index definition with no fields and only
-        // dynamic mapping, the details should display 'Dynamic Mappings'
-        await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
-
-        // Drop it
-        await dropSearchIndex(browser, indexName);
-      });
-
-      it('allows users to update and view search indexes', async function () {
-        const indexName = `e2e_search_index_${getRandomNumber()}`;
-        await browser.clickVisible(
-          Selectors.indexesSegmentedTab('search-indexes')
-        );
-        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
-
-        // Verify it was added.
-        // As we added index definition with no fields and only
-        // dynamic mapping, the details should display 'Dynamic Mappings'
-        await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
-
-        // Edit it
-        await updateSearchIndex(
-          browser,
-          indexName,
-          JSON.stringify({
-            mappings: {
-              dynamic: false,
-            },
-          })
-        );
-
-        // Verify its updating/updated.
-        // As we set the new definition to have no dynamic mappings
-        // with no fields, the index details should have '[empty]' value.
-        await verifyIndexDetails(browser, indexName, '[empty]');
-      });
-
-      it('runs a search aggregation with index name', async function () {
-        const indexName = `e2e_search_index_${getRandomNumber()}`;
-        await browser.clickVisible(
-          Selectors.indexesSegmentedTab('search-indexes')
-        );
-        await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
-
-        const indexRowSelector = Selectors.searchIndexRow(indexName);
-        const indexRow = await browser.$(indexRowSelector);
-        await indexRow.waitForDisplayed();
-
-        await browser.hover(indexRowSelector);
-
-        // We show the aggregate button only when the index is queryable. So we wait.
-        const aggregateButtonSelector =
-          Selectors.searchIndexAggregateButton(indexName);
-        await browser.$(aggregateButtonSelector).waitForDisplayed();
-        await browser.clickVisible(aggregateButtonSelector);
-
-        const namespace = await browser.getActiveTabNamespace();
-        expect(namespace).to.equal(`${DB_NAME}.${collectionName}`);
-
-        const workspaceTabText = await browser
-          .$(Selectors.SelectedWorkspaceTabButton)
-          .getText();
-        expect(workspaceTabText).to.contain('Aggregations');
-      });
+        connectionsWithSearchSupport.push({
+          name: 'Local Atlas',
+          connectionString,
+        });
+        hasLocalAtlas = true;
+      } catch (e) {
+        console.log('Failed to setup local atlas');
+        console.log(e);
+      }
     });
-  }
+    after(async function () {
+      if (hasLocalAtlas) {
+        try {
+          await tearDownLocalAtlas(LOCAL_ATLAS_NAME);
+        } catch (e) {
+          console.log('Failed to teardown local atlas');
+          console.log(e);
+        }
+      }
+    });
+
+    for (const { name, connectionString } of connectionsWithSearchSupport) {
+      context(`in ${name}`, function () {
+        before(function () {
+          if (!connectionString) {
+            return this.skip();
+          }
+          currentConnectionString = connectionString;
+        });
+
+        it('allows users to create a regular indexes', async function () {
+          await browser.clickVisible(
+            Selectors.indexesSegmentedTab('regular-indexes')
+          );
+          const indexName = await browser.createIndex({
+            fieldName: 'e2e_tests_index',
+            indexType: 'text',
+          });
+          await browser.dropIndex(indexName);
+        });
+
+        it('allows users to create, view and drop search indexes', async function () {
+          const indexName = `e2e_search_index_${getRandomNumber()}`;
+          await browser.clickVisible(
+            Selectors.indexesSegmentedTab('search-indexes')
+          );
+          await createSearchIndex(browser, indexName, INDEX_DEFINITION);
+          await browser.waitForAnimations(Selectors.SearchIndexList);
+
+          // Verify it was added.
+          // As we added index definition with no fields and only
+          // dynamic mapping, the details should display 'Dynamic Mappings'
+          await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
+
+          // Drop it
+          await dropSearchIndex(browser, indexName);
+        });
+
+        it('allows users to update and view search indexes', async function () {
+          const indexName = `e2e_search_index_${getRandomNumber()}`;
+          await browser.clickVisible(
+            Selectors.indexesSegmentedTab('search-indexes')
+          );
+          await createSearchIndex(browser, indexName, INDEX_DEFINITION);
+          await browser.waitForAnimations(Selectors.SearchIndexList);
+
+          // Verify it was added.
+          // As we added index definition with no fields and only
+          // dynamic mapping, the details should display 'Dynamic Mappings'
+          await verifyIndexDetails(browser, indexName, 'Dynamic Mappings');
+
+          // Edit it
+          await updateSearchIndex(
+            browser,
+            indexName,
+            JSON.stringify({
+              mappings: {
+                dynamic: false,
+              },
+            })
+          );
+
+          // Verify its updating/updated.
+          // As we set the new definition to have no dynamic mappings
+          // with no fields, the index details should have '[empty]' value.
+          await verifyIndexDetails(browser, indexName, '[empty]');
+        });
+
+        it('runs a search aggregation with index name', async function () {
+          const indexName = `e2e_search_index_${getRandomNumber()}`;
+          await browser.clickVisible(
+            Selectors.indexesSegmentedTab('search-indexes')
+          );
+          await createSearchIndex(browser, indexName, INDEX_DEFINITION);
+          await browser.waitForAnimations(Selectors.SearchIndexList);
+
+          const indexRowSelector = Selectors.searchIndexRow(indexName);
+          const indexRow = await browser.$(indexRowSelector);
+          await indexRow.waitForDisplayed();
+
+          await browser.hover(indexRowSelector);
+
+          // We show the aggregate button only when the index is queryable. So we wait.
+          const aggregateButtonSelector =
+            Selectors.searchIndexAggregateButton(indexName);
+          await browser.$(aggregateButtonSelector).waitForDisplayed();
+          await browser.clickVisible(aggregateButtonSelector);
+
+          const namespace = await browser.getActiveTabNamespace();
+          expect(namespace).to.equal(`${DB_NAME}.${collectionName}`);
+
+          const workspaceTabText = await browser
+            .$(Selectors.SelectedWorkspaceTabButton)
+            .getText();
+          expect(workspaceTabText).to.contain('Aggregations');
+        });
+      });
+    }
+  });
 });
