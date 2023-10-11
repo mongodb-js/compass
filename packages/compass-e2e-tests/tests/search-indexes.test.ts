@@ -44,8 +44,8 @@ const INDEX_DEFINITION = JSON.stringify({
 // The current timeout (2mins) is not enough for the search indexes to be created
 // and be queryable on Atlas. So we are increasing the timeout to 4mins.
 // This can not be more than mocha timeout.
-
 const WAIT_TIMEOUT = 240_000;
+const MOCHA_TIMEOUT = 360_000;
 
 function getRandomNumber() {
   return Math.floor(Math.random() * 2 ** 20);
@@ -236,7 +236,7 @@ describe('Search Indexes', function () {
   for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
       // Set the mocha timeout to 6mins to accomodate the 4mins wait timeout
-      this.timeout(360_000);
+      this.timeout(MOCHA_TIMEOUT);
       before(function () {
         if (!connectionString) {
           return this.skip();
