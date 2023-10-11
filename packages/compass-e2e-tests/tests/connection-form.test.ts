@@ -6,6 +6,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { AuthMechanism } from 'mongodb';
 
 const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
   "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n";
@@ -38,7 +39,7 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -64,7 +65,7 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: true,
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -96,7 +97,7 @@ describe('Connection form', function () {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017', 'localhost:27091'],
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -128,7 +129,7 @@ describe('Connection form', function () {
       connectionString,
       scheme: 'MONGODB_SRV',
       hosts: ['localhost'],
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -382,7 +383,7 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'socks',
       socksHost: 'hostname',
       socksPort: '1234',
@@ -420,7 +421,7 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -457,7 +458,7 @@ describe('Connection form', function () {
     };
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       connectionString: 'mongodb://localhost:27017/',
       directConnection: false,
       hosts: ['localhost:27017'],
@@ -493,7 +494,7 @@ describe('Connection form', function () {
     };
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
-      authMethod: 'AUTH_NONE',
+      authMethod: AuthMechanism.MONGODB_DEFAULT,
       connectionString: 'mongodb://localhost:27017/',
       directConnection: false,
       hosts: ['localhost:27017'],

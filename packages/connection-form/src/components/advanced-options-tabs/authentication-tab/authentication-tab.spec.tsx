@@ -35,28 +35,6 @@ describe('AuthenticationTab Component', function () {
     updateConnectionFormFieldSpy = sinon.spy();
   });
 
-  describe('when the none auth mechanism is clicked', function () {
-    beforeEach(function () {
-      renderComponent({
-        connectionStringUrl: new ConnectionStringUrl(
-          'mongodb://a123:b123@localhost'
-        ),
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-
-      fireEvent.click(screen.getAllByRole('radio')[0]);
-    });
-
-    it('calls to update the auth mechanism to null', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-auth-mechanism',
-        authMechanism: null,
-      });
-    });
-  });
-
   describe('when a new auth mechanism is clicked', function () {
     beforeEach(function () {
       renderComponent({
@@ -76,14 +54,14 @@ describe('AuthenticationTab Component', function () {
     });
   });
 
-  it('does not render the username/password tab when auth is not set', function () {
+  it('renders the username/password tab when auth is not set', function () {
     renderComponent({
       connectionStringUrl: new ConnectionStringUrl('mongodb://localhost'),
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
-    expect(screen.queryByLabelText('Username')).to.not.exist;
-    expect(screen.queryByLabelText('Password')).to.not.exist;
+    expect(screen.queryByLabelText('Username')).to.exist;
+    expect(screen.queryByLabelText('Password')).to.exist;
   });
 
   it('renders the username/password tab when auth is set', function () {
