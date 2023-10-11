@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Sep 27 2023.
+This document was automatically generated on Tue Oct 10 2023.
 
 ## List of dependencies
 
@@ -188,7 +188,7 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**                                      | 0.2.0        | MIT                                 |
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                                    | 1.1.11       | MIT                                 |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                               | 4.7.2        | Apache-2.0                          |
-| **[bson](#a63adf0830152fea384b63f9905bb041d56b74e2140fce8548c634c6a434fff4)**                                               | 6.0.0        | Apache-2.0                          |
+| **[bson](#90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12)**                                               | 6.1.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                                | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                       | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                        | 1.0.0        | MIT                                 |
@@ -251,7 +251,7 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                                 | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#eaf8c3e7da0edb172137824deaf1a96c6a768962579d540881dca578fe1ddd82)**                                           | 26.2.2       | MIT                                 |
+| **[electron](#2289b99eeb890f2bac33ffff1a90bc255f59a7302f32ca87f0fa40f29cf8d989)**                                           | 25.8.4       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -310,6 +310,7 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[human-signals](#62680fd7715b22b948ad9771bc3f0de13d753f68f6478afdda970d4393faa754)**                                      | 4.3.1        | Apache-2.0                          |
 | **[iconv-lite](#7d9ca5eb7c6d1a6f1b3b2db04e94ca19cc04caa10d923fca7d7942d47aa505fe)**                                         | 0.4.24       | MIT                                 |
 | **[ieee754](#926bd89d8cb0e458a159fe96007510a5c9d75add2ea3e46185c68854f977a887)**                                            | 1.2.1        | BSD-3-Clause                        |
+| **[imurmurhash](#d1af6342e06cf4463a1e70d43bb8fd673f060cc7c236f7fe024631d6714c81c8)**                                        | 0.1.4        | MIT                                 |
 | **[inflight](#58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1)**                                           | 1.0.6        | ISC                                 |
 | **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**                                           | 2.0.4        | ISC                                 |
 | **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**                                                | 1.3.8        | ISC                                 |
@@ -450,8 +451,8 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[mongodb-ns](#d99637af4fc3f4918f33167526619cdfd8cdf31550f209f0c885f2f47c550209)**                                         | 2.4.0        | MIT                                 |
 | **[mongodb-query-parser](#e76b97f8b563e3ff94c5fecb84c4dbc02b0034b3183a6899bf7f91e951af32a2)**                               | 3.1.3        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                     | 0.2.2        | Apache-2.0                          |
-| **[mongodb-schema](#51b48b1d63ceb84206cf38237d271f70e4afe080402284a50dfadb74460a96d2)**                                     | 11.2.1       | Apache-2.0                          |
-| **[mongodb](#8d4d7bf37e7d97705a5f585350e91646960b1c432ae02c4f6c172ffe70daa190)**                                            | 6.0.0        | Apache-2.0                          |
+| **[mongodb-schema](#079f92a56a68bf7ba17af026b58af306ca3838fa509aa840bca5641bb7831210)**                                     | 11.2.2       | Apache-2.0                          |
+| **[mongodb](#f4999707e41fd8f37255de0ee3b4ab4f7bbf9259b441c46abb2fd8f5b154d9a2)**                                            | 6.1.0        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                                 | 2.0.0        | MIT                                 |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                                 | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3        | MIT                                 |
@@ -538,6 +539,7 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**                                      | 3.0.0        | MIT                                 |
 | **[side-channel](#90d899d6f4d9080f6f0557879cc46c095d553b16e105525a7ed156113a6e1ead)**                                       | 1.0.4        | MIT                                 |
 | **[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**                                        | 3.0.7        | ISC                                 |
+| **[signal-exit](#09ce5ebc7ff1552bf0ed979e2479321c6a9a4b7a06d90ece7a70fa360007eff4)**                                        | 4.1.0        | ISC                                 |
 | **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**                                      | 1.0.1        | MIT                                 |
 | **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**                                         | 4.0.1        | MIT                                 |
 | **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**                                       | 4.2.0        | MIT                                 |
@@ -604,11 +606,12 @@ This document was automatically generated on Wed Sep 27 2023.
 | **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**                                              | 2.0.2        | ISC                                 |
 | **[winreg-ts](#b1df7eee15fa28ae85b9086513c8316c08a21c254e8eda11e63c6321a03ac4a7)**                                          | 1.0.4        | BSD-2-Clause                        |
 | **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**                                             | 1.0.2        | ISC                                 |
+| **[write-file-atomic](#f2c3af5826c073336660baeb567e1bb4453d5b6fadafaa880c59787bfdc4408f)**                                  | 5.0.1        | ISC                                 |
 | **[xtend](#ef439651e21b69e8811099e984a3a42de35b6d0fc30a5c230715bea4c96e4940)**                                              | 4.0.2        | MIT                                 |
 | **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**                                            | 3.1.1        | ISC                                 |
 | **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**                                            | 4.0.0        | ISC                                 |
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                       | 21.1.1       | ISC                                 |
-| **[zod](#bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731)**                                                | 3.22.2       | MIT                                 |
+| **[zod](#7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566)**                                                | 3.22.3       | MIT                                 |
 
 ## Package details
 
@@ -18656,9 +18659,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="a63adf0830152fea384b63f9905bb041d56b74e2140fce8548c634c6a434fff4"></a>
+<a id="90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 6.0.0)
+### [bson](https://www.npmjs.com/package/bson) (version 6.1.0)
 
 License tags: Apache-2.0
 
@@ -20795,9 +20798,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="eaf8c3e7da0edb172137824deaf1a96c6a768962579d540881dca578fe1ddd82"></a>
+<a id="2289b99eeb890f2bac33ffff1a90bc255f59a7302f32ca87f0fa40f29cf8d989"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 26.2.2)
+### [electron](https://www.npmjs.com/package/electron) (version 25.8.4)
 
 License tags: MIT
 
@@ -23094,6 +23097,12 @@ License files:
       3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+<a id="d1af6342e06cf4463a1e70d43bb8fd673f060cc7c236f7fe024631d6714c81c8"></a>
+
+### [imurmurhash](https://www.npmjs.com/package/imurmurhash) (version 0.1.4)
+
+License tags: MIT
 
 <a id="58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1"></a>
 
@@ -29369,9 +29378,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="51b48b1d63ceb84206cf38237d271f70e4afe080402284a50dfadb74460a96d2"></a>
+<a id="079f92a56a68bf7ba17af026b58af306ca3838fa509aa840bca5641bb7831210"></a>
 
-### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 11.2.1)
+### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 11.2.2)
 
 License tags: Apache-2.0
 
@@ -29581,9 +29590,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="8d4d7bf37e7d97705a5f585350e91646960b1c432ae02c4f6c172ffe70daa190"></a>
+<a id="f4999707e41fd8f37255de0ee3b4ab4f7bbf9259b441c46abb2fd8f5b154d9a2"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.0.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.1.0)
 
 License tags: Apache-2.0
 
@@ -38759,6 +38768,33 @@ License files:
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+<a id="09ce5ebc7ff1552bf0ed979e2479321c6a9a4b7a06d90ece7a70fa360007eff4"></a>
+
+### [signal-exit](https://www.npmjs.com/package/signal-exit) (version 4.1.0)
+
+License tags: ISC
+
+License files:
+
+- LICENSE.txt:
+
+      The ISC License
+
+      Copyright (c) 2015-2023 Benjamin Coe, Isaac Z. Schlueter, and Contributors
+
+      Permission to use, copy, modify, and/or distribute this software
+      for any purpose with or without fee is hereby granted, provided
+      that the above copyright notice and this permission notice
+      appear in all copies.
+
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+      OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE
+      LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
+      OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+      WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+      ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 <a id="7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec"></a>
 
 ### [simple-concat](https://www.npmjs.com/package/simple-concat) (version 1.0.1)
@@ -41297,6 +41333,22 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+<a id="f2c3af5826c073336660baeb567e1bb4453d5b6fadafaa880c59787bfdc4408f"></a>
+
+### [write-file-atomic](https://www.npmjs.com/package/write-file-atomic) (version 5.0.1)
+
+License tags: ISC
+
+License files:
+
+- LICENSE.md:
+
+      Copyright (c) 2015, Rebecca Turner
+
+      Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 <a id="ef439651e21b69e8811099e984a3a42de35b6d0fc30a5c230715bea4c96e4940"></a>
 
 ### [xtend](https://www.npmjs.com/package/xtend) (version 4.0.2)
@@ -41405,9 +41457,9 @@ License files:
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731"></a>
+<a id="7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566"></a>
 
-### [zod](https://www.npmjs.com/package/zod) (version 3.22.2)
+### [zod](https://www.npmjs.com/package/zod) (version 3.22.3)
 
 License tags: MIT
 

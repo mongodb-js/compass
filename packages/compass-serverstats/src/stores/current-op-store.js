@@ -12,12 +12,11 @@ const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
  * triggers with the result of the command.
  */
 const CurrentOpStore = Reflux.createStore({
-
   /**
    * Initializing the store should set up the listener for
    * the 'currentOpComplete' command.
    */
-  init: function() {
+  init: function () {
     this.restart();
     this.listenTo(Actions.currentOp, this.currentOp);
     this.listenTo(Actions.pause, this.pause);
@@ -27,14 +26,14 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.killOp, this.killOp);
   },
 
-  onActivated: function(appRegistry) {
+  onActivated: function (appRegistry) {
     appRegistry.on('data-service-connected', (err, ds) => {
       if (err) throw err;
       this.dataService = ds;
     });
   },
 
-  restart: function() {
+  restart: function () {
     this.allOps = [];
     this.isPaused = false;
     this.endPause = 0;
@@ -45,18 +44,18 @@ const CurrentOpStore = Reflux.createStore({
     this.errored = [];
   },
 
-  pause: function() {
+  pause: function () {
     this.endPause = this.allOps.length;
     this.isPaused = !this.isPaused;
   },
 
-  killOp: function(id) {
+  killOp: function (id) {
     this.dataService.killOp(id).catch((err) => {
       Actions.dbError({ op: 'currentOp', error: err });
     });
   },
 
-  mouseOver: function(index) {
+  mouseOver: function (index) {
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
     const visErrors = this.errored.slice(startPause, this.endPause);
@@ -69,7 +68,7 @@ const CurrentOpStore = Reflux.createStore({
     this.trigger(visErrors[this.overlayIndex], data);
   },
 
-  mouseOut: function() {
+  mouseOut: function () {
     this.inOverlay = false;
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
@@ -78,12 +77,13 @@ const CurrentOpStore = Reflux.createStore({
     this.trigger(visErrors[this.overlayIndex], data);
   },
 
-  currentOp: async function() {
+  currentOp: async function () {
     if (!this.dataService) {
       return;
     }
 
-    let error = null; let response;
+    let error = null;
+    let response;
 
     try {
       response = await this.dataService.currentOp();
@@ -91,10 +91,15 @@ const CurrentOpStore = Reflux.createStore({
       error = err;
     }
     // Trigger error banner changes
-    if (error === null && this.errored.length > 0 && this.errored[this.errored.length - 1] !== null) { // Trigger error removal
-      Actions.dbError({'op': 'currentOp', 'error': null });
+    if (
+      error === null &&
+      this.errored.length > 0 &&
+      this.errored[this.errored.length - 1] !== null
+    ) {
+      // Trigger error removal
+      Actions.dbError({ op: 'currentOp', error: null });
     } else if (error !== null) {
-      Actions.dbError({'op': 'currentOp', 'error': error });
+      Actions.dbError({ op: 'currentOp', error: error });
     }
     this.errored.push(error);
 
@@ -108,10 +113,11 @@ const CurrentOpStore = Reflux.createStore({
     if (error === null) {
       // If response is empty, send empty list
       let doc = [];
-      if (response !== undefined && ('inprog' in response)) {
+      if (response !== undefined && 'inprog' in response) {
         doc = response.inprog;
       }
-      if (this.starting) { // Skip first to match charts
+      if (this.starting) {
+        // Skip first to match charts
         this.starting = false; // TODO: skip first error as well?
         return;
       }
@@ -120,29 +126,41 @@ const CurrentOpStore = Reflux.createStore({
           continue;
         }
         if (!('microsecs_running' in doc[i])) {
-          debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
+          debug(
+            "Error: currentOp result from DB did not include 'microsecs_running'",
+            doc[i]
+          );
           doc[i].ms_running = 0;
         } else {
           doc[i].ms_running = round(doc[i].microsecs_running / 1000, 2);
         }
         if (!('ns' in doc[i]) || !('op' in doc[i])) {
-          debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
+          debug(
+            "Error: currentOp result from DB did not include 'ns' or 'op'",
+            doc[i]
+          );
         }
         if (!('active' in doc[i])) {
-          debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
+          debug(
+            "Error: currentOp result from DB did not include 'active'",
+            doc[i]
+          );
         } else {
           doc[i].active = doc[i].active.toString();
         }
         if (!('waitingForLock' in doc[i])) {
-          debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
+          debug(
+            "Error: currentOp result from DB did not include 'waitingForLock'",
+            doc[i]
+          );
         } else {
           doc[i].waitingForLock = doc[i].waitingForLock.toString();
         }
         totals.push(doc[i]);
       }
-      totals.sort(function(a, b) {
-        const f = (b.ms_running < a.ms_running) ? -1 : 0;
-        return (a.ms_running < b.ms_running) ? 1 : f;
+      totals.sort(function (a, b) {
+        const f = b.ms_running < a.ms_running ? -1 : 0;
+        return a.ms_running < b.ms_running ? 1 : f;
       });
       // Add current state to all
       this.allOps.push(totals);
@@ -158,7 +176,7 @@ const CurrentOpStore = Reflux.createStore({
       return;
     }
     this.trigger(error, totals);
-  }
+  },
 });
 
 module.exports = CurrentOpStore;

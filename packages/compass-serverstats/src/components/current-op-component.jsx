@@ -31,8 +31,12 @@ class CurrentOpComponent extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
-    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
-    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
+    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(
+      this.hide.bind(this)
+    );
+    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(
+      this.show.bind(this)
+    );
 
     if (!DBErrorStore.ops.currentOp) {
       this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
@@ -125,9 +129,7 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div
-          data-testid="no-slow-operations"
-          className="rt-lists__empty-error">
+        <div data-testid="no-slow-operations" className="rt-lists__empty-error">
           &#10004; No Slow Operations
         </div>
       </div>
@@ -141,9 +143,14 @@ class CurrentOpComponent extends React.Component {
    */
   renderGraph() {
     const showOperationDetails = this.showOperationDetails;
-    const rows = this.state.data.map(function(row, i) {
+    const rows = this.state.data.map(function (row, i) {
       return (
-        <li className="rt-lists__item rt-lists__item--slow" onClick={showOperationDetails.bind(null, row)} key={`list-item-${i}`}>
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
+        <li
+          className="rt-lists__item rt-lists__item--slow"
+          onClick={showOperationDetails.bind(null, row)}
+          key={`list-item-${i}`}
+        >
           <div className="rt-lists__op">{row.op}</div>
           <div className="rt-lists__collection-slow">{row.ns}</div>
           <div className="rt-lists__time">{row.ms_running + ' ms'}</div>
@@ -156,9 +163,7 @@ class CurrentOpComponent extends React.Component {
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
         <div className="rt-lists__listdiv" id="div-scroll">
-          <ul className="rt-lists__list">
-            {rows}
-          </ul>
+          <ul className="rt-lists__list">{rows}</ul>
         </div>
       </div>
     );
@@ -182,7 +187,7 @@ class CurrentOpComponent extends React.Component {
 
 CurrentOpComponent.propTypes = {
   store: PropTypes.any.isRequired,
-  interval: PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired,
 };
 
 CurrentOpComponent.displayName = 'CurrentOpComponent';

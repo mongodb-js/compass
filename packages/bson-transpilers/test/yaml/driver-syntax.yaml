@@ -57,8 +57,7 @@ tests:
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.aggregate(agg);
@@ -211,8 +210,7 @@ tests:
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.find(filter);
@@ -425,8 +423,7 @@ tests:
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.find(filter, { projection, sort, skip, limit, maxTimeMS, collation });

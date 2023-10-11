@@ -7,7 +7,6 @@ import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
-import type { ENVS } from '@mongodb-js/mongodb-constants';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
@@ -26,6 +25,7 @@ import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
+import type { ServerEnvironment } from './../env';
 import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
@@ -417,20 +417,18 @@ const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
 
 function getStageSnippet(
   stageOperator: string | null,
-  env: string,
+  env: ServerEnvironment,
   shouldAddComment: boolean,
   escaped = false
 ) {
-  const stage = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).find(
-    (stageOp) => {
-      return (
-        stageOp.value === stageOperator &&
-        (stageOp.env as readonly typeof ENVS[number][]).includes(
-          env as typeof ENVS[number]
-        )
-      );
-    }
+  const stages = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).filter(
+    (stageOp) => stageOp.value === stageOperator
   );
+
+  const stage =
+    stages.find((stageOp) =>
+      (stageOp.env as readonly ServerEnvironment[]).includes(env)
+    ) ?? stages[0];
 
   if (!stage) {
     return `{}`;

@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "description": "Collection index management for Compass",
-  "version": "5.14.0",
+  "version": "5.15.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -56,13 +56,13 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.14.0",
-    "@mongodb-js/compass-editor": "^0.13.0",
-    "@mongodb-js/compass-logging": "^1.2.0",
-    "@mongodb-js/mongodb-redux-common": "^2.0.11",
-    "@mongodb-js/mongodb-constants": "^0.8.4",
+    "@mongodb-js/compass-components": "^1.15.0",
+    "@mongodb-js/compass-editor": "^0.14.1",
+    "@mongodb-js/compass-logging": "^1.2.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.12",
+    "@mongodb-js/mongodb-constants": "^0.8.5",
     "bson": "^6.0.0",
-    "compass-preferences-model": "^2.14.0",
+    "compass-preferences-model": "^2.15.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -70,20 +70,20 @@
     "@mongodb-js/mocha-config-compass": "^1.3.1",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.2.0",
+    "@mongodb-js/webpack-config-compass": "^1.2.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^1.2.4",
-    "electron": "^26.2.2",
+    "electron": "^25.8.4",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.10",
+    "hadron-app-registry": "^9.0.11",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.0.0",
-    "mongodb-data-service": "^22.11.0",
+    "mongodb-data-service": "^22.12.1",
     "mongodb-query-parser": "^3.1.3",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
@@ -98,12 +98,12 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.14.0",
-    "@mongodb-js/compass-editor": "^0.13.0",
-    "@mongodb-js/compass-logging": "^1.2.0",
-    "@mongodb-js/mongodb-redux-common": "^2.0.11",
-    "@mongodb-js/mongodb-constants": "^0.8.4",
+    "@mongodb-js/compass-components": "^1.15.0",
+    "@mongodb-js/compass-editor": "^0.14.1",
+    "@mongodb-js/compass-logging": "^1.2.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.12",
+    "@mongodb-js/mongodb-constants": "^0.8.5",
     "bson": "^6.0.0",
-    "compass-preferences-model": "^2.14.0"
+    "compass-preferences-model": "^2.15.1"
   }
 }

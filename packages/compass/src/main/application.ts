@@ -113,6 +113,7 @@ class CompassApplication {
      * Atlas service backend configurations.
      *  - compass-dev: locally running compass kanopy backend (localhost)
      *  - compass:    compass kanopy backend (compass.mongodb.com)
+     *  - atlas-local: local mms backend (localhost)
      *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
      *  - atlas:      mms backend (cloud.mongodb.com)
      */
@@ -134,6 +135,15 @@ class CompassApplication {
           issuer: 'https://auth.mongodb.com/oauth2/default',
         },
         authPortalUrl: 'https://account.mongodb.com/account/login',
+      },
+      'atlas-local': {
+        atlasApiBaseUrl: 'http://localhost:8080/api/private',
+        atlasApiUnauthBaseUrl: 'http://localhost:8080/api/private/unauth',
+        atlasLogin: {
+          clientId: '0oaq1le5jlzxCuTbu357',
+          issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+        },
+        authPortalUrl: 'https://account-dev.mongodb.com/account/login',
       },
       'atlas-dev': {
         atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',

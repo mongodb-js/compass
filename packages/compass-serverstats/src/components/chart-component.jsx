@@ -14,7 +14,7 @@ const LINE_COLORS = [
   palette.blue.base,
   palette.red.light1,
   palette.purple.base,
-  palette.yellow.light2
+  palette.yellow.light2,
 ];
 
 /**
@@ -78,8 +78,12 @@ class ChartComponent extends React.Component {
     if (!data.localTime || data.localTime.length === 0) {
       return;
     }
-    const maxTime = data.localTime ? data.localTime[data.localTime.length - 1] : new Date();
-    const minTime = data.xLength ? new Date(maxTime.getTime() - (data.xLength * 1000)) : maxTime;
+    const maxTime = data.localTime
+      ? data.localTime[data.localTime.length - 1]
+      : new Date();
+    const minTime = data.xLength
+      ? new Date(maxTime.getTime() - data.xLength * 1000)
+      : maxTime;
 
     this.chart
       .width(this.props.width)
@@ -102,7 +106,9 @@ class ChartComponent extends React.Component {
 
       .y2Domain(data.secondScale ? [0, data.secondScale.currentMax] : null)
       .y2Val((d) => d)
-      .y2Values((selectionData) => selectionData.secondScale ? [selectionData.secondScale] : [])
+      .y2Values((selectionData) =>
+        selectionData.secondScale ? [selectionData.secondScale] : []
+      )
       .y2Units(data.secondScale ? data.secondScale.units : '')
       .y2Data((y2Value) => y2Value.count)
       .y2Label((y2Value) => y2Value.line)
@@ -115,9 +121,7 @@ class ChartComponent extends React.Component {
       .on('mouseout', Actions.mouseOut)
       .eventDispatcher(this.props.dispatcher);
 
-    d3.select(this.containerRef)
-      .datum(this.state.data)
-      .call(this.chart);
+    d3.select(this.containerRef).datum(this.state.data).call(this.chart);
   }
 
   /**
@@ -128,9 +132,11 @@ class ChartComponent extends React.Component {
   render() {
     return (
       <div className="chart">
-        <div ref={(container) => {
-          this.containerRef = container;
-        }} />
+        <div
+          ref={(container) => {
+            this.containerRef = container;
+          }}
+        />
       </div>
     );
   }
@@ -140,7 +146,7 @@ ChartComponent.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   store: PropTypes.any.isRequired,
-  dispatcher: PropTypes.any.isRequired
+  dispatcher: PropTypes.any.isRequired,
 };
 
 ChartComponent.displayName = 'ChartComponent';

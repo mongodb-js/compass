@@ -1,7 +1,6 @@
 const d3 = require('d3');
 const { palette } = require('@mongodb-js/compass-components');
 
-
 function realTimeMouseOverlay() {
   let prefix = 'serverstats-overlay';
   let bubbleWidth = 30;
@@ -13,33 +12,49 @@ function realTimeMouseOverlay() {
   let eventDispatcher = d3.dispatch('mouseover', 'updateoverlay', 'mouseout');
 
   function component(selection) {
-    selection.each(function(data) {
+    selection.each(function (data) {
       const svg = d3.select(this);
       const height = svg.attr('height');
       const width = svg.attr('width');
-      const basePosition = width - (bubbleWidth / 2);
+      const basePosition = width - bubbleWidth / 2;
 
       // Create overlay marker
       const overlayGroupClass = `${prefix}-group`;
       const overlayGroup = svg.selectAll(`g.${overlayGroupClass}`).data([data]);
-      overlayGroup.enter()
+      overlayGroup
+        .enter()
         .append('g')
         .attr('class', overlayGroupClass)
         .attr('transform', `translate(${basePosition})`);
-      overlayGroup.selectAll('line').data([data]).enter()
+      overlayGroup
+        .selectAll('line')
+        .data([data])
+        .enter()
         .append('line')
         .attr('stroke', palette.white)
         .attr('class', `${prefix}-line`);
-      overlayGroup.selectAll('line')
-        .attr('x1', 0).attr('y1', height)
-        .attr('x2', 0).attr('y2', 0);
+      overlayGroup
+        .selectAll('line')
+        .attr('x1', 0)
+        .attr('y1', height)
+        .attr('x2', 0)
+        .attr('y2', 0);
 
-      overlayGroup.selectAll('path').data([data]).enter()
+      overlayGroup
+        .selectAll('path')
+        .data([data])
+        .enter()
         .append('path')
         .attr('stroke', palette.white)
         .attr('fill', palette.white)
         .attr('class', `${prefix}-triangle`)
-        .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3))
+        .attr(
+          'd',
+          d3.svg
+            .symbol()
+            .type('triangle-down')
+            .size(bubbleWidth * 3)
+        )
         .attr('stroke', palette.white)
         .attr('stroke-width', strokeWidth);
 
@@ -49,14 +64,20 @@ function realTimeMouseOverlay() {
         clearInterval(updateMousePosition);
         xPosition = xPosition || d3.mouse(this)[0];
         eventDispatcher.updateoverlay(xPosition);
-        updateMousePosition = setInterval(sendMouseEvents.bind(this, xPosition), 20);
+        updateMousePosition = setInterval(
+          sendMouseEvents.bind(this, xPosition),
+          20
+        );
       }
 
-      const mouseTarget = svg.selectAll(`rect.${prefix}-mouse-target`).data([data])
-        .attr('height', height - (bubbleWidth / 2))
+      const mouseTarget = svg
+        .selectAll(`rect.${prefix}-mouse-target`)
+        .data([data])
+        .attr('height', height - bubbleWidth / 2)
         .attr('width', width - bubbleWidth);
 
-      const mouseTargetEnter = mouseTarget.enter()
+      const mouseTargetEnter = mouseTarget
+        .enter()
         .append('rect')
         .attr('class', `${prefix}-mouse-target`)
         .attr('fill', 'none')
@@ -66,12 +87,12 @@ function realTimeMouseOverlay() {
 
       if (enableMouse) {
         mouseTargetEnter
-          .on('mouseover', function() {
+          .on('mouseover', function () {
             const xPosition = d3.mouse(this)[0];
             eventDispatcher.mouseover(xPosition);
           })
           .on('mousemove', sendMouseEvents)
-          .on('mouseout', function() {
+          .on('mouseout', function () {
             clearInterval(updateMousePosition);
             eventDispatcher.mouseout(basePosition);
           });
@@ -86,48 +107,48 @@ function realTimeMouseOverlay() {
         eventDispatcher.updateoverlay();
       }
 
-      component.setPosition = function(xPosition) {
+      component.setPosition = function (xPosition) {
         overlayGroup.attr('transform', `translate(${xPosition})`);
       };
     });
   }
 
-  component.title = function(value) {
+  component.title = function (value) {
     if (typeof value === 'undefined') return title;
     title = value;
     return component;
   };
 
-  component.bubbleWidth = function(value) {
+  component.bubbleWidth = function (value) {
     if (typeof value === 'undefined') return bubbleWidth;
     bubbleWidth = value;
     return component;
   };
 
-  component.on = function(event, cb) {
+  component.on = function (event, cb) {
     eventDispatcher.on(`${event}.${title}`, cb);
     return component;
   };
 
-  component.prefix = function(value) {
+  component.prefix = function (value) {
     if (typeof value === 'undefined') return prefix;
     prefix = value;
     return component;
   };
 
-  component.strokeWidth = function(value) {
+  component.strokeWidth = function (value) {
     if (typeof value === 'undefined') return strokeWidth;
     strokeWidth = value;
     return component;
   };
 
-  component.enableMouse = function(value) {
+  component.enableMouse = function (value) {
     if (typeof value === 'undefined') return enableMouse;
     enableMouse = value;
     return component;
   };
 
-  component.eventDispatcher = function(value) {
+  component.eventDispatcher = function (value) {
     if (typeof value === 'undefined') return eventDispatcher;
     eventDispatcher = value;
     return component;
