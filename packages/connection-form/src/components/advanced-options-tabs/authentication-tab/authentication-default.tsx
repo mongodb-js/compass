@@ -94,6 +94,7 @@ function AuthenticationDefault({
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
+          optional
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -112,6 +113,7 @@ function AuthenticationDefault({
           value={password || ''}
           errorMessage={passwordError}
           state={passwordError ? 'error' : undefined}
+          optional
         />
       </FormFieldContainer>
       <FormFieldContainer>
