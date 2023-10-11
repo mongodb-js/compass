@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ObjectId } from 'bson';
-import { type Document as MongoDbDocument } from 'mongodb';
 import {
   Button,
   CancelLoader,
@@ -32,7 +31,12 @@ import {
 } from '../constants/documents-statuses';
 
 import './index.less';
-import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
+import type {
+  CrudStore,
+  BSONObject,
+  DocumentView,
+  QueryState,
+} from '../stores/crud-store';
 import type Document from 'hadron-document';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 
@@ -74,7 +78,7 @@ export type DocumentListProps = {
   darkMode?: boolean;
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
-  query: MongoDbDocument;
+  query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
   Omit<DocumentJsonViewProps, 'className'> &

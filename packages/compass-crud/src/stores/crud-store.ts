@@ -356,7 +356,7 @@ export type TableState = {
   };
 };
 
-type QueryState = {
+export type QueryState = {
   filter: BSONObject;
   sort: null | BSONObject;
   limit: number;
