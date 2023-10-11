@@ -507,9 +507,9 @@ class CellEditor
   }
 
   onAddField(...args: Parameters<CellEditorProps['addColumn']>) {
-    // we have to setImmediate here otherwise there's an untraceable
+    // we have to setTimeout here otherwise there's an untraceable
     // setState on unmounted component error
-    setImmediate(() => {
+    setTimeout(() => {
       // we explicitly stop editing first to prevent breaking the UI
       this.props.api.stopEditing();
       this.props.addColumn(...args);

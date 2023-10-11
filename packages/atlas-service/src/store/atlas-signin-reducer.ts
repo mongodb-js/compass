@@ -399,9 +399,7 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
         // noop for the promise created by `finally`, original promise rejection
         // should be handled by the service user
       });
-    setImmediate(function () {
-      fn();
-    });
+    setTimeout(fn);
     return attempt;
   };
 };

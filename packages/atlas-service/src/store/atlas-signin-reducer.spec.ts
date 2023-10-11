@@ -316,9 +316,16 @@ describe('atlasSignInReducer', function () {
     });
 
     it('should reject if provided signal was aborted', async function () {
+      let resolveSignInCalled = () => {};
+      const signInCalled: Promise<void> = new Promise(
+        (resolve) => (resolveSignInCalled = resolve)
+      );
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        signIn: sandbox.stub().callsFake(() => {
+          resolveSignInCalled();
+          return { sub: '1234' };
+        }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
@@ -337,6 +344,9 @@ describe('atlasSignInReducer', function () {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
       expect(store.getState()).to.have.property('state', 'canceled');
+
+      // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
+      await signInCalled;
     });
   });
 });

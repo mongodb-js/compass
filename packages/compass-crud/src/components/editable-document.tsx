@@ -86,7 +86,7 @@ class EditableDocument extends React.Component<
       if (this.state.editing || this.state.deleting) {
         // If the underlying document changed, that means that the collection
         // contents have been refreshed. In that case, stop editing/deleting.
-        setImmediate(() => {
+        setTimeout(() => {
           this.setState({ editing: false, deleting: false });
         });
       }

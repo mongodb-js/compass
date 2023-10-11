@@ -60,6 +60,18 @@ module.exports = {
       'error',
       { root: path.resolve(__dirname, '..', '..') },
     ],
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'CallExpression[callee.name="setImmediate"]',
+        message: 'Use browser-compatible `setTimeout(...)` instead',
+      },
+      {
+        selector:
+          'CallExpression[callee.object.name="process"][callee.property.name="nextTick"]',
+        message: 'Use browser-compatible `queueMicrotask(...)` instead',
+      },
+    ],
   },
   env: {
     ...shared.env,
