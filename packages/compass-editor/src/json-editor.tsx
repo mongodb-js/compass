@@ -92,26 +92,46 @@ function isReadOnly(state: EditorState): boolean {
   return state.facet(EditorState.readOnly);
 }
 
-// Breaks keyboard navigation out of the editor, but we want that
-const breakFocusOutBinding: KeyBinding = {
-  // https://codemirror.net/examples/tab/
-  ...indentWithTab,
-  // `indentWithTab` will also do indent when tab is pressed without Shift (like
-  // in browser devtools for example). We want to just input tab symbol in that
-  // case
-  run({ state, dispatch }) {
-    if (isReadOnly(state)) {
-      return false;
-    }
-    dispatch(
-      state.update(state.replaceSelection('\t'), {
-        scrollIntoView: true,
-        userEvent: 'input',
-      })
-    );
-    return true;
+// Breaks keyboard navigation out of the editor, but we want that.
+// A user has to hit `Escape` then `Tab` to enter keyboard navigation.
+// Note that the ordering of these matters as no more key handlers are called
+// after the first corresponding `run` function returns true.
+// https://codemirror.net/examples/tab/
+const tabKeymap: KeyBinding[] = [
+  {
+    key: 'Tab',
+    run(context) {
+      if (isReadOnly(context.state)) {
+        return false;
+      }
+      return acceptCompletion(context);
+    },
   },
-};
+  {
+    key: 'Tab',
+    run({ state, dispatch }) {
+      if (isReadOnly(state)) {
+        return false;
+      }
+
+      // `indentWithTab` will indent when `Tab` is pressed without any selection (like
+      // in browser devtools for example). Instead we want to input the tab symbol in
+      //  that case, to have behavior similar to VSCode's editors.
+      if (!state.selection.ranges.some((range) => !range.empty)) {
+        dispatch(
+          state.update(state.replaceSelection('\t'), {
+            scrollIntoView: true,
+            userEvent: 'input',
+          })
+        );
+        return true;
+      }
+
+      return false;
+    },
+  },
+  indentWithTab,
+];
 
 type CodemirrorThemeType = 'light' | 'dark';
 
@@ -845,16 +865,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         placeholderExtension,
         // User provided commands should take precedence over default keybindings.
         commandsExtension,
+        // The order of this keymap matters, when the `run` function of the corresponding key
+        // returns false it goes to the next corresponding key, if it returns true then
+        // it completes and does not try further handlers.
         keymap.of([
-          {
-            key: 'Tab',
-            run(context) {
-              if (isReadOnly(context.state)) {
-                return false;
-              }
-              return acceptCompletion(context);
-            },
-          },
           {
             key: 'Ctrl-Shift-b',
             run: prettify,
@@ -868,7 +882,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           ...historyKeymap,
           ...foldKeymap,
           ...completionKeymap,
-          breakFocusOutBinding,
+          ...tabKeymap,
         ]),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {

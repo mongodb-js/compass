@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
-import { spacing } from '@leafygreen-ui/tokens';
-import { useId } from '@react-aria/utils';
+import { LGGuideCue, spacing, useId } from '@mongodb-js/compass-components';
+
+// TODO: Is LG guide cue exported
 
 type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
 
