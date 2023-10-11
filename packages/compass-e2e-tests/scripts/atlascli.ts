@@ -22,7 +22,7 @@ export function setupLocalAtlas(
     let res = '';
     let error = '';
 
-    const processStream = spawn('sh', ['atlascli.sh', 'setup', port, name]);
+    const processStream = spawn('sh', ['./atlascli.sh', 'setup', port, name]);
 
     processStream.stdout.setEncoding('utf8');
     processStream.stderr.setEncoding('utf8');

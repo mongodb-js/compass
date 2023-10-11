@@ -221,7 +221,7 @@ describe.only('Search Indexes', function () {
     }
   });
 
-  context('supports search indexes', function () {
+  context.only('supports search indexes', function () {
     const connectionsWithSearchSupport: Connection[] = [
       {
         name: 'Atlas Dedicated Cluster',
@@ -236,6 +236,9 @@ describe.only('Search Indexes', function () {
     before(async function () {
       // Currently local atlas is only supported on macOS
       if (process.platform !== 'darwin') {
+        console.log(
+          'Skipping local atlas tests as they are only supported on macOS'
+        );
         return;
       }
       try {
