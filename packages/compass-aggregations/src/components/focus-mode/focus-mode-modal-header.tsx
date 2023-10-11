@@ -37,7 +37,7 @@ type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
   stages: Stage[];
-  stage: StoreStage;
+  stage?: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
   onCreateSearchIndex: () => void;
@@ -109,16 +109,16 @@ export const FocusModeModalHeader: React.FunctionComponent<
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights', React);
 
-  const insight = useMemo(
-    () =>
-      getInsightForStage(
+  const insight = useMemo(() => {
+    if (stage) {
+      return getInsightForStage(
         stage,
         env,
         isSearchIndexesSupported,
         onCreateSearchIndex
-      ),
-    [stage, env, isSearchIndexesSupported, onCreateSearchIndex]
-  );
+      );
+    }
+  }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
