@@ -5,6 +5,8 @@
 //   AI_TESTS_ATTEMPTS_PER_TEST=100 \
 //     node scripts/ai-accuracy-tests/index.js
 
+/* eslint-disable no-console */
+
 const { MongoCluster } = require('mongodb-runner');
 const fs = require('fs').promises;
 const os = require('os');
