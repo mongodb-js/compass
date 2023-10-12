@@ -58,7 +58,6 @@ const templateToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[3],
-  padding: spacing[1],
 });
 
 const templateToolbarTextDescriptionStyles = css({
@@ -72,13 +71,17 @@ const templateToolbarDropdownStyles = css({
 const formContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[2],
   overflow: 'auto',
+  // This is to accomodate for the focus ring that is visible
+  // when the index name input is focussed.
   padding: spacing[1],
 });
 
-const editorStyles = css({
-  marginTop: spacing[2],
+const formFieldContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[1],
 });
 
 const footerStyles = css({
@@ -227,7 +230,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         <div className={formContainerStyles}>
           {mode === 'create' && (
             <>
-              <section>
+              <section className={formFieldContainerStyles}>
                 <Label htmlFor="name-of-search-index">
                   Name of Search Index
                 </Label>
@@ -251,45 +254,46 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               <HorizontalRule />
             </>
           )}
-          <section className={templateToolbarStyles}>
-            <div className={templateToolbarTextDescriptionStyles}>
-              <Label htmlFor="definition-of-search-index">
-                Index Definition
-              </Label>
-              <br />
-              {mode === 'create' && (
-                <Body>
-                  By default, search indexes will have the following search
-                  configurations. You can refine this later.
-                </Body>
-              )}
-              <Link
-                href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
-                target="_blank"
-                hideExternalIcon={true}
-              >
-                View Atlas Search tutorials{' '}
-                <Icon size="small" glyph="OpenNewTab"></Icon>
-              </Link>
-            </div>
-            <div className={templateToolbarDropdownStyles}>
-              <SearchIndexTemplateDropdown
-                tooltip="Selecting a new template will replace your existing index definition in the code editor."
-                onTemplate={onChangeTemplate}
-              />
-            </div>
-          </section>
-          <CodemirrorMultilineEditor
-            ref={editorRef}
-            id="definition-of-search-index"
-            data-testid="definition-of-search-index"
-            className={editorStyles}
-            text={indexDefinition}
-            annotations={annotations}
-            onChangeText={onSearchIndexDefinitionChanged}
-            minLines={16}
-            completer={completer}
-          />
+          <div className={formFieldContainerStyles}>
+            <section className={templateToolbarStyles}>
+              <div className={templateToolbarTextDescriptionStyles}>
+                <Label htmlFor="definition-of-search-index">
+                  Index Definition
+                </Label>
+                <br />
+                {mode === 'create' && (
+                  <Body>
+                    By default, search indexes will have the following search
+                    configurations. You can refine this later.
+                  </Body>
+                )}
+                <Link
+                  href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+                  target="_blank"
+                  hideExternalIcon={true}
+                >
+                  View Atlas Search tutorials{' '}
+                  <Icon size="small" glyph="OpenNewTab"></Icon>
+                </Link>
+              </div>
+              <div className={templateToolbarDropdownStyles}>
+                <SearchIndexTemplateDropdown
+                  tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                  onTemplate={onChangeTemplate}
+                />
+              </div>
+            </section>
+            <CodemirrorMultilineEditor
+              ref={editorRef}
+              id="definition-of-search-index"
+              data-testid="definition-of-search-index"
+              text={indexDefinition}
+              annotations={annotations}
+              onChangeText={onSearchIndexDefinitionChanged}
+              minLines={16}
+              completer={completer}
+            />
+          </div>
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
         {!parsingError && error && <ErrorSummary errors={error} />}
