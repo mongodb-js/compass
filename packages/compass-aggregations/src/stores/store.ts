@@ -133,6 +133,10 @@ export type ConfigureStoreOptions = {
    * Service for interacting with Atlas-only features
    */
   atlasService: AtlasService;
+  /**
+   * Whether or not search indexes are supported in the current environment
+   */
+  isSearchIndexesSupported: boolean;
 }>;
 
 const configureStore = (options: ConfigureStoreOptions) => {
@@ -228,6 +232,9 @@ const configureStore = (options: ConfigureStoreOptions) => {
       },
       sourceName: options.sourceName,
       editViewName: options.editViewName,
+      searchIndexes: {
+        isSearchIndexesSupported: Boolean(options.isSearchIndexesSupported),
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
