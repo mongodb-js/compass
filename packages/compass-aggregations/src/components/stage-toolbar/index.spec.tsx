@@ -1,34 +1,25 @@
 import React from 'react';
-import type { ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
 import configureStore from '../../../test/configure-store';
-import { StageToolbar } from './';
+import StageToolbar from './';
+import {
+  changeStageCollapsed,
+  changeStageDisabled,
+} from '../../modules/pipeline-builder/stage-editor';
 
-const renderStageToolbar = (
-  props: Partial<ComponentProps<typeof StageToolbar>> = {}
-) => {
+const renderStageToolbar = () => {
+  const store = configureStore({
+    pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+  });
   render(
-    <Provider
-      store={configureStore({
-        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-      })}
-    >
-      <StageToolbar
-        hasServerError={false}
-        hasSyntaxError={false}
-        index={0}
-        idxInPipeline={0}
-        isAutoPreviewing={false}
-        isCollapsed={false}
-        isDisabled={false}
-        onOpenFocusMode={() => {}}
-        {...props}
-      />
+    <Provider store={store}>
+      <StageToolbar index={0} />
     </Provider>
   );
+  return store;
 };
 
 describe('StageToolbar', function () {
@@ -50,13 +41,15 @@ describe('StageToolbar', function () {
   });
   context('renders stage text', function () {
     it('when stage is disabled', function () {
-      renderStageToolbar({ isDisabled: true });
+      const store = renderStageToolbar();
+      store.dispatch(changeStageDisabled(0, true));
       expect(
         screen.getByText('Stage disabled. Results not passed in the pipeline.')
       ).to.exist;
     });
     it('when stage is collapsed', function () {
-      renderStageToolbar({ isCollapsed: true });
+      const store = renderStageToolbar();
+      store.dispatch(changeStageCollapsed(0, true));
       expect(
         screen.getByText(
           'A sample of the aggregated results from this stage will be shown below.'

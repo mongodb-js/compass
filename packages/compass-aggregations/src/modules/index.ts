@@ -40,6 +40,7 @@ import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
+import searchIndexes from './search-indexes';
 
 /**
  * The main application reducer.
@@ -84,6 +85,7 @@ const rootReducer = combineReducers({
   sidePanel,
   collectionsFields,
   insights,
+  searchIndexes,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

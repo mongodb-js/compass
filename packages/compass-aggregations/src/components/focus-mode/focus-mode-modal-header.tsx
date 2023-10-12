@@ -14,8 +14,7 @@ import {
   formatHotkey,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import type { Signal } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -26,6 +25,8 @@ import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model';
+import { createSearchIndex } from '../../modules/search-indexes';
+import type { ServerEnvironment } from '../../modules/env';
 
 type Stage = {
   idxInStore: number;
@@ -36,7 +37,10 @@ type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
   stages: Stage[];
-  insight?: Signal;
+  stage?: StoreStage;
+  env: ServerEnvironment;
+  isSearchIndexesSupported: boolean;
+  onCreateSearchIndex: () => void;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
@@ -93,14 +97,28 @@ export const FocusModeModalHeader: React.FunctionComponent<
 > = ({
   stageIndex,
   isEnabled,
-  insight,
   stages,
+  env,
+  isSearchIndexesSupported,
+  stage,
+  onCreateSearchIndex,
   onAddStageClick,
   onStageSelect,
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights', React);
+
+  const insight = useMemo(() => {
+    if (stage) {
+      return getInsightForStage(
+        stage,
+        env,
+        isSearchIndexesSupported,
+        onCreateSearchIndex
+      );
+    }
+  }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -322,13 +340,16 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
+      searchIndexes: { isSearchIndexesSupported },
     } = state;
     const stage = stages[stageIndex] as StoreStage;
 
     return {
       stageIndex,
       isEnabled: !stage?.disabled,
-      insight: stage ? getInsightForStage(stage, env) : undefined,
+      stage,
+      env,
+      isSearchIndexesSupported,
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({
@@ -344,5 +365,6 @@ export default connect(
     onStageSelect: selectFocusModeStage,
     onStageDisabledToggleClick: changeStageDisabled,
     onAddStageClick: addStageInFocusMode,
+    onCreateSearchIndex: createSearchIndex,
   }
 )(FocusModeModalHeader);

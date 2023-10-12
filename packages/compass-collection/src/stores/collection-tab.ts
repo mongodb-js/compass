@@ -110,6 +110,10 @@ export function configureStore(options: CollectionTabOptions) {
     store.dispatch(selectTab('Indexes'));
   });
 
+  localAppRegistry.on('open-create-search-index-modal', () => {
+    store.dispatch(selectTab('Indexes'));
+  });
+
   localAppRegistry.on('generate-aggregation-from-query', () => {
     store.dispatch(selectTab('Aggregations'));
   });

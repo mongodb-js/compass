@@ -137,6 +137,7 @@ describe('Aggregation Store', function () {
             focusMode: INITIAL_STATE.focusMode,
             sidePanel: INITIAL_STATE.sidePanel,
             collectionsFields: INITIAL_STATE.collectionsFields,
+            searchIndexes: INITIAL_STATE.searchIndexes,
           });
         });
       });
