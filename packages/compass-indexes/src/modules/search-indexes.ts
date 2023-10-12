@@ -452,7 +452,7 @@ export const createIndex = (
       title: `Your index ${indexName} is in progress.`,
       dismissible: true,
       timeout: 5000,
-      variant: 'success',
+      variant: 'progress',
     });
 
     void dispatch(switchToSearchIndexes());
@@ -494,7 +494,7 @@ export const updateIndex = (
         title: `Your index ${indexName} is being updated.`,
         dismissible: true,
         timeout: 5000,
-        variant: 'success',
+        variant: 'progress',
       });
       void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
@@ -633,7 +633,7 @@ export const dropSearchIndex = (
         title: `Your index ${name} is being deleted.`,
         dismissible: true,
         timeout: 5000,
-        variant: 'success',
+        variant: 'progress',
       });
       void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
