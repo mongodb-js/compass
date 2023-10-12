@@ -1144,7 +1144,7 @@ describe('DataService', function () {
           dataService.getSearchIndexes(testNamespace)
         ).to.be.rejectedWith(
           MongoServerError,
-          "Unrecognized pipeline stage name: '$listSearchIndexes'"
+          /Unrecognized pipeline stage name: '\$listSearchIndexes'"|\$listSearchIndexes stage is only allowed on MongoDB Atlas/
         );
       });
     });
