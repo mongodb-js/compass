@@ -221,7 +221,7 @@ describe.only('Search Indexes', function () {
     }
   });
 
-  context.only('supports search indexes', function () {
+  context('supports search indexes', function () {
     const connectionsWithSearchSupport: Connection[] = [
       {
         name: 'Atlas Dedicated Cluster',

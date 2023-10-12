@@ -1,5 +1,7 @@
 import { spawn } from 'child_process';
 
+const ATLAS_SCRIPT_PATH = require.resolve('./atlascli.sh');
+
 function parseAtlasResponse(text: string) {
   // Extract the connection string
   const connectionStringMatch = text.match(
@@ -22,7 +24,7 @@ export function setupLocalAtlas(
     let res = '';
     let error = '';
 
-    const processStream = spawn('sh', ['./atlascli.sh', 'setup', port, name]);
+    const processStream = spawn('sh', [ATLAS_SCRIPT_PATH, 'setup', port, name]);
 
     processStream.stdout.setEncoding('utf8');
     processStream.stderr.setEncoding('utf8');
@@ -50,7 +52,7 @@ export function tearDownLocalAtlas(name: string): Promise<void> {
     let res = '';
     let error = '';
 
-    const processStream = spawn('sh', ['atlascli.sh', 'teardown', name]);
+    const processStream = spawn('sh', [ATLAS_SCRIPT_PATH, 'teardown', name]);
 
     processStream.stdout.setEncoding('utf8');
     processStream.stderr.setEncoding('utf8');
