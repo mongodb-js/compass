@@ -1,0 +1,32 @@
+# This evergreen .yml is only used in periodic builds.
+# We don't want it to run on every patch as that would be too many
+# requests to our ai model (expensive).
+
+unset_function_vars: true
+stepback: false
+exec_timeout_secs: 5400
+ignore:
+  - AUTHORS
+  - THIRD-PARTY-NOTICES.md
+include:
+  - filename: ./functions.yml
+
+buildvariants:
+  - name: test-generative-ai-accuracy
+    display_name: Generative AI accuracy tests run against cloud-dev mms
+    run_on: ubuntu2004-large
+    # Only run on periodic builds.
+    # patchable: false
+    tasks:
+      - name: test-generative-ai-accuracy
+
+tasks:
+  - name: test-generative-ai-accuracy
+    tags: ['generative-ai-accuracy']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: generative-ai-accuracy-tests
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'

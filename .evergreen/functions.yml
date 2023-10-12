@@ -642,3 +642,28 @@ functions:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
             exit $return_code
           fi
+
+  generative-ai-accuracy-tests:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          SNYK_TOKEN: ${snyk_token}
+          JIRA_API_TOKEN: ${jira_api_token}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          set +e
+          npm run --workspace @mongodb-js/compass-generative-ai ai-accuracy-tests
+          return_code=$?
+          set -e
+
+          # Fail when the accuracy tests fail:
+          exit $return_code
