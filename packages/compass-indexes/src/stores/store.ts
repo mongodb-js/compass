@@ -19,6 +19,7 @@ import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
   refreshSearchIndexes,
   SearchIndexesStatuses,
+  showCreateModal,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
@@ -110,6 +111,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
 
     localAppRegistry.on('fields-changed', (fields) => {
       store.dispatch(setFields(fields.autocompleteFields));
+    });
+
+    localAppRegistry.on('open-create-search-index-modal', () => {
+      store.dispatch(showCreateModal());
     });
   }
 

@@ -11,9 +11,8 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
-  PerformanceSignals,
 } from '@mongodb-js/compass-components';
-import type { MenuAction } from '@mongodb-js/compass-components';
+import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
@@ -108,8 +107,7 @@ export type CrudToolbarProps = {
   resultId: string;
   start: number;
   viewSwitchHandler: (view: DocumentView) => void;
-  isCollectionScan?: boolean;
-  onCollectionScanInsightActionButtonClick?: () => void;
+  insights?: Signal;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -134,8 +132,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   resultId,
   start,
   viewSwitchHandler,
-  isCollectionScan,
-  onCollectionScanInsightActionButtonClick,
+  insights,
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
@@ -184,15 +181,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             onApply={onApplyClicked}
             onReset={onResetClicked}
             showExplainButton={enableExplainPlan}
-            insights={
-              isCollectionScan
-                ? {
-                    ...PerformanceSignals.get('query-executed-without-index'),
-                    onPrimaryActionButtonClick:
-                      onCollectionScanInsightActionButtonClick,
-                  }
-                : undefined
-            }
+            insights={insights}
           />
         )}
       </div>
