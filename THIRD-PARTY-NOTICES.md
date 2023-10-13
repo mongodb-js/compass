@@ -508,7 +508,7 @@ This document was automatically generated on Fri Oct 13 2023.
 | **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**                                 | 0.19.0       | ISC                                 |
 | **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**                                      | 2.4.0        | MIT                                 |
 | **[react-redux](#7e0baaf577850a112812e76f9643d35df0f800dadaebe9095eb0cfcb21df687b)**                                        | 8.0.5        | MIT                                 |
-| **[react-transition-group](#c91b1891eae4ade2725e3dc6831a4871807d137f82d0fc4ad458d79e0e0a779d)**                             | 4.4.2        | BSD-3-Clause                        |
+| **[react-transition-group](#f8a526737bf3e6cc7928ce77b3fa8e6a880da418fd9363a0dae1122922f92b72)**                             | 4.4.5        | BSD-3-Clause                        |
 | **[react-virtualized-auto-sizer](#556ae2daaf1c576dcc4544e6bfe080cd68d0c6912265cf2ebe7bae81e75de55b)**                       | 1.0.6        | MIT                                 |
 | **[react-window](#fcf3bd62a73691dc82efaf23f7667fb5dfe4ce1cb5e8740f3d53a3a85086ead2)**                                       | 1.8.6        | MIT                                 |
 | **[react](#2f31f78715f56093f4bb569e2e2ea931c518db6f4ee690482a0a2a1cd4d18b4c)**                                              | 17.0.2       | MIT                                 |
@@ -37537,9 +37537,9 @@ License files:
 
       SOFTWARE.
 
-<a id="c91b1891eae4ade2725e3dc6831a4871807d137f82d0fc4ad458d79e0e0a779d"></a>
+<a id="f8a526737bf3e6cc7928ce77b3fa8e6a880da418fd9363a0dae1122922f92b72"></a>
 
-### [react-transition-group](https://www.npmjs.com/package/react-transition-group) (version 4.4.2)
+### [react-transition-group](https://www.npmjs.com/package/react-transition-group) (version 4.4.5)
 
 License tags: BSD-3-Clause
 
