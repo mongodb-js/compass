@@ -233,6 +233,7 @@ This document was automatically generated on Fri Oct 13 2023.
 | **[darkreader](#009d507c500fca0823d99da7294679df74fe3cf57b482902b9b1d59cabd8bb80)**                                         | 4.9.40       | MIT                                 |
 | **[debug](#233219ced46fb5b84e28859835e97775eb9d0181f4cb85d6aa5cecb61e595947)**                                              | 2.6.9        | MIT                                 |
 | **[debug](#d17e389ce22af9246d1b07714885a99a0c7ffce55db7f2ecf52bfef063e8c8ac)**                                              | 4.3.1        | MIT                                 |
+| **[debug](#f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944)**                                              | 4.3.4        | MIT                                 |
 | **[decompress-response](#71cad5eab34cc643a6a7853a43d3090ac7e8b6014c9ec55fabb8112cdbfd9fbd)**                                | 5.0.0        | MIT                                 |
 | **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**                                        | 0.6.0        | MIT                                 |
 | **[default-browser-id](#bc6a381b83371172dbb72cac459792e2d4d55ecb71165c082142ef085b2130ee)**                                 | 3.0.0        | MIT                                 |
@@ -20006,6 +20007,36 @@ License files:
       (The MIT License)
 
       Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca>
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+      and associated documentation files (the 'Software'), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all copies or substantial
+      portions of the Software.
+
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+      LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944"></a>
+
+### [debug](https://www.npmjs.com/package/debug) (version 4.3.4)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      (The MIT License)
+
+      Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>
+      Copyright (c) 2018-2021 Josh Junon
 
       Permission is hereby granted, free of charge, to any person obtaining a copy of this software
       and associated documentation files (the 'Software'), to deal in the Software without restriction,
