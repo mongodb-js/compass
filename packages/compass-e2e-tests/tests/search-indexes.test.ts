@@ -244,7 +244,7 @@ describe.only('Search Indexes', function () {
       try {
         const { connectionString } = await setupLocalAtlas(
           LOCAL_ATLAS_PORT,
-          LOCAL_ATLAS_PORT
+          LOCAL_ATLAS_NAME
         );
         connectionsWithSearchSupport.push({
           name: 'Local Atlas',
