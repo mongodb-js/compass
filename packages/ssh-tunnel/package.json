@@ -55,7 +55,6 @@
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
-    "@types/debug": "^4.1.7",
     "@types/mocha": "^9.0.0",
     "@types/node-fetch": "^2.5.8",
     "@types/sinon-chai": "^3.2.5",
