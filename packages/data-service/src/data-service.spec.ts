@@ -1232,7 +1232,6 @@ describe('DataService', function () {
           }
         );
 
-        expect(changeset.serverError).to.be.undefined;
         expect(changeset.changes).to.have.length(1);
         expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
         expect(changeset.changes[0].after).to.deep.equal({
@@ -1263,7 +1262,6 @@ describe('DataService', function () {
           ]
         );
 
-        expect(changeset.serverError).to.be.undefined;
         expect(changeset.changes).to.have.length(1);
         expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
         expect(changeset.changes[0].after).to.deep.equal({
@@ -1303,22 +1301,24 @@ describe('DataService', function () {
         const controller = new AbortController();
         controller.abort();
 
-        const changeset = await replDataService.previewUpdate(
-          namespace,
-          {
-            foo: 'bar',
-          },
-          {
-            $set: {
-              foo: 'baz',
+        await expect(
+          replDataService.previewUpdate(
+            namespace,
+            {
+              foo: 'bar',
             },
-          },
-          { abortSignal: controller.signal as unknown as AbortSignal }
-        );
-
-        expect(changeset.changes).to.deep.equal([]);
-        expect(changeset.serverError).to.not.be.null;
-        expect(changeset.serverError?.name).to.equal('AbortError');
+            {
+              $set: {
+                foo: 'baz',
+              },
+            },
+            {
+              abortSignal: controller.signal as unknown as AbortSignal,
+              sample: 10,
+              timeout: 1000,
+            }
+          )
+        ).to.eventually.be.rejectedWith(/This operation was aborted/);
       });
 
       it('should be limited to 10 documents even if more documents match', async function () {
@@ -1337,7 +1337,6 @@ describe('DataService', function () {
         );
 
         expect(changeset.changes.length).to.equal(10);
-        expect(changeset.serverError).to.be.undefined;
       });
 
       it('should fail when the update breaks a unique index constraint', async function () {
@@ -1345,19 +1344,17 @@ describe('DataService', function () {
           return this.skip(); // Transactions only work in replicasets or sharded clusters
         }
 
-        const changeset = await replDataService.previewUpdate(
-          namespace,
-          {}, // update all documents
-          {
-            $set: {
-              foo: 'baz', // to have the same value on a unique indexed field
-            },
-          }
-        );
-
-        expect(changeset.changes).to.deep.equal([]);
-        expect(changeset.serverError).to.not.be.null;
-        expect(changeset.serverError?.name).to.equal('MongoServerError');
+        await expect(
+          replDataService.previewUpdate(
+            namespace,
+            {}, // update all documents
+            {
+              $set: {
+                foo: 'baz', // to have the same value on a unique indexed field
+              },
+            }
+          )
+        ).to.be.eventually.rejectedWith(/E11000 duplicate key error/);
       });
 
       it('should not insert any new document', async function () {

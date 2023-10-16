@@ -150,15 +150,9 @@ export type UpdatePreviewExecutionOptions = ExecutionOptions & {
   timeout: number;
 };
 
-export type UpdatePreview =
-  | {
-      changes: UpdatePreviewChange[];
-      serverError?: never;
-    }
-  | {
-      changes: never[];
-      serverError: Error;
-    };
+export type UpdatePreview = {
+  changes: UpdatePreviewChange[];
+};
 
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
@@ -2339,59 +2333,49 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const sample = executionOptions.sample || PREVIEW_SAMPLE;
     const timeout = executionOptions.timeout || PREVIEW_TIMEOUT;
 
-    try {
-      return await this._cancellableOperation(
-        async (session) => {
-          if (!session) {
-            return {
-              changes: [],
-              serverError: new Error('Could not open session.'),
-            };
-          }
+    return await this._cancellableOperation(
+      async (session) => {
+        if (!session) {
+          throw new Error('Could not open session.');
+        }
 
-          try {
-            const coll = this._collection(ns, 'CRUD');
-            session.startTransaction({
-              maxTimeMS: timeout,
-            });
+        try {
+          const coll = this._collection(ns, 'CRUD');
+          session.startTransaction({
+            maxTimeMS: timeout,
+          });
 
-            const docsToPreview = await coll
-              .find(filter, { session })
-              .sort({ _id: 1 })
-              .limit(sample)
-              .toArray();
+          const docsToPreview = await coll
+            .find(filter, { session })
+            .sort({ _id: 1 })
+            .limit(sample)
+            .toArray();
 
-            const idsToPreview = docsToPreview.map((doc) => doc._id);
-            await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
-              session,
-            });
-            const changedDocs = await coll
-              .find({ _id: { $in: idsToPreview } }, { session })
-              .sort({ _id: 1 })
-              .toArray();
+          const idsToPreview = docsToPreview.map((doc) => doc._id);
+          await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+            session,
+          });
+          const changedDocs = await coll
+            .find({ _id: { $in: idsToPreview } }, { session })
+            .sort({ _id: 1 })
+            .toArray();
 
-            const changes = docsToPreview.map((before, idx) => ({
-              before,
-              after: changedDocs[idx],
-            }));
-            return { changes, serverError: undefined };
-          } catch (ex) {
-            return { changes: [], serverError: ex as Error };
-          } finally {
-            await session.abortTransaction();
-            await session.endSession();
-          }
-        },
-        async (session) => {
+          const changes = docsToPreview.map((before, idx) => ({
+            before,
+            after: changedDocs[idx],
+          }));
+          return { changes };
+        } finally {
           await session.abortTransaction();
           await session.endSession();
-        },
-        executionOptions?.abortSignal
-      );
-    } catch (ex) {
-      // abort exception
-      return { changes: [], serverError: ex as Error };
-    }
+        }
+      },
+      async (session) => {
+        await session.abortTransaction();
+        await session.endSession();
+      },
+      executionOptions?.abortSignal
+    );
   }
 
   /**
