@@ -19,7 +19,7 @@ setup_environment() {
         fi
         ATLAS_URL="https://fastdl.mongodb.org/mongocli/mongodb-atlas-cli_${ATLAS_VERSION}_${PLATFORM}_${ARCH}.zip"
         
-        PODMAN_ARCH=[[ $ARCH = 'arm64' ]] && 'arm64' || 'amd64'
+        PODMAN_ARCH=$([[ $ARCH = 'arm64' ]] && echo "arm64" || echo "amd64")
         PODMAN_URL="https://github.com/containers/podman/releases/download/v${PODMAN_VERSION}/podman-remote-release-darwin_${PODMAN_ARCH}.zip"
     fi
 }
