@@ -1321,6 +1321,25 @@ describe('DataService', function () {
         expect(changeset.serverError?.name).to.equal('AbortError');
       });
 
+      it('should be limited to 10 documents even if more documents match', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {}, // update all documents
+          {
+            $set: {
+              count: 1,
+            },
+          }
+        );
+
+        expect(changeset.changes.length).to.equal(10);
+        expect(changeset.serverError).to.be.undefined;
+      });
+
       it('should fail when the update breaks a unique index constraint', async function () {
         if (replDataService.getCurrentTopologyType() === 'Single') {
           return this.skip(); // Transactions only work in replicasets or sharded clusters
