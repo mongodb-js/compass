@@ -1181,6 +1181,120 @@ describe('DataService', function () {
         );
       });
     });
+
+    describe.only('#previewUpdate', function () {
+      const namespace = 'test.previewUpdate';
+      const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
+      const replsetCluster = mochaTestServer({
+        topology: 'replset',
+      });
+      let replDataService: DataService;
+
+      before(async function () {
+        const replSetOptions = {
+          connectionString: replsetCluster().connectionString,
+        };
+
+        replDataService = new DataServiceImpl(replSetOptions);
+        await replDataService.connect();
+        await replDataService.insertOne(namespace, sampleDocument);
+      });
+
+      after(async function () {
+        await replDataService.disconnect().catch(console.log);
+      });
+
+      it('should return the preview of a changed document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        expect(changeset.serverError).to.be.undefined;
+        expect(changeset.changes).to.have.length(1);
+        expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after).to.deep.equal({
+          ...sampleDocument,
+          foo: 'baz',
+        });
+      });
+
+      it('should not modify the underlying document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const [document] = await replDataService.find(namespace, {
+          _id: sampleDocument._id,
+        });
+        expect(document).to.deep.equal(sampleDocument);
+      });
+
+      it('should not insert any new document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const count = await replDataService.count(namespace, {});
+        expect(count).to.equal(1);
+      });
+
+      it('should not insert any new document if there is no match', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'whatever',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const count = await replDataService.count(namespace, {});
+        expect(count).to.equal(1);
+      });
+    });
   });
 
   context('with mocked client', function () {

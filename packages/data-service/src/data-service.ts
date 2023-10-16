@@ -137,6 +137,16 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
 }
 
+export type UpdatePreviewChange = {
+  before: Document;
+  after: Document;
+};
+
+export type UpdatePreview = {
+  changes: UpdatePreviewChange[];
+  serverError: Error | undefined;
+};
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
@@ -727,6 +737,17 @@ export interface DataService {
    * is being emitted when this value changes.
    */
   getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
+
+  /**
+   * Runs the update within a transactions, only
+   * modifying a subset of the documents matched by the filter.
+   * It returns a list of the changed documents, or a serverError.
+   */
+  previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document
+  ): Promise<UpdatePreview>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -2283,6 +2304,44 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const stats = await runCommand(db, { dbStats: 1 });
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
+  }
+
+  @op(mongoLogId(1_001_000_063))
+  async previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document
+  ): Promise<UpdatePreview> {
+    const coll = this._collection(ns, 'CRUD');
+    const session = this._startSession('CRUD');
+    try {
+      session.startTransaction();
+
+      const docsToPreview = await coll
+        .find(filter, { session })
+        .sort({ _id: 1 })
+        .limit(10)
+        .toArray();
+      const idsToPreview = docsToPreview.map((doc) => doc._id);
+      await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+        session,
+      });
+      const changedDocs = await coll
+        .find({ _id: { $in: idsToPreview } }, { session })
+        .sort({ _id: 1 })
+        .toArray();
+
+      const changes = docsToPreview.map((before, idx) => ({
+        before,
+        after: changedDocs[idx],
+      }));
+      return { changes, serverError: undefined };
+    } catch (ex) {
+      return { changes: [], serverError: ex as Error };
+    } finally {
+      await session.abortTransaction();
+      await session.endSession();
+    }
   }
 
   /**
