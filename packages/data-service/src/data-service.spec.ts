@@ -1206,7 +1206,10 @@ describe('DataService', function () {
         );
         await replDataService.insertOne(namespace, sampleDocument);
 
-        const dummyDocs = range(1, 100).map((idx) => ({ foo: `bar${idx}` }));
+        const dummyDocs = range(1, 100).map((idx) => ({
+          _id: { 'foo.bar': idx },
+          foo: `bar${idx}`,
+        }));
         await replDataService.insertMany(namespace, dummyDocs);
       });
 
