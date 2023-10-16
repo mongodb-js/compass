@@ -21,7 +21,6 @@ import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
-import { sample } from 'lodash';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -1183,7 +1182,7 @@ describe('DataService', function () {
       });
     });
 
-    describe.only('#previewUpdate', function () {
+    describe('#previewUpdate', function () {
       const namespace = 'test.previewUpdate';
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
       const replsetCluster = mochaTestServer({
@@ -1202,6 +1201,7 @@ describe('DataService', function () {
       });
 
       after(async function () {
+        // eslint-disable-next-line no-console
         await replDataService.disconnect().catch(console.log);
       });
 
