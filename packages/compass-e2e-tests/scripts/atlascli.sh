@@ -36,7 +36,7 @@ setup_podman() {
     if ! command -v podman &> /dev/null; then
         echo "Downloading podman for $PLATFORM-$ARCH from $PODMAN_URL"
         mkdir -p "$TMP_PATH"
-        curl -o "${TMP_PATH}/podman.zip" "$PODMAN_URL"
+        wget -O "${TMP_PATH}/podman.zip" "$PODMAN_URL"
         unzip -q -o "${TMP_PATH}/podman.zip" -d "${TMP_PATH}/podman"
         rm "${TMP_PATH}/podman.zip"
         export PATH=$PATH:"${TMP_PATH}/podman/usr/bin"
@@ -49,7 +49,7 @@ setup_atlascli() {
     if ! command -v atlas &> /dev/null; then
         echo "Downloading atlascli for $PLATFORM-$ARCH from $ATLAS_URL"
         mkdir -p "$TMP_PATH"
-        curl -o "${TMP_PATH}/atlas.zip" "$ATLAS_URL"
+        wget -O "${TMP_PATH}/atlas.zip" "$ATLAS_URL"
         unzip -q -o "${TMP_PATH}/atlas.zip" -d "${TMP_PATH}/atlas"
         rm "${TMP_PATH}/atlas.zip"
         export PATH=$PATH:"${TMP_PATH}/atlas/bin"
