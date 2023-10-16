@@ -754,7 +754,7 @@ export interface DataService {
   previewUpdate(
     ns: string,
     filter: Document,
-    update: Document,
+    update: Document | Document[],
     executionOptions?: ExecutionOptions
   ): Promise<UpdatePreview>;
 }
@@ -2319,7 +2319,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async previewUpdate(
     ns: string,
     filter: Document,
-    update: Document,
+    update: Document | Document[],
     executionOptions?: ExecutionOptions
   ): Promise<UpdatePreview> {
     if (!executionOptions) {
