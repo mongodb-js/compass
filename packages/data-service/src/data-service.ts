@@ -145,6 +145,11 @@ export type UpdatePreviewChange = {
   after: Document;
 };
 
+export type UpdatePreviewExecutionOptions = ExecutionOptions & {
+  sample: number;
+  timeout: number;
+};
+
 export type UpdatePreview =
   | {
       changes: UpdatePreviewChange[];
@@ -755,7 +760,7 @@ export interface DataService {
     ns: string,
     filter: Document,
     update: Document | Document[],
-    executionOptions?: ExecutionOptions
+    executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview>;
 }
 
@@ -2320,12 +2325,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Document,
     update: Document | Document[],
-    executionOptions?: ExecutionOptions
+    executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview> {
     if (!executionOptions) {
       const controller = new AbortController();
-      executionOptions = { abortSignal: controller.signal };
+      executionOptions = {
+        abortSignal: controller.signal,
+        sample: PREVIEW_SAMPLE,
+        timeout: PREVIEW_TIMEOUT,
+      };
     }
+
+    const sample = executionOptions.sample || PREVIEW_SAMPLE;
+    const timeout = executionOptions.timeout || PREVIEW_TIMEOUT;
 
     try {
       return await this._cancellableOperation(
@@ -2340,13 +2352,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
           try {
             const coll = this._collection(ns, 'CRUD');
             session.startTransaction({
-              maxTimeMS: PREVIEW_TIMEOUT,
+              maxTimeMS: timeout,
             });
 
             const docsToPreview = await coll
               .find(filter, { session })
               .sort({ _id: 1 })
-              .limit(PREVIEW_SAMPLE)
+              .limit(sample)
               .toArray();
 
             const idsToPreview = docsToPreview.map((doc) => doc._id);
