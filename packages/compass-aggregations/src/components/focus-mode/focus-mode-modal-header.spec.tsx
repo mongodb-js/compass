@@ -26,6 +26,10 @@ describe('FocusModeModalHeader', function () {
     return render(
       <FocusModeModalHeader
         isEnabled
+        env={'on-prem'}
+        isSearchIndexesSupported={false}
+        onCreateSearchIndex={noop}
+        stage={{} as any}
         stageIndex={0}
         stages={[
           {

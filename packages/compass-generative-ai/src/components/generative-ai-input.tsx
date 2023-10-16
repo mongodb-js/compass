@@ -1,16 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { palette } from '@leafygreen-ui/palette';
-import { spacing } from '@leafygreen-ui/tokens';
+import {
+  Banner,
+  BannerVariant,
+  Button,
+  Icon,
+  IconButton,
+  SpinLoader,
+  TextInput,
+  css,
+  cx,
+  focusRing,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
-import { Banner, Button, Icon, IconButton, TextInput } from '../leafygreen';
-import { useDarkMode } from '../../hooks/use-theme';
-import { SpinLoader } from '../loader';
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
-import { focusRing } from '../../hooks/use-focus-ring';
-import { BannerVariant } from '../..';
 
 const containerStyles = css({
   display: 'flex',

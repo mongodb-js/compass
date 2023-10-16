@@ -296,7 +296,7 @@ function trackWindowEvents(electronApp: App) {
 
     // causes focus to be emitted after blur, allowing us to track
     // when the focus moves from a Compass window to the other
-    setImmediate(() => {
+    setTimeout(() => {
       const focusAt = windowFocusedAt.get(win.webContents.id);
       const movedToOtherCompassWin = windowFocusedAt.size === 2;
       windowFocusedAt.delete(win.webContents.id);

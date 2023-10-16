@@ -19,6 +19,7 @@ import {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
@@ -144,4 +145,5 @@ export {
   Link,
   Description,
   SearchInput,
+  InfoSprinkle,
 };
