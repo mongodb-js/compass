@@ -1295,6 +1295,52 @@ describe('DataService', function () {
         expect(document).to.deep.equal(sampleDocument);
       });
 
+      it('should fail when aborted by the controller', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const controller = new AbortController();
+        controller.abort();
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          },
+          { abortSignal: controller.signal as unknown as AbortSignal }
+        );
+
+        expect(changeset.changes).to.deep.equal([]);
+        expect(changeset.serverError).to.not.be.null;
+        expect(changeset.serverError?.name).to.equal('AbortError');
+      });
+
+      it('should fail when the update breaks a unique index constraint', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {}, // update all documents
+          {
+            $set: {
+              foo: 'baz', // to have the same value on a unique indexed field
+            },
+          }
+        );
+
+        expect(changeset.changes).to.deep.equal([]);
+        expect(changeset.serverError).to.not.be.null;
+        expect(changeset.serverError?.name).to.equal('MongoServerError');
+      });
+
       it('should not insert any new document', async function () {
         if (replDataService.getCurrentTopologyType() === 'Single') {
           return this.skip(); // Transactions only work in replicasets or sharded clusters
