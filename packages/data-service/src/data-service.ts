@@ -105,6 +105,9 @@ import type {
 } from '@mongodb-js/devtools-connect';
 import { omit } from 'lodash';
 
+const PREVIEW_TIMEOUT = 1000;
+const PREVIEW_SAMPLE = 10;
+
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
   key: keyof T
@@ -142,10 +145,15 @@ export type UpdatePreviewChange = {
   after: Document;
 };
 
-export type UpdatePreview = {
-  changes: UpdatePreviewChange[];
-  serverError: Error | undefined;
-};
+export type UpdatePreview =
+  | {
+      changes: UpdatePreviewChange[];
+      serverError?: never;
+    }
+  | {
+      changes: never[];
+      serverError: Error;
+    };
 
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
@@ -2320,15 +2328,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const docsToPreview = await coll
         .find(filter, { session })
         .sort({ _id: 1 })
-        .limit(10)
+        .limit(PREVIEW_SAMPLE)
+        .maxTimeMS(PREVIEW_TIMEOUT)
         .toArray();
+
       const idsToPreview = docsToPreview.map((doc) => doc._id);
       await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
         session,
+        maxTimeMS: PREVIEW_TIMEOUT,
       });
       const changedDocs = await coll
         .find({ _id: { $in: idsToPreview } }, { session })
         .sort({ _id: 1 })
+        .maxTimeMS(PREVIEW_TIMEOUT)
         .toArray();
 
       const changes = docsToPreview.map((before, idx) => ({

@@ -21,6 +21,7 @@ import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
+import { range } from 'lodash';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -1187,6 +1188,7 @@ describe('DataService', function () {
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
       const replsetCluster = mochaTestServer({
         topology: 'replset',
+        secondaries: 0,
       });
       let replDataService: DataService;
 
@@ -1197,7 +1199,15 @@ describe('DataService', function () {
 
         replDataService = new DataServiceImpl(replSetOptions);
         await replDataService.connect();
+        await replDataService.createIndex(
+          namespace,
+          { foo: 1 },
+          { unique: true }
+        );
         await replDataService.insertOne(namespace, sampleDocument);
+
+        const dummyDocs = range(1, 100).map((idx) => ({ foo: `bar${idx}` }));
+        await replDataService.insertMany(namespace, dummyDocs);
       });
 
       after(async function () {
@@ -1303,7 +1313,7 @@ describe('DataService', function () {
         );
 
         const count = await replDataService.count(namespace, {});
-        expect(count).to.equal(1);
+        expect(count).to.equal(100); // 99 dummy documents + 1 testing doc
       });
 
       it('should not insert any new document if there is no match', async function () {
@@ -1324,7 +1334,7 @@ describe('DataService', function () {
         );
 
         const count = await replDataService.count(namespace, {});
-        expect(count).to.equal(1);
+        expect(count).to.equal(100);
       });
     });
   });
