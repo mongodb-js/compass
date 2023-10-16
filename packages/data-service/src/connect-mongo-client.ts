@@ -161,6 +161,10 @@ export async function connectMongoClientDataService({
     connectionOptions.sshTunnel,
     logger
   );
+  const tunnelForwardingErrors: Error[] = [];
+  tunnel?.on('forwardingError', (err: Error) =>
+    tunnelForwardingErrors.push(err)
+  );
 
   if (socks5Options) {
     Object.assign(options, socks5Options);
@@ -280,6 +284,13 @@ export async function connectMongoClientDataService({
     ]).catch(() => {
       /* ignore errors */
     });
+    if (tunnelForwardingErrors.length > 0) {
+      err.message = `${
+        err.message
+      } [SSH Tunnel errors: ${tunnelForwardingErrors.map(
+        (err) => err.message
+      )}]`;
+    }
     throw err;
   }
 }
