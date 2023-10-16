@@ -21,6 +21,7 @@ import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
+import { sample } from 'lodash';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -1182,7 +1183,7 @@ describe('DataService', function () {
       });
     });
 
-    describe('#previewUpdate', function () {
+    describe.only('#previewUpdate', function () {
       const namespace = 'test.previewUpdate';
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
       const replsetCluster = mochaTestServer({
@@ -1227,6 +1228,37 @@ describe('DataService', function () {
         expect(changeset.changes[0].after).to.deep.equal({
           ...sampleDocument,
           foo: 'baz',
+        });
+      });
+
+      it('supports expressive updates', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          [
+            {
+              $set: {
+                counter: 1,
+              },
+            },
+            {
+              $unset: ['foo'],
+            },
+          ]
+        );
+
+        expect(changeset.serverError).to.be.undefined;
+        expect(changeset.changes).to.have.length(1);
+        expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after).to.deep.equal({
+          _id: sampleDocument._id,
+          counter: 1,
         });
       });
 
