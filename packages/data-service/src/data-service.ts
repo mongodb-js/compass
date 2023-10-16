@@ -2339,24 +2339,23 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
           try {
             const coll = this._collection(ns, 'CRUD');
-            session.startTransaction();
+            session.startTransaction({
+              maxTimeMS: PREVIEW_TIMEOUT,
+            });
 
             const docsToPreview = await coll
               .find(filter, { session })
               .sort({ _id: 1 })
               .limit(PREVIEW_SAMPLE)
-              .maxTimeMS(PREVIEW_TIMEOUT)
               .toArray();
 
             const idsToPreview = docsToPreview.map((doc) => doc._id);
             await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
               session,
-              maxTimeMS: PREVIEW_TIMEOUT,
             });
             const changedDocs = await coll
               .find({ _id: { $in: idsToPreview } }, { session })
               .sort({ _id: 1 })
-              .maxTimeMS(PREVIEW_TIMEOUT)
               .toArray();
 
             const changes = docsToPreview.map((before, idx) => ({
