@@ -117,7 +117,7 @@ export const featureFlags: Required<{
     },
   },
   /**
-   * Feature flag for Atlas Search Index Management.
+   * Feature flag bulk updates
    * Epic: COMPASS-6671
    */
   enableBulkUpdateOperations: {
@@ -128,7 +128,7 @@ export const featureFlags: Required<{
     },
   },
   /**
-   * Feature flag for Atlas Search Index Management.
+   * Feature flag for bulk deletes.
    * Epic: COMPASS-6671
    */
   enableBulkDeleteOperations: {
