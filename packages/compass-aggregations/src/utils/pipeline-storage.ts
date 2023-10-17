@@ -1,5 +1,5 @@
+import type { Stats } from '@mongodb-js/compass-user-data';
 import { UserData, z } from '@mongodb-js/compass-user-data';
-import type { Stats } from 'fs';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
 
