@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { css, cx, keyframes } from '@leafygreen-ui/emotion';
-import { palette } from '@leafygreen-ui/palette';
-import { spacing } from '@leafygreen-ui/tokens';
-
-import { Button, Disclaimer, Icon } from '../leafygreen';
-import { FeedbackPopover } from '../feedback-popover';
-import { useDarkMode } from '../../hooks/use-theme';
+import {
+  Button,
+  Disclaimer,
+  FeedbackPopover,
+  Icon,
+  css,
+  cx,
+  keyframes,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 const suggestionActionButtonStyles = css({
   flexShrink: 0,

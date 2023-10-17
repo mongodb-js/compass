@@ -41,6 +41,12 @@ const INDEX_DEFINITION = JSON.stringify({
   },
 });
 
+// The current timeout (2mins) is not enough for the search indexes to be created
+// and be queryable on Atlas. So we are increasing the timeout to 4mins.
+// This can not be more than mocha timeout.
+const WAIT_TIMEOUT = 240_000;
+const MOCHA_TIMEOUT = 360_000;
+
 function getRandomNumber() {
   return Math.floor(Math.random() * 2 ** 20);
 }
@@ -113,8 +119,9 @@ async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
   await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
   await modal.waitForDisplayed({ reverse: true });
 
-  await browser.waitUntil(async () => {
-    return await indexRow.waitForExist({ reverse: true });
+  await indexRow.waitForExist({
+    reverse: true,
+    timeout: WAIT_TIMEOUT,
   });
 }
 
@@ -125,7 +132,7 @@ async function verifyIndexDetails(
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
   const indexRow = await browser.$(indexRowSelector);
-  await indexRow.waitForDisplayed();
+  await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
 
@@ -228,6 +235,8 @@ describe('Search Indexes', function () {
 
   for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
+      // Set the mocha timeout to 6mins to accomodate the 4mins wait timeout
+      this.timeout(MOCHA_TIMEOUT);
       before(function () {
         if (!connectionString) {
           return this.skip();
@@ -303,7 +312,7 @@ describe('Search Indexes', function () {
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
         const indexRow = await browser.$(indexRowSelector);
-        await indexRow.waitForDisplayed();
+        await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
 
         await browser.hover(indexRowSelector);
 

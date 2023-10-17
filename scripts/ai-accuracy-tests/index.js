@@ -1,8 +1,17 @@
 'use strict';
-// To run these tests locally:
+// To run these tests against cloud-dev:
 // > ATLAS_PUBLIC_KEY="..." \
 //   ATLAS_PRIVATE_KEY="..." \
 //   AI_TESTS_ATTEMPTS_PER_TEST=100 \
+//     node scripts/ai-accuracy-tests/index.js
+
+// To run these tests with local mms:
+// First create an API key in your Atlas organization with
+// the permissions "Organization Member".
+// Then using that key run:
+// > ATLAS_PUBLIC_KEY="..." \
+//   ATLAS_PRIVATE_KEY="..." \
+//   AI_TESTS_BACKEND=atlas-local \
 //     node scripts/ai-accuracy-tests/index.js
 
 const { MongoCluster } = require('mongodb-runner');
@@ -32,12 +41,12 @@ const USE_SAMPLE_DOCS = process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
 const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
 
-if (!['atlas-dev', 'compass'].includes(BACKEND)) {
+if (!['atlas-dev', 'atlas-local', 'compass'].includes(BACKEND)) {
   throw new Error('Unknown backend');
 }
 
 const fetch = (() => {
-  if (BACKEND === 'atlas-dev') {
+  if (BACKEND === 'atlas-dev' || BACKEND === 'atlas-local') {
     const ATLAS_PUBLIC_KEY = process.env.ATLAS_PUBLIC_KEY;
     const ATLAS_PRIVATE_KEY = process.env.ATLAS_PRIVATE_KEY;
 
@@ -59,6 +68,8 @@ const backendBaseUrl =
   process.env.AI_TESTS_BACKEND_URL ||
   (BACKEND === 'atlas-dev'
     ? 'https://cloud-dev.mongodb.com/api/private'
+    : BACKEND === 'atlas-local'
+    ? 'http://localhost:8080/api/private'
     : 'http://localhost:8080');
 
 let httpErrors = 0;

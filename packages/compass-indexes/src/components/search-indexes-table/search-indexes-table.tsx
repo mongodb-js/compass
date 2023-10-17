@@ -202,10 +202,16 @@ export const SearchIndexesTable: React.FunctionComponent<
       fields: [
         {
           'data-testid': 'name-field',
+          className: css({
+            width: '30%',
+          }),
           children: index.name,
         },
         {
           'data-testid': 'status-field',
+          className: css({
+            width: '20%',
+          }),
           children: (
             <IndexStatus
               status={index.status}

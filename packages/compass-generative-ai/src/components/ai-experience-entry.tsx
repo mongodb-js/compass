@@ -1,7 +1,12 @@
 import React from 'react';
-import { palette } from '@leafygreen-ui/palette';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
+import {
+  css,
+  cx,
+  focusRing,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 import {
   AIEntrySVG,
@@ -10,8 +15,6 @@ import {
   aiEntrySVGLightModeStyles,
   aiEntrySVGStyles,
 } from './ai-entry-svg';
-import { focusRing } from '../../hooks/use-focus-ring';
-import { useDarkMode } from '../../hooks/use-theme';
 
 const aiEntryStyles = css(
   {

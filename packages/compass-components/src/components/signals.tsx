@@ -46,7 +46,16 @@ const SIGNALS = [
       'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
   },
   {
-    id: 'atlas-text-regex-usage-in-stage',
+    id: 'atlas-with-search-text-regex-usage-in-stage',
+    title: 'Alternate text search options available',
+    description:
+      "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+    primaryActionButtonLabel: 'Create Search Index',
+  },
+  {
+    id: 'atlas-without-search-text-regex-usage-in-stage',
     title: 'Alternate text search options available',
     description:
       "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
@@ -87,6 +96,14 @@ const SIGNALS = [
       'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
     primaryActionButtonLabel: 'Create index',
     primaryActionButtonIcon: 'Plus',
+  },
+  {
+    id: 'atlas-text-regex-usage-in-query',
+    title: 'Alternate text search options available',
+    description:
+      "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+    learnMoreLink: 'https://www.mongodb.com/cloud/atlas/lp/search-1',
+    primaryActionButtonLabel: 'Create Search index',
   },
   {
     id: 'bloated-document',

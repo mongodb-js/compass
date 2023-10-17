@@ -175,6 +175,7 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         actions: actions,
+        isSearchIndexesSupported: true,
       });
     });
 
@@ -205,6 +206,7 @@ describe('store', function () {
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
+        isSearchIndexesSupported: true,
         isTimeSeries: false,
         isWritable: false,
         ns: '',

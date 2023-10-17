@@ -47,9 +47,10 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Manage your MongoDB connections and connect in Compass
 - [**@mongodb-js/compass-databases-navigation**](packages/compass-databases-navigation): Databases and collections sidebar navigation tree
 - [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters
+- [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Shared components and helpers for the generative ai aspects of Compass
 - [**@mongodb-js/compass-logging**](packages/compass-logging): Shared helpers for logging in Compass packages
 - [**@mongodb-js/compass-maybe-protect-connection-string**](packages/compass-maybe-protect-connection-string): Utility for protecting connection strings if requested
-- [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for compass
+- [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for Compass
 - [**@mongodb-js/compass-utils**](packages/compass-utils): Utilities for MongoDB Compass Development
 - [**@mongodb-js/compass-welcome**](packages/compass-welcome): The welcome modal
 - [**@mongodb-js/connection-form**](packages/connection-form): A form for specifying information needed to connect to a MongoDB instance

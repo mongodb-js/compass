@@ -322,6 +322,7 @@ type CrudStoreOptions = {
   isTimeSeries: boolean;
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
+  isSearchIndexesSupported: boolean;
 };
 
 export type InsertCSFLEState = {
@@ -355,7 +356,7 @@ export type TableState = {
   };
 };
 
-type QueryState = {
+export type QueryState = {
   filter: BSONObject;
   sort: null | BSONObject;
   limit: number;
@@ -394,6 +395,7 @@ type CrudState = {
   instanceDescription: string;
   fields: string[];
   isCollectionScan?: boolean;
+  isSearchIndexesSupported: boolean;
 };
 
 class CrudStoreImpl
@@ -452,6 +454,7 @@ class CrudStoreImpl
       instanceDescription: '',
       fields: [],
       isCollectionScan: false,
+      isSearchIndexesSupported: false,
     };
   }
 
@@ -521,6 +524,13 @@ class CrudStoreImpl
    */
   onReadonlyChanged(isReadonly: boolean) {
     this.setState({ isReadonly });
+  }
+
+  /**
+   * Set if the connection supports search index management.
+   */
+  setIsSearchIndexesSupported(isSearchIndexesSupported: boolean) {
+    this.setState({ isSearchIndexesSupported });
   }
 
   /**
@@ -1570,6 +1580,10 @@ class CrudStoreImpl
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal');
   }
+
+  openCreateSearchIndexModal() {
+    this.localAppRegistry.emit('open-create-search-index-modal');
+  }
 }
 
 export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
@@ -1659,6 +1673,8 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       void store.refreshDocuments();
     }
   }
+
+  store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
 
   const gridStore = configureGridStore(options);
   store.gridStore = gridStore;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -11,7 +11,6 @@ import {
   IconButton,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import type { Signal } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -22,6 +21,8 @@ import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model';
+import type { ServerEnvironment } from '../../modules/env';
+import { createSearchIndex } from '../../modules/search-indexes';
 
 const toolbarStyles = css({
   width: '100%',
@@ -92,13 +93,12 @@ const rightStyles = css({
 
 type StageToolbarProps = {
   index: number;
-  idxInPipeline: number;
-  isAutoPreviewing?: boolean;
-  hasSyntaxError?: boolean;
-  hasServerError?: boolean;
-  isCollapsed?: boolean;
-  isDisabled?: boolean;
-  insight?: Signal;
+
+  stage: StoreStage;
+  env: ServerEnvironment;
+  isSearchIndexesSupported: boolean;
+  onCreateSearchIndex: () => void;
+
   onOpenFocusMode: (index: number) => void;
   onStageOperatorChange?: (
     index: number,
@@ -113,17 +113,26 @@ const COLLAPSED_TEXT =
 
 export function StageToolbar({
   index,
-  idxInPipeline,
-  hasSyntaxError,
-  hasServerError,
-  isCollapsed,
-  isDisabled,
-  insight,
+  stage,
+  env,
+  isSearchIndexesSupported,
+  onCreateSearchIndex,
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
   const showInsights = usePreference('showInsights', React);
   const darkMode = useDarkMode();
+
+  const insight = useMemo(
+    () =>
+      getInsightForStage(
+        stage,
+        env,
+        isSearchIndexesSupported,
+        onCreateSearchIndex
+      ),
+    [stage, env, isSearchIndexesSupported, onCreateSearchIndex]
+  );
 
   return (
     <div
@@ -131,22 +140,26 @@ export function StageToolbar({
         'stage-editor-toolbar',
         toolbarStyles,
         darkMode ? toolbarStylesDark : toolbarStylesLight,
-        hasSyntaxError && toolbarWarningStyles,
-        hasServerError && toolbarErrorStyles,
-        isCollapsed && collapsedToolbarStyles
+        hasSyntaxError(stage) && toolbarWarningStyles,
+        !!stage.serverError && toolbarErrorStyles,
+        stage.collapsed && collapsedToolbarStyles
       )}
     >
       <div className={leftStyles}>
         <div className={shortSpacedStyles}>
           <StageCollapser index={index} />
-          <Body weight="medium">Stage {idxInPipeline + 1}</Body>
+          <Body weight="medium">Stage {stage.idxInPipeline + 1}</Body>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
         {showInsights && insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
-        {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
+        {stage.disabled
+          ? DISABLED_TEXT
+          : stage.collapsed
+          ? COLLAPSED_TEXT
+          : null}
       </div>
       <div className={rightStyles}>
         <IconButton
@@ -173,19 +186,17 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
+      searchIndexes: { isSearchIndexesSupported },
     } = state;
     const stage = stages[ownProps.index] as StoreStage;
     return {
-      idxInPipeline: stage.idxInPipeline,
-      isAutoPreviewing: !!state.autoPreview,
-      hasSyntaxError: hasSyntaxError(stage),
-      hasServerError: !!stage.serverError,
-      isCollapsed: stage.collapsed,
-      isDisabled: stage.disabled,
-      insight: getInsightForStage(stage, env),
+      stage,
+      env,
+      isSearchIndexesSupported,
     };
   },
   {
     onOpenFocusMode: enableFocusMode,
+    onCreateSearchIndex: createSearchIndex,
   }
 )(StageToolbar);
