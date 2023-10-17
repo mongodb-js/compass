@@ -4,38 +4,37 @@ import { ErrorSummary, css, spacing } from '@mongodb-js/compass-components';
 
 const errorContainerStyles = css({
   padding: spacing[2],
-  position: 'relative'
+  position: 'relative',
 });
 
 /**
  * Represents the component that renders DB Errors.
  */
-function DBErrorComponent({
-  store
-}: {
-  store: Store 
-}) {
+function DBErrorComponent({ store }: { store: Store }) {
   const [data, setData] = useState([]);
 
-  const onRefresh = useCallback((data) => {
-    setData(data);
-  }, [setData]);
+  const onRefresh = useCallback(
+    (data) => {
+      setData(data);
+    },
+    [setData]
+  );
 
   const errors = useMemo(() => {
     return !data || data.length < 1
       ? []
-      : data.map((row) => {
+      : (data as any[]).map((row) => {
           return `Command "${row.ops}" returned error "${row.errorMsg}"`;
         });
   }, [data]);
 
   useEffect(() => {
-    const unsubscribeRefresh = store.listen(onRefresh);
+    const unsubscribeRefresh = store.listen(onRefresh, store);
 
     return () => {
       unsubscribeRefresh();
     };
-  }, [onRefresh]);
+  }, [store, onRefresh]);
 
   if (!data || data.length < 1) {
     return null;

@@ -243,15 +243,15 @@ export const runAIPipelineGeneration = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err) {
+    } catch (err: any) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
       trackAndLogFailed({
         editor_view_type,
-        statusCode: (err as AtlasServiceError).statusCode,
-        errorCode: (err as AtlasServiceError).errorCode,
+        statusCode: (err as AtlasServiceError).statusCode || err?.code,
+        errorCode: (err as AtlasServiceError).errorCode || err?.name,
         errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
       });

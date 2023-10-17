@@ -44,7 +44,7 @@ describe('Collection ai query', function () {
 
     telemetry = await startTelemetryServer();
     compass = await beforeTests({
-      extraSpawnArgs: ['--enableAIExperience'],
+      extraSpawnArgs: ['--enableGenAIExperience'],
     });
     browser = compass.browser;
   });
@@ -159,7 +159,7 @@ describe('Collection ai query', function () {
       );
       await errorBanner.waitForDisplayed();
       expect(await errorBanner.getText()).to.equal(
-        'Something went wrong, please try again later. If the error persists, contact our support team.'
+        'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'
       );
     });
   });

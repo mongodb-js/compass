@@ -10,6 +10,7 @@ import {
   showUpdateModal,
   closeUpdateModal,
   updateIndex,
+  runAggregateSearchIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -19,6 +20,7 @@ import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
 import * as searchIndexesSlice from './search-indexes';
+import { writeStateChanged } from './is-writable';
 
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
@@ -59,6 +61,18 @@ describe('search-indexes module', function () {
       store.dispatch(readonlyViewChanged(true));
 
       expect(store.getState().isReadonlyView).to.equal(true);
+      expect(getSearchIndexesStub.callCount).to.equal(0);
+
+      store.dispatch(fetchSearchIndexes);
+
+      expect(getSearchIndexesStub.callCount).to.equal(0);
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+    });
+
+    it('does nothing if isWritable is false (offline mode)', function () {
+      store.dispatch(writeStateChanged(false));
+
+      expect(store.getState().isWritable).to.equal(false);
       expect(getSearchIndexesStub.callCount).to.equal(0);
 
       store.dispatch(fetchSearchIndexes);
@@ -214,6 +228,11 @@ describe('search-indexes module', function () {
       ).to.be.false;
       expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
     });
+
+    it('opens the search index view when an index is created', async function () {
+      await store.dispatch(createIndex('indexName', {}));
+      expect(store.getState().indexView).to.eq('search-indexes');
+    });
   });
 
   context('update search index', function () {
@@ -295,5 +314,33 @@ describe('search-indexes module', function () {
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
     });
+  });
+
+  it('runs aggreate for a search index', async function () {
+    const emitSpy = sinon.spy();
+    const store = setupStore(
+      {
+        isSearchIndexesSupported: true,
+        globalAppRegistry: {
+          on: sinon.spy(),
+          getStore: sinon.spy(),
+          emit: emitSpy,
+        } as any,
+      },
+      {
+        isConnected: () => true,
+        getSearchIndexes: () => Promise.resolve(searchIndexes),
+      }
+    );
+
+    await store.dispatch(fetchSearchIndexes());
+
+    store.dispatch(runAggregateSearchIndex('default'));
+
+    expect(emitSpy.callCount).to.deep.equal(1);
+    const callArgs = emitSpy.firstCall.args;
+    expect(callArgs[0]).to.equal('search-indexes-run-aggregate');
+    expect(callArgs[1]).to.have.property('ns');
+    expect(callArgs[1]).to.have.property('pipelineText');
   });
 });

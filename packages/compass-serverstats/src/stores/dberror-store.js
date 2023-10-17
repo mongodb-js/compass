@@ -4,16 +4,19 @@ const translate = require('mongodb-js-errors').translate;
 const { isEqual } = require('lodash');
 
 const DBErrorStore = Reflux.createStore({
-
-  init: function() {
+  init: function () {
     this.restart();
     this.listenTo(Actions.dbError, this.dbError);
     this.listenTo(Actions.restart, this.restart);
   },
 
-  restart: function() {
-    this.ops = {top: null, currentOp: null, serverStatus: null};
-    this.srcName = {top: 'Hottest Collections', currentOp: 'Slowest Operations', serverStatus: 'Stats Charts'};
+  restart: function () {
+    this.ops = { top: null, currentOp: null, serverStatus: null };
+    this.srcName = {
+      top: 'Hottest Collections',
+      currentOp: 'Slowest Operations',
+      serverStatus: 'Stats Charts',
+    };
   },
 
   /**
@@ -31,16 +34,17 @@ const DBErrorStore = Reflux.createStore({
     return error;
   },
 
-  publish: function() {
+  publish: function () {
     const msg = [];
-    for (let key in this.ops) { // eslint-disable-line prefer-const
-      if (this.ops.hasOwnProperty( key ) ) {
+    for (let key in this.ops) {
+      // eslint-disable-line prefer-const
+      if (Object.prototype.hasOwnProperty.call(this.ops, key)) {
         if (this.ops[key] !== null) {
           msg.push({
             errorMsg: this._translateMessage(this.ops[key]).message,
             ops: key,
             type: this.ops[key].name,
-            srcName: this.srcName[key]
+            srcName: this.srcName[key],
           });
         }
       }
@@ -48,7 +52,7 @@ const DBErrorStore = Reflux.createStore({
     this.trigger(msg);
   },
 
-  dbError: function(data) {
+  dbError: function (data) {
     // Remove previous error
     if (this.ops[data.op] !== null && data.error === null) {
       this.ops[data.op] = data.error;
@@ -59,8 +63,7 @@ const DBErrorStore = Reflux.createStore({
       this.ops[data.op] = data.error;
       this.publish();
     }
-  }
-
+  },
 });
 
 module.exports = DBErrorStore;

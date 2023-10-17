@@ -1,11 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import {
-  AIExperienceEntry,
   Button,
   Icon,
   MoreOptionsToggle,
   css,
-  createAIPlaceholderHTMLPlaceholder,
   cx,
   spacing,
   palette,
@@ -14,6 +12,10 @@ import {
   Link,
   GuideCue,
 } from '@mongodb-js/compass-components';
+import {
+  AIExperienceEntry,
+  createAIPlaceholderHTMLPlaceholder,
+} from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
 import {
   usePreference,

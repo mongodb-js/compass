@@ -61,4 +61,9 @@ if (
     // error here
     app.setPath('userCache', path.join(app.getPath('cache'), app.getName()));
   }
+
+  app.setPath(
+    'crashDumps',
+    path.join(app.getPath('userData'), 'CrashReporter')
+  );
 }

@@ -17,10 +17,15 @@ describe('UsageField', function () {
       expect(screen.getByText(renderedText)).to.exist;
     });
 
-    it('renders zero when usage is not defined', function () {
-      render(<UsageField usage={0} />);
+    it('renders usage unavailable when usage is not defined', function () {
+      render(<UsageField />);
+      const renderedText = 'Usage data unavailable';
+      expect(screen.getByText(renderedText)).to.exist;
+    });
 
-      const renderedText = `0`;
+    it('renders zero when usage is zero', function () {
+      render(<UsageField usage={0} />);
+      const renderedText = '0';
       expect(screen.getByText(renderedText)).to.exist;
     });
 
@@ -36,6 +41,9 @@ describe('UsageField', function () {
       expect(getUsageTooltip()).to.equal(
         'Either the server does not support the $indexStats command' +
           ' or the user is not authorized to execute it.'
+      );
+      expect(getUsageTooltip(0)).to.equal(
+        '0 index hits since index creation or last server restart'
       );
       expect(getUsageTooltip(30)).to.equal(
         '30 index hits since index creation or last server restart'

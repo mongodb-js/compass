@@ -1,16 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { css, spacing } from '@mongodb-js/compass-components';
 
-import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
-import {
-  showCreateModal as openAtlasSearchModalForCreation,
-  refreshSearchIndexes,
-} from '../../modules/search-indexes';
+import { refreshSearchIndexes } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
@@ -20,6 +16,7 @@ import {
   CreateSearchIndexModal,
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
+import type { IndexView } from '../../modules/index-view';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -40,9 +37,9 @@ type IndexesProps = {
     'indexes' | 'error' | 'isRefreshing'
   >;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
+  currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
-  onClickCreateAtlasSearchIndex: () => void;
 };
 
 function isRefreshingStatus(status: SearchIndexesStatus) {
@@ -56,13 +53,10 @@ export function Indexes({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  currentIndexesView,
   refreshRegularIndexes,
   refreshSearchIndexes,
-  onClickCreateAtlasSearchIndex,
 }: IndexesProps) {
-  const [currentIndexesView, setCurrentIndexesView] =
-    useState<IndexView>('regular-indexes');
-
   const errorMessage =
     currentIndexesView === 'regular-indexes'
       ? regularIndexes.error
@@ -90,14 +84,6 @@ export function Indexes({
     }
   }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
 
-  const changeIndexView = useCallback(
-    (view: IndexView) => {
-      setCurrentIndexesView(view);
-      loadIndexes();
-    },
-    [loadIndexes]
-  );
-
   useEffect(() => {
     loadIndexes();
   }, [loadIndexes]);
@@ -109,8 +95,6 @@ export function Indexes({
         hasTooManyIndexes={hasTooManyIndexes}
         isRefreshing={isRefreshing}
         onRefreshIndexes={onRefreshIndexes}
-        onChangeIndexView={changeIndexView}
-        onClickCreateAtlasSearchIndex={onClickCreateAtlasSearchIndex}
       />
       {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
         <RegularIndexesTable />
@@ -128,16 +112,17 @@ const mapState = ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  indexView,
 }: RootState) => ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  currentIndexesView: indexView,
 });
 
 const mapDispatch = {
   refreshRegularIndexes,
   refreshSearchIndexes,
-  onClickCreateAtlasSearchIndex: openAtlasSearchModalForCreation,
 };
 
 export default connect(mapState, mapDispatch)(Indexes);

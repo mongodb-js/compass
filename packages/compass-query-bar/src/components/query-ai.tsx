@@ -1,5 +1,6 @@
 import React from 'react';
-import { GenerativeAIInput } from '@mongodb-js/compass-components';
+import { openToast } from '@mongodb-js/compass-components';
+import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model';
@@ -23,6 +24,12 @@ const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
     feedback,
     text,
   }));
+
+  openToast('query-ai-feedback-submitted', {
+    variant: 'success',
+    title: 'Your feedback has been submitted.',
+    timeout: 10_000,
+  });
 };
 
 type QueryAIProps = Omit<

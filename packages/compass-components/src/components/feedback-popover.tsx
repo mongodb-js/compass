@@ -54,6 +54,7 @@ export const FeedbackPopover = ({
         return;
       }
 
+      onSubmitFeedback('');
       setOpen(false);
     };
 
@@ -70,6 +71,7 @@ export const FeedbackPopover = ({
         onSubmitFeedback(feedbackText);
       } else if (evt.key === 'Escape') {
         evt.preventDefault();
+        onSubmitFeedback('');
         setOpen(false);
       }
     },

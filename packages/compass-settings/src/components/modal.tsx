@@ -19,6 +19,7 @@ import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model';
 
 type Settings = {
   name: string;
@@ -62,6 +63,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
+  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
   const onMountRef = useRef(onMount);
 
   useEffect(() => {
@@ -74,7 +76,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { name: 'Privacy', component: PrivacySettings },
   ];
 
-  if (isOIDCEnabled) {
+  if (
+    isOIDCEnabled ||
+    // because oidc options overlap with atlas login used for ai feature
+    aiFeatureEnabled
+  ) {
     settings.push({
       name: 'OIDC (Preview)',
       component: OIDCSettings,

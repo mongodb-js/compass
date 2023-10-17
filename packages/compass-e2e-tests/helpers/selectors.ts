@@ -950,6 +950,10 @@ export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
 export const searchIndexExpandButton = (name: string) =>
   `${searchIndexRow(name)} button:first-child`;
+export const searchIndexAggregateButton = (name: string) =>
+  `${searchIndexRow(
+    name
+  )} [data-testid="search-index-actions-aggregate-action"]`;
 export const searchIndexDropButton = (name: string) =>
   `${searchIndexRow(name)} [data-testid="search-index-actions-drop-action"]`;
 export const searchIndexEditButton = (name: string) =>
@@ -1170,3 +1174,12 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 // Insights
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
+
+// Atlas login
+export const LogInWithAtlasButton = 'button=Log in with Atlas';
+export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
+export const DisconnectAtlasAccountButton = 'button=Disconnect';
+export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
+export const AtlasLoginErrorToast = '#atlas-sign-in-error';
+export const AcceptTOSToggle = 'button#use-ai-toggle';
+export const AgreeAndContinueButton = 'button=Agree and continue';

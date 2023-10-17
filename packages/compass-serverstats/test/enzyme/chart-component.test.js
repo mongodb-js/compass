@@ -7,22 +7,19 @@ const { mount } = require('enzyme');
 const ChartComponent = require('../../src/components/chart-component');
 const OpCountersStore = require('../../src/stores/opcounters-store');
 
-describe('<ChartComponent />', () => {
-  context('when rendering the chart component', () => {
+describe('<ChartComponent />', function () {
+  context('when rendering the chart component', function () {
     let component = null;
 
-    beforeEach(() => {
+    beforeEach(function () {
       const dispatcher = d3.dispatch('mouseover');
       component = mount(
-        <ChartComponent
-          store={OpCountersStore}
-          dispatcher={dispatcher}
-        />
+        <ChartComponent store={OpCountersStore} dispatcher={dispatcher} />
       );
     });
 
-    it('checks redraw() of the component', () => {
-      component.setState({data: {localTime: [], xLength: 1}});
+    it('checks redraw() of the component', function () {
+      component.setState({ data: { localTime: [], xLength: 1 } });
       expect(component).to.exist;
     });
   });

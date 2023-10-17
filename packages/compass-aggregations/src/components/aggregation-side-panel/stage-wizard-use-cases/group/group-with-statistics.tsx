@@ -8,10 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { sortBy } from 'lodash';
-import { ACCUMULATORS as MDB_ACCUMULATORS } from '@mongodb-js/mongodb-constants';
+import type { ACCUMULATORS, Completion } from '@mongodb-js/mongodb-constants';
+import { getFilteredCompletions } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import semver from 'semver';
 import {
   getNextId,
   mapFieldToPropertyName,
@@ -21,52 +20,27 @@ import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
-type StatisticAccumulator = {
-  label: string;
-  value: typeof MDB_ACCUMULATORS[number]['value'];
-};
-type Accumulator = StatisticAccumulator & {
-  version: string;
-};
+type Accumulator = typeof ACCUMULATORS[number];
 
-const STATISTIC_ACCUMULATORS: StatisticAccumulator[] = [
-  {
-    label: 'Average',
-    value: '$avg',
-  },
-  {
-    label: 'Minimum',
-    value: '$min',
-  },
-  {
-    label: 'Standard Deviation',
-    value: '$stdDevPop',
-  },
-  {
-    label: 'Count',
-    value: '$count',
-  },
-  {
-    label: 'Maximum',
-    value: '$max',
-  },
-  {
-    label: 'Sum',
-    value: '$sum',
-  },
-];
-const ACCUMULATORS = sortBy(STATISTIC_ACCUMULATORS, 'label')
-  .map((acc) => {
-    const source = MDB_ACCUMULATORS.find((x) => x.value === acc.value);
-    if (source) {
-      return {
-        ...acc,
-        version: source.version,
-      };
-    }
-    return false;
-  })
-  .filter(Boolean) as Accumulator[];
+const ACCUMULATOR_LABELS = {
+  $avg: 'Average',
+  $min: 'Minimum',
+  $stdDevPop: 'Standard Deviation',
+  $count: 'Count',
+  $max: 'Maximum',
+  $sum: 'Sum',
+} as const;
+
+const SUPPORTED_ACCUMULATORS = Object.keys(ACCUMULATOR_LABELS);
+
+type SupportedAccumulator = Extract<
+  Accumulator,
+  { value: keyof typeof ACCUMULATOR_LABELS }
+>;
+
+function isSupportedAccumulator(c: Completion): c is SupportedAccumulator {
+  return SUPPORTED_ACCUMULATORS.includes(c.value);
+}
 
 const containerStyles = css({
   display: 'flex',
@@ -87,10 +61,14 @@ const groupLabelStyles = css({
   textAlign: 'right',
 });
 
+const LONGEST_ACCUMULATOR_LABEL = Math.max(
+  ...Object.values(ACCUMULATOR_LABELS).map((label) => {
+    return label.length;
+  })
+);
+
 const selectStyles = css({
-  width: `${String(
-    Math.max(...ACCUMULATORS.map(({ label }) => label.length))
-  )}ch`,
+  width: `${String(LONGEST_ACCUMULATOR_LABEL)}ch`,
 });
 const accumulatorFieldcomboboxStyles = css({ width: '300px' });
 const groupFieldscomboboxStyles = css({ width: '100%' });
@@ -181,10 +159,18 @@ const GroupAccumulatorForm = ({
     onChange(newData);
   };
 
-  const accumulators = useMemo(
-    () => ACCUMULATORS.filter((x) => semver.gte(serverVersion, x.version)),
-    [serverVersion]
-  );
+  const accumulators = useMemo(() => {
+    return getFilteredCompletions({
+      serverVersion,
+      meta: ['accumulator'],
+    })
+      .filter(isSupportedAccumulator)
+      .sort((a, b) => {
+        return ACCUMULATOR_LABELS[a.value].localeCompare(
+          ACCUMULATOR_LABELS[b.value]
+        );
+      });
+  }, [serverVersion]);
 
   return (
     <div className={containerStyles}>
@@ -209,10 +195,10 @@ const GroupAccumulatorForm = ({
                   onChangeGroup(index, 'accumulator', value)
                 }
               >
-                {accumulators.map((x, i) => {
+                {accumulators.map((x) => {
                   return (
-                    <Option value={x.value} key={i}>
-                      {x.label}
+                    <Option value={x.value} key={x.value}>
+                      {ACCUMULATOR_LABELS[x.value]}
                     </Option>
                   );
                 })}

@@ -518,6 +518,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // root without this flag
     '--no-sandbox',
 
+    // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
+    '--atlasServiceBackendPreset=atlas-dev',
+
     // chomedriver options
     // TODO: cant get this to work
     //`--log-path=${chromedriverLogPath}`,
@@ -723,10 +726,12 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
     }
     // Double-checking that Compass app path exists, not only the metadata
     await fs.stat(metadata.appPath);
+    debug('Existing Compass found', metadata);
     return metadata;
-  } catch (e) {
+  } catch (e: any) {
+    debug('Existing Compass build not found', e);
     throw new Error(
-      "Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests"
+      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${e.message}`
     );
   }
 }

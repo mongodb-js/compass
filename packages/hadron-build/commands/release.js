@@ -190,9 +190,13 @@ const fixCompass5333 = (CONFIG, done) => {
  * @api public
  */
 const writeVersionFile = (CONFIG, done) => {
-  return CONFIG.write('version', CONFIG.version)
+  // This version will be used by electron-installer-common to determine which
+  // dependencies of electron to include.
+  const version = CONFIG.packagerOptions.electronVersion;
+
+  return CONFIG.write('version', version)
     .then(dest => {
-      cli.debug(format('version written to `%s`', dest));
+      cli.debug(format('version `%s` written to `%s`', version, dest));
       if (done) {
         done(null, true);
       }

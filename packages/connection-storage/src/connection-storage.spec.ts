@@ -5,7 +5,6 @@ import path from 'path';
 import os from 'os';
 import { UUID } from 'bson';
 import { sortBy } from 'lodash';
-import type { ZodError } from 'zod';
 
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
@@ -248,9 +247,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        const errors = (e as ZodError).errors;
-        const message = errors[0].message;
-        expect(message).to.be.equal('Invalid uuid');
+        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
       }
     });
 
@@ -265,9 +262,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        const errors = (e as ZodError).errors;
-        const message = errors[0].message;
-        expect(message).to.be.equal('Invalid uuid');
+        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
       }
     });
 
@@ -283,9 +278,10 @@ describe('ConnectionStorage', function () {
         });
         expect.fail('Expected connection string to be required.');
       } catch (e) {
-        const errors = (e as ZodError).errors;
-        const message = errors[0].message;
-        expect(message).to.be.equal('Connection string is required.');
+        expect(e).to.have.nested.property(
+          'errors[0].message',
+          'Connection string is required.'
+        );
       }
     });
 

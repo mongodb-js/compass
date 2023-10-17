@@ -1,4 +1,4 @@
-@import (reference) "mongodb-compass/src/app/styles/index.less";
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
 
 .rt {
   height: 100%;
@@ -44,7 +44,8 @@
   margin: 0;
   padding: 0;
 }
-.rt-lists__item, .rt-lists__empty-error {
+.rt-lists__item,
+.rt-lists__empty-error {
   position: relative;
   width: 100%;
   height: 46px;
@@ -78,13 +79,12 @@
 }
 
 /* LAYOUT */
-.rt-lists__header{
+.rt-lists__header {
   margin-top: -4px;
   display: flex;
   flex-direction: row;
   width: 100%;
   margin-bottom: 0;
-
 }
 
 .rt-details__header {
@@ -96,7 +96,8 @@
   margin-top: -12px;
 }
 
-.rt-lists__headerlabel, .rt-details__headerlabel {
+.rt-lists__headerlabel,
+.rt-details__headerlabel {
   color: @palette__white;
   text-transform: uppercase;
   font-size: 11px;
@@ -145,7 +146,8 @@
   font-size: 9px; /* R/W */
   color: @palette__white;
 }
-.rt-lists__r { /* R/W bar */
+.rt-lists__r {
+  /* R/W bar */
   height: 14px;
   width: 30%;
   background-color: @palette__gray--dark-1;

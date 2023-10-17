@@ -11,20 +11,35 @@ import SearchIndexActions from './search-index-actions';
 describe('SearchIndexActions Component', function () {
   let onDropSpy: SinonSpy;
   let onEditSpy: SinonSpy;
+  let onRunAggregateIndexSpy: SinonSpy;
 
   before(cleanup);
   afterEach(cleanup);
   beforeEach(function () {
     onDropSpy = spy();
     onEditSpy = spy();
+    onRunAggregateIndexSpy = spy();
 
     render(
       <SearchIndexActions
         index={{ name: 'artist_id_index' } as SearchIndex}
         onDropIndex={onDropSpy}
         onEditIndex={onEditSpy}
+        onRunAggregateIndex={onRunAggregateIndexSpy}
       />
     );
+  });
+
+  it('renders run aggregate button', function () {
+    const button = screen.getByTestId('search-index-actions-aggregate-action');
+
+    expect(button).to.exist;
+    expect(onRunAggregateIndexSpy.callCount).to.equal(0);
+    userEvent.click(button);
+    expect(onRunAggregateIndexSpy.callCount).to.equal(1);
+    expect(onRunAggregateIndexSpy.firstCall.args).to.deep.equal([
+      'artist_id_index',
+    ]);
   });
 
   it('renders drop button', function () {

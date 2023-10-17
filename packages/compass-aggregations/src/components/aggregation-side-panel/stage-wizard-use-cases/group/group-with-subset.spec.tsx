@@ -39,7 +39,7 @@ const SAMPLE_FIELDS: StageWizardFields = [
 ];
 
 const FORM_DATA: GroupWithSubsetFormData = {
-  accumulator: '',
+  accumulator: null,
   numberOfRecords: 0,
   groupFields: [],
   projectFields: [],
@@ -329,7 +329,7 @@ describe('group with subset', function () {
 
   context('mapGroupFormStateToStageValue', function () {
     const FORM_DATA: GroupWithSubsetFormData = {
-      accumulator: '',
+      accumulator: null,
       numberOfRecords: 0,
       groupFields: [],
       projectFields: [],
@@ -531,7 +531,7 @@ describe('group with subset', function () {
       expect(
         getValidationError({
           ...FORM_DATA,
-          accumulator: '',
+          accumulator: null,
         })?.message
       ).to.equal('Accumulator is required.');
     });

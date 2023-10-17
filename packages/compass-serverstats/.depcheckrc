@@ -1,6 +1,7 @@
-ignores: [
-  "mongodb-compass",
-  # webpack always externalizes 'clipboard' for legacy reasons
-  "clipboard",
-  "react-dom"
-]
+ignores:
+ - "@mongodb-js/prettier-config-compass"
+ - "@mongodb-js/tsconfig-compass"
+ - "mongodb-compass"
+ # webpack always externalizes 'clipboard' for legacy reasons
+ - "clipboard"
+ - "react-dom"

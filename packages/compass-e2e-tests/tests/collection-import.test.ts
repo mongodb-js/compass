@@ -1177,6 +1177,10 @@ describe('Collection import', function () {
       const importModal = await browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
 
+      // Wait for the import button to become available because detect can take
+      // a while
+      await browser.$(Selectors.ImportConfirm).waitForEnabled();
+
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
 

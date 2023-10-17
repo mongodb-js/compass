@@ -5,38 +5,36 @@ import {
   screen,
   fireEvent,
   within,
+  waitFor,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
 import type { Document } from 'mongodb';
 
-import { SearchIndexesTable } from './search-indexes-table';
+import { POLLING_INTERVAL, SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
 ) => {
-  const onSortTableSpy = sinon.spy();
-  const openCreateSpy = sinon.spy();
-
+  const noop = () => {};
   render(
     <SearchIndexesTable
       indexes={indexes}
       status="READY"
       isWritable={true}
       readOnly={false}
-      onSortTable={onSortTableSpy}
-      onDropIndex={() => {}}
-      onEditIndex={() => {}}
-      onPollIndexes={() => {}}
-      openCreateModal={openCreateSpy}
+      onSortTable={noop}
+      onDropIndex={noop}
+      onEditIndex={noop}
+      onPollIndexes={noop}
+      openCreateModal={noop}
+      onRunAggregateIndex={noop}
       {...props}
     />
   );
-
-  return { onSortTableSpy, openCreateSpy };
 };
 
 describe('SearchIndexesTable Component', function () {
@@ -114,8 +112,10 @@ describe('SearchIndexesTable Component', function () {
   }
 
   it('renders the zero state rather than the table if there are no indexes', function () {
-    const { openCreateSpy } = renderIndexList({
+    const openCreateSpy = sinon.spy();
+    renderIndexList({
       indexes: [],
+      openCreateModal: openCreateSpy,
     });
 
     expect(() => {
@@ -132,7 +132,10 @@ describe('SearchIndexesTable Component', function () {
 
   for (const column of ['Name and Fields', 'Status']) {
     it(`sorts table by ${column}`, function () {
-      const { onSortTableSpy } = renderIndexList();
+      const onSortTableSpy = sinon.spy();
+      renderIndexList({
+        onSortTable: onSortTableSpy,
+      });
 
       const indexesList = screen.getByTestId('search-indexes-list');
 
@@ -180,6 +183,20 @@ describe('SearchIndexesTable Component', function () {
       expect(editIndexActions.length).to.equal(indexes.length);
       editIndexActions[0].click();
       expect(onEditIndexSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('connectivity', function () {
+    it('does poll the index for changes in online mode', async function () {
+      const onPollIndexesSpy = sinon.spy();
+      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: true });
+
+      await waitFor(
+        () => {
+          expect(onPollIndexesSpy.callCount).to.be.greaterThanOrEqual(1);
+        },
+        { timeout: POLLING_INTERVAL * 2 }
+      );
     });
   });
 });

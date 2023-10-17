@@ -139,7 +139,10 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             </Button>
           )}
         </div>
-        <div className={atlasLoginHeaderDescriptionStyles}>
+        <div
+          className={atlasLoginHeaderDescriptionStyles}
+          data-testid="atlas-login-status"
+        >
           {isSignedIn ? (
             <>Logged in with Atlas account {userLogin}</>
           ) : (

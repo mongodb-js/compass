@@ -16,6 +16,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
 import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
+import { switchToSearchIndexes } from './index-view';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -359,10 +360,11 @@ export default function reducer(
     return {
       ...state,
       updateIndex: {
+        // We do not clear the indexName here to avoid flicker created by LG
+        // Modal as it closes.
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
-        indexName: '',
       },
     };
   }
@@ -450,8 +452,10 @@ export const createIndex = (
       title: `Your index ${indexName} is in progress.`,
       dismissible: true,
       timeout: 5000,
-      variant: 'success',
+      variant: 'progress',
     });
+
+    void dispatch(switchToSearchIndexes());
     void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
   };
 };
@@ -490,7 +494,7 @@ export const updateIndex = (
         title: `Your index ${indexName} is being updated.`,
         dismissible: true,
         timeout: 5000,
-        variant: 'success',
+        variant: 'progress',
       });
       void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
@@ -515,12 +519,13 @@ const fetchIndexes = (
   return async (dispatch, getState) => {
     const {
       isReadonlyView,
+      isWritable,
       dataService,
       namespace,
       searchIndexes: { sortColumn, sortOrder, status },
     } = getState();
 
-    if (isReadonlyView) {
+    if (isReadonlyView || !isWritable) {
       return;
     }
 
@@ -544,6 +549,12 @@ const fetchIndexes = (
       // previous list of indexes is shown to the user.
       if (newStatus === 'FETCHING') {
         dispatch(setError((err as Error).message));
+      } else {
+        // If fetch fails for refresh or polling, set the status to READY again.
+        dispatch({
+          type: ActionTypes.SetStatus,
+          status: SearchIndexesStatuses.READY,
+        });
       }
     }
   };
@@ -607,7 +618,7 @@ export const dropSearchIndex = (
       variant: 'danger',
       requiredInputText: name,
       description:
-        'If you drop default, all queries using it will no longer function',
+        'If you drop this index, all queries using it will no longer function.',
     });
     if (!isConfirmed) {
       return;
@@ -622,7 +633,7 @@ export const dropSearchIndex = (
         title: `Your index ${name} is being deleted.`,
         dismissible: true,
         timeout: 5000,
-        variant: 'success',
+        variant: 'progress',
       });
       void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
@@ -634,6 +645,35 @@ export const dropSearchIndex = (
         variant: 'warning',
       });
     }
+  };
+};
+
+export const runAggregateSearchIndex = (
+  name: string
+): IndexesThunkAction<void> => {
+  return function (_dispatch, getState, { globalAppRegistry }) {
+    const {
+      searchIndexes: { indexes },
+      namespace,
+    } = getState();
+    const searchIndex = indexes.find((x) => x.name === name);
+    if (!searchIndex) {
+      return;
+    }
+    globalAppRegistry?.emit('search-indexes-run-aggregate', {
+      ns: namespace,
+      pipelineText: JSON.stringify([
+        {
+          $search: {
+            index: name,
+            text: {
+              query: 'string',
+              path: 'string',
+            },
+          },
+        },
+      ]),
+    });
   };
 };
 

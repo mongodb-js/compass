@@ -41,7 +41,8 @@ import preferences from 'compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser } from 'compass-preferences-model';
+import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -91,11 +92,7 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (
-    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
-      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
-    !preferences.getPreferences().enableAIFeatures
-  ) {
+  if (!isAIFeatureEnabled()) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -172,8 +169,24 @@ export class AtlasService {
 
   private static config: AtlasServiceConfig;
 
-  private static openExternal(...args: Parameters<typeof shell.openExternal>) {
-    return shell?.openExternal(...args);
+  private static openExternal(url: string) {
+    const { browserCommandForOIDCAuth } = preferences.getPreferences();
+    if (browserCommandForOIDCAuth) {
+      // NB: While it's possible to pass `openBrowser.command` option directly
+      // to oidc-plugin properties, it's not possible to do dynamically. To
+      // avoid recreating oidc-plugin every time user changes
+      // `browserCommandForOIDCAuth` preference (which will cause loosing
+      // internal plugin auth state), we copy oidc-plugin `openBrowser.command`
+      // option handling to our openExternal method
+      const child = spawn(browserCommandForOIDCAuth, [url], {
+        shell: true,
+        stdio: 'ignore',
+        detached: true,
+      });
+      child.unref();
+      return child;
+    }
+    return shell.openExternal(url);
   }
 
   private static getAllowedAuthFlows(): AuthFlowType[] {
@@ -335,6 +348,10 @@ export class AtlasService {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
         try {
+          // We first request oauth token just so we can get a proper auth error
+          // from oidc-plugin. If we only run getUserInfo, the only thing users
+          // will see is "401 unauthorized" as the reason for sign in failure
+          await this.requestOAuthToken({ signal });
           const userInfo = await this.getUserInfo({ signal });
           log.info(
             mongoLogId(1_001_000_219),
@@ -495,6 +512,7 @@ export class AtlasService {
       ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });
@@ -521,16 +539,15 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const body = new URLSearchParams([
-      ['token', token ?? ''],
-      ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-    ]);
-
     const res = await this.fetch(url.toString(), {
       method: 'POST',
-      body,
+      body: new URLSearchParams([
+        ['token', token ?? ''],
+        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+      ]),
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       signal: signal as NodeFetchAbortSignal | undefined,
     });

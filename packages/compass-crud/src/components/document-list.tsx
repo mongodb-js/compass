@@ -33,8 +33,14 @@ import {
 } from '../constants/documents-statuses';
 
 import './index.less';
-import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
+import type {
+  CrudStore,
+  BSONObject,
+  DocumentView,
+  QueryState,
+} from '../stores/crud-store';
 import type Document from 'hadron-document';
+import { getToolbarSignal } from '../utils/toolbar-signal';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -81,6 +87,9 @@ export type DocumentListProps = {
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
   darkMode?: boolean;
+  isCollectionScan?: boolean;
+  isSearchIndexesSupported: boolean;
+  query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
   Omit<DocumentJsonViewProps, 'className'> &
@@ -116,8 +125,6 @@ export type DocumentListProps = {
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
-    | 'isCollectionScan'
-    | 'onCollectionScanInsightActionButtonClick'
   >;
 
 /**
@@ -347,9 +354,14 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
-              isCollectionScan={this.props.isCollectionScan}
-              onCollectionScanInsightActionButtonClick={this.props.store.openCreateIndexModal.bind(
-                this.props.store
+              insights={getToolbarSignal(
+                JSON.stringify(this.props.query.filter),
+                Boolean(this.props.isCollectionScan),
+                this.props.isSearchIndexesSupported,
+                this.props.store.openCreateIndexModal.bind(this.props.store),
+                this.props.store.openCreateSearchIndexModal.bind(
+                  this.props.store
+                )
               )}
               openBulkUpdateDialog={this.props.openBulkUpdateDialog}
             />
@@ -472,6 +484,9 @@ DocumentList.propTypes = {
   isWritable: PropTypes.bool,
   instanceDescription: PropTypes.string,
   darkMode: PropTypes.bool,
+  isCollectionScan: PropTypes.bool,
+  isSearchIndexesSupported: PropTypes.bool,
+  query: PropTypes.object,
 };
 
 DocumentList.defaultProps = {

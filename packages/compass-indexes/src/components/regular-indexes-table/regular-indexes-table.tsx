@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type AppRegistry from 'hadron-app-registry';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -16,7 +15,7 @@ import IndexActions from './index-actions';
 
 import {
   sortRegularIndexes,
-  dropFailedIndex,
+  dropIndex,
   hideIndex,
   unhideIndex,
 } from '../../modules/regular-indexes';
@@ -32,11 +31,10 @@ type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   serverVersion: string;
   isWritable?: boolean;
-  dropFailedIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
   onSortTable: (column: RegularSortColumn, direction: SortDirection) => void;
-  localAppRegistry: AppRegistry;
+  onDeleteIndex: (name: string) => void;
   readOnly?: boolean;
   error?: string | null;
 };
@@ -51,22 +49,14 @@ export const RegularIndexesTable: React.FunctionComponent<
   onHideIndex,
   onUnhideIndex,
   onSortTable,
+  onDeleteIndex,
   error,
-  localAppRegistry,
 }) => {
   if (error) {
     // We don't render the table if there is an error. The toolbar takes care of
     // displaying it.
     return null;
   }
-
-  const deleteIndex = (index: RegularIndex) => {
-    if (index.extra.status === 'failed') {
-      return dropFailedIndex(String(index.extra.id));
-    }
-
-    return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
-  };
 
   const canModifyIndex = isWritable && !readOnly;
 
@@ -118,7 +108,7 @@ export const RegularIndexesTable: React.FunctionComponent<
         <IndexActions
           index={index}
           serverVersion={serverVersion}
-          onDeleteIndex={deleteIndex}
+          onDeleteIndex={onDeleteIndex}
           onHideIndex={onHideIndex}
           onUnhideIndex={onUnhideIndex}
         ></IndexActions>
@@ -148,17 +138,15 @@ const mapState = ({
   serverVersion,
   regularIndexes,
   isWritable,
-  appRegistry,
 }: RootState) => ({
   isWritable,
   serverVersion,
   indexes: regularIndexes.indexes,
   error: regularIndexes.error,
-  localAppRegistry: (appRegistry as any).localAppRegistry,
 });
 
 const mapDispatch = {
-  dropFailedIndex,
+  onDeleteIndex: dropIndex,
   onHideIndex: hideIndex,
   onUnhideIndex: unhideIndex,
   onSortTable: sortRegularIndexes,

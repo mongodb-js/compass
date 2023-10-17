@@ -22,8 +22,7 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
-import { UserData } from '@mongodb-js/compass-user-data';
-import { z } from 'zod';
+import { UserData, z } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 

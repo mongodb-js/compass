@@ -21,6 +21,7 @@ import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
+import { range } from 'lodash';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -1144,7 +1145,7 @@ describe('DataService', function () {
           dataService.getSearchIndexes(testNamespace)
         ).to.be.rejectedWith(
           MongoServerError,
-          "Unrecognized pipeline stage name: '$listSearchIndexes'"
+          /Unrecognized pipeline stage name: '\$listSearchIndexes'"|\$listSearchIndexes stage is only allowed on MongoDB Atlas/
         );
       });
     });
@@ -1179,6 +1180,226 @@ describe('DataService', function () {
           MongoServerError,
           "no such command: 'dropSearchIndex'"
         );
+      });
+    });
+
+    describe('#previewUpdate', function () {
+      const namespace = 'test.previewUpdate';
+      const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
+      const replsetCluster = mochaTestServer({
+        topology: 'replset',
+        secondaries: 0,
+      });
+      let replDataService: DataService;
+
+      before(async function () {
+        const replSetOptions = {
+          connectionString: replsetCluster().connectionString,
+        };
+
+        replDataService = new DataServiceImpl(replSetOptions);
+        await replDataService.connect();
+        await replDataService.createIndex(
+          namespace,
+          { foo: 1 },
+          { unique: true }
+        );
+        await replDataService.insertOne(namespace, sampleDocument);
+
+        const dummyDocs = range(1, 100).map((idx) => ({
+          _id: { 'foo.bar': idx },
+          foo: `bar${idx}`,
+        }));
+        await replDataService.insertMany(namespace, dummyDocs);
+      });
+
+      after(async function () {
+        // eslint-disable-next-line no-console
+        await replDataService.disconnect().catch(console.log);
+      });
+
+      it('should return the preview of a changed document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        expect(changeset.changes).to.have.length(1);
+        expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after).to.deep.equal({
+          ...sampleDocument,
+          foo: 'baz',
+        });
+      });
+
+      it('supports expressive updates', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          [
+            {
+              $set: {
+                counter: 1,
+              },
+            },
+            {
+              $unset: ['foo'],
+            },
+          ]
+        );
+
+        expect(changeset.changes).to.have.length(1);
+        expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after).to.deep.equal({
+          _id: sampleDocument._id,
+          counter: 1,
+        });
+      });
+
+      it('should not modify the underlying document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const [document] = await replDataService.find(namespace, {
+          _id: sampleDocument._id,
+        });
+        expect(document).to.deep.equal(sampleDocument);
+      });
+
+      it('should fail when aborted by the controller', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const controller = new AbortController();
+        controller.abort();
+
+        await expect(
+          replDataService.previewUpdate(
+            namespace,
+            {
+              foo: 'bar',
+            },
+            {
+              $set: {
+                foo: 'baz',
+              },
+            },
+            {
+              abortSignal: controller.signal as unknown as AbortSignal,
+              sample: 10,
+              timeout: 1000,
+            }
+          )
+        ).to.eventually.be.rejectedWith(/This operation was aborted/);
+      });
+
+      it('should be limited to 10 documents even if more documents match', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const changeset = await replDataService.previewUpdate(
+          namespace,
+          {}, // update all documents
+          {
+            $set: {
+              count: 1,
+            },
+          }
+        );
+
+        expect(changeset.changes.length).to.equal(10);
+      });
+
+      it('should fail when the update breaks a unique index constraint', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await expect(
+          replDataService.previewUpdate(
+            namespace,
+            {}, // update all documents
+            {
+              $set: {
+                foo: 'baz', // to have the same value on a unique indexed field
+              },
+            }
+          )
+        ).to.be.eventually.rejectedWith(/E11000 duplicate key error/);
+      });
+
+      it('should not insert any new document', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'bar',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const count = await replDataService.count(namespace, {});
+        expect(count).to.equal(100); // 99 dummy documents + 1 testing doc
+      });
+
+      it('should not insert any new document if there is no match', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        await replDataService.previewUpdate(
+          namespace,
+          {
+            foo: 'whatever',
+          },
+          {
+            $set: {
+              foo: 'baz',
+            },
+          }
+        );
+
+        const count = await replDataService.count(namespace, {});
+        expect(count).to.equal(100);
       });
     });
   });

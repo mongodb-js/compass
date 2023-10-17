@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
+import type { Field } from '../../modules/fields';
 
 export const DEFAULT_INDEX_DEFINITION = `{
   mappings: {
@@ -15,13 +16,14 @@ type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
+  fields: Field[];
   onCreateIndex: (indexName: string, indexDefinition: Document) => void;
   onCloseModal: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, isBusy, error, onCreateIndex, onCloseModal }) => {
+> = ({ isModalOpen, isBusy, error, fields, onCreateIndex, onCloseModal }) => {
   return (
     <BaseSearchIndexModal
       mode={'create'}
@@ -30,6 +32,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
+      fields={fields}
       onSubmit={onCreateIndex}
       onClose={onCloseModal}
     />
@@ -40,10 +43,12 @@ const mapState = ({
   searchIndexes: {
     createIndex: { isBusy, isModalOpen, error },
   },
+  fields,
 }: RootState) => ({
   isModalOpen,
   isBusy,
   error,
+  fields,
 });
 
 const mapDispatch = {

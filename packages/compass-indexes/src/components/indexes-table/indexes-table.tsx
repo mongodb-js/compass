@@ -36,6 +36,11 @@ const indexActionsCellStyles = css({
   minWidth: spacing[5],
 });
 
+const indexActionsCellContainerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
 const tableHeaderStyles = css({
   borderWidth: 0,
   borderBottomWidth: 3,
@@ -78,6 +83,7 @@ type IndexInfo = {
     key?: string;
     'data-testid': string;
     children: React.ReactNode;
+    className?: string;
   }[];
   actions?: React.ReactNode;
   details?: React.ReactNode;
@@ -185,7 +191,7 @@ export function IndexesTable<Column extends string>({
                     <Cell
                       key={field.key ?? `${info.key}-${index}`}
                       data-testid={`${dataTestId}-${field['data-testid']}`}
-                      className={cellStyles}
+                      className={cx(cellStyles, field.className)}
                     >
                       {field.children}
                     </Cell>
@@ -195,7 +201,7 @@ export function IndexesTable<Column extends string>({
                 {canModifyIndex && (
                   <Cell
                     data-testid={`${dataTestId}-actions-field`}
-                    className={cellStyles}
+                    className={cx(cellStyles, indexActionsCellContainerStyles)}
                   >
                     {info.actions && (
                       <div

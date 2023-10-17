@@ -61,10 +61,30 @@ class ServerStatsComponent extends React.Component {
     const { eventDispatcher } = this.props;
     return (
       <div className="serverstats">
-        <ChartComponent width={520} height={145} store={OpCountersStore} dispatcher={eventDispatcher} />
-        <ChartComponent width={520} height={145} store={GlobalLockStore} dispatcher={eventDispatcher} />
-        <ChartComponent width={520} height={145} store={NetworkStore} dispatcher={eventDispatcher} />
-        <ChartComponent width={520} height={145} store={MemStore} dispatcher={eventDispatcher} />
+        <ChartComponent
+          width={520}
+          height={145}
+          store={OpCountersStore}
+          dispatcher={eventDispatcher}
+        />
+        <ChartComponent
+          width={520}
+          height={145}
+          store={GlobalLockStore}
+          dispatcher={eventDispatcher}
+        />
+        <ChartComponent
+          width={520}
+          height={145}
+          store={NetworkStore}
+          dispatcher={eventDispatcher}
+        />
+        <ChartComponent
+          width={520}
+          height={145}
+          store={MemStore}
+          dispatcher={eventDispatcher}
+        />
       </div>
     );
   }
@@ -72,9 +92,8 @@ class ServerStatsComponent extends React.Component {
 
 ServerStatsComponent.propTypes = {
   interval: PropTypes.number.isRequired,
-  eventDispatcher: PropTypes.object.isRequired
+  eventDispatcher: PropTypes.object.isRequired,
 };
-
 
 ServerStatsComponent.displayName = 'ServerStatsComponent';
 

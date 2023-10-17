@@ -8,9 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { ACCUMULATORS as MDB_ACCUMULATORS } from '@mongodb-js/mongodb-constants';
+import type { ACCUMULATORS, Completion } from '@mongodb-js/mongodb-constants';
+import { getFilteredCompletions } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import semver from 'semver';
 import {
   SORT_DIRECTION_OPTIONS,
   mapFieldsToAccumulatorValue,
@@ -21,70 +21,59 @@ import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
-type AccumulatorName = typeof MDB_ACCUMULATORS[number]['value'];
-type GroupAccumulator = {
-  label: string;
-  value: AccumulatorName;
-  version: string;
-};
-type SubsetAccumulator = GroupAccumulator & {
-  needsSortFields: boolean;
-  nOperator: GroupAccumulator;
-};
+type Accumulator = typeof ACCUMULATORS[number];
 
-const MDB_ACCUMULATORS_VERSION = Object.fromEntries(
-  MDB_ACCUMULATORS.map((x) => [x.value, x.version])
-) as Record<AccumulatorName, string>;
-
-const SUBSET_ACCUMULATORS = [
-  {
+const SUBSET_ACCUMULATORS = {
+  $first: {
     label: 'First',
-    value: '$first',
     needsSortFields: false,
-    nOperator: {
-      label: 'FirstN',
-      value: '$firstN',
-    },
+    nOperator: '$firstN',
+    order: 1,
   },
-  {
+  $last: {
     label: 'Last',
-    value: '$last',
     needsSortFields: false,
-    nOperator: {
-      label: 'LastN',
-      value: '$lastN',
-    },
+    nOperator: '$lastN',
+    order: 2,
   },
-  {
+  $top: {
     label: 'Top',
-    value: '$top',
     needsSortFields: true,
-    nOperator: {
-      label: 'TopN',
-      value: '$topN',
-    },
+    nOperator: '$topN',
+    order: 3,
   },
-  {
+  $bottom: {
     label: 'Bottom',
-    value: '$bottom',
     needsSortFields: true,
-    nOperator: {
-      label: 'BottomN',
-      value: '$bottomN',
-    },
+    nOperator: '$bottomN',
+    order: 4,
   },
-] as const;
+} as const;
 
-const ACCUMULATORS: SubsetAccumulator[] = SUBSET_ACCUMULATORS.map((acc) => {
-  return {
-    ...acc,
-    version: MDB_ACCUMULATORS_VERSION[acc.value],
-    nOperator: {
-      ...acc.nOperator,
-      version: MDB_ACCUMULATORS_VERSION[acc.nOperator.value],
-    },
-  };
-});
+const N_OPERATORS = Object.values(SUBSET_ACCUMULATORS).map(
+  (acc) => acc.nOperator
+);
+
+function isGroupNOperator(k: string): k is typeof N_OPERATORS[number] {
+  return N_OPERATORS.includes(k as any);
+}
+
+const SUPPORTED_ACCUMULATORS = Object.keys(SUBSET_ACCUMULATORS);
+
+type SupportedAccumulator = Extract<
+  Accumulator,
+  { value: keyof typeof SUBSET_ACCUMULATORS }
+>;
+
+function isSupportedAccumulator(c: Completion): c is SupportedAccumulator {
+  return SUPPORTED_ACCUMULATORS.includes(c.value);
+}
+
+function isSupportedAccumulatorKey(
+  k: string
+): k is keyof typeof SUBSET_ACCUMULATORS {
+  return SUPPORTED_ACCUMULATORS.includes(k);
+}
 
 const containerStyles = css({
   display: 'flex',
@@ -119,7 +108,7 @@ const groupFieldscomboboxStyles = css({ width: '300px' });
 export type GroupWithSubsetFormData = {
   groupFields: string[];
   projectFields: string[];
-  accumulator: string;
+  accumulator: keyof typeof SUBSET_ACCUMULATORS | null;
   numberOfRecords: number;
   sortFields: string[];
   sortDirection: SortDirection;
@@ -138,11 +127,11 @@ export const mapGroupFormStateToStageValue = (
     sortDirection,
   } = data;
 
-  const mainAccumulator = ACCUMULATORS.find((x) => x.value === accumulator);
-
-  if (!mainAccumulator) {
+  if (!accumulator) {
     return {};
   }
+
+  const accumulatorMeta = SUBSET_ACCUMULATORS[accumulator];
 
   const sortBy = mapSortDataToStageValue(
     sortFields.map((x) => ({
@@ -151,30 +140,26 @@ export const mapGroupFormStateToStageValue = (
     }))
   );
 
-  const keyName = mainAccumulator.needsSortFields ? 'output' : 'input';
+  const keyName = accumulatorMeta.needsSortFields ? 'output' : 'input';
 
   if (numberOfRecords > 1) {
     return {
       _id: mapFieldsToAccumulatorValue(data.groupFields),
       data: {
-        [mainAccumulator.nOperator.value]: {
+        [accumulatorMeta.nOperator]: {
           n: numberOfRecords,
           [keyName]: mapFieldsToAccumulatorValue(projectFields),
-          ...(mainAccumulator.needsSortFields
-            ? {
-                sortBy,
-              }
-            : {}),
+          ...(accumulatorMeta.needsSortFields ? { sortBy } : {}),
         },
       },
     };
   }
 
-  if (mainAccumulator.needsSortFields) {
+  if (accumulatorMeta.needsSortFields) {
     return {
       _id: mapFieldsToAccumulatorValue(data.groupFields),
       data: {
-        [mainAccumulator.value]: {
+        [accumulator]: {
           [keyName]: mapFieldsToAccumulatorValue(projectFields),
           sortBy,
         },
@@ -185,7 +170,7 @@ export const mapGroupFormStateToStageValue = (
   return {
     _id: mapFieldsToAccumulatorValue(groupFields),
     data: {
-      [mainAccumulator.value]: mapFieldsToAccumulatorValue(projectFields),
+      [accumulator]: mapFieldsToAccumulatorValue(projectFields),
     },
   };
 };
@@ -201,9 +186,9 @@ export const getValidationError = (data: GroupWithSubsetFormData) => {
   if (data.projectFields.length === 0) {
     return new Error('Accumulator fields are required.');
   }
-  const sortFieldsRequired = ACCUMULATORS.find(
-    (x) => x.value === data.accumulator && x.needsSortFields
-  );
+  const sortFieldsRequired = data.accumulator
+    ? SUBSET_ACCUMULATORS[data.accumulator].needsSortFields
+    : false;
 
   if (sortFieldsRequired && data.sortFields.length === 0) {
     return new Error('Sort fields are required.');
@@ -220,7 +205,7 @@ export const GroupWithSubset = ({
   const [formData, setFormData] = useState<GroupWithSubsetFormData>({
     groupFields: [],
     projectFields: [],
-    accumulator: '',
+    accumulator: null,
     numberOfRecords: 1,
     sortFields: [],
     sortDirection: 'Asc',
@@ -241,27 +226,34 @@ export const GroupWithSubset = ({
     );
   };
 
-  const serverAwareAccumulators = useMemo(
-    () => ACCUMULATORS.filter((x) => semver.gte(serverVersion, x.version)),
-    [serverVersion]
-  );
+  const accumulators = useMemo(() => {
+    return getFilteredCompletions({
+      serverVersion,
+      meta: ['accumulator', 'accumulator:*'],
+    })
+      .filter(isSupportedAccumulator)
+      .sort((a, b) => {
+        return (
+          SUBSET_ACCUMULATORS[a.value].order -
+          SUBSET_ACCUMULATORS[b.value].order
+        );
+      });
+  }, [serverVersion]);
 
   // If any of the n accumulator is supported, we show the input field
   // to enter the n value.
-  const isCountFieldVisible = useMemo(
-    () =>
-      ACCUMULATORS.filter((x) => semver.gte(serverVersion, x.nOperator.version))
-        .length > 0,
-    [serverVersion]
-  );
+  const isCountFieldVisible = useMemo(() => {
+    return getFilteredCompletions({
+      serverVersion,
+      meta: ['accumulator'],
+    }).some((c) => {
+      return isGroupNOperator(c.value);
+    });
+  }, [serverVersion]);
 
-  const isSortFieldVisible = useMemo(
-    () =>
-      ACCUMULATORS.find(
-        (x) => x.value === formData.accumulator && x.needsSortFields
-      ),
-    [formData.accumulator]
-  );
+  const selectedAccumulatorMeta = formData.accumulator
+    ? SUBSET_ACCUMULATORS[formData.accumulator]
+    : null;
 
   return (
     <div className={containerStyles}>
@@ -272,13 +264,18 @@ export const GroupWithSubset = ({
           className={selectStyles}
           allowDeselect={false}
           aria-label={'Select accumulator'}
-          value={formData.accumulator}
-          onChange={(value: string) => onChangeValue('accumulator', value)}
+          value={formData.accumulator ?? ''}
+          onChange={(value) => {
+            onChangeValue(
+              'accumulator',
+              isSupportedAccumulatorKey(value) ? value : null
+            );
+          }}
         >
-          {serverAwareAccumulators.map((x, i) => {
+          {accumulators.map((x) => {
             return (
-              <Option value={x.value} key={i}>
-                {x.label}
+              <Option value={x.value} key={x.value}>
+                {SUBSET_ACCUMULATORS[x.value].label}
               </Option>
             );
           })}
@@ -321,7 +318,7 @@ export const GroupWithSubset = ({
           fields={fields}
         />
       </div>
-      {isSortFieldVisible && (
+      {selectedAccumulatorMeta?.needsSortFields && (
         <div className={formGroupStyles}>
           <Body className={groupLabelStyles}>
             documents from a list sorted by

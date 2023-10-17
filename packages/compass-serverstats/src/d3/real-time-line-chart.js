@@ -46,10 +46,15 @@ function realTimeLineChart() {
   let enableMouse = true;
   let onOverlay = false;
   // Default dispatcher, will be changed to one shared between charts.
-  let eventDispatcher = d3.dispatch('mouseover', 'updateoverlay', 'mouseout', 'newXValue');
+  let eventDispatcher = d3.dispatch(
+    'mouseover',
+    'updateoverlay',
+    'mouseout',
+    'newXValue'
+  );
 
   function chart(selection) {
-    selection.each(function(data) {
+    selection.each(function (data) {
       const subHeight = height - margin.top - margin.bottom;
       const subWidth = width - margin.left - margin.right;
 
@@ -58,15 +63,12 @@ function realTimeLineChart() {
        */
 
       // Scale configuration
-      x
-        .domain(xDomain)
-        .range([0, subWidth]);
-      y
-        .domain(yDomain)
-        .range([subHeight - strokeWidth, strokeWidth / 2]);
-      y2
-        .domain(y2Domain ? y2Domain : [0, 0])
-        .range([subHeight - strokeWidth, strokeWidth / 2]);
+      x.domain(xDomain).range([0, subWidth]);
+      y.domain(yDomain).range([subHeight - strokeWidth, strokeWidth / 2]);
+      y2.domain(y2Domain ? y2Domain : [0, 0]).range([
+        subHeight - strokeWidth,
+        strokeWidth / 2,
+      ]);
 
       // Lines configuration
       let lineContainer = null;
@@ -106,7 +108,8 @@ function realTimeLineChart() {
         .onToggle((d, i, active) => {
           const newOpacity = active ? 1 : 0;
 
-          lineContainer.selectAll('path.line')
+          lineContainer
+            .selectAll('path.line')
             .filter((pathD) => pathD === d)
             .transition('opacity')
             .duration(100)
@@ -123,7 +126,8 @@ function realTimeLineChart() {
         .onToggle((d, i, active) => {
           const newOpacity = active ? 1 : 0;
 
-          line2Container.selectAll('path.line')
+          line2Container
+            .selectAll('path.line')
             .filter((pathD) => d === pathD)
             .transition('opacity')
             .duration(100)
@@ -138,7 +142,10 @@ function realTimeLineChart() {
          * Prevent the overlay from highlighting data that hasn't been animated
          * yet by preventing the overlay from showing the very last data point.
          */
-        let nearestDefinedPoint = Math.min(bisectPosition, xValues(data).length - 1);
+        let nearestDefinedPoint = Math.min(
+          bisectPosition,
+          xValues(data).length - 1
+        );
         while (!defined(null, nearestDefinedPoint)) {
           nearestDefinedPoint++;
         }
@@ -152,7 +159,7 @@ function realTimeLineChart() {
         .eventDispatcher(eventDispatcher)
         .on('updateoverlay', (xPosition) => {
           let nearestXIndex = xValues(data).length - 1;
-          let indexOffset = (subWidth + bubbleWidth / 2);
+          let indexOffset = subWidth + bubbleWidth / 2;
 
           if (onOverlay && xPosition === undefined) {
             return;
@@ -169,7 +176,8 @@ function realTimeLineChart() {
           }
 
           if (enableMouse) {
-            d3.select(this).selectAll('g.serverstats-overlay-group')
+            d3.select(this)
+              .selectAll('g.serverstats-overlay-group')
               .attr('transform', `translate(${indexOffset})`);
           }
         })
@@ -184,7 +192,8 @@ function realTimeLineChart() {
           legend.showValues(lastItem);
           legend2.showValues(lastItem);
 
-          d3.select(this).selectAll('g.serverstats-overlay-group')
+          d3.select(this)
+            .selectAll('g.serverstats-overlay-group')
             .attr('transform', `translate(${zeroPosition})`);
 
           eventDispatcher.newXValue(xValues(data)[lastItem]);
@@ -196,20 +205,24 @@ function realTimeLineChart() {
        */
 
       const container = d3.select(this);
-      container
-        .style('height', `${height}px`)
-        .style('width', `${width}px`);
+      container.style('height', `${height}px`).style('width', `${width}px`);
 
       // Add Title
       const chartTitleClass = `${prefix}-chart-title`;
-      container.selectAll(`p.${chartTitleClass}`).data([0]).enter()
+      container
+        .selectAll(`p.${chartTitleClass}`)
+        .data([0])
+        .enter()
         .append('p')
         .attr('class', chartTitleClass)
         .style('margin-left', `${margin.left}px`)
         .text(title);
 
       // Create row for drawn elements and labels
-      const chartRowEnter = container.selectAll(`div.${prefix}-chart-row`).data([0]).enter()
+      const chartRowEnter = container
+        .selectAll(`div.${prefix}-chart-row`)
+        .data([0])
+        .enter()
         .append('div')
         .attr('class', `${prefix}-chart-row`)
         .style('display', 'flex')
@@ -218,32 +231,33 @@ function realTimeLineChart() {
       // Create first axis label
       const maxYValueClass = `${prefix}-max-y-value`;
       const maxYUnitsClass = `${prefix}-max-y-units`;
-      const firstAxisLabel = chartRowEnter.append('p')
+      const firstAxisLabel = chartRowEnter
+        .append('p')
         .attr('class', `${prefix}-y-axis-label`)
         .style('text-align', 'right')
-        .style('width', `${margin.left - (bubbleWidth / 2)}px`);
-      firstAxisLabel.append('span')
-        .attr('class', maxYValueClass);
-      firstAxisLabel.append('span')
-        .attr('class', maxYUnitsClass);
+        .style('width', `${margin.left - bubbleWidth / 2}px`);
+      firstAxisLabel.append('span').attr('class', maxYValueClass);
+      firstAxisLabel.append('span').attr('class', maxYUnitsClass);
 
       // Create svg for drawn elements
       chartRowEnter
         .append('svg')
         .attr('class', `${prefix}-chart`)
-      // chart group
+        // chart group
         .append('g')
         .attr('class', `${prefix}-chart-group`)
         .attr('transform', `translate(${bubbleWidth / 2}, ${bubbleWidth / 2})`)
-      // Chart background
+        // Chart background
         .append('rect')
         .attr('class', `${prefix}-chart-background`);
 
-      container.selectAll(`svg.${prefix}-chart`)
-        .attr('height', subHeight + (bubbleWidth / 2))
+      container
+        .selectAll(`svg.${prefix}-chart`)
+        .attr('height', subHeight + bubbleWidth / 2)
         .attr('width', subWidth + bubbleWidth);
 
-      container.selectAll(`rect.${prefix}-chart-background`)
+      container
+        .selectAll(`rect.${prefix}-chart-background`)
         .attr('width', subWidth)
         .attr('height', subHeight);
 
@@ -252,34 +266,37 @@ function realTimeLineChart() {
       // Create second axis label
       const maxY2ValueClass = `${prefix}-max-y2-value`;
       const maxY2UnitsClass = `${prefix}-max-y2-units`;
-      const secondAxisLabel = chartRowEnter.append('p')
+      const secondAxisLabel = chartRowEnter
+        .append('p')
         .attr('class', `${prefix}-y2-axis-label`)
-        .style('width', `${margin.right - (bubbleWidth / 2)}px`);
-      secondAxisLabel.append('span')
-        .attr('class', maxY2ValueClass);
-      secondAxisLabel.append('span')
-        .attr('class', maxY2UnitsClass);
+        .style('width', `${margin.right - bubbleWidth / 2}px`);
+      secondAxisLabel.append('span').attr('class', maxY2ValueClass);
+      secondAxisLabel.append('span').attr('class', maxY2UnitsClass);
 
-      lineContainer = g.selectAll('.chart-line-group-container').data([yValues(data)]);
-      lineContainer.enter()
+      lineContainer = g
+        .selectAll('.chart-line-group-container')
+        .data([yValues(data)]);
+      lineContainer
+        .enter()
         .append('g')
         .attr('class', 'chart-line-group-container');
 
       lineContainer.call(lines);
 
       // Update labels
-      container.selectAll(`span.${maxYValueClass}`)
-        .text(yFormat(yDomain[1]));
-      container.selectAll(`span.${maxYUnitsClass}`)
-        .text(` ${yUnits}`);
-      container.selectAll(`span.${maxY2ValueClass}`)
+      container.selectAll(`span.${maxYValueClass}`).text(yFormat(yDomain[1]));
+      container.selectAll(`span.${maxYUnitsClass}`).text(` ${yUnits}`);
+      container
+        .selectAll(`span.${maxY2ValueClass}`)
         .text(y2Domain ? y2Format(y2Domain[1]) : '');
-      container.selectAll(`span.${maxY2UnitsClass}`)
-        .text(` ${y2Units}`);
+      container.selectAll(`span.${maxY2UnitsClass}`).text(` ${y2Units}`);
 
       const legendContainerClass = `${prefix}-legend-container`;
-      const fullLegendContainer = container.selectAll(`div.${legendContainerClass}`).data([0]);
-      fullLegendContainer.enter()
+      const fullLegendContainer = container
+        .selectAll(`div.${legendContainerClass}`)
+        .data([0]);
+      fullLegendContainer
+        .enter()
         .append('div')
         .attr('class', legendContainerClass)
         .style('margin-left', `${margin.left}px`)
@@ -287,31 +304,36 @@ function realTimeLineChart() {
         .style('display', 'flex')
         .style('justify-content', 'space-between');
 
-      const l = fullLegendContainer.selectAll(`div.${legendClass}`).data([yValues(data)]);
+      const l = fullLegendContainer
+        .selectAll(`div.${legendClass}`)
+        .data([yValues(data)]);
       l.enter()
         .append('div')
         .style('display', 'flex')
         .attr('class', legendClass);
       l.call(legend);
 
-      line2Container = g.selectAll('.chart-line-group-container-2').data([y2Values(data)]);
-      line2Container.enter()
+      line2Container = g
+        .selectAll('.chart-line-group-container-2')
+        .data([y2Values(data)]);
+      line2Container
+        .enter()
         .append('g')
         .attr('class', 'chart-line-group-container-2');
       line2Container.call(lines2);
 
-      const l2 = fullLegendContainer.selectAll(`div.${legendClass}-2`).data([y2Values(data)]);
+      const l2 = fullLegendContainer
+        .selectAll(`div.${legendClass}-2`)
+        .data([y2Values(data)]);
       l2.enter()
         .append('div')
         .style('display', 'flex')
         .attr('class', `${legendClass}-2`);
       l2.call(legend2);
 
-      container
-        .selectAll(`svg.${prefix}-chart`)
-        .call(mouseOverlay);
+      container.selectAll(`svg.${prefix}-chart`).call(mouseOverlay);
 
-      chart.setPosition = function(xPosition) {
+      chart.setPosition = function (xPosition) {
         const nearestXIndex = getNearestXIndex(xPosition);
         realTimeMouseOverlay.setPosition(xPosition);
         legend.showValues(nearestXIndex);
@@ -327,7 +349,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Number} The chart component, or the existing value if none supplied
    */
-  chart.width = function(value) {
+  chart.width = function (value) {
     if (typeof value === 'undefined') return width;
     width = value;
     return chart;
@@ -340,7 +362,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Number} The chart component, or the existing value if none supplied
    */
-  chart.height = function(value) {
+  chart.height = function (value) {
     if (typeof value === 'undefined') return height;
     height = value;
     return chart;
@@ -353,7 +375,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|String} The chart component, or the existing value if none supplied
    */
-  chart.title = function(value) {
+  chart.title = function (value) {
     if (typeof value === 'undefined') return title;
     title = value;
     return chart;
@@ -367,7 +389,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Array} The chart component, or the existing value if none supplied
    */
-  chart.xDomain = function(value) {
+  chart.xDomain = function (value) {
     if (typeof value === 'undefined') return xDomain;
     xDomain = value;
     return chart;
@@ -380,7 +402,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Array} The chart component, or the existing value if none supplied
    */
-  chart.yDomain = function(value) {
+  chart.yDomain = function (value) {
     if (typeof value === 'undefined') return yDomain;
     yDomain = value;
     return chart;
@@ -394,7 +416,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Array} The chart component, or the existing value if none supplied
    */
-  chart.y2Domain = function(value) {
+  chart.y2Domain = function (value) {
     if (typeof value === 'undefined') return y2Domain;
     y2Domain = value;
     return chart;
@@ -408,7 +430,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.xVal = function(value) {
+  chart.xVal = function (value) {
     if (typeof value === 'undefined') return xVal;
     xVal = value;
     return chart;
@@ -422,7 +444,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.xValues = function(value) {
+  chart.xValues = function (value) {
     if (typeof value === 'undefined') return xValues;
     xValues = value;
     return chart;
@@ -436,7 +458,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.yVal = function(value) {
+  chart.yVal = function (value) {
     if (typeof value === 'undefined') return yVal;
     yVal = value;
     return chart;
@@ -449,7 +471,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|String} The chart component, or the existing value if none supplied
    */
-  chart.yUnits = function(value) {
+  chart.yUnits = function (value) {
     if (typeof value === 'undefined') return yUnits;
     yUnits = value;
     return chart;
@@ -462,7 +484,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if non supplied
    */
-  chart.yFormat = function(value) {
+  chart.yFormat = function (value) {
     if (typeof value === 'undefined') return yFormat;
     yFormat = value;
     return chart;
@@ -476,7 +498,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.y2Val = function(value) {
+  chart.y2Val = function (value) {
     if (typeof value === 'undefined') return y2Val;
     y2Val = value;
     return chart;
@@ -489,7 +511,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|String} The chart component, or the existing value if none supplied
    */
-  chart.y2Units = function(value) {
+  chart.y2Units = function (value) {
     if (typeof value === 'undefined') return y2Units;
     y2Units = value;
     return chart;
@@ -502,7 +524,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if non supplied
    */
-  chart.y2Format = function(value) {
+  chart.y2Format = function (value) {
     if (typeof value === 'undefined') return y2Format;
     y2Format = value;
     return chart;
@@ -518,7 +540,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.yValues = function(value) {
+  chart.yValues = function (value) {
     if (typeof value === 'undefined') return yValues;
     yValues = value;
     return chart;
@@ -534,7 +556,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.yData = function(value) {
+  chart.yData = function (value) {
     if (typeof value === 'undefined') return yData;
     yData = value;
     return chart;
@@ -548,7 +570,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.yLabel = function(value) {
+  chart.yLabel = function (value) {
     if (typeof value === 'undefined') return yLabel;
     yLabel = value;
     return chart;
@@ -562,7 +584,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.y2Values = function(value) {
+  chart.y2Values = function (value) {
     if (typeof value === 'undefined') return y2Values;
     y2Values = value;
     return chart;
@@ -576,7 +598,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.y2Data = function(value) {
+  chart.y2Data = function (value) {
     if (typeof value === 'undefined') return y2Data;
     y2Data = value;
     return chart;
@@ -590,7 +612,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.y2Label = function(value) {
+  chart.y2Label = function (value) {
     if (typeof value === 'undefined') return y2Label;
     y2Label = value;
     return chart;
@@ -605,7 +627,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.defined = function(value) {
+  chart.defined = function (value) {
     if (typeof value === 'undefined') return defined;
     defined = value;
     return chart;
@@ -619,7 +641,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
-  chart.color = function(value) {
+  chart.color = function (value) {
     if (typeof value === 'undefined') return color;
     color = value;
     return chart;
@@ -635,7 +657,7 @@ function realTimeLineChart() {
    *
    * @returns {Function} The chart component
    */
-  chart.on = function(event, listener) {
+  chart.on = function (event, listener) {
     dispatch.on(event, listener);
     return chart;
   };
@@ -647,7 +669,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|String} The chart component, or the existing value if none supplied
    */
-  chart.prefix = function(value) {
+  chart.prefix = function (value) {
     if (typeof value === 'undefined') return prefix;
     prefix = value;
     return chart;
@@ -661,7 +683,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Number} The chart component, or the existing value if none supplied
    */
-  chart.animationDelay = function(value) {
+  chart.animationDelay = function (value) {
     if (typeof value === 'undefined') return animationDelay;
     animationDelay = value;
     return chart;
@@ -674,7 +696,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Number} The chart component, or the existing value if none supplied
    */
-  chart.singlePointTime = function(value) {
+  chart.singlePointTime = function (value) {
     if (typeof value === 'undefined') return singlePointTime;
     singlePointTime = value;
     return chart;
@@ -687,7 +709,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Number} The chart component, or the existing value if none supplied
    */
-  chart.strokeWidth = function(value) {
+  chart.strokeWidth = function (value) {
     if (typeof value === 'undefined') return strokeWidth;
     strokeWidth = value;
     return chart;
@@ -700,7 +722,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Boolean} The chart component, or the existing value if none supplied
    */
-  chart.enableMouse = function(value) {
+  chart.enableMouse = function (value) {
     if (typeof value === 'undefined') return enableMouse;
     enableMouse = value;
     return chart;
@@ -713,7 +735,7 @@ function realTimeLineChart() {
    *
    * @returns {Function|Object} The chart component, or the existing value if none supplied
    */
-  chart.eventDispatcher = function(value) {
+  chart.eventDispatcher = function (value) {
     if (typeof value === 'undefined') return eventDispatcher;
     eventDispatcher = value;
     return chart;

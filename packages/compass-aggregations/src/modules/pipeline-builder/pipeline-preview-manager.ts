@@ -9,7 +9,7 @@ import {
 } from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
-  REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE,
+  REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 
@@ -26,7 +26,7 @@ const FULL_SCAN_OPS = FULL_SCAN_STAGES.map((stage) => stage.value) as string[];
 /**
  * Stage operators that are required to be the first stage.
  */
-const REQUIRED_AS_FIRST_STAGE = _REQUIRED_AS_FIRST_STAGE.map(
+const REQUIRED_AS_FIRST_STAGE_OPS = REQUIRED_AS_FIRST_STAGE.map(
   (stage) => stage.value
 ) as string[];
 
@@ -65,7 +65,7 @@ export function createPreviewAggregation(
   if (
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
-    !REQUIRED_AS_FIRST_STAGE.includes(getLastStageOperator(stages))
+    !REQUIRED_AS_FIRST_STAGE_OPS.includes(getLastStageOperator(stages))
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });
   }

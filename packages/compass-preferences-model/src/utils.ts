@@ -1,5 +1,5 @@
 import preferences, { preferencesAccess, usePreference } from '.';
-import type { ParsedGlobalPreferencesResult } from '.';
+import type { AllPreferences, ParsedGlobalPreferencesResult } from '.';
 import { setupPreferences } from './setup-preferences';
 import { UserStorage } from './storage';
 import type { ReactHooks } from './react';
@@ -41,21 +41,58 @@ export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
   return value;
 }
 
+/**
+ * Helper method to check whether or not AI feature is enabled in Compass. The
+ * feature is considered enabled if:
+ *  - AI feature flag is enabled
+ *  - config preference that controls AI is enabled
+ *  - either mms backend rollout enabled feature for the compass user or special
+ *    option to bypass the check is passed
+ */
+export function isAIFeatureEnabled(
+  preferences: Pick<
+    AllPreferences,
+    | 'enableGenAIFeatures'
+    | 'enableGenAIExperience'
+    | 'cloudFeatureRolloutAccess'
+    | 'enableAIWithoutRolloutAccess'
+  > = preferencesAccess.getPreferences()
+) {
+  const {
+    // a "kill switch" property from configuration file to be able to disable
+    // feature in global config
+    enableGenAIFeatures,
+    // feature flag
+    enableGenAIExperience,
+    // based on mms backend rollout response
+    cloudFeatureRolloutAccess,
+    // feature flag to bypass rollout access check
+    enableAIWithoutRolloutAccess,
+  } = preferences;
+  return (
+    enableGenAIFeatures &&
+    enableGenAIExperience &&
+    (!!cloudFeatureRolloutAccess?.GEN_AI_COMPASS ||
+      enableAIWithoutRolloutAccess)
+  );
+}
+
 export function useIsAIFeatureEnabled(React: ReactHooks) {
+  const enableGenAIFeatures = usePreference('enableGenAIFeatures', React);
+  const enableGenAIExperience = usePreference('enableGenAIExperience', React);
+  const cloudFeatureRolloutAccess = usePreference(
+    'cloudFeatureRolloutAccess',
+    React
+  );
   const enableAIWithoutRolloutAccess = usePreference(
     'enableAIWithoutRolloutAccess',
     React
   );
-  const enableAIExperience = usePreference('enableAIExperience', React);
-  const isAIFeatureEnabled = usePreference(
-    'cloudFeatureRolloutAccess',
-    React
-  )?.GEN_AI_COMPASS;
-  const enableAIFeatures = usePreference('enableAIFeatures', React);
 
-  return (
-    enableAIExperience &&
-    (enableAIWithoutRolloutAccess || isAIFeatureEnabled) &&
-    enableAIFeatures
-  );
+  return isAIFeatureEnabled({
+    enableGenAIFeatures,
+    enableGenAIExperience,
+    cloudFeatureRolloutAccess,
+    enableAIWithoutRolloutAccess,
+  });
 }

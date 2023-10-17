@@ -12,7 +12,7 @@ function FeedbackPopoverRenderer(
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div data-testid="outside-modal-area">
       <button
         data-testid="open-feedback-button"
         ref={buttonRef}
@@ -67,5 +67,42 @@ describe('FeedbackPopover', function () {
     await new Promise((resolve) => setTimeout(resolve, 3));
 
     expect(feedbackText).to.equal('pineapple');
+  });
+
+  it('renders the popover and passes feedback with no text when the popover closed without submitting', async function () {
+    let feedbackText = '';
+    renderFeedbackPopover({
+      onSubmitFeedback: (text: string) => {
+        feedbackText = text;
+      },
+    });
+
+    expect(screen.queryByRole('textbox')).to.not.exist;
+
+    const outsideModal = screen.getByTestId('outside-modal-area');
+    userEvent.click(outsideModal);
+
+    // Wait for the event to go through.
+    await new Promise((resolve) => setTimeout(resolve, 3));
+
+    expect(feedbackText).to.equal('');
+  });
+
+  it('renders the popover and passes feedback with no text when user presses esc', async function () {
+    let feedbackText = '';
+    renderFeedbackPopover({
+      onSubmitFeedback: (text: string) => {
+        feedbackText = text;
+      },
+    });
+
+    expect(screen.queryByRole('textbox')).to.not.exist;
+
+    userEvent.keyboard('{Escape}');
+
+    // Wait for the event to go through.
+    await new Promise((resolve) => setTimeout(resolve, 3));
+
+    expect(feedbackText).to.equal('');
   });
 });

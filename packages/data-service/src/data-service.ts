@@ -105,6 +105,9 @@ import type {
 } from '@mongodb-js/devtools-connect';
 import { omit } from 'lodash';
 
+const PREVIEW_TIMEOUT = 1000;
+const PREVIEW_SAMPLE = 10;
+
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
   key: keyof T
@@ -136,6 +139,20 @@ export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   connectionInfoSecretsChanged: () => void;
 }
+
+export type UpdatePreviewChange = {
+  before: Document;
+  after: Document;
+};
+
+export type UpdatePreviewExecutionOptions = ExecutionOptions & {
+  sample: number;
+  timeout: number;
+};
+
+export type UpdatePreview = {
+  changes: UpdatePreviewChange[];
+};
 
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
@@ -727,6 +744,18 @@ export interface DataService {
    * is being emitted when this value changes.
    */
   getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
+
+  /**
+   * Runs the update within a transactions, only
+   * modifying a subset of the documents matched by the filter.
+   * It returns a list of the changed documents, or a serverError.
+   */
+  previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions?: UpdatePreviewExecutionOptions
+  ): Promise<UpdatePreview>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -1006,10 +1035,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
         collStats[0]
       );
     } catch (error) {
-      if (!(error as Error).message.includes('is a view, not a collection')) {
-        throw error;
+      const message = (error as Error).message;
+      // We ignore errors for fetching collStats when requesting on an
+      // unsupported collection type: either a view or a ADF
+      if (
+        message.includes('not valid for Data Lake') ||
+        message.includes('is a view, not a collection')
+      ) {
+        return this._buildCollectionStats(databaseName, collectionName, {});
       }
-      return this._buildCollectionStats(databaseName, collectionName, {});
+      throw error;
     }
   }
 
@@ -2277,6 +2312,70 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const stats = await runCommand(db, { dbStats: 1 });
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
+  }
+
+  @op(mongoLogId(1_001_000_063))
+  async previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions?: UpdatePreviewExecutionOptions
+  ): Promise<UpdatePreview> {
+    if (!executionOptions) {
+      const controller = new AbortController();
+      executionOptions = {
+        abortSignal: controller.signal,
+        sample: PREVIEW_SAMPLE,
+        timeout: PREVIEW_TIMEOUT,
+      };
+    }
+
+    const sample = executionOptions.sample || PREVIEW_SAMPLE;
+    const timeout = executionOptions.timeout || PREVIEW_TIMEOUT;
+
+    return await this._cancellableOperation(
+      async (session) => {
+        if (!session) {
+          throw new Error('Could not open session.');
+        }
+
+        try {
+          const coll = this._collection(ns, 'CRUD');
+          session.startTransaction({
+            maxTimeMS: timeout,
+          });
+
+          const docsToPreview = await coll
+            .find(filter, { session })
+            .sort({ _id: 1 })
+            .limit(sample)
+            .toArray();
+
+          const idsToPreview = docsToPreview.map((doc) => doc._id);
+          await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+            session,
+          });
+          const changedDocs = await coll
+            .find({ _id: { $in: idsToPreview } }, { session })
+            .sort({ _id: 1 })
+            .toArray();
+
+          const changes = docsToPreview.map((before, idx) => ({
+            before,
+            after: changedDocs[idx],
+          }));
+          return { changes };
+        } finally {
+          await session.abortTransaction();
+          await session.endSession();
+        }
+      },
+      async (session) => {
+        await session.abortTransaction();
+        await session.endSession();
+      },
+      executionOptions?.abortSignal
+    );
   }
 
   /**

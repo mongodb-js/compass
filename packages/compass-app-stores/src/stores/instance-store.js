@@ -381,6 +381,7 @@ store.onActivated = (appRegistry) => {
     openCollectionInNewTab
   );
   appRegistry.on('my-queries-open-saved-item', openCollectionInNewTab);
+  appRegistry.on('search-indexes-run-aggregate', openCollectionInNewTab);
 
   const openModifyView = async ({ ns, sameTab }) => {
     const coll = await store.fetchCollectionDetails(ns);

@@ -6,7 +6,6 @@ import { spy } from 'sinon';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
-import type AppRegistry from 'hadron-app-registry';
 
 const indexes = [
   {
@@ -100,15 +99,14 @@ const renderIndexList = (
 ) => {
   render(
     <RegularIndexesTable
-      localAppRegistry={{} as AppRegistry}
       indexes={[]}
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}
       onSortTable={() => {}}
-      dropFailedIndex={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
+      onDeleteIndex={() => {}}
       {...props}
     />
   );

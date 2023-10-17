@@ -3,11 +3,8 @@ import SettingsList from './settings-list';
 import {
   usePreference,
   featureFlags,
-  withPreferences,
+  useIsAIFeatureEnabled,
 } from 'compass-preferences-model';
-import type { UserPreferences } from 'compass-preferences-model';
-import { connect } from 'react-redux';
-import type { RootState } from '../../stores';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { css, spacing } from '@mongodb-js/compass-components';
 
@@ -36,33 +33,24 @@ function useShouldShowPreviewFeatures(): boolean {
 
 export function useShouldShowFeaturePreviewSettings(): boolean {
   // We want show the feature preview settings tab if:
+  // - AI feature flag is enabled
   // - there are feature flags in preview stage
   // - or if:
   //   - we are in a development environment or 'showDevFeatureFlags' is explicitly enabled
   //   - and there are feature flags in 'development' stage.
-  //   - AI feature flag is enabled
-  const enableAIWithoutRolloutAccess = usePreference(
-    'enableAIWithoutRolloutAccess',
-    React
-  );
-  const enableAIExperience = usePreference('enableAIExperience', React);
+  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
   const showDevFeatures = useShouldShowDevFeatures();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
-  return (
-    enableAIWithoutRolloutAccess ||
-    enableAIExperience ||
-    showPreviewFeatures ||
-    showDevFeatures
-  );
+
+  return aiFeatureEnabled || showPreviewFeatures || showDevFeatures;
 }
 
 const atlasSettingsContainerStyles = css({
   marginTop: spacing[3],
 });
 
-export const FeaturePreviewSettings: React.FunctionComponent<{
-  showAtlasLoginSettings?: boolean;
-}> = ({ showAtlasLoginSettings }) => {
+export const FeaturePreviewSettings: React.FunctionComponent = () => {
+  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 
@@ -73,7 +61,7 @@ export const FeaturePreviewSettings: React.FunctionComponent<{
         your own risk!
       </div>
 
-      {showAtlasLoginSettings && (
+      {aiFeatureEnabled && (
         <div className={atlasSettingsContainerStyles}>
           <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
         </div>
@@ -92,30 +80,4 @@ export const FeaturePreviewSettings: React.FunctionComponent<{
   );
 };
 
-export default withPreferences(
-  connect(
-    (
-      state: RootState,
-      ownProps: {
-        enableAIExperience?: boolean;
-        enableAIWithoutRolloutAccess?: boolean;
-        cloudFeatureRolloutAccess?: UserPreferences['cloudFeatureRolloutAccess'];
-      }
-    ) => {
-      return {
-        showAtlasLoginSettings:
-          state.settings.settings.enableAIExperience ||
-          ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
-          ownProps.enableAIExperience ||
-          ownProps.enableAIWithoutRolloutAccess ||
-          ownProps.cloudFeatureRolloutAccess?.GEN_AI_COMPASS,
-      };
-    }
-  )(FeaturePreviewSettings),
-  [
-    'enableAIExperience',
-    'cloudFeatureRolloutAccess',
-    'enableAIWithoutRolloutAccess',
-  ],
-  React
-);
+export default FeaturePreviewSettings;

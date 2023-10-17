@@ -48,6 +48,7 @@ export type CollectionState = {
     | 'Validation';
   initialQuery?: unknown;
   initialAggregation?: unknown;
+  initialPipelineText?: unknown;
   editViewName?: string;
 };
 
@@ -198,6 +199,7 @@ const setupRole = (
         },
         query: getState().initialQuery,
         aggregation: getState().initialAggregation,
+        pipelineText: getState().initialPipelineText,
         editViewName: getState().editViewName,
       };
 

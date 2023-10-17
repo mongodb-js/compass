@@ -3,11 +3,11 @@ import { completer } from './autocompleter';
 
 describe('completer', function () {
   const simpleCompletions = [
-    { value: 'foo', version: '0.0.0', meta: 'stage' },
-    { value: 'Foo', version: '0.0.0', meta: 'stage' },
-    { value: 'bar', version: '1.0.0', meta: 'accumulator' },
-    { value: 'buz', version: '2.0.0', meta: 'expr:array' },
-    { value: 'barbar', version: '2.0.0', meta: 'expr:bool' },
+    { value: 'foo', version: '0.0.0', meta: 'stage' as const },
+    { value: 'Foo', version: '0.0.0', meta: 'stage' as const },
+    { value: 'bar', version: '1.0.0', meta: 'accumulator' as const },
+    { value: 'buz', version: '2.0.0', meta: 'expr:array' as const },
+    { value: 'barbar', version: '2.0.0', meta: 'expr:bool' as const },
   ];
 
   function getCompletionValues(
