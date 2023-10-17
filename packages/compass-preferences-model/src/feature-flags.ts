@@ -22,6 +22,8 @@ export type FeatureFlags = {
   newExplainPlan: boolean;
   showInsights: boolean;
   enableAtlasSearchIndexManagement: boolean;
+  enableBulkUpdateOperations: boolean;
+  enableBulkDeleteOperations: boolean;
 };
 
 export const featureFlags: Required<{
@@ -112,6 +114,28 @@ export const featureFlags: Required<{
     description: {
       short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
+    },
+  },
+  /**
+   * Feature flag for Atlas Search Index Management.
+   * Epic: COMPASS-6671
+   */
+  enableBulkUpdateOperations: {
+    stage: 'development',
+    description: {
+      short: 'Enable bulk update operations.',
+      long: 'Allows editing all documents given a query.',
+    },
+  },
+  /**
+   * Feature flag for Atlas Search Index Management.
+   * Epic: COMPASS-6671
+   */
+  enableBulkDeleteOperations: {
+    stage: 'development',
+    description: {
+      short: 'Enable bulk delete operations.',
+      long: 'Allows deleting all documents given a query.',
     },
   },
 };
