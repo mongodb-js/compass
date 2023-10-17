@@ -105,9 +105,6 @@ import type {
 } from '@mongodb-js/devtools-connect';
 import { omit } from 'lodash';
 
-const PREVIEW_TIMEOUT = 1000;
-const PREVIEW_SAMPLE = 10;
-
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
   key: keyof T
@@ -146,8 +143,8 @@ export type UpdatePreviewChange = {
 };
 
 export type UpdatePreviewExecutionOptions = ExecutionOptions & {
-  sample: number;
-  timeout: number;
+  sample?: number;
+  timeout?: number;
 };
 
 export type UpdatePreview = {
@@ -2314,25 +2311,17 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return { name, ...normalized };
   }
 
-  @op(mongoLogId(1_001_000_063))
+  @op(mongoLogId(1_001_000_266))
   async previewUpdate(
     ns: string,
     filter: Document,
     update: Document | Document[],
-    executionOptions?: UpdatePreviewExecutionOptions
+    executionOptions: UpdatePreviewExecutionOptions = {}
   ): Promise<UpdatePreview> {
-    if (!executionOptions) {
-      const controller = new AbortController();
-      executionOptions = {
-        abortSignal: controller.signal,
-        sample: PREVIEW_SAMPLE,
-        timeout: PREVIEW_TIMEOUT,
-      };
-    }
-
-    const sample = executionOptions.sample || PREVIEW_SAMPLE;
-    const timeout = executionOptions.timeout || PREVIEW_TIMEOUT;
-
+    const { abortSignal, sample = 10, timeout = 1000 } = executionOptions;
+    const startTimeMS = Date.now();
+    const remainingTimeoutMS = () =>
+      Math.max(1, timeout - (Date.now() - startTimeMS));
     return await this._cancellableOperation(
       async (session) => {
         if (!session) {
@@ -2342,11 +2331,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         try {
           const coll = this._collection(ns, 'CRUD');
           session.startTransaction({
-            maxTimeMS: timeout,
+            maxTimeMS: remainingTimeoutMS(),
           });
 
           const docsToPreview = await coll
-            .find(filter, { session })
+            .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
             .sort({ _id: 1 })
             .limit(sample)
             .toArray();
@@ -2354,9 +2343,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
           const idsToPreview = docsToPreview.map((doc) => doc._id);
           await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
             session,
+            maxTimeMS: remainingTimeoutMS(),
           });
           const changedDocs = await coll
-            .find({ _id: { $in: idsToPreview } }, { session })
+            .find(
+              { _id: { $in: idsToPreview } },
+              { session, maxTimeMS: remainingTimeoutMS() }
+            )
             .sort({ _id: 1 })
             .toArray();
 
@@ -2374,7 +2367,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         await session.abortTransaction();
         await session.endSession();
       },
-      executionOptions?.abortSignal
+      abortSignal
     );
   }
 
