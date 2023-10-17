@@ -11,6 +11,8 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
+  Button,
+  ButtonSize,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -92,6 +94,7 @@ export type CrudToolbarProps = {
   error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
+  openBulkUpdateDialog: () => void;
   instanceDescription: string;
   isExportable: boolean;
   isWritable: boolean;
@@ -117,6 +120,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   error,
   getPage,
   insertDataHandler,
+  openBulkUpdateDialog,
   instanceDescription,
   isExportable,
   isWritable,
@@ -207,6 +211,15 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               leftGlyph: <Icon glyph="Export" />,
             }}
           />
+          {/* TODO: feature flag */}
+          <Button
+            size={ButtonSize.XSmall}
+            data-testid="bulk-update-button"
+            leftGlyph={<Icon glyph="Edit" />}
+            onClick={openBulkUpdateDialog}
+          >
+            Update
+          </Button>
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">

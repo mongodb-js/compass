@@ -8,6 +8,8 @@ import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
+import type { Document as MongoDocument } from 'mongodb';
+import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -29,7 +31,7 @@ import {
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
-import type { DataService } from 'mongodb-data-service';
+import type { DataService, UpdatePreview } from 'mongodb-data-service';
 import type {
   GridStore,
   GridStoreOptions,
@@ -346,6 +348,15 @@ type InsertState = {
   isCommentNeeded: boolean;
 };
 
+type BulkUpdateState = {
+  isOpen: boolean;
+  updateText: string;
+  preview: UpdatePreview;
+  syntaxError?: Error;
+  serverError?: Error;
+  previewAbortController?: AbortController;
+};
+
 export type TableState = {
   doc: Document | null;
   path: (string | number)[];
@@ -380,6 +391,7 @@ type CrudState = {
   view: DocumentView;
   count: number | null;
   insert: InsertState;
+  bulkUpdate: BulkUpdateState;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -439,6 +451,7 @@ class CrudStoreImpl
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
+      bulkUpdate: this.getInitialBulkUpdateState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
       isDataLake: false,
@@ -473,6 +486,18 @@ class CrudStoreImpl
       jsonView: false,
       isOpen: false,
       isCommentNeeded: true,
+    };
+  }
+
+  getInitialBulkUpdateState(): BulkUpdateState {
+    return {
+      isOpen: false,
+      updateText: '{}',
+      preview: {
+        changes: [],
+      },
+      syntaxError: undefined,
+      serverError: undefined,
     };
   }
 
@@ -967,6 +992,15 @@ class CrudStoreImpl
   }
 
   /**
+   * Closing the bulk update dialog just resets the state to the default.
+   */
+  closeBulkUpdateDialog() {
+    this.setState({
+      bulkUpdate: this.getInitialBulkUpdateState(),
+    });
+  }
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -1033,6 +1067,84 @@ class CrudStoreImpl
         mode: MODIFYING,
         isOpen: true,
         isCommentNeeded: true,
+      },
+    });
+  }
+
+  async openBulkUpdateDialog(updateText: string) {
+    await this.updateBulkUpdatePreview(updateText);
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: true,
+      },
+    });
+  }
+
+  async updateBulkUpdatePreview(updateText: string) {
+    if (this.state.bulkUpdate.previewAbortController) {
+      this.state.bulkUpdate.previewAbortController.abort();
+    }
+
+    const abortController = new AbortController();
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        previewAbortController: abortController,
+      },
+    });
+
+    let update: MongoDocument | MongoDocument[];
+    try {
+      update = parseShellBSON(updateText);
+    } catch (err: any) {
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          updateText,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: err,
+          previewAbortController: undefined,
+        },
+      });
+      return;
+    }
+
+    const ns = this.state.ns;
+    const filter = this.state.query.filter;
+
+    let preview;
+    try {
+      preview = await this.dataService.previewUpdate(ns, filter, update, {
+        abortSignal: abortController.signal,
+      });
+    } catch (err: any) {
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          updateText,
+          preview: {
+            changes: [],
+          },
+          serverError: err,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
+      return;
+    }
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+        preview,
+        serverError: undefined,
+        syntaxError: undefined,
       },
     });
   }
@@ -1750,4 +1862,17 @@ export async function findAndModifyWithFLEFallback(
   // deleted the document between the findAndModify command
   // and the find command. Just return the original error.
   return [error, undefined] as ErrorOrResult;
+}
+
+// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
+export function parseShellBSON(
+  source: string
+): MongoDocument | MongoDocument[] {
+  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
+  if (!parsed || typeof parsed !== 'object') {
+    // XXX(COMPASS-5689): We've hit the condition in
+    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
+    throw new Error('The provided index definition is invalid.');
+  }
+  return parsed as MongoDocument | MongoDocument[];
 }
