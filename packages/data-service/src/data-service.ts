@@ -2318,7 +2318,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     update: Document | Document[],
     executionOptions: UpdatePreviewExecutionOptions = {}
   ): Promise<UpdatePreview> {
-    const { abortSignal, sample = 10, timeout = 1000 } = executionOptions;
+    const {
+      abortSignal = new AbortController().signal,
+      sample = 10,
+      timeout = 1000,
+    } = executionOptions;
     const startTimeMS = Date.now();
     const remainingTimeoutMS = () =>
       Math.max(1, timeout - (Date.now() - startTimeMS));
