@@ -101,8 +101,6 @@ export class GuideCueService extends EventTarget {
       // TODO: this seems to be a temporary error happening sometimes during test.
       // In that case, assume the event is not dispatched
     }
-
-    return false;
   }
 
   private validateCueData(groupId: GroupName, step: number) {
