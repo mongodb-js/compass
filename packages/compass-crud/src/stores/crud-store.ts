@@ -1071,8 +1071,10 @@ class CrudStoreImpl
     });
   }
 
-  async openBulkUpdateDialog(updateText: string) {
-    await this.updateBulkUpdatePreview(updateText);
+  async openBulkUpdateDialog() {
+    console.log('openBulkUpdateDialog');
+
+    await this.updateBulkUpdatePreview('{ $set: { }}');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1082,12 +1084,15 @@ class CrudStoreImpl
   }
 
   async updateBulkUpdatePreview(updateText: string) {
+    console.log('updateBulkUpdatePreview', updateText);
+
     if (this.state.bulkUpdate.previewAbortController) {
       this.state.bulkUpdate.previewAbortController.abort();
     }
 
     const abortController = new AbortController();
 
+    console.log('initialState');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1099,6 +1104,9 @@ class CrudStoreImpl
     try {
       update = parseShellBSON(updateText);
     } catch (err: any) {
+      // TODO: if abortController was aborted, ignore the result
+
+      console.log({ syntaxError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
@@ -1123,6 +1131,9 @@ class CrudStoreImpl
         abortSignal: abortController.signal,
       });
     } catch (err: any) {
+      // TODO: if abortController was aborted, ignore the result
+
+      console.log({ serverError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
@@ -1138,6 +1149,9 @@ class CrudStoreImpl
       return;
     }
 
+    // TODO: if abortController was aborted, ignore the result
+
+    console.log('success!');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
