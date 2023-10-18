@@ -148,6 +148,13 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   /**
+   * Handle opening the delete bulk dialog.
+   */
+  handleDeleteButton() {
+    return;
+  }
+
+  /**
    * Render the views for the document list.
    *
    * @returns {React.Component} The document list views.
@@ -315,6 +322,7 @@ class DocumentList extends React.Component<DocumentListProps> {
               isExportable={this.props.isExportable}
               onApplyClicked={this.onApplyClicked.bind(this)}
               onResetClicked={this.onResetClicked.bind(this)}
+              onDeleteButtonClicked={this.handleDeleteButton.bind(this)}
               openExportFileDialog={this.props.openExportFileDialog}
               outdated={this.props.outdated}
               readonly={!this.props.isEditable}
@@ -323,6 +331,8 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              querySkip={this.props.store.state.query.skip}
+              queryLimit={this.props.store.state.query.limit}
               insights={getToolbarSignal(
                 JSON.stringify(this.props.query.filter),
                 Boolean(this.props.isCollectionScan),
