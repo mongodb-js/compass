@@ -14,7 +14,7 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
   const isVisible = usePreference('enableBulkDeleteOperations', React);
 
   if (!isVisible) {
-    return <></>;
+    return null;
   }
 
   return (
