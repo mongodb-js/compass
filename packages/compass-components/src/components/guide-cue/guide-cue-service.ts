@@ -98,7 +98,7 @@ export class GuideCueService extends EventTarget {
         })
       );
     } catch (ex) {
-      // TODO: this seems to be a temporary error happening sometimes during test.
+      // TODO(COMPASS-7357): this seems to be a temporary error happening sometimes during test.
       // In that case, assume the event is not dispatched
     }
   }
