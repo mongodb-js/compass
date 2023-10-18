@@ -63,6 +63,9 @@ const contentStyles = css({
   flexDirection: 'column',
   gap: spacing[2],
   overflow: 'auto',
+  paddingTop: spacing[1],
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
   paddingBottom: spacing[3],
 });
 
@@ -132,8 +135,8 @@ export const AggregationSidePanel = ({
       <SearchInput
         value={searchText}
         onChange={handleSearchTextChange}
-        placeholder="How can we help?"
-        aria-label="How can we help?"
+        placeholder="Search a Stage Wizard"
+        aria-label="Search a Stage Wizard"
       />
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase, index) => {
