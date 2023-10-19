@@ -111,11 +111,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
             className={cx(documentContainerStyles, previewStyles)}
           >
             <div className={documentStyles}>
-              <ReadonlyDocument
-                className={previewStyles}
-                doc={doc as any}
-                expandAll={false}
-              />
+              <ReadonlyDocument doc={doc as any} expandAll={false} />
             </div>
           </KeylineCard>
         );
