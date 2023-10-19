@@ -1,4 +1,7 @@
 'use strict';
+
+/* eslint-disable no-console */
+
 // To run these tests against cloud-dev:
 // > ATLAS_PUBLIC_KEY="..." \
 //   ATLAS_PRIVATE_KEY="..." \
@@ -20,6 +23,11 @@ const os = require('os');
 const assert = require('assert');
 const ejsonShellParser = require('ejson-shell-parser');
 const { MongoClient } = require('mongodb');
+let PQueue;
+(async () => {
+  // ESM package only. This could introduce race conditions.
+  PQueue = (await import('p-queue')).default;
+})();
 const { EJSON } = require('bson');
 const { getSimplifiedSchema } = require('mongodb-schema');
 const path = require('path');
@@ -32,6 +40,11 @@ const DEFAULT_ATTEMPTS_PER_TEST = 10;
 const DEFAULT_MIN_ACCURACY = 0.8;
 
 const MAX_TIMEOUTS_PER_TEST = 10;
+
+// There are a limited amount of resources available both on the Atlas
+// and on the ai service side of things, so we want to limit how many
+// requests can be happening at a time.
+const TESTS_TO_RUN_CONCURRENTLY = 4;
 
 const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
@@ -487,7 +500,6 @@ const tests = [
     ]),
   },
 ];
-
 async function main() {
   try {
     await setup();
@@ -495,26 +507,34 @@ async function main() {
 
     let anyFailed = false;
 
-    for (const test of tests) {
-      const {
-        accuracy,
-        // usageStats
-      } = await runTest(test);
-      const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
-      const failed = accuracy < minAccuracy;
+    const testPromiseQueue = new PQueue({
+      concurrency: TESTS_TO_RUN_CONCURRENTLY,
+    });
 
-      table.push({
-        Type: test.type.slice(0, 1).toUpperCase(),
-        'User Input': test.userInput.slice(0, 50),
-        Namespace: `${test.databaseName}.${test.collectionName}`,
-        Accuracy: accuracy,
-        // 'Prompt Tokens': usageStats[0]?.promptTokens,
-        // 'Completion Tokens': usageStats[0]?.completionTokens,
-        Pass: failed ? '✗' : '✓',
-      });
+    tests.map((test) =>
+      testPromiseQueue.add(async () => {
+        const {
+          accuracy,
+          // usageStats
+        } = await runTest(test);
+        const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
+        const failed = accuracy < minAccuracy;
 
-      anyFailed = anyFailed || failed;
-    }
+        table.push({
+          Type: test.type.slice(0, 1).toUpperCase(),
+          'User Input': test.userInput.slice(0, 50),
+          Namespace: `${test.databaseName}.${test.collectionName}`,
+          Accuracy: accuracy,
+          // 'Prompt Tokens': usageStats[0]?.promptTokens,
+          // 'Completion Tokens': usageStats[0]?.completionTokens,
+          Pass: failed ? '✗' : '✓',
+        });
+
+        anyFailed = anyFailed || failed;
+      })
+    );
+
+    await testPromiseQueue.onIdle();
 
     console.table(table, [
       'Type',
@@ -536,4 +556,5 @@ async function main() {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 main();
