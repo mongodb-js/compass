@@ -245,26 +245,22 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   onConfirmBulkDeleteDialog() {
-    this.props.store.runBulkDelete();
+    void this.props.store.runBulkDelete();
   }
 
   /**
    * Render the bulk deletion modal
    */
   renderDeletionModal() {
-    const SAMPLE_COUNT = 5;
-
     return (
       <BulkDeleteModal
-        open={this.props.store.state.isBulkDeleteDialogOpen}
+        open={this.props.store.state.bulkDelete.status === 'open'}
         namespace={this.props.store.state.ns}
-        documentCount={this.props.store.state.count || 0}
+        documentCount={this.props.store.state.bulkDelete.affected || 0}
         filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
-        sampleDocuments={
-          this.props.store.state.docs?.slice(0, SAMPLE_COUNT) || []
-        }
+        sampleDocuments={this.props.store.state.bulkDelete.previews}
       />
     );
   }

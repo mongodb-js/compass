@@ -370,6 +370,12 @@ export type QueryState = {
   collation: null | BSONObject;
 };
 
+export type BulkDeleteState = {
+  previews: Document[];
+  status: 'open' | 'closed' | 'in-progress';
+  affected?: number;
+};
+
 type CrudState = {
   ns: string;
   collection: string;
@@ -400,7 +406,7 @@ type CrudState = {
   fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
-  isBulkDeleteDialogOpen: boolean;
+  bulkDelete: BulkDeleteState;
 };
 
 class CrudStoreImpl
@@ -460,7 +466,11 @@ class CrudStoreImpl
       fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
-      isBulkDeleteDialogOpen: false,
+      bulkDelete: {
+        previews: [],
+        status: 'closed',
+        affected: 0,
+      },
     };
   }
 
@@ -1592,26 +1602,67 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    this.setState({ isBulkDeleteDialogOpen: true });
+    const PREVIEW_DOCS = 5;
+
+    this.setState({
+      bulkDelete: {
+        previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
+        status: 'open',
+        affected: this.state.count || 0,
+      },
+    });
+  }
+
+  bulkDeleteInProgress() {
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'in-progress',
+      },
+    });
+  }
+
+  bulkDeleteFailed(ex: Error) {
+    return ex;
+  }
+
+  bulkDeleteSuccess() {
+    this.closeBulkDeleteDialog();
   }
 
   closeBulkDeleteDialog() {
-    this.setState({ isBulkDeleteDialogOpen: false });
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'closed',
+      },
+    });
   }
 
   async runBulkDelete() {
-    this.setState({ isBulkDeleteDialogOpen: false });
+    const { affected } = this.state.bulkDelete;
+    this.closeBulkDeleteDialog();
+
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
       buttonText: 'Delete',
       description: `This action can not be undone. This will permanently delete ${
-        this.state.count || 0
+        affected || 0
       } documents.`,
       variant: 'danger',
     });
 
     if (confirmation) {
-      await this.dataService.deleteMany(this.state.ns, this.state.query.filter);
+      this.bulkDeleteInProgress();
+      try {
+        await this.dataService.deleteMany(
+          this.state.ns,
+          this.state.query.filter
+        );
+        this.bulkDeleteSuccess();
+      } catch (ex) {
+        this.bulkDeleteFailed(ex as Error);
+      }
     }
   }
 }
