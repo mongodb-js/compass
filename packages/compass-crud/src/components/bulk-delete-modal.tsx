@@ -8,6 +8,7 @@ import {
   TextInput,
   KeylineCard,
   css,
+  cx,
   spacing,
   InfoSprinkle,
   Label,
@@ -47,12 +48,16 @@ const documentStyles = css({
   width: '100%',
 });
 
-const modalBodySpacing = css({
+const modalBodySpacingStyles = css({
   marginTop: spacing[3],
   paddingLeft: spacing[5],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+});
+
+const previewStyles = css({
+  minHeight: '384px',
 });
 
 type QueryLabelProps = {
@@ -101,9 +106,16 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
     <div className={documentHorizontalWrapper}>
       {sampleDocuments.map((doc, i) => {
         return (
-          <KeylineCard key={i} className={documentContainerStyles}>
+          <KeylineCard
+            key={i}
+            className={cx(documentContainerStyles, previewStyles)}
+          >
             <div className={documentStyles}>
-              <ReadonlyDocument doc={doc as any} expandAll={false} />
+              <ReadonlyDocument
+                className={previewStyles}
+                doc={doc as any}
+                expandAll={false}
+              />
             </div>
           </KeylineCard>
         );
@@ -118,7 +130,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         subtitle={namespace}
         variant={'danger'}
       />
-      <ModalBody variant={'danger'} className={modalBodySpacing}>
+      <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
         <TextInput
           label={
             (
