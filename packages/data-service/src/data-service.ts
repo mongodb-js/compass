@@ -137,6 +137,20 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
 }
 
+export type UpdatePreviewChange = {
+  before: Document;
+  after: Document;
+};
+
+export type UpdatePreviewExecutionOptions = ExecutionOptions & {
+  sample?: number;
+  timeout?: number;
+};
+
+export type UpdatePreview = {
+  changes: UpdatePreviewChange[];
+};
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
@@ -727,6 +741,18 @@ export interface DataService {
    * is being emitted when this value changes.
    */
   getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
+
+  /**
+   * Runs the update within a transactions, only
+   * modifying a subset of the documents matched by the filter.
+   * It returns a list of the changed documents, or a serverError.
+   */
+  previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions?: UpdatePreviewExecutionOptions
+  ): Promise<UpdatePreview>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -2283,6 +2309,70 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const stats = await runCommand(db, { dbStats: 1 });
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
+  }
+
+  @op(mongoLogId(1_001_000_266))
+  async previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions: UpdatePreviewExecutionOptions = {}
+  ): Promise<UpdatePreview> {
+    const {
+      abortSignal = new AbortController().signal,
+      sample = 10,
+      timeout = 1000,
+    } = executionOptions;
+    const startTimeMS = Date.now();
+    const remainingTimeoutMS = () =>
+      Math.max(1, timeout - (Date.now() - startTimeMS));
+    return await this._cancellableOperation(
+      async (session) => {
+        if (!session) {
+          throw new Error('Could not open session.');
+        }
+
+        try {
+          const coll = this._collection(ns, 'CRUD');
+          session.startTransaction({
+            maxTimeMS: remainingTimeoutMS(),
+          });
+
+          const docsToPreview = await coll
+            .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
+            .sort({ _id: 1 })
+            .limit(sample)
+            .toArray();
+
+          const idsToPreview = docsToPreview.map((doc) => doc._id);
+          await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+            session,
+            maxTimeMS: remainingTimeoutMS(),
+          });
+          const changedDocs = await coll
+            .find(
+              { _id: { $in: idsToPreview } },
+              { session, maxTimeMS: remainingTimeoutMS() }
+            )
+            .sort({ _id: 1 })
+            .toArray();
+
+          const changes = docsToPreview.map((before, idx) => ({
+            before,
+            after: changedDocs[idx],
+          }));
+          return { changes };
+        } finally {
+          await session.abortTransaction();
+          await session.endSession();
+        }
+      },
+      async (session) => {
+        await session.abortTransaction();
+        await session.endSession();
+      },
+      abortSignal
+    );
   }
 
   /**
