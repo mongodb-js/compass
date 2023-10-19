@@ -260,7 +260,9 @@ class DocumentList extends React.Component<DocumentListProps> {
         filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
-        sampleDocuments={this.props.store.state.bulkDelete.previews}
+        sampleDocuments={
+          this.props.store.state.bulkDelete.previews as any as Document[]
+        }
       />
     );
   }

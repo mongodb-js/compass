@@ -103,7 +103,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         return (
           <KeylineCard key={i} className={documentContainerStyles}>
             <div className={documentStyles}>
-              <ReadonlyDocument doc={doc} />
+              <ReadonlyDocument doc={doc as any} expandAll={false} />
             </div>
           </KeylineCard>
         );
