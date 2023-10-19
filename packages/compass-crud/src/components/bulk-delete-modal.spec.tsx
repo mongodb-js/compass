@@ -29,18 +29,17 @@ describe('BulkDeleteModal Component', function () {
 
   it('does not render if closed', function () {
     renderBulkDeleteModal({ open: false });
-    expect(screen.queryByText(/Preview documents to delete/)).to.not.exist;
+    expect(screen.queryByText(/Delete/)).to.not.exist;
   });
 
   it('does render if open', function () {
     renderBulkDeleteModal();
-    expect(screen.queryByText(/Preview documents to delete/)).to.be.visible;
+    expect(screen.queryAllByText(/Delete/)).to.not.be.empty;
   });
 
   it('shows the number of documents that will be deleted', function () {
     renderBulkDeleteModal({ documentCount: 42 });
-    expect(screen.queryByText('Preview documents to delete (42)')).to.be
-      .visible;
+    expect(screen.queryAllByText('Delete 42 documents')[0]).to.be.visible;
   });
 
   it('shows the affected collection', function () {
@@ -69,7 +68,7 @@ describe('BulkDeleteModal Component', function () {
     });
 
     userEvent.click(
-      screen.getByText('Delete documents (10)').closest('button')!
+      screen.getAllByText('Delete 10 documents')[1].closest('button')!
     );
     expect(onConfirmDeletionSpy).to.have.been.calledOnce;
   });

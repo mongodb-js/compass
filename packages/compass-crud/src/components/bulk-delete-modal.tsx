@@ -122,7 +122,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   return (
     <Modal setOpen={onCancel} open={open}>
       <ModalHeader
-        title={`Preview documents to delete (${documentCount})`}
+        title={`Delete ${documentCount} documents`}
         subtitle={namespace}
         variant={'danger'}
       />
@@ -146,7 +146,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       </ModalBody>
       <ModalFooter className={modalFooterSpacingStyles}>
         <Button variant="danger" onClick={onConfirmDeletion}>
-          Delete documents ({documentCount})
+          Delete {documentCount} documents
         </Button>
         <Button variant="default" onClick={onCancel}>
           Close
