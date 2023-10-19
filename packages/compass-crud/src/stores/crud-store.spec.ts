@@ -185,6 +185,11 @@ describe('store', function () {
 
       expect(store.state).to.deep.equal({
         abortController: null,
+        bulkDelete: {
+          affected: 0,
+          previews: [],
+          status: 'closed',
+        },
         debouncingLoad: false,
         loadingCount: false,
         collection: '',
