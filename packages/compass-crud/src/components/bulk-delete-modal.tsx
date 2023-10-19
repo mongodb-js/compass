@@ -9,6 +9,8 @@ import {
   KeylineCard,
   css,
   spacing,
+  InfoSprinkle,
+  Label,
 } from '@mongodb-js/compass-components';
 import ReadonlyDocument from './readonly-document';
 
@@ -44,6 +46,36 @@ const documentStyles = css({
   padding: 0,
   width: '100%',
 });
+
+const modalBodySpacing = css({
+  marginTop: spacing[2],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[2],
+});
+
+type QueryLabelProps = {
+  tooltip: string;
+  label: string;
+};
+
+const queryLabelStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  alignItems: 'center',
+});
+
+const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
+  tooltip,
+  label,
+}) => {
+  return (
+    <div className={queryLabelStyles}>
+      <Label htmlFor="template-dropdown">{label}</Label>
+      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
+    </div>
+  );
+};
 
 type BulkDeleteModalProps = {
   open: boolean;
@@ -85,8 +117,19 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         subtitle={namespace}
         variant={'danger'}
       />
-      <ModalBody variant={'danger'}>
-        <TextInput label="Query" disabled={true} value={filterQuery} />
+      <ModalBody variant={'danger'} className={modalBodySpacing}>
+        <TextInput
+          label={
+            (
+              <QueryLabel
+                label="Query"
+                tooltip="Return to the Documents tab to edit this query."
+              />
+            ) as any as string
+          }
+          disabled={true}
+          value={filterQuery}
+        />
         <b>Preview (sample of {sampleDocuments.length} documents)</b>
         {preview}
       </ModalBody>
