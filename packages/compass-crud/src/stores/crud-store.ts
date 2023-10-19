@@ -1619,15 +1619,16 @@ class CrudStoreImpl
         ...this.state.bulkDelete,
         status: 'in-progress',
       },
-    });
+    }); // TODO: COMPASS-7328
   }
 
   bulkDeleteFailed(ex: Error) {
-    return ex;
+    return ex; // TODO: COMPASS-7328
   }
 
   bulkDeleteSuccess() {
     this.closeBulkDeleteDialog();
+    // TODO: COMPASS-7328
   }
 
   closeBulkDeleteDialog() {
