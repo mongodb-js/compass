@@ -35,7 +35,7 @@ type FetchIndexesFailedAction = {
 type State = {
   isSearchIndexesSupported: boolean;
   indexes: SearchIndex[];
-  status: keyof typeof SearchIndexesStatuses;
+  status: SearchIndexesStatus;
 };
 
 export const INITIAL_STATE: State = {

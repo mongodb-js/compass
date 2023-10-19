@@ -61,7 +61,7 @@ const inputStyles = css({ flex: 1 });
 
 const mapTextSearchDataToStageValue = (formData: TextSearchState): Document => {
   return {
-    index: formData.indexName,
+    index: formData.indexName || 'default',
     text: {
       query: formData.text,
       path:
@@ -91,10 +91,6 @@ const getFormValidationError = (formData: TextSearchState): Error | null => {
 
   if (!formData.text) {
     return new Error('No search text provided');
-  }
-
-  if (!formData.indexName) {
-    return new Error('No index provided');
   }
 
   return null;

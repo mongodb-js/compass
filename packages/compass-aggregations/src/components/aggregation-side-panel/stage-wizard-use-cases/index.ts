@@ -22,6 +22,7 @@ export type StageWizardUseCase = {
   stageOperator: string;
   wizardComponent: React.FunctionComponent<WizardComponentProps>;
   serverVersion?: string;
+  isAtlasOnly?: boolean;
 };
 
 export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
@@ -73,6 +74,7 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Search for a text field across all documents in a collection',
     stageOperator: '$search',
     wizardComponent: TextSearch,
+    isAtlasOnly: true,
   },
 ];
 
