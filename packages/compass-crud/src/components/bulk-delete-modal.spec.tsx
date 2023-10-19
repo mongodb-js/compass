@@ -30,7 +30,7 @@ function renderBulkDeleteModal(
   );
 }
 
-describe.only('BulkDeleteModal Component', function () {
+describe('BulkDeleteModal Component', function () {
   afterEach(function () {
     cleanup();
   });
