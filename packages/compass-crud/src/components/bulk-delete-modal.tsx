@@ -57,7 +57,7 @@ const modalBodySpacingStyles = css({
 });
 
 const previewStyles = css({
-  minHeight: '384px',
+  minHeight: '200px',
 });
 
 type QueryLabelProps = {
