@@ -1,17 +1,9 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
-import {
-  fireEvent,
-  render,
-  screen,
-  cleanup,
-  within,
-} from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BulkDeleteModal from './bulk-delete-modal';
-import { Document } from 'hadron-document';
 
 function renderBulkDeleteModal(
   props?: Partial<React.ComponentProps<typeof BulkDeleteModal>>
