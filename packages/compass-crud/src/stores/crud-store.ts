@@ -1090,9 +1090,16 @@ class CrudStoreImpl
       this.state.bulkUpdate.previewAbortController.abort();
     }
 
+    // immediately persist the state before any other state changes
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+      },
+    });
+
     const abortController = new AbortController();
 
-    console.log('initialState');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1104,13 +1111,15 @@ class CrudStoreImpl
     try {
       update = parseShellBSON(updateText);
     } catch (err: any) {
-      // TODO: if abortController was aborted, ignore the result
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
 
       console.log({ syntaxError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
-          updateText,
           preview: {
             changes: [],
           },
@@ -1128,16 +1137,19 @@ class CrudStoreImpl
     let preview;
     try {
       preview = await this.dataService.previewUpdate(ns, filter, update, {
+        sample: 3,
         abortSignal: abortController.signal,
       });
     } catch (err: any) {
-      // TODO: if abortController was aborted, ignore the result
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
 
       console.log({ serverError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
-          updateText,
           preview: {
             changes: [],
           },
@@ -1149,9 +1161,12 @@ class CrudStoreImpl
       return;
     }
 
-    // TODO: if abortController was aborted, ignore the result
+    if (abortController.signal.aborted) {
+      // ignore this result because it is stale
+      return;
+    }
 
-    console.log('success!');
+    console.log('success!', preview);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1159,6 +1174,7 @@ class CrudStoreImpl
         preview,
         serverError: undefined,
         syntaxError: undefined,
+        previewAbortController: undefined,
       },
     });
   }

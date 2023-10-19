@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { EJSON } from 'bson';
 
@@ -29,13 +29,10 @@ import type { UpdatePreview, UpdatePreviewChange } from 'mongodb-data-service';
 
 const columnsStyles = css({
   marginTop: spacing[4],
-  display: 'flex',
-  gap: spacing[3],
-  alignItems: 'flex-start',
+  display: 'grid',
   width: '100%',
-  '> *': {
-    flex: 1,
-  },
+  gap: spacing[4],
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
 });
 
 const queryStyles = css({
@@ -103,6 +100,12 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+// TODO: this is a temporary hack
+const updatePreviewStyles = css({
+  overflow: 'scroll',
+  maxHeight: '500px',
+});
+
 function formatQuery(filter: BSONObject) {
   return EJSON.stringify(filter, undefined, 2);
 }
@@ -133,6 +136,13 @@ export default function BulkUpdateDialog({
   updateBulkUpdatePreview,
 }: BulkUpdateDialogProps) {
   const darkMode = useDarkMode();
+
+  const [text, setText] = useState(updateText);
+
+  const onChangeText = (value: string) => {
+    setText(value);
+    updateBulkUpdatePreview(value);
+  };
 
   const title =
     count === undefined ? 'Update documents' : `Update documents (${count})`;
@@ -208,8 +218,8 @@ export default function BulkUpdateDialog({
               )}
             >
               <CodemirrorMultilineEditor
-                text={updateText}
-                onChangeText={updateBulkUpdatePreview}
+                text={text}
+                onChangeText={onChangeText}
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
                 minLines={16}
@@ -241,24 +251,24 @@ export default function BulkUpdateDialog({
               {preview.changes.length !== 1 && 's'})
             </Description>
           </Label>
-          <div>
-            {preview.changes.map((change, index) => {
-              return (
-                <UpdatePreviewDocument
-                  key={`change=${index as number}`}
-                  data-testid="bulk-update-preview-document"
-                  change={change}
-                />
-              );
-            })}
+          <div className={updatePreviewStyles}>
+            {preview.changes.map(
+              (change: UpdatePreviewChange, index: number) => {
+                return (
+                  <UpdatePreviewDocument
+                    key={`change=${index as number}`}
+                    data-testid="bulk-update-preview-document"
+                    change={change}
+                  />
+                );
+              }
+            )}
           </div>
         </div>
       </div>
     </FormModal>
   );
 }
-
-const updatePreviewStyles = css({});
 
 function UpdatePreviewDocument({
   change,
@@ -267,9 +277,10 @@ function UpdatePreviewDocument({
   'data-testid': string;
   change: UpdatePreviewChange;
 }) {
+  const text = EJSON.stringify(change.after, undefined, 2, { relaxed: false });
   return (
-    <div data-testid={props['data-testid']} className={updatePreviewStyles}>
-      {change.after}
+    <div data-testid={props['data-testid']}>
+      <pre>{text}</pre>
     </div>
   );
 }
