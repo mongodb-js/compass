@@ -39,6 +39,7 @@ import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
+import { showConfirmation } from '@mongodb-js/compass-components';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -57,6 +58,9 @@ export type CrudActions = {
   replaceDocument(doc: Document): void;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
   copyToClipboard(doc: Document): void; //XXX
+  openBulkDeleteDialog(): void;
+  closeBulkDeleteDialog(): void;
+  runBulkDelete(): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -396,6 +400,7 @@ type CrudState = {
   fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isBulkDeleteDialogOpen: boolean;
 };
 
 class CrudStoreImpl
@@ -455,6 +460,7 @@ class CrudStoreImpl
       fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
+      isBulkDeleteDialogOpen: false,
     };
   }
 
@@ -1583,6 +1589,30 @@ class CrudStoreImpl
 
   openCreateSearchIndexModal() {
     this.localAppRegistry.emit('open-create-search-index-modal');
+  }
+
+  openBulkDeleteDialog() {
+    this.setState({ isBulkDeleteDialogOpen: true });
+  }
+
+  closeBulkDeleteDialog() {
+    this.setState({ isBulkDeleteDialogOpen: false });
+  }
+
+  async runBulkDelete() {
+    this.setState({ isBulkDeleteDialogOpen: false });
+    const confirmation = await showConfirmation({
+      title: 'Are you absolutely sure?',
+      buttonText: 'Delete',
+      description: `This action can not be undone. This will permanently delete ${
+        this.state.count || 0
+      } documents.`,
+      variant: 'danger',
+    });
+
+    if (confirmation) {
+      await this.dataService.deleteMany(this.state.ns, this.state.query.filter);
+    }
   }
 }
 
