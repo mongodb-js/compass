@@ -48,10 +48,11 @@ const documentStyles = css({
 });
 
 const modalBodySpacing = css({
-  marginTop: spacing[2],
+  marginTop: spacing[3],
+  paddingLeft: spacing[5],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[3],
 });
 
 type QueryLabelProps = {
@@ -130,8 +131,10 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           disabled={true}
           value={filterQuery}
         />
-        <b>Preview (sample of {sampleDocuments.length} documents)</b>
-        {preview}
+        <div>
+          <b>Preview (sample of {sampleDocuments.length} documents)</b>
+          {preview}
+        </div>
       </ModalBody>
       <ModalFooter className={modalFooterSpacingStyles}>
         <Button variant="danger" onClick={onConfirmDeletion}>
