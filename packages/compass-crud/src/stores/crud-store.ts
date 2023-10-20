@@ -1528,7 +1528,7 @@ class CrudStoreImpl
       );
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_267),
+        mongoLogId(1_001_000_268),
         'Documents',
         'Failed to refresh documents',
         error
