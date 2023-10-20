@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { Document } from '@mongodb-js/compass-crud';
+import HadronDocument from 'hadron-document';
 
-import { EJSON } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 
 import {
   FormModal,
@@ -19,13 +21,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { Annotation } from '@mongodb-js/compass-editor';
-import {
-  CodemirrorInlineEditor,
-  CodemirrorMultilineEditor,
-} from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import type { BSONObject } from '../stores/crud-store';
-import type { UpdatePreview, UpdatePreviewChange } from 'mongodb-data-service';
+import type { UpdatePreview } from 'mongodb-data-service';
 
 const columnsStyles = css({
   marginTop: spacing[4],
@@ -57,27 +56,37 @@ const descriptionStyles = css({
   marginBottom: spacing[2],
 });
 
-const previewStyles = css({});
+const previewStyles = css({
+  contain: 'size',
+  overflow: 'scroll',
+});
 
 const previewDescriptionStyles = css({
   display: 'inline',
 });
 
-const codeEditorContainerStyles = css({
+const codeContainerStyles = css({
   paddingTop: spacing[2],
   paddingBottom: spacing[2],
 });
 
-const codeEditorDarkContainerStyles = css({
+const codeDarkContainerStyles = css({
   background: palette.gray.dark4,
 });
 
-const codeEditorLightContainerStyles = css({
+const codeLightContainerStyles = css({
   backgroundColor: palette.gray.light3,
 });
 
 const inlineContainerStyles = css({
   paddingLeft: spacing[2],
+  pre: {
+    margin: 0,
+  },
+});
+
+const multilineContainerStyles = css({
+  maxHeight: spacing[4] * 20,
 });
 
 // We use custom color here so need to disable default one that we use
@@ -100,15 +109,11 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
-// TODO: this is a temporary hack
 const updatePreviewStyles = css({
-  overflow: 'scroll',
-  maxHeight: '500px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
 });
-
-function formatQuery(filter: BSONObject) {
-  return EJSON.stringify(filter, undefined, 2);
-}
 
 export type BulkUpdateDialogProps = {
   isOpen: boolean;
@@ -138,6 +143,12 @@ export default function BulkUpdateDialog({
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
+
+  const previewDocuments = useMemo(() => {
+    return preview.changes.map(
+      (change) => new HadronDocument(change.after as Record<string, unknown>)
+    );
+  }, [preview]);
 
   const onChangeText = (value: string) => {
     setText(value);
@@ -178,32 +189,24 @@ export default function BulkUpdateDialog({
         <div className={queryStyles}>
           <div className={queryFieldStyles}>
             <div className={filterLabelContainerStyles}>
-              <Label htmlFor="bulk-update-filter">Filter Query</Label>
+              <Label htmlFor="bulk-update-filter">Filter</Label>
               <InfoSprinkle>
                 Return to the Documents tab to edit this query
               </InfoSprinkle>
             </div>
             <KeylineCard
               className={cx(
-                codeEditorContainerStyles,
+                codeContainerStyles,
                 inlineContainerStyles,
-                darkMode
-                  ? codeEditorDarkContainerStyles
-                  : codeEditorLightContainerStyles
+                darkMode ? codeDarkContainerStyles : codeLightContainerStyles
               )}
             >
-              <CodemirrorInlineEditor
-                text={formatQuery(filter)}
-                id="bulk-update-filter"
-                data-testid="bulk-update-filter"
-                className={codeEditorStyles}
-                readOnly={true}
-              />
+              <pre>{toJSString(filter)}</pre>
             </KeylineCard>
           </div>
 
           <div className={cx(queryFieldStyles, updateFieldStyles)}>
-            <Label htmlFor="bulk-update-update">Update Query</Label>
+            <Label htmlFor="bulk-update-update">Update</Label>
             <Description className={descriptionStyles}>
               <Link href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update">
                 Learn more about Update syntax
@@ -211,10 +214,9 @@ export default function BulkUpdateDialog({
             </Description>
             <KeylineCard
               className={cx(
-                codeEditorContainerStyles,
-                darkMode
-                  ? codeEditorDarkContainerStyles
-                  : codeEditorLightContainerStyles
+                codeContainerStyles,
+                multilineContainerStyles,
+                darkMode ? codeDarkContainerStyles : codeLightContainerStyles
               )}
             >
               <CodemirrorMultilineEditor
@@ -222,10 +224,10 @@ export default function BulkUpdateDialog({
                 onChangeText={onChangeText}
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
-                minLines={16}
                 onBlur={() => ({})}
                 className={codeEditorStyles}
                 annotations={annotations}
+                maxLines={20}
               />
               {syntaxError && (
                 <Banner
@@ -252,17 +254,15 @@ export default function BulkUpdateDialog({
             </Description>
           </Label>
           <div className={updatePreviewStyles}>
-            {preview.changes.map(
-              (change: UpdatePreviewChange, index: number) => {
-                return (
-                  <UpdatePreviewDocument
-                    key={`change=${index as number}`}
-                    data-testid="bulk-update-preview-document"
-                    change={change}
-                  />
-                );
-              }
-            )}
+            {previewDocuments.map((doc: HadronDocument, index: number) => {
+              return (
+                <UpdatePreviewDocument
+                  key={`change=${index}`}
+                  data-testid="bulk-update-preview-document"
+                  doc={doc}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -271,16 +271,15 @@ export default function BulkUpdateDialog({
 }
 
 function UpdatePreviewDocument({
-  change,
+  doc,
   ...props
 }: {
   'data-testid': string;
-  change: UpdatePreviewChange;
+  doc: HadronDocument;
 }) {
-  const text = EJSON.stringify(change.after, undefined, 2, { relaxed: false });
   return (
-    <div data-testid={props['data-testid']}>
-      <pre>{text}</pre>
-    </div>
+    <KeylineCard data-testid={props['data-testid']}>
+      <Document doc={doc} editable={false} />
+    </KeylineCard>
   );
 }

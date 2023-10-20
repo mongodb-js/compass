@@ -1136,9 +1136,12 @@ class CrudStoreImpl
 
     let preview;
     try {
+      // TODO: we should automatically retry if the get "Write conflict during plan execution and yielding is disabled."
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
-        abortSignal: abortController.signal,
+        // TODO: aborting the in-flight operation is still buggy, regularly
+        // causing uncaught MongoRuntimeError rejections
+        //abortSignal: abortController.signal,
       });
     } catch (err: any) {
       if (abortController.signal.aborted) {
