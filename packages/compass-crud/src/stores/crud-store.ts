@@ -1643,9 +1643,14 @@ class CrudStoreImpl
       } documents could not be deleted.`,
     });
 
-    log.error(mongoLogId(1_001_000_268), 'Bulk Delete Documents', `Delete opeartion failed: ${ex.message}`, {
-      stack: ex.stack,
-    });
+    log.error(
+      mongoLogId(1_001_000_268),
+      'Bulk Delete Documents',
+      `Delete opeartion failed: ${ex.message}`,
+      {
+        stack: ex.stack,
+      }
+    );
   }
 
   bulkDeleteSuccess() {
