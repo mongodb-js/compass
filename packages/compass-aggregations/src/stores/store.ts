@@ -26,6 +26,7 @@ import {
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
+import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 
 export type ConfigureStoreOptions = {
   /**
@@ -233,6 +234,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       sourceName: options.sourceName,
       editViewName: options.editViewName,
       searchIndexes: {
+        ...SEARCH_INDEXES_INITIAL_STATE,
         isSearchIndexesSupported: Boolean(options.isSearchIndexesSupported),
       },
     },
