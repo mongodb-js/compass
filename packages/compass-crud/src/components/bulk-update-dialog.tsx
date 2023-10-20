@@ -101,6 +101,12 @@ const codeEditorStyles = css({
   },
 });
 
+const bannerContainerStyles = css({
+  // don't jump when an error appears
+  minHeight: spacing[4] * 2 + 2,
+  overflow: 'hidden',
+});
+
 const bannerStyles = css({
   flex: 'none',
   marginTop: spacing[2],
@@ -229,21 +235,26 @@ export default function BulkUpdateDialog({
                 onBlur={() => ({})}
                 className={codeEditorStyles}
                 annotations={annotations}
-                maxLines={20}
               />
-              {syntaxError && (
-                <Banner
-                  variant={BannerVariant.Warning}
-                  className={bannerStyles}
-                >
-                  {syntaxError.message}
-                </Banner>
-              )}
-              {serverError && !syntaxError && (
-                <Banner variant={BannerVariant.Danger} className={bannerStyles}>
-                  {serverError.message}
-                </Banner>
-              )}
+
+              <div className={bannerContainerStyles}>
+                {syntaxError && (
+                  <Banner
+                    variant={BannerVariant.Warning}
+                    className={bannerStyles}
+                  >
+                    {syntaxError.message}
+                  </Banner>
+                )}
+                {serverError && !syntaxError && (
+                  <Banner
+                    variant={BannerVariant.Danger}
+                    className={bannerStyles}
+                  >
+                    {serverError.message}
+                  </Banner>
+                )}
+              </div>
             </KeylineCard>
           </div>
         </div>
