@@ -41,7 +41,9 @@ import type {
   Db,
   IndexInformationOptions,
   CollectionInfo,
+  UpdateFilter,
   UpdateOptions,
+  UpdateResult,
   ReplaceOptions,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
@@ -1481,6 +1483,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<DeleteResult> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.deleteMany(filter, options);
+  }
+
+  @op(mongoLogId(1_001_000_267), ([ns], result) => {
+    return { ns, ...(result && { result }) };
+  })
+  async updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult> {
+    const coll = this._collection(ns, 'CRUD');
+    return await coll.updateMany(filter, update, options);
   }
 
   async disconnect(): Promise<void> {

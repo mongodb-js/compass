@@ -21,6 +21,7 @@ const configureActions = () => {
     'openInsertDocumentDialog',
     'openBulkUpdateDialog',
     'updateBulkUpdatePreview',
+    'runBulkUpdate',
     'openExportFileDialog',
     'openImportFileDialog',
     'pathChanged',

@@ -61,6 +61,7 @@ export type CrudActions = {
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
+  runBulkUpdate(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
 };
@@ -508,7 +509,7 @@ class CrudStoreImpl
   getInitialBulkUpdateState(): BulkUpdateState {
     return {
       isOpen: false,
-      updateText: '{}',
+      updateText: '{\n  $set: {}\n}',
       preview: {
         changes: [],
       },
@@ -1142,8 +1143,8 @@ class CrudStoreImpl
       return;
     }
 
-    const ns = this.state.ns;
-    const filter = this.state.query.filter;
+    const { ns } = this.state;
+    const { filter } = this.state.query;
 
     let preview;
     try {
@@ -1189,6 +1190,25 @@ class CrudStoreImpl
         previewAbortController: undefined,
       },
     });
+  }
+
+  async runBulkUpdate() {
+    this.closeBulkUpdateDialog();
+
+    const { ns } = this.state;
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    // TODO(COMPASS-7327): in-progress, success, error in toast
+    await this.dataService.updateMany(ns, filter, update);
   }
 
   /**

@@ -61,6 +61,7 @@ export type DocumentListProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   openBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
+  runBulkUpdate: () => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
@@ -158,12 +159,6 @@ class DocumentList extends React.Component<DocumentListProps> {
     } else if (key === 'import-file') {
       this.props.openImportFileDialog?.('crud-toolbar');
     }
-  }
-  /**
-   * Handle opening the delete bulk dialog.
-   */
-  handleUpdateButton() {
-    this.props.openBulkUpdateDialog();
   }
 
   /**
@@ -267,6 +262,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         {...this.props.bulkUpdate}
         closeBulkUpdateDialog={this.props.closeBulkUpdateDialog}
         updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
+        runBulkUpdate={this.props.runBulkUpdate}
       />
     );
   }
@@ -358,6 +354,20 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   /**
+   * Handle opening the update bulk dialog.
+   */
+  handleUpdateButton() {
+    this.props.openBulkUpdateDialog();
+  }
+
+  /**
+   * Handle running the bulk update.
+   */
+  handleRunBulkUpdate() {
+    this.props.runBulkUpdate();
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
@@ -440,6 +450,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     openInsertDocumentDialog: PropTypes.func,
     openBulkUpdateDialog: PropTypes.func,
     updateBulkUpdatePreview: PropTypes.func,
+    runBulkUpdarte: PropTypes.func,
     openImportFileDialog: PropTypes.func,
     openExportFileDialog: PropTypes.func,
     refreshDocuments: PropTypes.func,
@@ -501,6 +512,7 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openBulkUpdateDialog: PropTypes.func,
   updateBulkUpdatePreview: PropTypes.func,
+  runBulkUpdate: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
   refreshDocuments: PropTypes.func,

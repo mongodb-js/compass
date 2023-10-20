@@ -25,7 +25,7 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
     >
-      Updatadf
+      Update
     </Button>
   );
 };

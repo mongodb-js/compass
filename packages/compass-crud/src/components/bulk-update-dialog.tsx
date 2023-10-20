@@ -126,6 +126,7 @@ export type BulkUpdateDialogProps = {
   serverError?: Error;
   closeBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
+  runBulkUpdate: () => void;
 };
 
 export default function BulkUpdateDialog({
@@ -139,6 +140,7 @@ export default function BulkUpdateDialog({
   serverError,
   closeBulkUpdateDialog,
   updateBulkUpdatePreview,
+  runBulkUpdate,
 }: BulkUpdateDialogProps) {
   const darkMode = useDarkMode();
 
@@ -179,7 +181,7 @@ export default function BulkUpdateDialog({
       subtitle={ns}
       size="large"
       open={isOpen}
-      onSubmit={() => ({})}
+      onSubmit={runBulkUpdate}
       onCancel={closeBulkUpdateDialog}
       cancelButtonText="Close"
       submitButtonText="Update documents"
