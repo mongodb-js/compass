@@ -1528,7 +1528,7 @@ class CrudStoreImpl
       );
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_268),
+        mongoLogId(1_001_000_074),
         'Documents',
         'Failed to refresh documents',
         error
@@ -1643,7 +1643,7 @@ class CrudStoreImpl
       } documents could not be deleted.`,
     });
 
-    log.error(mongoLogId(1_001_000_075), 'Bulk Delete Documents', ex.message, {
+    log.error(mongoLogId(1_001_000_268), 'Bulk Delete Documents', ex.message, {
       stack: ex.stack,
     });
   }
