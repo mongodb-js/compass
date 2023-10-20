@@ -202,6 +202,15 @@ describe('store', function () {
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
+        bulkUpdate: {
+          isOpen: false,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{}',
+        },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
         isEditable: true,
