@@ -1013,7 +1013,10 @@ class CrudStoreImpl
    */
   closeBulkUpdateDialog() {
     this.setState({
-      bulkUpdate: this.getInitialBulkUpdateState(),
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: false,
+      },
     });
   }
 
@@ -1148,11 +1151,12 @@ class CrudStoreImpl
 
     let preview;
     try {
-      // TODO: we should automatically retry if the get "Write conflict during plan execution and yielding is disabled."
+      // TODO(COMPASS-7369): we should automatically retry if the get "Write
+      // conflict during plan execution and yielding is disabled."
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
-        // TODO: aborting the in-flight operation is still buggy, regularly
-        // causing uncaught MongoRuntimeError rejections
+        // TODO(COMPASS-7368): aborting the in-flight operation is still buggy,
+        // regularly causing uncaught MongoRuntimeError rejections
         //abortSignal: abortController.signal,
       });
     } catch (err: any) {
