@@ -1627,7 +1627,6 @@ class CrudStoreImpl
   }
 
   bulkDeleteSuccess() {
-    this.closeBulkDeleteDialog();
     // TODO: COMPASS-7328
   }
 

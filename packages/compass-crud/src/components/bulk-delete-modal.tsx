@@ -128,13 +128,13 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
         <TextInput
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore the label can be any component, but it's weirdly typed to string
           label={
-            (
-              <QueryLabel
-                label="Query"
-                tooltip="Return to the Documents tab to edit this query."
-              />
-            ) as any as string
+            <QueryLabel
+              label="Query"
+              tooltip="Return to the Documents tab to edit this query."
+            />
           }
           disabled={true}
           value={filterQuery}
