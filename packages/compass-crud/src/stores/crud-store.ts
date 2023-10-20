@@ -39,7 +39,7 @@ import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -1619,15 +1619,50 @@ class CrudStoreImpl
         ...this.state.bulkDelete,
         status: 'in-progress',
       },
-    }); // TODO: COMPASS-7328
+    });
+
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'progress',
+      dismissible: true,
+      timeout: null,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents are being deleted.`,
+    });
   }
 
   bulkDeleteFailed(ex: Error) {
-    return ex; // TODO: COMPASS-7328
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'warning',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents could not be deleted.`,
+    });
+
+    log.error(
+      mongoLogId(1_001_000_268),
+      'Bulk Delete Documents',
+      `Delete opeartion failed: ${ex.message}`,
+      {
+        stack: ex.stack,
+      }
+    );
   }
 
   bulkDeleteSuccess() {
-    // TODO: COMPASS-7328
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'success',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents have been deleted.`,
+    });
   }
 
   closeBulkDeleteDialog() {
