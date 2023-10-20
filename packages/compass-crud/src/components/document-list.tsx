@@ -158,6 +158,12 @@ class DocumentList extends React.Component<DocumentListProps> {
       this.props.openImportFileDialog?.('crud-toolbar');
     }
   }
+  /**
+   * Handle opening the delete bulk dialog.
+   */
+  handleUpdateButton() {
+    this.props.openBulkUpdateDialog();
+  }
 
   /**
    * Handle opening the delete bulk dialog.
@@ -351,6 +357,7 @@ class DocumentList extends React.Component<DocumentListProps> {
               isExportable={this.props.isExportable}
               onApplyClicked={this.onApplyClicked.bind(this)}
               onResetClicked={this.onResetClicked.bind(this)}
+              onUpdateButtonClicked={this.handleUpdateButton.bind(this)}
               onDeleteButtonClicked={this.handleDeleteButton.bind(this)}
               openExportFileDialog={this.props.openExportFileDialog}
               outdated={this.props.outdated}
@@ -371,7 +378,6 @@ class DocumentList extends React.Component<DocumentListProps> {
                   this.props.store
                 )
               )}
-              openBulkUpdateDialog={this.props.openBulkUpdateDialog}
             />
           }
         >

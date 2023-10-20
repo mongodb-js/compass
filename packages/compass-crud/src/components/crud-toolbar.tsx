@@ -11,14 +11,13 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
-  Button,
-  ButtonSize,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model';
+import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
@@ -95,7 +94,6 @@ export type CrudToolbarProps = {
   error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
-  openBulkUpdateDialog: () => void;
   instanceDescription: string;
   isExportable: boolean;
   isWritable: boolean;
@@ -103,6 +101,7 @@ export type CrudToolbarProps = {
   localAppRegistry: AppRegistry;
   onApplyClicked: () => void;
   onResetClicked: () => void;
+  onUpdateButtonClicked: () => void;
   onDeleteButtonClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
@@ -124,7 +123,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   error,
   getPage,
   insertDataHandler,
-  openBulkUpdateDialog,
   instanceDescription,
   isExportable,
   isWritable,
@@ -132,6 +130,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   localAppRegistry,
   onApplyClicked,
   onResetClicked,
+  onUpdateButtonClicked,
   onDeleteButtonClicked,
   openExportFileDialog,
   outdated,
@@ -222,14 +221,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               leftGlyph: <Icon glyph="Export" />,
             }}
           />
-          <Button
-            size={ButtonSize.XSmall}
-            data-testid="bulk-update-button"
-            leftGlyph={<Icon glyph="Edit" />}
-            onClick={openBulkUpdateDialog}
-          >
-            Update
-          </Button>
+          {!readonly && (
+            <UpdateMenu
+              isWritable={isWritable && !shouldDisableBulkOp}
+              disabledTooltip="Remove limit and skip in your query to perform an update"
+              onClick={onUpdateButtonClicked}
+            ></UpdateMenu>
+          )}
           {!readonly && (
             <DeleteMenu
               isWritable={isWritable && !shouldDisableBulkOp}

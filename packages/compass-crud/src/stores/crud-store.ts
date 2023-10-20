@@ -1072,8 +1072,6 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateDialog() {
-    console.log('openBulkUpdateDialog');
-
     await this.updateBulkUpdatePreview('{ $set: { }}');
     this.setState({
       bulkUpdate: {
@@ -1084,8 +1082,6 @@ class CrudStoreImpl
   }
 
   async updateBulkUpdatePreview(updateText: string) {
-    console.log('updateBulkUpdatePreview', updateText);
-
     if (this.state.bulkUpdate.previewAbortController) {
       this.state.bulkUpdate.previewAbortController.abort();
     }
@@ -1116,7 +1112,6 @@ class CrudStoreImpl
         return;
       }
 
-      console.log({ syntaxError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
@@ -1149,7 +1144,6 @@ class CrudStoreImpl
         return;
       }
 
-      console.log({ serverError: err });
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
@@ -1169,7 +1163,6 @@ class CrudStoreImpl
       return;
     }
 
-    console.log('success!', preview);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,

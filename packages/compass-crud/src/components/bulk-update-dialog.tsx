@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Document } from '@mongodb-js/compass-crud';
+import Document from './document';
 import HadronDocument from 'hadron-document';
 
 import { toJSString } from 'mongodb-query-parser';
