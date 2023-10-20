@@ -755,6 +755,21 @@ export interface DataService {
     update: Document | Document[],
     executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview>;
+
+  /**
+   * Updates multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -1485,9 +1500,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.deleteMany(filter, options);
   }
 
-  @op(mongoLogId(1_001_000_267), ([ns], result) => {
-    return { ns, ...(result && { result }) };
-  })
   async updateMany(
     ns: string,
     filter: Filter<Document>,
