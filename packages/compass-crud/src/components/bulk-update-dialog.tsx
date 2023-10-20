@@ -203,7 +203,7 @@ export default function BulkUpdateDialog({
                 darkMode ? codeDarkContainerStyles : codeLightContainerStyles
               )}
             >
-              <pre>{toJSString(filter)}</pre>
+              <pre>{(toJSString(filter) ?? '').replace(/\s+/g, ' ')}</pre>
             </KeylineCard>
           </div>
 
