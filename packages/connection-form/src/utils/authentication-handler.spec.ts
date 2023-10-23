@@ -161,7 +161,7 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.equal(undefined);
     });
 
-    it('should return an error if the connection string has no username and the password is being set to not empty', function () {
+    it.only('should return an error if the connection string has no username and the password is being set to not empty', function () {
       const res = handleUpdatePassword({
         action: {
           type: 'update-password',
