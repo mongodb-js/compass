@@ -96,6 +96,7 @@ function AIExperienceEntry({
       )}
       onClick={onClick}
       data-testid={dataTestId}
+      type="button"
     >
       Generate {type}
       <AIEntrySVG darkMode={darkMode} />
@@ -121,6 +122,7 @@ function createAIPlaceholderHTMLPlaceholder({
 
   const aiButtonEl = document.createElement('button');
   aiButtonEl.setAttribute('data-testid', 'open-ai-query-entry-button');
+  aiButtonEl.setAttribute('type', 'button');
   // By default placeholder container will have pointer events disabled
   aiButtonEl.style.pointerEvents = 'auto';
   // We stop mousedown from propagating and preventing default behavior to avoid

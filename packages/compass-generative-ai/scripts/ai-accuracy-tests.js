@@ -36,6 +36,18 @@ const DEFAULT_MIN_ACCURACY = 0.8;
 
 const MAX_TIMEOUTS_PER_TEST = 10;
 
+// There are a limited amount of resources available both on the Atlas
+// and on the ai service side of things, so we want to limit how many
+// requests can be happening at a time.
+const TESTS_TO_RUN_CONCURRENTLY = 3;
+
+// To avoid rate limit we also reduce the time between tests running
+// when the test returns a result quickly.
+const ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS = 5000;
+const TIMEOUT_BETWEEN_TESTS_MS = 2000;
+
+let PQueue;
+
 const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
   : DEFAULT_ATTEMPTS_PER_TEST;
@@ -254,10 +266,21 @@ const runTest = async (testOptions) => {
   const attempts = ATTEMPTS_PER_TEST;
   let fails = 0;
   let timeouts = 0;
+  let lastTestTimeMS = 0;
 
   for (let i = 0; i < attempts; i++) {
     if (timeouts >= MAX_TIMEOUTS_PER_TEST) {
       throw new Error('Too many timeouts');
+    }
+    let startTime = Date.now();
+
+    if (
+      attempts > 0 &&
+      lastTestTimeMS < ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS
+    ) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, TIMEOUT_BETWEEN_TESTS_MS)
+      );
     }
 
     try {
@@ -279,6 +302,7 @@ const runTest = async (testOptions) => {
         fails++;
       }
     }
+    lastTestTimeMS = Date.now() - startTime;
   }
 
   const accuracy = (attempts - fails) / attempts;
@@ -289,6 +313,9 @@ const runTest = async (testOptions) => {
 const fixtures = {};
 
 async function setup() {
+  // p-queue is ESM package only.
+  PQueue = (await import('p-queue')).default;
+
   cluster = await MongoCluster.start({
     tmpDir: os.tmpdir(),
     topology: 'standalone',
@@ -490,7 +517,6 @@ const tests = [
     ]),
   },
 ];
-
 async function main() {
   try {
     await setup();
@@ -498,26 +524,34 @@ async function main() {
 
     let anyFailed = false;
 
-    for (const test of tests) {
-      const {
-        accuracy,
-        // usageStats
-      } = await runTest(test);
-      const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
-      const failed = accuracy < minAccuracy;
+    const testPromiseQueue = new PQueue({
+      concurrency: TESTS_TO_RUN_CONCURRENTLY,
+    });
 
-      table.push({
-        Type: test.type.slice(0, 1).toUpperCase(),
-        'User Input': test.userInput.slice(0, 50),
-        Namespace: `${test.databaseName}.${test.collectionName}`,
-        Accuracy: accuracy,
-        // 'Prompt Tokens': usageStats[0]?.promptTokens,
-        // 'Completion Tokens': usageStats[0]?.completionTokens,
-        Pass: failed ? '✗' : '✓',
-      });
+    tests.map((test) =>
+      testPromiseQueue.add(async () => {
+        const {
+          accuracy,
+          // usageStats
+        } = await runTest(test);
+        const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
+        const failed = accuracy < minAccuracy;
 
-      anyFailed = anyFailed || failed;
-    }
+        table.push({
+          Type: test.type.slice(0, 1).toUpperCase(),
+          'User Input': test.userInput.slice(0, 50),
+          Namespace: `${test.databaseName}.${test.collectionName}`,
+          Accuracy: accuracy,
+          // 'Prompt Tokens': usageStats[0]?.promptTokens,
+          // 'Completion Tokens': usageStats[0]?.completionTokens,
+          Pass: failed ? '✗' : '✓',
+        });
+
+        anyFailed = anyFailed || failed;
+      })
+    );
+
+    await testPromiseQueue.onIdle();
 
     console.table(table, [
       'Type',

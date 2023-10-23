@@ -6,6 +6,7 @@ import {
   KeylineCard,
   Link,
   spacing,
+  Disclaimer,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import type {
@@ -38,10 +39,15 @@ const containerStyles = css({
 
 const headerStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  justifyContent: 'space-between',
   gap: spacing[2],
   padding: spacing[3],
   cursor: 'grab',
+});
+
+const headingStyles = css({
+  display: 'flex',
+  gap: spacing[2],
 });
 
 const wizardContentStyles = css({
@@ -124,13 +130,16 @@ export const StageWizard = ({
       >
         <div {...listeners}>
           <div className={headerStyles}>
-            <Body weight="medium">{useCase.title}</Body>
-            <Link
-              target="_blank"
-              href={getStageHelpLink(useCase.stageOperator) as string}
-            >
-              {useCase.stageOperator}
-            </Link>
+            <div className={headingStyles}>
+              <Body weight="medium">{useCase.title}</Body>
+              <Link
+                target="_blank"
+                href={getStageHelpLink(useCase.stageOperator) as string}
+              >
+                {useCase.stageOperator}
+              </Link>
+            </div>
+            {useCase.isAtlasOnly && <Disclaimer>Atlas-only</Disclaimer>}
           </div>
         </div>
         <div className={wizardContentStyles}>
