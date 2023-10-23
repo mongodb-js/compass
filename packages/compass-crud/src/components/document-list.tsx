@@ -21,6 +21,7 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
+import { toJSString } from 'mongodb-query-parser';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -37,8 +38,8 @@ import type {
   DocumentView,
   QueryState,
 } from '../stores/crud-store';
-import type Document from 'hadron-document';
 import { getToolbarSignal } from '../utils/toolbar-signal';
+import BulkDeleteModal from './bulk-delete-modal';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -235,6 +236,36 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
   }
 
+  onOpenBulkDeleteDialog() {
+    this.props.store.openBulkDeleteDialog();
+  }
+
+  onCancelBulkDeleteDialog() {
+    this.props.store.closeBulkDeleteDialog();
+  }
+
+  onConfirmBulkDeleteDialog() {
+    void this.props.store.runBulkDelete();
+  }
+
+  /**
+   * Render the bulk deletion modal
+   */
+  renderDeletionModal() {
+    return (
+      <BulkDeleteModal
+        open={this.props.store.state.bulkDelete.status === 'open'}
+        namespace={this.props.store.state.ns}
+        documentCount={this.props.store.state.bulkDelete.affected || 0}
+        filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
+        onCancel={this.onCancelBulkDeleteDialog.bind(this)}
+        onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
+        sampleDocuments={
+          this.props.store.state.bulkDelete.previews as any as Document[]
+        }
+      />
+    );
+  }
   /**
    * Render EmptyContent view when no documents are present.
    *
@@ -315,6 +346,7 @@ class DocumentList extends React.Component<DocumentListProps> {
               isExportable={this.props.isExportable}
               onApplyClicked={this.onApplyClicked.bind(this)}
               onResetClicked={this.onResetClicked.bind(this)}
+              onDeleteButtonClicked={this.onOpenBulkDeleteDialog.bind(this)}
               openExportFileDialog={this.props.openExportFileDialog}
               outdated={this.props.outdated}
               readonly={!this.props.isEditable}
@@ -323,6 +355,8 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              querySkip={this.props.store.state.query.skip}
+              queryLimit={this.props.store.state.query.limit}
               insights={getToolbarSignal(
                 JSON.stringify(this.props.query.filter),
                 Boolean(this.props.isCollectionScan),
@@ -338,6 +372,7 @@ class DocumentList extends React.Component<DocumentListProps> {
           {this.renderZeroState()}
           {this.renderContent()}
           {this.renderInsertModal()}
+          {this.renderDeletionModal()}
         </WorkspaceContainer>
       </div>
     );

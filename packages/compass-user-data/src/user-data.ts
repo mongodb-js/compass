@@ -1,5 +1,4 @@
 import { promises as fs } from 'fs';
-import type { Stats } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
@@ -23,6 +22,45 @@ export type UserDataOptions<Input> = {
 type ReadOptions = {
   ignoreErrors: boolean;
 };
+
+// Copied from the Node.js fs module.
+export interface Stats {
+  isFile(): boolean;
+  isDirectory(): boolean;
+  isBlockDevice(): boolean;
+  isCharacterDevice(): boolean;
+  isSymbolicLink(): boolean;
+  isFIFO(): boolean;
+  isSocket(): boolean;
+  dev: number;
+  ino: number;
+  mode: number;
+  nlink: number;
+  uid: number;
+  gid: number;
+  rdev: number;
+  size: number;
+  blksize: number;
+  blocks: number;
+  atimeMs: number;
+  mtimeMs: number;
+  ctimeMs: number;
+  birthtimeMs: number;
+  atime: Date;
+  mtime: Date;
+  ctime: Date;
+  birthtime: Date;
+}
+
+export interface ReadAllResult<T extends z.Schema> {
+  data: z.output<T>[];
+  errors: Error[];
+}
+
+export interface ReadAllWithStatsResult<T extends z.Schema> {
+  data: [z.output<T>, Stats][];
+  errors: Error[];
+}
 
 export class UserData<T extends z.Schema> {
   private readonly subdir: string;
@@ -77,10 +115,19 @@ export class UserData<T extends z.Schema> {
     return path.resolve(root, pathRelativeToRoot);
   }
 
-  private async readAndParseFile(absolutePath: string, options: ReadOptions) {
+  private async readAndParseFileWithStats(
+    absolutePath: string,
+    options: ReadOptions
+  ): Promise<[z.output<T>, Stats] | undefined> {
     let data: string;
+    let stats: Stats;
+    let handle: fs.FileHandle | undefined = undefined;
     try {
-      data = await fs.readFile(absolutePath, 'utf-8');
+      handle = await fs.open(absolutePath, 'r');
+      [stats, data] = await Promise.all([
+        handle.stat(),
+        handle.readFile('utf-8'),
+      ]);
     } catch (error) {
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
@@ -90,11 +137,13 @@ export class UserData<T extends z.Schema> {
         return undefined;
       }
       throw error;
+    } finally {
+      await handle?.close();
     }
 
     try {
       const content = this.deserialize(data);
-      return this.validator.parse(content);
+      return [this.validator.parse(content), stats];
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
@@ -105,62 +154,6 @@ export class UserData<T extends z.Schema> {
       }
       throw error;
     }
-  }
-
-  async readAll(
-    options: ReadOptions = {
-      ignoreErrors: true,
-    }
-  ) {
-    const absolutePath = await this.getFileAbsolutePath();
-    const filePathList = await fs.readdir(absolutePath);
-    const data = await Promise.allSettled(
-      filePathList.map((x) =>
-        this.readAndParseFile(path.join(absolutePath, x), options)
-      )
-    );
-
-    const result: {
-      data: z.output<T>[];
-      errors: Error[];
-    } = {
-      data: [],
-      errors: [],
-    };
-
-    for (const item of data) {
-      if (item.status === 'fulfilled' && item.value) {
-        result.data.push(item.value);
-      }
-      if (item.status === 'rejected') {
-        result.errors.push(item.reason);
-      }
-    }
-
-    return result;
-  }
-
-  async readOne(
-    id: string,
-    options?: { ignoreErrors: false }
-  ): Promise<z.output<T>>;
-  async readOne(
-    id: string,
-    options?: { ignoreErrors: true }
-  ): Promise<z.output<T> | undefined>;
-  async readOne(
-    id: string,
-    options?: ReadOptions
-  ): Promise<z.output<T> | undefined>;
-  async readOne(
-    id: string,
-    options: ReadOptions = {
-      ignoreErrors: true,
-    }
-  ) {
-    const filepath = this.getFileName(id);
-    const absolutePath = await this.getFileAbsolutePath(filepath);
-    return await this.readAndParseFile(absolutePath, options);
   }
 
   async write(id: string, content: z.input<T>) {
@@ -206,41 +199,11 @@ export class UserData<T extends z.Schema> {
     }
   }
 
-  private async readAndParseFileWithStats(
-    filepath: string,
-    options: ReadOptions
-  ): Promise<[z.output<T>, Stats] | undefined> {
-    const data = await this.readAndParseFile(filepath, options);
-
-    if (data === undefined) {
-      return undefined;
-    }
-
-    try {
-      const stats = await fs.stat(filepath);
-      return [data, stats];
-    } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_243),
-        'Filesystem',
-        'Error reading stats',
-        {
-          path: filepath,
-          error: (error as Error).message,
-        }
-      );
-      if (options.ignoreErrors) {
-        return undefined;
-      }
-      throw error;
-    }
-  }
-
   async readAllWithStats(
     options: ReadOptions = {
       ignoreErrors: true,
     }
-  ) {
+  ): Promise<ReadAllWithStatsResult<T>> {
     const absolutePath = await this.getFileAbsolutePath();
     const filePathList = await fs.readdir(absolutePath);
 
@@ -250,10 +213,7 @@ export class UserData<T extends z.Schema> {
       )
     );
 
-    const result: {
-      data: [z.output<T>, Stats][];
-      errors: Error[];
-    } = {
+    const result: ReadAllWithStatsResult<T> = {
       data: [],
       errors: [],
     };
@@ -291,5 +251,38 @@ export class UserData<T extends z.Schema> {
     const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     return await this.readAndParseFileWithStats(absolutePath, options);
+  }
+
+  async readAll(
+    options: ReadOptions = {
+      ignoreErrors: true,
+    }
+  ): Promise<ReadAllResult<T>> {
+    const result = await this.readAllWithStats(options);
+    return {
+      data: result.data.map(([data]) => data),
+      errors: result.errors,
+    };
+  }
+
+  async readOne(
+    id: string,
+    options?: { ignoreErrors: false }
+  ): Promise<z.output<T>>;
+  async readOne(
+    id: string,
+    options?: { ignoreErrors: true }
+  ): Promise<z.output<T> | undefined>;
+  async readOne(
+    id: string,
+    options?: ReadOptions
+  ): Promise<z.output<T> | undefined>;
+  async readOne(
+    id: string,
+    options: ReadOptions = {
+      ignoreErrors: true,
+    }
+  ) {
+    return (await this.readOneWithStats(id, options))?.[0];
   }
 }
