@@ -652,9 +652,8 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          DEBUG: ${debug}
-          SNYK_TOKEN: ${snyk_token}
-          JIRA_API_TOKEN: ${jira_api_token}
+          ATLAS_PUBLIC_KEY: ${atlas_public_key}
+          ATLAS_PRIVATE_KEY: ${atlas_private_key}
         script: |
           set -e
           # Load environment variables
