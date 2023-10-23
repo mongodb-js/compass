@@ -7,10 +7,9 @@ import { CompassShell } from './components/compass-shell';
 import createPlugin from './plugin';
 import CompassShellStore from './stores';
 
-function nextTick() {
-  return new Promise((resolve) => process.nextTick(resolve));
-}
-
+// Wait until a component is present that is rendered in a limited number
+// of microtask queue iterations. In particular, this does *not* wait for the
+// event loop itself to progress.
 async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
   let current = 0;
   let result;
@@ -21,7 +20,7 @@ async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
     if (result.length > 0) {
       return result;
     }
-    await nextTick();
+    await Promise.resolve(); // wait a microtask queue iteration
   }
   return result;
 }

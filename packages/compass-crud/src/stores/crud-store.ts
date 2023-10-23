@@ -39,6 +39,7 @@ import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -57,6 +58,9 @@ export type CrudActions = {
   replaceDocument(doc: Document): void;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
   copyToClipboard(doc: Document): void; //XXX
+  openBulkDeleteDialog(): void;
+  closeBulkDeleteDialog(): void;
+  runBulkDelete(): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -322,6 +326,7 @@ type CrudStoreOptions = {
   isTimeSeries: boolean;
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
+  isSearchIndexesSupported: boolean;
 };
 
 export type InsertCSFLEState = {
@@ -355,7 +360,7 @@ export type TableState = {
   };
 };
 
-type QueryState = {
+export type QueryState = {
   filter: BSONObject;
   sort: null | BSONObject;
   limit: number;
@@ -363,6 +368,12 @@ type QueryState = {
   maxTimeMS: number;
   project: null | BSONObject;
   collation: null | BSONObject;
+};
+
+export type BulkDeleteState = {
+  previews: Document[];
+  status: 'open' | 'closed' | 'in-progress';
+  affected?: number;
 };
 
 type CrudState = {
@@ -394,6 +405,8 @@ type CrudState = {
   instanceDescription: string;
   fields: string[];
   isCollectionScan?: boolean;
+  isSearchIndexesSupported: boolean;
+  bulkDelete: BulkDeleteState;
 };
 
 class CrudStoreImpl
@@ -452,6 +465,12 @@ class CrudStoreImpl
       instanceDescription: '',
       fields: [],
       isCollectionScan: false,
+      isSearchIndexesSupported: false,
+      bulkDelete: {
+        previews: [],
+        status: 'closed',
+        affected: 0,
+      },
     };
   }
 
@@ -521,6 +540,13 @@ class CrudStoreImpl
    */
   onReadonlyChanged(isReadonly: boolean) {
     this.setState({ isReadonly });
+  }
+
+  /**
+   * Set if the connection supports search index management.
+   */
+  setIsSearchIndexesSupported(isSearchIndexesSupported: boolean) {
+    this.setState({ isSearchIndexesSupported });
   }
 
   /**
@@ -1570,6 +1596,110 @@ class CrudStoreImpl
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal');
   }
+
+  openCreateSearchIndexModal() {
+    this.localAppRegistry.emit('open-create-search-index-modal');
+  }
+
+  openBulkDeleteDialog() {
+    const PREVIEW_DOCS = 5;
+
+    this.setState({
+      bulkDelete: {
+        previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
+        status: 'open',
+        affected: this.state.count || 0,
+      },
+    });
+  }
+
+  bulkDeleteInProgress() {
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'in-progress',
+      },
+    });
+
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'progress',
+      dismissible: true,
+      timeout: null,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents are being deleted.`,
+    });
+  }
+
+  bulkDeleteFailed(ex: Error) {
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'warning',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents could not be deleted.`,
+    });
+
+    log.error(
+      mongoLogId(1_001_000_268),
+      'Bulk Delete Documents',
+      `Delete opeartion failed: ${ex.message}`,
+      {
+        stack: ex.stack,
+      }
+    );
+  }
+
+  bulkDeleteSuccess() {
+    openToast('bulk-delete-toast', {
+      title: '',
+      variant: 'success',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${
+        this.state.bulkDelete.affected || 0
+      } documents have been deleted.`,
+    });
+  }
+
+  closeBulkDeleteDialog() {
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'closed',
+      },
+    });
+  }
+
+  async runBulkDelete() {
+    const { affected } = this.state.bulkDelete;
+    this.closeBulkDeleteDialog();
+
+    const confirmation = await showConfirmation({
+      title: 'Are you absolutely sure?',
+      buttonText: 'Delete',
+      description: `This action can not be undone. This will permanently delete ${
+        affected || 0
+      } documents.`,
+      variant: 'danger',
+    });
+
+    if (confirmation) {
+      this.bulkDeleteInProgress();
+      try {
+        await this.dataService.deleteMany(
+          this.state.ns,
+          this.state.query.filter
+        );
+        this.bulkDeleteSuccess();
+      } catch (ex) {
+        this.bulkDeleteFailed(ex as Error);
+      }
+    }
+  }
 }
 
 export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
@@ -1659,6 +1789,8 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       void store.refreshDocuments();
     }
   }
+
+  store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
 
   const gridStore = configureGridStore(options);
   store.gridStore = gridStore;

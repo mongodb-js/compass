@@ -207,6 +207,7 @@ describe('user-data', function () {
         await storage.readOne('something.json', {
           ignoreErrors: false,
         });
+        expect.fail('missed exception');
       } catch (e) {
         expect((e as any).code).to.equal('ENOENT');
       }
@@ -228,8 +229,11 @@ describe('user-data', function () {
         await storage.readOne('data', {
           ignoreErrors: false,
         });
+        expect.fail('missed exception');
       } catch (e) {
-        expect((e as Error).message).to.contain('Unexpected token');
+        expect((e as Error).message).to.match(
+          /Unexpected token|Expected property name or/
+        ); // Node.js 18 vs 20
       }
     });
 
@@ -246,6 +250,7 @@ describe('user-data', function () {
         await getUserData().readOne('data', {
           ignoreErrors: false,
         });
+        expect.fail('missed exception');
       } catch (e) {
         const errors = (e as ZodError).errors;
         expect(errors[0].message).to.contain(
@@ -363,6 +368,7 @@ describe('user-data', function () {
 
       try {
         await fs.access(absolutePath);
+        expect.fail('missed exception');
       } catch (error) {
         expect((error as any).code).to.equal('ENOENT');
       }

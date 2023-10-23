@@ -6,6 +6,7 @@ import BasicGroupUseCase from './group/basic-group';
 import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
 import GroupWithSubset from './group/group-with-subset';
+import TextSearch from './search/text-search';
 import type { FieldSchema } from '../../../utils/get-schema';
 
 export type StageWizardFields = FieldSchema[];
@@ -21,6 +22,7 @@ export type StageWizardUseCase = {
   stageOperator: string;
   wizardComponent: React.FunctionComponent<WizardComponentProps>;
   serverVersion?: string;
+  isAtlasOnly?: boolean;
 };
 
 export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
@@ -63,9 +65,16 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   },
   {
     id: 'group-with-subset',
-    title: 'Return a  subset of values based on their order or rank',
+    title: 'Return a subset of values based on their order or rank',
     stageOperator: '$group',
     wizardComponent: GroupWithSubset,
+  },
+  {
+    id: 'text-search',
+    title: 'Search for a text field across all documents in a collection',
+    stageOperator: '$search',
+    wizardComponent: TextSearch,
+    isAtlasOnly: true,
   },
 ];
 

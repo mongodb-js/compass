@@ -175,6 +175,7 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         actions: actions,
+        isSearchIndexesSupported: true,
       });
     });
 
@@ -184,6 +185,11 @@ describe('store', function () {
 
       expect(store.state).to.deep.equal({
         abortController: null,
+        bulkDelete: {
+          affected: 0,
+          previews: [],
+          status: 'closed',
+        },
         debouncingLoad: false,
         loadingCount: false,
         collection: '',
@@ -205,6 +211,7 @@ describe('store', function () {
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
+        isSearchIndexesSupported: true,
         isTimeSeries: false,
         isWritable: false,
         ns: '',
@@ -819,6 +826,54 @@ describe('store', function () {
         });
       }
     );
+  });
+
+  describe('#bulkDeleteDialog', function () {
+    let store;
+    let actions;
+
+    beforeEach(function () {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService,
+        },
+        actions: actions,
+        namespace: 'compass-crud.test',
+      });
+    });
+
+    it('opens the bulk dialog with a proper initialised state', function () {
+      const hadronDoc = new HadronDocument({ a: 1 });
+      store.state.docs = [hadronDoc];
+      store.state.count = 1;
+
+      store.openBulkDeleteDialog();
+
+      expect(store.state.bulkDelete).to.deep.equal({
+        previews: [hadronDoc],
+        status: 'open',
+        affected: 1,
+      });
+    });
+
+    it('closes the bulk dialog keeping previous state', function () {
+      const hadronDoc = new HadronDocument({ a: 1 });
+      store.state.docs = [hadronDoc];
+      store.state.count = 1;
+
+      store.openBulkDeleteDialog();
+      store.closeBulkDeleteDialog();
+
+      expect(store.state.bulkDelete).to.deep.equal({
+        previews: [hadronDoc],
+        status: 'closed',
+        affected: 1,
+      });
+    });
   });
 
   describe('#replaceDocument', function () {

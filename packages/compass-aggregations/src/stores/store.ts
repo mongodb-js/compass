@@ -26,6 +26,7 @@ import {
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
+import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 
 export type ConfigureStoreOptions = {
   /**
@@ -133,6 +134,10 @@ export type ConfigureStoreOptions = {
    * Service for interacting with Atlas-only features
    */
   atlasService: AtlasService;
+  /**
+   * Whether or not search indexes are supported in the current environment
+   */
+  isSearchIndexesSupported: boolean;
 }>;
 
 const configureStore = (options: ConfigureStoreOptions) => {
@@ -228,6 +233,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
       },
       sourceName: options.sourceName,
       editViewName: options.editViewName,
+      searchIndexes: {
+        ...SEARCH_INDEXES_INITIAL_STATE,
+        isSearchIndexesSupported: Boolean(options.isSearchIndexesSupported),
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
