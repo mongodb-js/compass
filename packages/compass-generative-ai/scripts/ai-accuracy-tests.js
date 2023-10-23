@@ -23,11 +23,6 @@ const os = require('os');
 const assert = require('assert');
 const ejsonShellParser = require('ejson-shell-parser');
 const { MongoClient } = require('mongodb');
-let PQueue;
-(async () => {
-  // ESM package only. This could introduce race conditions.
-  PQueue = (await import('p-queue')).default;
-})();
 const { EJSON } = require('bson');
 const { getSimplifiedSchema } = require('mongodb-schema');
 const path = require('path');
@@ -44,7 +39,14 @@ const MAX_TIMEOUTS_PER_TEST = 10;
 // There are a limited amount of resources available both on the Atlas
 // and on the ai service side of things, so we want to limit how many
 // requests can be happening at a time.
-const TESTS_TO_RUN_CONCURRENTLY = 4;
+const TESTS_TO_RUN_CONCURRENTLY = 3;
+
+// To avoid rate limit we also reduce the time between tests running
+// when the test returns a result quickly.
+const ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS = 5000;
+const TIMEOUT_BETWEEN_TESTS_MS = 2000;
+
+let PQueue;
 
 const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
@@ -264,10 +266,21 @@ const runTest = async (testOptions) => {
   const attempts = ATTEMPTS_PER_TEST;
   let fails = 0;
   let timeouts = 0;
+  let lastTestTimeMS = 0;
 
   for (let i = 0; i < attempts; i++) {
     if (timeouts >= MAX_TIMEOUTS_PER_TEST) {
       throw new Error('Too many timeouts');
+    }
+    let startTime = Date.now();
+
+    if (
+      attempts > 0 &&
+      lastTestTimeMS < ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS
+    ) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, TIMEOUT_BETWEEN_TESTS_MS)
+      );
     }
 
     try {
@@ -289,6 +302,7 @@ const runTest = async (testOptions) => {
         fails++;
       }
     }
+    lastTestTimeMS = Date.now() - startTime;
   }
 
   const accuracy = (attempts - fails) / attempts;
@@ -299,6 +313,9 @@ const runTest = async (testOptions) => {
 const fixtures = {};
 
 async function setup() {
+  // p-queue is ESM package only.
+  PQueue = (await import('p-queue')).default;
+
   cluster = await MongoCluster.start({
     tmpDir: os.tmpdir(),
     topology: 'standalone',

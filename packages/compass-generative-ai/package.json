@@ -74,7 +74,6 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
-    "@types/decomment": "^0.9.4",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
