@@ -571,7 +571,9 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.ConfirmDeleteDocumentButton);
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
-    const noDocuments = await browser.$('.document-list-zero-state');
+    const noDocuments = await browser.$(
+      '[data-testid="document-list-zero-state"]'
+    );
     await noDocuments.waitForDisplayed();
   });
 

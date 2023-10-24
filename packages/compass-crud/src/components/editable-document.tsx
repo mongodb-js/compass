@@ -2,35 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-import { DocumentList } from '@mongodb-js/compass-components';
-import type { CrudActions } from '../stores/crud-store';
+import { DocumentList, css } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
+
+import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
+import type { CrudActions } from '../stores/crud-store';
 
-/**
- * The base class.
- */
-const BASE = 'document';
-
-/**
- * The contents class.
- */
-const CONTENTS = `${BASE}-contents`;
-
-/**
- * The contents class.
- */
-const ELEMENTS = `${BASE}-elements`;
+const documentElementsContainerStyles = css({
+  position: 'relative',
+});
 
 /**
  * The initial field limit.
  */
 const INITIAL_FIELD_LIMIT = 25;
-
-/**
- * The test id.
- */
-const TEST_ID = 'editable-document';
 
 export type EditableDocumentProps = {
   doc: Document;
@@ -193,22 +179,6 @@ class EditableDocument extends React.Component<
   }
 
   /**
-   * Get the current style of the document div.
-   *
-   * @returns {String} The document class name.
-   */
-  style() {
-    let style = BASE;
-    if (this.state.editing) {
-      style = style.concat(' document-is-editing');
-    }
-    if (this.state.deleting) {
-      style = style.concat(' document-is-deleting');
-    }
-    return style;
-  }
-
-  /**
    * Render the actions component.
    *
    * @returns {Component} The actions component.
@@ -286,9 +256,14 @@ class EditableDocument extends React.Component<
    */
   render() {
     return (
-      <div className={this.style()} data-testid={TEST_ID}>
-        <div className={CONTENTS}>
-          <div className={ELEMENTS}>{this.renderElements()}</div>
+      <div className={documentStyles} data-testid="editable-document">
+        <div className={documentContentStyles}>
+          <div
+            className={documentElementsContainerStyles}
+            data-testid="editable-document-elements"
+          >
+            {this.renderElements()}
+          </div>
           {this.renderActions()}
         </div>
         {this.renderFooter()}
