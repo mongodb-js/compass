@@ -220,7 +220,7 @@ async function createWorkspace({
 }) {
   const pkgJson = {
     name: dirToScopedPackageName(workspaceName, scope),
-    productName: `${workspaceName} Plugin`,
+    ...(isPlugin && { productName: `${workspaceName} Plugin` }),
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
@@ -498,7 +498,7 @@ describe('Compass Plugin', function() {
     'Updating package-lock and prettifying workspace source',
     async () => {
       await runInDir('npm install');
-      await runInDir('npm run reformat', packagePath);
+      await runInDir('npm run prettier -- --write .', packagePath);
     }
   );
 
