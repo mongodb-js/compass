@@ -9,7 +9,8 @@ ignore:
   - AUTHORS
   - THIRD-PARTY-NOTICES.md
 include:
-  - filename: ./functions.yml
+  # Referenced from project root.
+  - filename: .evergreen/functions.yml
 
 tasks:
   - name: test-generative-ai-accuracy
