@@ -146,7 +146,6 @@ type QueryBarProps = {
   filterHasContent: boolean;
   showExplainButton?: boolean;
   showExportToLanguageButton?: boolean;
-  showQueryHistoryButton?: boolean;
   valid: boolean;
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
@@ -174,7 +173,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   filterHasContent,
   showExplainButton = false,
   showExportToLanguageButton = true,
-  showQueryHistoryButton = true,
   valid: isQueryValid,
   expanded: isQueryOptionsExpanded,
   placeholders,
@@ -225,6 +223,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     return filterHasContent;
   }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
+  const enableSavedAggregationsQueries = usePreference(
+    'enableSavedAggregationsQueries',
+    React
+  );
+
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
@@ -245,7 +248,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               Filter
             </Link>
           </Label>
-          {showQueryHistoryButton && <QueryHistoryButtonPopover />}
+          {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         </div>
         <div className={filterContainerStyles}>
           <QueryOptionComponent

@@ -20,6 +20,7 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../../constants';
+import { usePreference } from 'compass-preferences-model';
 
 const bannerStyles = css({
   alignItems: 'center',
@@ -39,7 +40,6 @@ const actionButtonStyles = css({
 
 type OutputStageProps = {
   stageOperator: '$out' | '$merge' | null;
-  isAtlas: boolean;
   isLoading: boolean;
   isComplete: boolean;
   onSaveCollection: () => void;
@@ -77,16 +77,23 @@ const PipelineStageBanner = ({
 
 export const OutputStagePreview = ({
   stageOperator,
-  isAtlas,
   isLoading,
   isComplete,
   onSaveCollection,
   onOpenCollection,
 }: OutputStageProps) => {
+  // When explicit pipeline run is not enabled, we allow to run output stage
+  // from the preview
+  const showOutputActions = !usePreference(
+    'enableAggregationBuilderRunPipeline',
+    React
+  );
+
   if (!stageOperator) {
     return null;
   }
-  if (isComplete && isAtlas) {
+
+  if (isComplete && showOutputActions) {
     return (
       <PipelineStageBanner
         data-testid={`${stageOperator}-is-complete-banner`}
@@ -110,7 +117,7 @@ export const OutputStagePreview = ({
           : MERGE_STAGE_PREVIEW_TEXT
       }
       actionButton={
-        isAtlas ? (
+        showOutputActions ? (
           <Button
             {...buttonProps}
             disabled={isLoading}
@@ -126,7 +133,6 @@ export const OutputStagePreview = ({
 };
 
 const mapState = ({
-  isAtlasDeployed,
   pipelineBuilder: {
     textEditor: {
       outputStage: { isComplete, isLoading },
@@ -134,7 +140,6 @@ const mapState = ({
   },
 }: RootState) => {
   return {
-    isAtlas: isAtlasDeployed,
     isComplete,
     isLoading,
   };

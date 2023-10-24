@@ -23,7 +23,6 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
-    isAtlasDeployed: PropTypes.bool.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
@@ -115,7 +114,6 @@ class Pipeline extends PureComponent {
     return (
       <div className={styles.pipeline}>
         <Settings
-          isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}
           toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
           toggleSettingsIsCommentMode={this.props.toggleSettingsIsCommentMode}
