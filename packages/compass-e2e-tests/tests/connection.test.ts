@@ -555,7 +555,7 @@ describe('Connection screen', function () {
     assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
-    await assertCanReadData(browser, 'companies', 'info');
+    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
   });
 
   it('can connect with readAnyDatabase builtin role', async function () {
@@ -573,10 +573,14 @@ describe('Connection screen', function () {
     assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
-    await assertCanReadData(browser, 'companies', 'info');
-    await assertCannotInsertData(browser, 'companies', 'info');
+    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
+    await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
     await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    await assertCannotCreateCollection(browser, 'companies', 'new-collection');
+    await assertCannotCreateCollection(
+      browser,
+      'compass_e2e',
+      'new-collection'
+    );
   });
 
   it('can connect with custom role', async function () {
