@@ -4,8 +4,10 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
-
 import { useDarkMode } from '../hooks/use-theme';
+
+export const workspaceContainerQueryName =
+  'compass-components-workspace-container';
 
 const workspaceContainerStyles = css({
   height: '100%',
@@ -13,6 +15,8 @@ const workspaceContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+  containerName: workspaceContainerQueryName,
+  containerType: 'size',
 });
 
 const toolbarStyles = css({
