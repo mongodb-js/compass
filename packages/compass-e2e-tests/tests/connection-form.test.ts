@@ -38,7 +38,8 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -64,7 +65,8 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: true,
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -96,7 +98,8 @@ describe('Connection form', function () {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017', 'localhost:27091'],
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -128,7 +131,8 @@ describe('Connection form', function () {
       connectionString,
       scheme: 'MONGODB_SRV',
       hosts: ['localhost'],
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -151,7 +155,7 @@ describe('Connection form', function () {
 
   it('parses and formats a URI for username/password authentication', async function () {
     const connectionString =
-      'mongodb://foo:bar@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=source';
+      'mongodb://foo:bar@localhost:27017/?authSource=source&authMechanism=SCRAM-SHA-1';
 
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -382,7 +386,8 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'socks',
       socksHost: 'hostname',
       socksPort: '1234',
@@ -420,7 +425,8 @@ describe('Connection form', function () {
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
@@ -457,8 +463,9 @@ describe('Connection form', function () {
     };
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
+      defaultAuthMechanism: 'DEFAULT',
       directConnection: false,
       hosts: ['localhost:27017'],
       proxyMethod: 'password',
@@ -493,8 +500,9 @@ describe('Connection form', function () {
     };
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
-      authMethod: 'AUTH_NONE',
+      authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
+      defaultAuthMechanism: 'DEFAULT',
       directConnection: false,
       hosts: ['localhost:27017'],
       proxyMethod: 'identity',
@@ -517,7 +525,7 @@ describe('Connection form', function () {
 
   it('redacts passwords when input is not focused', async function () {
     const connectionString =
-      'mongodb://foo:user_password@localhost:27017/?authMechanism=DEFAULT&proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=proxy_password';
+      'mongodb://foo:user_password@localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=proxy_password';
 
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -536,12 +544,12 @@ describe('Connection form', function () {
       defaultUsername: 'foo',
       defaultPassword: 'user_password',
       authMethod: 'DEFAULT',
+      defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'socks',
       socksHost: 'hostname',
       socksPort: '1234',
       socksUsername: 'username',
       socksPassword: 'proxy_password',
-      defaultAuthMechanism: 'DEFAULT',
       sslConnection: 'DEFAULT',
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,

@@ -23,7 +23,6 @@ import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
 
 type AUTH_TABS =
-  | 'AUTH_NONE'
   | 'DEFAULT' // Username/Password (SCRAM-SHA-1 + SCRAM-SHA-256 + DEFAULT)
   | 'MONGODB-X509'
   | 'GSSAPI' // Kerberos
@@ -43,13 +42,6 @@ interface TabOption {
 }
 
 const options: TabOption[] = [
-  {
-    title: 'None',
-    id: 'AUTH_NONE',
-    component: function None() {
-      return <></>;
-    },
-  },
   {
     title: 'Username/Password',
     id: AuthMechanism.MONGODB_DEFAULT,
@@ -97,29 +89,12 @@ function getSelectedAuthTabForConnectionString(
     connectionStringUrl.searchParams.get('authMechanism') || ''
   ).toUpperCase();
 
-  const hasPasswordOrUsername =
-    connectionStringUrl.password || connectionStringUrl.username;
-  if (!authMechanismString && hasPasswordOrUsername) {
-    // Default (Username/Password) auth when there is no
-    // `authMechanism` and there's a username or password.
-    return AuthMechanism.MONGODB_DEFAULT;
-  }
-
   const matchingTab = options.find(({ id }) => id === authMechanismString);
   if (matchingTab) {
     return matchingTab.id;
   }
 
-  switch (authMechanismString) {
-    case AuthMechanism.MONGODB_DEFAULT:
-    case AuthMechanism.MONGODB_SCRAM_SHA1:
-    case AuthMechanism.MONGODB_SCRAM_SHA256:
-    case AuthMechanism.MONGODB_CR:
-      // We bundle SCRAM-SHA-1 and SCRAM-SHA-256 into the Username/Password bucket.
-      return AuthMechanism.MONGODB_DEFAULT;
-    default:
-      return 'AUTH_NONE';
-  }
+  return AuthMechanism.MONGODB_DEFAULT;
 }
 
 function AuthenticationTab({
@@ -154,7 +129,7 @@ function AuthenticationTab({
       return updateConnectionFormField({
         type: 'update-auth-mechanism',
         authMechanism:
-          event.target.value === 'AUTH_NONE'
+          event.target.value === AuthMechanism.MONGODB_DEFAULT
             ? null
             : (event.target.value as AuthMechanism),
       });
