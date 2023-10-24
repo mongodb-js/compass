@@ -94,7 +94,6 @@ const aggregationsStore = configureAggregationsStore({
   namespace: 'db.coll',
   serverVersion: '4.2.0',
   fields: [],
-  isAtlasDeployed: true,
   outResultsFn: handleOut,
   env: 'atlas',
   localAppRegistry: appRegistry

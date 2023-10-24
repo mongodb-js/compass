@@ -28,7 +28,6 @@ describe('Settings [Component]', function () {
       state = {
         ...INITIAL_STATE,
         applySettings: applySettingsSpy,
-        isAtlasDeployed: false,
         toggleSettingsIsExpanded: toggleSettingsIsExpandedSpy,
         toggleSettingsIsCommentMode: toggleSettingsIsCommentModeSpy,
         setSettingsSampleSize: setSettingsSampleSizeSpy,
@@ -125,7 +124,7 @@ describe('Settings [Component]', function () {
     });
 
     it('hides the large limit option', function () {
-      const props = { ...state, isAtlasDeployed: true };
+      const props = { ...state };
       component = mount(<Settings {...props} />);
       expect(component.find('label[innerText="Limit"]')).to.not.be.present();
     });

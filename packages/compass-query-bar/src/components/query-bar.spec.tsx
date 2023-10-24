@@ -37,7 +37,6 @@ const renderQueryBar = (
         onApply={noop}
         onReset={noop}
         showExportToLanguageButton
-        showQueryHistoryButton
         resultId="123"
         {...props}
       />
@@ -252,19 +251,6 @@ describe('QueryBar Component', function () {
         exportToLanguageButtonId
       );
       expect(exportToLanguageButton).to.not.exist;
-    });
-  });
-
-  describe('when showQueryHistoryButton is false', function () {
-    beforeEach(function () {
-      renderQueryBar({
-        showQueryHistoryButton: false,
-      });
-    });
-
-    it('does not render the query history button', function () {
-      const queryHistoryButton = screen.queryByTestId(queryHistoryButtonId);
-      expect(queryHistoryButton).to.not.exist;
     });
   });
 

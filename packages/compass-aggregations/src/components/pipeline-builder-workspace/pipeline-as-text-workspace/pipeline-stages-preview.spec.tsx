@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
+import preferencesAccess from 'compass-preferences-model';
 
 const renderStageBanner = (
   props: Partial<ComponentProps<typeof OutputStagePreview>> = {}
@@ -17,7 +18,6 @@ const renderStageBanner = (
     <Provider store={configureStore()}>
       <OutputStagePreview
         stageOperator="$out"
-        isAtlas={false}
         isComplete={false}
         isLoading={false}
         onOpenCollection={() => {}}
@@ -30,12 +30,9 @@ const renderStageBanner = (
 
 describe('OutputStagePreview', function () {
   (['$out', '$merge'] as const).forEach((stageOperator) => {
-    describe(`${stageOperator} - not on atlas`, function () {
+    describe(`${stageOperator} with run aggregation enabled`, function () {
       it('renders stage banner', function () {
-        renderStageBanner({
-          stageOperator,
-          isAtlas: false,
-        });
+        renderStageBanner({ stageOperator });
         expect(screen.getByTestId(`${stageOperator}-preview-banner`)).to.exist;
         expect(() => {
           screen.getByRole('button', {
@@ -45,11 +42,28 @@ describe('OutputStagePreview', function () {
       });
     });
 
-    describe(`${stageOperator} on atlas`, function () {
+    describe(`${stageOperator} with run aggregation disabled`, function () {
+      let enableAggregationBuilderRunPipeline: boolean;
+
+      before(async function () {
+        enableAggregationBuilderRunPipeline =
+          preferencesAccess.getPreferences()
+            .enableAggregationBuilderRunPipeline;
+
+        await preferencesAccess.savePreferences({
+          enableAggregationBuilderRunPipeline: false,
+        });
+      });
+
+      after(async function () {
+        await preferencesAccess.savePreferences({
+          enableAggregationBuilderRunPipeline,
+        });
+      });
+
       it(`renders stage banner`, function () {
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
         });
         expect(screen.getByTestId(`${stageOperator}-preview-banner`)).to.exist;
       });
@@ -57,7 +71,6 @@ describe('OutputStagePreview', function () {
       it(`renders stage action`, function () {
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
         });
         expect(
           screen.getByRole('button', {
@@ -70,7 +83,6 @@ describe('OutputStagePreview', function () {
         const onSaveCollection = sinon.spy();
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
           onSaveCollection,
         });
         const button = screen.getByRole('button', {
@@ -84,7 +96,6 @@ describe('OutputStagePreview', function () {
       it('renders loading state', function () {
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
           isLoading: true,
         });
         const button = screen.getByRole('button', {
@@ -96,7 +107,6 @@ describe('OutputStagePreview', function () {
       it('renders complete state', function () {
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
           isComplete: true,
         });
         expect(screen.getByTestId(`${stageOperator}-is-complete-banner`)).to
@@ -106,7 +116,6 @@ describe('OutputStagePreview', function () {
       it('renders complete state action button', function () {
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
           isComplete: true,
         });
         const button = screen.getByRole('button', {
@@ -119,7 +128,6 @@ describe('OutputStagePreview', function () {
         const onOpenCollection = sinon.spy();
         renderStageBanner({
           stageOperator,
-          isAtlas: true,
           isComplete: true,
           onOpenCollection,
         });
