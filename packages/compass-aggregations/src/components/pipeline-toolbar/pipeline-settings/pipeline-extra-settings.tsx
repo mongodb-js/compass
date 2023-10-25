@@ -20,7 +20,7 @@ import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mo
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
-import { hiddenOnNarrowContainerStyles } from './hidden-on-narrow-container';
+import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 
 const containerStyles = css({
   display: 'flex',
@@ -132,7 +132,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
               className={toggleStageWizardStyles}
               disabled={pipelineMode === 'as-text'}
             >
-              <span className={hiddenOnNarrowContainerStyles}>Wizard</span>
+              <span className={hiddenOnNarrowPipelineToolbarStyles}>
+                Wizard
+              </span>
             </Button>
           )}
         />

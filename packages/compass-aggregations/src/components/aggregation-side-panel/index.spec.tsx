@@ -64,7 +64,7 @@ describe('aggregation side panel', function () {
 
   it('renders usecases filtered by search text matching the title of the usecases', function () {
     renderAggregationSidePanel();
-    const searchBox = screen.getByPlaceholderText(/Search a Stage Wizard/i);
+    const searchBox = screen.getByPlaceholderText(/Search for a Stage/i);
     userEvent.type(searchBox, 'Sort');
     expect(
       screen
@@ -76,7 +76,7 @@ describe('aggregation side panel', function () {
 
   it('renders usecases filtered by search text matching the stage operator of the usecases', function () {
     renderAggregationSidePanel();
-    const searchBox = screen.getByPlaceholderText(/Search a Stage Wizard/i);
+    const searchBox = screen.getByPlaceholderText(/Search for a Stage/i);
     userEvent.type(searchBox, 'lookup');
     expect(
       screen

@@ -27,25 +27,6 @@ export type StageWizardUseCase = {
 
 export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   {
-    id: 'sort',
-    title: 'Sort documents based on a single or set of fields',
-    stageOperator: '$sort',
-    wizardComponent: SortUseCase,
-  },
-  {
-    id: 'lookup',
-    title:
-      'Join documents from different collections to compare their field values',
-    stageOperator: '$lookup',
-    wizardComponent: LookupUseCase,
-  },
-  {
-    id: 'project',
-    title: 'Include or exclude a subset of fields from my documents',
-    stageOperator: '$project',
-    wizardComponent: ProjectUseCase,
-  },
-  {
     id: 'match',
     title: 'Find all the documents that match one or more conditions',
     stageOperator: '$match',
@@ -68,6 +49,25 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Return a subset of values based on their order or rank',
     stageOperator: '$group',
     wizardComponent: GroupWithSubset,
+  },
+  {
+    id: 'project',
+    title: 'Include or exclude a subset of fields from my documents',
+    stageOperator: '$project',
+    wizardComponent: ProjectUseCase,
+  },
+  {
+    id: 'sort',
+    title: 'Sort documents based on a single or set of fields',
+    stageOperator: '$sort',
+    wizardComponent: SortUseCase,
+  },
+  {
+    id: 'lookup',
+    title:
+      'Join documents from different collections to compare their field values',
+    stageOperator: '$lookup',
+    wizardComponent: LookupUseCase,
   },
   {
     id: 'text-search',

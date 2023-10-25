@@ -9,7 +9,7 @@ import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { usePreference } from 'compass-preferences-model';
-import { hiddenOnNarrowContainerStyles } from './hidden-on-narrow-container';
+import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 
 const containerStyles = css({
   display: 'grid',
@@ -82,7 +82,7 @@ export const PipelineSettings: React.FunctionComponent<
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
         >
-          <span className={hiddenOnNarrowContainerStyles}>
+          <span className={hiddenOnNarrowPipelineToolbarStyles}>
             Export to language
           </span>
         </Button>

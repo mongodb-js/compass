@@ -139,10 +139,7 @@ export { ErrorBoundary } from './components/error-boundary';
 export { FeedbackPopover } from './components/feedback-popover';
 export { StoreConnector } from './components/store-connector';
 export { TabNavBar } from './components/tab-nav-bar';
-export {
-  WorkspaceContainer,
-  workspaceContainerQueryName,
-} from './components/workspace-container';
+export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { InteractivePopover } from './components/interactive-popover';
 export { ListEditor } from './components/list-editor';

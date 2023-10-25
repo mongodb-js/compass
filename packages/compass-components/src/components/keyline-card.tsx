@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { spacing } from '@leafygreen-ui/tokens';
+import { spacing, transitionDuration } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
@@ -7,9 +7,11 @@ import { useDarkMode } from '../hooks/use-theme';
 import { useFocusRing } from '../hooks/use-focus-ring';
 import { mergeProps } from '../utils/merge-props';
 
-const keylineStyles = css({
+const containerStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: spacing[2],
+  transition: `${transitionDuration.default}ms ease-in-out`,
+  transitionProperty: `border, box-shadow`,
 });
 
 const keylineLightThemeStyles = css({
@@ -19,6 +21,13 @@ const keylineDarkThemeStyles = css({
   background: palette.black,
   borderColor: palette.gray.dark2,
 });
+
+const lightBaseBoxShadow = `0 4px 10px -4px ${transparentize(
+  0.7,
+  palette.black
+)}`;
+
+const darkBaseBoxShadow = `0 4px 20px -4px ${palette.black}`;
 
 const lightHoverBoxShadow = `0 4px 20px -4px ${transparentize(
   0.8,
@@ -30,26 +39,26 @@ const darkHoverBoxShadow = `0 4px 20px -4px ${transparentize(
   palette.black
 )}`;
 
-const clickableStyleLight = css`
-  cursor: pointer;
+const clickableStyleLight = css({
+  cursor: 'pointer',
+  boxShadow: lightBaseBoxShadow,
+  '&:hover': {
+    border: `1px solid ${palette.gray.light2}`,
+    boxShadow: lightHoverBoxShadow,
+  },
 
-  &:hover {
-    border: 1px solid ${palette.gray.light2};
-    box-shadow: ${lightHoverBoxShadow};
-  }
+  '&:active': {
+    boxShadow: 'none',
+  },
+});
 
-  &:active {
-    box-shadow: none;
-  }
-`;
-
-const clickableStyleDark = css`
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: ${darkHoverBoxShadow};
-  }
-`;
+const clickableStyleDark = css({
+  cursor: 'pointer',
+  boxShadow: darkBaseBoxShadow,
+  '&:hover': {
+    boxShadow: darkHoverBoxShadow,
+  },
+});
 
 const KeylineCard = forwardRef(function KeylineCard(
   {
@@ -77,7 +86,7 @@ const KeylineCard = forwardRef(function KeylineCard(
       : {},
     {
       className: cx(
-        keylineStyles,
+        containerStyles,
         darkMode ? keylineDarkThemeStyles : keylineLightThemeStyles,
         contentStyle === 'clickable' &&
           (darkMode ? clickableStyleDark : clickableStyleLight),
