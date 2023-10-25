@@ -14,7 +14,7 @@ import {
 import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
-import ipc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import type {
   DataService,
   ReauthenticationHandler,
@@ -151,15 +151,15 @@ function reducer(state: State, action: Action): State {
 }
 
 function showCollectionSubMenu({ isReadonly }: { isReadonly: boolean }) {
-  void ipc.ipcRenderer?.call('window:show-collection-submenu', { isReadonly });
+  void ipcRenderer?.call('window:show-collection-submenu', { isReadonly });
 }
 
 function hideCollectionSubMenu() {
-  void ipc.ipcRenderer?.call('window:hide-collection-submenu');
+  void ipcRenderer?.call('window:hide-collection-submenu');
 }
 
 function notifyMainProcessOfDisconnect() {
-  void ipc.ipcRenderer?.call('compass:disconnected');
+  void ipcRenderer?.call('compass:disconnected');
 }
 
 function Home({
@@ -280,11 +280,11 @@ function Home({
       void handleDisconnectClicked();
     }
 
-    ipc.ipcRenderer?.on('app:disconnect', onDisconnect);
+    ipcRenderer?.on('app:disconnect', onDisconnect);
 
     return () => {
       // Clean up the ipc listener.
-      ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
+      ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
