@@ -257,7 +257,7 @@ async function createWorkspace({
     types: isPlugin ? './dist/src/index.d.ts' : './dist/index.d.ts',
     scripts: {
       bootstrap: 'npm run compile',
-      prepublishOnly: 'npm run compile',
+      prepublishOnly: 'npm run compile && compass-scripts check-exports-exist',
       // For normal packages we are just compiling code with typescript, for
       // plugins (but only for them) we are using webpack to create independent
       // plugin packages
