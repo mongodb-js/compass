@@ -61,6 +61,7 @@
     "@mongodb-js/compass-utils": "^0.5.2",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
+    "electron": "^25.8.4",
     "hadron-document": "^8.4.2",
     "react": "^17.0.2"
   },
@@ -71,6 +72,7 @@
     "@mongodb-js/compass-utils": "^0.5.2",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
+    "electron": "^25.8.4",
     "hadron-document": "^8.4.2"
   },
   "devDependencies": {
@@ -97,7 +99,6 @@
     "chai-as-promised": "^7.1.1",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^25.8.4",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.12",
     "lodash": "^4.17.21",
