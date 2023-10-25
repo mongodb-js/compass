@@ -15,7 +15,6 @@ import isModified from './is-modified';
 import name from './name';
 import limit from './limit';
 import largeLimit from './large-limit';
-import isAtlasDeployed from './is-atlas-deployed';
 import maxTimeMS from './max-time-ms';
 import collationString from './collation-string';
 import comments from './comments';
@@ -64,7 +63,6 @@ const rootReducer = combineReducers({
   collationString,
   id,
   isModified,
-  isAtlasDeployed,
   settings,
   limit,
   largeLimit,

@@ -52,7 +52,6 @@ const mapStateToProps = (state) => ({
   name: state.name,
   collationString: state.collationString,
   isCommenting: state.comments,
-  isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
   settings: state.settings,
   limit: state.limit,

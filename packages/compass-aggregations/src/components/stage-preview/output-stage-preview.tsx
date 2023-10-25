@@ -20,7 +20,7 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
-import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { usePreference } from 'compass-preferences-model';
 
 const stagePreviewStyles = css({
   display: 'flex',
@@ -52,8 +52,7 @@ type OutputStageProps = {
   isLoading: boolean;
   hasServerError: boolean;
   isFinishedPersistingDocuments: boolean;
-  isAtlasDeployed: boolean;
-  destinationNamespace: string;
+  destinationNamespace: string | null;
   onRunOutputStage: () => void;
   onGoToOutputResults: () => void;
 };
@@ -86,11 +85,15 @@ export const OutputStage = ({
   isLoading,
   hasServerError,
   isFinishedPersistingDocuments,
-  isAtlasDeployed,
   destinationNamespace,
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
+  const enableAggregationBuilderRunPipeline = usePreference(
+    'enableAggregationBuilderRunPipeline',
+    React
+  );
+
   if (!isOutputStage(operator ?? '')) {
     return null;
   }
@@ -129,7 +132,7 @@ export const OutputStage = ({
           ? MERGE_STAGE_PREVIEW_TEXT
           : OUT_STAGE_PREVIEW_TEXT}
       </div>
-      {isAtlasDeployed && (
+      {enableAggregationBuilderRunPipeline && (
         <Button
           variant="primary"
           data-testid="save-output-documents"
@@ -150,18 +153,16 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[
     ownProps.index
   ] as StoreStage;
-  const destinationNamespace = getDestinationNamespaceFromStage(
-    state.namespace,
-    parseShellBSON(`{
-      ${stage.stageOperator as string}: ${stage.value ?? ''}
-    }`)
-  );
+  const destinationNamespace = stage.stageOperator
+    ? getDestinationNamespaceFromStage(state.namespace, {
+        [stage.stageOperator]: stage.value ?? '',
+      })
+    : null;
 
   return {
     isLoading: stage.loading,
     hasServerError: !!stage.serverError,
     isFinishedPersistingDocuments: Boolean(stage.previewDocs),
-    isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
     operator: stage.stageOperator,
   };
