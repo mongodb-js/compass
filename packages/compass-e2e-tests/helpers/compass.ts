@@ -153,6 +153,7 @@ export class Compass {
   }
 
   async recordLogs(): Promise<void> {
+    debug('Setting up renderer log listeners ...');
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
