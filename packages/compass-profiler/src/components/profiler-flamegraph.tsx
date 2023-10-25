@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FlameGraph } from 'react-flame-graph';
 import Color from 'colorjs.io';
 import { type Document } from 'bson';
-import { rafraf } from '@mongodb-js/compass-components';
+import { css, rafraf } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 
 type FlameGraphNode = {
@@ -197,7 +197,7 @@ const ProfilerFlameGraph: React.FunctionComponent<ProfilerFlameGraphProps> = ({
   }
 
   return (
-    <div ref={div}>
+    <div ref={div} className={css({ borderTop: '6px solid gray' })}>
       <FlameGraph
         data={data}
         height={height}

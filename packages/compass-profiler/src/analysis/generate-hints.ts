@@ -1,4 +1,5 @@
 import { type Document } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 
 function percentageOf(value: number, total: number): number {
   const ratio = value / total;
@@ -27,6 +28,7 @@ export type Hint = {
   description: string;
   moreInfoUrl?: string;
   queryShape: string;
+  attachedCode?: string;
 };
 
 export function gatherUniqueFieldsFromQuery(filter: Document): string[] {
@@ -102,24 +104,20 @@ export function generateHints(
     const inferredIndex = inferIndexFromQuery(profiledQuery);
     result.push({
       type: 'error',
-      description: `Your query is executing as a collection scan because there is no available index. You might want to create an index similar to ${inferredIndex}.`,
+      description: `Your query is executing as a collection scan because there is no available index. If the query is going to be consistently used, you might want to create an index similar to:`,
       queryShape,
+      attachedCode: inferredIndex,
     });
   }
 
   if (profiledQuery.planSummary.startsWith('IXSCAN')) {
     const indexDef = profiledQuery.planSummary.substring(6).trim();
-    result.push({
-      type: 'success',
-      description: `Your query is using the index ${indexDef}`,
-      queryShape,
-    });
-
     if (profiledQuery.keysExamined === profiledQuery.nreturned) {
       result.push({
         type: 'success',
-        description: `Your query is completely fulfilled by the index.`,
+        description: `Your query is completely fulfilled by the index:`,
         queryShape,
+        attachedCode: indexDef,
       });
     } else {
       const fieldsNotCovered = findFieldsNotCoveredByIndex(
@@ -128,17 +126,20 @@ export function generateHints(
       );
       result.push({
         type: 'warning',
-        description: `Your query needs to filter documents in memory because the index is not specific enough. The following fields are currently not covered by the index: ${fieldsNotCovered.join(
-          ', '
-        )}`,
+        description: `Your query needs to filter documents in memory because the index is not specific enough. The following fields are currently not covered by the index:`,
         queryShape,
+        attachedCode: `${indexDef}\n// Fields not covered:\n${toJSString(
+          fieldsNotCovered
+        )}`,
       });
     }
 
     if (profiledQuery.nreturned > 0 && profiledQuery.docsExamined === 0) {
       result.push({
         type: 'success',
-        description: `You are using a covered query.`,
+        description: `You are using a covered query with the following index:`,
+        queryShape,
+        attachedCode: indexDef,
       });
     } else if (
       profiledQuery.nreturned > 1000 &&
@@ -182,7 +183,7 @@ export function generateHints(
     if (pcntTimeInDisk > 10) {
       result.push({
         type: 'error',
-        description: `Approximately ${pcntTimeInDisk}% of the query time was spent on disk. Your MongoDB cluster might be underprovisioned.`,
+        description: `Approximately ${pcntTimeInDisk}% of the query time was spent on disk.`,
         queryShape,
       });
     }
@@ -192,11 +193,70 @@ export function generateHints(
 }
 
 export function generateGlobalHints(profiledQueries: Document[]): Hint[] {
-  return [
-    {
+  const hints: Hint[] = [];
+  let longestQuery: Document | undefined = undefined;
+  let longestQueryTime: number = 0;
+  let longestQueryInDisk: Document | undefined = undefined;
+  let longestQueryInDiskTime: number = 0;
+  let allCollScans: Document[] = [];
+  let collScanShapes: Set<string> = new Set();
+
+  for (const profiledQuery of profiledQueries) {
+    if (!profiledQuery || profiledQuery.op !== 'query') {
+      return [];
+    }
+
+    if (profiledQuery.millis > longestQueryTime) {
+      longestQuery = profiledQuery;
+      longestQueryTime = profiledQuery.millis;
+    }
+
+    if (
+      profiledQuery.storage?.data?.timeReadingMicros > longestQueryInDiskTime
+    ) {
+      longestQueryInDisk = profiledQuery;
+      longestQueryInDiskTime = profiledQuery.storage?.data?.timeReadingMicros;
+    }
+
+    if (
+      profiledQuery.planSummary === 'COLLSCAN' &&
+      !collScanShapes.has(profiledQuery.queryHash)
+    ) {
+      allCollScans.push(profiledQuery);
+      collScanShapes.add(profiledQuery.queryHash);
+    }
+  }
+
+  if (longestQuery) {
+    hints.push({
+      description: `Your longest query took ${longestQueryTime}ms.`,
+      queryShape: longestQuery.queryHash,
       type: 'info',
-      description: 'Hey',
-      queryShape: profiledQueries[0].queryHash,
-    },
-  ];
+      attachedCode: toJSString(longestQuery.command.filter),
+    });
+  }
+
+  for (const collscan of allCollScans) {
+    hints.push({
+      description: `The following query is doing a collection scan, loading all documents into memory. You might want to fix this issue with an index, if the query is consistently used:`,
+      queryShape: collscan.queryHash,
+      type: 'error',
+      attachedCode: `${toJSString(
+        collscan.command.filter
+      )}\n// Possible index:\n${inferIndexFromQuery(collscan)}`,
+    });
+  }
+
+  if (longestQueryInDisk) {
+    hints.push({
+      description: `The following query is the most expensive in disk usage, taking ${Math.round(
+        longestQueryInDiskTime / 1000
+      )}ms.`,
+      queryShape: longestQueryInDisk.queryHash,
+      type: 'warning',
+      attachedCode: `${toJSString(longestQueryInDisk.command.filter)}`,
+    });
+  }
+
+  return hints;
 }

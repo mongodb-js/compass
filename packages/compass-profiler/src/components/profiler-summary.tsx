@@ -158,7 +158,7 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
     switch (hint.type) {
       case 'success':
         return (
-          <p className={hintStyles(palette.green.light3)}>
+          <div className={hintStyles(palette.green.light3)}>
             <IconButton
               className={hintAfterIconStyles}
               onClick={onClickWrapper}
@@ -167,11 +167,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             </IconButton>
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'warning':
         return (
-          <p className={hintStyles(palette.yellow.light2)}>
+          <div className={hintStyles(palette.yellow.light2)}>
             <IconButton
               className={hintAfterIconStyles}
               onClick={onClickWrapper}
@@ -180,11 +183,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             </IconButton>
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'error':
         return (
-          <p className={hintStyles(palette.red.light3)}>
+          <div className={hintStyles(palette.red.light3)}>
             <IconButton
               className={hintAfterIconStyles}
               onClick={onClickWrapper}
@@ -193,11 +199,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             </IconButton>
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'info':
         return (
-          <p className={hintStyles(palette.blue.light3)}>
+          <div className={hintStyles(palette.blue.light3)}>
             <IconButton
               className={hintAfterIconStyles}
               onClick={onClickWrapper}
@@ -206,14 +215,17 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             </IconButton>
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
     }
   } else {
     switch (hint.type) {
       case 'success':
         return (
-          <p className={hintStyles(palette.green.light3)}>
+          <div className={hintStyles(palette.green.light3)}>
             <Icon
               className={hintAfterIconStyles}
               color={palette.green.dark1}
@@ -221,11 +233,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             />
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'warning':
         return (
-          <p className={hintStyles(palette.yellow.light2)}>
+          <div className={hintStyles(palette.yellow.light2)}>
             <Icon
               className={hintAfterIconStyles}
               color={palette.yellow.dark2}
@@ -233,11 +248,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             />
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'error':
         return (
-          <p className={hintStyles(palette.red.light3)}>
+          <div className={hintStyles(palette.red.light3)}>
             <Icon
               className={hintAfterIconStyles}
               color={palette.red.dark2}
@@ -245,11 +263,14 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             />
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
       case 'info':
         return (
-          <p className={hintStyles(palette.blue.light3)}>
+          <div className={hintStyles(palette.blue.light3)}>
             <Icon
               className={hintAfterIconStyles}
               color={palette.blue.dark2}
@@ -257,7 +278,10 @@ const HintResult: React.FunctionComponent<HintResultProps> = ({
             />
             <span>{hint.description}</span>
             {hint.moreInfoUrl && <Link href={hint.moreInfoUrl}></Link>}
-          </p>
+            {hint.attachedCode && (
+              <Code language="javascript">{hint.attachedCode}</Code>
+            )}
+          </div>
         );
     }
   }
@@ -370,32 +394,43 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
               </SegmentedControlOption>
             </SegmentedControl>
           </div>
-          {currentView === 'hint' &&
-            shapeFilter &&
-            hints.map((h, i) => <HintResult key={i} hint={h} />)}
-          {currentView === 'hint' &&
-            !shapeFilter &&
-            globalQueryHints.map((h, i) => (
-              <HintResult
-                onClick={(hint) => setShapeFilter(hint.queryShape)}
-                key={i}
-                hint={h}
-              />
-            ))}
-          {currentView === 'deep' && (
-            <Code
-              language="javascript"
-              copyable={true}
-              showWindowChrome={false}
-              chromeTitle={queryToHint?.ns || ''}
-              showLineNumbers={true}
-              className={css({ maxHeight: '480px' })}
-            >
-              {shapeFilter
-                ? toJSString(queryToHint, 2)
-                : '// Choose a query from the flamegraph or the side bar.'}
-            </Code>
-          )}
+          <div
+            className={css({
+              overflowY: 'scroll',
+              height: '60vh',
+              maxHeight: '60vh',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: spacing[2],
+            })}
+          >
+            {currentView === 'hint' &&
+              shapeFilter &&
+              hints.map((h, i) => <HintResult key={i} hint={h} />)}
+            {currentView === 'hint' &&
+              !shapeFilter &&
+              globalQueryHints.map((h, i) => (
+                <HintResult
+                  onClick={(hint) => setShapeFilter(hint.queryShape)}
+                  key={i}
+                  hint={h}
+                />
+              ))}
+            {currentView === 'deep' && (
+              <Code
+                language="javascript"
+                copyable={true}
+                showWindowChrome={false}
+                chromeTitle={queryToHint?.ns || ''}
+                showLineNumbers={true}
+                className={css({ maxHeight: '480px' })}
+              >
+                {shapeFilter
+                  ? toJSString(queryToHint, 2)
+                  : '// Choose a query from the flamegraph or the side bar.'}
+              </Code>
+            )}
+          </div>
         </div>
         <div className={globalStatsStyles}>
           <Card>
