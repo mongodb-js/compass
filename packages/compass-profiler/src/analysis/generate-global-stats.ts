@@ -1,0 +1,75 @@
+import type { Document } from 'bson';
+
+export type GlobalStats = {
+  totalTime: number;
+  cacheEfficiency: number;
+  timeSpentOnDisk: number;
+  indexAccuracy: number;
+};
+
+export default function generateGlobalStats(
+  profiledQueries: Document[],
+  totalWtCache: number,
+  queryHash?: string
+): GlobalStats {
+  let totalExecutionTime: number = 0;
+  let totalDocumentsExamined: number = 0;
+  let totalKeysExamined: number = 0;
+  let totalTimeSpentOnDisk: number = 0;
+  let totalBytesReadFromDisk: number = 0;
+  let totalDocumentsReturned: number = 0;
+  let queryCount: number = 0;
+
+  for (const profileItem of profiledQueries) {
+    if (!profileItem || profileItem.op !== 'query') {
+      continue;
+    }
+
+    if (queryHash && profileItem.queryHash !== queryHash) {
+      continue;
+    }
+
+    totalExecutionTime += profileItem.millis;
+    totalDocumentsExamined += profileItem.docsExamined;
+    totalKeysExamined += profileItem.keysExamined;
+    totalTimeSpentOnDisk += +(
+      profileItem.storage?.data?.timeReadingMicros || 0
+    );
+    totalBytesReadFromDisk += +(profileItem.storage?.data?.bytesRead || 0);
+    totalDocumentsReturned += +(profileItem.nreturned || 0);
+    queryCount += 1;
+  }
+
+  const ratioOfKeysExamined = totalDocumentsReturned / totalKeysExamined;
+  const penaltyForDocsExamined =
+    totalDocumentsReturned === totalDocumentsExamined &&
+    totalDocumentsReturned === totalKeysExamined
+      ? 0
+      : 1 -
+        totalDocumentsReturned /
+          (totalDocumentsReturned - totalDocumentsExamined);
+  let indexAccuracy =
+    Math.abs((ratioOfKeysExamined - penaltyForDocsExamined) * 100) || 0;
+  if (isNaN(indexAccuracy) || !isFinite(indexAccuracy)) {
+    indexAccuracy = 0;
+  }
+
+  const avgCacheAvailableForQuery = totalWtCache / queryCount;
+  const avgCacheReadIntoForQuery = totalBytesReadFromDisk / queryCount;
+  const avgCacheUsage = avgCacheReadIntoForQuery / avgCacheAvailableForQuery;
+  const avgCacheEfficiency = Math.abs(1 - avgCacheUsage);
+  const cacheEfficiency = Math.round(avgCacheEfficiency * 100 * 100) / 100;
+
+  totalTimeSpentOnDisk /= 1000;
+
+  const totalTimeSpentOnDiskPcnt =
+    (totalTimeSpentOnDisk / totalExecutionTime) * 100;
+  const timeSpentOnDisk = Math.min(totalTimeSpentOnDiskPcnt, 100);
+
+  return {
+    totalTime: totalExecutionTime,
+    cacheEfficiency: Math.min(cacheEfficiency, 100),
+    indexAccuracy: Math.min(indexAccuracy, 100),
+    timeSpentOnDisk: isFinite(timeSpentOnDisk) ? timeSpentOnDisk : 0,
+  };
+}

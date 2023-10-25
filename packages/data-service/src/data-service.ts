@@ -1,6 +1,11 @@
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import { EventEmitter } from 'events';
-import { ExplainVerbosity, ClientEncryption } from 'mongodb';
+import {
+  ExplainVerbosity,
+  ClientEncryption,
+  ProfilingLevel,
+  Timestamp,
+} from 'mongodb';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -45,6 +50,7 @@ import type {
   ReplaceOptions,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
+  ObjectId,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -753,6 +759,13 @@ export interface DataService {
     update: Document | Document[],
     executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview>;
+
+  enableProfiler(db: string): Promise<void>;
+  disableProfiler(db: string): Promise<void>;
+  findLastProfiledQueries(
+    db: string,
+    lastPage: number
+  ): Promise<[Document[], number]>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -2373,6 +2386,38 @@ class DataServiceImpl extends WithLogContext implements DataService {
       },
       abortSignal
     );
+  }
+
+  @op(mongoLogId(1_001_000_267))
+  async enableProfiler(db: string): Promise<void> {
+    await this._database(db, 'META').setProfilingLevel(ProfilingLevel.all);
+  }
+
+  @op(mongoLogId(1_001_000_269))
+  async disableProfiler(db: string): Promise<void> {
+    await this._database(db, 'META').setProfilingLevel(ProfilingLevel.off);
+  }
+
+  @op(mongoLogId(1_001_000_270))
+  async findLastProfiledQueries(
+    db: string,
+    lastPage: number
+  ): Promise<[Document[], number]> {
+    const profilingColl = this._initializedClient('META')
+      .db(db)
+      .collection('system.profile');
+    const queryResults = await profilingColl
+      .find(
+        {
+          op: 'query',
+          ns: { $not: /system\.profile/ },
+        },
+        { sort: { ts: 1 }, limit: 20, skip: lastPage }
+      )
+      .toArray();
+    const nextPage = lastPage + queryResults.length;
+
+    return [queryResults, nextPage];
   }
 
   /**

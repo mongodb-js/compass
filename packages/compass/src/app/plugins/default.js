@@ -21,4 +21,5 @@ module.exports = [
   require('@mongodb-js/compass-explain-plan'),
   require('@mongodb-js/compass-saved-aggregations-queries'),
   require('@mongodb-js/compass-settings'),
+  require('@mongodb-js/compass-profiler'),
 ];
