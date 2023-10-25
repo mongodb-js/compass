@@ -16,6 +16,7 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   IconButton,
+  Subtitle,
 } from '@mongodb-js/compass-components';
 import { SideNav } from '@mongodb-js/compass-components';
 import { SideNavGroup } from '@mongodb-js/compass-components';
@@ -29,6 +30,7 @@ import {
   generateHints,
 } from '../analysis/generate-hints';
 import { toJSString } from 'mongodb-query-parser';
+import Color from 'colorjs.io';
 
 const hintStyles = (baseColor: string) =>
   css({
@@ -77,7 +79,7 @@ const queryShapeDetailStyles = css({
 
 const globalStatsStyles = css({
   flexGrow: 0,
-  width: '30%',
+  width: '12vw',
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[2],
@@ -93,6 +95,43 @@ const footerSectionStyles = css({
 const codeEditorFullSizeStyles = css({
   flexGrow: 1,
 });
+
+type StatCardProps = {
+  name: string;
+  value: number;
+  reverse: boolean;
+};
+
+const STAT_CARD_START_COLOR = new Color('#01AA14');
+const STAT_CARD_END_COLOR = new Color('#A10000');
+
+const StatCard: React.FunctionComponent<StatCardProps> = ({
+  name,
+  value,
+  reverse,
+}) => {
+  const [start, end] = reverse
+    ? [STAT_CARD_START_COLOR, STAT_CARD_END_COLOR]
+    : [STAT_CARD_END_COLOR, STAT_CARD_START_COLOR];
+  const rangeVal = Math.min(100, value) / 100;
+  const range = start.mix(end, rangeVal);
+
+  const color = range.toString({ format: 'hex' });
+  const bgColor = new Color('#ffffff')
+    .mix(color, 0.05)
+    .toString({ format: 'hex' });
+
+  return (
+    <Card className={css({ backgroundColor: bgColor, textAlign: 'center' })}>
+      <b className={css({ textAlign: 'center', wordWrap: 'break-word' })}>
+        {name}
+      </b>
+      <Subtitle className={css({ textAlign: 'center', color })}>
+        {value}%
+      </Subtitle>
+    </Card>
+  );
+};
 
 type ProfileSummaryTableProps = {
   table: SummaryTable;
@@ -119,13 +158,17 @@ const ProfileSummaryTable: React.FunctionComponent<
     <SideNav title="Queries">
       {table.map((group) => {
         return (
-          <SideNavGroup key={group.namespace} header={group.namespace}>
+          <SideNavGroup
+            key={group.namespace}
+            header={`${group.namespace} Queries`}
+          >
             {group.items.map((item) => (
               <SideNavItem
                 active={item.queryShape === queryShape}
                 key={item.queryShape}
                 onClick={() => toggleActive(item.queryShape)}
               >
+                <Badge variant="blue">$find</Badge>
                 {item.queryFields.map((field) => (
                   <Badge key={field} variant="lightgray">
                     {field}
@@ -368,12 +411,6 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
         />
         <div className={queryShapeDetailStyles}>
           <div className={topToolbarStyles}>
-            <IconButton
-              onClick={() => setShapeFilter(undefined)}
-              title="View Global Stats"
-            >
-              <Icon glyph="NoFilter" size="small"></Icon>
-            </IconButton>
             <SegmentedControl
               size="small"
               value={currentView}
@@ -393,12 +430,18 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
                 DETAILS
               </SegmentedControlOption>
             </SegmentedControl>
+            <IconButton
+              onClick={() => setShapeFilter(undefined)}
+              title="View Global Stats"
+            >
+              <Icon glyph="NoFilter" size="small"></Icon>
+            </IconButton>
           </div>
           <div
             className={css({
               overflowY: 'scroll',
-              height: '60vh',
-              maxHeight: '60vh',
+              height: '55vh',
+              maxHeight: '55vh',
               display: 'flex',
               flexDirection: 'column',
               gap: spacing[2],
@@ -433,18 +476,28 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
           </div>
         </div>
         <div className={globalStatsStyles}>
-          <Card>
-            Cache Efficiency:{' '}
-            {Math.round(queryShapeGlobalStats.cacheEfficiency * 100) / 100}%
-          </Card>
-          <Card>
-            Index Accuracy:{' '}
-            {Math.round(queryShapeGlobalStats.indexAccuracy * 100) / 100}%
-          </Card>
-          <Card>
-            Time On Disk:{' '}
-            {Math.round(queryShapeGlobalStats.timeSpentOnDisk * 100) / 100}%
-          </Card>
+          <Subtitle className={css({ textAlign: 'center' })}>
+            Resource Usage
+          </Subtitle>
+          <StatCard
+            name="Cache Efficiency"
+            reverse={false}
+            value={
+              Math.round(queryShapeGlobalStats.cacheEfficiency * 100) / 100
+            }
+          />
+          <StatCard
+            name="Index Accuracy"
+            reverse={false}
+            value={Math.round(queryShapeGlobalStats.indexAccuracy * 100) / 100}
+          />
+          <StatCard
+            name="Time On Disk"
+            reverse={true}
+            value={
+              Math.round(queryShapeGlobalStats.timeSpentOnDisk * 100) / 100
+            }
+          />
         </div>
       </div>
       <div className={footerSectionStyles}>
