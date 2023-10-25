@@ -1,26 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DocumentList } from '@mongodb-js/compass-components';
+import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model';
 import { getInsightsForDocument } from '../utils';
 type BSONObject = TypeCastMap['Object'];
 
-/**
- * The base class.
- */
-const BASE = 'document';
+export const documentStyles = css({
+  position: 'relative',
+  textOverflow: 'ellipsis',
+  maxWidth: '100%',
+  borderRadius: 'inherit',
 
-/**
- * The contents class.
- */
-const CONTENTS = `${BASE}-contents`;
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
 
-/**
- * The test id.
- */
-const TEST_ID = 'readonly-document';
+export const documentContentStyles = css({
+  paddingTop: spacing[3],
+  paddingBottom: spacing[3],
+});
 
 export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
@@ -85,8 +86,8 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
    */
   render() {
     return (
-      <div className={BASE} data-testid={TEST_ID}>
-        <div className={CONTENTS}>
+      <div className={documentStyles} data-testid="readonly-document">
+        <div className={documentContentStyles}>
           {this.renderElements()}
           {this.renderActions()}
         </div>
