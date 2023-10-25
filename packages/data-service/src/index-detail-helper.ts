@@ -1,3 +1,6 @@
+import { isDeepStrictEqual } from 'util';
+import { EJSON } from 'bson';
+
 export type IndexInfo = {
   ns?: string;
   name: string;
@@ -31,7 +34,14 @@ export type IndexDefinition = {
     | 'clustered'
     | 'columnstore';
   cardinality: 'single' | 'compound';
-  properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
+  properties: (
+    | 'unique'
+    | 'sparse'
+    | 'partial'
+    | 'ttl'
+    | 'collation'
+    | 'shardKey'
+  )[];
   extra: Record<string, string | number | Record<string, any>>;
   size: IndexSize;
   relativeSize: number;
@@ -53,7 +63,8 @@ export function getIndexCardinality(
 }
 
 export function getIndexProperties(
-  index: Pick<IndexDefinition, 'name' | 'key' | 'fields' | 'extra'>
+  index: Pick<IndexDefinition, 'name' | 'key' | 'fields' | 'extra'>,
+  collectionShardKey: unknown | null
 ): IndexDefinition['properties'] {
   const properties: IndexDefinition['properties'] = [];
 
@@ -75,6 +86,15 @@ export function getIndexProperties(
 
   if (index.extra.collation) {
     properties.push('collation');
+  }
+
+  if (
+    isDeepStrictEqual(
+      EJSON.serialize(collectionShardKey),
+      EJSON.serialize(index.key)
+    )
+  ) {
+    properties.push('shardKey');
   }
 
   return properties;
@@ -117,6 +137,7 @@ export function getIndexType(
 
 export function createIndexDefinition(
   ns: string,
+  collectionShardKey: unknown | null,
   { name, key, v, ...extra }: IndexInfo,
   indexStats?: IndexStats,
   indexSize?: number,
@@ -146,7 +167,7 @@ export function createIndexDefinition(
     ...indexStats,
     type: getIndexType(index),
     cardinality: getIndexCardinality(index),
-    properties: getIndexProperties(index),
+    properties: getIndexProperties(index, collectionShardKey),
     size: indexSize,
     relativeSize: (indexSize / maxSize) * 100,
   };

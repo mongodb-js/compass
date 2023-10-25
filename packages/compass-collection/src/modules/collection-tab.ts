@@ -85,6 +85,7 @@ const initialMetadata: CollectionStateMetadata = {
   isAtlas: false,
   isDataLake: false,
   serverVersion: '0.0.0',
+  shardKey: null,
 };
 
 enum CollectionActions {

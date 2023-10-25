@@ -100,8 +100,9 @@ function pickCollectionInfo({
   validation,
   clustered,
   fle2,
+  shardKey
 }) {
-  return { readonly, view_on, collation, pipeline, validation, clustered, fle2 };
+  return { readonly, view_on, collation, pipeline, validation, clustered, fle2, shardKey };
 }
 
 /**
@@ -128,6 +129,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     view_on: 'string',
     collation: 'object',
     pipeline: 'array',
+    shardKey: 'object',
     validation: 'object',
 
     // Normalized values from collStats command
@@ -220,7 +222,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       },
     },
     properties: {
-      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle2'],
+      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle2', 'shardKey'],
       fn() {
         return getProperties(this);
       },
@@ -289,6 +291,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       isClustered: this.clustered,
       isFLE: this.fle2,
       isSearchIndexesSupported,
+      shardKey: this.shardKey
     };
     if (this.sourceId) {
       try {

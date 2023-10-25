@@ -243,6 +243,7 @@ export interface DataService {
    * Returns the result of serverStatus.
    */
   serverStatus(): Promise<Document>;
+  replSetGetStatus(): Promise<Document>;
 
   /**
    * Returns the result of top.
@@ -1050,8 +1051,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
     dbName: string,
     collName: string
   ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
-    const [collInfo] = await this._listCollections(dbName, { name: collName });
-    return adaptCollectionInfo({ db: dbName, ...collInfo }) ?? null;
+    const [[collInfo], [configCollectionsEntry]] = await Promise.all([
+      this._listCollections(dbName, { name: collName }),
+      this.find('config.collections', {
+        _id: `${dbName}.${collName}`,
+      } as any).catch(() => [null]),
+    ]);
+    return (
+      adaptCollectionInfo({
+        db: dbName,
+        ...collInfo,
+        configCollectionsEntry,
+      }) ?? null
+    );
   }
 
   @op(mongoLogId(1_001_000_031))
@@ -1190,7 +1202,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         .map((name) => ({ name }));
     };
 
-    const [listedCollections, collectionsFromPrivileges] = await Promise.all([
+    const [
+      listedCollections,
+      collectionsFromPrivileges,
+      configCollectionsEntries,
+    ] = await Promise.all([
       this._listCollections(databaseName, filter, { nameOnly }),
       // If the filter is not empty, we can't meaningfully derive collections
       // from privileges and filter them as the criteria might include any key
@@ -1198,6 +1214,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // privileges. Because of that we are ignoring privileges completely if
       // listCollections was called with a filter.
       isEmptyObject(filter) ? getCollectionsFromPrivileges() : [],
+      this.find('config.collections', {
+        $expr: {
+          $eq: [
+            `${databaseName}.`,
+            { $substr: ['$_id', 0, databaseName.length + 1] },
+          ],
+        },
+      })
+        .catch(() => [])
+        .then((result) =>
+          Object.fromEntries(result.map((entry) => [entry._id, entry]))
+        ),
     ]);
 
     const collections = uniqueBy(
@@ -1205,8 +1233,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
+    ).map((coll) =>
+      adaptCollectionInfo({
+        db: databaseName,
+        ...coll,
+        configCollectionsEntry:
+          configCollectionsEntries?.[`${databaseName}.${coll.name}`] ?? null,
+      })
+    );
 
+    console.log('!!!!', collections, configCollectionsEntries);
     return collections;
   }
 
@@ -1836,11 +1872,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     options?: IndexInformationOptions
   ): Promise<IndexDefinition[]> {
-    const [indexes, indexStats, indexSizes] = await Promise.all([
-      this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
-      this._indexStats(ns),
-      this._indexSizes(ns),
-    ]);
+    const [indexes, indexStats, indexSizes, configCollectionsEntry] =
+      await Promise.all([
+        this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
+        this._indexStats(ns),
+        this._indexSizes(ns),
+        this.find('config.collections', { _id: ns } as any).catch(() => null),
+      ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
 
@@ -1848,6 +1886,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const name = index.name;
       return createIndexDefinition(
         ns,
+        configCollectionsEntry?.[0]?.key ?? null,
         index,
         indexStats[name],
         indexSizes[name],
@@ -1967,6 +2006,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async serverStatus(): Promise<Document> {
     const admin = this._database('admin', 'META');
     return await runCommand(admin, { serverStatus: 1 });
+  }
+
+  @op(mongoLogId(1_001_000_267), (_, result) => {
+    return result ? { result } : undefined;
+  })
+  async replSetGetStatus(): Promise<Document> {
+    const admin = this._database('admin', 'META');
+    return await runCommand(
+      admin,
+      { replSetGetStatus: 1 },
+      { readPreference: 'primaryPreferred' }
+    );
   }
 
   @op(mongoLogId(1_001_000_062), (_, result) => {

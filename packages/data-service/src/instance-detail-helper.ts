@@ -76,6 +76,7 @@ type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
+  shardKey: Document | null;
 };
 
 type DatabaseDetails = {
@@ -363,8 +364,12 @@ export function adaptCollectionInfo({
   info,
   options,
   type,
+  configCollectionsEntry,
 }: CollectionInfoNameOnly &
-  Partial<CollectionInfo> & { db: string }): CollectionDetails {
+  Partial<CollectionInfo> & {
+    db: string;
+    configCollectionsEntry: Document | null;
+  }): CollectionDetails {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,
@@ -387,6 +392,7 @@ export function adaptCollectionInfo({
     clusteredIndex,
     encryptedFields,
   } = options ?? {};
+  const shardKey: Document = configCollectionsEntry?.key ?? null;
 
   const hasValidation = Boolean(
     validator || validationAction || validationLevel
@@ -412,5 +418,6 @@ export function adaptCollectionInfo({
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,
+    shardKey,
   };
 }

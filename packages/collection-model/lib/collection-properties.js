@@ -5,6 +5,7 @@ const PROPERTIES_CLUSTERED = 'clustered';
 const PROPERTIES_FLE2 = 'fle2';
 const PROPERTIES_VIEW = 'view';
 const PROPERTIES_READ_ONLY = 'read-only';
+const PROPERTIES_SHARDED = 'sharded';
 
 function getProperties(coll) {
   const properties = [];
@@ -49,6 +50,12 @@ function getProperties(coll) {
   if (coll.fle2) {
     properties.push({
       id: PROPERTIES_FLE2,
+    });
+  }
+
+  if (coll.shardKey) {
+    properties.push({
+      id: PROPERTIES_SHARDED,
     });
   }
 

@@ -45,6 +45,7 @@ type CollectionMetadata = {
    * Aggregation pipeline view definition
    */
   sourcePipeline?: unknown[];
+  shardKey: unknown | null;
 };
 
 interface Collection {
@@ -60,6 +61,7 @@ interface Collection {
   command: boolean;
   special: boolean;
   specialish: boolean;
+  shardKey: unknown | null;
   normal: boolean;
   readonly: boolean;
   view_on: string;

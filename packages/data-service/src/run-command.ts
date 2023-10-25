@@ -278,6 +278,11 @@ interface RunAdministrationCommand {
     spec: { collMod: string; [flags: string]: unknown },
     options?: RunCommandOptions
   ): Promise<Document>;
+  (
+    db: Db,
+    spec: { replSetGetStatus: 1 },
+    options?: RunCommandOptions
+  ): Promise<Document>;
 }
 
 /**

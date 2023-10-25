@@ -18,7 +18,7 @@ type Collection = {
   free_storage_size: number;
   index_count: number;
   index_size: number;
-  properties: { id: string }[];
+  properties: { id: CollectionProperty }[];
   source?: Collection;
 };
 
@@ -28,11 +28,20 @@ const COLLECTION_CARD_HEIGHT = 238;
 
 const COLLECTION_CARD_LIST_HEIGHT = 118;
 
+type CollectionProperty =
+  | 'collation'
+  | 'view'
+  | 'capped'
+  | 'timeseries'
+  | 'fle2'
+  | 'clustered'
+  | 'sharded';
+
 function collectionPropertyToBadge({
   id,
   options,
 }: {
-  id: string;
+  id: CollectionProperty;
   options?: Record<string, unknown>;
 }): BadgeProp {
   switch (id) {
@@ -69,6 +78,8 @@ function collectionPropertyToBadge({
       };
     case 'clustered':
       return { id, name: id, variant: 'darkgray' };
+    case 'sharded':
+      return { id, name: id, variant: 'lightgray' };
     default:
       return { id, name: id };
   }

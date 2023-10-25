@@ -109,6 +109,7 @@ type CollectionHeaderProps = {
   isClustered: boolean;
   isFLE: boolean;
   isAtlas: boolean;
+  shardKey: unknown | null;
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: unknown[];
@@ -218,6 +219,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           {this.props.isTimeSeries && <CollectionBadge type="timeseries" />}
           {this.props.isClustered && <CollectionBadge type="clustered" />}
           {this.props.isFLE && <CollectionBadge type="fle" />}
+          {this.props.shardKey && <CollectionBadge type="sharded" />}
           {this.props.isReadonly && this.props.sourceName && (
             <CollectionBadge type="view" />
           )}

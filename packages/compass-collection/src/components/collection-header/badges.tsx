@@ -10,7 +10,8 @@ export type CollectionBadgeType =
   | 'timeseries'
   | 'view'
   | 'fle'
-  | 'clustered';
+  | 'clustered'
+  | 'sharded';
 
 const badges: Record<
   CollectionBadgeType,
@@ -47,6 +48,10 @@ const badges: Record<
   },
   clustered: {
     label: 'CLUSTERED',
+  },
+  sharded: {
+    label: 'SHARDED',
+    variant: BadgeVariant.LightGray,
   },
 };
 
