@@ -339,13 +339,15 @@ export type InsertCSFLEState = {
   encryptedFields?: string[];
 };
 
+export type InsertDocumentView = 'Shell' | 'JSON' | 'List';
+
 type InsertState = {
   doc: null | Document;
   jsonDoc: null | string;
   message: string;
   csfleState: InsertCSFLEState;
   mode: 'modifying' | 'error';
-  jsonView: boolean;
+  view: InsertDocumentView;
   isOpen: boolean;
   isCommentNeeded: boolean;
 };
@@ -390,6 +392,9 @@ type CrudState = {
   view: DocumentView;
   count: number | null;
   insert: InsertState;
+  isInsertDocumentModalOpen: boolean;
+  initialDocumentForInsert: null | Document;
+  insertDocCSFLEState: InsertCSFLEState;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -449,6 +454,9 @@ class CrudStoreImpl
       isEditable: true,
       view: LIST,
       count: 0,
+      isInsertDocumentModalOpen: false,
+      initialDocumentForInsert: null,
+      insertDocCSFLEState: { state: 'none' },
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
@@ -486,7 +494,7 @@ class CrudStoreImpl
       message: '',
       csfleState: { state: 'none' },
       mode: MODIFYING,
-      jsonView: false,
+      view: 'Shell',
       isOpen: false,
       isCommentNeeded: true,
     };
@@ -978,79 +986,60 @@ class CrudStoreImpl
    */
   closeInsertDocumentDialog() {
     this.setState({
-      insert: this.getInitialInsertState(),
+      // insert: this.getInitialInsertState(),
+      isInsertDocumentModalOpen: false,
     });
   }
 
-  /**
-   * Open the insert document dialog.
-   *
-   * @param {Object} doc - The document to insert.
-   * @param {Boolean} clone - Whether this is a clone operation.
-   */
-  async openInsertDocumentDialog(doc: BSONObject, clone: boolean) {
-    const hadronDoc = new HadronDocument(doc);
+  async openInsertDocumentDialog(docToClone?: BSONObject) {
+    // TODO: Clean up this.
 
-    if (clone) {
+    // isInsertDocumentModalOpen
+
+    // docToClone
+    // Document Cloned
+
+    const initialDocumentForInsert = new HadronDocument(docToClone || {});
+
+    if (docToClone) {
+      //  TODO: Take or leave
       track('Document Cloned', { mode: this.modeForTelemetry() });
       // We need to remove the _id or we will get an duplicate key error on
-      // insert, and we currently do not allow editing of the _id field.
-      for (const element of hadronDoc.elements) {
+      // insert.
+      for (const element of initialDocumentForInsert.elements) {
         if (element.currentKey === '_id') {
-          hadronDoc.elements.remove(element);
+          initialDocumentForInsert.elements.remove(element);
           break;
         }
       }
     }
 
-    const csfleState: InsertState['csfleState'] = { state: 'none' };
-    const dataServiceCSFLEMode =
-      this.dataService &&
-      this.dataService.getCSFLEMode &&
-      this.dataService.getCSFLEMode();
-    if (dataServiceCSFLEMode === 'enabled') {
-      // Show a warning if this is a CSFLE-enabled connection but this
-      // collection does not have a schema.
-      const {
-        hasSchema,
-        encryptedFields: { encryptedFields },
-      } = await this.dataService.knownSchemaForCollection(this.state.ns);
-      if (encryptedFields.length > 0) {
-        // This is for displaying encrypted fields to the user. We do not really
-        // need to worry about the distinction between '.' as a nested-field
-        // indicator and '.' as a literal part of a field name here, esp. since
-        // automatic Queryable Encryption does not support '.' in field names at all.
-        csfleState.encryptedFields = encryptedFields.map((field) =>
-          field.join('.')
-        );
-      }
-      if (!hasSchema) {
-        csfleState.state = 'no-known-schema';
-      } else if (
-        !(await this.dataService.isUpdateAllowed(this.state.ns, doc))
-      ) {
-        csfleState.state = 'incomplete-schema-for-cloned-doc';
-      } else {
-        csfleState.state = 'has-known-schema';
-      }
-    } else if (dataServiceCSFLEMode === 'disabled') {
-      csfleState.state = 'csfle-disabled';
-    }
+    const csfleState = await getCSFLEStateForInsert(
+      this.dataService,
+      this.state.ns,
+      docToClone
+    );
 
-    const jsonDoc = hadronDoc.toEJSON();
+    // const jsonDoc = hadronDoc.toEJSON();
 
     this.setState({
-      insert: {
-        doc: hadronDoc,
-        jsonDoc: jsonDoc,
-        jsonView: true,
-        message: '',
-        csfleState,
-        mode: MODIFYING,
-        isOpen: true,
-        isCommentNeeded: true,
-      },
+      isInsertDocumentModalOpen: true,
+      initialDocumentForInsert,
+      insertDocCSFLEState: csfleState,
     });
+
+    // this.setState({
+    //   insert: {
+    //     doc: hadronDoc,
+    //     jsonDoc: jsonDoc,
+    //     view: 'Shell',
+    //     message: '',
+    //     csfleState,
+    //     mode: MODIFYING,
+    //     isOpen: true,
+    //     isCommentNeeded: true,
+    //   },
+    // });
   }
 
   /**
@@ -1085,14 +1074,14 @@ class CrudStoreImpl
    * Also modifies doc and jsonDoc states to keep accurate data for each view.
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocument(view: DocumentView) {
+  toggleInsertDocument(view: InsertDocumentView) {
     if (view === 'JSON') {
       const jsonDoc = this.state.insert.doc?.toEJSON();
 
       this.setState({
         insert: {
           doc: this.state.insert.doc,
-          jsonView: true,
+          view: 'Shell',
           jsonDoc: jsonDoc ?? null,
           message: '',
           csfleState: this.state.insert.csfleState,
@@ -1101,7 +1090,7 @@ class CrudStoreImpl
           isCommentNeeded: this.state.insert.isCommentNeeded,
         },
       });
-    } else {
+    } else if (view === 'List') {
       let hadronDoc;
 
       if (this.state.insert.jsonDoc === '') {
@@ -1113,7 +1102,7 @@ class CrudStoreImpl
       this.setState({
         insert: {
           doc: hadronDoc,
-          jsonView: false,
+          view: 'Shell',
           jsonDoc: this.state.insert.jsonDoc,
           message: '',
           csfleState: this.state.insert.csfleState,
@@ -1130,13 +1119,13 @@ class CrudStoreImpl
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: DocumentView) {
-    const jsonView = view === 'JSON';
+  toggleInsertDocumentView(view: InsertDocumentView) {
+    // TODO: Delete this function, use one.
     this.setState({
       insert: {
         doc: new Document({}),
         jsonDoc: this.state.insert.jsonDoc,
-        jsonView: jsonView,
+        view,
         message: '',
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
@@ -1157,7 +1146,7 @@ class CrudStoreImpl
       insert: {
         doc: new Document({}),
         jsonDoc: value,
-        jsonView: true,
+        view: 'JSON',
         message: '',
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
@@ -1175,7 +1164,12 @@ class CrudStoreImpl
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
     track('Document Inserted', {
-      mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+      mode:
+        this.state.insert.view === 'JSON'
+          ? 'json'
+          : this.state.insert.view === 'List'
+          ? 'field-by-field'
+          : 'Shell',
       multiple: docs.length > 1,
     });
 
@@ -1185,7 +1179,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: this.state.insert.jsonView ? 'json' : 'default',
+        insertView: this.state.insert.view,
         multiple: true,
         docs,
       };
@@ -1198,7 +1192,7 @@ class CrudStoreImpl
         insert: {
           doc: new Document({}),
           jsonDoc: this.state.insert.jsonDoc,
-          jsonView: true,
+          view: 'JSON', // Why auto set to json ?
           message: (error as Error).message,
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
@@ -1221,14 +1215,24 @@ class CrudStoreImpl
    */
   async insertDocument() {
     track('Document Inserted', {
-      mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+      mode:
+        this.state.insert.view === 'JSON'
+          ? 'json'
+          : this.state.insert.view === 'List'
+          ? 'field-by-field'
+          : 'Shell',
       multiple: false,
     });
 
     let doc: BSONObject;
 
     try {
-      if (this.state.insert.jsonView) {
+      // TODO: into a helper?
+      if (this.state.insert.view === 'Shell') {
+        // TODO: format for this view. Why this all in the store?
+
+        doc = this.state.insert.doc!.generateObject();
+      } else if (this.state.insert.view === 'JSON') {
         doc = HadronDocument.FromEJSON(
           this.state.insert.jsonDoc ?? ''
         ).generateObject();
@@ -1240,7 +1244,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: this.state.insert.jsonView ? 'json' : 'default',
+        insertView: this.state.insert.view,
         multiple: false,
         docs: [doc],
       };
@@ -1253,7 +1257,7 @@ class CrudStoreImpl
         insert: {
           doc: this.state.insert.doc,
           jsonDoc: this.state.insert.jsonDoc,
-          jsonView: this.state.insert.jsonView,
+          view: this.state.insert.view,
           message: (error as Error).message,
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
@@ -1866,4 +1870,42 @@ export async function findAndModifyWithFLEFallback(
   // deleted the document between the findAndModify command
   // and the find command. Just return the original error.
   return [error, undefined] as ErrorOrResult;
+}
+
+async function getCSFLEStateForInsert(
+  dataService: DataService,
+  ns: string,
+  docToClone: BSONObject = {}
+) {
+  const csfleState: InsertState['csfleState'] = { state: 'none' };
+  const dataServiceCSFLEMode =
+    dataService && dataService.getCSFLEMode && dataService.getCSFLEMode();
+  if (dataServiceCSFLEMode === 'enabled') {
+    // Show a warning if this is a CSFLE-enabled connection but this
+    // collection does not have a schema.
+    const {
+      hasSchema,
+      encryptedFields: { encryptedFields },
+    } = await dataService.knownSchemaForCollection(ns);
+    if (encryptedFields.length > 0) {
+      // This is for displaying encrypted fields to the user. We do not really
+      // need to worry about the distinction between '.' as a nested-field
+      // indicator and '.' as a literal part of a field name here, esp. since
+      // automatic Queryable Encryption does not support '.' in field names at all.
+      csfleState.encryptedFields = encryptedFields.map((field) =>
+        field.join('.')
+      );
+    }
+    if (!hasSchema) {
+      csfleState.state = 'no-known-schema';
+    } else if (!(await dataService.isUpdateAllowed(ns, docToClone))) {
+      csfleState.state = 'incomplete-schema-for-cloned-doc';
+    } else {
+      csfleState.state = 'has-known-schema';
+    }
+  } else if (dataServiceCSFLEMode === 'disabled') {
+    csfleState.state = 'csfle-disabled';
+  }
+
+  return csfleState;
 }

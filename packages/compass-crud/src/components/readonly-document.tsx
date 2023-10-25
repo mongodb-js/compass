@@ -25,7 +25,7 @@ export const documentContentStyles = css({
 
 export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
-  openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
+  openInsertDocumentDialog?: (doc: BSONObject) => void;
   doc: Document;
   expandAll: boolean;
   showInsights?: boolean;
@@ -39,7 +39,7 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
     const clonedDoc = this.props.doc.generateObject({
       excludeInternalFields: true,
     });
-    this.props.openInsertDocumentDialog?.(clonedDoc, true);
+    this.props.openInsertDocumentDialog?.(clonedDoc);
   };
 
   /**

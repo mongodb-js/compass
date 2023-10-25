@@ -43,14 +43,13 @@ const bannerStyles = css({
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
-  toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
-  toggleInsertDocument: (view: 'JSON' | 'List') => void;
+  toggleInsertDocumentView: (view: 'Shell' | 'JSON' | 'List') => void;
+  toggleInsertDocument: (view: 'Shell' | 'JSON' | 'List') => void;
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
   message: string;
   mode: 'modifying' | 'error';
-  version: string;
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
   jsonView: boolean;

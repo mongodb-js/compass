@@ -1,6 +1,4 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { ObjectId } from 'bson';
 import {
   Button,
   CancelLoader,
@@ -28,7 +26,6 @@ import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
-  DOCUMENTS_STATUSES_ALL,
 } from '../constants/documents-statuses';
 
 import type {
@@ -71,7 +68,7 @@ const loaderContainerStyles = css({
 
 export type DocumentListProps = {
   store: CrudStore;
-  openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
+  openInsertDocumentDialog?: (docToClone?: BSONObject) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
@@ -106,7 +103,6 @@ export type DocumentListProps = {
     | 'updateJsonDoc'
     | 'toggleInsertDocument'
     | 'toggleInsertDocumentView'
-    | 'version'
     | 'tz'
     | 'ns'
     | 'updateComment'
@@ -135,6 +131,15 @@ export type DocumentListProps = {
  * Component for the entire document list.
  */
 class DocumentList extends React.Component<DocumentListProps> {
+  static defaultProps = {
+    error: null,
+    view: 'List',
+    version: '3.4.0',
+    isEditable: true,
+    insert: {} as any,
+    tz: 'UTC',
+  } as const;
+
   onApplyClicked() {
     void this.props.store.refreshDocuments(true);
   }
@@ -154,10 +159,7 @@ class DocumentList extends React.Component<DocumentListProps> {
    */
   handleOpenInsert(key: 'insert-document' | 'import-file') {
     if (key === 'insert-document') {
-      this.props.openInsertDocumentDialog?.(
-        { _id: new ObjectId(), '': '' },
-        false
-      );
+      this.props.openInsertDocumentDialog?.();
     } else if (key === 'import-file') {
       this.props.openImportFileDialog?.('crud-toolbar');
     }
@@ -241,7 +243,6 @@ class DocumentList extends React.Component<DocumentListProps> {
           toggleInsertDocument={this.props.toggleInsertDocument}
           toggleInsertDocumentView={this.props.toggleInsertDocumentView}
           jsonView
-          version={this.props.version}
           tz={this.props.tz}
           ns={this.props.ns}
           updateComment={this.props.updateComment}
@@ -392,115 +393,6 @@ class DocumentList extends React.Component<DocumentListProps> {
       </div>
     );
   }
-
-  static displayName = 'DocumentList';
-
-  static propTypes = {
-    closeInsertDocumentDialog: PropTypes.func,
-    toggleInsertDocumentView: PropTypes.func.isRequired,
-    toggleInsertDocument: PropTypes.func.isRequired,
-    count: PropTypes.number,
-    start: PropTypes.number,
-    end: PropTypes.number,
-    page: PropTypes.number,
-    getPage: PropTypes.func,
-    error: PropTypes.object,
-    insert: PropTypes.object.isRequired,
-    insertDocument: PropTypes.func,
-    insertMany: PropTypes.func,
-    isEditable: PropTypes.bool.isRequired,
-    isExportable: PropTypes.bool.isRequired,
-    isTimeSeries: PropTypes.bool,
-    store: PropTypes.object.isRequired,
-    openInsertDocumentDialog: PropTypes.func,
-    openImportFileDialog: PropTypes.func,
-    openExportFileDialog: PropTypes.func,
-    refreshDocuments: PropTypes.func,
-    removeDocument: PropTypes.func,
-    replaceDocument: PropTypes.func,
-    updateDocument: PropTypes.func,
-    updateJsonDoc: PropTypes.func,
-    version: PropTypes.string.isRequired,
-    view: PropTypes.oneOf<DocumentView>(['List', 'JSON', 'Table']).isRequired,
-    viewChanged: PropTypes.func.isRequired,
-    docs: PropTypes.array.isRequired,
-    ns: PropTypes.string,
-    tz: PropTypes.string,
-    updateComment: PropTypes.func.isRequired,
-    status: PropTypes.oneOf(DOCUMENTS_STATUSES_ALL).isRequired,
-    debouncingLoad: PropTypes.bool,
-    loadingCount: PropTypes.bool,
-    outdated: PropTypes.bool,
-    resultId: PropTypes.number,
-    isWritable: PropTypes.bool,
-    instanceDescription: PropTypes.string,
-    darkMode: PropTypes.bool,
-  } as any;
-
-  static defaultProps = {
-    error: null,
-    view: 'List',
-    version: '3.4.0',
-    isEditable: true,
-    insert: {} as any,
-    tz: 'UTC',
-  } as const;
 }
-
-DocumentList.displayName = 'DocumentList';
-
-DocumentList.propTypes = {
-  closeInsertDocumentDialog: PropTypes.func,
-  toggleInsertDocumentView: PropTypes.func.isRequired,
-  toggleInsertDocument: PropTypes.func.isRequired,
-  count: PropTypes.number,
-  start: PropTypes.number,
-  end: PropTypes.number,
-  page: PropTypes.number,
-  getPage: PropTypes.func,
-  error: PropTypes.object,
-  insert: PropTypes.object,
-  insertDocument: PropTypes.func,
-  insertMany: PropTypes.func,
-  isEditable: PropTypes.bool.isRequired,
-  isExportable: PropTypes.bool.isRequired,
-  isTimeSeries: PropTypes.bool,
-  store: PropTypes.object.isRequired,
-  openInsertDocumentDialog: PropTypes.func,
-  openImportFileDialog: PropTypes.func,
-  openExportFileDialog: PropTypes.func,
-  refreshDocuments: PropTypes.func,
-  removeDocument: PropTypes.func,
-  replaceDocument: PropTypes.func,
-  updateDocument: PropTypes.func,
-  updateJsonDoc: PropTypes.func,
-  version: PropTypes.string.isRequired,
-  view: PropTypes.string.isRequired,
-  viewChanged: PropTypes.func.isRequired,
-  docs: PropTypes.array,
-  ns: PropTypes.string,
-  tz: PropTypes.string,
-  updateComment: PropTypes.func.isRequired,
-  status: PropTypes.string,
-  debouncingLoad: PropTypes.bool,
-  loadingCount: PropTypes.bool,
-  outdated: PropTypes.bool,
-  resultId: PropTypes.number,
-  isWritable: PropTypes.bool,
-  instanceDescription: PropTypes.string,
-  darkMode: PropTypes.bool,
-  isCollectionScan: PropTypes.bool,
-  isSearchIndexesSupported: PropTypes.bool,
-  query: PropTypes.object,
-};
-
-DocumentList.defaultProps = {
-  error: null,
-  view: 'List',
-  version: '3.4.0',
-  isEditable: true,
-  insert: {},
-  tz: 'UTC',
-};
 
 export default withDarkMode(DocumentList);
