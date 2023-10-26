@@ -36,7 +36,7 @@
   },
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
