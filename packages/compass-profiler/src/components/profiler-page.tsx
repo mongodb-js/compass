@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { ProfilerStore, ProfilerThunkDispatch, getStore } from '../stores';
 import {
@@ -19,6 +19,7 @@ import {
   SpinLoader,
   css,
   palette,
+  showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
 import { Document } from 'bson';
@@ -70,7 +71,9 @@ const ProfilerIsEnabled: React.FunctionComponent<ProfilerIsEnabledProps> = ({
       {profiledQueries.length > 0 && (
         <ProfilerFlamegraph
           profilingData={profiledQueries}
-          onQueryShapeChoosen={() => {}}
+          onQueryShapeChoosen={() => {
+            return;
+          }}
         />
       )}
     </div>
@@ -90,6 +93,19 @@ const ProfilerIsDisabled: React.FunctionComponent<ProfilerIsDisabledProps> = ({
   databaseList,
   database,
 }) => {
+  const onConfirmEnableProfiler = useCallback(async () => {
+    const confirms = await showConfirmation({
+      title: 'Do you want to start the profiler?',
+      description:
+        "The profiler can degrade the performance of a running cluster while it's running.",
+      variant: 'danger',
+      buttonText: 'Start Profiler',
+    });
+
+    if (confirms) {
+      onEnableProfiler();
+    }
+  }, [onEnableProfiler]);
   return (
     <div className={verticalFlexStyles}>
       <EmptyContent
@@ -117,7 +133,7 @@ const ProfilerIsDisabled: React.FunctionComponent<ProfilerIsDisabledProps> = ({
               })}
             </Combobox>
             <Button
-              onClick={onEnableProfiler}
+              onClick={() => void onConfirmEnableProfiler()}
               variant="primary"
               size="large"
               disabled={database === undefined}

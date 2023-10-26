@@ -129,7 +129,7 @@ function serializeProfilingDataForQuery(
   if (profilingDatum.planSummary === 'COLLSCAN') {
     start = DANGER_START_COLOR;
     end = DANGER_END_COLOR;
-  } else if (profilingDatum.docsExamined / profilingDatum.keysExamined > 100) {
+  } else if (profilingDatum.keysExamined / profilingDatum.nreturned > 10) {
     start = WARN_START_COLOR;
     end = WARN_END_COLOR;
   } else {

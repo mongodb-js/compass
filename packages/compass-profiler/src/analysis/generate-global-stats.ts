@@ -61,16 +61,21 @@ export default function generateGlobalStats(
   const totalTimeSpentOnDiskPcnt =
     (totalTimeSpentOnDisk / totalExecutionTime) * 100;
   const timeSpentOnDisk = Math.min(totalTimeSpentOnDiskPcnt, 100);
+  const cpuTimePercentage =
+    Math.round((cpuMillis / totalExecutionTime) * 100) / 100;
 
   return {
     totalTime: totalExecutionTime,
     cacheEfficiency: Math.min(cacheEfficiency, 100),
     indexAccuracy: Math.min(indexAccuracy, 100),
     timeSpentOnDisk: isFinite(timeSpentOnDisk) ? timeSpentOnDisk : 0,
-    totalCpuMillis: cpuMillis === 0 ? undefined : cpuMillis,
+    totalCpuMillis:
+      cpuMillis === 0 ? undefined : isFinite(cpuMillis) ? cpuMillis : 0,
     cpuTimePercentage:
       cpuMillis === 0
         ? undefined
-        : Math.round((cpuMillis / totalExecutionTime) * 100) / 100,
+        : isFinite(cpuTimePercentage)
+        ? cpuTimePercentage
+        : 0,
   };
 }
