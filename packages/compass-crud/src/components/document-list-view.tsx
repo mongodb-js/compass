@@ -28,6 +28,7 @@ export type DocumentListViewProps = {
   isEditable: boolean;
 } & Pick<
   DocumentProps,
+  | 'shardKey'
   | 'isTimeSeries'
   | 'copyToClipboard'
   | 'removeDocument'
@@ -58,6 +59,7 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
         >
           <KeylineCard>
             <Document
+              shardKey={this.props.shardKey}
               doc={doc}
               editable={this.props.isEditable}
               isTimeSeries={this.props.isTimeSeries}

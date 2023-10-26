@@ -66,6 +66,7 @@ export const setupStore = (
     serverVersion: '6.0.0',
     isReadonly: false,
     isSearchIndexesSupported: false,
+    shardKey: null,
     globalAppRegistry,
     localAppRegistry,
     ...options,

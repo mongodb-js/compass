@@ -1,4 +1,7 @@
-import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
+import type {
+  ShardDistributionResult,
+  IndexDefinition as _IndexDefinition,
+} from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -59,7 +62,30 @@ export enum ActionTypes {
   InProgressIndexAdded = 'indexes/regular-indexes/InProgressIndexAdded',
   InProgressIndexRemoved = 'indexes/regular-indexes/InProgressIndexRemoved',
   InProgressIndexFailed = 'indexes/regular-indexes/InProgressIndexFailed',
+
+  UpdateAnalyzeShardKeyState = 'indexes/regular-indexes/UpdateAnalyzeShardKeyState',
+  UpdateShardDistributionState = 'indexes/regular-indexes/UpdateShardDistributionState',
 }
+
+export type AnalyzeShardKeyState = {
+  key: Record<string, unknown> | null;
+  result: Record<string, unknown> | null;
+};
+
+export type ShardDistributionState = {
+  analyzing: boolean;
+  result: ShardDistributionResult | null;
+};
+
+type UpdateAnalyzeShardKeyStateAction = {
+  type: ActionTypes.UpdateAnalyzeShardKeyState;
+  newState: AnalyzeShardKeyState;
+};
+
+type UpdateShardDistributionStateAction = {
+  type: ActionTypes.UpdateShardDistributionState;
+  newState: ShardDistributionState;
+};
 
 type IndexesAddedAction = {
   type: ActionTypes.IndexesAdded;
@@ -106,7 +132,8 @@ type RegularIndexesActions =
   | SetErrorAction
   | InProgressIndexAddedAction
   | InProgressIndexRemovedAction
-  | InProgressIndexFailedAction;
+  | InProgressIndexFailedAction
+  | UpdateAnalyzeShardKeyStateAction;
 
 export type State = {
   indexes: RegularIndex[];
@@ -115,6 +142,8 @@ export type State = {
   isRefreshing: boolean;
   inProgressIndexes: InProgressIndex[];
   error: string | null;
+  analyzeShardKeyState: AnalyzeShardKeyState;
+  shardDistributionState: ShardDistributionState;
 };
 
 export const INITIAL_STATE: State = {
@@ -124,9 +153,14 @@ export const INITIAL_STATE: State = {
   inProgressIndexes: [],
   isRefreshing: false,
   error: null,
+  analyzeShardKeyState: { key: null, result: null },
+  shardDistributionState: { analyzing: false, result: null },
 };
 
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): State {
   if (isAction<IndexesAddedAction>(action, ActionTypes.IndexesAdded)) {
     return {
       ...state,
@@ -207,6 +241,30 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     };
   }
 
+  if (
+    isAction<UpdateAnalyzeShardKeyStateAction>(
+      action,
+      ActionTypes.UpdateAnalyzeShardKeyState
+    )
+  ) {
+    return {
+      ...state,
+      analyzeShardKeyState: action.newState,
+    };
+  }
+
+  if (
+    isAction<UpdateShardDistributionStateAction>(
+      action,
+      ActionTypes.UpdateShardDistributionState
+    )
+  ) {
+    return {
+      ...state,
+      shardDistributionState: action.newState,
+    };
+  }
+
   return state;
 }
 
@@ -225,6 +283,20 @@ const setIsRefreshing = (isRefreshing: boolean): SetIsRefreshingAction => ({
 const setError = (error: string | null): SetErrorAction => ({
   type: ActionTypes.SetError,
   error,
+});
+
+const updateAnalyzeShardKeyState = (
+  newState: AnalyzeShardKeyState
+): UpdateAnalyzeShardKeyStateAction => ({
+  type: ActionTypes.UpdateAnalyzeShardKeyState,
+  newState,
+});
+
+const updateShardDistributionState = (
+  newState: ShardDistributionState
+): UpdateShardDistributionStateAction => ({
+  type: ActionTypes.UpdateShardDistributionState,
+  newState,
 });
 
 const _handleIndexesChanged = (
@@ -420,6 +492,61 @@ export const unhideIndex = (
         }`,
       });
     }
+  };
+};
+
+export const shardOnAnalyzedIndex = (): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
+    const {
+      dataService,
+      namespace,
+      isSharded,
+      regularIndexes: { analyzeShardKeyState },
+    } = getState();
+    const key = cloneDeep(analyzeShardKeyState.key);
+    dispatch(updateAnalyzeShardKeyState({ key: null, result: null }));
+    if (!dataService || !key) return;
+    console.log('shardCollection', { namespace, key, isSharded });
+    await dataService.shardCollection(
+      namespace,
+      key,
+      isSharded ? 'reshardCollection' : 'shardCollection'
+    );
+    dispatch(refreshRegularIndexes());
+  };
+};
+
+export const analyzeShardKey = (
+  key: Record<string, unknown>
+): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
+    const { dataService, namespace } = getState();
+    if (!dataService) return;
+    dispatch(
+      updateAnalyzeShardKeyState({
+        key,
+        result: null,
+      })
+    );
+
+    const result = await dataService.analyzeShardKey(namespace, key);
+    dispatch(updateAnalyzeShardKeyState({ key, result }));
+  };
+};
+
+export const showShardDistribution = (): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
+    const { dataService, namespace } = getState();
+    if (!dataService) return;
+    dispatch(
+      updateShardDistributionState({
+        analyzing: true,
+        result: null,
+      })
+    );
+
+    const result = await dataService.getShardDistribution(namespace);
+    dispatch(updateShardDistributionState({ analyzing: false, result }));
   };
 };
 

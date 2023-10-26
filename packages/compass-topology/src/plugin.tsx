@@ -318,7 +318,7 @@ function HostStatus({ status }: { status: ReplicaSetMemberStatus }) {
 function ShardedCluster({ topology }: { topology: Topology }) {
   return (
     <Card className={css({ margin: '8px' })}>
-      <div>
+      <div className={css({ display: 'flex' })}>
         {topology.mongos.map((host) => (
           <SingleHost host={host} key={host.address} isMongos={true} />
         ))}

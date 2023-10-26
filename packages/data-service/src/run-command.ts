@@ -283,6 +283,21 @@ interface RunAdministrationCommand {
     spec: { replSetGetStatus: 1 },
     options?: RunCommandOptions
   ): Promise<Document>;
+  (
+    db: Db,
+    spec: { analyzeShardKey: string; key: Document },
+    options?: RunCommandOptions
+  ): Promise<Document>;
+  (
+    db: Db,
+    spec: { shardCollection: string; key: Document },
+    options?: RunCommandOptions
+  ): Promise<Document>;
+  (
+    db: Db,
+    spec: { reshardCollection: string; key: Document },
+    options?: RunCommandOptions
+  ): Promise<Document>;
 }
 
 /**

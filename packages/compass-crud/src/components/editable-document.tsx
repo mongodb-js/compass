@@ -34,6 +34,7 @@ const TEST_ID = 'editable-document';
 
 export type EditableDocumentProps = {
   doc: Document;
+  shardKey?: Document | null;
   expandAll?: boolean;
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
@@ -243,6 +244,7 @@ class EditableDocument extends React.Component<
     return (
       <DocumentList.Document
         value={this.props.doc}
+        shardKey={this.props.shardKey}
         expanded={this.state.expandAll}
         editable
         editing={this.state.editing}
@@ -300,6 +302,7 @@ class EditableDocument extends React.Component<
 
   static propTypes = {
     doc: PropTypes.object.isRequired,
+    shardKey: PropTypes.object,
     expandAll: PropTypes.bool,
     removeDocument: PropTypes.func.isRequired,
     replaceDocument: PropTypes.func.isRequired,

@@ -26,6 +26,7 @@ export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
+  shardKey?: Document | null;
   expandAll: boolean;
   showInsights?: boolean;
 };
@@ -57,6 +58,7 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
     return (
       <DocumentList.Document
         value={this.props.doc}
+        shardKey={this.props.shardKey}
         expanded={this.props.expandAll}
       />
     );
@@ -99,6 +101,7 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
   static propTypes = {
     copyToClipboard: PropTypes.func,
     doc: PropTypes.object.isRequired,
+    shardKey: PropTypes.object,
     expandAll: PropTypes.bool,
     openInsertDocumentDialog: PropTypes.func,
     showInsights: PropTypes.bool,

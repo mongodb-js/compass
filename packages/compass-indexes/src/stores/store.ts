@@ -37,6 +37,9 @@ export type IndexesDataService = Pick<
   | 'createSearchIndex'
   | 'updateSearchIndex'
   | 'dropSearchIndex'
+  | 'analyzeShardKey'
+  | 'shardCollection'
+  | 'getShardDistribution'
 >;
 
 export type ConfigureStoreOptions = {
@@ -48,6 +51,7 @@ export type ConfigureStoreOptions = {
   globalAppRegistry: AppRegistry;
   serverVersion: string;
   isReadonly: boolean;
+  shardKey: Record<string, unknown> | null;
   isSearchIndexesSupported: boolean;
 };
 
@@ -64,6 +68,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      isSharded: !!options.shardKey,
       fields: [],
       indexView: INDEX_LIST_INITIAL_STATE,
       searchIndexes: {

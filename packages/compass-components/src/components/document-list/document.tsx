@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import type {
@@ -11,6 +12,7 @@ import { HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import DocumentFieldsToggleGroup from './document-fields-toggle-group';
 import { documentTypography } from './typography';
+import { BSONObject } from 'hadron-document/dist/utils';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -68,12 +70,14 @@ const INITIAL_FIELD_LIMIT = 25;
 // https://jira.mongodb.org/browse/COMPASS-5614
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
+  shardKey?: BSONObject | null;
   expanded?: boolean;
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
 }> = ({
   value: document,
+  shardKey,
   expanded = false,
   editable = false,
   editing = false,
@@ -108,6 +112,7 @@ const HadronDocument: React.FunctionComponent<{
             return (
               <HadronElement
                 key={idx}
+                isShardKey={!!_.get(shardKey, el.currentKey)}
                 value={el}
                 editable={editable}
                 editingEnabled={editing}

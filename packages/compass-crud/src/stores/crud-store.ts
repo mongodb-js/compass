@@ -1502,7 +1502,7 @@ class CrudStoreImpl
     // don't start showing the loading indicator and cancel button immediately
     const cancelDebounceLoad = this.debounceLoading();
 
-    const stateChanges = {};
+    const stateChanges: Partial<CrudState> = {};
 
     try {
       const [shardKeys, docs] = await Promise.all(promises);

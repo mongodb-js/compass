@@ -5,14 +5,22 @@ import { ItemActionGroup } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 
 type IndexActionsProps = {
+  collectionIsSharded: boolean;
   index: RegularIndex;
   serverVersion: string;
   onDeleteIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
+  onShardOnIndex: (key: Record<string, unknown>) => void;
+  onShowShardDistribution: () => void;
 };
 
-type IndexAction = 'delete' | 'hide' | 'unhide';
+type IndexAction =
+  | 'delete'
+  | 'hide'
+  | 'unhide'
+  | 'shard'
+  | 'show-shard-distribution';
 
 const MIN_HIDE_INDEX_SERVER_VERSION = '4.4.0';
 
@@ -25,11 +33,14 @@ const serverSupportsHideIndex = (serverVersion: string) => {
 };
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
+  collectionIsSharded,
   index,
   serverVersion,
   onDeleteIndex,
   onHideIndex,
   onUnhideIndex,
+  onShardOnIndex,
+  onShowShardDistribution,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [
@@ -58,6 +69,24 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       );
     }
 
+    if (index.properties?.includes('shardKey')) {
+      actions.unshift({
+        action: 'show-shard-distribution',
+        label: `Show shard distribution`,
+        tooltip: `Show shard distribution`,
+        icon: 'Dashboard',
+      });
+    } else {
+      actions.unshift({
+        action: 'shard',
+        label: `${collectionIsSharded ? 'Re-shard' : 'Shard'} Using Index ${
+          index.name
+        }`,
+        tooltip: `${collectionIsSharded ? 'Re-shard' : 'Shard'}`,
+        icon: 'MultiLayers',
+      });
+    }
+
     return actions;
   }, [index, serverVersion]);
 
@@ -69,6 +98,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
         onHideIndex(index.name);
       } else if (action === 'unhide') {
         onUnhideIndex(index.name);
+      } else if (action === 'shard') {
+        onShardOnIndex(index.key);
+      } else if (action === 'show-shard-distribution') {
+        onShowShardDistribution();
       }
     },
     [onDeleteIndex, onHideIndex, onUnhideIndex, index]

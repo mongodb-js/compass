@@ -5,6 +5,7 @@ import dataService from './data-service';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
+import isSharded from './is-readonly-view';
 import description from './description';
 import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
@@ -16,6 +17,7 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 const reducer = combineReducers({
   isWritable,
   isReadonlyView,
+  isSharded,
   indexView,
   description,
   dataService,

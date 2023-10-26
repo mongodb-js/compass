@@ -1,15 +1,16 @@
 import React from 'react';
 import { StoreConnector } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
-import type Reflux from 'reflux';
 
-import DocumentList from './document-list';
+import DocumentList, { type DocumentListProps } from './document-list';
+import type { CrudStore } from '../stores/crud-store';
 
-function DocumentListWithReadonly(props: any) {
+function DocumentListWithReadonly(props: DocumentListProps) {
   const preferencesReadonly = usePreference('readOnly', React);
   return (
     <DocumentList
       {...props}
+      shardKey={(props as any).shardKeys}
       isEditable={!preferencesReadonly && props.isEditable}
     />
   );
@@ -20,11 +21,9 @@ function ConnectedDocumentList({
   actions,
   ...props
 }: {
-  store: Reflux.Store & {
-    getInitialState: () => unknown;
-  };
-  actions: unknown & object;
-}) {
+  store: CrudStore;
+  actions: Partial<DocumentListProps>;
+} & Omit<DocumentListProps, 'store'>) {
   return (
     <StoreConnector store={store}>
       <DocumentListWithReadonly

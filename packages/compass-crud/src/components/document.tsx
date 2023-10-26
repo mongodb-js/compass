@@ -8,6 +8,7 @@ import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
 
 export type DocumentProps = {
+  shardKey?: HadronDocument | null;
   doc: HadronDocument | BSONObject;
   editable: boolean;
   isTimeSeries?: boolean;
@@ -20,6 +21,7 @@ const Document = (props: DocumentProps) => {
     editable,
     isTimeSeries,
     isExpanded,
+    shardKey,
     copyToClipboard,
     openInsertDocumentDialog,
     doc: _doc,
@@ -38,6 +40,7 @@ const Document = (props: DocumentProps) => {
     return (
       <ReadonlyDocument
         doc={doc}
+        shardKey={shardKey}
         copyToClipboard={copyToClipboard}
         openInsertDocumentDialog={openInsertDocumentDialog}
         expandAll={!!isExpanded}
@@ -46,12 +49,20 @@ const Document = (props: DocumentProps) => {
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} expandAll={!!isExpanded} />;
+    return (
+      <EditableDocument
+        {...props}
+        shardKey={shardKey}
+        doc={doc}
+        expandAll={!!isExpanded}
+      />
+    );
   }
 
   return (
     <ReadonlyDocument
       doc={doc}
+      shardKey={shardKey}
       copyToClipboard={copyToClipboard}
       expandAll={!!isExpanded}
     />

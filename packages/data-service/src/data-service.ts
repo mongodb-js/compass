@@ -151,6 +151,23 @@ export type UpdatePreview = {
   changes: UpdatePreviewChange[];
 };
 
+export type ShardDistributionResult = {
+  collStats: {
+    shard: string;
+    size: number;
+    storageSize: number;
+    count: number;
+  }[];
+  chunks: {
+    min: unknown;
+    max: unknown;
+    shard: string;
+  }[];
+  shards: {
+    shard: string;
+    host: string;
+  }[];
+};
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
@@ -244,6 +261,13 @@ export interface DataService {
    */
   serverStatus(): Promise<Document>;
   replSetGetStatus(): Promise<Document>;
+  analyzeShardKey(ns: string, key: Document): Promise<Document>;
+  shardCollection(
+    ns: string,
+    key: Document,
+    command: 'shardCollection' | 'reshardCollection' /*, unique: boolean*/
+  ): Promise<Document>;
+  getShardDistribution(ns: string): Promise<ShardDistributionResult>;
 
   /**
    * Returns the result of top.
@@ -1242,7 +1266,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       })
     );
 
-    console.log('!!!!', collections, configCollectionsEntries);
     return collections;
   }
 
@@ -2018,6 +2041,66 @@ class DataServiceImpl extends WithLogContext implements DataService {
       { replSetGetStatus: 1 },
       { readPreference: 'primaryPreferred' }
     );
+  }
+
+  @op(mongoLogId(1_001_000_271), (_, result) => {
+    return result ? { result } : undefined;
+  })
+  async analyzeShardKey(ns: string, key: Document): Promise<Document> {
+    const admin = this._database('admin', 'CRUD');
+    return await runCommand(admin, { analyzeShardKey: ns, key });
+  }
+
+  @op(mongoLogId(1_001_000_269), (_, result) => {
+    return result ? { result } : undefined;
+  })
+  async shardCollection(
+    ns: string,
+    key: Document,
+    command: 'shardCollection' | 'reshardCollection'
+  ): Promise<Document> {
+    const admin = this._database('admin', 'CRUD');
+    return await runCommand(admin, { [command]: ns, key } as any);
+  }
+
+  @op(mongoLogId(1_001_000_270), (_, result) => {
+    return result ? { result } : undefined;
+  })
+  async getShardDistribution(ns: string): Promise<ShardDistributionResult> {
+    const [collStats, shards, [{ chunks }]] = await Promise.all([
+      this.aggregate(ns, [
+        { $collStats: { storageStats: {}, count: {} } },
+        {
+          $project: {
+            count: 1,
+            size: '$storageStats.size',
+            storageSize: '$storageStats.storageSize',
+            shard: 1,
+          },
+        },
+      ]),
+      this.find(
+        'config.shards',
+        {},
+        { projection: { shard: '$_id', host: 1 } }
+      ),
+      this.aggregate('config.collections', [
+        { $match: { _id: ns } },
+        {
+          $lookup: {
+            from: 'chunks',
+            localField: 'uuid',
+            foreignField: 'uuid',
+            as: 'chunks',
+          },
+        },
+      ]),
+    ]);
+    return {
+      collStats,
+      chunks,
+      shards,
+    } as ShardDistributionResult;
   }
 
   @op(mongoLogId(1_001_000_062), (_, result) => {

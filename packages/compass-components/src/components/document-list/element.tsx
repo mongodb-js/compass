@@ -350,6 +350,7 @@ const elementKeyDarkMode = css({
 
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
+  isShardKey: boolean;
   editable: boolean;
   editingEnabled: boolean;
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
@@ -358,6 +359,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement(el: HadronElementType): void;
 }> = ({
   value: element,
+  isShardKey,
   editable,
   editingEnabled,
   onEditStart,
@@ -527,6 +529,17 @@ export const HadronElement: React.FunctionComponent<{
                 glyph={expanded ? 'CaretDown' : 'CaretRight'}
               ></Icon>
             </button>
+          )}
+        </div>
+        <div className={elementDivider} role="presentation">
+          {isShardKey && (
+            <span
+              data-testid="hadron-document-element-shardkey-icon"
+              title="Shard Key"
+            >
+              <Icon glyph="ShardedCluster" size="small" />
+              &nbsp;
+            </span>
           )}
         </div>
         <div {...keyProps} data-testid="hadron-document-element-key">
