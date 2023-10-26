@@ -202,6 +202,7 @@ const configureStore = (options = {}) => {
 
     // process new document a user inserts
     appRegistry.on('document-inserted', ({ docs }) => {
+      // TODO: Why do we only process a single document.
       store.processSingleDocument(docs[0] || {});
     });
 

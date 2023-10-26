@@ -37,7 +37,9 @@ function setViewTypeSettingsFromSessionStorage(val: ViewType) {
 const controlsContainer = css({
   display: 'flex',
   alignItems: 'center',
+  marginTop: spacing[2],
   gap: spacing[2],
+  justifyContent: 'flex-end',
 });
 
 const label = css({
@@ -53,7 +55,7 @@ export function useInsertDocumentViewTypeControls({
   },
 }: {
   defaultViewType?: ViewType;
-  onChange?: (newType: ViewType) => void;
+  onChange?: (currentViewType: ViewType, newType: ViewType) => void;
 }): [React.ReactElement, ViewType] {
   const [viewType, setViewType] = useState<ViewType>(() =>
     getViewTypeSettingsFromSessionStorage(defaultViewType)
@@ -63,10 +65,10 @@ export function useInsertDocumentViewTypeControls({
   }, [viewType]);
   const onViewTypeChange = useCallback(
     (val: ViewType) => {
-      onChange(val);
+      onChange(viewType, val);
       setViewType(val);
     },
-    [onChange]
+    [viewType, onChange]
   );
   const labelId = useId();
   const controlId = useId();
@@ -80,15 +82,29 @@ export function useInsertDocumentViewTypeControls({
           id={controlId}
           aria-labelledby={labelId}
           value={viewType}
+          size="small"
           onChange={onViewTypeChange as (newValue: string) => void}
         >
           <SegmentedControlOption
-            value="list"
-            glyph={<Icon glyph="Menu"></Icon>}
+            data-testid="insert-document-modal-view-shell"
+            aria-label="Shell JS View"
+            title="Shell JS View"
+            value="Shell"
+            glyph={<Icon glyph="Code"></Icon>}
           />
           <SegmentedControlOption
-            value="grid"
-            glyph={<Icon glyph="Apps"></Icon>}
+            value="EJSON"
+            data-testid="insert-document-modal-view-ejson"
+            aria-label="E-JSON View"
+            title="E-JSON View"
+            glyph={<Icon glyph="CurlyBraces"></Icon>}
+          />
+          <SegmentedControlOption
+            value="List"
+            aria-label="Document List View"
+            title="Document List View"
+            data-testid="insert-document-modal-view-list"
+            glyph={<Icon glyph="Menu"></Icon>}
           />
         </SegmentedControl>
       </div>

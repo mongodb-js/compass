@@ -114,7 +114,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     const clonedDoc = doc.generateObject({
       excludeInternalFields: true,
     });
-    openInsertDocumentDialog?.(clonedDoc, true);
+    openInsertDocumentDialog?.(clonedDoc);
   }, [doc, openInsertDocumentDialog]);
 
   const onCancel = useCallback(() => {

@@ -52,7 +52,7 @@ export {
   DocumentListProps,
   Document,
   DocumentProps,
-  InsertDocumentDialog,
+  InsertDocumentDialog, // TODO: Remove?
   configureStore,
   configureActions,
 };

@@ -9,8 +9,11 @@ import {
   spacing,
   withDarkMode,
 } from '@mongodb-js/compass-components';
+import type { Document as HadronDocument } from 'hadron-document';
+import { InsertDocumentModal } from '@mongodb-js/insert-document';
+
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
-import InsertDocumentDialog from './insert-document-dialog';
+// import InsertDocumentDialog from './insert-document-dialog';
 import type { DocumentListViewProps } from './document-list-view';
 import DocumentListView from './document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
@@ -72,19 +75,21 @@ export type DocumentListProps = {
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
-  insert: Partial<InsertDocumentDialogProps> &
-    Required<
-      Pick<
-        InsertDocumentDialogProps,
-        | 'doc'
-        | 'csfleState'
-        | 'isOpen'
-        | 'message'
-        | 'mode'
-        | 'jsonDoc'
-        | 'isCommentNeeded'
-      >
-    >;
+  // insert: Partial<InsertDocumentDialogProps> &
+  //   Required<
+  //     Pick<
+  //       InsertDocumentDialogProps,
+  //       | 'doc'
+  //       | 'csfleState'
+  //       | 'isOpen'
+  //       | 'message'
+  //       | 'mode'
+  //       | 'jsonDoc'
+  //       | 'isCommentNeeded'
+  //     >
+  //   >;
+  isInsertDocumentModalOpen: boolean;
+  initialDocumentForInsert: null | HadronDocument;
   status: DOCUMENTS_STATUSES;
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
@@ -235,20 +240,30 @@ class DocumentList extends React.Component<DocumentListProps> {
   renderInsertModal() {
     if (this.props.isEditable) {
       return (
-        <InsertDocumentDialog
-          closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
-          insertDocument={this.props.insertDocument}
-          insertMany={this.props.insertMany}
-          updateJsonDoc={this.props.updateJsonDoc}
-          toggleInsertDocument={this.props.toggleInsertDocument}
-          toggleInsertDocumentView={this.props.toggleInsertDocumentView}
-          jsonView
-          tz={this.props.tz}
+        <InsertDocumentModal
+          initialDocumentForInsert={this.props.initialDocumentForInsert}
+          isOpen={this.props.isInsertDocumentModalOpen}
           ns={this.props.ns}
-          updateComment={this.props.updateComment}
-          {...this.props.insert}
+          closeInsertDocumentModal={this.props.closeInsertDocumentDialog}
+          onInsertClick={this.props.insertMany} // TODO: Insert function.
         />
       );
+
+      // return (
+      //   <InsertDocumentDialog
+      //     closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
+      //     insertDocument={this.props.insertDocument}
+      //     insertMany={this.props.insertMany}
+      //     updateJsonDoc={this.props.updateJsonDoc}
+      //     toggleInsertDocument={this.props.toggleInsertDocument}
+      //     toggleInsertDocumentView={this.props.toggleInsertDocumentView}
+      //     jsonView
+      //     tz={this.props.tz}
+      //     ns={this.props.ns}
+      //     updateComment={this.props.updateComment}
+      //     {...this.props.insert}
+      //   />
+      // );
     }
   }
 

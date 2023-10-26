@@ -1,18 +1,17 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import type HadronDocument from 'hadron-document';
-import { Element } from 'hadron-document';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import HadronDocument from 'hadron-document';
+import type { Document } from 'mongodb';
+// import { Element } from 'hadron-document';
 import {
-  Banner,
-  css,
+  // Banner,
   FormModal,
-  Icon,
-  SegmentedControl,
-  SegmentedControlOption,
+  css,
   spacing,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import type { TypeCastMap } from 'hadron-type-checker';
-import parseString, { toJSString, isFilterValid } from 'mongodb-query-parser';
+import { toJSString } from 'mongodb-query-parser';
+// import parseString, { toJSString, isFilterValid } from 'mongodb-query-parser';
 import { EJSON } from 'bson';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -23,6 +22,12 @@ import type { FormatOptions } from '@mongodb-js/compass-editor';
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import { useInsertDocumentViewTypeControls } from './use-insert-document-view-type';
 import { InsertDocumentEditor } from './insert-document-editor';
+
+const insertEditorContainerStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
+  minHeight: spacing[5] * 8,
+});
 
 export function generate(ast: Node, formatOptions?: FormatOptions) {
   return prettify(
@@ -36,7 +41,7 @@ export function generate(ast: Node, formatOptions?: FormatOptions) {
  * @param source expression source (object or array expression with optional
  *               leading / trailing comments)
  */
-export function parseShellBSON(source: string): Document[] {
+export function parseShellBSON(source: string): Document | Document[] {
   const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
   if (!parsed || typeof parsed !== 'object') {
     // XXX(COMPASS-5689): We've hit the condition in
@@ -50,7 +55,7 @@ type BSONObject = TypeCastMap['Object'];
 
 export type InsertDocumentModalProps = InsertCSFLEWarningBannerProps & {
   // TODO: What's the `message`?
-  initialDocumentForInsert: HadronDocument;
+  initialDocumentForInsert?: HadronDocument | null;
   isOpen: boolean;
   ns: string;
 
@@ -59,9 +64,29 @@ export type InsertDocumentModalProps = InsertCSFLEWarningBannerProps & {
   // onInsertManyClick: (docs: BSONObject[]) => void;
 };
 
+// We insert a first element into the hadron document when it's made so that it has
+// at least one value the user can edit.
+function createHadronDocumentWithPlaceholder(
+  existingHadronDocument?: HadronDocument
+) {
+  if (existingHadronDocument?.elements.size > 0) {
+    return existingHadronDocument;
+  }
+  const document = new HadronDocument();
+  document.insertBeginning('field', 'value');
+
+  return document;
+}
+
 export const InsertDocumentModal: React.FunctionComponent<
   InsertDocumentModalProps
-> = ({ initialDocumentForInsert, isOpen, ns, closeInsertDocumentModal }) => {
+> = ({
+  initialDocumentForInsert,
+  isOpen,
+  ns,
+  closeInsertDocumentModal,
+  onInsertClick,
+}) => {
   useTrackOnChange(
     // TODO: Should be in compass-crud if event called this..
     'COMPASS-CRUD-UI',
@@ -81,14 +106,10 @@ export const InsertDocumentModal: React.FunctionComponent<
   //   },
   //   [itemType]
   // );
-
-  const [viewTypeControls, viewType] = useInsertDocumentViewTypeControls({
-    // TOOD: Somethings
-    // eslint-disable-next-line no-console
-    onChange: (newViewType) => {
-      console.log(newViewType);
-    },
-  });
+  console.log(
+    'aaaa initialDinitialDocumentForInsertocumentForInsert',
+    initialDocumentForInsert
+  );
 
   /**
    * We maintain 3 different document arrays.
@@ -96,21 +117,127 @@ export const InsertDocumentModal: React.FunctionComponent<
    * Only the current editor's documents are up to date.
    */
   const [ejsonDocumentsString, setEJSONDocuments] = useState(() => {
-    return `${[initialDocumentForInsert.toEJSON()]}`;
+    return `${initialDocumentForInsert?.toEJSON() ?? '{}'}`;
   });
   const [hadronDocuments, setHadronDocuments] = useState(() => {
-    return [initialDocumentForInsert];
+    return [createHadronDocumentWithPlaceholder(initialDocumentForInsert)];
   });
   const [shellDocumentsString, setShellDocuments] = useState(() => {
-    // TODO: To shell syntax string from ejson.
-
-    const bsonDoc = EJSON.parse(initialDocumentForInsert.toEJSON());
-    const shellDocString = toJSString(bsonDoc);
-
-    return `${[shellDocString]}`;
+    const bsonDoc = initialDocumentForInsert
+      ? EJSON.parse(initialDocumentForInsert.toEJSON())
+      : {};
+    console.log('aaaa bson doc', bsonDoc);
+    console.log('aaaa ejson doc', initialDocumentForInsert?.toEJSON());
+    console.log(
+      'aaaa josn string doc',
+      toJSString(initialDocumentForInsert?.toEJSON() || {})
+    );
+    return `${toJSString(bsonDoc) || '{}'}`;
   });
 
-  const hasErrors = useMemo(() => {
+  // When it's opened and the initial document updates we set the initial values.
+  useLayoutEffect(() => {
+    if (isOpen) {
+      setEJSONDocuments(`${initialDocumentForInsert?.toEJSON() ?? '{}'}`);
+      const bsonDoc = initialDocumentForInsert
+        ? EJSON.parse(initialDocumentForInsert.toEJSON())
+        : {};
+      setShellDocuments(toJSString(bsonDoc) || '{}');
+      setHadronDocuments([
+        createHadronDocumentWithPlaceholder(initialDocumentForInsert),
+      ]);
+    }
+  }, [isOpen, initialDocumentForInsert]);
+
+  // {
+  //   _id: ObjectId('62792820e149102abe21dfc3')
+  // }
+
+  const [viewTypeControls, viewType] = useInsertDocumentViewTypeControls({
+    // TOOD: Somethings
+    // eslint-disable-next-line no-console
+    onChange: (currentViewType, newViewType) => {
+      // console.log(currentViewType);
+      // TODO: Update our documents accordingly.
+      let currentDocs: BSONObject[] | BSONObject = [];
+      // let isArray = false;
+
+      // Get the current value of the documents
+      if (currentViewType === 'EJSON') {
+        try {
+          const parsedEJSON = JSON.parse(ejsonDocumentsString);
+          if (Array.isArray(parsedEJSON)) {
+            // isArray = true;
+            // TODO: Maybe need a check on size
+            currentDocs = HadronDocument.FromEJSONArray(
+              ejsonDocumentsString
+            ).map((doc: HadronDocument) => doc.generateObject());
+          } else {
+            currentDocs =
+              HadronDocument.FromEJSON(ejsonDocumentsString).generateObject();
+          }
+        } catch {
+          // TODO: Set error here
+          // TODO: Reset the view type change with callback ?
+          return;
+        }
+      } else if (currentViewType === 'Shell') {
+        try {
+          // TODO: Make this more secure, not eval on straight documents
+          // from cloning... Maybe something like the pipeline-parser.
+
+          currentDocs = parseShellBSON(shellDocumentsString);
+          // if (Array.isArray(parsedBSON)) {
+          //   isArray = true;
+          //   // TODO: Maybe need a check on size
+          //   currentDocs = parsedBSON;
+          // } else {
+          //   currentDocs = [parsedBSON];
+          // }
+          // TODO: Parse into docs.
+          // isArray = true;
+
+          // return true;
+        } catch (err) {
+          // TODO: More error management.
+          return false;
+        }
+      } else {
+        // Don't create an array if we only are editing one document and the user is swapping about.
+        if (hadronDocuments.length === 1) {
+          currentDocs = hadronDocuments[0].generateObject();
+        } else {
+          currentDocs = hadronDocuments.map((hadronDoc) =>
+            hadronDoc.generateObject()
+          );
+        }
+      }
+
+      if (newViewType === 'EJSON') {
+        setEJSONDocuments(EJSON.stringify(currentDocs, undefined, 2));
+      } else if (newViewType === 'Shell') {
+        setShellDocuments(toJSString(currentDocs, 2) || '{}');
+      } else {
+        // TODO: Hadron doc.
+        //
+        if (Array.isArray(currentDocs)) {
+          setHadronDocuments(
+            currentDocs.map((doc) =>
+              createHadronDocumentWithPlaceholder(new HadronDocument(doc))
+            )
+          );
+        } else {
+          setHadronDocuments([
+            createHadronDocumentWithPlaceholder(
+              new HadronDocument(currentDocs)
+            ),
+          ]);
+        }
+      }
+    },
+  });
+
+  const hasDocErrors = useMemo(() => {
     if (viewType === 'EJSON') {
       try {
         JSON.parse(ejsonDocumentsString);
@@ -123,18 +250,62 @@ export const InsertDocumentModal: React.FunctionComponent<
         // TODO: Make this more secure, not eval on straight documents
         // from cloning... Maybe something like the pipeline-parser.
         parseShellBSON(shellDocumentsString);
+        return false;
+      } catch (err) {
+        return true;
+      }
+    }
+
+    // TODO: Create hadron document hook that manages errors.
+    // return this.invalidElements.length > 0;
+    return true;
+  }, [viewType, ejsonDocumentsString, shellDocumentsString]);
+
+  const onSubmitClick = useCallback(() => {
+    let docs = [];
+
+    if (viewType === 'EJSON') {
+      try {
+        const parsedEJSON = JSON.parse(ejsonDocumentsString);
+        if (Array.isArray(parsedEJSON)) {
+          // TODO: Maybe need a check on size
+          docs = HadronDocument.FromEJSONArray(ejsonDocumentsString).map(
+            (doc: HadronDocument) => doc.generateObject()
+          );
+        } else {
+          docs = [
+            HadronDocument.FromEJSON(ejsonDocumentsString).generateObject(),
+          ];
+        }
+      } catch {
+        // TODO: Set error here
+        return;
+      }
+    } else if (viewType === 'Shell') {
+      try {
+        // TODO: Make this more secure, not eval on straight documents
+        // from cloning... Maybe something like the pipeline-parser.
+
+        // TODO: Parse into docs.
+        parseShellBSON(shellDocumentsString);
         return true;
       } catch (err) {
         return false;
       }
+    } else {
+      // TODO: Hadron doc.
+      docs = hadronDocuments.map((hadronDoc) => hadronDoc.toEJSON());
     }
 
-    return true;
-    // TODO: Create hadron document hook that manages this.
-    // return this.invalidElements.length > 0;
-  }, [viewType, ejsonDocumentsString, hadronDocuments, shellDocumentsString]);
-
-  const onSubmitClick = useCallback(() => {}, [viewType, documents]);
+    onInsertClick(docs);
+    // TODO: Could make this not depended on these strings if we want, have that set elsewhere.
+  }, [
+    viewType,
+    onInsertClick,
+    ejsonDocumentsString,
+    shellDocumentsString,
+    hadronDocuments,
+  ]);
 
   return (
     <FormModal
@@ -144,12 +315,32 @@ export const InsertDocumentModal: React.FunctionComponent<
       onSubmit={onSubmitClick}
       onCancel={closeInsertDocumentModal}
       submitButtonText="Insert"
-      submitDisabled={hasErrors}
+      submitDisabled={hasDocErrors}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
     >
       {viewTypeControls}
-      <InsertDocumentEditor initialDoc={} view={viewType} />
+      <div className={insertEditorContainerStyles}>
+        <InsertDocumentEditor
+          onChangeEJSONDocuments={setEJSONDocuments}
+          onChangeShellDocuments={setShellDocuments}
+          onChangeHadronDocuments={setHadronDocuments}
+          ejsonDocumentsString={ejsonDocumentsString}
+          shellDocumentsString={shellDocumentsString}
+          hadronDocuments={hadronDocuments}
+          view={viewType}
+        />
+      </div>
+      {/* {message && (
+          <Banner
+            data-testid="insert-document-banner"
+            data-variant={variant}
+            variant={variant}
+            className={bannerStyles}
+          >
+            {message}
+          </Banner>
+        )} */}
     </FormModal>
   );
 };

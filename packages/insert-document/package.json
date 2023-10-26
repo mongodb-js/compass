@@ -34,7 +34,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -54,6 +54,8 @@
     "@mongodb-js/compass-editor": "^0.16.0",
     "@mongodb-js/compass-logging": "^1.2.3",
     "bson": "^6.0.0",
+    "hadron-document": "^8.4.2",
+    "hadron-type-checker": "^7.1.0",
     "react": "*",
     "react-dom": "*"
   },
@@ -62,6 +64,8 @@
     "@mongodb-js/compass-editor": "^0.16.0",
     "@mongodb-js/compass-logging": "^1.2.3",
     "bson": "^6.0.0",
+    "hadron-document": "^8.4.2",
+    "hadron-type-checker": "^7.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },

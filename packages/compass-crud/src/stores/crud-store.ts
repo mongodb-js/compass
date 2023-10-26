@@ -56,7 +56,7 @@ export type CrudActions = {
   updateDocument(doc: Document): void;
   removeDocument(doc: Document): void;
   replaceDocument(doc: Document): void;
-  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
+  openInsertDocumentDialog(docToClone?: BSONObject): void;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
   closeBulkDeleteDialog(): void;
@@ -395,6 +395,7 @@ type CrudState = {
   isInsertDocumentModalOpen: boolean;
   initialDocumentForInsert: null | Document;
   insertDocCSFLEState: InsertCSFLEState;
+  insertErrorMessage: string | null;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -457,6 +458,7 @@ class CrudStoreImpl
       isInsertDocumentModalOpen: false,
       initialDocumentForInsert: null,
       insertDocCSFLEState: { state: 'none' },
+      insertErrorMessage: null,
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
@@ -999,7 +1001,9 @@ class CrudStoreImpl
     // docToClone
     // Document Cloned
 
-    const initialDocumentForInsert = new HadronDocument(docToClone || {});
+    const initialDocumentForInsert = docToClone
+      ? new HadronDocument(docToClone)
+      : null;
 
     if (docToClone) {
       //  TODO: Take or leave
@@ -1021,8 +1025,10 @@ class CrudStoreImpl
     );
 
     // const jsonDoc = hadronDoc.toEJSON();
+    console.log('aaa first', initialDocumentForInsert, docToClone);
 
     this.setState({
+      insertErrorMessage: null,
       isInsertDocumentModalOpen: true,
       initialDocumentForInsert,
       insertDocCSFLEState: csfleState,
@@ -1156,18 +1162,13 @@ class CrudStoreImpl
     });
   }
 
-  /**
-   * Insert a single document.
-   */
-  async insertMany() {
-    const docs = HadronDocument.FromEJSONArray(
-      this.state.insert.jsonDoc ?? ''
-    ).map((doc) => doc.generateObject());
+  async insertMany(docs: BSONObject[], view: 'Shell' | 'EJSON' | 'List') {
+    // const docs =
     track('Document Inserted', {
       mode:
-        this.state.insert.view === 'JSON'
+        view === 'EJSON'
           ? 'json'
-          : this.state.insert.view === 'List'
+          : view === 'List'
           ? 'field-by-field'
           : 'Shell',
       multiple: docs.length > 1,
@@ -1178,9 +1179,9 @@ class CrudStoreImpl
       // track mode for analytics events
       const payload = {
         ns: this.state.ns,
-        view: this.state.view,
-        insertView: this.state.insert.view,
-        multiple: true,
+        // view: this.state.view, // Not needed ?
+        // insertView: this.state.insert.view, // Not needed
+        // multiple: true, // Not needed
         docs,
       };
       this.localAppRegistry.emit('document-inserted', payload);
@@ -1189,16 +1190,17 @@ class CrudStoreImpl
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
       this.setState({
-        insert: {
-          doc: new Document({}),
-          jsonDoc: this.state.insert.jsonDoc,
-          view: 'JSON', // Why auto set to json ?
-          message: (error as Error).message,
-          csfleState: this.state.insert.csfleState,
-          mode: ERROR,
-          isOpen: true,
-          isCommentNeeded: this.state.insert.isCommentNeeded,
-        },
+        insertErrorMessage: (error as Error).message,
+        // insert: {
+        //   doc: new Document({}),
+        //   jsonDoc: this.state.insert.jsonDoc,
+        //   view: 'JSON', // Why auto set to json ?
+        //   message: (error as Error).message,
+        //   csfleState: this.state.insert.csfleState,
+        //   mode: ERROR,
+        //   isOpen: true,
+        //   isCommentNeeded: this.state.insert.isCommentNeeded,
+        // },
       });
     }
 
@@ -1207,6 +1209,56 @@ class CrudStoreImpl
     // documents.
     void this.refreshDocuments();
   }
+
+  // async oldInsertMany() {
+
+  //   const docs = HadronDocument.FromEJSONArray(
+  //     this.state.insert.jsonDoc ?? ''
+  //   ).map((doc) => doc.generateObject());
+  //   track('Document Inserted', {
+  //     mode:
+  //       this.state.insert.view === 'JSON'
+  //         ? 'json'
+  //         : this.state.insert.view === 'List'
+  //         ? 'field-by-field'
+  //         : 'Shell',
+  //     multiple: docs.length > 1,
+  //   });
+
+  //   try {
+  //     await this.dataService.insertMany(this.state.ns, docs);
+  //     // track mode for analytics events
+  //     const payload = {
+  //       ns: this.state.ns,
+  //       view: this.state.view,
+  //       insertView: this.state.insert.view,
+  //       multiple: true,
+  //       docs,
+  //     };
+  //     this.localAppRegistry.emit('document-inserted', payload);
+  //     this.globalAppRegistry.emit('document-inserted', payload);
+
+  //     this.state.insert = this.getInitialInsertState();
+  //   } catch (error) {
+  //     this.setState({
+  //       insert: {
+  //         doc: new Document({}),
+  //         jsonDoc: this.state.insert.jsonDoc,
+  //         view: 'JSON', // Why auto set to json ?
+  //         message: (error as Error).message,
+  //         csfleState: this.state.insert.csfleState,
+  //         mode: ERROR,
+  //         isOpen: true,
+  //         isCommentNeeded: this.state.insert.isCommentNeeded,
+  //       },
+  //     });
+  //   }
+
+  //   // Since we are inserting a bunch of documents and we need to rerun all
+  //   // the queries and counts for them, let's just refresh the whole set of
+  //   // documents.
+  //   void this.refreshDocuments();
+  // }
 
   /**
    * Insert the document given the document in current state.

@@ -75,8 +75,8 @@ CrudActions.documentRemoved.listen((id) => {
   console.log(`Document with _id ${id} removed.`);
 });
 
-CrudActions.openInsertDocumentDialog((doc, clone) => {
-  if (clone) {
+CrudActions.openInsertDocumentDialog((doc) => {
+  if (doc) {
     console.log('Opening insert dialog with cloned document');
   }
 });
