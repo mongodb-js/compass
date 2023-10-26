@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Body,
   Button,
@@ -9,6 +15,7 @@ import {
   Disclaimer,
   WarningSummary,
 } from '@mongodb-js/compass-components';
+
 import type {
   StageWizardUseCase,
   WizardComponentProps,
@@ -85,6 +92,65 @@ type StageWizardProps = SortableProps & {
   onApply: () => void;
 };
 
+// We want to capture the focus in the wizard form on render, and, on cancel,
+// return it after the wizard is canceled.
+// The focus is returned to the last element that the user interacted with
+// outside of the form.
+// If the user interacted with other parts of the UI in the meanwhile, it
+// generally means they've shifted their attention elsewhere, and sending
+// the focus back to the list may be confusing. In such case we will let
+// the browser reset the focus after the form will be removed from DOM.
+function useGrabFocus<E extends HTMLElement>() {
+  const focusContainerRef = useRef<E>(null);
+  const returnElementRef = useRef<Element | null>(document.activeElement);
+
+  useEffect(() => {
+    if (focusContainerRef.current) {
+      const targetSelector = `input:not([aria-hidden="true"]),
+         select:not([aria-hidden="true"]),
+         textarea:not([aria-hidden="true"]),
+         button:not([aria-hidden="true"])`;
+
+      const firstFormControl =
+        focusContainerRef.current.querySelector(targetSelector);
+      if (
+        firstFormControl &&
+        'focus' in firstFormControl &&
+        typeof firstFormControl.focus === 'function'
+      ) {
+        firstFormControl.focus();
+      }
+    }
+
+    function handleFocus(event: FocusEvent) {
+      if (
+        focusContainerRef.current &&
+        !focusContainerRef.current.contains(event.target as Node)
+      ) {
+        returnElementRef.current = null;
+      }
+    }
+
+    document.addEventListener('focus', handleFocus, true);
+
+    return () => {
+      document.removeEventListener('focus', handleFocus, true);
+    };
+  }, []);
+
+  const returnFocus = useCallback(() => {
+    if (
+      returnElementRef.current &&
+      'focus' in returnElementRef &&
+      typeof returnElementRef.focus === 'function'
+    ) {
+      (returnElementRef.current as HTMLElement).focus();
+    }
+  }, []);
+
+  return { focusContainerRef, returnFocus };
+}
+
 export const StageWizard = ({
   index,
   useCaseId,
@@ -92,10 +158,17 @@ export const StageWizard = ({
   syntaxError,
   fields,
   onChange,
-  onCancel,
+  onCancel: onCancelProp,
   onApply,
   ...sortableProps
 }: StageWizardProps) => {
+  const { returnFocus, focusContainerRef } = useGrabFocus<HTMLDivElement>();
+
+  const onCancel = useCallback(() => {
+    onCancelProp?.();
+    returnFocus();
+  }, [onCancelProp, returnFocus]);
+
   const [formError, setFormError] = useState<Error | null>(null);
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
     return STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === useCaseId);
@@ -142,29 +215,33 @@ export const StageWizard = ({
             {useCase.isAtlasOnly && <Disclaimer>Atlas-only</Disclaimer>}
           </div>
         </div>
-        <div className={wizardContentStyles}>
-          <div data-testid="wizard-form">
-            <useCase.wizardComponent
-              fields={fields}
-              onChange={onChangeWizard}
-            />
-          </div>
-          <div className={cardFooterStyles}>
-            <div className={warningStyles}>
-              {value && error && <WarningSummary warnings={[error?.message]} />}
+        <div ref={focusContainerRef}>
+          <div className={wizardContentStyles}>
+            <div data-testid="wizard-form">
+              <useCase.wizardComponent
+                fields={fields}
+                onChange={onChangeWizard}
+              />
             </div>
-            <div className={cardActionStyles}>
-              <Button data-testid="wizard-cancel-action" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button
-                data-testid="wizard-apply-action"
-                onClick={onApply}
-                variant="primary"
-                disabled={isApplyDisabled}
-              >
-                Apply
-              </Button>
+            <div className={cardFooterStyles}>
+              <div className={warningStyles}>
+                {value && error && (
+                  <WarningSummary warnings={[error?.message]} />
+                )}
+              </div>
+              <div className={cardActionStyles}>
+                <Button data-testid="wizard-cancel-action" onClick={onCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  data-testid="wizard-apply-action"
+                  onClick={onApply}
+                  variant="primary"
+                  disabled={isApplyDisabled}
+                >
+                  Apply
+                </Button>
+              </div>
             </div>
           </div>
         </div>
