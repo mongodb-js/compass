@@ -47,8 +47,9 @@ export default function generateGlobalStats(
 
   const cpuMillis = overallCpuUsage / 1000 / 1000;
   const indexAccuracy =
-    ((totalDocumentsExamined - totalDocumentsReturned) / totalKeysExamined) *
-    100;
+    totalKeysExamined > 0
+      ? Math.abs((totalDocumentsReturned / totalKeysExamined) * 100)
+      : 0;
   const avgCacheAvailableForQuery = totalWtCache / queryCount;
   const avgCacheReadIntoForQuery = totalBytesReadFromDisk / queryCount;
   const avgCacheUsage = avgCacheReadIntoForQuery / avgCacheAvailableForQuery;

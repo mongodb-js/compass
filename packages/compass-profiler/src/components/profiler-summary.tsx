@@ -17,6 +17,7 @@ import {
   SegmentedControlOption,
   IconButton,
   Subtitle,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { SideNav } from '@mongodb-js/compass-components';
 import { SideNavGroup } from '@mongodb-js/compass-components';
@@ -37,6 +38,7 @@ const hintStyles = (baseColor: string) =>
     backgroundColor: baseColor,
     padding: spacing[2],
     margin: 0,
+    borderRadius: spacing[2],
   });
 
 const hintAfterIconStyles = css({
@@ -100,6 +102,7 @@ type StatCardProps = {
   name: string;
   value: number;
   reverse: boolean;
+  explanation: string;
 };
 
 const STAT_CARD_START_COLOR = new Color('#01AA14');
@@ -109,6 +112,7 @@ const StatCard: React.FunctionComponent<StatCardProps> = ({
   name,
   value,
   reverse,
+  explanation,
 }) => {
   const [start, end] = reverse
     ? [STAT_CARD_START_COLOR, STAT_CARD_END_COLOR]
@@ -122,14 +126,30 @@ const StatCard: React.FunctionComponent<StatCardProps> = ({
     .toString({ format: 'hex' });
 
   return (
-    <Card className={css({ backgroundColor: bgColor, textAlign: 'center' })}>
-      <b className={css({ textAlign: 'center', wordWrap: 'break-word' })}>
-        {name}
-      </b>
-      <Subtitle className={css({ textAlign: 'center', color })}>
-        {value}%
-      </Subtitle>
-    </Card>
+    <Tooltip
+      align="left"
+      justify="middle"
+      trigger={({ children, ...props }) => (
+        <Card
+          {...props}
+          className={css({
+            backgroundColor: bgColor,
+            textAlign: 'center',
+            pointerEvents: 'all',
+          })}
+        >
+          <b className={css({ textAlign: 'center', wordWrap: 'break-word' })}>
+            {name}
+          </b>
+          <Subtitle className={css({ textAlign: 'center', color })}>
+            {value}%
+          </Subtitle>
+          {children}
+        </Card>
+      )}
+    >
+      {explanation}
+    </Tooltip>
   );
 };
 
@@ -353,8 +373,8 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
     [profiledQueries, wtCache, shapeFilter]
   );
   const globalQueryHints = useMemo(
-    () => generateGlobalHints(profiledQueries),
-    [profiledQueries]
+    () => generateGlobalHints(profiledQueries, queryShapeGlobalStats),
+    [profiledQueries, queryShapeGlobalStats]
   );
 
   const flamegraphData = useMemo(() => {
@@ -485,6 +505,7 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
             value={
               Math.round(queryShapeGlobalStats.cacheEfficiency * 100) / 100
             }
+            explanation="Measures how efficient is the cache usage in MongoDB. The more information needs to be pulled from the file system, the lower the efficiency."
           />
           {queryShapeGlobalStats && (
             <StatCard
@@ -493,12 +514,14 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
               value={
                 Math.round(queryShapeGlobalStats.cpuTimePercentage! * 100) / 100
               }
+              explanation="Measures the percentage of the time spent on CPU (filtering in memory for example, or computing values) from the overall execution time of all queries."
             />
           )}
           <StatCard
             name="Index Accuracy"
             reverse={false}
             value={Math.round(queryShapeGlobalStats.indexAccuracy * 100) / 100}
+            explanation="Measures the exhaustiveness of an index. If queries, using these indexes, require filtering in memory, the accuracy will be lower."
           />
           <StatCard
             name="Time On Disk"
@@ -506,6 +529,7 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
             value={
               Math.round(queryShapeGlobalStats.timeSpentOnDisk * 100) / 100
             }
+            explanation="Measures the percentage of the time spent waiting for the file system. Slower disks will increase this metric."
           />
         </div>
       </div>

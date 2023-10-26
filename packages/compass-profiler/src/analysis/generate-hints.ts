@@ -1,5 +1,6 @@
 import { type Document } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
+import { GlobalStats } from './generate-global-stats';
 
 function percentageOf(value: number, total: number): number {
   const ratio = value / total;
@@ -192,12 +193,17 @@ export function generateHints(
   return result;
 }
 
-export function generateGlobalHints(profiledQueries: Document[]): Hint[] {
+export function generateGlobalHints(
+  profiledQueries: Document[],
+  globalStats: GlobalStats
+): Hint[] {
   const hints: Hint[] = [];
   let longestQuery: Document | undefined = undefined;
   let longestQueryTime: number = 0;
   let longestQueryInDisk: Document | undefined = undefined;
   let longestQueryInDiskTime: number = 0;
+  let mostExpensiveInCpu: Document | undefined = undefined;
+  let mostExpensiveInCpuTime: number = 0;
   let allCollScans: Document[] = [];
   let collScanShapes: Set<string> = new Set();
 
@@ -225,14 +231,39 @@ export function generateGlobalHints(profiledQueries: Document[]): Hint[] {
       allCollScans.push(profiledQuery);
       collScanShapes.add(profiledQuery.queryHash);
     }
+
+    if (profiledQuery.cpuNanos > mostExpensiveInCpuTime) {
+      mostExpensiveInCpu = profiledQuery;
+      mostExpensiveInCpuTime = profiledQuery.cpuNanos;
+    }
   }
 
   if (longestQuery) {
     hints.push({
-      description: `Your longest query took ${longestQueryTime}ms.`,
+      description: `Your longest query took ${longestQueryTime}ms, being ${percentageOf(
+        longestQueryTime,
+        globalStats.totalTime
+      )}% of all queries execution.`,
       queryShape: longestQuery.queryHash,
       type: 'info',
       attachedCode: toJSString(longestQuery.command.filter),
+    });
+  }
+
+  if (mostExpensiveInCpu) {
+    const pcnt = percentageOf(
+      mostExpensiveInCpuTime / 1000 / 1000,
+      globalStats.totalCpuMillis!
+    );
+
+    hints.push({
+      description: `The most expensive query in CPU took ${pcnt}% of CPU time, and ${percentageOf(
+        mostExpensiveInCpu.millis,
+        globalStats.totalTime
+      )}% of the total execution time.`,
+      queryShape: mostExpensiveInCpu.queryHash,
+      type: pcnt > 50 ? 'warning' : 'info',
+      attachedCode: toJSString(mostExpensiveInCpu.command.filter),
     });
   }
 
