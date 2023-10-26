@@ -16,25 +16,35 @@ import {
   ComboboxOption,
   EmptyContent,
   Icon,
+  SpinLoader,
   css,
+  palette,
+  spacing,
 } from '@mongodb-js/compass-components';
 import { Document } from 'bson';
 import ProfilerFlamegraph from './profiler-flamegraph';
 import ProfilerSummary from './profiler-summary';
 
 const verticalFlexStyles = css({
+  width: '100%',
+});
+
+const callToActionContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
+  gap: spacing[2],
 });
 
 type ProfilerIsEnabledProps = {
   onFinishProfilingSession: () => void;
   onPollProfiledQueries: () => void;
+  profiledQueries: Document[];
 };
 
 const ProfilerIsEnabled: React.FunctionComponent<ProfilerIsEnabledProps> = ({
   onFinishProfilingSession,
   onPollProfiledQueries,
+  profiledQueries,
 }) => {
   useEffect(() => {
     const interval = setInterval(onPollProfiledQueries, 500);
@@ -44,7 +54,7 @@ const ProfilerIsEnabled: React.FunctionComponent<ProfilerIsEnabledProps> = ({
   return (
     <div className={verticalFlexStyles}>
       <EmptyContent
-        icon={() => <Icon glyph="ActivityFeed" />}
+        icon={() => <SpinLoader size="80px" />}
         title="Profiling session in progress."
         subTitle="The profiler is currently running, all queries will be analysed once it's stopped."
         callToAction={
@@ -57,6 +67,12 @@ const ProfilerIsEnabled: React.FunctionComponent<ProfilerIsEnabledProps> = ({
           </Button>
         }
       />
+      {profiledQueries.length > 0 && (
+        <ProfilerFlamegraph
+          profilingData={profiledQueries}
+          onQueryShapeChoosen={() => {}}
+        />
+      )}
     </div>
   );
 };
@@ -64,7 +80,6 @@ const ProfilerIsEnabled: React.FunctionComponent<ProfilerIsEnabledProps> = ({
 type ProfilerIsDisabledProps = {
   onEnableProfiler: () => void;
   onChooseDatabase: (db: string | undefined) => void;
-  profiledQueries: Document[];
   databaseList: string[];
   database: string | undefined;
 };
@@ -72,18 +87,26 @@ type ProfilerIsDisabledProps = {
 const ProfilerIsDisabled: React.FunctionComponent<ProfilerIsDisabledProps> = ({
   onEnableProfiler,
   onChooseDatabase,
-  profiledQueries,
   databaseList,
   database,
 }) => {
   return (
     <div className={verticalFlexStyles}>
       <EmptyContent
-        icon={() => <Icon glyph="Dashboard" />}
+        icon={() => (
+          <div>
+            <Icon
+              width="80px"
+              height="80px"
+              color={palette.green.dark1}
+              glyph="Dashboard"
+            />
+          </div>
+        )}
         title="Profile your running application to detect bottlenecks in your MongoDB queries."
         subTitle="Only run the profiler in a safe environment, as it can degrade the performance of a running cluster."
         callToAction={
-          <>
+          <div className={callToActionContainerStyles}>
             <Combobox
               value={database}
               clearable={false}
@@ -101,12 +124,9 @@ const ProfilerIsDisabled: React.FunctionComponent<ProfilerIsDisabledProps> = ({
             >
               Enable Profiler
             </Button>
-          </>
+          </div>
         }
       />
-      {profiledQueries.length > 0 && (
-        <ProfilerFlamegraph profilingData={profiledQueries} />
-      )}
     </div>
   );
 };
@@ -132,6 +152,7 @@ const ProfilerPage: React.FunctionComponent<{}> = ({}) => {
         <ProfilerIsEnabled
           onFinishProfilingSession={() => void dispatch(disableProfiler())}
           onPollProfiledQueries={() => void dispatch(pollLastProfiledQueries())}
+          profiledQueries={profiledQueries}
         />
       );
     case 'disabled':
@@ -148,7 +169,6 @@ const ProfilerPage: React.FunctionComponent<{}> = ({}) => {
         <ProfilerIsDisabled
           onEnableProfiler={() => void dispatch(enableProfiler())}
           onChooseDatabase={(db) => void dispatch(chooseDatabase(db))}
-          profiledQueries={profiledQueries}
           databaseList={databaseList}
           database={database}
         />

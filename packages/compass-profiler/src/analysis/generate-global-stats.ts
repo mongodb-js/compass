@@ -5,6 +5,8 @@ export type GlobalStats = {
   cacheEfficiency: number;
   timeSpentOnDisk: number;
   indexAccuracy: number;
+  totalCpuMillis?: number;
+  cpuTimePercentage?: number;
 };
 
 export default function generateGlobalStats(
@@ -19,6 +21,7 @@ export default function generateGlobalStats(
   let totalBytesReadFromDisk: number = 0;
   let totalDocumentsReturned: number = 0;
   let queryCount: number = 0;
+  let overallCpuUsage: number = 0;
 
   for (const profileItem of profiledQueries) {
     if (!profileItem || profileItem.op !== 'query') {
@@ -37,23 +40,15 @@ export default function generateGlobalStats(
     );
     totalBytesReadFromDisk += +(profileItem.storage?.data?.bytesRead || 0);
     totalDocumentsReturned += +(profileItem.nreturned || 0);
+    overallCpuUsage += profileItem.cpuNanos;
+
     queryCount += 1;
   }
 
-  const ratioOfKeysExamined = totalDocumentsReturned / totalKeysExamined;
-  const penaltyForDocsExamined =
-    totalDocumentsReturned === totalDocumentsExamined &&
-    totalDocumentsReturned === totalKeysExamined
-      ? 0
-      : 1 -
-        totalDocumentsReturned /
-          (totalDocumentsReturned - totalDocumentsExamined);
-  let indexAccuracy =
-    Math.abs((ratioOfKeysExamined - penaltyForDocsExamined) * 100) || 0;
-  if (isNaN(indexAccuracy) || !isFinite(indexAccuracy)) {
-    indexAccuracy = 0;
-  }
-
+  const cpuMillis = overallCpuUsage / 1000 / 1000;
+  const indexAccuracy =
+    ((totalDocumentsExamined - totalDocumentsReturned) / totalKeysExamined) *
+    100;
   const avgCacheAvailableForQuery = totalWtCache / queryCount;
   const avgCacheReadIntoForQuery = totalBytesReadFromDisk / queryCount;
   const avgCacheUsage = avgCacheReadIntoForQuery / avgCacheAvailableForQuery;
@@ -71,5 +66,10 @@ export default function generateGlobalStats(
     cacheEfficiency: Math.min(cacheEfficiency, 100),
     indexAccuracy: Math.min(indexAccuracy, 100),
     timeSpentOnDisk: isFinite(timeSpentOnDisk) ? timeSpentOnDisk : 0,
+    totalCpuMillis: cpuMillis === 0 ? undefined : cpuMillis,
+    cpuTimePercentage:
+      cpuMillis === 0
+        ? undefined
+        : Math.round((cpuMillis / totalExecutionTime) * 100) / 100,
   };
 }

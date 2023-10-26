@@ -486,6 +486,15 @@ const ProfilerSummary: React.FunctionComponent<ProfilerSummaryProps> = ({
               Math.round(queryShapeGlobalStats.cacheEfficiency * 100) / 100
             }
           />
+          {queryShapeGlobalStats && (
+            <StatCard
+              name="CPU Time %"
+              reverse={true}
+              value={
+                Math.round(queryShapeGlobalStats.cpuTimePercentage! * 100) / 100
+              }
+            />
+          )}
           <StatCard
             name="Index Accuracy"
             reverse={false}
