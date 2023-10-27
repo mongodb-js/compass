@@ -2,6 +2,8 @@ import _ from 'lodash';
 import React, { useCallback, useState, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type {
+  NodeProps,
+  NodeTypes,
   Node,
   Edge,
   OnNodesChange,
@@ -14,8 +16,6 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Position,
-  // useNodesState,
-  // useEdgesState,
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
@@ -39,7 +39,7 @@ type DatabaseSchemaContianerProps = {
   onLoadDatabaseSchema: () => void;
 };
 
-type CollectionNodeProps = Node & {
+type CollectionNodeProps = NodeProps & {
   data: {
     label: string;
   };
@@ -74,7 +74,7 @@ const CollectionNode = memo(function CollectionNode({
   );
 });
 
-const nodeTypes = {
+const nodeTypes: NodeTypes = {
   collectionNode: CollectionNode,
 };
 
@@ -135,8 +135,8 @@ function makeNodes(databaseSchema?: DatabaseSchema) {
       nodes.push({
         id: `${collectionName}_${field.path.join('-')}`,
         type,
-        sourcePosition: isSource ? Position.Left : undefined,
-        targetPosition: isTarget ? Position.Right : undefined,
+        sourcePosition: isSource ? Position.Right : undefined,
+        targetPosition: isTarget ? Position.Left : undefined,
         data: { label: field.name },
         position: { x: 10, y: collectionNameOffset + index * fieldOffset },
         style: {
@@ -194,13 +194,11 @@ function DatabaseSchemaContainer({
   schema,
   onLoadDatabaseSchema,
 }: DatabaseSchemaContianerProps) {
-  const [dbName, setDbName] = useState<string | undefined>(databaseName);
   const [nodes, setNodes] = useState<Node[]>(makeNodes(schema));
   const [edges, setEdges] = useState<Edge[]>(makeEdges(schema));
 
   useEffect(() => {
     // TODO: this is just some crude caching to stop it re-rendering too much
-    setDbName(databaseName);
     setNodes(makeNodes(schema));
     setEdges(makeEdges(schema));
   }, [schema, databaseName, nodes.length]);
