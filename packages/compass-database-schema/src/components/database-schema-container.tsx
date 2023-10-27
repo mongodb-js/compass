@@ -154,7 +154,7 @@ function makeNodes(databaseSchema?: DatabaseSchema) {
     //y = y + height + collectionOffset;
   }
 
-  console.log(nodes);
+  //console.log(nodes);
 
   return nodes;
 }
@@ -183,7 +183,7 @@ function makeEdges(databaseSchema?: DatabaseSchema) {
     });
   }
 
-  console.log(edges);
+  //console.log(edges);
 
   return edges;
 }

@@ -1,7 +1,7 @@
 import type { Document } from 'mongodb';
 import type { Schema } from 'mongodb-schema';
 import { SchemaAnalyzer } from 'mongodb-schema';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService, IndexDefinition } from 'mongodb-data-service';
 
 export type CollectionFieldReference = {
   collection: string;
@@ -64,7 +64,7 @@ function findCandidateReferencesForSchema(
   return candidatePaths;
 }
 
-async function findRelationshipsCandidate(
+async function findRelationshipsByCandidates(
   dataService: DataService,
   databaseName: string,
   collectionNames: string[],
@@ -102,23 +102,86 @@ async function findRelationshipsCandidate(
   return relationships;
 }
 
-export async function findRelationshipsForSchema(
-  dataService: DataService,
-  databaseName: string,
+function findRelationshipsByIndex(
   collectionName: string,
-  collectionNames: string[],
-  schema: Schema
+  schema: Schema,
+  indexesByCollection: Record<string, string[]>
 ) {
+  const relationships: Relationship[] = [];
+
+  for (const field of schema.fields) {
+    for (const [targetCollection, targetIndexes] of Object.entries(
+      indexesByCollection
+    )) {
+      // don't link to itself
+      if (targetCollection === collectionName) {
+        console.log('skipping', targetCollection, 'for', collectionName);
+        continue;
+      }
+
+      // TODO: make this more "fuzzy". Right now the names have to match
+      // exactly, so territories.regionId has to match regions.regionId and
+      // wouldn't have matched region.id if it existed.
+      if (targetIndexes.includes(field.name)) {
+        console.log(
+          'targetIndexes includes',
+          field.name,
+          'for',
+          collectionName
+        );
+        relationships.push({
+          from: {
+            collection: collectionName,
+            fieldPath: field.path,
+          },
+          to: {
+            collection: targetCollection,
+            // TODO: right now the field path has to match exactly
+            fieldPath: field.path,
+          },
+        });
+      } else {
+        console.log(targetIndexes, 'does not include', field.name);
+      }
+    }
+  }
+  return relationships;
+}
+
+async function findRelationshipsForSchema({
+  dataService,
+  databaseName,
+  collectionName,
+  collectionNames,
+  schema,
+  indexesByCollection,
+}: {
+  dataService: DataService;
+  databaseName: string;
+  collectionName: string;
+  collectionNames: string[];
+  schema: Schema;
+  indexesByCollection: Record<string, string[]>;
+}) {
   const candidatePaths = findCandidateReferencesForSchema(
     collectionName,
     schema
   );
-  return await findRelationshipsCandidate(
+
+  const inferredById = await findRelationshipsByCandidates(
     dataService,
     databaseName,
     collectionNames,
     candidatePaths
   );
+
+  const inferredByIndex = findRelationshipsByIndex(
+    collectionName,
+    schema,
+    indexesByCollection
+  );
+
+  return inferredById.concat(inferredByIndex);
 }
 
 function analyzeCollection(documents: Document[]) {
@@ -154,6 +217,32 @@ export async function loadDatabaseSchemaForDatabase(
     return true;
   });
 
+  // array of index fields by collection name
+  const indexesByCollection: Record<string, string[]> = {};
+  for (const coll of collectionInfos) {
+    indexesByCollection[coll.name] = (
+      await dataService.indexes(`${databaseName}.${coll.name}`)
+    )
+      .filter((index) => {
+        // TODO: do other types of indexes make sense?
+        if (index.type !== 'regular') {
+          return false;
+        }
+        // TODO: support indexes on multiple fields
+        if (index.fields.length !== 1) {
+          return false;
+        }
+        // skip the _id index because that's handled by the ObjectId / UUID logic already
+        if (index.fields[0].field === '_id') {
+          return false;
+        }
+        return true;
+      })
+      .map((index) => index.fields[0].field);
+  }
+
+  console.dir(indexesByCollection);
+
   console.log(collectionInfos);
 
   const collections: Record<string, Schema> = {};
@@ -175,13 +264,14 @@ export async function loadDatabaseSchemaForDatabase(
 
     console.log(coll.name, 'relationship building');
     relationships.push(
-      ...(await findRelationshipsForSchema(
+      ...(await findRelationshipsForSchema({
         dataService,
         databaseName,
-        coll.name,
+        collectionName: coll.name,
         collectionNames,
-        schema
-      ))
+        schema,
+        indexesByCollection,
+      }))
     );
   }
 
