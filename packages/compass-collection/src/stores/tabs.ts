@@ -101,7 +101,7 @@ export function configureStore({
       });
 
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const ipc = require('hadron-ipc');
+      const { ipcRenderer: ipc } = require('hadron-ipc');
 
       // TODO: importing hadron-ipc in unit tests doesn't work right now
       if (ipc?.on) {

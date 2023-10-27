@@ -183,12 +183,12 @@ class CompassTelemetry {
       this._track(meta);
     });
 
-    ipcMain.respondTo('compass:track', (evt, meta: EventInfo) => {
+    ipcMain?.respondTo('compass:track', (evt, meta: EventInfo) => {
       (process as EventEmitter).emit('compass:track', meta);
     });
 
     // only used in tests
-    ipcMain.respondTo('compass:usage:flush', () => {
+    ipcMain?.respondTo('compass:usage:flush', () => {
       void this._flushTelemetryAndIgnoreFailure();
     });
   }

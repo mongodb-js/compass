@@ -7,7 +7,7 @@ import { ConnectionString } from 'mongodb-connection-string-url';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
 async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
-  return await ipcRenderer.call('compass:get-window-auto-connect-preferences');
+  return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
 }
 
 function applyUsernameAndPassword(

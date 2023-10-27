@@ -59,7 +59,7 @@ describe('auto connection argument parsing', function () {
 
   beforeEach(function () {
     sandbox = sinon.createSandbox();
-    sandbox.stub(ipcRenderer, 'call').resolves(true);
+    sandbox.stub(ipcRenderer!, 'call').resolves(true);
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 

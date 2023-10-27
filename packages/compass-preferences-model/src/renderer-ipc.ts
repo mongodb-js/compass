@@ -1,5 +1,5 @@
 import type { HadronIpcRenderer } from 'hadron-ipc';
-import hadronIpc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import type { PreferencesAccess } from '.';
 import type {
   AllPreferences,
@@ -91,5 +91,6 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
   };
 };
 
-export const preferencesIpc: PreferencesAccess | undefined =
-  hadronIpc.ipcRenderer ? makePreferencesIpc(hadronIpc.ipcRenderer) : undefined;
+export const preferencesIpc: PreferencesAccess | undefined = ipcRenderer
+  ? makePreferencesIpc(ipcRenderer)
+  : undefined;
