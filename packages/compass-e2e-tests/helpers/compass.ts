@@ -667,7 +667,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
     filteredProcesses.forEach((p) => {
       try {
-        debug(`Killing proces ${p.name} with PID ${p.pid}`);
+        debug(`Killing process ${p.name} with PID ${p.pid}`);
         if (process.platform === 'win32') {
           crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
         } else {
