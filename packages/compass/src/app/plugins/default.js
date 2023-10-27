@@ -5,6 +5,7 @@ module.exports = [
   require('@mongodb-js/compass-collection'),
   require('@mongodb-js/compass-crud'),
   require('@mongodb-js/compass-database'),
+  require('@mongodb-js/compass-database-schema'),
   require('@mongodb-js/compass-databases-collections'),
   require('@mongodb-js/compass-field-store'),
   require('@mongodb-js/compass-find-in-page'),
