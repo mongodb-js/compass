@@ -97,6 +97,8 @@ describe('Aggregation Store', function () {
             stagesIdAndType: [],
           };
           delete state.pipeline;
+          delete state.sidePanel;
+
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
@@ -117,7 +119,6 @@ describe('Aggregation Store', function () {
             },
             serverVersion: INITIAL_STATE.serverVersion,
             isModified: INITIAL_STATE.isModified,
-            isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             insights: {
               isCollectionScan: false,
             },
@@ -135,7 +136,6 @@ describe('Aggregation Store', function () {
             isDataLake: INITIAL_STATE.isDataLake,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
             focusMode: INITIAL_STATE.focusMode,
-            sidePanel: INITIAL_STATE.sidePanel,
             collectionsFields: INITIAL_STATE.collectionsFields,
             searchIndexes: INITIAL_STATE.searchIndexes,
           });

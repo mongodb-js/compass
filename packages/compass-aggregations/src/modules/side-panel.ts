@@ -17,14 +17,19 @@ type State = {
   isPanelOpen: boolean;
 };
 
-export const INITIAL_STATE: State = {
-  isPanelOpen: false,
-};
+const INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY = 'is_aggregation_side_panel_open';
 
 export default function reducer(
-  state = INITIAL_STATE,
+  state: State | undefined,
   action: AnyAction
 ): State {
+  state ??= {
+    isPanelOpen:
+      localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'false'
+        ? false
+        : true,
+  };
+
   if (isAction<SidePanelToggledAction>(action, ActionTypes.SidePanelToggled)) {
     return {
       ...state,
@@ -44,13 +49,20 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
       sidePanel: { isPanelOpen },
     } = getState();
 
+    const willPanelBeOpen = !isPanelOpen;
+
     // When user is opening the panel
-    if (!isPanelOpen) {
+    if (willPanelBeOpen) {
       track('Aggregation Side Panel Opened', {
         num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder)
           .length,
       });
     }
+
+    localStorage.setItem(
+      INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY,
+      willPanelBeOpen ? 'true' : 'false'
+    );
 
     dispatch({
       type: ActionTypes.SidePanelToggled,

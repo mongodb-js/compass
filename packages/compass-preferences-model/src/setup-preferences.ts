@@ -1,5 +1,5 @@
 import { Preferences } from './preferences';
-import hadronIpc from 'hadron-ipc';
+import { ipcMain } from 'hadron-ipc';
 import type {
   AllPreferences,
   PreferenceStateInformation,
@@ -28,8 +28,6 @@ export async function setupPreferences(
 
   await preferences.setupStorage();
 
-  const { ipcMain } = hadronIpc;
-
   if (!ipcMain) {
     // Ignore missing ipc if COMPASS_TEST_ env is set, this means that we are in
     // a test environment where it's expected not to have ipc
@@ -41,7 +39,7 @@ export async function setupPreferences(
 
   preferences.onPreferencesChanged(
     (changedPreferencesValues: Partial<AllPreferences>) => {
-      ipcMain.broadcast(
+      ipcMain?.broadcast(
         'compass:preferences-changed',
         changedPreferencesValues
       );

@@ -25,8 +25,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   height: '100%',
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+
   paddingTop: spacing[1],
   borderBottomRightRadius: 0,
   borderBottomLeftRadius: 0,
@@ -58,11 +57,19 @@ const titleStylesLight = css({
   color: palette.green.dark2,
 });
 
+const headerContainerStyles = css({
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
+});
+
 const contentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[2],
   overflow: 'auto',
+  paddingTop: spacing[1],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
   paddingBottom: spacing[3],
 });
 
@@ -113,28 +120,31 @@ export const AggregationSidePanel = ({
       data-testid="aggregation-side-panel"
       className={cx(containerStyles, darkMode && darkModeContainerStyles)}
     >
-      <div className={headerStyles}>
-        <Body
-          weight="medium"
-          className={darkMode ? titleStylesDark : titleStylesLight}
-        >
-          Stage Wizard
-        </Body>
-        <IconButton
-          className={closeButtonStyles}
-          title="Hide Stage Wizard"
-          aria-label="Hide Stage Wizard"
-          onClick={() => onCloseSidePanel()}
-        >
-          <Icon glyph="X" />
-        </IconButton>
+      <div className={headerContainerStyles}>
+        <div className={headerStyles}>
+          <Body
+            weight="medium"
+            className={darkMode ? titleStylesDark : titleStylesLight}
+          >
+            Stage Wizard
+          </Body>
+          <IconButton
+            className={closeButtonStyles}
+            title="Hide Stage Wizard"
+            aria-label="Hide Stage Wizard"
+            onClick={() => onCloseSidePanel()}
+          >
+            <Icon glyph="X" />
+          </IconButton>
+        </div>
+        <SearchInput
+          value={searchText}
+          onChange={handleSearchTextChange}
+          placeholder="Search for a Stage"
+          aria-label="Search for a Stage"
+        />
       </div>
-      <SearchInput
-        value={searchText}
-        onChange={handleSearchTextChange}
-        placeholder="How can we help?"
-        aria-label="How can we help?"
-      />
+
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase, index) => {
           if (index !== 0) {

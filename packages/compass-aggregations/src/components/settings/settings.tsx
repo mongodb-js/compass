@@ -14,6 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
+import { usePreference } from 'compass-preferences-model';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
 const aggregationCommentModeDescriptionId =
@@ -90,7 +91,6 @@ const inputControlStyles = css({
 const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[2] } });
 
 type SettingsProps = {
-  isAtlasDeployed: boolean;
   isCommenting: boolean;
   isExpanded: boolean;
   largeLimit: number;
@@ -110,7 +110,6 @@ type SettingsProps = {
 };
 
 function Settings({
-  isAtlasDeployed,
   isCommenting,
   isExpanded,
   largeLimit,
@@ -122,6 +121,10 @@ function Settings({
   toggleSettingsIsCommentMode,
   toggleSettingsIsExpanded,
 }: SettingsProps) {
+  const enableAggregationBuilderExtraOptions = usePreference(
+    'enableAggregationBuilderExtraOptions',
+    React
+  );
   const darkMode = useDarkMode();
   const onSampleSizeChanged = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -233,7 +236,7 @@ function Settings({
           />
         </div>
       </div>
-      {!isAtlasDeployed && (
+      {enableAggregationBuilderExtraOptions && (
         <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
           <div className={inputMetaStyles}>
             <Label htmlFor={aggregationLimitId} id={aggregationLimitLabelId}>

@@ -132,6 +132,7 @@ const PipelineBuilderDndWrapper = ({
             id={draggedUseCase.id}
             title={draggedUseCase.title}
             stageOperator={draggedUseCase.stageOperator}
+            isDropping={true}
           />
         </DragOverlay>
       ) : null}

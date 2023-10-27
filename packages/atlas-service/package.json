@@ -13,13 +13,17 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "main.js",
+    "main.d.ts",
+    "renderer.js",
+    "renderer.d.ts"
   ],
   "license": "SSPL",
   "exports": {
@@ -32,7 +36,7 @@
   },
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -69,12 +73,12 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.16.0",
+    "@mongodb-js/compass-components": "^1.17.0",
     "@mongodb-js/compass-logging": "^1.2.3",
     "@mongodb-js/compass-utils": "^0.5.2",
     "@mongodb-js/devtools-connect": "^2.4.2",
     "@mongodb-js/oidc-plugin": "^0.3.0",
-    "compass-preferences-model": "^2.15.2",
+    "compass-preferences-model": "^2.15.3",
     "electron": "^25.8.4",
     "keytar": "^7.9.0",
     "node-fetch": "^2.6.7",
