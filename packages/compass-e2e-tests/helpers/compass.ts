@@ -638,26 +638,47 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     const { default: psList }: typeof import('ps-list') = await eval(
       `import('ps-list')`
     );
-    (await psList())
-      .filter((p) => {
-        return (
-          p.ppid === process.pid && /(MongoDB Compass|Electron)/.test(p.name)
-        );
-      })
-      .forEach((p) => {
-        try {
-          debug(`Killing proces ${p.name} with PID ${p.pid}`);
-          if (process.platform === 'win32') {
-            crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
-          } else {
-            process.kill(p.pid);
-          }
-        } catch (err) {
-          debug(`Failed to kill process ${p.name} with PID ${p.pid}`, {
-            error: (err as Error).stack,
-          });
+    const processList = await psList();
+
+    const filteredProcesses = processList.filter((p) => {
+      return (
+        p.ppid === process.pid &&
+        (p.cmd?.startsWith(binary) ||
+          /(MongoDB Compass|Electron|electron)/.test(p.name))
+      );
+    });
+
+    debug(
+      filteredProcesses.length === 0
+        ? `Found no application running that need to be closed (following processes were spawned by this: ${processList
+            .filter((p) => {
+              return p.ppid === process.pid;
+            })
+            .map((p) => {
+              return p.name;
+            })
+            .join(', ')})`
+        : `Found following applications running: ${filteredProcesses
+            .map((p) => {
+              return p.name;
+            })
+            .join(', ')}`
+    );
+
+    filteredProcesses.forEach((p) => {
+      try {
+        debug(`Killing proces ${p.name} with PID ${p.pid}`);
+        if (process.platform === 'win32') {
+          crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
+        } else {
+          process.kill(p.pid);
         }
-      });
+      } catch (err) {
+        debug(`Failed to kill process ${p.name} with PID ${p.pid}`, {
+          error: (err as Error).stack,
+        });
+      }
+    });
     throw err;
   }
 
