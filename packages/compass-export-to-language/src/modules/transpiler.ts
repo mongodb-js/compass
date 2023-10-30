@@ -4,7 +4,7 @@ import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-
 
 import type { OutputLanguage } from './languages';
 
-export type ExportMode = 'Query' | 'Pipeline' | 'Delete Query';
+export type ExportMode = 'Query' | 'Pipeline' | 'Delete Query' | 'Update Query';
 
 type WithExportMode = {
   exportMode?: ExportMode;
@@ -66,8 +66,6 @@ export function runTranspiler({
   const mode = getInputExpressionMode(inputExpression);
 
   useBuilders = useBuilders && outputLanguage === 'java' && isQuery(mode);
-  delete inputExpression.exportMode;
-
   let output = '';
 
   if (includeDrivers) {

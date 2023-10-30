@@ -256,7 +256,6 @@ tests:
                     }
                   }()
 
-                  // Find data
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}})
                   if err != nil {
@@ -501,7 +500,6 @@ tests:
                     }
                   }()
 
-                  // Find data
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}},
                     options.Find().SetProjection(bson.D{{"y", primitive.NewObjectID()}}),
