@@ -23,7 +23,7 @@ import {
   isQuery,
   runTranspiler,
 } from '../modules/transpiler';
-import type { ExportMode, InputExpression } from '../modules/transpiler';
+import type { InputExpression } from '../modules/transpiler';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
