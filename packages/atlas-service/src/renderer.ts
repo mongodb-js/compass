@@ -122,9 +122,8 @@ export class AtlasService {
         return getStore().dispatch(signInWithoutPrompt({ signal }));
       case 'ai-promo-modal':
         return getStore().dispatch(signInWithModalPrompt({ signal }));
-      default: {
+      default:
         return this.ipc.signIn({ signal });
-      }
     }
   }
 
