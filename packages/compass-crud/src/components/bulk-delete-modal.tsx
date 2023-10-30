@@ -12,6 +12,7 @@ import {
   spacing,
   InfoSprinkle,
   Label,
+  Icon,
 } from '@mongodb-js/compass-components';
 import ReadonlyDocument from './readonly-document';
 
@@ -91,6 +92,7 @@ type BulkDeleteModalProps = {
   sampleDocuments: Document[];
   onCancel: () => void;
   onConfirmDeletion: () => void;
+  onExportToLanguage: () => void;
 };
 
 const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
@@ -101,6 +103,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   sampleDocuments,
   onCancel,
   onConfirmDeletion,
+  onExportToLanguage,
 }) => {
   const preview = (
     <div className={documentHorizontalWrapper}>
@@ -139,6 +142,15 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           disabled={true}
           value={filterQuery}
         />
+        <Button
+          variant="primaryOutline"
+          size="xsmall"
+          leftGlyph={<Icon glyph="Code" />}
+          onClick={onExportToLanguage}
+          data-testid="pipeline-toolbar-export-button"
+        >
+          Export to language
+        </Button>
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}

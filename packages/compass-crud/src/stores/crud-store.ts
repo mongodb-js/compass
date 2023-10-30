@@ -61,6 +61,7 @@ export type CrudActions = {
   openBulkDeleteDialog(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
+  openDeleteQueryExportToLanguageDialog(query: string): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -1699,6 +1700,13 @@ class CrudStoreImpl
         this.bulkDeleteFailed(ex as Error);
       }
     }
+  }
+
+  openDeleteQueryExportToLanguageDialog(query: string): void {
+    this.localAppRegistry.emit('open-delete-query-export-to-language', query);
+    this.globalAppRegistry.emit('compass:export-to-language:opened', {
+      source: 'Bulk Delete',
+    });
   }
 }
 

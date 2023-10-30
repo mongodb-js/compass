@@ -4,6 +4,12 @@ import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-
 
 import type { OutputLanguage } from './languages';
 
+export type ExportMode = 'Query' | 'Pipeline' | 'Delete Query';
+
+type WithExportMode = {
+  exportMode?: ExportMode;
+};
+
 type AggregationExpression = {
   aggregation: string;
 };
@@ -18,11 +24,20 @@ type QueryExpression = {
   maxTimeMS?: string;
 };
 
-export type InputExpression = AggregationExpression | QueryExpression;
+export function isQuery(exportMode?: ExportMode) {
+  return exportMode === 'Query' || exportMode === 'Delete Query';
+}
+
+export type InputExpression = WithExportMode &
+  (AggregationExpression | QueryExpression);
 
 export function getInputExpressionMode(
   inputExpression: InputExpression
-): 'Query' | 'Pipeline' {
+): ExportMode {
+  if (inputExpression.exportMode) {
+    return inputExpression.exportMode;
+  }
+
   if ('filter' in inputExpression) {
     return 'Query';
   }
@@ -50,7 +65,7 @@ export function runTranspiler({
 }: RunTranspilerOptions) {
   const mode = getInputExpressionMode(inputExpression);
 
-  useBuilders = useBuilders && outputLanguage === 'java' && mode === 'Query';
+  useBuilders = useBuilders && outputLanguage === 'java' && isQuery(mode);
 
   let output = '';
 

@@ -88,6 +88,15 @@ const configureStore = (options = {}) => {
       store.dispatch(modalOpenChanged(true));
       store.dispatch(inputExpressionChanged(query));
     });
+
+    localAppRegistry.on(
+      'open-delete-query-export-to-language',
+      (queryString) => {
+        const query = { exportMode: 'Delete Query', filter: queryString };
+        store.dispatch(modalOpenChanged(true));
+        store.dispatch(inputExpressionChanged(query));
+      }
+    );
   }
 
   if (options.globalAppRegistry) {
