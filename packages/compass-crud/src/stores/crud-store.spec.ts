@@ -874,6 +874,22 @@ describe('store', function () {
         affected: 1,
       });
     });
+
+    it('triggers code export', function (done) {
+      const query = '{ query: 1 }';
+
+      store.localAppRegistry.on(
+        'open-export-to-language-with-mode',
+        ({ exportMode, options }) => {
+          expect(exportMode).to.equal('Delete Query');
+          expect(options).to.deep.equal({ filter: query });
+
+          done();
+        }
+      );
+
+      store.openDeleteQueryExportToLanguageDialog(query);
+    });
   });
 
   describe('#replaceDocument', function () {
