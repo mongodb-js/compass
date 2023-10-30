@@ -66,6 +66,7 @@ export function runTranspiler({
   const mode = getInputExpressionMode(inputExpression);
 
   useBuilders = useBuilders && outputLanguage === 'java' && isQuery(mode);
+  delete inputExpression.exportMode;
 
   let output = '';
 

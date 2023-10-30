@@ -72,6 +72,21 @@ const queryLabelStyles = css({
   alignItems: 'center',
 });
 
+const queryBarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[3],
+});
+
+const queryBarInputStyles = css({
+  flexGrow: 1,
+});
+
+const exportToLanguageButtonStyles = css({
+  alignSelf: 'end',
+});
+
 const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
   tooltip,
   label,
@@ -130,27 +145,31 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
-        <TextInput
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore the label can be any component, but it's weirdly typed to string
-          label={
-            <QueryLabel
-              label="Query"
-              tooltip="Return to the Documents tab to edit this query."
-            />
-          }
-          disabled={true}
-          value={filterQuery}
-        />
-        <Button
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph="Code" />}
-          onClick={onExportToLanguage}
-          data-testid="pipeline-toolbar-export-button"
-        >
-          Export to language
-        </Button>
+        <div className={queryBarStyles}>
+          <TextInput
+            className={queryBarInputStyles}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore the label can be any component, but it's weirdly typed to string
+            label={
+              <QueryLabel
+                label="Query"
+                tooltip="Return to the Documents tab to edit this query."
+              />
+            }
+            disabled={true}
+            value={filterQuery}
+          />
+          <Button
+            className={exportToLanguageButtonStyles}
+            variant="primaryOutline"
+            size="default"
+            leftGlyph={<Icon glyph="Code" />}
+            onClick={onExportToLanguage}
+            data-testid="pipeline-toolbar-export-button"
+          >
+            Export
+          </Button>
+        </div>
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}
