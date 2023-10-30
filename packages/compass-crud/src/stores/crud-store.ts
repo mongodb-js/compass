@@ -1703,7 +1703,11 @@ class CrudStoreImpl
   }
 
   openDeleteQueryExportToLanguageDialog(query: string): void {
-    this.localAppRegistry.emit('open-delete-query-export-to-language', query);
+    this.localAppRegistry.emit('open-export-to-language-with-mode', {
+      exportMode: 'Delete Query',
+      options: { filter: query },
+    });
+
     this.globalAppRegistry.emit('compass:export-to-language:opened', {
       source: 'Bulk Delete',
     });

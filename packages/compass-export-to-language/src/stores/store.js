@@ -90,9 +90,9 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on(
-      'open-delete-query-export-to-language',
-      (queryString) => {
-        const query = { exportMode: 'Delete Query', filter: queryString };
+      'open-export-to-language-with-mode',
+      ({ exportMode, options }) => {
+        const query = { exportMode, ...options };
         store.dispatch(modalOpenChanged(true));
         store.dispatch(inputExpressionChanged(query));
       }
