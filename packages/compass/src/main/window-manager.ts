@@ -4,6 +4,7 @@
  */
 import { pathToFileURL, URL } from 'url';
 import path from 'path';
+import type { HadronIpcMainEvent } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
 import { once } from 'events';
 import type {
@@ -211,7 +212,7 @@ function showConnectWindow(
  * @param {String} message - Message to be set by MessageBox
  * @param {String} detail - Details to be shown in MessageBox
  */
-function showInfoDialog(_bw: BrowserWindow, message: string, detail: string) {
+function showInfoDialog(evt: unknown, message: string, detail: string) {
   void dialog.showMessageBox({
     type: 'info',
     icon: COMPASS_ICON,
@@ -222,18 +223,18 @@ function showInfoDialog(_bw: BrowserWindow, message: string, detail: string) {
 }
 
 const onFindInPage = (
-  bw: BrowserWindow,
+  evt: HadronIpcMainEvent,
   searchTerm: string,
   opt: FindInPageOptions = {}
 ) => {
-  bw.webContents.findInPage(searchTerm, opt);
+  evt.sender.findInPage(searchTerm, opt);
 };
 
 const onStopFindInPage = (
-  bw: BrowserWindow,
+  evt: HadronIpcMainEvent,
   action: 'clearSelection' | 'keepSelection' | 'activateSelection'
 ) => {
-  bw.webContents.stopFindInPage(action);
+  evt.sender.stopFindInPage(action);
 };
 
 /**
@@ -349,15 +350,24 @@ class CompassWindowManager {
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
-      'compass:error:fatal'(_bw, meta) {
+      'compass:error:fatal'(_evt, meta) {
         ipcMain?.broadcast('compass:error:fatal', meta);
       },
-      'compass:log'(_bw, meta) {
+      'compass:log'(_evt, meta) {
         ipcMain?.broadcast('compass:log', meta);
       },
-      'compass:disconnected': onCompassDisconnect,
-      'compass:get-window-auto-connect-preferences':
-        getWindowAutoConnectPreferences,
+      'compass:disconnected': (evt) => {
+        const bw = BrowserWindow.fromWebContents(evt.sender);
+        if (bw) {
+          onCompassDisconnect(bw);
+        }
+      },
+      'compass:get-window-auto-connect-preferences': (evt) => {
+        const bw = BrowserWindow.fromWebContents(evt.sender);
+        if (bw) {
+          getWindowAutoConnectPreferences(bw);
+        }
+      },
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 

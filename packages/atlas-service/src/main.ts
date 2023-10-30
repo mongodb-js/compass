@@ -233,21 +233,16 @@ export class AtlasService {
     this.config = config;
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
-        this.ipcMain.createHandle(
-          'AtlasService',
-          this,
-          [
-            'getUserInfo',
-            'introspect',
-            'isAuthenticated',
-            'signIn',
-            'signOut',
-            'getAggregationFromUserInput',
-            'getQueryFromUserInput',
-            'updateAtlasUserConfig',
-          ],
-          this.ipcMain
-        );
+        this.ipcMain.createHandle('AtlasService', this, [
+          'getUserInfo',
+          'introspect',
+          'isAuthenticated',
+          'signIn',
+          'signOut',
+          'getAggregationFromUserInput',
+          'getQueryFromUserInput',
+          'updateAtlasUserConfig',
+        ]);
       }
       this.attachOidcPluginLoggerEvents();
       log.info(

@@ -85,21 +85,16 @@ export class ConnectionStorage {
       subdir: 'Connections',
       basePath,
     });
-    this.ipcMain?.createHandle(
-      'ConnectionStorage',
-      this,
-      [
-        'loadAll',
-        'load',
-        'getLegacyConnections',
-        'save',
-        'delete',
-        'deserializeConnections',
-        'exportConnections',
-        'importConnections',
-      ],
-      this.ipcMain
-    );
+    this.ipcMain?.createHandle('ConnectionStorage', this, [
+      'loadAll',
+      'load',
+      'getLegacyConnections',
+      'save',
+      'delete',
+      'deserializeConnections',
+      'exportConnections',
+      'importConnections',
+    ]);
     this.calledOnce = true;
   }
 

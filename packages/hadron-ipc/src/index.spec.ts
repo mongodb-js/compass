@@ -1,14 +1,15 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { promisify } from 'util';
-import { ipcHandle, ControllerMap } from './main';
-import { ipcInvoke } from './renderer';
+import { EventEmitter } from 'events';
+import { ipcHandle, ControllerMap, respondTo } from './main';
+import { ipcInvoke, call } from './renderer';
 
 const wait = promisify(setTimeout);
 
-describe('ipcHandle / ipcInvoke', function () {
-  const sandbox = Sinon.createSandbox();
+const sandbox = Sinon.createSandbox();
 
+describe('ipcHandle / ipcInvoke', function () {
   const MockIpc = class {
     handlers = new Map<string, (...args: any[]) => any>();
     handle = sandbox
@@ -52,12 +53,10 @@ describe('ipcHandle / ipcInvoke', function () {
   });
 
   it('should pass arguments from invoker to handler', async function () {
-    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
-    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
-      'Test',
-      ['foo'],
-      mockIpc
-    );
+    ipcHandle(mockIpc, 'Test', mockHandler, ['foo'], true);
+    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(mockIpc, 'Test', [
+      'foo',
+    ]);
 
     await foo({ test: 1 });
 
@@ -68,12 +67,10 @@ describe('ipcHandle / ipcInvoke', function () {
   });
 
   it('should return handler result when invoked', async function () {
-    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
-    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
-      'Test',
-      ['foo'],
-      mockIpc
-    );
+    ipcHandle(mockIpc, 'Test', mockHandler, ['foo'], true);
+    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(mockIpc, 'Test', [
+      'foo',
+    ]);
 
     const res = await foo({ test: 1 });
 
@@ -81,12 +78,10 @@ describe('ipcHandle / ipcInvoke', function () {
   });
 
   it('should serialize and de-serialize errors when thrown in handler', async function () {
-    ipcHandle('Test', mockHandler, ['bar'], mockIpc, true);
-    const { bar } = ipcInvoke<typeof mockHandler, 'bar'>(
-      'Test',
-      ['bar'],
-      mockIpc
-    );
+    ipcHandle(mockIpc, 'Test', mockHandler, ['bar'], true);
+    const { bar } = ipcInvoke<typeof mockHandler, 'bar'>(mockIpc, 'Test', [
+      'bar',
+    ]);
 
     try {
       await bar();
@@ -98,16 +93,17 @@ describe('ipcHandle / ipcInvoke', function () {
 
   it('should pass extra properies from thrown errors', async function () {
     ipcHandle(
+      mockIpc,
       'Test',
       mockHandler,
       ['throwsErrorWithExtraParams'],
-      mockIpc,
+
       true
     );
     const { throwsErrorWithExtraParams } = ipcInvoke<
       typeof mockHandler,
       'throwsErrorWithExtraParams'
-    >('Test', ['throwsErrorWithExtraParams'], mockIpc);
+    >(mockIpc, 'Test', ['throwsErrorWithExtraParams']);
 
     try {
       await throwsErrorWithExtraParams();
@@ -124,12 +120,10 @@ describe('ipcHandle / ipcInvoke', function () {
   });
 
   it('should handle signals being passed from invoker to handler', async function () {
-    ipcHandle('Test', mockHandler, ['buz'], mockIpc, true);
-    const { buz } = ipcInvoke<typeof mockHandler, 'buz'>(
-      'Test',
-      ['buz'],
-      mockIpc
-    );
+    ipcHandle(mockIpc, 'Test', mockHandler, ['buz'], true);
+    const { buz } = ipcInvoke<typeof mockHandler, 'buz'>(mockIpc, 'Test', [
+      'buz',
+    ]);
 
     const invokeController = new AbortController();
 
@@ -154,12 +148,10 @@ describe('ipcHandle / ipcInvoke', function () {
   });
 
   it('should clean up abort controllers when handlers are executed', async function () {
-    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
-    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
-      'Test',
-      ['foo'],
-      mockIpc
-    );
+    ipcHandle(mockIpc, 'Test', mockHandler, ['foo'], true);
+    const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(mockIpc, 'Test', [
+      'foo',
+    ]);
 
     await foo();
     await foo();
@@ -167,5 +159,49 @@ describe('ipcHandle / ipcInvoke', function () {
     await foo();
 
     expect(ControllerMap).to.have.property('size', 0);
+  });
+});
+
+describe('call / respondTo', function () {
+  const MockIpc = class {
+    _emitter = new EventEmitter();
+    on(name: string, fn: (...args: any[]) => void) {
+      this._emitter.on(name, (...args: any[]) => {
+        fn({ sender: this }, ...args);
+      });
+      return this;
+    }
+    removeAllListeners(name: string) {
+      this._emitter.removeAllListeners(name);
+    }
+    send(name: string, ...args: any[]) {
+      this._emitter.emit(name, ...args);
+    }
+    isDestroyed() {
+      return false;
+    }
+  };
+
+  const mockIpc = new MockIpc();
+
+  afterEach(function () {
+    mockIpc._emitter.removeAllListeners();
+    sandbox.resetHistory();
+  });
+
+  it('should respond to the call', async function () {
+    respondTo(mockIpc as any, 'returnFortyTwo', function () {
+      return 42;
+    });
+    const res = await call(mockIpc as any, () => {}, 'returnFortyTwo');
+    expect(res).to.eq(42);
+  });
+
+  it('should pass arguments through the channel', async function () {
+    respondTo(mockIpc as any, 'returnPassedValue', function (_evt, value) {
+      return value;
+    });
+    const res = await call(mockIpc as any, () => {}, 'returnPassedValue', 24);
+    expect(res).to.eq(24);
   });
 });

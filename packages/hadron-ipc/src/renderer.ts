@@ -6,14 +6,16 @@ import { deserializeErrorFromIpc, isSerializedError } from './serialized-error';
 
 const debug = createDebug('hadron-ipc:renderer');
 
-function call(
+export function call(
+  ipcRenderer:
+    | Pick<IpcRenderer, 'on' | 'removeAllListeners' | 'send'>
+    | undefined,
   debug: (...args: unknown[]) => void,
   methodName: string,
   ...args: any[]
 ): Promise<any> {
   debug(`calling ${methodName} with args`, args);
 
-  const ipcRenderer = electron.ipcRenderer as IpcRenderer | undefined;
   const responseChannel = getResponseChannel(methodName);
   const errorResponseChannel = `${responseChannel}-error`;
 
@@ -38,11 +40,40 @@ function call(
 
 const ipcRenderer = electron.ipcRenderer
   ? Object.assign(electron.ipcRenderer, {
-      call: call.bind(null, debug),
-      callQuiet: call.bind(null, () => {
+      /**
+       * Call a method in the main process set up with `ipcMain.respondTo`
+       * helper
+       */
+      call: call.bind(null, electron.ipcRenderer, debug),
+
+      /**
+       * Same as `ipcRenderer.call`, but doesn't print any debug information
+       * when called (`debug` is no-op)
+       */
+      callQuiet: call.bind(null, electron.ipcRenderer, () => {
         // noop for a quiet call
       }),
-      createInvoke: ipcInvoke.bind(null),
+
+      /**
+       * Helper method to create a caller for the method in the main process set
+       * up with `ipcMain.createHandler` method
+       *
+       * @param serviceName Identifier used to locate the service methods in the
+       *                    main process
+       * @param methodNames List of the method names that will get exposed
+       */
+      createInvoke: <
+        T,
+        K extends Extract<
+          keyof PickByValue<T, (options: any) => Promise<any>>,
+          string
+        >
+      >(
+        serviceName: string,
+        methodNames: K[]
+      ) => {
+        return ipcInvoke<T, K>(ipcRenderer, serviceName, methodNames);
+      },
     })
   : undefined;
 
@@ -60,9 +91,9 @@ export function ipcInvoke<
     string
   >
 >(
+  ipcRenderer: Pick<IpcRenderer, 'invoke'> | undefined,
   serviceName: string,
-  methodNames: K[],
-  _ipcRenderer: Pick<IpcRenderer, 'invoke'> | undefined = ipcRenderer
+  methodNames: K[]
 ) {
   return Object.fromEntries(
     methodNames.map((name) => {
@@ -74,9 +105,9 @@ export function ipcInvoke<
           signal,
           ...rest
         }: { signal?: AbortSignal } & Record<string, unknown> = {}) => {
-          await _ipcRenderer?.invoke('ipcHandlerInvoke', signalId);
+          await ipcRenderer?.invoke('ipcHandlerInvoke', signalId);
           const onAbort = () => {
-            return _ipcRenderer?.invoke('ipcHandlerAborted', signalId);
+            return ipcRenderer?.invoke('ipcHandlerAborted', signalId);
           };
           // If signal is already aborted, make sure that handler will see it
           // when it runs, otherwise just set up abort listener to communicate
@@ -92,7 +123,7 @@ export function ipcInvoke<
               { once: true }
             );
           }
-          const res = await _ipcRenderer?.invoke(`${serviceName}.${name}`, {
+          const res = await ipcRenderer?.invoke(`${serviceName}.${name}`, {
             // We replace this with a matched signal on the other side, this
             // is mostly for testing / debugging purposes
             signal: signalId,

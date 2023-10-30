@@ -27,5 +27,6 @@ const hadronIpc = (() => {
 export type HadronIpc = typeof hadronIpc;
 export type HadronIpcRenderer = NonNullable<typeof hadronIpcRenderer>;
 export type HadronIpcMain = NonNullable<typeof hadronIpcMain>;
+export type { IpcMainEvent as HadronIpcMainEvent } from 'electron';
 export default hadronIpc;
 export { ipcRenderer, ipcMain };
