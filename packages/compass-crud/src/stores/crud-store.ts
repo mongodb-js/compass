@@ -1164,6 +1164,7 @@ class CrudStoreImpl
 
   async insertMany(docs: BSONObject[], view: 'Shell' | 'EJSON' | 'List') {
     // const docs =
+    // TODO: this event was early...
     track('Document Inserted', {
       mode:
         view === 'EJSON'
@@ -1173,6 +1174,13 @@ class CrudStoreImpl
           : 'Shell',
       multiple: docs.length > 1,
     });
+    // TODO: Set state inserting...
+    // TODO: done inserting...
+    /// TODO: Insert doc could be a separate plugin.
+
+    // this.setState({
+    //   isInsertInProgress: true
+    // });
 
     try {
       await this.dataService.insertMany(this.state.ns, docs);
@@ -1187,7 +1195,12 @@ class CrudStoreImpl
       this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
-      this.state.insert = this.getInitialInsertState();
+      // this.state.insert = this.getInitialInsertState();
+
+      this.setState({
+        isInsertDocumentModalOpen: false,
+        insertErrorMessage: null,
+      });
     } catch (error) {
       this.setState({
         insertErrorMessage: (error as Error).message,
@@ -1203,6 +1216,9 @@ class CrudStoreImpl
         // },
       });
     }
+    // this.setState({
+    //   isInsertInProgress: false
+    // });
 
     // Since we are inserting a bunch of documents and we need to rerun all
     // the queries and counts for them, let's just refresh the whole set of

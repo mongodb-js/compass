@@ -1,6 +1,8 @@
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import HadronDocument from 'hadron-document';
+import type { DataService } from 'mongodb-data-service';
 import type { Document } from 'mongodb';
+import { ObjectId } from 'mongodb';
 // import { Element } from 'hadron-document';
 import {
   // Banner,
@@ -60,12 +62,17 @@ export type InsertDocumentModalProps = InsertCSFLEWarningBannerProps & {
   ns: string;
 
   closeInsertDocumentModal: () => void;
-  onInsertClick: (docs: BSONObject[]) => void;
+  // onInsertClick: (docs: BSONObject[]) => void;
+  insertMany: DataService['insertMany'];
+  onDocumentsInserted: (insertedInfo: {
+    ns: string;
+    docs: BSONObject[];
+  }) => void;
   // onInsertManyClick: (docs: BSONObject[]) => void;
 };
 
-// We insert a first element into the hadron document when it's made so that it has
-// at least one value the user can edit.
+// We insert a first element into the hadron document when it's made
+// so that it has at least one value the user can edit.
 function createHadronDocumentWithPlaceholder(
   existingHadronDocument?: HadronDocument
 ) {
@@ -73,7 +80,9 @@ function createHadronDocumentWithPlaceholder(
     return existingHadronDocument;
   }
   const document = new HadronDocument();
-  document.insertBeginning('field', 'value');
+  // document.insertBeginning('field', 'value');
+  // document.insertPlaceholder();
+  document.insertBeginning('_id', new ObjectId());
 
   return document;
 }
@@ -84,8 +93,9 @@ export const InsertDocumentModal: React.FunctionComponent<
   initialDocumentForInsert,
   isOpen,
   ns,
+  insertMany,
   closeInsertDocumentModal,
-  onInsertClick,
+  onDocumentsInserted,
 }) => {
   useTrackOnChange(
     // TODO: Should be in compass-crud if event called this..
@@ -110,6 +120,8 @@ export const InsertDocumentModal: React.FunctionComponent<
     'aaaa initialDinitialDocumentForInsertocumentForInsert',
     initialDocumentForInsert
   );
+
+  const [isInsertInProgress, setIsInsertInProgress] = useState(false);
 
   /**
    * We maintain 3 different document arrays.
@@ -138,14 +150,14 @@ export const InsertDocumentModal: React.FunctionComponent<
   // When it's opened and the initial document updates we set the initial values.
   useLayoutEffect(() => {
     if (isOpen) {
-      setEJSONDocuments(`${initialDocumentForInsert?.toEJSON() ?? '{}'}`);
-      const bsonDoc = initialDocumentForInsert
-        ? EJSON.parse(initialDocumentForInsert.toEJSON())
-        : {};
+      const hadronDoc = createHadronDocumentWithPlaceholder(
+        initialDocumentForInsert
+      );
+      const ejsonDoc = hadronDoc.toEJSON();
+      setEJSONDocuments(`${ejsonDoc}`);
+      const bsonDoc = EJSON.parse(ejsonDoc);
       setShellDocuments(toJSString(bsonDoc) || '{}');
-      setHadronDocuments([
-        createHadronDocumentWithPlaceholder(initialDocumentForInsert),
-      ]);
+      setHadronDocuments([hadronDoc]);
     }
   }, [isOpen, initialDocumentForInsert]);
 
@@ -261,6 +273,25 @@ export const InsertDocumentModal: React.FunctionComponent<
     return true;
   }, [viewType, ejsonDocumentsString, shellDocumentsString]);
 
+  const onInsertMany = useCallback(
+    async (docs: BSONObject[]) => {
+      setIsInsertInProgress(true);
+
+      try {
+        await insertMany(ns, docs);
+        onDocumentsInserted({
+          ns,
+          docs,
+        });
+      } catch (e) {
+        // TODO: Set error.
+      }
+
+      setIsInsertInProgress(false);
+    },
+    [ns, insertMany, onDocumentsInserted]
+  );
+
   const onSubmitClick = useCallback(() => {
     let docs = [];
 
@@ -297,11 +328,13 @@ export const InsertDocumentModal: React.FunctionComponent<
       docs = hadronDocuments.map((hadronDoc) => hadronDoc.toEJSON());
     }
 
-    onInsertClick(docs);
+    // onInsertClick(docs);
+    void onInsertMany(docs);
     // TODO: Could make this not depended on these strings if we want, have that set elsewhere.
   }, [
     viewType,
-    onInsertClick,
+    // onInsertClick,
+    onInsertMany,
     ejsonDocumentsString,
     shellDocumentsString,
     hadronDocuments,
@@ -315,7 +348,8 @@ export const InsertDocumentModal: React.FunctionComponent<
       onSubmit={onSubmitClick}
       onCancel={closeInsertDocumentModal}
       submitButtonText="Insert"
-      submitDisabled={hasDocErrors}
+      // TODO: Show loader on insert in progress.
+      submitDisabled={hasDocErrors || isInsertInProgress}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
     >
