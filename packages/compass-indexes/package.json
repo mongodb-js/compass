@@ -60,7 +60,7 @@
     "@mongodb-js/compass-editor": "^0.16.0",
     "@mongodb-js/compass-logging": "^1.2.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.13",
-    "@mongodb-js/mongodb-constants": "^0.8.6",
+    "@mongodb-js/mongodb-constants": "^0.8.7",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
     "react": "^17.0.2"
@@ -102,7 +102,7 @@
     "@mongodb-js/compass-editor": "^0.16.0",
     "@mongodb-js/compass-logging": "^1.2.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.13",
-    "@mongodb-js/mongodb-constants": "^0.8.6",
+    "@mongodb-js/mongodb-constants": "^0.8.7",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3"
   }
