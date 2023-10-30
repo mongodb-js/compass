@@ -37,7 +37,8 @@ export function createLoggerAndTelemetry(
 ): LoggerAndTelemetry {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null = isElectronRenderer
-    ? require('hadron-ipc')
+    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('hadron-ipc').ipcRenderer
     : null;
 
   // Do not create an actual Writable stream here, since the callback

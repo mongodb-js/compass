@@ -8,6 +8,8 @@ import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
+import { usePreference } from 'compass-preferences-model';
+import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 
 const containerStyles = css({
   display: 'grid',
@@ -30,8 +32,7 @@ const extraSettingsStyles = css({
 });
 
 type PipelineSettingsProps = {
-  isSavePipelineDisplayed?: boolean;
-  isCreatePipelineDisplayed?: boolean;
+  isEditingViewPipeline?: boolean;
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
   onCreateNewPipeline: () => void;
@@ -40,12 +41,19 @@ type PipelineSettingsProps = {
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({
-  isSavePipelineDisplayed,
-  isCreatePipelineDisplayed,
+  isEditingViewPipeline = false,
   isExportToLanguageEnabled,
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
+  const enableSavedAggregationsQueries = usePreference(
+    'enableSavedAggregationsQueries',
+    React
+  );
+  const isSavePipelineDisplayed =
+    !isEditingViewPipeline && enableSavedAggregationsQueries;
+  const isCreatePipelineDisplayed = !isEditingViewPipeline;
+
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
@@ -74,7 +82,9 @@ export const PipelineSettings: React.FunctionComponent<
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
         >
-          Export to language
+          <span className={hiddenOnNarrowPipelineToolbarStyles}>
+            Export to language
+          </span>
         </Button>
       </div>
       <div className={extraSettingsStyles}>
@@ -88,8 +98,7 @@ export default connect(
   (state: RootState) => {
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
-      isCreatePipelineDisplayed: !state.editViewName,
+      isEditingViewPipeline: state.editViewName,
       isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },

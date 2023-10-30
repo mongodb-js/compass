@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Oct 22 2023.
+This document was automatically generated on Sun Oct 29 2023.
 
 ## List of dependencies
 
@@ -86,16 +86,16 @@ This document was automatically generated on Sun Oct 22 2023.
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
 | **[@electron/remote](#f86d0e2a6ee0c0c0428790bb3fe747eaa34fdc564b6738501a349cb6db3911e1)**                                   | 2.0.11       | MIT                                 |
-| **[@emotion/cache](#abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6)**                                     | 11.7.1       | MIT                                 |
-| **[@emotion/css](#834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792)**                                       | 11.7.1       | MIT                                 |
-| **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**                                      | 0.8.0        | MIT                                 |
-| **[@emotion/memoize](#3f033eea7eb32720fd1d4eb19167d11e51fe669790ea38401082693ee10db2cc)**                                   | 0.7.4        | MIT                                 |
-| **[@emotion/serialize](#24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420)**                                 | 1.0.2        | MIT                                 |
+| **[@emotion/cache](#c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521)**                                     | 11.11.0      | MIT                                 |
+| **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
+| **[@emotion/hash](#b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206)**                                      | 0.9.1        | MIT                                 |
+| **[@emotion/memoize](#1827146c6aec82dcee79fa8bc04b0315431dd1ce05aae537ea63a88ce1580dcc)**                                   | 0.8.1        | MIT                                 |
+| **[@emotion/serialize](#55f5a8e0d65e17a53e71c997b847af76e4e1c46fc25aec5c6824a23ced36b5af)**                                 | 1.1.2        | MIT                                 |
 | **[@emotion/server](#b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff)**                                    | 11.4.0       | MIT                                 |
-| **[@emotion/sheet](#21b942a9f0f46c8e0585df700dd5bf57ed7a4624abcde13c2bba1a4ad77a44de)**                                     | 1.1.0        | MIT                                 |
-| **[@emotion/unitless](#33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355)**                                  | 0.7.5        | MIT                                 |
-| **[@emotion/utils](#e92e387e8f90010a7c06c18458513b76d4952e56d48b33a3cae3099bb822e8d4)**                                     | 1.1.0        | MIT                                 |
-| **[@emotion/weak-memoize](#fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086)**                              | 0.2.5        | MIT                                 |
+| **[@emotion/sheet](#e421ab8cefe597cf44f29ad92e17c5dc018be162bdac5bc5476ebac908aa3309)**                                     | 1.2.2        | MIT                                 |
+| **[@emotion/unitless](#6f21f2d3d65978942c063ac7244c87c1e70353c1cb50b664bb1d1887e84521ae)**                                  | 0.8.1        | MIT                                 |
+| **[@emotion/utils](#f6b1e8b81a4cecb8428a258e22f946a728b5c73d12a8d5cb55087f672c0ce2bc)**                                     | 1.2.1        | MIT                                 |
+| **[@emotion/weak-memoize](#e5fd44184f5735455cec841f564e21689561fdc449fed6922f4999dae125d2f1)**                              | 0.3.1        | MIT                                 |
 | **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**                            | 0.1.1        | MIT                                 |
 | **[@jridgewell/gen-mapping](#1f753c22041ca3b4767dd5698736a25ac366ca64e8982d5ee9109b161d5cd9fe)**                            | 0.3.2        | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                            | 3.1.0        | MIT                                 |
@@ -332,7 +332,6 @@ This document was automatically generated on Sun Oct 22 2023.
 | **[is-electron-renderer](#5f979579f0e64b4ba63a2cf1d32f11e274d285511e84ee596bddc57424d5299c)**                               | 2.0.1        | MIT                                 |
 | **[is-inside-container](#3f45825f7cda0ec2231b94ee915a0dc76a31eb0f97746c44510d9b05d80c1a97)**                                | 1.0.0        | MIT                                 |
 | **[is-plain-obj](#6aa44f19e7afb6047589b7ad4e4ee3d44264e44f4a4ac5057efb8e3000820525)**                                       | 1.1.0        | MIT                                 |
-| **[is-promise](#1221c87ed52f466a1f94253dd4ac89bfbb6f23b76f1db7d3f4043aca1caa1061)**                                         | 2.2.2        | MIT                                 |
 | **[is-retry-allowed](#d4152747a873329c3f33e71cf685aca68f6644f350f55fe8cb242fd4dd54f979)**                                   | 1.2.0        | MIT                                 |
 | **[is-stream](#6a348f7c7e9ad013ef74124a87896ed11f8bafac3344e58377dcfc0944187cf6)**                                          | 2.0.0        | MIT                                 |
 | **[is-stream](#309bd1940a381ff538d0c335564cc3e436c79307c991516433092d84e35acfc7)**                                          | 3.0.0        | MIT                                 |
@@ -571,7 +570,7 @@ This document was automatically generated on Sun Oct 22 2023.
 | **[strip-json-comments](#7e22a64e44ef0efd054f76d551df5305ac48eb5807079c025c8bf63c0a728c33)**                                | 3.1.1        | MIT                                 |
 | **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**                                             | 1.0.5        | MIT                                 |
 | **[style-mod](#1c5963b1ef8891c2cb4616f37cb95e9e771842967dcb38b2127f8a84c0efaefe)**                                          | 4.0.0        | MIT                                 |
-| **[stylis](#40bf344f82b07a94d8e2d5697fa12c22ec023d7ab6b8fb6b0f60e0ac8ac96948)**                                             | 4.0.13       | MIT                                 |
+| **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**                                             | 4.2.0        | MIT                                 |
 | **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**                                     | 5.5.0        | MIT                                 |
 | **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**                                     | 7.2.0        | MIT                                 |
 | **[system-ca](#3522fc607365a0831259d285455f827874a15cf872d94258c71f3f8d8ddee1f6)**                                          | 1.0.2        | Apache-2.0                          |
@@ -7895,41 +7894,9 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6"></a>
+<a id="c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521"></a>
 
-### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 11.7.1)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (c) Emotion team and other contributors
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792"></a>
-
-### [@emotion/css](https://www.npmjs.com/package/@emotion/css) (version 11.7.1)
+### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 11.11.0)
 
 License tags: MIT
 
@@ -7959,41 +7926,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6"></a>
+<a id="0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129"></a>
 
-### [@emotion/hash](https://www.npmjs.com/package/@emotion/hash) (version 0.8.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (c) Emotion team and other contributors
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="3f033eea7eb32720fd1d4eb19167d11e51fe669790ea38401082693ee10db2cc"></a>
-
-### [@emotion/memoize](https://www.npmjs.com/package/@emotion/memoize) (version 0.7.4)
+### [@emotion/css](https://www.npmjs.com/package/@emotion/css) (version 11.11.2)
 
 License tags: MIT
 
@@ -8023,9 +7958,73 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420"></a>
+<a id="b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206"></a>
 
-### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 1.0.2)
+### [@emotion/hash](https://www.npmjs.com/package/@emotion/hash) (version 0.9.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) Emotion team and other contributors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="1827146c6aec82dcee79fa8bc04b0315431dd1ce05aae537ea63a88ce1580dcc"></a>
+
+### [@emotion/memoize](https://www.npmjs.com/package/@emotion/memoize) (version 0.8.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) Emotion team and other contributors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="55f5a8e0d65e17a53e71c997b847af76e4e1c46fc25aec5c6824a23ced36b5af"></a>
+
+### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 1.1.2)
 
 License tags: MIT
 
@@ -8087,41 +8086,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="21b942a9f0f46c8e0585df700dd5bf57ed7a4624abcde13c2bba1a4ad77a44de"></a>
+<a id="e421ab8cefe597cf44f29ad92e17c5dc018be162bdac5bc5476ebac908aa3309"></a>
 
-### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 1.1.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (c) Emotion team and other contributors
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355"></a>
-
-### [@emotion/unitless](https://www.npmjs.com/package/@emotion/unitless) (version 0.7.5)
+### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 1.2.2)
 
 License tags: MIT
 
@@ -8151,9 +8118,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="e92e387e8f90010a7c06c18458513b76d4952e56d48b33a3cae3099bb822e8d4"></a>
+<a id="6f21f2d3d65978942c063ac7244c87c1e70353c1cb50b664bb1d1887e84521ae"></a>
 
-### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.1.0)
+### [@emotion/unitless](https://www.npmjs.com/package/@emotion/unitless) (version 0.8.1)
 
 License tags: MIT
 
@@ -8183,9 +8150,41 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086"></a>
+<a id="f6b1e8b81a4cecb8428a258e22f946a728b5c73d12a8d5cb55087f672c0ce2bc"></a>
 
-### [@emotion/weak-memoize](https://www.npmjs.com/package/@emotion/weak-memoize) (version 0.2.5)
+### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.2.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) Emotion team and other contributors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="e5fd44184f5735455cec841f564e21689561fdc449fed6922f4999dae125d2f1"></a>
+
+### [@emotion/weak-memoize](https://www.npmjs.com/package/@emotion/weak-memoize) (version 0.3.1)
 
 License tags: MIT
 
@@ -23946,36 +23945,6 @@ License files:
       The MIT License (MIT)
 
       Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-<a id="1221c87ed52f466a1f94253dd4ac89bfbb6f23b76f1db7d3f4043aca1caa1061"></a>
-
-### [is-promise](https://www.npmjs.com/package/is-promise) (version 2.2.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright (c) 2014 Forbes Lindesay
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -40072,9 +40041,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="40bf344f82b07a94d8e2d5697fa12c22ec023d7ab6b8fb6b0f60e0ac8ac96948"></a>
+<a id="131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf"></a>
 
-### [stylis](https://www.npmjs.com/package/stylis) (version 4.0.13)
+### [stylis](https://www.npmjs.com/package/stylis) (version 4.2.0)
 
 License tags: MIT
 

@@ -17,6 +17,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import preferencesAccess from 'compass-preferences-model';
 
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
@@ -121,14 +122,18 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       autoPreview,
-      isAtlasDeployed,
       dataService: { dataService },
       namespace,
       maxTimeMS,
       collationString,
     } = getState();
 
-    if (!dataService || !isAtlasDeployed) {
+    if (
+      !dataService ||
+      // Running output stage from preview is not allowed if "run pipeline"
+      // feature is enabled
+      preferencesAccess.getPreferences().enableAggregationBuilderRunPipeline
+    ) {
       return;
     }
 

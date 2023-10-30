@@ -147,6 +147,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 
 export default connect((state: RootState) => {
   return {
-    isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
+    isOpenPipelineVisible: !state.editViewName,
   };
 })(PipelineHeader);

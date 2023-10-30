@@ -31,7 +31,6 @@ import {
   DOCUMENTS_STATUSES_ALL,
 } from '../constants/documents-statuses';
 
-import './index.less';
 import type {
   CrudStore,
   BSONObject,
@@ -52,6 +51,22 @@ const tableStyles = css({
   paddingRight: spacing[3],
   paddingBottom: spacing[5], // avoid double scroll
   paddingLeft: spacing[3],
+});
+
+const documentsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  width: '100%',
+  height: '100%',
+  flexGrow: 1,
+  position: 'relative',
+});
+
+const loaderContainerStyles = css({
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
 });
 
 export type DocumentListProps = {
@@ -179,7 +194,7 @@ class DocumentList extends React.Component<DocumentListProps> {
    */
   renderFetching() {
     return (
-      <div className="loader">
+      <div className={loaderContainerStyles}>
         <CancelLoader
           data-testid="fetching-documents"
           progressText="Fetching Documents"
@@ -288,7 +303,7 @@ class DocumentList extends React.Component<DocumentListProps> {
       this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
     ) {
       return (
-        <div className="document-list-zero-state">
+        <div data-testid="document-list-zero-state">
           <EmptyContent
             icon={DocumentIcon}
             title="No results"
@@ -299,7 +314,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
 
     return (
-      <div className="document-list-zero-state">
+      <div data-testid="document-list-zero-state">
         <EmptyContent
           icon={DocumentIcon}
           title="This collection has no data"
@@ -329,7 +344,7 @@ class DocumentList extends React.Component<DocumentListProps> {
    */
   render() {
     return (
-      <div className="compass-documents">
+      <div className={documentsContainerStyles}>
         <WorkspaceContainer
           toolbar={
             <CrudToolbar

@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "8.17.0",
+  "version": "8.18.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -35,7 +35,7 @@
   },
   "scripts": {
     "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
@@ -56,17 +56,17 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.16.0",
+    "@mongodb-js/compass-components": "^1.17.0",
     "@mongodb-js/compass-logging": "*",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.2",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.3",
     "@mongodb-js/mongodb-redux-common": "*",
     "bson-transpilers": "*",
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.16.0",
+    "@mongodb-js/compass-components": "^1.17.0",
     "@mongodb-js/compass-logging": "^1.2.3",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.2",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.13",
     "bson-transpilers": "^2.1.0"
   },
@@ -78,7 +78,7 @@
     "@mongodb-js/webpack-config-compass": "^1.2.3",
     "@types/js-beautify": "^1.13.3",
     "chai": "^4.3.6",
-    "compass-preferences-model": "^2.15.2",
+    "compass-preferences-model": "^2.15.3",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^1.2.4",
     "enzyme": "^3.11.0",

@@ -17,19 +17,7 @@ import PipelineAI from './pipeline-ai';
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
-
-const containerStyles = css({
-  padding: spacing[3],
-});
-
-const containerDisplayStyles = css({
-  display: 'grid',
-  gap: spacing[3],
-  gridTemplateAreas: `
-  "headerAndOptionsRow"
-  "settingsRow"
-  `,
-});
+import { PipelineToolbarContainer } from './pipeline-toolbar-container';
 
 const headerAndOptionsRowStyles = css({
   gridArea: 'headerAndOptionsRow',
@@ -77,10 +65,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
-    <div
-      className={cx(containerStyles, containerDisplayStyles)}
-      data-testid="pipeline-toolbar"
-    >
+    <PipelineToolbarContainer>
       <div
         className={cx(
           headerAndOptionsRowStyles,
@@ -113,7 +98,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           />
         </div>
       )}
-    </div>
+    </PipelineToolbarContainer>
   );
 };
 

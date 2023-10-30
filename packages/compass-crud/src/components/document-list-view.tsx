@@ -1,26 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { KeylineCard, cx } from '@mongodb-js/compass-components';
+import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';
 import Document from './document';
 import type HadronDocument from 'hadron-document';
 import type { BSONObject } from '../stores/crud-store';
 
-/**
- * The full document list container class.
- */
-const LIST_CLASS = 'document-list';
+const listStyles = css({
+  listStyle: 'none',
+  position: 'relative',
+  width: '100%',
+});
 
-/**
- * The list item class.
- */
-const LIST_ITEM_CLASS = `${LIST_CLASS}-item`;
+const listItemStyles = css({
+  position: 'relative',
+  marginBottom: spacing[1],
 
-/**
- * The list item test id.
- */
-const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
+  '&:last-child': {
+    marginBottom: 0,
+    borderBottom: '0 solid transparent',
+  },
+});
 
 export type DocumentListViewProps = {
   docs: (HadronDocument | BSONObject)[];
@@ -52,8 +53,8 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
     return this.props.docs.map((doc, index) => {
       return (
         <li
-          className={LIST_ITEM_CLASS}
-          data-testid={LIST_ITEM_TEST_ID}
+          className={listItemStyles}
+          data-testid="document-list-item"
           key={index}
         >
           <KeylineCard>
@@ -81,7 +82,10 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
    */
   render() {
     return (
-      <ol className={cx(LIST_CLASS, this.props.className)}>
+      <ol
+        className={cx(listStyles, this.props.className)}
+        data-testid="document-list"
+      >
         {this.renderDocuments()}
       </ol>
     );

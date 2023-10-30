@@ -345,15 +345,15 @@ class CompassWindowManager {
       showConnectWindow(compassApp);
     });
 
-    ipcMain.respondTo({
+    ipcMain?.respondTo({
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
       'compass:error:fatal'(_bw, meta) {
-        ipcMain.broadcast('compass:error:fatal', meta);
+        ipcMain?.broadcast('compass:error:fatal', meta);
       },
       'compass:log'(_bw, meta) {
-        ipcMain.broadcast('compass:log', meta);
+        ipcMain?.broadcast('compass:log', meta);
       },
       'compass:disconnected': onCompassDisconnect,
       'compass:get-window-auto-connect-preferences':

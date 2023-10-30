@@ -20,7 +20,6 @@ describe('PipelineSettings', function () {
       <Provider store={configureStore()}>
         <PipelineSettings
           isExportToLanguageEnabled={true}
-          isCreatePipelineDisplayed={true}
           onExportToLanguage={onExportToLanguageSpy}
           onCreateNewPipeline={onCreateNewPipelineSpy}
         />
