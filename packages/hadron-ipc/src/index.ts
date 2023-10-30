@@ -21,11 +21,11 @@ const hadronIpc = (() => {
     return {};
   }
 
-  return isRenderer ? hadronIpcRenderer : hadronIpcMain;
+  return (isRenderer ? hadronIpcRenderer : hadronIpcMain) ?? {};
 })() as Partial<typeof hadronIpcRenderer & typeof hadronIpcMain>;
 
 export type HadronIpc = typeof hadronIpc;
-export type HadronIpcRenderer = typeof hadronIpcRenderer;
-export type HadronIpcMain = typeof hadronIpcMain;
+export type HadronIpcRenderer = NonNullable<typeof hadronIpcRenderer>;
+export type HadronIpcMain = NonNullable<typeof hadronIpcMain>;
 export default hadronIpc;
 export { ipcRenderer, ipcMain };

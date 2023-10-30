@@ -13,11 +13,17 @@ import { createSandboxAccessFromProps } from './setup-preferences';
 /**
  * API to communicate with preferences from the electron renderer process.
  */
-export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
+export const makePreferencesIpc = (
+  ipcRenderer: HadronIpcRenderer | undefined
+) => {
+  if (!ipcRenderer) {
+    throw new Error('IPC not available');
+  }
+
   let cachedPreferences = {} as AllPreferences;
   let inflightCacheRefresh: Promise<AllPreferences> | undefined;
   async function refreshCachedPreferences(): Promise<AllPreferences> {
-    inflightCacheRefresh = ipcRenderer.invoke('compass:get-preferences');
+    inflightCacheRefresh = ipcRenderer!.invoke('compass:get-preferences');
     cachedPreferences = await inflightCacheRefresh;
     inflightCacheRefresh = undefined;
     return cachedPreferences;

@@ -1,11 +1,12 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { promisify } from 'util';
-import { ipcExpose, ipcInvoke, ControllerMap } from './ipc';
+import { ipcHandle, ControllerMap } from './main';
+import { ipcInvoke } from './renderer';
 
 const wait = promisify(setTimeout);
 
-describe('ipc', function () {
+describe('ipcHandle / ipcInvoke', function () {
   const sandbox = Sinon.createSandbox();
 
   const MockIpc = class {
@@ -51,7 +52,7 @@ describe('ipc', function () {
   });
 
   it('should pass arguments from invoker to handler', async function () {
-    ipcExpose('Test', mockHandler, ['foo'], mockIpc, true);
+    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
     const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
       'Test',
       ['foo'],
@@ -67,7 +68,7 @@ describe('ipc', function () {
   });
 
   it('should return handler result when invoked', async function () {
-    ipcExpose('Test', mockHandler, ['foo'], mockIpc, true);
+    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
     const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
       'Test',
       ['foo'],
@@ -80,7 +81,7 @@ describe('ipc', function () {
   });
 
   it('should serialize and de-serialize errors when thrown in handler', async function () {
-    ipcExpose('Test', mockHandler, ['bar'], mockIpc, true);
+    ipcHandle('Test', mockHandler, ['bar'], mockIpc, true);
     const { bar } = ipcInvoke<typeof mockHandler, 'bar'>(
       'Test',
       ['bar'],
@@ -96,7 +97,7 @@ describe('ipc', function () {
   });
 
   it('should pass extra properies from thrown errors', async function () {
-    ipcExpose(
+    ipcHandle(
       'Test',
       mockHandler,
       ['throwsErrorWithExtraParams'],
@@ -123,7 +124,7 @@ describe('ipc', function () {
   });
 
   it('should handle signals being passed from invoker to handler', async function () {
-    ipcExpose('Test', mockHandler, ['buz'], mockIpc, true);
+    ipcHandle('Test', mockHandler, ['buz'], mockIpc, true);
     const { buz } = ipcInvoke<typeof mockHandler, 'buz'>(
       'Test',
       ['buz'],
@@ -153,7 +154,7 @@ describe('ipc', function () {
   });
 
   it('should clean up abort controllers when handlers are executed', async function () {
-    ipcExpose('Test', mockHandler, ['foo'], mockIpc, true);
+    ipcHandle('Test', mockHandler, ['foo'], mockIpc, true);
     const { foo } = ipcInvoke<typeof mockHandler, 'foo'>(
       'Test',
       ['foo'],

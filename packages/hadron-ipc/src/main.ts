@@ -1,6 +1,8 @@
+import type { IpcMain } from 'electron';
 import electron from 'electron';
 import createDebug from 'debug';
 import { getResponseChannel } from './common';
+import { serializeErrorForIpc } from './serialized-error';
 
 const debug = createDebug('hadron-ipc:main');
 
@@ -39,7 +41,7 @@ function respondTo(
     return;
   }
 
-  const ipcMain = electron.ipcMain as electron.IpcMain | undefined;
+  const ipcMain = electron.ipcMain as IpcMain | undefined;
   const responseChannel = getResponseChannel(methodName);
   const errorResponseChannel = `${responseChannel}-error`;
 
@@ -110,9 +112,77 @@ export function remove(
   electron.ipcMain?.removeListener(channel, listener);
 }
 
-export default Object.assign(electron.ipcMain ?? {}, {
-  respondTo,
-  broadcast,
-  broadcastFocused,
-  remove,
-});
+const ipcMain = electron.ipcMain
+  ? Object.assign(electron.ipcMain, {
+      respondTo,
+      broadcast,
+      broadcastFocused,
+      remove,
+      createHandle: ipcHandle,
+    })
+  : undefined;
+
+/**
+ * Exported for testing purposes
+ * @internal
+ */
+export const ControllerMap = new Map<string, AbortController>();
+
+let setup = false;
+
+export function setupSignalHandler(
+  _ipcMain: Pick<IpcMain, 'handle'> | undefined = ipcMain,
+  forceSetup = false
+) {
+  if (!forceSetup && setup) {
+    return;
+  }
+
+  setup = true;
+
+  _ipcMain?.handle('ipcHandlerInvoke', (_evt, id: string) => {
+    ControllerMap.set(id, new AbortController());
+  });
+
+  _ipcMain?.handle('ipcHandlerAborted', (_evt, id: string) => {
+    ControllerMap.get(id)?.abort();
+  });
+}
+
+export function ipcHandle<T>(
+  serviceName: string,
+  obj: T,
+  methodNames: Extract<
+    keyof PickByValue<T, (options: any) => Promise<any>>,
+    string
+  >[],
+  _ipcMain: Pick<IpcMain, 'handle'> | undefined = ipcMain,
+  _forceSetup = false
+) {
+  setupSignalHandler(_ipcMain, _forceSetup);
+
+  for (const name of methodNames) {
+    const channel = `${serviceName}.${name}`;
+    _ipcMain?.handle(
+      channel,
+      async (
+        _evt,
+        { signal, ...rest }: { signal: string } & Record<string, unknown>
+      ) => {
+        try {
+          const controller = ControllerMap.get(signal);
+          return await (obj[name] as (...args: any[]) => any).call(obj, {
+            signal: controller?.signal,
+            ...rest,
+          });
+        } catch (err) {
+          return serializeErrorForIpc(err);
+        } finally {
+          ControllerMap.delete(signal);
+        }
+      }
+    );
+  }
+}
+
+export default ipcMain;

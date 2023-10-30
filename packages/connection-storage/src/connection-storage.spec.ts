@@ -52,7 +52,10 @@ describe('ConnectionStorage', function () {
     tmpDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'connection-storage-tests')
     );
-    ConnectionStorage['ipcMain'] = { handle: Sinon.stub() };
+    ConnectionStorage['ipcMain'] = {
+      handle: Sinon.stub(),
+      createHandle: Sinon.stub(),
+    };
     ConnectionStorage.init(tmpDir);
 
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
