@@ -40,6 +40,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import { toJSString } from 'mongodb-query-parser';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -61,7 +62,7 @@ export type CrudActions = {
   openBulkDeleteDialog(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
-  openDeleteQueryExportToLanguageDialog(query: string): void;
+  openDeleteQueryExportToLanguageDialog(): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -1702,10 +1703,10 @@ class CrudStoreImpl
     }
   }
 
-  openDeleteQueryExportToLanguageDialog(query: string): void {
+  openDeleteQueryExportToLanguageDialog(): void {
     this.localAppRegistry.emit('open-export-to-language-with-mode', {
       exportMode: 'Delete Query',
-      options: { filter: query },
+      options: { filter: toJSString(this.state.query.filter) || '{}' },
     });
 
     this.globalAppRegistry.emit('compass:export-to-language:opened', {

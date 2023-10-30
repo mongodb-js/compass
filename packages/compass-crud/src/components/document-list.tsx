@@ -264,9 +264,7 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   onExportToLanguageDeleteQuery() {
-    void this.props.store.openDeleteQueryExportToLanguageDialog(
-      toJSString(this.props.store.state.query.filter) || '{}'
-    );
+    void this.props.store.openDeleteQueryExportToLanguageDialog();
   }
 
   /**
