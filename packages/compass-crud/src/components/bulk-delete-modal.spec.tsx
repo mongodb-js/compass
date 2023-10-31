@@ -72,4 +72,16 @@ describe('BulkDeleteModal Component', function () {
     );
     expect(onConfirmDeletionSpy).to.have.been.calledOnce;
   });
+
+  it('opens the export to language modal', function () {
+    const onExportToLanguageSpy = sinon.spy();
+    renderBulkDeleteModal({
+      documentCount: 10,
+      onExportToLanguage: onExportToLanguageSpy,
+    });
+
+    userEvent.click(screen.getByText('Export').closest('button')!);
+
+    expect(onExportToLanguageSpy).to.have.been.calledOnce;
+  });
 });
