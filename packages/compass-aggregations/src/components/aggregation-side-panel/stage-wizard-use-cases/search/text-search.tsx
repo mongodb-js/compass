@@ -29,7 +29,6 @@ type TextSearchState = {
   path: SearchPath;
   maxEdits?: number;
   fields?: string[];
-  wildcard?: string;
   text: string;
   indexName: string;
 };
@@ -64,10 +63,7 @@ const mapTextSearchDataToStageValue = (formData: TextSearchState): Document => {
     index: formData.indexName || 'default',
     text: {
       query: formData.text,
-      path:
-        formData.path === 'wildcard'
-          ? { wildcard: formData.wildcard || '*' }
-          : formData.fields,
+      path: formData.path === 'wildcard' ? { wildcard: '*' } : formData.fields,
       ...(formData.type === 'fuzzy'
         ? { fuzzy: { maxEdits: formData.maxEdits } }
         : {}),
@@ -111,14 +107,13 @@ export const TextSearch = ({
     type: 'text',
     path: 'fields',
     maxEdits: 2,
-    wildcard: '*',
     text: '',
     indexName: '',
   });
 
   useEffect(() => {
     onFetchIndexes();
-  }, []);
+  }, [onFetchIndexes]);
 
   const onSetFormData = (data: TextSearchState) => {
     const stageValue = mapTextSearchDataToStageValue(data);
@@ -149,8 +144,8 @@ export const TextSearch = ({
           value={formData.type}
           onChange={(value) => onChangeProperty('type', value as SearchType)}
         >
-          <Option value="text">text-search</Option>
-          <Option value="fuzzy">fuzzy-search</Option>
+          <Option value="text">text search</Option>
+          <Option value="fuzzy">fuzzy search</Option>
         </Select>
         <div className={inputWithLabelStyles}>
           <Body>with maxEdits</Body>
@@ -180,26 +175,16 @@ export const TextSearch = ({
           onChange={(value) => onChangeProperty('path', value as SearchPath)}
         >
           <Option value="fields">field names</Option>
-          <Option value="wildcard">wildcard</Option>
+          <Option value="wildcard">any fields</Option>
         </Select>
-        {formData.path === 'fields' && (
-          <FieldCombobox
-            className={inputStyles}
-            value={formData.fields}
-            onChange={(val: string[]) => onChangeProperty('fields', val)}
-            fields={fields}
-            multiselect={true}
-          />
-        )}
-        {formData.path === 'wildcard' && (
-          <TextInput
-            placeholder={'*'}
-            aria-label={'Wildcard'}
-            value={formData.wildcard}
-            className={inputStyles}
-            onChange={(e) => onChangeProperty('wildcard', e.target.value)}
-          />
-        )}
+        <FieldCombobox
+          className={inputStyles}
+          value={formData.fields}
+          onChange={(val: string[]) => onChangeProperty('fields', val)}
+          fields={fields}
+          multiselect={true}
+          disabled={formData.path === 'wildcard'}
+        />
       </div>
       <div className={rowStyles}>
         <Body className={labelStyles}>contains</Body>
