@@ -24,7 +24,7 @@ const loadAutoConnectWithConnection = async (
   try {
     await fs.mkdir(path.join(tmpDir, 'Connections'));
 
-    ConnectionStorage['ipcMain'] = { handle: sinon.stub() };
+    ConnectionStorage['ipcMain'] = { createHandle: sinon.stub() };
     ConnectionStorage.init(tmpDir);
     await Promise.all(
       connections.map((connectionInfo) =>
