@@ -12,6 +12,7 @@ import path from 'path';
 import { expect } from 'chai';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { AcceptTOSToggle } from '../helpers/selectors';
+import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -37,10 +38,16 @@ describe('Atlas Login', function () {
   let oidcMockProvider: OIDCMockProvider;
   let originalDisableKeychainUsage: string | undefined;
   let getTokenPayload: OIDCMockProviderConfig['getTokenPayload'];
+  let stopMockAtlasServer: () => Promise<void>;
 
   before(async function () {
     originalDisableKeychainUsage =
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+
+    // Start a mock server to pass an ai response.
+    const { endpoint, stop } = await startMockAtlasServiceServer();
+    stopMockAtlasServer = stop;
+    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     function isAuthorised(req: { headers: { authorization?: string } }) {
       const [, token] = req.headers.authorization?.split(' ') ?? [];
@@ -123,6 +130,9 @@ describe('Atlas Login', function () {
     delete process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE;
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
       originalDisableKeychainUsage;
+
+    await stopMockAtlasServer();
+    delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;
   });
 
   describe('in settings', function () {
