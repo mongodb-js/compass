@@ -108,12 +108,10 @@ describe('Atlas Login', function () {
       'browserCommandForOIDCAuth',
       getTestBrowserShellCommand()
     );
-    await browser.setFeature('enableAIWithoutRolloutAccess', true);
   });
 
   afterEach(async function () {
     await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    await browser.setFeature('enableAIWithoutRolloutAccess', false);
     await afterTest(compass, this.currentTest);
     await afterTests(compass, this.currentTest);
   });

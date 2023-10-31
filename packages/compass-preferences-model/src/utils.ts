@@ -46,8 +46,7 @@ export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
  * feature is considered enabled if:
  *  - AI feature flag is enabled
  *  - config preference that controls AI is enabled
- *  - either mms backend rollout enabled feature for the compass user or special
- *    option to bypass the check is passed
+ *  - mms backend rollout enabled feature for the compass user
  */
 export function isAIFeatureEnabled(
   preferences: Pick<
@@ -55,7 +54,6 @@ export function isAIFeatureEnabled(
     | 'enableGenAIFeatures'
     | 'enableGenAIExperience'
     | 'cloudFeatureRolloutAccess'
-    | 'enableAIWithoutRolloutAccess'
   > = preferencesAccess.getPreferences()
 ) {
   const {
@@ -66,14 +64,11 @@ export function isAIFeatureEnabled(
     enableGenAIExperience,
     // based on mms backend rollout response
     cloudFeatureRolloutAccess,
-    // feature flag to bypass rollout access check
-    enableAIWithoutRolloutAccess,
   } = preferences;
   return (
     enableGenAIFeatures &&
     enableGenAIExperience &&
-    (!!cloudFeatureRolloutAccess?.GEN_AI_COMPASS ||
-      enableAIWithoutRolloutAccess)
+    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
   );
 }
 
@@ -84,15 +79,10 @@ export function useIsAIFeatureEnabled(React: ReactHooks) {
     'cloudFeatureRolloutAccess',
     React
   );
-  const enableAIWithoutRolloutAccess = usePreference(
-    'enableAIWithoutRolloutAccess',
-    React
-  );
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,
     enableGenAIExperience,
     cloudFeatureRolloutAccess,
-    enableAIWithoutRolloutAccess,
   });
 }
