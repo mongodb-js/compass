@@ -20,33 +20,21 @@ const modalFooterSpacingStyles = css({
   gap: spacing[2],
 });
 
-const documentHorizontalWrapper = css({
+const documentListWrapper = css({
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   flex: 'none',
   flexShrink: 0,
   overflow: 'auto',
   marginBottom: spacing[2],
   gap: spacing[2],
-  maxWidth: '100%',
+  maxHeight: '340px',
 });
 
 const documentContainerStyles = css({
   display: 'flex',
-  flexDirection: 'column',
-  flex: 'none',
   flexShrink: 0,
   marginBottom: spacing[2],
-  width: '100%',
-});
-
-const documentStyles = css({
-  flexBasis: '164px',
-  flexGrow: 1,
-  flexShrink: 0,
-  overflow: 'auto',
-  padding: 0,
-  width: '100%',
 });
 
 const modalBodySpacingStyles = css({
@@ -55,10 +43,6 @@ const modalBodySpacingStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
-});
-
-const previewStyles = css({
-  minHeight: '200px',
 });
 
 type QueryLabelProps = {
@@ -121,16 +105,11 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   onExportToLanguage,
 }) => {
   const preview = (
-    <div className={documentHorizontalWrapper}>
+    <div className={documentListWrapper}>
       {sampleDocuments.map((doc, i) => {
         return (
-          <KeylineCard
-            key={i}
-            className={cx(documentContainerStyles, previewStyles)}
-          >
-            <div className={documentStyles}>
-              <ReadonlyDocument doc={doc as any} expandAll={false} />
-            </div>
+          <KeylineCard key={i} className={cx(documentContainerStyles)}>
+            <ReadonlyDocument doc={doc as any} expandAll={false} />
           </KeylineCard>
         );
       })}
