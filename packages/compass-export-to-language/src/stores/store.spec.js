@@ -227,6 +227,11 @@ describe('ExportToLanguage Store', function () {
         localAppRegistry.emit('open-query-export-to-language', query);
       });
 
+      it('opens the query modal when called with a mode', function (done) {
+        unsubscribe = subscribeCheck(store, query, (s) => s.modalOpen, done);
+        localAppRegistry.emit('open-export-to-language-with-mode', query);
+      });
+
       it('adds input expression to the state', function (done) {
         unsubscribe = subscribeCheck(
           store,
