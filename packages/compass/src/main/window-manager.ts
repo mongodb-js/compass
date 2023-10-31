@@ -358,15 +358,11 @@ class CompassWindowManager {
       },
       'compass:disconnected': (evt) => {
         const bw = BrowserWindow.fromWebContents(evt.sender);
-        if (bw) {
-          onCompassDisconnect(bw);
-        }
+        return onCompassDisconnect(bw);
       },
       'compass:get-window-auto-connect-preferences': (evt) => {
         const bw = BrowserWindow.fromWebContents(evt.sender);
-        if (bw) {
-          getWindowAutoConnectPreferences(bw);
-        }
+        return getWindowAutoConnectPreferences(bw);
       },
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });
