@@ -12,7 +12,7 @@ import type {
   FindInPageOptions,
   App,
 } from 'electron';
-import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
+import { app as electronApp, shell, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -207,21 +207,6 @@ function showConnectWindow(
   return window;
 }
 
-/**
- * @param {Object} _bw - Current BrowserWindow
- * @param {String} message - Message to be set by MessageBox
- * @param {String} detail - Details to be shown in MessageBox
- */
-function showInfoDialog(evt: unknown, message: string, detail: string) {
-  void dialog.showMessageBox({
-    type: 'info',
-    icon: COMPASS_ICON,
-    message: message,
-    detail: detail,
-    buttons: ['OK'],
-  });
-}
-
 const onFindInPage = (
   evt: HadronIpcMainEvent,
   searchTerm: string,
@@ -347,7 +332,6 @@ class CompassWindowManager {
     });
 
     ipcMain?.respondTo({
-      'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
       'compass:error:fatal'(_evt, meta) {
