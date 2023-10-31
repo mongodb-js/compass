@@ -1708,10 +1708,6 @@ class CrudStoreImpl
       exportMode: 'Delete Query',
       options: { filter: toJSString(this.state.query.filter) || '{}' },
     });
-
-    this.globalAppRegistry.emit('compass:export-to-language:opened', {
-      source: 'Bulk Delete',
-    });
   }
 }
 

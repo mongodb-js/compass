@@ -18,10 +18,5 @@ export const exportToLanguage = () => {
     dispatch(
       localAppRegistryEmit('open-aggregation-export-to-language', pipeline)
     );
-    dispatch(
-      globalAppRegistryEmit('compass:export-to-language:opened', {
-        source: 'Aggregations',
-      })
-    );
   };
 };

@@ -188,9 +188,6 @@ const configureStore = (options = {}) => {
         limit: queryState.limitString,
         maxTimeMS: queryState.maxTimeMSString,
       });
-      this.globalAppRegistry.emit('compass:export-to-language:opened', {
-        source: 'Schema',
-      });
     },
 
     onSchemaSampled() {
