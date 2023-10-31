@@ -12,7 +12,7 @@ import {
   KeylineCard,
   Link,
   spacing,
-  Disclaimer,
+  Badge,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 
@@ -212,7 +212,7 @@ export const StageWizard = ({
                 {useCase.stageOperator}
               </Link>
             </div>
-            {useCase.isAtlasOnly && <Disclaimer>Atlas-only</Disclaimer>}
+            {useCase.isAtlasOnly && <Badge>Atlas only</Badge>}
           </div>
         </div>
         <div ref={focusContainerRef}>
