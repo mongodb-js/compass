@@ -18,6 +18,7 @@ import sinon from 'sinon';
 
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
+import preferencesAccess from 'compass-preferences-model';
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
@@ -29,6 +30,9 @@ function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
     delete: () => Promise.resolve(),
     load: (id: string) =>
       Promise.resolve(mockConnections.find((conn) => conn.id === id)),
+    importConnections: () => Promise.resolve([]),
+    exportConnections: () => Promise.resolve('{}'),
+    deserializeConnections: () => Promise.resolve([]),
   } as unknown as ConnectionStorage;
 }
 
@@ -53,7 +57,17 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 }
 
 describe('Connections Component', function () {
+  let persistOIDCTokens: boolean | undefined;
   let onConnectedSpy: sinon.SinonSpy;
+
+  before(async function () {
+    persistOIDCTokens = preferencesAccess.getPreferences().persistOIDCTokens;
+    await preferencesAccess.savePreferences({ persistOIDCTokens: false });
+  });
+
+  after(async function () {
+    await preferencesAccess.savePreferences({ persistOIDCTokens });
+  });
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
