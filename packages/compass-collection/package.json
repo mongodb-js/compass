@@ -61,7 +61,6 @@
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
     "hadron-app-registry": "^9.0.12",
-    "hadron-ipc": "^3.2.2",
     "react": "^17.0.2"
   },
   "dependencies": {
@@ -69,8 +68,7 @@
     "@mongodb-js/compass-logging": "^1.2.3",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
-    "hadron-app-registry": "^9.0.12",
-    "hadron-ipc": "^3.2.2"
+    "hadron-app-registry": "^9.0.12"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.10",
