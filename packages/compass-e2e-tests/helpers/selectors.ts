@@ -218,6 +218,20 @@ export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
 
+// Rename Collection Modal
+export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
+export const RenameCollectionModalInput =
+  '[data-testid="rename-collection-name-input"]';
+export const RenameCollectionModalConfirmationScreen =
+  '[data-testid="rename-collection-confirmation-screen"]';
+export const RenameCollectionModalSuccessToast =
+  '[data-testid="toast-collection-rename-success"]';
+export const RenameCollectionModalSubmitButton =
+  '[data-testid="submit-button"]';
+export const RenameCollectionModalErrorBanner =
+  '[data-testid="rename-collection-modal-error"]';
+export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-label="Close modal"]`;
+
 // Database-Collection Sidebar
 export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
@@ -236,6 +250,8 @@ export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
+export const RenameCollectionButton =
+  '[data-testid="sidebar-collection-item-actions-rename-collection-action"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';

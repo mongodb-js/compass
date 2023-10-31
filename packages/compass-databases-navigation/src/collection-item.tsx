@@ -123,6 +123,11 @@ export const CollectionItem: React.FunctionComponent<
       );
     } else {
       actions.push({
+        action: 'rename-collection',
+        label: 'Rename collection',
+        icon: 'Edit',
+      });
+      actions.push({
         action: 'drop-collection',
         label: 'Drop collection',
         icon: 'Trash',

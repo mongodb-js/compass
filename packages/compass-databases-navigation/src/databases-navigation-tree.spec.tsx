@@ -166,6 +166,7 @@ describe('DatabasesNavigationTree', function () {
       userEvent.click(showActionsButton);
 
       expect(screen.getByText('Open in new tab')).to.exist;
+      expect(screen.getByText('Rename collection')).to.exist;
       expect(screen.getByText('Drop collection')).to.exist;
     });
 
@@ -192,6 +193,9 @@ describe('DatabasesNavigationTree', function () {
       expect(screen.getByText('Drop view')).to.exist;
       expect(screen.getByText('Duplicate view')).to.exist;
       expect(screen.getByText('Modify view')).to.exist;
+
+      // views cannot be renamed
+      expect(() => screen.getByText('Rename collection')).to.throw;
     });
   });
 
@@ -323,6 +327,30 @@ describe('DatabasesNavigationTree', function () {
         userEvent.click(screen.getByText('Open in new tab'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.meow', 'open-in-new-tab');
+      });
+
+      it('should activate callback with `rename-collection` when corresponding action is clicked', function () {
+        const spy = Sinon.spy();
+        render(
+          <DatabasesNavigationTree
+            databases={databases}
+            expanded={{ bar: true }}
+            activeNamespace="bar.meow"
+            onNamespaceAction={spy}
+            onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
+          ></DatabasesNavigationTree>
+        );
+
+        const collection = screen.getByTestId('sidebar-collection-bar.meow');
+
+        userEvent.click(within(collection).getByTitle('Show actions'));
+        userEvent.click(screen.getByText('Rename collection'));
+
+        expect(spy).to.be.calledOnceWithExactly(
+          'bar.meow',
+          'rename-collection'
+        );
       });
 
       it('should activate callback with `drop-collection` when corresponding action is clicked', function () {

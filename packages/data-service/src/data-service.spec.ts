@@ -3,7 +3,7 @@ import { ObjectId } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { MongoServerError } from 'mongodb';
+import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
@@ -541,6 +541,43 @@ describe('DataService', function () {
       it('returns the update result', async function () {
         const result = await dataService.updateCollection(testNamespace);
         expect(result.ok).to.equal(1);
+      });
+    });
+
+    describe('#renameCollection', function () {
+      beforeEach(async function () {
+        for (const collectionName of [
+          'initialCollection',
+          'renamedCollection',
+        ]) {
+          await dataService.dropCollection(
+            `${testDatabaseName}.${collectionName}`
+          );
+        }
+        await dataService.createCollection(
+          `${testDatabaseName}.initialCollection`,
+          {}
+        );
+      });
+      it('renames the collection', async function () {
+        await dataService.renameCollection(
+          `${testDatabaseName}.initialCollection`,
+          'renamedCollection'
+        );
+
+        const [collection] = await dataService.listCollections(
+          testDatabaseName,
+          { name: 'renamedCollection' }
+        );
+        expect(collection).to.exist;
+      });
+
+      it('returns the collection object', async function () {
+        const result = await dataService.renameCollection(
+          `${testDatabaseName}.initialCollection`,
+          'renamedCollection'
+        );
+        expect(result).to.be.instanceOf(Collection);
       });
     });
 
