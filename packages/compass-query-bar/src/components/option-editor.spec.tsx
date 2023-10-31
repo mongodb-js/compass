@@ -17,7 +17,7 @@ class MockPasteEvent extends window.Event {
 
 describe('OptionEditor', function () {
   beforeEach(function () {
-    if (process.type === 'renderer') {
+    if ((process as any).type === 'renderer') {
       // Skipping due to COMPASS-7103
       this.skip();
     }

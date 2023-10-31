@@ -185,12 +185,14 @@ function Connections({
         favoriteConnections={favoriteConnections}
         afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
+        connectionStorage={connectionStorage}
       />
       <ExportConnectionsModal
         open={showExportConnectionsModal}
         setOpen={setShowExportConnectionsModal}
         favoriteConnections={favoriteConnections}
         trackingProps={{ context: 'connectionsList' }}
+        connectionStorage={connectionStorage}
       />
       <LegacyConnectionsModal connectionStorage={connectionStorage} />
     </div>

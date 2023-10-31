@@ -14,7 +14,10 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 
 const TOAST_TIMEOUT_MS = 5000;
 
@@ -35,12 +38,14 @@ export function ImportConnectionsModal({
   favoriteConnections,
   afterImport,
   trackingProps,
+  connectionStorage,
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
   favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   afterImport?: () => void;
   trackingProps?: Record<string, unknown>;
+  connectionStorage?: typeof ConnectionStorage;
 }): React.ReactElement {
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
@@ -75,12 +80,16 @@ export function ImportConnectionsModal({
       filename,
       passphrase,
     },
-  } = useImportConnections({
-    finish,
-    open,
-    favoriteConnections,
-    trackingProps,
-  });
+  } = useImportConnections(
+    {
+      finish,
+      open,
+      favoriteConnections,
+      trackingProps,
+    },
+    connectionStorage?.importConnections.bind(connectionStorage),
+    connectionStorage?.deserializeConnections.bind(connectionStorage)
+  );
 
   const [displayConnectionList, hasSelectedDuplicates] = useMemo(() => {
     return [
