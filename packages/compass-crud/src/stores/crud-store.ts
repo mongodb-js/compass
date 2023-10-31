@@ -1663,7 +1663,7 @@ class CrudStoreImpl
       timeout: 6_000,
       description: `${
         this.state.bulkDelete.affected || 0
-      } documents have been deleted.`,
+      } documents have been deleted. Please refresh to preview.`,
     });
   }
 
@@ -1682,7 +1682,7 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: 'Delete',
+      buttonText: `Delete ${affected || 0} documents`,
       description: `This action can not be undone. This will permanently delete ${
         affected || 0
       } documents.`,

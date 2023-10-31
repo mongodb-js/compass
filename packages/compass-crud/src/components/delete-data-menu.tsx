@@ -23,7 +23,7 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
       value={'Delete'}
       size="xsmall"
       onClick={onClick}
-      leftGlyph={<Icon glyph="XWithCircle"></Icon>}
+      leftGlyph={<Icon glyph="Trash"></Icon>}
     >
       Delete
     </Button>
