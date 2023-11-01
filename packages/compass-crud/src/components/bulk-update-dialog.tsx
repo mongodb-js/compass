@@ -107,6 +107,7 @@ const updatePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+  marginTop: '3px', // align with the filter input
 });
 
 export type BulkUpdateDialogProps = {
