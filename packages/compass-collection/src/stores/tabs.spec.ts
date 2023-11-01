@@ -326,6 +326,9 @@ describe('Collection Tabs Store', function () {
         'database-dropped',
         'data-service-connected',
         'data-service-disconnected',
+        'menu-share-schema-json',
+        'open-active-namespace-export',
+        'open-active-namespace-import',
       ]);
     });
   });
