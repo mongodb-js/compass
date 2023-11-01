@@ -165,9 +165,7 @@ export default function BulkUpdateDialog({
   const [text, setText] = useState(updateText);
 
   const previewDocuments = useMemo(() => {
-    return preview.changes.map(
-      (change) => new HadronDocument(change.after as Record<string, unknown>)
-    );
+    return preview.changes.map((change) => change.after);
   }, [preview]);
 
   const onChangeText = (value: string) => {
