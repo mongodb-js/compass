@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Document from './document';
 import HadronDocument from 'hadron-document';
 
@@ -163,6 +163,7 @@ export default function BulkUpdateDialog({
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
@@ -193,6 +194,13 @@ export default function BulkUpdateDialog({
     return [];
   }, [syntaxError]);
 
+  useEffect(() => {
+    if (isOpen && !wasOpen) {
+      setText(updateText);
+    }
+    setWasOpen(isOpen);
+  }, [isOpen, wasOpen, updateText]);
+
   return (
     <FormModal
       title={title}
@@ -209,6 +217,7 @@ export default function BulkUpdateDialog({
         <div className={queryStyles}>
           <div className={queryFieldStyles}>
             <TextInput
+              data-testid="bulk-update-filter"
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore the label can be any component, but it's weirdly typed to string
               label={
