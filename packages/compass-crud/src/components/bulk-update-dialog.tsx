@@ -107,7 +107,6 @@ const updatePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
-  marginTop: '3px', // align with the filter input
 });
 
 export type BulkUpdateDialogProps = {
@@ -133,6 +132,7 @@ const queryLabelStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
+  height: '17px', // align with the Preview label
 });
 
 const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
