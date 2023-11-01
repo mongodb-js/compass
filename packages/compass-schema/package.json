@@ -61,7 +61,6 @@
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
     "hadron-document": "^8.4.2",
-    "hadron-ipc": "^3.2.2",
     "mongodb-query-util": "^2.1.1",
     "react": "^17.0.2"
   },
@@ -110,7 +109,6 @@
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.3",
     "hadron-document": "^8.4.2",
-    "hadron-ipc": "^3.2.2",
     "mongodb-query-util": "^2.1.1"
   }
 }
