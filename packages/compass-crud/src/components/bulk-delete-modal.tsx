@@ -5,14 +5,12 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  TextInput,
   KeylineCard,
   css,
   cx,
   spacing,
-  InfoSprinkle,
-  Label,
 } from '@mongodb-js/compass-components';
+import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 
 const modalFooterSpacingStyles = css({
@@ -60,29 +58,6 @@ const previewStyles = css({
   minHeight: '200px',
 });
 
-type QueryLabelProps = {
-  tooltip: string;
-  label: string;
-};
-
-const queryLabelStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-  alignItems: 'center',
-});
-
-const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
-  tooltip,
-  label,
-}) => {
-  return (
-    <div className={queryLabelStyles}>
-      <Label htmlFor="template-dropdown">{label}</Label>
-      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
-    </div>
-  );
-};
-
 type BulkDeleteModalProps = {
   open: boolean;
   documentCount: number;
@@ -127,18 +102,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
-        <TextInput
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore the label can be any component, but it's weirdly typed to string
-          label={
-            <QueryLabel
-              label="Query"
-              tooltip="Return to the Documents tab to edit this query."
-            />
-          }
-          disabled={true}
-          value={filterQuery}
-        />
+        <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}
