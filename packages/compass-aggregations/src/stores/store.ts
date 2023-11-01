@@ -27,6 +27,8 @@ import {
 import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
+import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
+import preferencesAccess from 'compass-preferences-model';
 
 export type ConfigureStoreOptions = {
   /**
@@ -227,6 +229,17 @@ const configureStore = (options: ConfigureStoreOptions) => {
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         isSearchIndexesSupported: Boolean(options.isSearchIndexesSupported),
+      },
+      // This is the initial state of the STAGE WIZARD side panel (NOT OPTIONS
+      // side panel)
+      sidePanel: {
+        isPanelOpen:
+          // The panel is shown by default if THE FEATURE IS ENABLED IN
+          // PREFERENCES and initial state in localStorage is not set or
+          // `"true"` (not `"false"`)
+          preferencesAccess.getPreferences().enableStageWizard &&
+          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) !==
+            'false',
       },
     },
     applyMiddleware(
