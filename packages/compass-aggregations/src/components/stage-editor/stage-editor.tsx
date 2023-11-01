@@ -35,20 +35,20 @@ const editorContainerStyles = css({
   height: '100%',
 });
 
-const codeEditorContainerStyles = css({
-  flex: 1,
-  flexShrink: 0,
-  margin: 0,
-  width: '100%',
-  minHeight: '230px',
-});
-
 const editorContainerStylesDark = css({
   background: palette.gray.dark4,
 });
 
 const editorContainerStylesLight = css({
   background: palette.gray.light3,
+});
+
+const codeEditorContainerStyles = css({
+  flex: 1,
+  flexShrink: 0,
+  margin: 0,
+  width: '100%',
+  minHeight: '230px',
 });
 
 // We use custom color here so need to disable default one that we use

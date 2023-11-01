@@ -2,16 +2,16 @@ import React from 'react';
 import { Icon, Button, Tooltip } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
 
-type DeleteMenuButtonProps = {
+type UpdateMenuButtonProps = {
   isWritable: boolean;
   onClick: () => void;
 };
 
-const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
+const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
   isWritable,
   onClick,
 }) => {
-  const isVisible = usePreference('enableBulkDeleteOperations', React);
+  const isVisible = usePreference('enableBulkUpdateOperations', React);
 
   if (!isVisible) {
     return null;
@@ -20,29 +20,29 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
   return (
     <Button
       disabled={!isWritable}
-      value={'Delete'}
+      value="Update"
       size="xsmall"
       onClick={onClick}
-      leftGlyph={<Icon glyph="XWithCircle"></Icon>}
-      data-testid="crud-bulk-delete"
+      leftGlyph={<Icon glyph="Edit"></Icon>}
+      data-testid="crud-update"
     >
-      Delete
+      Update
     </Button>
   );
 };
 
-type DeleteMenuProps = DeleteMenuButtonProps & {
+type UpdateMenuProps = UpdateMenuButtonProps & {
   disabledTooltip: string;
 };
 
-const DeleteMenu: React.FunctionComponent<DeleteMenuProps> = ({
+const UpdateMenu: React.FunctionComponent<UpdateMenuProps> = ({
   isWritable,
   onClick,
   disabledTooltip,
 }) => {
   if (isWritable) {
     return (
-      <DeleteMenuButton isWritable={true} onClick={onClick}></DeleteMenuButton>
+      <UpdateMenuButton isWritable={true} onClick={onClick}></UpdateMenuButton>
     );
   }
 
@@ -53,7 +53,7 @@ const DeleteMenu: React.FunctionComponent<DeleteMenuProps> = ({
         ...tooltipTriggerProps
       }: React.HTMLProps<HTMLInputElement>) => (
         <div {...tooltipTriggerProps}>
-          <DeleteMenuButton onClick={onClick} isWritable={false} />
+          <UpdateMenuButton onClick={onClick} isWritable={false} />
           {tooltipChildren}
         </div>
       )}
@@ -67,4 +67,4 @@ const DeleteMenu: React.FunctionComponent<DeleteMenuProps> = ({
   );
 };
 
-export default DeleteMenu;
+export default UpdateMenu;

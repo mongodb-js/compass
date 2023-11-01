@@ -1,6 +1,10 @@
 import connect from './connect';
 import { ConnectionOptions, ConnectionSshOptions } from './connection-options';
-import { DataService } from './data-service';
+import {
+  DataService,
+  UpdatePreview,
+  UpdatePreviewChange,
+} from './data-service';
 import { configuredKMSProviders } from './instance-detail-helper';
 
 export {
@@ -9,6 +13,8 @@ export {
   DataService,
   connect,
   configuredKMSProviders,
+  UpdatePreview,
+  UpdatePreviewChange,
 };
 
 export type { ReauthenticationHandler } from './connect-mongo-client';

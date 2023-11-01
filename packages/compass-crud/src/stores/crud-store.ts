@@ -8,6 +8,7 @@ import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
+import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -29,7 +30,7 @@ import {
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
-import type { DataService } from 'mongodb-data-service';
+import type { DataService, UpdatePreview } from 'mongodb-data-service';
 import type {
   GridStore,
   GridStoreOptions,
@@ -59,6 +60,7 @@ export type CrudActions = {
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
+  runBulkUpdate(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
 };
@@ -350,6 +352,15 @@ type InsertState = {
   isCommentNeeded: boolean;
 };
 
+type BulkUpdateState = {
+  isOpen: boolean;
+  updateText: string;
+  preview: UpdatePreview;
+  syntaxError?: Error;
+  serverError?: Error;
+  previewAbortController?: AbortController;
+};
+
 export type TableState = {
   doc: Document | null;
   path: (string | number)[];
@@ -390,6 +401,7 @@ type CrudState = {
   view: DocumentView;
   count: number | null;
   insert: InsertState;
+  bulkUpdate: BulkUpdateState;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -450,6 +462,7 @@ class CrudStoreImpl
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
+      bulkUpdate: this.getInitialBulkUpdateState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
       isDataLake: false,
@@ -489,6 +502,18 @@ class CrudStoreImpl
       jsonView: false,
       isOpen: false,
       isCommentNeeded: true,
+    };
+  }
+
+  getInitialBulkUpdateState(): BulkUpdateState {
+    return {
+      isOpen: false,
+      updateText: '{\n  $set: {}\n}',
+      preview: {
+        changes: [],
+      },
+      syntaxError: undefined,
+      serverError: undefined,
     };
   }
 
@@ -983,6 +1008,18 @@ class CrudStoreImpl
   }
 
   /**
+   * Closing the bulk update dialog just resets the state to the default.
+   */
+  closeBulkUpdateDialog() {
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: false,
+      },
+    });
+  }
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -1051,6 +1088,130 @@ class CrudStoreImpl
         isCommentNeeded: true,
       },
     });
+  }
+
+  async openBulkUpdateDialog() {
+    await this.updateBulkUpdatePreview('{ $set: { }}');
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: true,
+      },
+    });
+  }
+
+  async updateBulkUpdatePreview(updateText: string) {
+    if (this.state.bulkUpdate.previewAbortController) {
+      this.state.bulkUpdate.previewAbortController.abort();
+    }
+
+    // immediately persist the state before any other state changes
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+      },
+    });
+
+    const abortController = new AbortController();
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        previewAbortController: abortController,
+      },
+    });
+
+    let update: BSONObject | BSONObject[];
+    try {
+      update = parseShellBSON(updateText);
+    } catch (err: any) {
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
+
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: err,
+          previewAbortController: undefined,
+        },
+      });
+      return;
+    }
+
+    const { ns } = this.state;
+    const { filter } = this.state.query;
+
+    let preview;
+    try {
+      // TODO(COMPASS-7369): we should automatically retry if the get "Write
+      // conflict during plan execution and yielding is disabled."
+      preview = await this.dataService.previewUpdate(ns, filter, update, {
+        sample: 3,
+        // TODO(COMPASS-7368): aborting the in-flight operation is still buggy,
+        // regularly causing uncaught MongoRuntimeError rejections
+        //abortSignal: abortController.signal,
+      });
+    } catch (err: any) {
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
+
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          preview: {
+            changes: [],
+          },
+          serverError: err,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
+      return;
+    }
+
+    if (abortController.signal.aborted) {
+      // ignore this result because it is stale
+      return;
+    }
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+        preview,
+        serverError: undefined,
+        syntaxError: undefined,
+        previewAbortController: undefined,
+      },
+    });
+  }
+
+  async runBulkUpdate() {
+    this.closeBulkUpdateDialog();
+
+    const { ns } = this.state;
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    // TODO(COMPASS-7327): in-progress, success, error in toast
+    await this.dataService.updateMany(ns, filter, update);
   }
 
   /**
@@ -1866,4 +2027,15 @@ export async function findAndModifyWithFLEFallback(
   // deleted the document between the findAndModify command
   // and the find command. Just return the original error.
   return [error, undefined] as ErrorOrResult;
+}
+
+// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
+export function parseShellBSON(source: string): BSONObject | BSONObject[] {
+  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
+  if (!parsed || typeof parsed !== 'object') {
+    // XXX(COMPASS-5689): We've hit the condition in
+    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
+    throw new Error('The provided definition is invalid.');
+  }
+  return parsed as BSONObject | BSONObject[];
 }
