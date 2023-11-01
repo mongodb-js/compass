@@ -1102,7 +1102,9 @@ class CrudStoreImpl
 
   async updateBulkUpdatePreview(updateText: string) {
     if (this.state.bulkUpdate.previewAbortController) {
-      this.state.bulkUpdate.previewAbortController.abort();
+      this.state.bulkUpdate.previewAbortController.abort(
+        new Error('This operation was aborted')
+      );
     }
 
     // immediately persist the state before any other state changes
@@ -1150,19 +1152,16 @@ class CrudStoreImpl
 
     let preview;
     try {
-      // TODO(COMPASS-7369): we should automatically retry if the get "Write
-      // conflict during plan execution and yielding is disabled."
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
-        // TODO(COMPASS-7368): aborting the in-flight operation is still buggy,
-        // regularly causing uncaught MongoRuntimeError rejections
-        //abortSignal: abortController.signal,
+        abortSignal: abortController.signal,
       });
     } catch (err: any) {
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
         return;
       }
+      console.dir(err);
 
       this.setState({
         bulkUpdate: {
