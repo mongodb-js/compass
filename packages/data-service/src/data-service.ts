@@ -2339,7 +2339,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   @op(mongoLogId(1_001_000_266))
-  @autoRetryWriteConflicts({ numRetries: 10 })
+  @autoRetryWriteConflicts
   async previewUpdate(
     ns: string,
     filter: Document,
@@ -2622,54 +2622,16 @@ function isTransactionAbortError(err: any) {
   return false;
 }
 
-/*
-function autoRetryWriteConflicts({ numRetries = 10 }: { numRetries: number }) {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    const original = descriptor.value;
-    descriptor.value = async function (...args: any[]) {
-      let lastError;
-      for (let i = 0; i < numRetries; i++) {
-        try {
-          return await original.apply(this, args);
-        } catch (err: any) {
-          lastError = err;
-          if (err.codeName === 'WriteConflict') {
-            // retry
-            continue;
-          } else {
-            // immediately throw everything else including abort errors
-            throw err;
-          }
-        }
-      }
-
-      const msgPrefix = `Failed for '${propertyKey}' for ${numRetries} times.`;
-      lastError.message = lastError.message
-        ? `${msgPrefix} Original Error: ${lastError.message}`
-        : msgPrefix;
-
-      throw lastError;
-    };
-    return descriptor;
-  };
-}
-*/
 function autoRetryWriteConflicts<This, Args extends any[], Return>(
   target: (this: This, ...args: Args) => Return,
   context: ClassMethodDecoratorContext<
     This,
     (this: This, ...args: Args) => Return
-  > & {
-    numRetries: number;
-  }
+  >
 ) {
   const name = String(context.name);
-  const numRetries = context.numRetries ?? 10;
-  async function replacementMethod(this: This, ...args: Args): Promise<Return> {
+  const numRetries = 10;
+  async function replacementMethod(this: This, ...args: Args): Return {
     let lastError;
     for (let i = 0; i < numRetries; i++) {
       try {
