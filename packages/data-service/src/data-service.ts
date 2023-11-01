@@ -2622,6 +2622,7 @@ function isTransactionAbortError(err: any) {
   return false;
 }
 
+/*
 function autoRetryWriteConflicts({ numRetries = 10 }: { numRetries: number }) {
   return function (
     target: any,
@@ -2655,6 +2656,44 @@ function autoRetryWriteConflicts({ numRetries = 10 }: { numRetries: number }) {
     };
     return descriptor;
   };
+}
+*/
+function autoRetryWriteConflicts<This, Args extends any[], Return>(
+  target: (this: This, ...args: Args) => Return,
+  context: ClassMethodDecoratorContext<
+    This,
+    (this: This, ...args: Args) => Return
+  > & {
+    numRetries: number;
+  }
+) {
+  const name = String(context.name);
+  const numRetries = context.numRetries ?? 10;
+  async function replacementMethod(this: This, ...args: Args): Promise<Return> {
+    let lastError;
+    for (let i = 0; i < numRetries; i++) {
+      try {
+        return await target.call(this, ...args);
+      } catch (err: any) {
+        lastError = err;
+        if (err.codeName === 'WriteConflict') {
+          // retry
+          continue;
+        } else {
+          // immediately throw everything else including abort errors
+          throw err;
+        }
+      }
+    }
+
+    const msgPrefix = `Failed for '${name}' for ${numRetries} times.`;
+    lastError.message = lastError.message
+      ? `${msgPrefix} Original Error: ${lastError.message}`
+      : msgPrefix;
+
+    throw lastError;
+  }
+  return replacementMethod;
 }
 
 export { DataServiceImpl };
