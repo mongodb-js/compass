@@ -10,7 +10,7 @@ import {
 import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
-import { PipelineStorage } from '../../utils/pipeline-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import { mockDataService } from '../../../test/mocks/data-service';
 
 function createStore(

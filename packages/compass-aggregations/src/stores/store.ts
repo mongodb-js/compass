@@ -10,8 +10,8 @@ import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
-import type { StoredPipeline } from '../utils/pipeline-storage';
-import { PipelineStorage } from '../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
@@ -97,7 +97,7 @@ export type ConfigureStoreOptions = {
    * Stored pipeline metadata. Can be provided to preload stored pipeline
    * right when the plugin is initialized
    */
-  aggregation: StoredPipeline;
+  aggregation: SavedPipeline;
   /**
    * Namespace for the view that is being edited. Needs to be provided
    * with the `sourcePipeline` options. Takes precedence over `pipeline`
