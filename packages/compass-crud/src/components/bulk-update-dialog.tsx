@@ -19,6 +19,7 @@ import {
   InfoSprinkle,
   useDarkMode,
   TextInput,
+  usePrevious,
 } from '@mongodb-js/compass-components';
 
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -163,7 +164,7 @@ export default function BulkUpdateDialog({
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
-  const [wasOpen, setWasOpen] = useState(isOpen);
+  const wasOpen = usePrevious(isOpen);
 
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
@@ -194,11 +195,13 @@ export default function BulkUpdateDialog({
     return [];
   }, [syntaxError]);
 
+  // This hack in addition to keeping the text state locally exists due to
+  // reflux (unlike redux) being async. We can remove it once we move
+  // compass-crud to redux.
   useEffect(() => {
     if (isOpen && !wasOpen) {
       setText(updateText);
     }
-    setWasOpen(isOpen);
   }, [isOpen, wasOpen, updateText]);
 
   return (
