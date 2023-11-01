@@ -17,19 +17,13 @@ type State = {
   isPanelOpen: boolean;
 };
 
-const INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY = 'is_aggregation_side_panel_open';
+export const INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY =
+  'is_aggregation_side_panel_open';
 
 export default function reducer(
-  state: State | undefined,
+  state: State = { isPanelOpen: false },
   action: AnyAction
 ): State {
-  state ??= {
-    isPanelOpen:
-      localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'false'
-        ? false
-        : true,
-  };
-
   if (isAction<SidePanelToggledAction>(action, ActionTypes.SidePanelToggled)) {
     return {
       ...state,
@@ -59,6 +53,8 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
       });
     }
 
+    // Persist the state of the stage wizard side panel for other tabs or for
+    // the next application start
     localStorage.setItem(
       INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY,
       willPanelBeOpen ? 'true' : 'false'
