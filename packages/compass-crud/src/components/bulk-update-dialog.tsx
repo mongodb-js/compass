@@ -217,7 +217,7 @@ export default function BulkUpdateDialog({
                 />
               }
               disabled={true}
-              value={(toJSString(filter) ?? '').replace(/\s+/g, ' ')}
+              value={toJSString(filter) ?? ''}
             />
           </div>
 
