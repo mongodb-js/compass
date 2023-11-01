@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.3.2",
+  "version": "7.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -32,7 +32,7 @@
   "types": "./dist/src/index.d.ts",
   "scripts": {
     "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
@@ -76,10 +76,10 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "mongodb-instance-model": "^12.12.2"
+    "mongodb-instance-model": "^12.13.0"
   },
   "peerDependencies": {
-    "mongodb-instance-model": "^12.12.2"
+    "mongodb-instance-model": "^12.13.0"
   },
   "publishConfig": {
     "access": "public"

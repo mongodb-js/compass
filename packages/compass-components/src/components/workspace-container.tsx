@@ -4,7 +4,6 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
-
 import { useDarkMode } from '../hooks/use-theme';
 
 const workspaceContainerStyles = css({

@@ -82,10 +82,6 @@ export type ConfigureStoreOptions = {
    */
   env: typeof ENVS[number] | null;
   /**
-   * Indicates that the plugin is used in Atlas Cloud
-   */
-  isAtlasDeployed: boolean | null;
-  /**
    * Namespace field values that will be used in autocomplete
    */
   fields: { name: string }[];
@@ -216,11 +212,6 @@ const configureStore = (options: ConfigureStoreOptions) => {
             | Store
             | undefined
         )?.getState().instance.env,
-      // options.isAtlasDeployed is only used by mms to change some behaviour in the
-      // aggregations plugin
-      isAtlasDeployed:
-        options.isAtlasDeployed !== null &&
-        options.isAtlasDeployed !== undefined,
       // options.fields is only used by mms, but always set to [] which is the initial value anyway
       fields: options.fields ?? [],
       // options.outResultsFn is only used by mms

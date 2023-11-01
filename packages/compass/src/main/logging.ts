@@ -94,7 +94,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       }
     );
 
-    ipcMain.on('compass:error:fatal', (evt, meta) => {
+    ipcMain?.on('compass:error:fatal', (evt, meta) => {
       writer.fatal(
         'COMPASS-MAIN',
         mongoLogId(1_001_000_002),
@@ -141,15 +141,15 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       process.emit('compass:log' as any, ev as any);
     }
 
-    ipcMain.respondTo('compass:log', (evt, meta) => {
+    ipcMain?.respondTo('compass:log', (evt, meta) => {
       (process as EventEmitter).emit('compass:log', meta);
     });
 
-    ipcMain.handle('compass:logPath', () => {
+    ipcMain?.handle('compass:logPath', () => {
       return app.getPath('logs');
     });
 
-    ipcMain.handle('compass:userDataPath', () => {
+    ipcMain?.handle('compass:userDataPath', () => {
       return app.getPath('userData');
     });
 

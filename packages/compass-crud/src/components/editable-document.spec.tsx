@@ -38,12 +38,14 @@ describe('<EditableDocument />', function () {
     });
 
     it('renders the list div', function () {
-      const component = wrapper.find('.document');
+      const component = wrapper.find('[data-testid="editable-document"]');
       (expect(component) as any).to.be.present();
     });
 
     it('renders the base element list', function () {
-      const component = wrapper.find('.document-elements');
+      const component = wrapper.find(
+        '[data-testid="editable-document-elements"]'
+      );
       (expect(component) as any).to.be.present();
     });
 

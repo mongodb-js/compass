@@ -13,7 +13,7 @@ type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
 
 function emit(
-  ipc: HadronIpcRenderer | null,
+  ipc: HadronIpcRenderer | null | undefined,
   event: string,
   data: Record<string, any>
 ): void {
@@ -36,8 +36,9 @@ export function createLoggerAndTelemetry(
   component: string
 ): LoggerAndTelemetry {
   // This application may not be running in an Node.js/Electron context.
-  const ipc: HadronIpcRenderer | null = isElectronRenderer
-    ? require('hadron-ipc')
+  const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
+    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('hadron-ipc').ipcRenderer
     : null;
 
   // Do not create an actual Writable stream here, since the callback

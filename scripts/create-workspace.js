@@ -220,7 +220,7 @@ async function createWorkspace({
 }) {
   const pkgJson = {
     name: dirToScopedPackageName(workspaceName, scope),
-    productName: `${workspaceName} Plugin`,
+    ...(isPlugin && { productName: `${workspaceName} Plugin` }),
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
@@ -257,7 +257,7 @@ async function createWorkspace({
     types: isPlugin ? './dist/src/index.d.ts' : './dist/index.d.ts',
     scripts: {
       bootstrap: 'npm run compile',
-      prepublishOnly: 'npm run compile',
+      prepublishOnly: 'npm run compile && compass-scripts check-exports-exist',
       // For normal packages we are just compiling code with typescript, for
       // plugins (but only for them) we are using webpack to create independent
       // plugin packages
@@ -498,7 +498,7 @@ describe('Compass Plugin', function() {
     'Updating package-lock and prettifying workspace source',
     async () => {
       await runInDir('npm install');
-      await runInDir('npm run reformat', packagePath);
+      await runInDir('npm run prettier -- --write .', packagePath);
     }
   );
 

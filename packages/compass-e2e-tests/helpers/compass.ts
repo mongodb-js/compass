@@ -153,6 +153,7 @@ export class Compass {
   }
 
   async recordLogs(): Promise<void> {
+    debug('Setting up renderer log listeners ...');
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
@@ -579,6 +580,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
+  // For webdriverio env we are changing appName so that keychain records do not
+  // overlap with anything else
+  process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
@@ -616,7 +620,67 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   debug('Starting compass via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  const browser = await remote(options);
+  let browser: CompassBrowser;
+
+  try {
+    browser = await remote(options);
+  } catch (err) {
+    debug('Failed to start remote webdriver session', {
+      error: (err as Error).stack,
+    });
+    // Sometimes when webdriver fails to start the remote session, we end up
+    // with a running app that hangs the test runner in CI causing the run to
+    // fail with idle timeout. We will try to clean up a potentially hanging app
+    // before rethrowing an error
+
+    // ps-list is ESM-only in recent versions.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    const { default: psList }: typeof import('ps-list') = await eval(
+      `import('ps-list')`
+    );
+    const processList = await psList();
+
+    const filteredProcesses = processList.filter((p) => {
+      return (
+        p.ppid === process.pid &&
+        (p.cmd?.startsWith(binary) ||
+          /(MongoDB Compass|Electron|electron)/.test(p.name))
+      );
+    });
+
+    debug(
+      filteredProcesses.length === 0
+        ? `Found no application running that need to be closed (following processes were spawned by this: ${processList
+            .filter((p) => {
+              return p.ppid === process.pid;
+            })
+            .map((p) => {
+              return p.name;
+            })
+            .join(', ')})`
+        : `Found following applications running: ${filteredProcesses
+            .map((p) => {
+              return p.name;
+            })
+            .join(', ')}`
+    );
+
+    filteredProcesses.forEach((p) => {
+      try {
+        debug(`Killing process ${p.name} with PID ${p.pid}`);
+        if (process.platform === 'win32') {
+          crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
+        } else {
+          process.kill(p.pid);
+        }
+      } catch (err) {
+        debug(`Failed to kill process ${p.name} with PID ${p.pid}`, {
+          error: (err as Error).stack,
+        });
+      }
+    });
+    throw err;
+  }
 
   const compass = new Compass(browser, {
     testPackagedApp,

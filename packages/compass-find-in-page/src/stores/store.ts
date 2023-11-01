@@ -9,9 +9,9 @@ const _store = createStore(reducer, applyMiddleware(thunk));
 // cmd-f in main app emits an ipc event to find results
 const store = Object.assign(_store, {
   onActivated() {
-    ipcRenderer.on('app:find', () => {
+    ipcRenderer?.on('app:find', () => {
       if (store.getState().enabled) {
-        void ipcRenderer.call('app:stop-find-in-page', 'clearSelection');
+        void ipcRenderer?.call('app:stop-find-in-page', 'clearSelection');
         store.dispatch(setSearchTerm(''));
         return store.dispatch(toggleStatus());
       }

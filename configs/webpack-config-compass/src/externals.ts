@@ -1,6 +1,9 @@
 import { execSync } from 'child_process';
 
 export const sharedExternals: string[] = [
+  // Electron should always stay external. For electron webpack target this
+  // happens automatically, for other targets we should never try to bundle it
+  'electron',
   // Native Modules are very hard to bundle correctly with Webpack (and there is
   // not much reason to do so) so to make our lives easier, we will always
   // externalize them from the bulid

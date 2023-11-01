@@ -1,9 +1,0 @@
-{
-  "env": {
-    "es6": true
-  },
-  "rules": {
-    "strict": 0
-  },
-  "extends": ["mongodb-js/node"]
-}

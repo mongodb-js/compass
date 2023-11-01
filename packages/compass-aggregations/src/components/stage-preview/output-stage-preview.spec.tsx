@@ -22,7 +22,6 @@ const renderOutputStage = (
         isFinishedPersistingDocuments={false}
         destinationNamespace=""
         hasServerError={false}
-        isAtlasDeployed={false}
         onGoToOutputResults={() => {}}
         onRunOutputStage={() => {}}
         {...props}
@@ -95,7 +94,7 @@ describe('OutputStagePreview', function () {
           expect(screen.getByTestId('output-stage-text')).to.exist;
         });
         it('renders save documents button on atlas', function () {
-          renderOutputStage({ operator, isAtlasDeployed: true });
+          renderOutputStage({ operator });
           expect(screen.getByTestId('save-output-documents')).to.exist;
         });
       });

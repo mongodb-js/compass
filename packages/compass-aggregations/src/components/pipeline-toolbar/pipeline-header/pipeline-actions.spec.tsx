@@ -8,6 +8,7 @@ import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
+import preferencesAccess from 'compass-preferences-model';
 
 describe('PipelineActions', function () {
   afterEach(cleanup);
@@ -104,7 +105,6 @@ describe('PipelineActions', function () {
           onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
-          isAtlasDeployed={false}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
         />
@@ -125,9 +125,25 @@ describe('PipelineActions', function () {
     });
   });
 
-  describe('options disabled in atlas', function () {
+  describe('extra options disabled', function () {
+    let enableAggregationBuilderExtraOptions: boolean;
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
+
+    before(async function () {
+      enableAggregationBuilderExtraOptions =
+        preferencesAccess.getPreferences().enableAggregationBuilderExtraOptions;
+      await preferencesAccess.savePreferences({
+        enableAggregationBuilderExtraOptions: false,
+      });
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({
+        enableAggregationBuilderExtraOptions,
+      });
+    });
+
     beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
@@ -143,7 +159,6 @@ describe('PipelineActions', function () {
           onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
-          isAtlasDeployed={true}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
         />
