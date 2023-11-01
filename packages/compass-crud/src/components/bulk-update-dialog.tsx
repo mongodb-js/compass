@@ -18,6 +18,7 @@ import {
   Link,
   InfoSprinkle,
   useDarkMode,
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -38,12 +39,6 @@ const queryStyles = css({
   display: 'flex',
   gap: spacing[4],
   flexDirection: 'column',
-});
-
-const filterLabelContainerStyles = css({
-  display: 'flex',
-  gap: spacing[1],
-  alignItems: 'center',
 });
 
 const queryFieldStyles = css({});
@@ -76,13 +71,6 @@ const codeDarkContainerStyles = css({
 
 const codeLightContainerStyles = css({
   backgroundColor: palette.gray.light3,
-});
-
-const inlineContainerStyles = css({
-  paddingLeft: spacing[2],
-  pre: {
-    margin: 0,
-  },
 });
 
 const multilineContainerStyles = css({
@@ -133,6 +121,29 @@ export type BulkUpdateDialogProps = {
   closeBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
+};
+
+type QueryLabelProps = {
+  tooltip: string;
+  label: string;
+};
+
+const queryLabelStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  alignItems: 'center',
+});
+
+const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
+  tooltip,
+  label,
+}) => {
+  return (
+    <div className={queryLabelStyles}>
+      <Label htmlFor="template-dropdown">{label}</Label>
+      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
+    </div>
+  );
 };
 
 export default function BulkUpdateDialog({
@@ -196,21 +207,18 @@ export default function BulkUpdateDialog({
       <div className={columnsStyles}>
         <div className={queryStyles}>
           <div className={queryFieldStyles}>
-            <div className={filterLabelContainerStyles}>
-              <Label htmlFor="bulk-update-filter">Filter</Label>
-              <InfoSprinkle>
-                Return to the Documents tab to edit this query
-              </InfoSprinkle>
-            </div>
-            <KeylineCard
-              className={cx(
-                codeContainerStyles,
-                inlineContainerStyles,
-                darkMode ? codeDarkContainerStyles : codeLightContainerStyles
-              )}
-            >
-              <pre>{(toJSString(filter) ?? '').replace(/\s+/g, ' ')}</pre>
-            </KeylineCard>
+            <TextInput
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore the label can be any component, but it's weirdly typed to string
+              label={
+                <QueryLabel
+                  label="Filter"
+                  tooltip="Return to the Documents tab to edit this query."
+                />
+              }
+              disabled={true}
+              value={(toJSString(filter) ?? '').replace(/\s+/g, ' ')}
+            />
           </div>
 
           <div className={cx(queryFieldStyles, updateFieldStyles)}>
