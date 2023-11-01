@@ -2339,7 +2339,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   @op(mongoLogId(1_001_000_266))
-  @autoRetryWriteConflicts
+  @autoRetryWriteConflicts(5)
   async previewUpdate(
     ns: string,
     filter: Document,
@@ -2622,40 +2622,44 @@ function isTransactionAbortError(err: any) {
   return false;
 }
 
-function autoRetryWriteConflicts<This, Args extends any[], Return>(
-  target: (this: This, ...args: Args) => Return,
-  context: ClassMethodDecoratorContext<
-    This,
-    (this: This, ...args: Args) => Return
-  >
-) {
-  const name = String(context.name);
-  const numRetries = 10;
-  async function replacementMethod(this: This, ...args: Args): Return {
-    let lastError;
-    for (let i = 0; i < numRetries; i++) {
-      try {
-        return await target.call(this, ...args);
-      } catch (err: any) {
-        lastError = err;
-        if (err.codeName === 'WriteConflict') {
-          // retry
-          continue;
-        } else {
-          // immediately throw everything else including abort errors
-          throw err;
+function autoRetryWriteConflicts(maxRetries = 10) {
+  return function decorator<This, Args extends any[], Return>(
+    target: (this: This, ...args: Args) => Promise<Return>,
+    context: ClassMethodDecoratorContext<
+      This,
+      (this: This, ...args: Args) => Promise<Return>
+    >
+  ) {
+    const name = String(context.name);
+    async function replacementMethod(
+      this: This,
+      ...args: Args
+    ): Promise<Return> {
+      let lastError;
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          return await target.call(this, ...args);
+        } catch (err: any) {
+          lastError = err;
+          if (err.codeName === 'WriteConflict') {
+            // retry
+            continue;
+          } else {
+            // immediately throw everything else including abort errors
+            throw err;
+          }
         }
       }
+
+      const msgPrefix = `Failed for '${name}' for ${maxRetries} times.`;
+      lastError.message = lastError.message
+        ? `${msgPrefix} Original Error: ${lastError.message}`
+        : msgPrefix;
+
+      throw lastError;
     }
-
-    const msgPrefix = `Failed for '${name}' for ${numRetries} times.`;
-    lastError.message = lastError.message
-      ? `${msgPrefix} Original Error: ${lastError.message}`
-      : msgPrefix;
-
-    throw lastError;
-  }
-  return replacementMethod;
+    return replacementMethod;
+  };
 }
 
 export { DataServiceImpl };
