@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import Document from './document';
 import HadronDocument from 'hadron-document';
 
@@ -162,9 +162,6 @@ export default function BulkUpdateDialog({
 }: BulkUpdateDialogProps) {
   const darkMode = useDarkMode();
 
-  const [text, setText] = useState(updateText);
-  const [wasOpen, setWasOpen] = useState(isOpen);
-
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
       (change) => new HadronDocument(change.after as Record<string, unknown>)
@@ -172,7 +169,6 @@ export default function BulkUpdateDialog({
   }, [preview]);
 
   const onChangeText = (value: string) => {
-    setText(value);
     updateBulkUpdatePreview(value);
   };
 
@@ -193,13 +189,6 @@ export default function BulkUpdateDialog({
 
     return [];
   }, [syntaxError]);
-
-  useEffect(() => {
-    if (isOpen && !wasOpen) {
-      setText(updateText);
-    }
-    setWasOpen(isOpen);
-  }, [isOpen, wasOpen, updateText]);
 
   return (
     <FormModal
@@ -246,7 +235,7 @@ export default function BulkUpdateDialog({
               )}
             >
               <CodemirrorMultilineEditor
-                text={text}
+                text={updateText}
                 onChangeText={onChangeText}
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
