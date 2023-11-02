@@ -16,7 +16,7 @@ const subscribeCheck = (s, pipeline, check, done) => {
   return unsubscribe;
 };
 
-describe.only('ExportToLanguage Store', function () {
+describe('ExportToLanguage Store', function () {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
   let unsubscribe;
