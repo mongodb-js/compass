@@ -51,6 +51,7 @@ export function ReadonlyFilter({
   return (
     <TextInput
       id="readonly-filter"
+      data-testid="readonly-filter"
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore the label can be any component, but it's weirdly typed to string
       label={
