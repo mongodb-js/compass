@@ -68,8 +68,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-editor": "^0.16.0",
-    "@mongodb-js/compass-user-data": "^0.1.6",
-    "bson": "^6.2.0"
+    "@mongodb-js/compass-editor": "^0.17.0",
+    "@mongodb-js/compass-user-data": "^0.1.7",
+    "bson": "^6.0.0"
   }
 }
