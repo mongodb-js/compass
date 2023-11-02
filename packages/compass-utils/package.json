@@ -51,8 +51,8 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "optionalDependencies": {
-    "@electron/remote": "^2.0.11",
-    "electron": "^25.8.4"
+    "@electron/remote": "^2.0.12",
+    "electron": "^25.9.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.10",

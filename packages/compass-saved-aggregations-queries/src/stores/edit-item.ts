@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
-import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
-import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';
 
 export type UpdateItemAttributes = {
@@ -33,7 +33,7 @@ type EditItemCancelledAction = {
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
   id: string;
-  payload: FavoriteQuery | StoredPipeline;
+  payload: FavoriteQuery | SavedPipeline;
 };
 
 export type Actions =
@@ -89,7 +89,7 @@ export const updateItem =
         : ((await pipelineStorage.updateAttributes(
             id,
             attributes
-          )) as StoredPipeline);
+          )) as SavedPipeline);
 
     dispatch({
       type: ActionTypes.EditItemUpdated,

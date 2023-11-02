@@ -1,7 +1,6 @@
 {
-  "name": "hadron-ipc",
-  "description": "Simplified IPC for electron apps.",
-  "version": "3.2.3",
+  "name": "@mongodb-js/my-queries-storage",
+  "description": "Saved aggregations and queries storage",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -14,6 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -25,7 +25,7 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/index.js",
+    "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
@@ -35,7 +35,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -55,12 +55,12 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
-    "@types/is-electron-renderer": "^2.0.1",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
+    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
@@ -68,8 +68,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "debug": "^4.3.4",
-    "electron": "^25.9.3",
-    "is-electron-renderer": "^2.0.1"
+    "@mongodb-js/compass-editor": "^0.17.0",
+    "@mongodb-js/compass-user-data": "^0.1.7",
+    "bson": "^6.0.0"
   }
 }

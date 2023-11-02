@@ -13,8 +13,8 @@ import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
 import appRegistryReducer, { setAppRegistry } from './app-registry';
 
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
-import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 
 // Exporting so that they can be stubed/spied in tests
 export const queryStorage = new FavoriteQueryStorage();

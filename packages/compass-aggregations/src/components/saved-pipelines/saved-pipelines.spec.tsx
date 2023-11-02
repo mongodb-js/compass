@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Sinon from 'sinon';
 import { SavedPipelines } from './saved-pipelines';
-import type { StoredPipeline } from '../../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 
 const savedPipelines = [
   {
@@ -15,7 +15,7 @@ const savedPipelines = [
     name: 'test name 1',
     id: 'test id 1',
   },
-] as StoredPipeline[];
+] as SavedPipeline[];
 
 const renderSavedPipelines = (
   props: Partial<ComponentProps<typeof SavedPipelines>> = {}

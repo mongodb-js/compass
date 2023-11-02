@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { UpdatePreview } from 'mongodb-data-service';
 import HadronDocument from 'hadron-document';
 import { toJSString } from 'mongodb-query-parser';
@@ -15,13 +15,14 @@ import {
   Description,
   Link,
   useDarkMode,
+  usePrevious,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
+import Document from './document';
 import type { BSONObject } from '../stores/crud-store';
 
-import Document from './document';
 import { ReadonlyFilter } from './readonly-filter';
 
 const columnsStyles = css({
@@ -136,6 +137,7 @@ export default function BulkUpdateDialog({
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
+  const wasOpen = usePrevious(isOpen);
 
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
@@ -165,6 +167,15 @@ export default function BulkUpdateDialog({
 
     return [];
   }, [syntaxError]);
+
+  // This hack in addition to keeping the text state locally exists due to
+  // reflux (unlike redux) being async. We can remove it once we move
+  // compass-crud to redux.
+  useEffect(() => {
+    if (isOpen && !wasOpen) {
+      setText(updateText);
+    }
+  }, [isOpen, wasOpen, updateText]);
 
   return (
     <FormModal
