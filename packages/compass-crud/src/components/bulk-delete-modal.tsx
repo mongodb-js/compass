@@ -159,7 +159,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           Delete {documentCount} documents
         </Button>
         <Button variant="default" onClick={onCancel}>
-          Close
+          Cancel
         </Button>
       </ModalFooter>
     </Modal>

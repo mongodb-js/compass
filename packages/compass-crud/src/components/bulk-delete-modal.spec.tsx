@@ -56,7 +56,7 @@ describe('BulkDeleteModal Component', function () {
     const onCloseSpy = sinon.spy();
     renderBulkDeleteModal({ onCancel: onCloseSpy });
 
-    userEvent.click(screen.getByText('Close').closest('button')!);
+    userEvent.click(screen.getByText('Cancel').closest('button')!);
     expect(onCloseSpy).to.have.been.calledOnce;
   });
 
