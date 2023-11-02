@@ -57,7 +57,7 @@
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.11",
+    "@electron/remote": "^2.0.12",
     "@mongodb-js/compass-components": "^1.18.0",
     "hadron-ipc": "^3.2.3",
     "mongodb-data-service": "^22.14.0"

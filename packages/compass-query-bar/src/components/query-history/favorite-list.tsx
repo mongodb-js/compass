@@ -4,7 +4,7 @@ import {
   applyFromHistory,
   deleteFavoriteQuery,
 } from '../../stores/query-bar-reducer';
-import type { FavoriteQuery } from '../../utils/query-storage';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,

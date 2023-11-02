@@ -1184,7 +1184,6 @@ class CrudStoreImpl
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
-        updateText,
         preview,
         serverError: undefined,
         syntaxError: undefined,

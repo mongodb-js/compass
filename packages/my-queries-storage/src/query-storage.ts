@@ -1,43 +1,44 @@
 import { UUID, EJSON } from 'bson';
-import { orderBy } from 'lodash';
-import { type BaseQuery } from '../constants/query-properties';
 import { UserData, z } from '@mongodb-js/compass-user-data';
 
-// We do not save maxTimeMS
-const BaseQuerySchema: z.Schema<Omit<BaseQuery, 'maxTimeMS'>> = z.object({
+const queryProps = {
   filter: z.any().optional(),
   project: z.any().optional(),
   collation: z.any().optional(),
   sort: z.any().optional(),
   skip: z.number().optional(),
   limit: z.number().optional(),
+};
+
+const commonMetadata = {
+  _id: z.string().uuid(),
+  _lastExecuted: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+  _ns: z.string(),
+  _host: z.string().optional(),
+};
+
+const RecentQuerySchema = z.object({
+  ...queryProps,
+  ...commonMetadata,
 });
 
-const RecentQuerySchema = BaseQuerySchema.and(
-  z.object({
-    _id: z.string().uuid(),
-    _lastExecuted: z
-      .union([z.coerce.date(), z.number()])
-      .transform((x) => new Date(x)),
-    _ns: z.string(),
-    _host: z.string().optional(),
-  })
-);
-
-const FavoriteQuerySchema = RecentQuerySchema.and(
-  z.object({
-    _name: z.string().nonempty(),
-    _dateModified: z
-      .union([z.coerce.date(), z.number()])
-      .optional()
-      .transform((x) => (x !== undefined ? new Date(x) : x)),
-    _dateSaved: z
-      .union([z.coerce.date(), z.number()])
-      .transform((x) => new Date(x)),
-  })
-);
+const FavoriteQuerySchema = z.object({
+  ...queryProps,
+  ...commonMetadata,
+  _name: z.string().nonempty(),
+  _dateModified: z
+    .union([z.coerce.date(), z.number()])
+    .optional()
+    .transform((x) => (x !== undefined ? new Date(x) : x)),
+  _dateSaved: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+});
 
 export type RecentQuery = z.output<typeof RecentQuerySchema>;
+
 export type FavoriteQuery = z.output<typeof FavoriteQuerySchema>;
 
 type QueryStorageOptions = {
@@ -45,7 +46,7 @@ type QueryStorageOptions = {
   namespace?: string;
 };
 
-export abstract class QueryStorage<T extends z.Schema> {
+export abstract class QueryStorage<T extends typeof RecentQuerySchema> {
   protected readonly userData: UserData<T>;
   constructor(
     schemaValidator: T,
@@ -63,10 +64,13 @@ export abstract class QueryStorage<T extends z.Schema> {
   async loadAll(): Promise<z.output<T>[]> {
     try {
       const { data } = await this.userData.readAll();
-      const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
-      if (this.options.namespace) {
-        return sortedData.filter((x) => x._ns === this.options.namespace);
-      }
+      const sortedData = data
+        .sort((a, b) => {
+          return b._lastExecuted.getTime() - a._lastExecuted.getTime();
+        })
+        .filter(
+          (x) => !this.options.namespace || x._ns === this.options.namespace
+        );
       return sortedData;
     } catch (e) {
       return [];

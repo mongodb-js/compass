@@ -13,7 +13,7 @@ import {
   mapStoreStagesToStageIdAndType,
 } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
-import { PipelineStorage } from '../../utils/pipeline-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 
 function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
   const pipelineBuilder = new PipelineBuilder(

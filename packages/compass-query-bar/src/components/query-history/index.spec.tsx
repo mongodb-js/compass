@@ -12,7 +12,10 @@ import Sinon from 'sinon';
 import fs from 'fs';
 import os from 'os';
 import QueryHistory from '.';
-import { FavoriteQueryStorage, RecentQueryStorage } from '../../utils';
+import {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import configureStore from '../../stores/query-bar-store';
 import { UUID } from 'bson';
