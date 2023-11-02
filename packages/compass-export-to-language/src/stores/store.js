@@ -57,42 +57,48 @@ const configureStore = (options = {}) => {
       'open-aggregation-export-to-language',
       (aggregation) => {
         store.dispatch(modalOpenChanged(true));
-        store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
+        store.dispatch(
+          inputExpressionChanged({
+            aggregation: aggregation,
+            exportMode: 'Pipeline',
+          })
+        );
       }
     );
 
-    localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
-      const query = {};
-      if (typeof queryStrings === 'string') {
-        query.filter = queryStrings === '' ? '{}' : queryStrings;
-      } else {
-        [
-          'filter',
-          'project',
-          'sort',
-          'collation',
-          'skip',
-          'limit',
-          'maxTimeMS',
-        ].forEach((k) => {
-          if (!queryStrings[k] || queryStrings[k] === '') {
-            if (k === 'filter') {
-              query[k] = '{}';
-            }
-          } else {
-            query[k] = queryStrings[k];
-          }
-        });
-      }
-
-      store.dispatch(modalOpenChanged(true));
-      store.dispatch(inputExpressionChanged(query));
-    });
-
     localAppRegistry.on(
-      'open-export-to-language-with-mode',
-      ({ exportMode, options }) => {
-        const query = { exportMode, ...options };
+      'open-query-export-to-language',
+      (queryStrings, exportMode) => {
+        const query = {};
+        if (typeof queryStrings === 'string') {
+          query.filter = queryStrings === '' ? '{}' : queryStrings;
+        } else {
+          [
+            'filter',
+            'project',
+            'sort',
+            'collation',
+            'skip',
+            'limit',
+            'maxTimeMS',
+          ].forEach((k) => {
+            if (!queryStrings[k] || queryStrings[k] === '') {
+              if (k === 'filter') {
+                query[k] = '{}';
+              }
+            } else {
+              query[k] = queryStrings[k];
+            }
+          });
+        }
+
+        if (!exportMode) {
+          throw new Error(
+            'exportMode must be provided with the type of query you want to export to.'
+          );
+        }
+
+        query.exportMode = exportMode;
         store.dispatch(modalOpenChanged(true));
         store.dispatch(inputExpressionChanged(query));
       }

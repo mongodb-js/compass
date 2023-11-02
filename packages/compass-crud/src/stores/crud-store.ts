@@ -1704,10 +1704,13 @@ class CrudStoreImpl
   }
 
   openDeleteQueryExportToLanguageDialog(): void {
-    this.localAppRegistry.emit('open-export-to-language-with-mode', {
-      exportMode: 'Delete Query',
-      options: { filter: toJSString(this.state.query.filter) || '{}' },
-    });
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(this.state.query.filter) || '{}',
+      },
+      'Delete Query'
+    );
   }
 }
 

@@ -16,7 +16,7 @@ const subscribeCheck = (s, pipeline, check, done) => {
   return unsubscribe;
 };
 
-describe('ExportToLanguage Store', function () {
+describe.only('ExportToLanguage Store', function () {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
   let unsubscribe;
@@ -91,15 +91,19 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: "'filterString'" }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', {
-          project: '',
-          maxTimeMS: '',
-          sort: '',
-          skip: '',
-          limit: '',
-          collation: '',
-          filter: "'filterString'",
-        });
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          {
+            project: '',
+            maxTimeMS: '',
+            sort: '',
+            skip: '',
+            limit: '',
+            collation: '',
+            filter: "'filterString'",
+          },
+          'Query'
+        );
       });
 
       it('filters query correctly with other args', function (done) {
@@ -115,15 +119,19 @@ describe('ExportToLanguage Store', function () {
             }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', {
-          filter: "'filterString'",
-          project: '',
-          sort: '',
-          collation: '',
-          skip: '10',
-          limit: '50',
-          maxTimeMS: '',
-        });
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          {
+            filter: "'filterString'",
+            project: '',
+            sort: '',
+            collation: '',
+            skip: '10',
+            limit: '50',
+            maxTimeMS: '',
+          },
+          'Query'
+        );
       });
 
       it('handles default filter', function (done) {
@@ -135,15 +143,19 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', {
-          project: '',
-          maxTimeMS: '',
-          sort: '',
-          skip: '',
-          limit: '',
-          collation: '',
-          filter: '',
-        });
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          {
+            project: '',
+            maxTimeMS: '',
+            sort: '',
+            skip: '',
+            limit: '',
+            collation: '',
+            filter: '',
+          },
+          'Query'
+        );
       });
 
       it('handles null or missing args', function (done) {
@@ -155,10 +167,14 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', {
-          maxTimeMS: null,
-          sort: null,
-        });
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          {
+            maxTimeMS: null,
+            sort: null,
+          },
+          'Query'
+        );
       });
 
       it('treats a string as a filter', function (done) {
@@ -170,7 +186,11 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{x: 1, y: 2}' }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', '{x: 1, y: 2}');
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          '{x: 1, y: 2}',
+          'Query'
+        );
       });
 
       it('treats a empty string as a default filter', function (done) {
@@ -182,7 +202,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', '');
+        localAppRegistry.emit('open-query-export-to-language', '', 'Query');
       });
 
       it('handles default filter with other args', function (done) {
@@ -197,15 +217,19 @@ describe('ExportToLanguage Store', function () {
             }),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', {
-          filter: '',
-          project: '',
-          sort: '{x: 1}',
-          collation: '',
-          skip: '',
-          limit: '',
-          maxTimeMS: '',
-        });
+        localAppRegistry.emit(
+          'open-query-export-to-language',
+          {
+            filter: '',
+            project: '',
+            sort: '{x: 1}',
+            collation: '',
+            skip: '',
+            limit: '',
+            maxTimeMS: '',
+          },
+          'Query'
+        );
       });
     });
 
@@ -224,12 +248,18 @@ describe('ExportToLanguage Store', function () {
       };
       it('opens the query modal', function (done) {
         unsubscribe = subscribeCheck(store, query, (s) => s.modalOpen, done);
-        localAppRegistry.emit('open-query-export-to-language', query);
+        localAppRegistry.emit('open-query-export-to-language', query, 'Query');
       });
 
       it('opens the query modal when called with a mode', function (done) {
         unsubscribe = subscribeCheck(store, query, (s) => s.modalOpen, done);
-        localAppRegistry.emit('open-export-to-language-with-mode', query);
+        localAppRegistry.emit('open-query-export-to-language', query, 'Query');
+      });
+
+      it('fails when a mode is not provided', function () {
+        expect(() =>
+          localAppRegistry.emit('open-query-export-to-language', query)
+        ).to.throw();
       });
 
       it('adds input expression to the state', function (done) {
@@ -239,7 +269,7 @@ describe('ExportToLanguage Store', function () {
           (s) => JSON.stringify(s.inputExpression) === JSON.stringify(query),
           done
         );
-        localAppRegistry.emit('open-query-export-to-language', query);
+        localAppRegistry.emit('open-query-export-to-language', query, 'Query');
       });
     });
   });

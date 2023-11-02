@@ -179,15 +179,19 @@ const configureStore = (options = {}) => {
     },
 
     onExportToLanguage(queryState) {
-      this.localAppRegistry.emit('open-query-export-to-language', {
-        filter: queryState.filterString,
-        project: queryState.projectString,
-        sort: queryState.sortString,
-        collation: queryState.collationString,
-        skip: queryState.skipString,
-        limit: queryState.limitString,
-        maxTimeMS: queryState.maxTimeMSString,
-      });
+      this.localAppRegistry.emit(
+        'open-query-export-to-language',
+        {
+          filter: queryState.filterString,
+          project: queryState.projectString,
+          sort: queryState.sortString,
+          collation: queryState.collationString,
+          skip: queryState.skipString,
+          limit: queryState.limitString,
+          maxTimeMS: queryState.maxTimeMSString,
+        },
+        'Query'
+      );
     },
 
     onSchemaSampled() {
