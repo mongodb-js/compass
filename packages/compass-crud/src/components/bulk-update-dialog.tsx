@@ -1,9 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import Document from './document';
+import type { UpdatePreview } from 'mongodb-data-service';
 import HadronDocument from 'hadron-document';
-
 import { toJSString } from 'mongodb-query-parser';
-
 import {
   FormModal,
   css,
@@ -16,17 +14,16 @@ import {
   KeylineCard,
   Description,
   Link,
-  InfoSprinkle,
   useDarkMode,
-  TextInput,
   usePrevious,
 } from '@mongodb-js/compass-components';
-
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
+import Document from './document';
 import type { BSONObject } from '../stores/crud-store';
-import type { UpdatePreview } from 'mongodb-data-service';
+
+import { ReadonlyFilter } from './readonly-filter';
 
 const columnsStyles = css({
   marginTop: spacing[4],
@@ -124,30 +121,6 @@ export type BulkUpdateDialogProps = {
   runBulkUpdate: () => void;
 };
 
-type QueryLabelProps = {
-  tooltip: string;
-  label: string;
-};
-
-const queryLabelStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-  alignItems: 'center',
-  height: '17px', // align with the Preview label
-});
-
-const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
-  tooltip,
-  label,
-}) => {
-  return (
-    <div className={queryLabelStyles}>
-      <Label htmlFor="template-dropdown">{label}</Label>
-      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
-    </div>
-  );
-};
-
 export default function BulkUpdateDialog({
   isOpen,
   ns,
@@ -219,18 +192,9 @@ export default function BulkUpdateDialog({
       <div className={columnsStyles}>
         <div className={queryStyles}>
           <div className={queryFieldStyles}>
-            <TextInput
-              data-testid="bulk-update-filter"
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore the label can be any component, but it's weirdly typed to string
-              label={
-                <QueryLabel
-                  label="Filter"
-                  tooltip="Return to the Documents tab to edit this query."
-                />
-              }
-              disabled={true}
-              value={toJSString(filter) ?? ''}
+            <ReadonlyFilter
+              queryLabel="Filter"
+              filterQuery={toJSString(filter) ?? ''}
             />
           </div>
 

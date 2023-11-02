@@ -46,7 +46,7 @@ describe('BulkUpdateDialog Component', function () {
 
     // filter
     expect(
-      screen.getByTestId('bulk-update-filter').getAttribute('value')
+      screen.getByTestId('readonly-filter').getAttribute('value')
     ).to.equal('{\n a: 1\n}');
 
     // update

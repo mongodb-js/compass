@@ -5,15 +5,12 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  TextInput,
   KeylineCard,
   css,
   cx,
   spacing,
-  InfoSprinkle,
-  Label,
-  Icon,
 } from '@mongodb-js/compass-components';
+import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 
 const modalFooterSpacingStyles = css({
@@ -44,44 +41,6 @@ const modalBodySpacingStyles = css({
   flexDirection: 'column',
   gap: spacing[3],
 });
-
-type QueryLabelProps = {
-  tooltip: string;
-  label: string;
-};
-
-const queryLabelStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-  alignItems: 'center',
-});
-
-const queryBarStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing[3],
-});
-
-const queryBarInputStyles = css({
-  flexGrow: 1,
-});
-
-const exportToLanguageButtonStyles = css({
-  alignSelf: 'end',
-});
-
-const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
-  tooltip,
-  label,
-}) => {
-  return (
-    <div className={queryLabelStyles}>
-      <Label htmlFor="template-dropdown">{label}</Label>
-      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
-    </div>
-  );
-};
 
 type BulkDeleteModalProps = {
   open: boolean;
@@ -124,31 +83,11 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
-        <div className={queryBarStyles}>
-          <TextInput
-            className={queryBarInputStyles}
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore the label can be any component, but it's weirdly typed to string
-            label={
-              <QueryLabel
-                label="Query"
-                tooltip="Return to the Documents tab to edit this query."
-              />
-            }
-            disabled={true}
-            value={filterQuery}
-          />
-          <Button
-            className={exportToLanguageButtonStyles}
-            variant="primaryOutline"
-            size="default"
-            leftGlyph={<Icon glyph="Code" />}
-            onClick={onExportToLanguage}
-            data-testid="pipeline-toolbar-export-button"
-          >
-            Export
-          </Button>
-        </div>
+        <ReadonlyFilter
+          queryLabel="Query"
+          filterQuery={filterQuery}
+          onExportToLanguage={onExportToLanguage}
+        />
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}
