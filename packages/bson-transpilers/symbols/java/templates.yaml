@@ -29,8 +29,8 @@ Templates:
                 newStr = str.substr(1, str.length - 2);
             }
             const uri = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-
-
+            const exportMode = spec.exportMode;
+            delete spec.exportMode;
 
             const connection = `MongoClient mongoClient = new MongoClient(
             new MongoClientURI(
@@ -43,7 +43,7 @@ Templates:
         MongoCollection<Document> collection = database.getCollection("${spec.options.collection}");`;
 
         let driverMethod;
-        switch (spec.exportMode) {
+        switch (exportMode) {
             case 'Delete Query':
                 driverMethod = 'deleteMany';
                 break;
@@ -85,6 +85,8 @@ Templates:
             .projection(project)`;
                     case 'collation':
                         warning = '\n *\n * Warning: translating collation to Java not yet supported, so will be ignored';
+                        return s;
+                    case 'exportMode':
                         return s;
                     default:
                         if (!spec[k]) return s;
