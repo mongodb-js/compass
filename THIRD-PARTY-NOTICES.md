@@ -191,7 +191,7 @@ This document was automatically generated on Thu Nov 02 2023.
 | **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**                                      | 0.2.0        | MIT                                 |
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                                    | 1.1.11       | MIT                                 |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                               | 4.7.2        | Apache-2.0                          |
-| **[bson](#90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12)**                                               | 6.1.0        | Apache-2.0                          |
+| **[bson](#3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e)**                                               | 6.2.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                                | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                       | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                        | 1.0.0        | MIT                                 |
@@ -18912,9 +18912,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12"></a>
+<a id="3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 6.1.0)
+### [bson](https://www.npmjs.com/package/bson) (version 6.2.0)
 
 License tags: Apache-2.0
 
