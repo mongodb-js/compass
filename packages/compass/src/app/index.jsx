@@ -2,7 +2,7 @@
 import '../setup-hadron-distribution';
 
 import dns from 'dns';
-import ipc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 
 import preferences, { getActiveUser } from 'compass-preferences-model';
@@ -19,7 +19,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
-  ipc.call(
+  ipcRenderer?.call(
     'compass:error:fatal',
     event.error
       ? { message: event.error.message, stack: event.error.stack }
@@ -231,13 +231,22 @@ app.extend({
           // noop
         }
         // Catch a data refresh coming from window-manager.
-        ipc.on('app:refresh-data', () =>
+        ipcRenderer?.on('app:refresh-data', () =>
           global.hadronApp.appRegistry.emit('refresh-data')
         );
         // Catch a toggle sidebar coming from window-manager.
-        ipc.on('app:toggle-sidebar', () =>
+        ipcRenderer?.on('app:toggle-sidebar', () =>
           global.hadronApp.appRegistry.emit('toggle-sidebar')
         );
+        ipcRenderer?.on('window:menu-share-schema-json', () => {
+          global.hadronApp.appRegistry.emit('menu-share-schema-json');
+        });
+        ipcRenderer?.on('compass:open-export', () => {
+          global.hadronApp.appRegistry.emit('open-active-namespace-export');
+        });
+        ipcRenderer?.on('compass:open-import', () => {
+          global.hadronApp.appRegistry.emit('open-active-namespace-import');
+        });
         // As soon as dom is ready, render and set up the rest.
         state.render();
         marky.stop('Time to Connect rendered');

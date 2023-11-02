@@ -4,7 +4,7 @@ import { openToast } from '@mongodb-js/compass-components';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
-import type { StoredPipeline } from '../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
@@ -24,7 +24,7 @@ export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
 
 export type SavedPipelineState = {
-  pipelines: StoredPipeline[];
+  pipelines: SavedPipeline[];
   isLoaded: boolean;
 };
 
@@ -51,7 +51,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   return fn ? fn(state, action) : state;
 }
 
-export const savedPipelineAdd = (pipelines: StoredPipeline[]) => ({
+export const savedPipelineAdd = (pipelines: SavedPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
   pipelines,
 });
@@ -72,7 +72,7 @@ export const updatePipelineList =
     const state = getState();
     pipelineStorage
       .loadAll()
-      .then((pipelines: StoredPipeline[]) => {
+      .then((pipelines: SavedPipeline[]) => {
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
         );
@@ -90,7 +90,7 @@ export const updatePipelineList =
  * Restore pipeline by an ID
  */
 export const openStoredPipeline = (
-  pipelineData: StoredPipeline,
+  pipelineData: SavedPipeline,
   updatePreview = true
 ): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState, { pipelineBuilder }) => {
@@ -187,7 +187,7 @@ export const saveCurrentPipeline =
   };
 
 export const confirmOpenPipeline =
-  (pipelineData: StoredPipeline): PipelineBuilderThunkAction<void> =>
+  (pipelineData: SavedPipeline): PipelineBuilderThunkAction<void> =>
   async (dispatch, getState) => {
     const isModified = getState().isModified;
     if (isModified) {

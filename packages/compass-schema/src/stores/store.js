@@ -1,5 +1,4 @@
 import Reflux from 'reflux';
-import ipc from 'hadron-ipc';
 import StateMixin from 'reflux-state-mixin';
 import toNS from 'mongodb-ns';
 import {
@@ -21,6 +20,7 @@ import {
 } from '../constants/analysis-states';
 import { TAB_NAME } from '../constants/plugin';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { openToast } from '@mongodb-js/compass-components';
 
 const { track, debug, log } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
 
@@ -123,18 +123,18 @@ const configureStore = (options = {}) => {
       this.geoLayers = {};
     },
 
-    getShareText() {
-      if (this.state.schema !== null) {
-        return `The schema definition of ${this.ns} has been copied to your clipboard in JSON format.`;
-      }
-      return 'Please Analyze the Schema First from the Schema Tab.';
-    },
-
     handleSchemaShare() {
       navigator.clipboard.writeText(
         JSON.stringify(this.state.schema, null, '  ')
       );
-      ipc.call('app:show-info-dialog', 'Share Schema', this.getShareText());
+      const hasSchema = this.state.schema !== null;
+      openToast('share-schema', {
+        variant: hasSchema ? 'success' : 'warning',
+        description: hasSchema
+          ? `The schema definition of ${this.ns} has been copied to your clipboard in JSON format.`
+          : 'Please Analyze the Schema First from the Schema Tab.',
+        timeout: 5_000,
+      });
     },
 
     /**

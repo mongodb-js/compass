@@ -40,6 +40,21 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: @palette__black;
+    color: @palette__white;
+  }
+  #loading {
+    &-sidebar {
+      background: @palette__black;
+    }
+    &-content {
+      background: @palette__black;
+    }
+  }
+}
+
 @keyframes fadein {
   from {
     opacity: 0;

@@ -4,6 +4,7 @@
  */
 import { pathToFileURL, URL } from 'url';
 import path from 'path';
+import type { HadronIpcMainEvent } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
 import { once } from 'events';
 import type {
@@ -11,7 +12,7 @@ import type {
   FindInPageOptions,
   App,
 } from 'electron';
-import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
+import { app as electronApp, shell, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -206,34 +207,19 @@ function showConnectWindow(
   return window;
 }
 
-/**
- * @param {Object} _bw - Current BrowserWindow
- * @param {String} message - Message to be set by MessageBox
- * @param {String} detail - Details to be shown in MessageBox
- */
-function showInfoDialog(_bw: BrowserWindow, message: string, detail: string) {
-  void dialog.showMessageBox({
-    type: 'info',
-    icon: COMPASS_ICON,
-    message: message,
-    detail: detail,
-    buttons: ['OK'],
-  });
-}
-
 const onFindInPage = (
-  bw: BrowserWindow,
+  evt: HadronIpcMainEvent,
   searchTerm: string,
   opt: FindInPageOptions = {}
 ) => {
-  bw.webContents.findInPage(searchTerm, opt);
+  evt.sender.findInPage(searchTerm, opt);
 };
 
 const onStopFindInPage = (
-  bw: BrowserWindow,
+  evt: HadronIpcMainEvent,
   action: 'clearSelection' | 'keepSelection' | 'activateSelection'
 ) => {
-  bw.webContents.stopFindInPage(action);
+  evt.sender.stopFindInPage(action);
 };
 
 /**
@@ -346,18 +332,22 @@ class CompassWindowManager {
     });
 
     ipcMain?.respondTo({
-      'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
-      'compass:error:fatal'(_bw, meta) {
+      'compass:error:fatal'(_evt, meta) {
         ipcMain?.broadcast('compass:error:fatal', meta);
       },
-      'compass:log'(_bw, meta) {
+      'compass:log'(_evt, meta) {
         ipcMain?.broadcast('compass:log', meta);
       },
-      'compass:disconnected': onCompassDisconnect,
-      'compass:get-window-auto-connect-preferences':
-        getWindowAutoConnectPreferences,
+      'compass:disconnected': (evt) => {
+        const bw = BrowserWindow.fromWebContents(evt.sender);
+        return onCompassDisconnect(bw);
+      },
+      'compass:get-window-auto-connect-preferences': (evt) => {
+        const bw = BrowserWindow.fromWebContents(evt.sender);
+        return getWindowAutoConnectPreferences(bw);
+      },
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 

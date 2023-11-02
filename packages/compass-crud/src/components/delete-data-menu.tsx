@@ -24,6 +24,7 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
       size="xsmall"
       onClick={onClick}
       leftGlyph={<Icon glyph="Trash"></Icon>}
+      data-testid="crud-bulk-delete"
     >
       Delete
     </Button>

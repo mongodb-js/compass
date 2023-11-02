@@ -10,8 +10,8 @@ import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
-import type { StoredPipeline } from '../utils/pipeline-storage';
-import { PipelineStorage } from '../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
@@ -27,6 +27,8 @@ import {
 import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
+import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
+import preferencesAccess from 'compass-preferences-model';
 
 export type ConfigureStoreOptions = {
   /**
@@ -95,7 +97,7 @@ export type ConfigureStoreOptions = {
    * Stored pipeline metadata. Can be provided to preload stored pipeline
    * right when the plugin is initialized
    */
-  aggregation: StoredPipeline;
+  aggregation: SavedPipeline;
   /**
    * Namespace for the view that is being edited. Needs to be provided
    * with the `sourcePipeline` options. Takes precedence over `pipeline`
@@ -227,6 +229,17 @@ const configureStore = (options: ConfigureStoreOptions) => {
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         isSearchIndexesSupported: Boolean(options.isSearchIndexesSupported),
+      },
+      // This is the initial state of the STAGE WIZARD side panel (NOT OPTIONS
+      // side panel)
+      sidePanel: {
+        isPanelOpen:
+          // The panel is shown by default if THE FEATURE IS ENABLED IN
+          // PREFERENCES and initial state in localStorage is not set or
+          // `"true"` (not `"false"`)
+          preferencesAccess.getPreferences().enableStageWizard &&
+          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) !==
+            'false',
       },
     },
     applyMiddleware(

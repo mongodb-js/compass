@@ -100,48 +100,40 @@ export function configureStore({
         thunkExtraArg.dataService = null;
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { ipcRenderer: ipc } = require('hadron-ipc');
+      globalAppRegistry.on('menu-share-schema-json', () => {
+        const activeTab = getActiveTab(store.getState());
+        if (!activeTab) {
+          return;
+        }
+        activeTab.localAppRegistry.emit('menu-share-schema-json');
+      });
 
-      // TODO: importing hadron-ipc in unit tests doesn't work right now
-      if (ipc?.on) {
-        ipc.on('window:menu-share-schema-json', () => {
-          const activeTab = getActiveTab(store.getState());
+      globalAppRegistry.on('open-active-namespace-export', function () {
+        const activeTab = getActiveTab(store.getState());
 
-          if (!activeTab) {
-            return;
-          }
+        if (!activeTab) {
+          return;
+        }
 
-          activeTab.localAppRegistry.emit('menu-share-schema-json');
+        globalAppRegistry.emit('open-export', {
+          exportFullCollection: true,
+          namespace: activeTab.namespace,
+          origin: 'menu',
         });
+      });
 
-        ipc.on('compass:open-export', () => {
-          const activeTab = getActiveTab(store.getState());
+      globalAppRegistry.on('open-active-namespace-import', function () {
+        const activeTab = getActiveTab(store.getState());
 
-          if (!activeTab) {
-            return;
-          }
+        if (!activeTab) {
+          return;
+        }
 
-          globalAppRegistry.emit('open-export', {
-            exportFullCollection: true,
-            namespace: activeTab.namespace,
-            origin: 'menu',
-          });
+        globalAppRegistry.emit('open-import', {
+          namespace: activeTab.namespace,
+          origin: 'menu',
         });
-
-        ipc.on('compass:open-import', () => {
-          const activeTab = getActiveTab(store.getState());
-
-          if (!activeTab) {
-            return;
-          }
-
-          globalAppRegistry.emit('open-import', {
-            namespace: activeTab.namespace,
-            origin: 'menu',
-          });
-        });
-      }
+      });
     },
   });
 

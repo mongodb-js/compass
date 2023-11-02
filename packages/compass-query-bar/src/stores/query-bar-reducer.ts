@@ -25,13 +25,11 @@ import {
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
-import {
-  type RecentQuery,
-  type FavoriteQuery,
-  getQueryAttributes,
-  isAction,
-  isQueryEqual,
-} from '../utils';
+import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
+import type {
+  RecentQuery,
+  FavoriteQuery,
+} from '@mongodb-js/my-queries-storage';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {

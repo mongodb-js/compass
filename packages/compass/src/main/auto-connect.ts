@@ -19,15 +19,24 @@ export function resetForTesting(): void {
 }
 
 export function registerMongoDbUrlForBrowserWindow(
-  { id }: Pick<BrowserWindow, 'id'>,
+  bw: Pick<BrowserWindow, 'id'> | undefined | null,
   url: string
 ): void {
-  browserWindowStates.set(id, { url });
+  if (!bw) {
+    return;
+  }
+  browserWindowStates.set(bw.id, { url });
 }
 
-export function getWindowAutoConnectPreferences({
-  id,
-}: Pick<BrowserWindow, 'id'>): AutoConnectPreferences {
+export function getWindowAutoConnectPreferences(
+  bw: Pick<BrowserWindow, 'id'> | undefined | null
+): AutoConnectPreferences {
+  if (!bw) {
+    return { shouldAutoConnect: false };
+  }
+
+  const { id } = bw;
+
   // First Window to auto-connect wins.
   autoConnectWindow ??= id;
 
@@ -70,6 +79,11 @@ export function getWindowAutoConnectPreferences({
   };
 }
 
-export function onCompassDisconnect({ id }: Pick<BrowserWindow, 'id'>): void {
-  browserWindowStates.set(id, { disconnected: true });
+export function onCompassDisconnect(
+  bw: Pick<BrowserWindow, 'id'> | undefined | null
+): void {
+  if (!bw) {
+    return;
+  }
+  browserWindowStates.set(bw.id, { disconnected: true });
 }

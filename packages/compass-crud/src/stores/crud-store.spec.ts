@@ -105,14 +105,17 @@ function waitForStates(store, cbs, timeout = 2000) {
     });
 }
 
-function waitForState(store, cb, timeout) {
+function waitForState(store, cb, timeout?: number) {
   return waitForStates(store, [cb], timeout);
 }
 
 describe('store', function () {
   this.timeout(5000);
 
-  const cluster = mochaTestServer();
+  const cluster = mochaTestServer({
+    topology: 'replset',
+    secondaries: 0,
+  });
   let dataService: DataService;
 
   const localAppRegistry = new AppRegistry();
@@ -206,6 +209,15 @@ describe('store', function () {
           message: '',
           csfleState: { state: 'none' },
           mode: 'modifying',
+        },
+        bulkUpdate: {
+          isOpen: false,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{\n  $set: {}\n}',
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
@@ -826,6 +838,99 @@ describe('store', function () {
         });
       }
     );
+  });
+
+  describe('#bulkUpdateDialog', function () {
+    let store;
+    let actions;
+
+    beforeEach(async function () {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService,
+        },
+        actions: actions,
+        namespace: 'compass-crud.test',
+      });
+
+      await dataService.insertOne('compass-crud.test', { name: 'testing' });
+    });
+
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
+    });
+
+    it('opens the bulk update dialog with a proper initialised state', async function () {
+      store.openBulkUpdateDialog();
+
+      await waitForState(store, (state) => {
+        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+      });
+
+      const bulkUpdate = store.state.bulkUpdate;
+
+      delete bulkUpdate.preview.changes[0].before._id;
+      delete bulkUpdate.preview.changes[0].after._id;
+
+      expect(bulkUpdate).to.deep.equal({
+        isOpen: true,
+        preview: {
+          changes: [
+            {
+              before: {
+                name: 'testing',
+              },
+              after: {
+                name: 'testing',
+              },
+            },
+          ],
+        },
+        previewAbortController: undefined,
+        serverError: undefined,
+        syntaxError: undefined,
+        updateText: '{ $set: { }}',
+      });
+    });
+
+    it('closes the bulk dialog keeping previous state', async function () {
+      store.openBulkUpdateDialog();
+
+      await waitForState(store, (state) => {
+        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+      });
+
+      store.closeBulkUpdateDialog();
+
+      const bulkUpdate = store.state.bulkUpdate;
+
+      delete bulkUpdate.preview.changes[0].before._id;
+      delete bulkUpdate.preview.changes[0].after._id;
+
+      expect(bulkUpdate).to.deep.equal({
+        isOpen: false,
+        preview: {
+          changes: [
+            {
+              before: {
+                name: 'testing',
+              },
+              after: {
+                name: 'testing',
+              },
+            },
+          ],
+        },
+        previewAbortController: undefined,
+        serverError: undefined,
+        syntaxError: undefined,
+        updateText: '{ $set: { }}',
+      });
+    });
   });
 
   describe('#bulkDeleteDialog', function () {

@@ -19,11 +19,11 @@ import {
   applyFilterChange,
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
+import { getQueryAttributes } from '../utils';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
-  getQueryAttributes,
-} from '../utils';
+} from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 // Partial of DataService that mms shares with Compass.

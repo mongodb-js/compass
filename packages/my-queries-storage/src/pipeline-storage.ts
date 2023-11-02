@@ -1,9 +1,6 @@
 import type { Stats } from '@mongodb-js/compass-user-data';
 import { UserData, z } from '@mongodb-js/compass-user-data';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
-
-const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+import { prettify } from '@mongodb-js/compass-editor';
 
 function stageToString(
   operator: string,
@@ -24,11 +21,19 @@ function stageToString(
     .join('\n');
 }
 
-function savedPipelineToText(pipeline?: any[]): string {
+type StoredLegacyPipelineStage = {
+  stageOperator: string;
+  isEnabled: boolean;
+  stage: string;
+};
+
+function savedPipelineToText(
+  pipeline?: StoredLegacyPipelineStage[] | undefined
+): string {
   const stages =
-    pipeline?.map(({ stageOperator, isEnabled, stage }) =>
-      stageToString(stageOperator, stage, !isEnabled)
-    ) ?? [];
+    pipeline?.map(({ stageOperator, isEnabled, stage }) => {
+      return stageToString(stageOperator, stage, !isEnabled);
+    }) ?? [];
 
   const source = `[\n${stages.join(',\n')}\n]`;
 
@@ -41,46 +46,31 @@ function savedPipelineToText(pipeline?: any[]): string {
   }
 }
 
-const PipelineSchema = z
-  .object({
+const PipelineSchema = z.preprocess(
+  (val: any) => {
+    const { pipeline: legacyPipelineArray, pipelineText, ...rest } = val;
+    return {
+      ...rest,
+      pipelineText: pipelineText ?? savedPipelineToText(legacyPipelineArray),
+    };
+  },
+  z.object({
     id: z.string(),
     name: z.string(),
     namespace: z.string(),
     comments: z.boolean().optional(),
     autoPreview: z.boolean().optional(),
     collationString: z.string().optional(),
-    pipeline: z
-      .array(
-        z.object({
-          stageOperator: z.string(),
-          isEnabled: z.boolean(),
-          stage: z.string(),
-        })
-      )
-      .optional()
-      .describe('Legacy property to store pipeline. Use pipelineText.'),
     host: z.string().nullable().optional(),
-    pipelineText: z.string().optional(),
+    pipelineText: z.string(),
     lastModified: z
       .number()
       .transform((x) => new Date(x))
       .optional(),
   })
-  .transform((input) => {
-    const {
-      pipeline: legacyPipelineArray,
-      pipelineText,
-      ...restOfInput
-    } = input;
-    return {
-      ...restOfInput,
-      pipelineText: pipelineText ?? savedPipelineToText(legacyPipelineArray),
-    };
-  });
+);
 
-export type StoredPipeline = z.output<typeof PipelineSchema>;
-
-type SaveablePipeline = Omit<z.input<typeof PipelineSchema>, 'pipeline'>;
+export type SavedPipeline = z.output<typeof PipelineSchema>;
 
 export class PipelineStorage {
   private readonly userData: UserData<typeof PipelineSchema>;
@@ -91,31 +81,32 @@ export class PipelineStorage {
     });
   }
 
-  private mergeStats(pipeline: StoredPipeline, stats: Stats): StoredPipeline {
+  private mergeStats(pipeline: SavedPipeline, stats: Stats): SavedPipeline {
     return {
       ...pipeline,
       lastModified: new Date(stats.ctimeMs),
     };
   }
 
-  async loadAll(): Promise<StoredPipeline[]> {
+  async loadAll(): Promise<SavedPipeline[]> {
     try {
       const { data } = await this.userData.readAllWithStats({
         ignoreErrors: false,
       });
-      return data.map(([item, stats]) => this.mergeStats(item, stats));
-    } catch (e) {
-      debug('Failed to read saved pipelines.', e);
+      return data.map(([item, stats]) => {
+        return this.mergeStats(item, stats);
+      });
+    } catch {
       return [];
     }
   }
 
-  private async loadOne(id: string): Promise<StoredPipeline> {
+  private async loadOne(id: string): Promise<SavedPipeline> {
     const [item, stats] = await this.userData.readOneWithStats(id);
     return this.mergeStats(item, stats);
   }
 
-  async createOrUpdate(id: string, attributes: SaveablePipeline) {
+  async createOrUpdate(id: string, attributes: SavedPipeline) {
     const pipelineExists = Boolean(
       await this.userData.readOne(id, {
         ignoreErrors: true,
@@ -126,7 +117,7 @@ export class PipelineStorage {
       : this.create(attributes));
   }
 
-  private async create(data: SaveablePipeline) {
+  private async create(data: SavedPipeline) {
     await this.userData.write(data.id, {
       ...data,
       lastModified: Date.now(),
@@ -134,7 +125,7 @@ export class PipelineStorage {
     return await this.loadOne(data.id);
   }
 
-  async updateAttributes(id: string, attributes: Partial<SaveablePipeline>) {
+  async updateAttributes(id: string, attributes: Partial<SavedPipeline>) {
     await this.userData.write(id, {
       ...(await this.loadOne(id)),
       ...attributes,

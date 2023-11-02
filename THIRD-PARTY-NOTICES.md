@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Oct 31 2023.
+This document was automatically generated on Thu Nov 02 2023.
 
 ## List of dependencies
 
@@ -85,7 +85,7 @@ This document was automatically generated on Tue Oct 31 2023.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#f86d0e2a6ee0c0c0428790bb3fe747eaa34fdc564b6738501a349cb6db3911e1)**                                   | 2.0.11       | MIT                                 |
+| **[@electron/remote](#38372c7bd5e55cf414aa83de669b3d3f9c39307c311c02545509468b09a1c0ba)**                                   | 2.0.12       | MIT                                 |
 | **[@emotion/cache](#c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521)**                                     | 11.11.0      | MIT                                 |
 | **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
 | **[@emotion/hash](#b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206)**                                      | 0.9.1        | MIT                                 |
@@ -191,7 +191,7 @@ This document was automatically generated on Tue Oct 31 2023.
 | **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**                                      | 0.2.0        | MIT                                 |
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                                    | 1.1.11       | MIT                                 |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                               | 4.7.2        | Apache-2.0                          |
-| **[bson](#90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12)**                                               | 6.1.0        | Apache-2.0                          |
+| **[bson](#3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e)**                                               | 6.2.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                                | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                       | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                        | 1.0.0        | MIT                                 |
@@ -257,7 +257,7 @@ This document was automatically generated on Tue Oct 31 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                                 | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#2289b99eeb890f2bac33ffff1a90bc255f59a7302f32ca87f0fa40f29cf8d989)**                                           | 25.8.4       | MIT                                 |
+| **[electron](#3031c5f2e4f18a691d60df0557dea81c254702627247972a2585b11d5a143fdc)**                                           | 25.9.3       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -465,7 +465,7 @@ This document was automatically generated on Tue Oct 31 2023.
 | **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**                                           | 4.2.0        | MIT                                 |
 | **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**                                   | 1.0.2        | MIT                                 |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                         | 0.6.3        | MIT                                 |
-| **[node-abi](#216f948f27d3a668071c3d9ce3261c62600749fa1873b8546dc776bc798cb3b0)**                                           | 3.47.0       | MIT                                 |
+| **[node-abi](#2b71016305f08c5904a78a858313b0cdb5bf447e123dddfa61aac09ebd1934ea)**                                           | 3.51.0       | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                     | 4.3.0        | MIT                                 |
 | **[node-fetch](#ae6aab546df323cd6f4923b0c8f2d5d7119e13c5d5715a9a4983dccb054acf30)**                                         | 2.6.11       | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                         | 2.6.7        | MIT                                 |
@@ -7863,9 +7863,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="f86d0e2a6ee0c0c0428790bb3fe747eaa34fdc564b6738501a349cb6db3911e1"></a>
+<a id="38372c7bd5e55cf414aa83de669b3d3f9c39307c311c02545509468b09a1c0ba"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.0.11)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.0.12)
 
 License tags: MIT
 
@@ -18912,9 +18912,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="90ac1dbd50741567c7028c71038ba671a76adb37d2c3d63a33161f6e0f16fc12"></a>
+<a id="3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 6.1.0)
+### [bson](https://www.npmjs.com/package/bson) (version 6.2.0)
 
 License tags: Apache-2.0
 
@@ -21147,9 +21147,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="2289b99eeb890f2bac33ffff1a90bc255f59a7302f32ca87f0fa40f29cf8d989"></a>
+<a id="3031c5f2e4f18a691d60df0557dea81c254702627247972a2585b11d5a143fdc"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 25.8.4)
+### [electron](https://www.npmjs.com/package/electron) (version 25.9.3)
 
 License tags: MIT
 
@@ -30312,9 +30312,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="216f948f27d3a668071c3d9ce3261c62600749fa1873b8546dc776bc798cb3b0"></a>
+<a id="2b71016305f08c5904a78a858313b0cdb5bf447e123dddfa61aac09ebd1934ea"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.47.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.51.0)
 
 License tags: MIT
 

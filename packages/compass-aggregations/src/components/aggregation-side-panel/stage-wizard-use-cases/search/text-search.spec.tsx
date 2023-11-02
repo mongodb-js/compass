@@ -60,7 +60,7 @@ describe('TextSearch', function () {
 
   context('calls onChange', function () {
     it('for text search with fields', () => {
-      setSelectValue(/select search type/i, 'text-search');
+      setSelectValue(/select search type/i, 'text search');
       setSelectValue(/select search path/i, 'field names');
       setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
         'a',
@@ -81,10 +81,9 @@ describe('TextSearch', function () {
       expect(onChangeSpy.lastCall.lastArg).to.be.null;
     });
 
-    it('for text search with wildcard', () => {
-      setSelectValue(/select search type/i, 'text-search');
-      setSelectValue(/select search path/i, 'wildcard');
-      setInputElementValue(/Wildcard/i, 'path.*');
+    it('for text search with any fields', () => {
+      setSelectValue(/select search type/i, 'text search');
+      setSelectValue(/select search path/i, 'any fields');
 
       setInputElementValue(/text/i, 'abc');
       setComboboxValue(/select or type a search index/i, 'index1');
@@ -95,7 +94,7 @@ describe('TextSearch', function () {
           text: {
             query: 'abc',
             path: {
-              wildcard: 'path.*',
+              wildcard: '*',
             },
           },
         })
@@ -104,7 +103,7 @@ describe('TextSearch', function () {
     });
 
     it('for fuzzy search with fields', () => {
-      setSelectValue(/select search type/i, 'fuzzy-search');
+      setSelectValue(/select search type/i, 'fuzzy search');
       setInputElementValue(/maxEdits/i, '1');
 
       setSelectValue(/select search path/i, 'field names');
@@ -131,12 +130,11 @@ describe('TextSearch', function () {
       expect(onChangeSpy.lastCall.lastArg).to.be.null;
     });
 
-    it('for fuzzy search with wildcard', () => {
-      setSelectValue(/select search type/i, 'fuzzy-search');
+    it('for fuzzy search with any fields', () => {
+      setSelectValue(/select search type/i, 'fuzzy search');
       setInputElementValue(/maxEdits/i, '2');
 
-      setSelectValue(/select search path/i, 'wildcard');
-      setInputElementValue(/wildcard/i, 'path.*');
+      setSelectValue(/select search path/i, 'any fields');
 
       setInputElementValue(/text/i, 'xyz');
       setComboboxValue(/select or type a search index/i, 'index2');
@@ -147,7 +145,7 @@ describe('TextSearch', function () {
           text: {
             query: 'xyz',
             path: {
-              wildcard: 'path.*',
+              wildcard: '*',
             },
             fuzzy: {
               maxEdits: 2,
@@ -161,7 +159,7 @@ describe('TextSearch', function () {
 
   context('validation', function () {
     it('should validate maxEdits', function () {
-      setSelectValue(/select search type/i, 'fuzzy-search');
+      setSelectValue(/select search type/i, 'fuzzy search');
       {
         setInputElementValue(/maxEdits/i, '0');
         expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);

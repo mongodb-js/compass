@@ -8,8 +8,8 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
-import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import ConnectedList from './index';
 import * as store from './../stores';
 

@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron';
+import type { HadronIpcMain } from 'hadron-ipc';
+import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -13,7 +14,7 @@ import {
   getKeytarServiceName,
   parseStoredPassword,
 } from './utils';
-import { ipcExpose, throwIfAborted } from '@mongodb-js/compass-utils';
+import { throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -65,7 +66,9 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
-  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
+  private static ipcMain:
+    | Pick<HadronIpcMain, 'handle' | 'createHandle'>
+    | undefined = ipcMain;
 
   private static readonly maxAllowedRecentConnections = 10;
   private static userData: UserData<typeof ConnectionSchema>;
@@ -82,21 +85,16 @@ export class ConnectionStorage {
       subdir: 'Connections',
       basePath,
     });
-    ipcExpose(
-      'ConnectionStorage',
-      this,
-      [
-        'loadAll',
-        'load',
-        'getLegacyConnections',
-        'save',
-        'delete',
-        'deserializeConnections',
-        'exportConnections',
-        'importConnections',
-      ],
-      this.ipcMain
-    );
+    this.ipcMain?.createHandle('ConnectionStorage', this, [
+      'loadAll',
+      'load',
+      'getLegacyConnections',
+      'save',
+      'delete',
+      'deserializeConnections',
+      'exportConnections',
+      'importConnections',
+    ]);
     this.calledOnce = true;
   }
 
