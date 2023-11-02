@@ -16,6 +16,13 @@ const subscribeCheck = (s, pipeline, check, done) => {
   return unsubscribe;
 };
 
+function inputExpressionEquals(actual, expected) {
+  const expectedClean = { ...expected, exportMode: undefined };
+  const actualClean = { ...actual, exportMode: undefined };
+
+  return JSON.stringify(expectedClean) === JSON.stringify(actualClean);
+}
+
 describe('ExportToLanguage Store', function () {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -87,8 +94,9 @@ describe('ExportToLanguage Store', function () {
           store,
           {},
           (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({ filter: "'filterString'" }),
+            inputExpressionEquals(s.inputExpression, {
+              filter: "'filterString'",
+            }),
           done
         );
         localAppRegistry.emit(
@@ -111,8 +119,7 @@ describe('ExportToLanguage Store', function () {
           store,
           {},
           (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({
+            inputExpressionEquals(s.inputExpression, {
               filter: "'filterString'",
               skip: '10',
               limit: '50',
@@ -138,9 +145,7 @@ describe('ExportToLanguage Store', function () {
         unsubscribe = subscribeCheck(
           store,
           {},
-          (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({ filter: '{}' }),
+          (s) => inputExpressionEquals(s.inputExpression, { filter: '{}' }),
           done
         );
         localAppRegistry.emit(
@@ -162,9 +167,7 @@ describe('ExportToLanguage Store', function () {
         unsubscribe = subscribeCheck(
           store,
           {},
-          (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({ filter: '{}' }),
+          (s) => inputExpressionEquals(s.inputExpression, { filter: '{}' }),
           done
         );
         localAppRegistry.emit(
@@ -182,8 +185,9 @@ describe('ExportToLanguage Store', function () {
           store,
           {},
           (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({ filter: '{x: 1, y: 2}' }),
+            inputExpressionEquals(s.inputExpression, {
+              filter: '{x: 1, y: 2}',
+            }),
           done
         );
         localAppRegistry.emit(
@@ -197,9 +201,7 @@ describe('ExportToLanguage Store', function () {
         unsubscribe = subscribeCheck(
           store,
           {},
-          (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({ filter: '{}' }),
+          (s) => inputExpressionEquals(s.inputExpression, { filter: '{}' }),
           done
         );
         localAppRegistry.emit('open-query-export-to-language', '', 'Query');
@@ -210,8 +212,7 @@ describe('ExportToLanguage Store', function () {
           store,
           {},
           (s) =>
-            JSON.stringify(s.inputExpression) ===
-            JSON.stringify({
+            inputExpressionEquals(s.inputExpression, {
               filter: '{}',
               sort: '{x: 1}',
             }),
@@ -266,7 +267,7 @@ describe('ExportToLanguage Store', function () {
         unsubscribe = subscribeCheck(
           store,
           query,
-          (s) => JSON.stringify(s.inputExpression) === JSON.stringify(query),
+          (s) => inputExpressionEquals(s.inputExpression, query),
           done
         );
         localAppRegistry.emit('open-query-export-to-language', query, 'Query');
