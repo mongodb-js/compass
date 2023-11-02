@@ -1161,7 +1161,6 @@ class CrudStoreImpl
         // ignore this result because it is stale
         return;
       }
-      console.dir(err);
 
       this.setState({
         bulkUpdate: {
