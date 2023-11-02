@@ -983,7 +983,7 @@ describe('store', function () {
     it('triggers code export', function (done) {
       store.state.query.filter = { query: 1 };
       store.localAppRegistry.on(
-        'open-export-to-language-with-mode',
+        'open-query-export-to-language',
         ({ exportMode, options }) => {
           expect(exportMode).to.equal('Delete Query');
           expect(options).to.deep.equal({ filter: '{\n query: 1\n}' });
