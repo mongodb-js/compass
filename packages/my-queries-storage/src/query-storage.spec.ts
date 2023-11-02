@@ -3,11 +3,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { EJSON, UUID } from 'bson';
-
-import { RecentQueryStorage, FavoriteQueryStorage } from './query-storage';
 import Sinon from 'sinon';
-
-import { recentQueries, favoriteQueries } from './../../test/fixtures';
+import { recentQueries, favoriteQueries } from '../test/fixtures/index';
+import { RecentQueryStorage, FavoriteQueryStorage } from './query-storage';
 
 const queries = [
   {
@@ -141,8 +139,9 @@ describe('QueryStorage', function () {
         const numQueries = (await queryHistoryStorage.loadAll()).length;
         expect(numQueries).to.equal(maxAllowedRecentQueries);
 
-        expect(deleteSpy.calledOnceWithExactly(queries[queries.length - 1]._id))
-          .to.be.true;
+        expect(deleteSpy).to.have.been.calledOnceWithExactly(
+          queries[queries.length - 1]._id
+        );
       });
 
       it('does not remove recent query if recents are less then max allowed queries', async function () {
