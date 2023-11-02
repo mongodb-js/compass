@@ -4,7 +4,7 @@ import * as Selectors from '../selectors';
 
 export async function connectWithConnectionString(
   browser: CompassBrowser,
-  connectionString = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
+  connectionString = `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
