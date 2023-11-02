@@ -78,7 +78,7 @@
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^25.8.4",
+    "electron": "^25.9.3",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.12",
     "lodash": "^4.17.21",
