@@ -195,6 +195,9 @@ export default function BulkUpdateDialog({
             <ReadonlyFilter
               queryLabel="Filter"
               filterQuery={toJSString(filter) ?? ''}
+              onExportToLanguage={() => {
+                return;
+              }}
             />
           </div>
 
