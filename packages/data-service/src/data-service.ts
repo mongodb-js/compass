@@ -2651,7 +2651,7 @@ function autoRetryWriteConflicts(maxRetries = 10) {
         }
       }
 
-      const msgPrefix = `Failed for '${name}' for ${maxRetries} times.`;
+      const msgPrefix = `Failed for '${name}' ${maxRetries} times.`;
       lastError.message = lastError.message
         ? `${msgPrefix} Original Error: ${lastError.message}`
         : msgPrefix;

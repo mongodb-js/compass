@@ -1415,6 +1415,72 @@ describe('DataService', function () {
         const count = await replDataService.count(namespace, {});
         expect(count).to.equal(100);
       });
+
+      it('retries automatically if a write conflict occurs', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const fakeWriteConflictError = new Error(
+          'This is a fake write conflict error'
+        );
+        (fakeWriteConflictError as any).codeName = 'WriteConflict';
+
+        // @ts-expect-error _cancellableOperation does exist
+        const stub = sandbox.stub(replDataService, '_cancellableOperation');
+        stub.onFirstCall().rejects(fakeWriteConflictError);
+        stub.onSecondCall().resolves('ok');
+
+        await replDataService.previewUpdate(
+          namespace,
+          {},
+          {
+            $set: {
+              foo: 'bar',
+            },
+          }
+        );
+
+        // succeeded on the second try
+        expect(stub.callCount).to.equal(2);
+      });
+
+      it('only retries on write conflicts up to 5 times', async function () {
+        if (replDataService.getCurrentTopologyType() === 'Single') {
+          return this.skip(); // Transactions only work in replicasets or sharded clusters
+        }
+
+        const fakeWriteConflictError = new Error(
+          'This is a fake write conflict error'
+        );
+        (fakeWriteConflictError as any).codeName = 'WriteConflict';
+
+        // @ts-expect-error _cancellableOperation does exist
+        const stub = sandbox.stub(replDataService, '_cancellableOperation');
+        stub.rejects(fakeWriteConflictError);
+
+        try {
+          await replDataService.previewUpdate(
+            namespace,
+            {},
+            {
+              $set: {
+                foo: 'bar',
+              },
+            }
+          );
+          expect.fail('this should never succeed');
+        } catch (err: any) {
+          // eventually throws the last error it got
+          expect(err.codeName).to.equal('WriteConflict');
+          expect(err.message).to.equal(
+            "Failed for 'previewUpdate' 5 times. Original Error: This is a fake write conflict error"
+          );
+        }
+
+        // tried the max number of times
+        expect(stub.callCount).to.equal(5);
+      });
     });
   });
 
