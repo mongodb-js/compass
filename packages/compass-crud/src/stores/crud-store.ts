@@ -1252,7 +1252,7 @@ class CrudStoreImpl
       });
 
       log.error(
-        mongoLogId(1_001_000_268),
+        mongoLogId(1_001_000_269),
         'Bulk Update Documents',
         `Update operation failed: ${err.message}`,
         err
