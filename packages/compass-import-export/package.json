@@ -61,7 +61,7 @@
     "@mongodb-js/compass-utils": "^0.5.3",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.4",
-    "electron": "^26.2.4",
+    "electron": "^25.9.3",
     "hadron-document": "^8.4.2",
     "react": "^17.0.2"
   },
@@ -72,7 +72,7 @@
     "@mongodb-js/compass-utils": "^0.5.3",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.15.4",
-    "electron": "^26.2.4",
+    "electron": "^25.9.3",
     "hadron-document": "^8.4.2"
   },
   "devDependencies": {
