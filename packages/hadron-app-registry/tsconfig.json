@@ -1,5 +1,5 @@
 {
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
   "compilerOptions": {
     "outDir": "dist"
   },

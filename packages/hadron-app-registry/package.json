@@ -45,7 +45,10 @@
   "dependencies": {
     "debug": "^4.2.0",
     "eventemitter3": "^4.0.0",
-    "reflux": "^0.4.1"
+    "reflux": "^0.4.1",
+    "redux": "^4.2.1",
+    "react": "^17.0.2",
+    "react-redux": "^8.0.5"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.10",

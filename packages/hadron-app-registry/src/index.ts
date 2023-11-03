@@ -4,8 +4,13 @@ export { AppRegistry, globalAppRegistry };
 export type { Role };
 export {
   AppRegistryProvider,
-  useAppRegistryContext,
+  useLocalAppRegistry,
   useAppRegistryComponent,
   useAppRegistryRole,
 } from './react-context';
+export {
+  registerHadronPlugin,
+  HadronPluginComponent,
+  HadronPluginConfig,
+} from './register-plugin';
 export default AppRegistry;

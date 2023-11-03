@@ -33,7 +33,7 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useAppRegistryContext, useAppRegistryRole } from 'hadron-app-registry';
+import { useLocalAppRegistry, useAppRegistryRole } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
@@ -165,7 +165,7 @@ function Home({
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
 
   const [
@@ -376,7 +376,7 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
