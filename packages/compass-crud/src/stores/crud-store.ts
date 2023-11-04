@@ -359,6 +359,7 @@ type BulkUpdateState = {
   syntaxError?: Error;
   serverError?: Error;
   previewAbortController?: AbortController;
+  affected?: number;
 };
 
 export type TableState = {
@@ -1197,6 +1198,14 @@ class CrudStoreImpl
   async runBulkUpdate() {
     this.closeBulkUpdateDialog();
 
+    // keep the filter count around for the duration of the toast
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        affected: this.state.count ?? undefined,
+      },
+    });
+
     const { ns } = this.state;
     const { filter } = this.state.query;
     let update;
@@ -1209,8 +1218,46 @@ class CrudStoreImpl
       return;
     }
 
-    // TODO(COMPASS-7327): in-progress, success, error in toast
-    await this.dataService.updateMany(ns, filter, update);
+    openToast('bulk-update-toast', {
+      title: '',
+      variant: 'progress',
+      dismissible: true,
+      timeout: null,
+      description: `${
+        this.state.bulkUpdate.affected || 0
+      } documents are being updated.`,
+    });
+
+    try {
+      await this.dataService.updateMany(ns, filter, update);
+
+      openToast('bulk-update-toast', {
+        title: '',
+        variant: 'success',
+        dismissible: true,
+        timeout: 6_000,
+        description: `${
+          this.state.bulkUpdate.affected || 0
+        } documents have been updated.`,
+      });
+    } catch (err: any) {
+      openToast('bulk-update-toast', {
+        title: '',
+        variant: 'warning',
+        dismissible: true,
+        timeout: 6_000,
+        description: `${
+          this.state.bulkUpdate.affected || 0
+        } documents could not be updated.`,
+      });
+
+      log.error(
+        mongoLogId(1_001_000_269),
+        'Bulk Update Documents',
+        `Update operation failed: ${err.message}`,
+        err
+      );
+    }
   }
 
   /**
@@ -1806,10 +1853,8 @@ class CrudStoreImpl
     log.error(
       mongoLogId(1_001_000_268),
       'Bulk Delete Documents',
-      `Delete opeartion failed: ${ex.message}`,
-      {
-        stack: ex.stack,
-      }
+      `Delete operation failed: ${ex.message}`,
+      ex
     );
   }
 
