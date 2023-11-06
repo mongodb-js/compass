@@ -5,6 +5,7 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Icon,
   KeylineCard,
   css,
   cx,
@@ -40,6 +41,17 @@ const modalBodySpacingStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+});
+
+const queryBarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[3],
+});
+
+const exportToLanguageButtonStyles = css({
+  alignSelf: 'end',
 });
 
 type BulkDeleteModalProps = {
@@ -83,11 +95,20 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
-        <ReadonlyFilter
-          queryLabel="Query"
-          filterQuery={filterQuery}
-          onExportToLanguage={onExportToLanguage}
-        />
+        <div className={queryBarStyles}>
+          <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
+          <Button
+            className={exportToLanguageButtonStyles}
+            variant="primaryOutline"
+            size="default"
+            leftGlyph={<Icon glyph="Code" />}
+            onClick={onExportToLanguage}
+            data-testid="pipeline-toolbar-export-button"
+          >
+            Export
+          </Button>
+        </div>
+
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}
