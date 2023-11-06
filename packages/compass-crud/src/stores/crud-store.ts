@@ -1155,9 +1155,7 @@ class CrudStoreImpl
       // conflict during plan execution and yielding is disabled."
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
-        // TODO(COMPASS-7368): aborting the in-flight operation is still buggy,
-        // regularly causing uncaught MongoRuntimeError rejections
-        //abortSignal: abortController.signal,
+        abortSignal: abortController.signal,
       });
     } catch (err: any) {
       if (abortController.signal.aborted) {
