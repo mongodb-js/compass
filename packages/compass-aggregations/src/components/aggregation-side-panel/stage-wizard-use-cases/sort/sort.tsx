@@ -125,7 +125,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
   const onSetFormData = (data: SortFieldState[]) => {
     const stageValue = mapSortFormDataToStageValue(data);
     onChange(
-      JSON.stringify(stageValue),
+      stageValue,
       Object.keys(stageValue).length === 0
         ? new Error('No field selected')
         : null

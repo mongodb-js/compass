@@ -68,7 +68,7 @@ const sidebarTitle = css({
   cursor: 'pointer',
   color: 'var(--title-color)',
   backgroundColor: 'var(--title-bg-color)',
-
+  '-webkit-app-region': 'drag',
   height: spacing[6],
   padding: spacing[3],
 });

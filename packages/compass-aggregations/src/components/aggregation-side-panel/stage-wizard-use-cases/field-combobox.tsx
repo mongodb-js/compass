@@ -5,6 +5,7 @@ import {
 import React, { useMemo } from 'react';
 import type { ComponentProps } from 'react';
 import type { WizardComponentProps } from '.';
+import type { FieldSchema } from '../../../utils/get-schema';
 
 export const SINGLE_SELECT_LABEL = 'Select a field';
 export const MULTI_SELECT_LABEL = 'Select fields';
@@ -54,16 +55,21 @@ export const FieldCombobox = ({
   placeholder,
   isRelatedFieldDisabled = false,
   value,
+  fieldFilter,
   ...props
 }: Partial<CustomComboboxProps> & {
   fields: WizardComponentProps['fields'];
   // When selecting a field, if its nested or parent field should be disabled.
   // Only applicable when its a multiselect combobox.
   isRelatedFieldDisabled?: boolean;
+  fieldFilter?: (field: FieldSchema) => boolean;
 }) => {
   const fields = useMemo(
-    () => schemaFields.map(({ name, type }) => ({ value: name, type })),
-    [schemaFields]
+    () =>
+      schemaFields
+        .filter(fieldFilter ?? (() => true))
+        .map(({ name, type }) => ({ value: name, type })),
+    [schemaFields, fieldFilter]
   );
 
   const label = useMemo(

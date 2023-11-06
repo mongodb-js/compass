@@ -8,7 +8,7 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 
-import type { StageWizardUseCase } from '.';
+import { type StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
 
 export type DraggedUseCase = Pick<
@@ -19,6 +19,20 @@ export type DraggedUseCase = Pick<
 type UseCaseCardProps = DraggedUseCase & {
   onSelect: () => void;
 };
+
+const longestUseCaseChars = 8;
+
+const gridContainerStyles = css({
+  display: 'grid',
+  gridTemplateColumns: `1fr ${longestUseCaseChars}ch`,
+  gap: '20px',
+  '> *': {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});
+
+const cardOperatorStyles = css({ justifyContent: 'right' });
 
 const cardStyles = css({
   padding: `${spacing[2]}px ${spacing[3]}px`,
@@ -79,9 +93,15 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
       onKeyDown={handleKeyDown}
       {...props}
     >
-      <Body data-testid={`use-case-${id}`} className={cardBodyStyles}>
-        {title} <Badge>{stageOperator}</Badge>
-      </Body>
+      <div className={gridContainerStyles}>
+        <Body data-testid={`use-case-${id}`} className={cardBodyStyles}>
+          {title}
+        </Body>
+
+        <div className={cardOperatorStyles}>
+          <Badge>{stageOperator}</Badge>
+        </div>
+      </div>
     </KeylineCard>
   );
 });

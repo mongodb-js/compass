@@ -86,7 +86,7 @@ export const LookupForm = ({
       // Call onChange with the new value and an error if any of the fields is empty
       const anyEmptyValue = Object.values(newData).some((x) => !x);
       onChange(
-        JSON.stringify(newData),
+        newData,
         anyEmptyValue ? new Error('Enter all the fields') : null
       );
 

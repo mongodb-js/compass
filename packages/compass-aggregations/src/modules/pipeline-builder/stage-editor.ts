@@ -16,7 +16,6 @@ import {
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
-import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -30,6 +29,9 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+
+import { toJSString } from 'mongodb-query-parser';
+
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -712,7 +714,7 @@ export const removeWizard = (at: number): WizardRemoveAction => ({
 
 export const updateWizardValue = (
   at: number,
-  value: string
+  value: string | Document
 ): PipelineBuilderThunkAction<void, WizardChangeAction> => {
   return (dispatch, getState) => {
     const {
@@ -725,22 +727,12 @@ export const updateWizardValue = (
       return;
     }
 
-    try {
-      parseShellBSON(value);
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: null,
-      });
-    } catch (e) {
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: e as SyntaxError,
-      });
-    }
+    dispatch({
+      type: StageEditorActionTypes.WizardChanged,
+      at,
+      value: toJSString(value, 2) ?? '',
+      syntaxError: null,
+    });
   };
 };
 

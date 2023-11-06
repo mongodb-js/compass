@@ -122,7 +122,7 @@ export const TextSearch = ({
 
   const onSetFormData = (data: TextSearchState) => {
     const stageValue = mapTextSearchDataToStageValue(data);
-    onChange(JSON.stringify(stageValue), getFormValidationError(data));
+    onChange(stageValue, getFormValidationError(data));
     setFormData(data);
   };
 

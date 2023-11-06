@@ -1,3 +1,5 @@
+import React from 'react';
+
 import UseCaseCard from './use-case-card';
 import SortUseCase from './sort/sort';
 import LookupUseCase from './lookup/lookup';
@@ -8,12 +10,27 @@ import MatchUseCase from './match/match';
 import GroupWithSubset from './group/group-with-subset';
 import TextSearch from './search/text-search';
 import type { FieldSchema } from '../../../utils/get-schema';
+import UnwindUseCase from './unwind/unwind';
+import type { Document } from 'bson';
 
+function withProps<P>(
+  Component: React.ComponentType<P>,
+  prefillProps: Partial<P>
+): React.FunctionComponent<P> {
+  const NewComponent = (props: React.PropsWithChildren<P>) => {
+    return <Component {...(props as P)} {...prefillProps} />;
+  };
+
+  NewComponent.displayName = Component.displayName;
+  return NewComponent;
+}
+
+export type StageWizardValue = string | Document;
 export type StageWizardFields = FieldSchema[];
 
 export type WizardComponentProps = {
   fields: StageWizardFields;
-  onChange: (value: string, validationError: Error | null) => void;
+  onChange: (value: StageWizardValue, validationError: Error | null) => void;
 };
 
 export type StageWizardUseCase = {
@@ -28,19 +45,43 @@ export type StageWizardUseCase = {
 export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   {
     id: 'match',
-    title: 'Find all the documents that match one or more conditions',
+    title: 'Filter documents',
     stageOperator: '$match',
     wizardComponent: MatchUseCase,
   },
   {
     id: 'basic-group',
-    title: 'Group my documents based on their field values',
+    title: 'Group by field values',
     stageOperator: '$group',
     wizardComponent: BasicGroupUseCase,
   },
   {
+    id: 'group-with-avg',
+    title: 'Average field value within groups',
+    stageOperator: '$group',
+    wizardComponent: withProps(GroupWithStatistics, {
+      defaultAccumulator: '$avg',
+    }),
+  },
+  {
+    id: 'group-with-max',
+    title: 'Maximum within groups',
+    stageOperator: '$group',
+    wizardComponent: withProps(GroupWithStatistics, {
+      defaultAccumulator: '$max',
+    }),
+  },
+  {
+    id: 'group-with-min',
+    title: 'Minimum within groups',
+    stageOperator: '$group',
+    wizardComponent: withProps(GroupWithStatistics, {
+      defaultAccumulator: '$min',
+    }),
+  },
+  {
     id: 'group-with-statistics',
-    title: 'Compute values within the groups I create',
+    title: 'Compute values within groups',
     stageOperator: '$group',
     wizardComponent: GroupWithStatistics,
   },
@@ -55,6 +96,12 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Include or exclude a subset of fields from my documents',
     stageOperator: '$project',
     wizardComponent: ProjectUseCase,
+  },
+  {
+    id: 'unwind',
+    title: 'Unwind array items in separate documents',
+    stageOperator: '$unwind',
+    wizardComponent: UnwindUseCase,
   },
   {
     id: 'sort',

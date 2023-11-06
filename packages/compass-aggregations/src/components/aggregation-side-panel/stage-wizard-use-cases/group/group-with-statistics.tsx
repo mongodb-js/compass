@@ -5,17 +5,14 @@ import {
   Option,
   spacing,
   ListEditor,
+  TextInput,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { ACCUMULATORS, Completion } from '@mongodb-js/mongodb-constants';
 import { getFilteredCompletions } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import {
-  getNextId,
-  mapFieldToPropertyName,
-  mapFieldsToAccumulatorValue,
-} from '../utils';
+import { getNextId, mapFieldsToAccumulatorValue } from '../utils';
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
@@ -29,6 +26,8 @@ const ACCUMULATOR_LABELS = {
   $count: 'Count',
   $max: 'Maximum',
   $sum: 'Sum',
+  $first: 'First',
+  $last: 'Last',
 } as const;
 
 const SUPPORTED_ACCUMULATORS = Object.keys(ACCUMULATOR_LABELS);
@@ -57,8 +56,8 @@ const groupRowStyles = css({
 });
 
 const groupLabelStyles = css({
-  minWidth: '100px',
-  textAlign: 'right',
+  minWidth: '135px',
+  textAlign: 'left',
 });
 
 const LONGEST_ACCUMULATOR_LABEL = Math.max(
@@ -73,12 +72,16 @@ const selectStyles = css({
 const accumulatorFieldcomboboxStyles = css({ width: '300px' });
 const groupFieldscomboboxStyles = css({ width: '100%' });
 
-type GroupOwnProps = WizardComponentProps;
+type GroupOwnProps = WizardComponentProps & {
+  defaultAccumulator?: keyof typeof ACCUMULATOR_LABELS;
+};
+
 type MapStateProps = { serverVersion: string };
 
 type GroupAccumulators = {
   id: number;
-  field: string;
+  newField: string;
+  accumulatorFields: string;
   accumulator: string;
 };
 
@@ -87,17 +90,8 @@ type GroupWithStatisticsFormData = {
   groupAccumulators: GroupAccumulators[];
 };
 
-const _getGroupAccumulatorKey = ({ field, accumulator }: GroupAccumulators) => {
-  // we will always prepend an accumulator to the key as user
-  // can choose to calculate values of the same field in a document.
-  const prefix = accumulator.replace(/\$/g, '');
-  const propertyName = mapFieldToPropertyName(field);
-  const underscore = propertyName.startsWith('_') ? '' : '_';
-  return [prefix, underscore, propertyName].join('');
-};
-
 const _getGroupAccumulatorValue = ({
-  field,
+  accumulatorFields: field,
   accumulator,
 }: GroupAccumulators) => {
   return {
@@ -110,8 +104,8 @@ const mapGroupFormStateToStageValue = (
 ): Document => {
   const values = Object.fromEntries(
     data.groupAccumulators
-      .filter((x) => x.accumulator && x.field)
-      .map((x) => [_getGroupAccumulatorKey(x), _getGroupAccumulatorValue(x)])
+      .filter((x) => x.accumulator && x.accumulatorFields)
+      .map((x) => [x.newField, _getGroupAccumulatorValue(x)])
   );
   return {
     _id: mapFieldsToAccumulatorValue(data.groupFields),
@@ -135,7 +129,7 @@ const GroupAccumulatorForm = ({
     key: T,
     value: GroupAccumulators[T] | null
   ) => {
-    if (!value) {
+    if (value === null || value === undefined) {
       return;
     }
     const newData = [...data];
@@ -147,7 +141,8 @@ const GroupAccumulatorForm = ({
     const newData = [...data];
     newData.splice(at + 1, 0, {
       id: getNextId(),
-      field: '',
+      newField: '',
+      accumulatorFields: '',
       accumulator: '',
     });
     onChange(newData);
@@ -182,9 +177,16 @@ const GroupAccumulatorForm = ({
         renderItem={(item, index) => {
           return (
             <div className={groupRowStyles}>
-              <Body className={groupLabelStyles}>
-                {index === 0 ? 'Calculate' : 'and'}
-              </Body>
+              <TextInput
+                type="text"
+                aria-label="New field name"
+                placeholder="New field name"
+                value={item.newField}
+                onChange={(e) => {
+                  onChangeGroup(index, 'newField', e.target.value);
+                }}
+              />
+              as
               {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
               <Select
                 className={selectStyles}
@@ -206,9 +208,9 @@ const GroupAccumulatorForm = ({
               <Body>of</Body>
               <FieldCombobox
                 className={accumulatorFieldcomboboxStyles}
-                value={item.field}
+                value={item.accumulatorFields}
                 onChange={(value: string | null) =>
-                  onChangeGroup(index, 'field', value)
+                  onChangeGroup(index, 'accumulatorFields', value)
                 }
                 fields={fields}
               />
@@ -220,18 +222,21 @@ const GroupAccumulatorForm = ({
   );
 };
 
+const addFieldsTitle = css({ marginTop: spacing[2] });
 export const GroupWithStatistics = ({
   fields,
   serverVersion,
   onChange,
+  defaultAccumulator,
 }: GroupOwnProps & MapStateProps) => {
   const [formData, setFormData] = useState<GroupWithStatisticsFormData>({
     groupFields: [],
     groupAccumulators: [
       {
         id: getNextId(),
-        field: '',
-        accumulator: '',
+        newField: '',
+        accumulatorFields: '',
+        accumulator: defaultAccumulator ?? '',
       },
     ],
   });
@@ -244,27 +249,23 @@ export const GroupWithStatistics = ({
       ...formData,
       [key]: value,
     };
+
     setFormData(newData);
 
     const isValuesEmpty =
-      newData.groupAccumulators.filter((x) => x.accumulator && x.field)
-        .length === 0;
+      newData.groupAccumulators.filter(
+        (x) => x.accumulator && x.accumulatorFields && x.newField
+      ).length === 0;
     onChange(
-      JSON.stringify(mapGroupFormStateToStageValue(newData)),
+      mapGroupFormStateToStageValue(newData),
       isValuesEmpty ? new Error('Select one group accumulator') : null
     );
   };
 
   return (
     <div className={containerStyles}>
-      <GroupAccumulatorForm
-        serverVersion={serverVersion}
-        fields={fields}
-        data={formData.groupAccumulators}
-        onChange={(val) => onChangeValue('groupAccumulators', val)}
-      />
       <div className={groupRowStyles}>
-        <Body className={groupLabelStyles}>grouped by</Body>
+        <Body className={groupLabelStyles}>Group documents by</Body>
         <FieldCombobox
           className={groupFieldscomboboxStyles}
           value={formData.groupFields}
@@ -273,6 +274,15 @@ export const GroupWithStatistics = ({
           multiselect={true}
         />
       </div>
+
+      <div className={addFieldsTitle}>Add fields to each group</div>
+
+      <GroupAccumulatorForm
+        serverVersion={serverVersion}
+        fields={fields}
+        data={formData.groupAccumulators}
+        onChange={(val) => onChangeValue('groupAccumulators', val)}
+      />
     </div>
   );
 };

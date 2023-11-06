@@ -221,7 +221,7 @@ export const GroupWithSubset = ({
     };
     setFormData(newData);
     onChange(
-      JSON.stringify(mapGroupFormStateToStageValue(newData)),
+      mapGroupFormStateToStageValue(newData),
       getValidationError(newData)
     );
   };

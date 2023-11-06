@@ -74,8 +74,9 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
     setProjectFormState(nextProjectState);
 
     const stageValue = mapProjectFormStateToStageValue(nextProjectState);
+
     onChange(
-      JSON.stringify(stageValue),
+      stageValue,
       Object.keys(stageValue).length === 0
         ? new Error('No field selected')
         : null

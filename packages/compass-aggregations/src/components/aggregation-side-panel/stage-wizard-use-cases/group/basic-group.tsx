@@ -25,7 +25,7 @@ export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
     setGroupFields(data);
 
     onChange(
-      JSON.stringify(mapGroupFormStateToStageValue(data)),
+      mapGroupFormStateToStageValue(data),
       data.length === 0 ? new Error('Group fields cannot be empty') : null
     );
   };

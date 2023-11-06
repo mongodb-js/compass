@@ -18,6 +18,7 @@ import {
 
 import type {
   StageWizardUseCase,
+  StageWizardValue,
   WizardComponentProps,
 } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
@@ -87,7 +88,7 @@ type StageWizardProps = SortableProps & {
   value: string | null;
   syntaxError: SyntaxError | null;
   fields: WizardComponentProps['fields'];
-  onChange: (value: string) => void;
+  onChange: (value: string | Document) => void;
   onCancel: () => void;
   onApply: () => void;
 };
@@ -175,7 +176,7 @@ export const StageWizard = ({
   }, [useCaseId]);
 
   const onChangeWizard = useCallback(
-    (value: string, error: Error | null) => {
+    (value: string | Document, error: Error | null) => {
       if (!error) {
         setFormError(null);
         return onChange(value);
@@ -306,7 +307,7 @@ export default connect(
     };
   },
   (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({
-    onChange: (value: string) =>
+    onChange: (value: StageWizardValue) =>
       dispatch(updateWizardValue(ownProps.index, value)),
     onCancel: () => dispatch(removeWizard(ownProps.index)),
     onApply: () => dispatch(convertWizardToStage(ownProps.index)),
