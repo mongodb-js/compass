@@ -2360,40 +2360,43 @@ class DataServiceImpl extends WithLogContext implements DataService {
         }
 
         try {
-          const coll = this._collection(ns, 'CRUD');
-          session.startTransaction({
-            maxTimeMS: remainingTimeoutMS(),
-          });
+          return await session.withTransaction(
+            async () => {
+              const coll = this._collection(ns, 'CRUD');
+              const docsToPreview = await coll
+                .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
+                .sort({ _id: 1 })
+                .limit(sample)
+                .toArray();
 
-          const docsToPreview = await coll
-            .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
-            .sort({ _id: 1 })
-            .limit(sample)
-            .toArray();
+              const idsToPreview = docsToPreview.map((doc) => doc._id);
+              await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+                session,
+                maxTimeMS: remainingTimeoutMS(),
+              });
+              const changedDocs = await coll
+                .find(
+                  { _id: { $in: idsToPreview } },
+                  { session, maxTimeMS: remainingTimeoutMS() }
+                )
+                .sort({ _id: 1 })
+                .toArray();
 
-          const idsToPreview = docsToPreview.map((doc) => doc._id);
-          await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
-            session,
-            maxTimeMS: remainingTimeoutMS(),
-          });
-          const changedDocs = await coll
-            .find(
-              { _id: { $in: idsToPreview } },
-              { session, maxTimeMS: remainingTimeoutMS() }
-            )
-            .sort({ _id: 1 })
-            .toArray();
+              if (session.inTransaction()) {
+                await session.abortTransaction();
+                await session.endSession();
+              }
 
-          if (session.inTransaction()) {
-            await session.abortTransaction();
-            await session.endSession();
-          }
-
-          const changes = docsToPreview.map((before, idx) => ({
-            before,
-            after: changedDocs[idx],
-          }));
-          return { changes };
+              const changes = docsToPreview.map((before, idx) => ({
+                before,
+                after: changedDocs[idx],
+              }));
+              return { changes };
+            },
+            {
+              maxTimeMS: remainingTimeoutMS(),
+            }
+          );
         } catch (err: any) {
           if (isTransactionAbortError(err)) {
             // The transaction was aborted while it was still calculating the
