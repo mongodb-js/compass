@@ -33,6 +33,10 @@ const sidebarStyles = css({
   minHeight: 0,
 });
 
+const shellContainerStyles = css({
+  zIndex: 5,
+});
+
 export default function Workspace({
   namespace,
 }: {
@@ -56,7 +60,9 @@ export default function Workspace({
             <WorkspaceContent namespace={namespace} />
           </div>
         </div>
-        <div>{GlobalShellComponent && <GlobalShellComponent />}</div>
+        <div className={shellContainerStyles}>
+          {GlobalShellComponent && <GlobalShellComponent />}
+        </div>
       </div>
     </>
   );
