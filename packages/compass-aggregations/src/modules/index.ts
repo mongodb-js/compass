@@ -34,7 +34,7 @@ import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { PipelineStorage } from '../utils/pipeline-storage';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';

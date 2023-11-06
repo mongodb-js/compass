@@ -624,7 +624,7 @@ class CompassMenu {
   };
 
   private static showCollection(
-    _bw: BrowserWindow,
+    evt: unknown,
     { isReadOnly }: { isReadOnly: boolean }
   ) {
     this.updateMenu({ showCollection: true, isReadOnly });

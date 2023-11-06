@@ -15,7 +15,6 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableGenAIExperience: boolean;
-  enableAIWithoutRolloutAccess: boolean;
   enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
@@ -38,18 +37,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Compass AI Features',
       long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
-    },
-  },
-
-  /**
-   * Temporary feature flag for bypassing our incremental rollout for ai access.
-   * Ticket to remove: COMPASS-7226
-   */
-  enableAIWithoutRolloutAccess: {
-    stage: 'development',
-    description: {
-      short: 'Enable AI Features Without Rollout Access',
-      long: 'Bypass the public preview rollout access for the AI features in Compass. Do not use this feature with sensitive data.',
     },
   },
 

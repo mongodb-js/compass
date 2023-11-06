@@ -190,7 +190,7 @@ const hadronElementLightMode = css({
 
 const hadronElementDarkMode = css({
   '&:hover': {
-    backgroundColor: palette.black,
+    backgroundColor: palette.gray.dark4,
   },
 });
 

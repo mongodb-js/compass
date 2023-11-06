@@ -1,4 +1,4 @@
-import { ipcMain, shell, app } from 'electron';
+import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
@@ -28,11 +28,9 @@ import {
   validateAIAggregationResponse,
   validateAIFeatureEnablementResponse,
 } from './util';
-import {
-  broadcast,
-  ipcExpose,
-  throwIfAborted,
-} from '@mongodb-js/compass-utils';
+import { throwIfAborted } from '@mongodb-js/compass-utils';
+import type { HadronIpcMain } from 'hadron-ipc';
+import { ipcMain } from 'hadron-ipc';
 import {
   createLoggerAndTelemetry,
   mongoLogId,
@@ -165,7 +163,9 @@ export class AtlasService {
 
   private static atlasUserConfigStore = new AtlasUserConfigStore();
 
-  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
+  private static ipcMain:
+    | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
+    | undefined = ipcMain;
 
   private static config: AtlasServiceConfig;
 
@@ -232,10 +232,8 @@ export class AtlasService {
   static init(config: AtlasServiceConfig): Promise<void> {
     this.config = config;
     return (this.initPromise ??= (async () => {
-      ipcExpose(
-        'AtlasService',
-        this,
-        [
+      if (this.ipcMain) {
+        this.ipcMain.createHandle('AtlasService', this, [
           'getUserInfo',
           'introspect',
           'isAuthenticated',
@@ -244,9 +242,8 @@ export class AtlasService {
           'getAggregationFromUserInput',
           'getQueryFromUserInput',
           'updateAtlasUserConfig',
-        ],
-        this.ipcMain
-      );
+        ]);
+      }
       this.attachOidcPluginLoggerEvents();
       log.info(
         mongoLogId(1_001_000_210),
@@ -306,19 +303,19 @@ export class AtlasService {
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-failed', () => {
       this.currentUser = null;
       this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-      broadcast('atlas-service-token-refresh-failed');
+      this.ipcMain?.broadcast('atlas-service-token-refresh-failed');
     });
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
       this.oidcPluginLogger.emit('atlas-service-token-refreshed');
-      broadcast('atlas-service-token-refreshed');
+      this.ipcMain?.broadcast('atlas-service-token-refreshed');
     });
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
-      broadcast('atlas-service-signed-out');
+      this.ipcMain?.broadcast('atlas-service-signed-out');
     });
     this.oidcPluginLogger.on(
       'atlas-service-user-config-changed',
       (newConfig) => {
-        broadcast('atlas-service-user-config-changed', newConfig);
+        this.ipcMain?.broadcast('atlas-service-user-config-changed', newConfig);
       }
     );
   }

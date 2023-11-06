@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import { pipelines as PipelineFixtures } from '../../test/fixtures';
+import { pipelines as PipelineFixtures } from '../test/fixtures/index';
 import { PipelineStorage } from './pipeline-storage';
 
 const getEnsuredFilePath = async (tmpDir: string, fileId: string) => {
@@ -25,7 +25,7 @@ describe('PipelineStorage', function () {
   });
 
   afterEach(async function () {
-    await fs.rmdir(tmpDir, { recursive: true });
+    await fs.rm(tmpDir, { recursive: true });
   });
 
   it('reads saved pipelines', async function () {
@@ -187,7 +187,10 @@ describe('PipelineStorage', function () {
     expect(aggregations).to.have.lengthOf(1);
     expect(aggregations[0].id).to.equal(data.id);
     expect(aggregations[0]).to.not.have.property('pipeline');
-    expect(aggregations[0]).to.have.property('pipelineText');
+    expect(aggregations[0]).to.have.property(
+      'pipelineText',
+      '[\n  {\n    $match: { name: "berlin" },\n  },\n  {\n    $limit: 10,\n  },\n]'
+    );
   });
 
   it('deletes a pipeline', async function () {
@@ -220,8 +223,8 @@ describe('PipelineStorage', function () {
 
       expect(savedPipeline).to.exist;
 
-      expect(savedPipeline!.name).to.equal(pipeline.name);
-      expect(savedPipeline!.namespace).to.equal(pipeline.namespace);
+      expect(savedPipeline).to.have.property('name', pipeline.name);
+      expect(savedPipeline).to.have.property('namespace', pipeline.namespace);
 
       expect(savedPipeline).to.not.have.property('pipeline');
       expect(savedPipeline).to.have.property('pipelineText');

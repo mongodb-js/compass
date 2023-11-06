@@ -2,7 +2,7 @@ import type { RootActions, RootState } from './index';
 import type { ThunkAction } from 'redux-thunk';
 import { EJSON } from 'bson';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { type FavoriteQuery } from '@mongodb-js/compass-query-bar';
+import { type FavoriteQuery } from '@mongodb-js/my-queries-storage';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 

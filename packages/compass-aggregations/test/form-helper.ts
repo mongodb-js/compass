@@ -82,5 +82,7 @@ export const setInputElementValue = (
     selector: 'input',
   });
   userEvent.clear(input);
-  userEvent.type(input, value);
+  if (value !== '') {
+    userEvent.type(input, value);
+  }
 };

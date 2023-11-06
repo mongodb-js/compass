@@ -288,6 +288,20 @@ describe('DataService', function () {
       });
     });
 
+    describe('#updateMany', function () {
+      it('update documents in the collection', async function () {
+        await dataService.insertOne(testNamespace, { a: 500 });
+        await dataService.updateMany(
+          testNamespace,
+          { a: 500 },
+          { $set: { foo: 'bar' } }
+        );
+        const docs = await dataService.find(testNamespace, { a: 500 });
+        expect(docs.length).to.equal(1);
+        expect(docs[0].foo).to.equal('bar');
+      });
+    });
+
     describe('#deleteMany', function () {
       it('deletes the document from the collection', async function () {
         await dataService.insertOne(testNamespace, { a: 500 });

@@ -41,7 +41,9 @@ import type {
   Db,
   IndexInformationOptions,
   CollectionInfo,
+  UpdateFilter,
   UpdateOptions,
+  UpdateResult,
   ReplaceOptions,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
@@ -753,6 +755,21 @@ export interface DataService {
     update: Document | Document[],
     executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview>;
+
+  /**
+   * Updates multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -1483,6 +1500,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.deleteMany(filter, options);
   }
 
+  async updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult> {
+    const coll = this._collection(ns, 'CRUD');
+    return await coll.updateMany(filter, update, options);
+  }
+
   async disconnect(): Promise<void> {
     this._logger.info(mongoLogId(1_001_000_016), 'Disconnecting');
 
@@ -2113,7 +2140,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       result = await raceWithAbort(start(session), abortSignal);
     } catch (err) {
       if (isCancelError(err)) {
-        void abort();
+        await abort();
       }
       throw err;
     }
@@ -2357,19 +2384,36 @@ class DataServiceImpl extends WithLogContext implements DataService {
             .sort({ _id: 1 })
             .toArray();
 
+          if (session.inTransaction()) {
+            await session.abortTransaction();
+            await session.endSession();
+          }
+
           const changes = docsToPreview.map((before, idx) => ({
             before,
             after: changedDocs[idx],
           }));
           return { changes };
-        } finally {
-          await session.abortTransaction();
-          await session.endSession();
+        } catch (err: any) {
+          if (isTransactionAbortError(err)) {
+            // The transaction was aborted while it was still calculating the
+            // preview. Just return something here rather than erroring.
+            return { changes: [] };
+          }
+
+          if (session.inTransaction()) {
+            await session.abortTransaction();
+            await session.endSession();
+          }
+
+          throw err;
         }
       },
       async (session) => {
-        await session.abortTransaction();
-        await session.endSession();
+        if (session.inTransaction()) {
+          await session.abortTransaction();
+          await session.endSession();
+        }
       },
       abortSignal
     );
@@ -2565,6 +2609,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     assertNoExtraProps(this);
   }
+}
+
+function isTransactionAbortError(err: any) {
+  if (err.message === 'Cannot use a session that has ended') {
+    return true;
+  }
+  if (err.codeName === 'NoSuchTransaction') {
+    return true;
+  }
+  return false;
 }
 
 export { DataServiceImpl };

@@ -7,7 +7,7 @@ import {
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
 import type { RootState } from '../../stores/query-bar-store';
-import type { RecentQuery } from '../../utils/query-storage';
+import type { RecentQuery } from '@mongodb-js/my-queries-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,
