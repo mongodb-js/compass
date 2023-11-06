@@ -1,4 +1,4 @@
-import createLoggerAndTelemetry from './';
+import { createLoggerAndTelemetry } from './';
 import { once } from 'events';
 import { expect } from 'chai';
 
