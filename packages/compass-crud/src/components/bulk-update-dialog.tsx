@@ -196,7 +196,7 @@ export default function BulkUpdateDialog({
               queryLabel="Filter"
               filterQuery={toJSString(filter) ?? ''}
               onExportToLanguage={() => {
-                return;
+                return; // TODO: COMPASS-7334
               }}
             />
           </div>
