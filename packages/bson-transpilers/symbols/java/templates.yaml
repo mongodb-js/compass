@@ -43,15 +43,19 @@ Templates:
         MongoCollection<Document> collection = database.getCollection("${spec.options.collection}");`;
 
         let driverMethod;
+        let driverResult;
         switch (exportMode) {
             case 'Delete Query':
                 driverMethod = 'deleteMany';
+                driverResult = 'DeleteResult';
                 break;
             case 'Update Query':
                 driverMethod = 'updateMany';
+                driverResult = 'UpdateResult';
                 break;
             default:
                 driverMethod = 'find';
+                driverResult = 'FindIterable<Document>';
         }
             if ('aggregation' in spec) {
                 return `${comment}\n */\n\n${connection}
@@ -93,7 +97,7 @@ Templates:
                         return `${s}
             .${k}(${k})`;
                 }
-            }, `FindIterable<Document> result = collection.${driverMethod}(filter)`);
+            }, `${driverResult} result = collection.${driverMethod}(filter)`);
 
             return `${comment}${warning}\n */\n\n${defs}
 
@@ -988,8 +992,10 @@ Templates:
                 'import org.bson.Document;\n';
             if (mode === 'Query') {
                 imports += 'import com.mongodb.client.FindIterable;';
-            } else {
+            } else if (mode === 'Pipeline') {
                 imports += 'import com.mongodb.client.AggregateIterable;';
+            } else if (mode === 'Delete Query') {
+                imports += 'import com.mongodb.client.result.DeleteResult;';
             }
             return imports;
         }
