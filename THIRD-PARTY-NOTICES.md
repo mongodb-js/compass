@@ -456,7 +456,7 @@ This document was automatically generated on Mon Nov 06 2023.
 | **[mongodb-ns](#d99637af4fc3f4918f33167526619cdfd8cdf31550f209f0c885f2f47c550209)**                                         | 2.4.0        | MIT                                 |
 | **[mongodb-query-parser](#e76b97f8b563e3ff94c5fecb84c4dbc02b0034b3183a6899bf7f91e951af32a2)**                               | 3.1.3        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                     | 0.2.2        | Apache-2.0                          |
-| **[mongodb-schema](#8f836d9ce2de53e4e9509877c26321de59e9be8f4d0f8c58bc4f26d9f17499f9)**                                     | 12.0.0       | Apache-2.0                          |
+| **[mongodb-schema](#041a4a595a251da29bf373cbdd533b1e238cc51175c3d4913028c03431ddd4d2)**                                     | 12.1.0       | Apache-2.0                          |
 | **[mongodb](#f4999707e41fd8f37255de0ee3b4ab4f7bbf9259b441c46abb2fd8f5b154d9a2)**                                            | 6.1.0        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                                 | 2.0.0        | MIT                                 |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                                 | 2.1.2        | MIT                                 |
@@ -29697,9 +29697,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="8f836d9ce2de53e4e9509877c26321de59e9be8f4d0f8c58bc4f26d9f17499f9"></a>
+<a id="041a4a595a251da29bf373cbdd533b1e238cc51175c3d4913028c03431ddd4d2"></a>
 
-### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 12.0.0)
+### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 12.1.0)
 
 License tags: Apache-2.0
 
