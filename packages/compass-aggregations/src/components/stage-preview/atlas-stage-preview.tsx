@@ -6,7 +6,7 @@ import {
   AtlasNavGraphic,
   Body,
 } from '@mongodb-js/compass-components';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const ATLAS_LINK =

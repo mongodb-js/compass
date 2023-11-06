@@ -12,7 +12,7 @@ import {
 } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'

@@ -2,7 +2,7 @@ import preferencesAccess from 'compass-preferences-model';
 import { promisify } from 'util';
 import { app as electronApp } from 'electron';
 import path from 'path';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { mongoLogId } from 'mongodb-log-writer';
 import type { RegistryItem } from 'winreg-ts';
 import { Registry } from 'winreg-ts';

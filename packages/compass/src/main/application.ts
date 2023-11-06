@@ -16,7 +16,7 @@ import preferences, {
 } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
 import { defaultsDeep } from 'lodash';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/main';

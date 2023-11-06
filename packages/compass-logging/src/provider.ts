@@ -2,9 +2,16 @@ import React from 'react';
 import type { LoggerAndTelemetry } from './logger';
 export type { LoggerAndTelemetry } from './logger';
 
+function defaultCreateLoggerAndTelemetry(component: string) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require('./logger').createGenericLoggerAndTelemetry(component, () => {
+    /* ignore */
+  });
+}
+
 const LoggerAndTelemetryContext = React.createContext<
-  ((component: string) => LoggerAndTelemetry) | null
->(null);
+  (component: string) => LoggerAndTelemetry
+>(defaultCreateLoggerAndTelemetry);
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 

@@ -1,6 +1,6 @@
 import { isInternalFieldPath } from 'hadron-document';
 import type { AggregateOptions, Filter, Document } from 'mongodb';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { DataService } from 'mongodb-data-service';
 import mongodbSchema from 'mongodb-schema';
 import type {

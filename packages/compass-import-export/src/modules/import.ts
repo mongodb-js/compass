@@ -11,7 +11,7 @@ import path from 'path';
 import { combineReducers } from 'redux';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
