@@ -4,6 +4,7 @@ export { AppRegistry, globalAppRegistry };
 export type { Role };
 export {
   AppRegistryProvider,
+  useGlobalAppRegistry,
   useLocalAppRegistry,
   useAppRegistryComponent,
   useAppRegistryRole,
