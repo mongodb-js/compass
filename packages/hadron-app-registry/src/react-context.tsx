@@ -102,6 +102,7 @@ export function useLocalAppRegistry(): AppRegistry {
   return appRegistry;
 }
 
+/** @deprecated prefer using plugins or direct references instead */
 export function useAppRegistryComponent(
   componentName: string
 ): React.JSXElementConstructor<unknown> | null {
@@ -120,6 +121,7 @@ export function useAppRegistryComponent(
   return component ? component : null;
 }
 
+/** @deprecated prefer using plugins or direct references instead */
 export function useAppRegistryRole(roleName: string):
   | {
       component: React.JSXElementConstructor<unknown>;
