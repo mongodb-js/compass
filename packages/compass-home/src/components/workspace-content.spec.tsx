@@ -1,8 +1,7 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import AppRegistryContext from '../contexts/app-registry-context';
+import AppRegistry, { AppRegistryProvider } from 'hadron-app-registry';
 import WorkspaceContent from './workspace-content';
 
 const getComponent = (name: string) => {
@@ -39,9 +38,9 @@ describe('WorkspaceContent [Component]', function () {
   describe('namespace is unset', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <WorkspaceContent namespace={{ database: '', collection: '' }} />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 
@@ -55,9 +54,9 @@ describe('WorkspaceContent [Component]', function () {
   describe('namespace has a db', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <WorkspaceContent namespace={{ database: 'db', collection: '' }} />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 
@@ -71,9 +70,9 @@ describe('WorkspaceContent [Component]', function () {
   describe('namespace has db and collection', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <WorkspaceContent namespace={{ database: 'db', collection: 'col' }} />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 

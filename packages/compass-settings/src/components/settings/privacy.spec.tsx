@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
+import { stub } from 'sinon';
 import { Provider } from 'react-redux';
 import { PrivacySettings } from './privacy';
 import { configureStore } from '../../stores';
@@ -29,7 +30,7 @@ describe('PrivacySettings', function () {
   }
 
   beforeEach(async function () {
-    store = configureStore();
+    store = configureStore({ logger: stub() as any });
     await store.dispatch(fetchSettings());
   });
 

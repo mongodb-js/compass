@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   Modal,
   ModalFooter,
@@ -59,8 +59,7 @@ function CreateIndexModal({
       }
     },
     [isVisible],
-    undefined,
-    React
+    undefined
   );
 
   return (

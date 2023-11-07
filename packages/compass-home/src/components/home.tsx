@@ -33,16 +33,13 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  AppRegistryRoles,
-  useAppRegistryContext,
-  useAppRegistryRole,
-} from '../contexts/app-registry-context';
+import { useLocalAppRegistry, useAppRegistryRole } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -169,7 +166,7 @@ function Home({
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
 
   const [
@@ -320,7 +317,7 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+  const globalModals = useAppRegistryRole('Global.Modal');
 
   return (
     <SignalHooksProvider
@@ -363,6 +360,7 @@ function Home({
       {globalModals?.map(({ name, component: GlobalModalComponent }) => {
         return <GlobalModalComponent key={name}></GlobalModalComponent>;
       })}
+      <CompassSettingsPlugin></CompassSettingsPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
@@ -380,7 +378,7 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),

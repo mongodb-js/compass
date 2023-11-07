@@ -3,10 +3,7 @@ import { css } from '@mongodb-js/compass-components';
 
 import WorkspaceContent from './workspace-content';
 import type Namespace from '../types/namespace';
-import {
-  AppRegistryComponents,
-  useAppRegistryComponent,
-} from '../contexts/app-registry-context';
+import { useAppRegistryComponent } from 'hadron-app-registry';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -42,12 +39,8 @@ export default function Workspace({
 }: {
   namespace: Namespace;
 }): React.ReactElement {
-  const SidebarComponent = useAppRegistryComponent(
-    AppRegistryComponents.SIDEBAR_COMPONENT
-  );
-  const GlobalShellComponent = useAppRegistryComponent(
-    AppRegistryComponents.SHELL_COMPONENT
-  );
+  const SidebarComponent = useAppRegistryComponent('Sidebar.Component');
+  const GlobalShellComponent = useAppRegistryComponent('Global.Shell');
 
   return (
     <>

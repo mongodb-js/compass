@@ -1,7 +1,7 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import { combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import fs from 'fs';
 import _ from 'lodash';
 

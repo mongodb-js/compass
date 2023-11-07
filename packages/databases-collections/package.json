@@ -69,7 +69,6 @@
     "eslint": "^7.25.0",
     "hadron-app": "^5.15.0",
     "hadron-app-registry": "^9.0.13",
-    "hadron-ipc": "^3.2.4",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.0.0",

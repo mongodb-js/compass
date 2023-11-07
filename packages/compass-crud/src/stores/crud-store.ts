@@ -9,7 +9,7 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';

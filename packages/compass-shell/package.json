@@ -86,7 +86,6 @@
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.13",
-    "hadron-ipc": "^3.2.4",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",

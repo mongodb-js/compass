@@ -8,7 +8,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');

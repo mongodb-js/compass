@@ -7,7 +7,7 @@ import FavoriteList from './favorite-list';
 
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores/query-bar-store';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const containerStyle = css({
   display: 'flex',
@@ -42,8 +42,7 @@ const QueryHistory = ({ namespace }: QueryHistoryProps) => {
       }
     },
     [tab],
-    undefined,
-    React
+    undefined
   );
 
   return (
