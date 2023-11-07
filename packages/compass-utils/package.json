@@ -1,6 +1,5 @@
 {
   "name": "@mongodb-js/compass-utils",
-  "productName": "compass-utils Plugin",
   "description": "Utilities for MongoDB Compass Development",
   "author": {
     "name": "MongoDB Inc",

@@ -1,6 +1,7 @@
 {
   "name": "@mongodb-js/compass-settings",
   "description": "Settings for compass",
+  "productName": "Compass Settings Plugin",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

@@ -1,6 +1,7 @@
 {
   "name": "@mongodb-js/compass-import-export",
   "description": "Import/Export feature for Compass",
+  "productName": "Compass Import / Export Plugin",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
