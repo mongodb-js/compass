@@ -70,27 +70,23 @@ const configureStore = (options = {}) => {
       'open-query-export-to-language',
       (queryStrings, exportMode) => {
         const query = {};
-        if (typeof queryStrings === 'string') {
-          query.filter = queryStrings === '' ? '{}' : queryStrings;
-        } else {
-          [
-            'filter',
-            'project',
-            'sort',
-            'collation',
-            'skip',
-            'limit',
-            'maxTimeMS',
-          ].forEach((k) => {
-            if (!queryStrings[k] || queryStrings[k] === '') {
-              if (k === 'filter') {
-                query[k] = '{}';
-              }
-            } else {
-              query[k] = queryStrings[k];
+        [
+          'filter',
+          'project',
+          'sort',
+          'collation',
+          'skip',
+          'limit',
+          'maxTimeMS',
+        ].forEach((k) => {
+          if (!queryStrings[k] || queryStrings[k] === '') {
+            if (k === 'filter') {
+              query[k] = '{}';
             }
-          });
-        }
+          } else {
+            query[k] = queryStrings[k];
+          }
+        });
 
         if (!exportMode) {
           throw new Error(

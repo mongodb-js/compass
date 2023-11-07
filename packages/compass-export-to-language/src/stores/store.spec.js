@@ -180,33 +180,6 @@ describe('ExportToLanguage Store', function () {
         );
       });
 
-      it('treats a string as a filter', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          {},
-          (s) =>
-            inputExpressionEquals(s.inputExpression, {
-              filter: '{x: 1, y: 2}',
-            }),
-          done
-        );
-        localAppRegistry.emit(
-          'open-query-export-to-language',
-          '{x: 1, y: 2}',
-          'Query'
-        );
-      });
-
-      it('treats a empty string as a default filter', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          {},
-          (s) => inputExpressionEquals(s.inputExpression, { filter: '{}' }),
-          done
-        );
-        localAppRegistry.emit('open-query-export-to-language', '', 'Query');
-      });
-
       it('handles default filter with other args', function (done) {
         unsubscribe = subscribeCheck(
           store,
