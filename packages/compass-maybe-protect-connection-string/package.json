@@ -1,6 +1,5 @@
 {
   "name": "@mongodb-js/compass-maybe-protect-connection-string",
-  "productName": "@mongodb-js/compass-maybe-protect-connection-string Plugin",
   "description": "Utility for protecting connection strings if requested",
   "author": {
     "name": "MongoDB Inc",
