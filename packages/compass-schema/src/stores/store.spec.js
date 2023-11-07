@@ -147,15 +147,5 @@ describe('Schema Store', function () {
         maxTimeMS: '',
       });
     });
-
-    it('emits the event with the schema tag to the global app registry', function () {
-      expect(globalAppRegistryEmitSpy.calledOnce).to.be.true;
-      expect(globalAppRegistryEmitSpy.firstCall.args[0]).to.equal(
-        'compass:export-to-language:opened'
-      );
-      expect(globalAppRegistryEmitSpy.firstCall.args[1]).to.deep.equal({
-        source: 'Schema',
-      });
-    });
   });
 });

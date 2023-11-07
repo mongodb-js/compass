@@ -56,7 +56,7 @@ describe('BulkDeleteModal Component', function () {
     const onCloseSpy = sinon.spy();
     renderBulkDeleteModal({ onCancel: onCloseSpy });
 
-    userEvent.click(screen.getByText('Close').closest('button')!);
+    userEvent.click(screen.getByText('Cancel').closest('button')!);
     expect(onCloseSpy).to.have.been.calledOnce;
   });
 
@@ -71,5 +71,17 @@ describe('BulkDeleteModal Component', function () {
       screen.getAllByText('Delete 10 documents')[1].closest('button')!
     );
     expect(onConfirmDeletionSpy).to.have.been.calledOnce;
+  });
+
+  it('opens the export to language modal', function () {
+    const onExportToLanguageSpy = sinon.spy();
+    renderBulkDeleteModal({
+      documentCount: 10,
+      onExportToLanguage: onExportToLanguageSpy,
+    });
+
+    userEvent.click(screen.getByText('Export').closest('button')!);
+
+    expect(onExportToLanguageSpy).to.have.been.calledOnce;
   });
 });

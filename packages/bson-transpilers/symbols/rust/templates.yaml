@@ -50,8 +50,10 @@ Templates:
             
             const options = spec.options;
             const filter = spec.filter || 'None';
+            const exportMode = spec.exportMode;
             delete spec.options;
             delete spec.filter;
+            delete spec.exportMode;
 
             const connect = `let client = Client::with_uri_str("${options.uri}").await?;`
             const coll = `client.database("${options.database}").collection::<Document>("${options.collection}")`;
@@ -62,6 +64,23 @@ Templates:
                     agg = `[${agg}]`;
                 }
                 return `${comment}\n\n${connect}\nlet result = ${coll}.aggregate(${agg}, None).await?;`;
+            }
+
+            let driverMethod;
+            let optionsName;
+            switch (exportMode) {
+                case 'Delete Query':
+                    driverMethod = 'delete_many';
+                    optionsName = 'DeleteOptions';
+                    break;
+                case 'Update Query':
+                    driverMethod = 'update_many';
+                    optionsName = 'UpdateOptions';
+                    break;
+                default:
+                    driverMethod = 'find';
+                    optionsName = 'FindOptions';
+                    break;
             }
 
             const findOpts = [];
@@ -81,10 +100,10 @@ Templates:
             }
             let optStr = '';
             if (findOpts.length > 0) {
-                optStr = `let options = mongodb::options::FindOptions::builder()\n${findOpts.join('\n')}\n    .build();\n`;
+                optStr = `let options = mongodb::options::${optionsName}::builder()\n${findOpts.join('\n')}\n    .build();\n`;
             }
             let optRef = optStr ? 'options' : 'None';
-            const cmd = `let result = ${coll}.find(${filter}, ${optRef}).await?;`;
+            const cmd = `let result = ${coll}.${driverMethod}(${filter}, ${optRef}).await?;`;
 
             return `${comment}\n\n${connect}\n${optStr}${cmd}`;
         }

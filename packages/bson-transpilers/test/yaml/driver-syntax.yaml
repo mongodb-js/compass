@@ -6,7 +6,16 @@ runner: !!js/function >
             ).to.equal(test.output[output]);
         });
         it(`${input}: imports in ${output}`, () => {
-            const mode = type === 'query' ? 'Query' : 'Pipeline';
+            let mode;
+            if (type === 'delete_query') {
+              mode = 'Delete Query';
+            } else if (type === 'update_query') {
+              mode = 'Update Query';
+            } else if (type === 'query') {
+              mode = 'Query';
+            } else {
+              mode = 'Pipeline'
+            }
             expect(
                 transpiler[input][output].getImports(mode, true)
             ).to.equal(test.imports[output]);
@@ -256,7 +265,6 @@ tests:
                     }
                   }()
 
-                  // Find data
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}})
                   if err != nil {
@@ -501,7 +509,6 @@ tests:
                     }
                   }()
 
-                  // Find data
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}},
                     options.Find().SetProjection(bson.D{{"y", primitive.NewObjectID()}}),
@@ -571,13 +578,152 @@ tests:
                   use mongodb::Client;
                   use mongodb::bson::doc;
                   use mongodb::bson::oid::ObjectId;
+    delete_query:
+        -
+            description: 'generate driver syntax with only delete'
+            input:
+                javascript: { exportMode: 'Delete Query', filter: '{x: Long(0, 0)}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
+                shell: { exportMode: 'Delete Query', filter: '{x: NumberLong(0)}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
+            output:
+                python: |-
+                    # Requires the PyMongo package.
+                    # https://api.mongodb.com/python/current
+
+                    client = MongoClient('mongodb://localhost:27017')
+                    filter={
+                        'x': Int64(0)
+                    }
+
+                    result = client['db']['collection'].delete_many(
+                      filter=filter
+                    )
+                java: |-
+                    /*
+                     * Requires the MongoDB Java Driver.
+                     * https://mongodb.github.io/mongo-java-driver
+                     */
+
+                    Bson filter = eq("x", 0L);
+
+                    MongoClient mongoClient = new MongoClient(
+                        new MongoClientURI(
+                            "mongodb://localhost:27017"
+                        )
+                    );
+                    MongoDatabase database = mongoClient.getDatabase("db");
+                    MongoCollection<Document> collection = database.getCollection("collection");
+                    DeleteResult result = collection.deleteMany(filter);
+                javascript: |-
+                    /*
+                     * Requires the MongoDB Node.js Driver
+                     * https://mongodb.github.io/node-mongodb-native
+                     */
+
+                    const filter = {
+                      'x': Long.fromNumber(0)
+                    };
+
+                    const client = await MongoClient.connect(
+                      'mongodb://localhost:27017'
+                    );
+                    const coll = client.db('db').collection('collection');
+                    const result = coll.deleteMany(filter);
+                    await client.close();
+                shell: |-
+                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    db.collection.deleteMany({
+                      'x': new NumberLong(0)
+                    });"
+                php: |-
+                    // Requires the MongoDB PHP Driver
+                    // https://www.mongodb.com/docs/drivers/php/
+
+                    $client = new Client('mongodb://localhost:27017');
+                    $collection = $client->selectCollection('db', 'collection');
+                    $cursor = $collection->delete_many(['x' => 0]);
+                ruby: |-
+                    # Requires the MongoDB Ruby Driver
+                    # https://docs.mongodb.com/ruby-driver/master/
+
+                    client = Mongo::Client.new('mongodb://localhost:27017', :database => 'db')
+
+                    result = client.database['collection'].delete_many({
+                      'x' => 0
+                    })
+                go: |-
+                  // Requires the MongoDB Go Driver
+                  // https://go.mongodb.org/mongo-driver
+                  ctx := context.TODO()
+
+                  // Set client options
+                  clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+                  // Connect to MongoDB
+                  client, err := mongo.Connect(ctx, clientOptions)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  defer func() {
+                    if err := client.Disconnect(ctx); err != nil {
+                      log.Fatal(err)
+                    }
+                  }()
+
+                  coll := client.Database("db").Collection("collection")
+                  _, err = coll.DeleteMany(ctx, bson.D{{"x", int64(0)}})
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                rust: |-
+                    // Requires the MongoDB crate.
+                    // https://crates.io/crates/mongodb
+
+                    let client = Client::with_uri_str("mongodb://localhost:27017").await?;
+                    let result = client.database("db").collection::<Document>("collection").delete_many(doc! {
+                        "x": 0i64
+                    }, None).await?;
+            imports:
+                python: |-
+                    from pymongo import MongoClient
+                    from bson import Int64
+                java: |-
+                    import static com.mongodb.client.model.Filters.eq;
+                    import com.mongodb.MongoClient;
+                    import com.mongodb.MongoClientURI;
+                    import com.mongodb.client.MongoCollection;
+                    import com.mongodb.client.MongoDatabase;
+                    import org.bson.conversions.Bson;
+                    import java.util.concurrent.TimeUnit;
+                    import org.bson.Document;
+                    import com.mongodb.client.result.DeleteResult;
+                javascript: |-
+                    import { MongoClient } from 'mongodb';
+                    import {
+                      Long
+                    } from 'mongodb';
+                shell: ''
+                php: |-
+                    use MongoDB\Client;
+                ruby: require 'mongo'
+                go: |-
+                  import (
+                    "context"
+                    "go.mongodb.org/mongo-driver/bson"
+                    "go.mongodb.org/mongo-driver/mongo"
+                    "go.mongodb.org/mongo-driver/mongo/options"
+                    "log"
+                    "strconv"
+                  )
+                rust: |-
+                    use mongodb::Client;
+                    use mongodb::bson::doc;
+         
     declarations:
         -
             description: 'generate driver syntax with declarations'
             input:
                 shell: { aggregation: "{x: ObjectId('5a7382114ec1f67ae445f778')}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
                 javascript: { aggregation: "{x: ObjectId('5a7382114ec1f67ae445f778')}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
-                python: { aggregation: "{'x': ObjectId('5a7382114ec1f67ae445f778')}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
             output:
                 go: |-
                   // Requires the MongoDB Go Driver

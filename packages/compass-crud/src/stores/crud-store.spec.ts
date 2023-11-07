@@ -979,6 +979,21 @@ describe('store', function () {
         affected: 1,
       });
     });
+
+    it('triggers code export', function (done) {
+      store.state.query.filter = { query: 1 };
+      store.localAppRegistry.on(
+        'open-query-export-to-language',
+        (options, exportMode) => {
+          expect(exportMode).to.equal('Delete Query');
+          expect(options).to.deep.equal({ filter: '{\n query: 1\n}' });
+
+          done();
+        }
+      );
+
+      store.openDeleteQueryExportToLanguageDialog();
+    });
   });
 
   describe('#replaceDocument', function () {

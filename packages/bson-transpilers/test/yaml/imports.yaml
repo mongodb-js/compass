@@ -2,7 +2,16 @@ runner: !!js/function >
     (it, type, expect, input, output, transpiler, test) => {
         it(`correct ${output} imports from ${input}`, () => {
             transpiler[input][output].compile(test.input[input], true, false);
-            const mode = type === 'query' ? 'Query' : 'Pipeline';
+            let mode;
+            if (type === 'delete_query') {
+              mode = 'Delete Query';
+            } else if (type === 'update_query') {
+              mode = 'Update Query';
+            } else if (type === 'query') {
+              mode = 'Query';
+            } else {
+              mode = 'Pipeline'
+            }
             expect(
                 transpiler[input][output].getImports(mode)
             ).to.equal(test.output[output]);

@@ -41,6 +41,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import { toJSString } from 'mongodb-query-parser';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -63,6 +64,7 @@ export type CrudActions = {
   runBulkUpdate(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
+  openDeleteQueryExportToLanguageDialog(): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -1862,7 +1864,7 @@ class CrudStoreImpl
       timeout: 6_000,
       description: `${
         this.state.bulkDelete.affected || 0
-      } documents have been deleted.`,
+      } documents have been deleted. Please refresh to preview.`,
     });
   }
 
@@ -1881,7 +1883,7 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: 'Delete',
+      buttonText: `Delete ${affected || 0} documents`,
       description: `This action can not be undone. This will permanently delete ${
         affected || 0
       } documents.`,
@@ -1900,6 +1902,16 @@ class CrudStoreImpl
         this.bulkDeleteFailed(ex as Error);
       }
     }
+  }
+
+  openDeleteQueryExportToLanguageDialog(): void {
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(this.state.query.filter) || '{}',
+      },
+      'Delete Query'
+    );
   }
 }
 

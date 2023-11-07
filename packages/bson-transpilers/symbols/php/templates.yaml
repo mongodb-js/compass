@@ -54,8 +54,10 @@ Templates:
             };
             const options = spec.options;
             const filter = spec.filter || {};
+            const exportMode = spec.exportMode;
             delete spec.options;
             delete spec.filter;
+            delete spec.exportMode;
 
             comment = []
                 .concat('// Requires the MongoDB PHP Driver')
@@ -77,6 +79,18 @@ Templates:
                 ;
             }
 
+            let driverMethod;
+            switch (exportMode) {
+                case 'Delete Query':
+                    driverMethod = 'delete_many';
+                    break;
+                case 'Update Query':
+                    driverMethod = 'update_many';
+                    break;
+                default:
+                    driverMethod = 'find';
+            }
+
             let args = Object.keys(spec).reduce(
                 (result, k) => {
                     let val = this.utils.removePHPObject(spec[k]);
@@ -92,7 +106,7 @@ Templates:
                 .concat('')
                 .concat(client)
                 .concat(collection)
-                .concat(`$cursor = $collection->find(${this.utils.removePHPObject(filter)}${args});`)
+                .concat(`$cursor = $collection->${driverMethod}(${this.utils.removePHPObject(filter)}${args});`)
                 .join('\n')
             ;
         }
