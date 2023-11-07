@@ -1,25 +1,34 @@
+import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import throttle from 'lodash/throttle';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
+import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
 import { changeLocation } from '../modules/location';
+import type { Database } from '../modules/databases';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { toggleSidebar } from '../modules/is-expanded';
+import type AppRegistry from 'hadron-app-registry';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 // We use these symbols so that nothing from outside can access these values on
 // the store
 const kInstance = Symbol('instance');
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store: Store<RootState, RootAction> & {
+  [kInstance]: null | MongoDBInstance;
+} = Object.assign(createStore(reducer, applyMiddleware(thunk)), {
+  [kInstance]: null,
+});
 
-store.onActivated = (appRegistry) => {
-  const onInstanceChangeNow = (instance) => {
+const onActivated = (appRegistry: AppRegistry) => {
+  const onInstanceChangeNow = (instance: any /* MongoDBInstance */) => {
     store.dispatch(
       changeInstance({
         refreshingStatus: instance.refreshingStatus,
@@ -41,7 +50,7 @@ store.onActivated = (appRegistry) => {
     onInstanceChangeNow(instance);
   }, 300);
 
-  function getDatabaseInfo(db) {
+  function getDatabaseInfo(db: Database) {
     return {
       _id: db._id,
       name: db.name,
@@ -50,7 +59,7 @@ store.onActivated = (appRegistry) => {
     };
   }
 
-  function getCollectionInfo(coll) {
+  function getCollectionInfo(coll: Database['collections'][number]) {
     return {
       _id: coll._id,
       name: coll.name,
@@ -58,7 +67,7 @@ store.onActivated = (appRegistry) => {
     };
   }
 
-  const onDatabasesChange = throttle((databases) => {
+  const onDatabasesChange = throttle((databases: Database[]) => {
     const dbs = databases.map((db) => {
       return {
         ...getDatabaseInfo(db),
@@ -86,10 +95,13 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('instance-destroyed', () => {
-    store[kInstance].off();
-    store[kInstance].build.off();
-    store[kInstance].dataLake.off();
-    store[kInstance].genuineMongoDB.off();
+    const instance = store[kInstance] as any;
+    if (instance) {
+      instance.off();
+      instance.build.off();
+      instance.dataLake.off();
+      instance.genuineMongoDB.off();
+    }
     store[kInstance] = null;
     onInstanceChange.cancel();
     onDatabasesChange.cancel();
@@ -152,10 +164,13 @@ store.onActivated = (appRegistry) => {
       toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
     );
 
-    instance.genuineMongoDB.on('change:isGenuine', (model, isGenuine) => {
-      onInstanceChange(instance); // isGenuineMongoDB is part of instance state
-      store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
-    });
+    instance.genuineMongoDB.on(
+      'change:isGenuine',
+      (model: unknown, isGenuine: boolean) => {
+        onInstanceChange(instance); // isGenuineMongoDB is part of instance state
+        store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
+      }
+    );
 
     instance.on('change:topologyDescription', () => {
       onInstanceChange(instance);
@@ -199,4 +214,4 @@ store.onActivated = (appRegistry) => {
   });
 };
 
-export default store;
+export default Object.assign(store, { onActivated });

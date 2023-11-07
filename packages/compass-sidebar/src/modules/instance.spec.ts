@@ -6,7 +6,7 @@ import reducer, {
   CHANGE_INSTANCE,
 } from './instance';
 
-const instance = {
+const instance: any = {
   _id: '123',
 };
 
@@ -22,14 +22,14 @@ describe('sidebar instance', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, {} as any)).to.equal(INITIAL_STATE);
       });
     });
   });
 
   describe('#changeInstance', function () {
     it('returns the action', function () {
-      expect(changeInstance('new instance w action')).to.deep.equal({
+      expect(changeInstance('new instance w action' as any)).to.deep.equal({
         type: CHANGE_INSTANCE,
         instance: 'new instance w action',
       });

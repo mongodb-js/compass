@@ -1,3 +1,4 @@
+import type { AppRegistry } from 'hadron-app-registry';
 import SidebarPlugin from './plugin';
 import SidebarStore from './stores';
 
@@ -5,7 +6,7 @@ import SidebarStore from './stores';
  * Activate all the components in the Sidebar package.
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry) {
+function activate(appRegistry: AppRegistry) {
   appRegistry.registerComponent('Sidebar.Component', SidebarPlugin);
   appRegistry.registerStore('Sidebar.Store', SidebarStore);
 }
@@ -14,7 +15,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the Sidebar package.
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
-function deactivate(appRegistry) {
+function deactivate(appRegistry: AppRegistry) {
   appRegistry.deregisterComponent('Sidebar.Component');
   appRegistry.deregisterStore('Sidebar.Store');
 }

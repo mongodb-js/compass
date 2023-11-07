@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { InfoModal, Body, css, spacing } from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { ConnectionOptions } from '../modules/connection-options';
+import type { ConnectionOptionsState } from '../modules/connection-options';
 
 type Collection = {
   id: string;
@@ -111,7 +111,7 @@ type InfoParameters = {
   instance: MongoDBInstance;
   databases: Database[];
   connectionInfo: ConnectionInfo;
-  connectionOptions: ConnectionOptions;
+  connectionOptions: ConnectionOptionsState;
 };
 
 function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
@@ -262,7 +262,7 @@ const mapStateToProps = (state: {
   connectionInfo: {
     connectionInfo: ConnectionInfo;
   };
-  connectionOptions: ConnectionOptions;
+  connectionOptions: ConnectionOptionsState;
 }) => {
   const { instance, databases, connectionOptions } = state;
   const { connectionInfo } = state.connectionInfo;
