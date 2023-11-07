@@ -18,7 +18,11 @@ import {
   codeLanguageToOutputLanguage,
 } from '../modules/languages';
 import type { OutputLanguage } from '../modules/languages';
-import { getInputExpressionMode, runTranspiler } from '../modules/transpiler';
+import {
+  getInputExpressionMode,
+  isQuery,
+  runTranspiler,
+} from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -137,7 +141,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     useBuilders,
   ]);
 
-  const includeUseBuilders = outputLanguage === 'java' && mode === 'Query';
+  const includeUseBuilders = outputLanguage === 'java' && isQuery(mode);
 
   const input =
     'aggregation' in inputExpression

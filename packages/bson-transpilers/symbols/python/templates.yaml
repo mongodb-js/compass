@@ -31,10 +31,24 @@ Templates:
                 maxTimeMS: 'max_time_ms'
             };
             const options = spec.options;
+            const exportMode = spec.exportMode;
             delete spec.options;
+            delete spec.exportMode;
 
             const connect = `client = MongoClient('${options.uri}')`;
             const coll = `client['${options.database}']['${options.collection}']`;
+
+            let driverMethod;
+            switch (exportMode) {
+                case 'Delete Query':
+                    driverMethod = 'delete_many';
+                    break;
+                case 'Update Query':
+                    driverMethod = 'update_many';
+                    break;
+                default:
+                    driverMethod = 'find';
+            }
 
             if ('aggregation' in spec) {
                 return `${comment}\n\n${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
@@ -59,7 +73,7 @@ Templates:
                 },
                 ''
             );
-            const cmd = `result = ${coll}.find(\n${args}\n)`;
+            const cmd = `result = ${coll}.${driverMethod}(\n${args}\n)`;
 
             return `${comment}\n\n${vars}\n\n${cmd}`;
         }

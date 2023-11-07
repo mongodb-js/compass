@@ -41,6 +41,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import { toJSString } from 'mongodb-query-parser';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -63,6 +64,7 @@ export type CrudActions = {
   runBulkUpdate(): void;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
+  openDeleteQueryExportToLanguageDialog(): void;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -359,6 +361,7 @@ type BulkUpdateState = {
   syntaxError?: Error;
   serverError?: Error;
   previewAbortController?: AbortController;
+  affected?: number;
 };
 
 export type TableState = {
@@ -1150,13 +1153,9 @@ class CrudStoreImpl
 
     let preview;
     try {
-      // TODO(COMPASS-7369): we should automatically retry if the get "Write
-      // conflict during plan execution and yielding is disabled."
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
-        // TODO(COMPASS-7368): aborting the in-flight operation is still buggy,
-        // regularly causing uncaught MongoRuntimeError rejections
-        //abortSignal: abortController.signal,
+        abortSignal: abortController.signal,
       });
     } catch (err: any) {
       if (abortController.signal.aborted) {
@@ -1197,6 +1196,14 @@ class CrudStoreImpl
   async runBulkUpdate() {
     this.closeBulkUpdateDialog();
 
+    // keep the filter count around for the duration of the toast
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        affected: this.state.count ?? undefined,
+      },
+    });
+
     const { ns } = this.state;
     const { filter } = this.state.query;
     let update;
@@ -1209,8 +1216,46 @@ class CrudStoreImpl
       return;
     }
 
-    // TODO(COMPASS-7327): in-progress, success, error in toast
-    await this.dataService.updateMany(ns, filter, update);
+    openToast('bulk-update-toast', {
+      title: '',
+      variant: 'progress',
+      dismissible: true,
+      timeout: null,
+      description: `${
+        this.state.bulkUpdate.affected || 0
+      } documents are being updated.`,
+    });
+
+    try {
+      await this.dataService.updateMany(ns, filter, update);
+
+      openToast('bulk-update-toast', {
+        title: '',
+        variant: 'success',
+        dismissible: true,
+        timeout: 6_000,
+        description: `${
+          this.state.bulkUpdate.affected || 0
+        } documents have been updated.`,
+      });
+    } catch (err: any) {
+      openToast('bulk-update-toast', {
+        title: '',
+        variant: 'warning',
+        dismissible: true,
+        timeout: 6_000,
+        description: `${
+          this.state.bulkUpdate.affected || 0
+        } documents could not be updated.`,
+      });
+
+      log.error(
+        mongoLogId(1_001_000_269),
+        'Bulk Update Documents',
+        `Update operation failed: ${err.message}`,
+        err
+      );
+    }
   }
 
   /**
@@ -1806,10 +1851,8 @@ class CrudStoreImpl
     log.error(
       mongoLogId(1_001_000_268),
       'Bulk Delete Documents',
-      `Delete opeartion failed: ${ex.message}`,
-      {
-        stack: ex.stack,
-      }
+      `Delete operation failed: ${ex.message}`,
+      ex
     );
   }
 
@@ -1821,7 +1864,7 @@ class CrudStoreImpl
       timeout: 6_000,
       description: `${
         this.state.bulkDelete.affected || 0
-      } documents have been deleted.`,
+      } documents have been deleted. Please refresh to preview.`,
     });
   }
 
@@ -1840,7 +1883,7 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: 'Delete',
+      buttonText: `Delete ${affected || 0} documents`,
       description: `This action can not be undone. This will permanently delete ${
         affected || 0
       } documents.`,
@@ -1859,6 +1902,16 @@ class CrudStoreImpl
         this.bulkDeleteFailed(ex as Error);
       }
     }
+  }
+
+  openDeleteQueryExportToLanguageDialog(): void {
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(this.state.query.filter) || '{}',
+      },
+      'Delete Query'
+    );
   }
 }
 

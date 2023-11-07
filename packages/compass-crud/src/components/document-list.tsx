@@ -294,6 +294,10 @@ class DocumentList extends React.Component<DocumentListProps> {
     void this.props.store.runBulkDelete();
   }
 
+  onExportToLanguageDeleteQuery() {
+    void this.props.store.openDeleteQueryExportToLanguageDialog();
+  }
+
   /**
    * Render the bulk deletion modal
    */
@@ -309,6 +313,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         sampleDocuments={
           this.props.store.state.bulkDelete.previews as any as Document[]
         }
+        onExportToLanguage={this.onExportToLanguageDeleteQuery.bind(this)}
       />
     );
   }

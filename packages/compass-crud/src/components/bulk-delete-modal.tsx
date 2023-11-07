@@ -5,6 +5,7 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Icon,
   KeylineCard,
   css,
   cx,
@@ -17,33 +18,21 @@ const modalFooterSpacingStyles = css({
   gap: spacing[2],
 });
 
-const documentHorizontalWrapper = css({
+const documentListWrapper = css({
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   flex: 'none',
   flexShrink: 0,
   overflow: 'auto',
   marginBottom: spacing[2],
   gap: spacing[2],
-  maxWidth: '100%',
+  maxHeight: '340px',
 });
 
 const documentContainerStyles = css({
   display: 'flex',
-  flexDirection: 'column',
-  flex: 'none',
   flexShrink: 0,
   marginBottom: spacing[2],
-  width: '100%',
-});
-
-const documentStyles = css({
-  flexBasis: '164px',
-  flexGrow: 1,
-  flexShrink: 0,
-  overflow: 'auto',
-  padding: 0,
-  width: '100%',
 });
 
 const modalBodySpacingStyles = css({
@@ -54,8 +43,15 @@ const modalBodySpacingStyles = css({
   gap: spacing[3],
 });
 
-const previewStyles = css({
-  minHeight: '200px',
+const queryBarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[3],
+});
+
+const exportToLanguageButtonStyles = css({
+  alignSelf: 'end',
 });
 
 type BulkDeleteModalProps = {
@@ -66,6 +62,7 @@ type BulkDeleteModalProps = {
   sampleDocuments: Document[];
   onCancel: () => void;
   onConfirmDeletion: () => void;
+  onExportToLanguage: () => void;
 };
 
 const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
@@ -76,18 +73,14 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   sampleDocuments,
   onCancel,
   onConfirmDeletion,
+  onExportToLanguage,
 }) => {
   const preview = (
-    <div className={documentHorizontalWrapper}>
+    <div className={documentListWrapper}>
       {sampleDocuments.map((doc, i) => {
         return (
-          <KeylineCard
-            key={i}
-            className={cx(documentContainerStyles, previewStyles)}
-          >
-            <div className={documentStyles}>
-              <ReadonlyDocument doc={doc as any} expandAll={false} />
-            </div>
+          <KeylineCard key={i} className={cx(documentContainerStyles)}>
+            <ReadonlyDocument doc={doc as any} expandAll={false} />
           </KeylineCard>
         );
       })}
@@ -102,7 +95,20 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
-        <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
+        <div className={queryBarStyles}>
+          <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
+          <Button
+            className={exportToLanguageButtonStyles}
+            variant="primaryOutline"
+            size="default"
+            leftGlyph={<Icon glyph="Code" />}
+            onClick={onExportToLanguage}
+            data-testid="pipeline-toolbar-export-button"
+          >
+            Export
+          </Button>
+        </div>
+
         <div>
           <b>Preview (sample of {sampleDocuments.length} documents)</b>
           {preview}
@@ -113,7 +119,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           Delete {documentCount} documents
         </Button>
         <Button variant="default" onClick={onCancel}>
-          Close
+          Cancel
         </Button>
       </ModalFooter>
     </Modal>
