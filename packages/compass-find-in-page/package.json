@@ -57,6 +57,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
+    "hadron-app-registry": "^9.0.13",
     "hadron-ipc": "^3.2.4",
     "react": "^17.0.2"
   },
@@ -78,7 +79,6 @@
     "depcheck": "^1.4.1",
     "electron": "^25.9.3",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.13",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
@@ -92,6 +92,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
+    "hadron-app-registry": "^9.0.13",
     "hadron-ipc": "^3.2.4"
   }
 }
