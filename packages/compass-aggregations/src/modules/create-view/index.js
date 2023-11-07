@@ -31,9 +31,7 @@ import error, {
 } from '../create-view/error';
 
 import { reset, RESET } from '../create-view/reset';
-import appRegistry, {
-  globalAppRegistryEmit,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 
@@ -133,7 +131,7 @@ export const open = (sourceNs, sourcePipeline, duplicate) => ({
  * @returns {Function} The thunk function.
  */
 export const createView = () => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { globalAppRegistry }) => {
     debug('creating view!');
     const state = getState();
     const ds = state.dataService.dataService;
@@ -158,16 +156,9 @@ export const createView = () => {
       await ds.createView(viewName, viewSource, viewPipeline, options);
       debug('View created!');
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-      dispatch(
-        globalAppRegistryEmit('compass:aggregations:create-view', {
-          numStages: viewPipeline.length,
-        })
-      );
-      dispatch(
-        globalAppRegistryEmit(
-          'aggregations-open-result-namespace',
-          `${database}.${viewName}`
-        )
+      globalAppRegistry.emit(
+        'create-view-open-result-namespace',
+        `${database}.${viewName}`
       );
       dispatch(reset());
     } catch (e) {

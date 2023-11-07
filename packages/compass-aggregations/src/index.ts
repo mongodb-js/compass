@@ -1,12 +1,11 @@
 import type AppRegistry from 'hadron-app-registry';
+import { registerHadronPlugin } from 'hadron-app-registry';
 import AggregationsPlugin from './plugin';
 import configureStore from './stores/store';
 import { Aggregations } from './components/aggregations';
-import CreateViewPlugin from './components/create-view-plugin';
-import DuplicateViewPlugin from './components/duplicate-view-plugin';
-import configureCreateViewStore from './stores/create-view';
-import duplicateViewStore from './stores/duplicate-view';
+import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
+import CreateViewModal from './components/create-view-modal';
 
 /**
  * A sample role for the component.
@@ -24,40 +23,12 @@ const ROLE = {
 };
 
 /**
- * Create view modal plugin.
- */
-const CREATE_ROLE = {
-  name: 'Create View',
-  component: CreateViewPlugin,
-  configureStore: configureCreateViewStore,
-  storeName: 'Aggregations.CreateViewStore',
-  configureActions: () => {
-    // noop
-  },
-  actionName: 'Aggregations.Actions',
-};
-
-/**
- * Duplicate view role.
- */
-const DUPLICATE_ROLE = {
-  name: 'Duplicate View',
-  component: DuplicateViewPlugin,
-};
-
-/**
  * Activate all the components in the Aggregations package.
 
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 const activate = (appRegistry: AppRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
-  appRegistry.registerRole('Global.Modal', DUPLICATE_ROLE);
-  appRegistry.registerStore(
-    'Aggregations.DuplicateViewStore',
-    duplicateViewStore
-  );
 };
 
 /**
@@ -67,20 +38,14 @@ const activate = (appRegistry: AppRegistry) => {
  **/
 const deactivate = (appRegistry: AppRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterRole('Collection.ScopedModal', CREATE_ROLE);
-  appRegistry.deregisterRole('Global.Modal', DUPLICATE_ROLE);
-  appRegistry.deregisterStore('Aggregations.DuplicateViewStore');
 };
 
+export const CreateViewPlugin = registerHadronPlugin({
+  name: 'CreateView',
+  component: CreateViewModal,
+  activate: activateCreateViewPlugin,
+});
+
 export default AggregationsPlugin;
-export {
-  activate,
-  deactivate,
-  Aggregations,
-  StageEditor,
-  CreateViewPlugin,
-  DuplicateViewPlugin,
-  configureStore,
-  configureCreateViewStore,
-};
+export { activate, deactivate, Aggregations, StageEditor, configureStore };
 export { default as metadata } from '../package.json';

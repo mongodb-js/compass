@@ -41,7 +41,9 @@ describe('create view module', function () {
         });
 
         before(async function () {
-          await createView()(dispatchSpy, getState);
+          await createView()(dispatchSpy, getState, {
+            globalAppRegistry: { on: sinon.stub() },
+          });
         });
 
         it.skip('dispatches the clear action and handle error actions', function () {

@@ -363,7 +363,13 @@ store.onActivated = (appRegistry) => {
    * can be passed with the namespace to open tab with initial query or
    * aggregation pipeline
    */
-  const openCollectionInNewTab = async ({ ns, ...extraMetadata }) => {
+  const openCollectionInNewTab = async (
+    { ns, ...extraMetadata },
+    forceRefreshNamespace = false
+  ) => {
+    if (forceRefreshNamespace) {
+      await store.refreshNamespace(toNS(ns));
+    }
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('open-namespace-in-new-tab', {
       ...metadata,
@@ -382,6 +388,15 @@ store.onActivated = (appRegistry) => {
   );
   appRegistry.on('my-queries-open-saved-item', openCollectionInNewTab);
   appRegistry.on('search-indexes-run-aggregate', openCollectionInNewTab);
+
+  // In case of opening result collection we're always assuming the namespace
+  // wasn't yet updated, so opening a new tab always with refresh
+  appRegistry.on('aggregations-open-result-namespace', (ns) => {
+    openCollectionInNewTab({ ns }, true);
+  });
+  appRegistry.on('create-view-open-result-namespace', (ns) => {
+    openCollectionInNewTab({ ns }, true);
+  });
 
   const openModifyView = async ({ ns, sameTab }) => {
     const coll = await store.fetchCollectionDetails(ns);
@@ -428,20 +443,6 @@ store.onActivated = (appRegistry) => {
       );
     }
   });
-
-  appRegistry.on(
-    'aggregations-open-result-namespace',
-    async function (namespace) {
-      // Force-refresh specified namespace to update collections list and get
-      // collection info / stats (in case of opening result collection we're
-      // always assuming the namespace wasn't yet updated)
-      await store.refreshNamespace(toNS(namespace));
-      // Now we can get the metadata from already fetched collection and open a
-      // tab for it
-      const metadata = await store.fetchCollectionMetadata(namespace);
-      appRegistry.emit('open-namespace-in-new-tab', metadata);
-    }
-  );
 
   appRegistry.on('aggregations-open-view-after-update', async function (ns) {
     const metadata = await store.fetchCollectionMetadata(ns);

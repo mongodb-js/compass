@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from './create-view';
+import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
 
 describe('CreateViewStore [Store]', function () {
@@ -10,31 +10,31 @@ describe('CreateViewStore [Store]', function () {
   }
 
   let store;
-  const appRegistry = new AppRegistry();
+  let deactivate;
+  const globalAppRegistry = new AppRegistry();
   const ds = 'data-service';
 
   beforeEach(function () {
-    store = configureStore({
-      localAppRegistry: appRegistry,
-      dataProvider: {
-        error: null,
-        dataProvider: ds,
-      },
-    });
+    ({ store, deactivate } = activateCreateViewPlugin(
+      {},
+      { globalAppRegistry }
+    ));
   });
 
   afterEach(function () {
     store = null;
+    deactivate();
   });
 
   describe('#configureStore', function () {
-    it('dispatches the data service connected action', function () {
+    it('dispatches the data service connected action on data-service-connected event', function () {
+      globalAppRegistry.emit('data-service-connected', null, ds);
       expect(store.getState().dataService.dataService).to.equal(ds);
     });
 
     describe('when open create view is emitted', function () {
       beforeEach(function () {
-        appRegistry.emit('open-create-view', {
+        globalAppRegistry.emit('open-create-view', {
           source: 'dataService.test',
           pipeline: [{ $project: { a: 1 } }],
         });

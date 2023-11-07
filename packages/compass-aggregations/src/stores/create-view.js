@@ -3,49 +3,38 @@ import thunk from 'redux-thunk';
 import { dataServiceConnected } from '../modules/data-service';
 import reducer, { open } from '../modules/create-view';
 
-const debug = require('debug')('mongodb-aggregations:stores:create-view');
-
 /**
- * Set the data provider.
- *
- * @param {Store} store - The store.
- * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
+ * @param {import('hadron-app-registry').AppRegistry} appRegistry
+ * @returns {{ store: any, deactivate: () => void }}
  */
-export const setDataProvider = (store, error, provider) => {
-  store.dispatch(dataServiceConnected(error, provider));
-};
-
-const configureStore = (options = {}) => {
+export function activateCreateViewPlugin(_, { globalAppRegistry }) {
   const store = createStore(
     reducer,
-    {
-      appRegistry: {
-        localAppRegistry: options.localAppRegistry ?? null,
-        globalAppRegistry: options.globalAppRegistry ?? null,
-      },
-      dataService: {
-        error: options.dataProvider.error,
-        dataService: options.dataProvider.dataProvider,
-      },
-    },
-    applyMiddleware(thunk)
+    applyMiddleware(
+      thunk.withExtraArgument({ globalAppRegistry: globalAppRegistry })
+    )
   );
 
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
+  const onDataServiceConnected = (error, dataService) => {
+    store.dispatch(dataServiceConnected(error, dataService));
+  };
 
-    /**
-     * When needing to create a view from elsewhere, the app registry
-     * event is emitted.
-     */
-    localAppRegistry.on('open-create-view', (meta) => {
-      debug('open-create-view', meta.source, meta.pipeline);
-      store.dispatch(open(meta.source, meta.pipeline, false));
-    });
-  }
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
 
-  return store;
-};
+  const onOpenCreateView = (meta) => {
+    store.dispatch(open(meta.source, meta.pipeline, meta.duplicate ?? false));
+  };
 
-export default configureStore;
+  globalAppRegistry.on('open-create-view', onOpenCreateView);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
+      );
+      globalAppRegistry.removeListener('open-create-view', onOpenCreateView);
+    },
+  };
+}
