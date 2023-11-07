@@ -298,6 +298,16 @@ describe('CrudToolbar Component', function () {
       expect(screen.queryByText(updateDataText)).to.not.exist;
     });
 
+    it('should render disabled when the query has no results', function () {
+      renderCrudToolbar({
+        count: 0,
+      });
+
+      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
+    });
+
     it('should render disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,
@@ -336,6 +346,16 @@ describe('CrudToolbar Component', function () {
       } as any);
 
       expect(screen.queryByText(deleteDataText)).to.not.exist;
+    });
+
+    it('should render disabled when the query has no results', function () {
+      renderCrudToolbar({
+        count: 0,
+      });
+
+      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
     });
 
     it('should render disabled when the query has a skip', function () {
