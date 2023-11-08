@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-database",
   "productName": "Database plugin",
-  "version": "3.19.0",
+  "version": "3.19.1",
   "description": "Compass Database Plugin",
   "author": {
     "name": "MongoDB Inc",
@@ -57,7 +57,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5",
+    "@mongodb-js/compass-logging": "^1.2.6",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -74,7 +74,7 @@
     "chai": "^4.1.2",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.13",
+    "hadron-app-registry": "^9.0.14",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
@@ -82,6 +82,6 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5"
+    "@mongodb-js/compass-logging": "^1.2.6"
   }
 }

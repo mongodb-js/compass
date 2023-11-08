@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-serverstats",
   "productName": "Compass Server Stats plugin",
-  "version": "16.19.0",
+  "version": "16.19.1",
   "apiVersion": "3.0.0",
   "description": "Compass Real Time",
   "main": "dist/index.js",
@@ -34,12 +34,12 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5",
+    "@mongodb-js/compass-logging": "^1.2.6",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5"
+    "@mongodb-js/compass-logging": "^1.2.6"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.11",
@@ -57,11 +57,11 @@
     "electron-mocha": "^10.1.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.15.0",
-    "hadron-app-registry": "^9.0.13",
+    "hadron-app": "^5.15.1",
+    "hadron-app-registry": "^9.0.14",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.15.0",
+    "mongodb-data-service": "^22.15.1",
     "mongodb-js-errors": "^0.3.2",
     "mongodb-ns": "^2.4.0",
     "prop-types": "^15.7.2",
