@@ -141,8 +141,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   start,
   viewSwitchHandler,
   insights,
-  queryLimit,
-  querySkip,
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
@@ -178,10 +176,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
 
   const enableExplainPlan = usePreference('enableExplainPlan', React);
-  const shouldDisableBulkOp = useMemo(
-    () => querySkip || queryLimit,
-    [querySkip, queryLimit]
-  );
 
   return (
     <div className={crudToolbarStyles}>
@@ -223,19 +217,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           />
           {!readonly && (
             <UpdateMenu
-              isWritable={
-                isWritable && !shouldDisableBulkOp && (count || 0) > 0
-              }
-              disabledTooltip="Make sure your query has results and skip and limit are empty."
+              isWritable={isWritable}
               onClick={onUpdateButtonClicked}
             ></UpdateMenu>
           )}
           {!readonly && (
             <DeleteMenu
-              isWritable={
-                isWritable && !shouldDisableBulkOp && (count || 0) > 0
-              }
-              disabledTooltip="Make sure your query has results and skip and limit are empty."
+              isWritable={isWritable}
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Button, Tooltip } from '@mongodb-js/compass-components';
+import { Icon, Button } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
 
 type UpdateMenuButtonProps = {
@@ -31,39 +31,15 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
   );
 };
 
-type UpdateMenuProps = UpdateMenuButtonProps & {
-  disabledTooltip: string;
-};
-
-const UpdateMenu: React.FunctionComponent<UpdateMenuProps> = ({
+const UpdateMenu: React.FunctionComponent<UpdateMenuButtonProps> = ({
   isWritable,
   onClick,
-  disabledTooltip,
 }) => {
-  if (isWritable) {
-    return (
-      <UpdateMenuButton isWritable={true} onClick={onClick}></UpdateMenuButton>
-    );
-  }
-
   return (
-    <Tooltip
-      trigger={({
-        children: tooltipChildren,
-        ...tooltipTriggerProps
-      }: React.HTMLProps<HTMLInputElement>) => (
-        <div {...tooltipTriggerProps}>
-          <UpdateMenuButton onClick={onClick} isWritable={false} />
-          {tooltipChildren}
-        </div>
-      )}
-      // Disable the tooltip when the instance is in a writable state.
-      isDisabled={isWritable}
-      justify="middle"
-      delay={500}
-    >
-      {disabledTooltip}
-    </Tooltip>
+    <UpdateMenuButton
+      isWritable={isWritable}
+      onClick={onClick}
+    ></UpdateMenuButton>
   );
 };
 
