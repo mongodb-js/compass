@@ -148,6 +148,7 @@ describe('CompassShell', function () {
           {
             type: 'output',
             value: 'pineapple',
+            format: 'output',
           },
         ]);
 
@@ -284,6 +285,7 @@ describe('CompassShell', function () {
       {
         type: 'output',
         value: 'some output',
+        format: 'output',
       },
     ]);
   });
