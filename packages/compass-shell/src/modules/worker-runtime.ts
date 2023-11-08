@@ -1,3 +1,6 @@
+declare const __webpack_require__: typeof require;
+declare const __non_webpack_require__: typeof require;
+
 // Workaround for webpack require that overrides global require
 function getRealRequire() {
   // eslint-disable-next-line camelcase
@@ -8,7 +11,7 @@ function getRealRequire() {
 }
 
 /**
- * @type {{ WorkerRuntime: typeof import('@mongosh/node-runtime-worker-thread').WorkerRuntime }}
+ * @type {{ WorkerRuntime: .WorkerRuntime }}
  */
 const { WorkerRuntime } = (() => {
   const require = getRealRequire();
@@ -19,7 +22,7 @@ const { WorkerRuntime } = (() => {
   if (/\.asar(?!\.unpacked)/.test(realModulePath)) {
     try {
       return require(realModulePath.replace('.asar', '.asar.unpacked'));
-    } catch (e) {
+    } catch (e: any) {
       e.message +=
         '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
       throw e;
@@ -27,6 +30,7 @@ const { WorkerRuntime } = (() => {
   }
 
   return require(realModulePath);
-})();
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+})() as typeof import('@mongosh/node-runtime-worker-thread');
 
 export { WorkerRuntime };

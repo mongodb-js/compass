@@ -1,21 +1,27 @@
+import type { Store } from 'redux';
 import { createStore } from 'redux';
+import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeEnableShell, setupRuntime } from '../modules/runtime';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
+import type AppRegistry from 'hadron-app-registry';
+import type { DataService } from 'mongodb-data-service';
 
 const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
 export default class CompassShellStore {
+  reduxStore: Store<RootState, RootAction>;
+
   constructor() {
     this.reduxStore = createStore(reducer);
   }
 
-  globalAppRegistry = null;
+  globalAppRegistry: AppRegistry | null = null;
 
-  onActivated(appRegistry) {
+  onActivated(appRegistry: AppRegistry) {
     debug('activated');
 
     this.globalAppRegistry = appRegistry;
@@ -34,16 +40,22 @@ export default class CompassShellStore {
       appRegistry,
       log.unbound,
       {
-        identify: () => {},
+        identify: () => {
+          /* not needed */
+        },
         // Prefix Segment events with `Shell ` to avoid event name collisions.
         // We always enable telemetry here, since the track call will
         // already check whether Compass telemetry is enabled or not.
         track: ({ event, properties }) => track(`Shell ${event}`, properties),
+        flush: () => {
+          /* not needed */
+        },
       },
       {
         platform: process.platform,
         arch: process.arch,
       },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-var-requires
       require('../../package.json').version
     );
     // We also don't need to pass a proper user id, since that is
@@ -54,11 +66,11 @@ export default class CompassShellStore {
     this.reduxStore.dispatch(globalAppRegistryActivated(appRegistry));
   }
 
-  onEnableShellChanged = (value) => {
+  onEnableShellChanged = (value: boolean) => {
     this.reduxStore.dispatch(changeEnableShell(value));
   };
 
-  onDataServiceConnected = (error, dataService) => {
+  onDataServiceConnected = (error: null | Error, dataService: DataService) => {
     this.reduxStore.dispatch(
       setupRuntime(error, dataService, this.globalAppRegistry)
     );

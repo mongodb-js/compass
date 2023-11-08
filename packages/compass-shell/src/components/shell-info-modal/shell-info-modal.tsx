@@ -13,6 +13,7 @@ import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 
 const mongoshVersion = `v${
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires
   require('@mongosh/browser-repl/package.json').version
 }`;
 
@@ -26,7 +27,13 @@ const shortcutsTitleStyles = css({
   marginTop: spacing[4],
 });
 
-function ShellInfoModal({ hideInfoModal, show }) {
+function ShellInfoModal({
+  hideInfoModal,
+  show,
+}: {
+  hideInfoModal: () => void;
+  show: boolean;
+}) {
   useTrackOnChange(
     'COMPASS-SHELL',
     (track) => {
@@ -35,8 +42,7 @@ function ShellInfoModal({ hideInfoModal, show }) {
       }
     },
     [show],
-    undefined,
-    React
+    undefined
   );
 
   const onClose = useCallback(() => {

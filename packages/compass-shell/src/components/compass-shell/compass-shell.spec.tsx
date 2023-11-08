@@ -17,7 +17,7 @@ function updateAndWaitAsync(wrapper) {
 const fakeRuntime = {
   evaluate: sinon.fake.returns({ printable: 'some result' }),
   setEvaluationListener: () => {},
-};
+} as any;
 
 describe('CompassShell', function () {
   context('when rendered', function () {
@@ -65,7 +65,7 @@ describe('CompassShell', function () {
   context('when rendered expanded', function () {
     context('when runtime property is not present', function () {
       it('does not render a shell if runtime is null', function () {
-        const wrapper = mount(<CompassShell runtime={null} />);
+        const wrapper = mount(<CompassShell runtime={null} enableShell />);
         try {
           wrapper.setState({ height: 300 });
           wrapper.update();
@@ -112,11 +112,11 @@ describe('CompassShell', function () {
       });
 
       it('renders a Resizable component', function () {
-        expect(wrapper.find(ResizeHandle)).to.be.present();
+        expect(wrapper.find(ResizeHandle)).to.exist;
       });
 
       it('renders the info modal component', function () {
-        expect(wrapper.find(ShellInfoModal)).to.be.present();
+        expect(wrapper.find(ShellInfoModal)).to.exist;
       });
 
       it('renders the Shell with an output change handler', function () {
@@ -134,6 +134,7 @@ describe('CompassShell', function () {
               {
                 type: 'output',
                 value: 'pineapple',
+                format: 'output',
               },
             ]}
             enableShell
@@ -157,7 +158,7 @@ describe('CompassShell', function () {
     context('when historyStorage is not present', function () {
       it('passes an empty history to the Shell', function () {
         const wrapper = shallow(
-          <CompassShell runtime={fakeRuntime} isExpanded enableShell />
+          <CompassShell runtime={fakeRuntime} enableShell />
         );
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
@@ -233,9 +234,8 @@ describe('CompassShell', function () {
 
       const wrapper = shallow(
         <CompassShell
-          runtime={{}}
+          runtime={{} as any}
           historyStorage={fakeStorage}
-          isExpanded
           enableShell
         />
       );
@@ -252,9 +252,8 @@ describe('CompassShell', function () {
     it('saves the history when history changes', async function () {
       const wrapper = shallow(
         <CompassShell
-          runtime={{}}
+          runtime={{} as any}
           historyStorage={fakeStorage}
-          isExpanded
           enableShell
         />
       );
@@ -271,12 +270,13 @@ describe('CompassShell', function () {
   });
 
   it('sets shellOutput on onShellOutputChanged', function () {
-    const shell = new CompassShell({ isExpanded: true });
+    const shell = new CompassShell({} as any);
 
     shell.onShellOutputChanged([
       {
         type: 'output',
         value: 'some output',
+        format: 'output',
       },
     ]);
 

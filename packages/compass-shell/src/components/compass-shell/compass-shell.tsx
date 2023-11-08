@@ -2,9 +2,12 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model';
+import type { Shell as ShellType } from '@mongosh/browser-repl';
 
 // The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
-const { Shell } = require('@mongosh/browser-repl');
+const { Shell } =
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
+  require('@mongosh/browser-repl') as typeof import('@mongosh/browser-repl');
 import {
   ResizeHandle,
   ResizeDirection,
@@ -16,6 +19,9 @@ import {
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
+import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import type { HistoryStorage } from '../../modules/history-storage';
+import type { RootState } from '../../modules';
 
 const compassShellStyles = css(
   {
@@ -50,13 +56,34 @@ function getMaxShellHeight() {
 
 // Apply bounds to the shell height when resizing to ensure it's always
 // visible and usable to the user.
-function boundShellHeight(attemptedHeight) {
+function boundShellHeight(attemptedHeight: number): number {
   const maxHeight = getMaxShellHeight();
 
   return Math.min(maxHeight, Math.max(shellMinHeightOpened, attemptedHeight));
 }
 
-export class CompassShell extends Component {
+export interface CompassShellProps {
+  emitShellPluginOpened?: () => void;
+  runtime: WorkerRuntime | null;
+  shellOutput?: ShellOutputEntry[];
+  historyStorage?: HistoryStorage;
+  enableShell: boolean;
+}
+
+interface CompassShellState {
+  height: number;
+  prevHeight: number;
+  initialHistory: string[] | null;
+  isOperationInProgress: boolean;
+  showInfoModal: boolean;
+}
+
+type ShellOutputEntry = ShellType['state']['output'][number];
+
+export class CompassShell extends Component<
+  CompassShellProps,
+  CompassShellState
+> {
   static propTypes = {
     emitShellPluginOpened: PropTypes.func,
     runtime: PropTypes.object,
@@ -65,14 +92,19 @@ export class CompassShell extends Component {
     enableShell: PropTypes.bool,
   };
 
+  shellRef = React.createRef<ShellType>();
+  shellOutput: readonly ShellOutputEntry[];
+
   static defaultProps = {
-    emitShellPluginOpened: () => {},
+    emitShellPluginOpened: () => {
+      /* ignore */
+    },
     runtime: null,
   };
-  constructor(props) {
+  constructor(props: CompassShellProps) {
     super(props);
 
-    this.shellRef = React.createRef();
+    this.shellRef;
 
     this.shellOutput = this.props.shellOutput || [];
 
@@ -86,17 +118,20 @@ export class CompassShell extends Component {
   }
 
   componentDidMount() {
-    this.loadHistory();
+    void this.loadHistory();
     window.addEventListener('beforeunload', this.terminateRuntime);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(
+    prevProps: CompassShellProps,
+    prevState: CompassShellState
+  ) {
     const { height } = this.state;
     if (
       prevState.height < shellMinHeightOpened &&
       height > shellMinHeightOpened
     ) {
-      this.props.emitShellPluginOpened();
+      this.props.emitShellPluginOpened?.();
     }
   }
 
@@ -104,7 +139,7 @@ export class CompassShell extends Component {
     window.removeEventListener('beforeunload', this.terminateRuntime);
   }
 
-  onShellOutputChanged = (output) => {
+  onShellOutputChanged = (output: readonly ShellOutputEntry[]) => {
     this.shellOutput = output;
   };
 
@@ -122,21 +157,23 @@ export class CompassShell extends Component {
 
   terminateRuntime = () => {
     if (this.props.runtime) {
-      this.props.runtime.terminate();
+      void this.props.runtime.terminate();
     }
   };
 
-  saveHistory = async (history) => {
-    if (!this.props.historyStorage) {
-      return;
-    }
+  saveHistory = (history: readonly string[]) => {
+    void (async () => {
+      if (!this.props.historyStorage) {
+        return;
+      }
 
-    try {
-      await this.props.historyStorage.save(history);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
+      try {
+        await this.props.historyStorage.save([...history]);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    })();
   };
 
   loadHistory = async () => {
@@ -158,19 +195,18 @@ export class CompassShell extends Component {
     }
   };
 
-  updateHeight(height) {
-    this.setState(
-      height > shellMinHeightOpened
-        ? {
-            height,
-            // Store the previous height to use when toggling open/close
-            // when we resize while the shell is expanded.
-            prevHeight: height,
-          }
-        : {
-            height,
-          }
-    );
+  updateHeight(height: number) {
+    if (height > shellMinHeightOpened)
+      this.setState({
+        height,
+        // Store the previous height to use when toggling open/close
+        // when we resize while the shell is expanded.
+        prevHeight: height,
+      });
+    else
+      this.setState({
+        height,
+      });
   }
 
   hideInfoModal() {
@@ -179,7 +215,8 @@ export class CompassShell extends Component {
 
   focusEditor() {
     if (this.shellRef.current && window.getSelection()?.type !== 'Range') {
-      this.shellRef.current.focusEditor();
+      (this.shellRef.current as any) /* private ... */
+        .focusEditor();
     }
   }
 
@@ -266,7 +303,7 @@ export class CompassShell extends Component {
   }
 }
 
-export default connect((state) => ({
+export default connect((state: RootState) => ({
   emitShellPluginOpened: () => {
     if (state.appRegistry && state.appRegistry.globalAppRegistry) {
       state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');

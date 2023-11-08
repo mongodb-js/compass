@@ -17,6 +17,7 @@ describe('ShellHeader', function () {
     beforeEach(function () {
       wrapper = mount(
         <ShellHeader
+          darkMode={undefined}
           isExpanded
           isOperationInProgress={false}
           onShellToggleClicked={() => {}}
@@ -52,6 +53,7 @@ describe('ShellHeader', function () {
     beforeEach(function () {
       wrapper = mount(
         <ShellHeader
+          darkMode={undefined}
           isExpanded={false}
           isOperationInProgress={false}
           onShellToggleClicked={() => {}}
@@ -87,6 +89,7 @@ describe('ShellHeader', function () {
       it('renders the loader', function () {
         const wrapper = mount(
           <ShellHeader
+            darkMode={undefined}
             isExpanded={false}
             isOperationInProgress
             onShellToggleClicked={() => {}}
@@ -101,9 +104,10 @@ describe('ShellHeader', function () {
   );
 
   context('when rendered', function () {
-    it('has a button to toggle the container', async function () {
+    it('has a button to toggle the container', function () {
       const wrapper = shallow(
         <ShellHeader
+          darkMode={undefined}
           isExpanded={false}
           isOperationInProgress={false}
           onShellToggleClicked={() => {}}
@@ -112,9 +116,7 @@ describe('ShellHeader', function () {
       );
 
       expect(wrapper.find('button').exists()).to.equal(true);
-      expect(
-        wrapper.find('[data-testid="shell-expand-button"]')
-      ).to.be.present();
+      expect(wrapper.find('[data-testid="shell-expand-button"]')).to.exist;
 
       wrapper.unmount();
     });
