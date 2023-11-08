@@ -104,8 +104,6 @@ export class CompassShell extends Component<
   constructor(props: CompassShellProps) {
     super(props);
 
-    this.shellRef;
-
     this.shellOutput = this.props.shellOutput || [];
 
     this.state = {
@@ -196,17 +194,18 @@ export class CompassShell extends Component<
   };
 
   updateHeight(height: number) {
-    if (height > shellMinHeightOpened)
+    if (height > shellMinHeightOpened) {
       this.setState({
         height,
         // Store the previous height to use when toggling open/close
         // when we resize while the shell is expanded.
         prevHeight: height,
       });
-    else
+    } else {
       this.setState({
         height,
       });
+    }
   }
 
   hideInfoModal() {
