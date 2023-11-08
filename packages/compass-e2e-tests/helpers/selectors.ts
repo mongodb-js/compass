@@ -1164,7 +1164,7 @@ export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid=
 export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
 
 // Duplicate view modal
-export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
+export const DuplicateViewModal = '[data-testid="create-view-modal"]';
 export const DuplicateViewModalTextInput = `${DuplicateViewModal} [data-testid="create-view-name"]`;
 export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
 

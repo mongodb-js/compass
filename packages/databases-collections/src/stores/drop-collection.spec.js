@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import store from './drop-collection';
+import { activatePlugin } from './drop-collection';
 import { reset } from '../modules/reset';
 
 describe('DropCollectionStore [Store]', function () {
+  let store;
+
   beforeEach(function () {
     store.dispatch(reset());
   });
@@ -16,7 +18,7 @@ describe('DropCollectionStore [Store]', function () {
     const appRegistry = new AppRegistry();
 
     before(function () {
-      store.onActivated(appRegistry);
+      ({ store } = activatePlugin({}, { globalAppRegistry: appRegistry }));
     });
 
     context('when the data service is connected', function () {

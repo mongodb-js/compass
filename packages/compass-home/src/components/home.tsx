@@ -42,6 +42,12 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
+import {
+  CreateDatabasePlugin,
+  DropDatabasePlugin,
+  CreateCollectionPlugin,
+  DropCollectionPlugin,
+} from '@mongodb-js/compass-databases-collections';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -365,6 +371,10 @@ function Home({
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CreateViewPlugin></CreateViewPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
+      <CreateDatabasePlugin></CreateDatabasePlugin>
+      <DropDatabasePlugin></DropDatabasePlugin>
+      <CreateCollectionPlugin></CreateCollectionPlugin>
+      <DropCollectionPlugin></DropCollectionPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
