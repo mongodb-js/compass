@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
   "description": "Compass instance plugin",
-  "version": "4.19.0",
+  "version": "4.19.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -57,8 +57,8 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5",
-    "@mongodb-js/mongodb-redux-common": "^2.0.14",
+    "@mongodb-js/compass-logging": "^1.2.6",
+    "@mongodb-js/mongodb-redux-common": "^2.0.15",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -75,7 +75,7 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.13",
+    "hadron-app-registry": "^9.0.14",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
@@ -86,7 +86,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5",
-    "@mongodb-js/mongodb-redux-common": "^2.0.14"
+    "@mongodb-js/compass-logging": "^1.2.6",
+    "@mongodb-js/mongodb-redux-common": "^2.0.15"
   }
 }
