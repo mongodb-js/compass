@@ -1,3 +1,4 @@
+import type { RootAction } from './';
 import { expect } from 'chai';
 
 import databasesReducer, {
@@ -9,16 +10,16 @@ import databasesReducer, {
 
 import { createInstance } from '../../test/helpers';
 
-function createGetState(dbs) {
+function createGetState(dbs: any[] = []) {
   return function () {
     return {
       instance: createInstance(dbs).toJSON(),
-      appRegistry: {},
+      appRegistry: { localAppRegistry: null, globalAppRegistry: null },
     };
   };
 }
 
-function createDatabases(dbs) {
+function createDatabases(dbs: any[] = []) {
   return createInstance(dbs).databases.map((db) => {
     return {
       ...db.toJSON(),
@@ -33,10 +34,10 @@ function createMockStoreSlice(initialState = {}, reducer = databasesReducer) {
     get state() {
       return state;
     },
-    dispatch(action) {
+    dispatch(action: RootAction) {
       state = reducer(state, action);
     },
-  };
+  } as any;
 }
 
 describe('sidebar databases', function () {
@@ -129,7 +130,7 @@ describe('sidebar databases', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(databasesReducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(databasesReducer(undefined, {} as any)).to.equal(INITIAL_STATE);
       });
     });
   });

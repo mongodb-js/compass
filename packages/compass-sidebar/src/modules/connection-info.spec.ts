@@ -31,7 +31,7 @@ describe('connection info module', function () {
             connectionStorage: {
               save: saveSpy,
             },
-          },
+          } as any,
           changeConnectionInfo(connectionInfoNotFavorite)
         );
 
@@ -53,12 +53,12 @@ describe('connection info module', function () {
             connectionStorage: {
               save: function () {},
             },
-          },
+          } as any,
           newConnection
         );
 
-        expect(state.connectionInfo.favorite.name).to.equal('My Favorite');
-        expect(state.connectionInfo.favorite.color).to.equal('#d4366e');
+        expect(state.connectionInfo.favorite?.name).to.equal('My Favorite');
+        expect(state.connectionInfo.favorite?.color).to.equal('#d4366e');
       });
 
       it('calls to save the connection info in the connection storage', function () {
@@ -75,19 +75,21 @@ describe('connection info module', function () {
             connectionStorage: {
               save: saveSpy,
             },
-          },
+          } as any,
           newConnection
         );
 
         expect(saveSpy.callCount).to.equal(1);
         expect(saveSpy.firstCall.args[0]).to.deep.equal({
-          connectionOptions: {
-            connectionString: 'mongodb://outerspace:27000',
-          },
-          id: '123',
-          favorite: {
-            name: 'My Favorite',
-            color: '#d4366e',
+          connectionInfo: {
+            connectionOptions: {
+              connectionString: 'mongodb://outerspace:27000',
+            },
+            id: '123',
+            favorite: {
+              name: 'My Favorite',
+              color: '#d4366e',
+            },
           },
         });
       });
@@ -95,7 +97,7 @@ describe('connection info module', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, {} as any)).to.equal(INITIAL_STATE);
       });
     });
   });

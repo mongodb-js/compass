@@ -7,6 +7,7 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../modules/databases';
 import { withPreferences } from 'compass-preferences-model';
+import type { RootState } from '../modules';
 
 function SidebarDatabasesNavigation(
   dbNavigationProps: React.ComponentProps<typeof DatabasesNavigationTree> & {
@@ -24,8 +25,7 @@ function SidebarDatabasesNavigation(
   );
 }
 
-function mapStateToProps(state: any) {
-  // TODO: type state
+function mapStateToProps(state: RootState) {
   const {
     databases: {
       filterRegex,
@@ -37,7 +37,7 @@ function mapStateToProps(state: any) {
   } = state;
   const status = instance?.databasesStatus;
   const isReady =
-    status !== undefined && !['initial', 'fetching'].includes(status as string);
+    status !== undefined && !['initial', 'fetching'].includes(status);
   const defaultExpanded = Boolean(filterRegex);
   const expanded = Object.fromEntries(
     (filteredDatabases as any[]).map(({ name }) => [
@@ -51,7 +51,7 @@ function mapStateToProps(state: any) {
     isReady,
     isDataLake,
     isWritable,
-    activeNamespace,
+    activeNamespace: toNS(activeNamespace).ns,
     databases: filteredDatabases,
     expanded,
   };
