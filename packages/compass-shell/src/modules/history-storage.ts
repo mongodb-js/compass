@@ -5,7 +5,7 @@ export class HistoryStorage {
   fileName = 'shell-history';
   userData;
 
-  constructor(basePath) {
+  constructor(basePath?: string) {
     this.userData = new UserData(z.string().array(), {
       // Todo: https://jira.mongodb.org/browse/COMPASS-7080
       subdir: getAppName() ?? '',
@@ -20,7 +20,7 @@ export class HistoryStorage {
    * @param {string[]} history - An array of history entries sorted from
    * newest to oldest.
    */
-  async save(history) {
+  async save(history: string[]) {
     await this.userData.write(this.fileName, history);
   }
 
@@ -31,7 +31,7 @@ export class HistoryStorage {
    * @returns {Promise<string[]>} An array of history entries sorted from
    * newest to oldest.
    */
-  async load() {
+  async load(): Promise<string[]> {
     try {
       return (await this.userData.readOne(this.fileName)) ?? [];
     } catch (e) {

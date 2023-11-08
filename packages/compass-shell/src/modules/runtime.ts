@@ -1,30 +1,52 @@
+import type { DataService } from 'mongodb-data-service';
 import { WorkerRuntime } from './worker-runtime';
+import type AppRegistry from 'hadron-app-registry';
+import type { RootAction } from '.';
 
 /**
  * The prefix.
  */
-const PREFIX = 'shell/runtime';
+const PREFIX = 'shell/runtime' as const;
 
 /**
  * Data service connected.
  */
-export const SETUP_RUNTIME = `${PREFIX}/SETUP_RUNTIME`;
+export const SETUP_RUNTIME = `${PREFIX}/SETUP_RUNTIME` as const;
+type SetupRuntimeAction = {
+  type: typeof SETUP_RUNTIME;
+  error: Error | null;
+  dataService: DataService | null;
+  appRegistry: AppRegistry | null;
+};
 
 /**
  * enableShell preference changed.
  */
-export const CHANGE_ENABLE_SHELL = `${PREFIX}/CHANGE_ENABLE_SHELL`;
+export const CHANGE_ENABLE_SHELL = `${PREFIX}/CHANGE_ENABLE_SHELL` as const;
+type ChangeEnableShellAction = {
+  type: typeof CHANGE_ENABLE_SHELL;
+  enableShell: boolean;
+};
+export type RuntimeAction = SetupRuntimeAction | ChangeEnableShellAction;
 
 /**
  * The initial state.
  */
-export const INITIAL_STATE = {
+export const INITIAL_STATE: RuntimeState = {
   error: null,
   dataService: null,
   runtime: null,
   appRegistry: null,
   enableShell: false,
 };
+
+export interface RuntimeState {
+  error: null | Error;
+  dataService: null | DataService;
+  runtime: null | typeof WorkerRuntime['prototype'];
+  appRegistry: null | AppRegistry;
+  enableShell: boolean;
+}
 
 /**
  * Reducer function for handling data service connected actions.
@@ -34,7 +56,10 @@ export const INITIAL_STATE = {
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(
+  state: RuntimeState = INITIAL_STATE,
+  action: RootAction
+): RuntimeState {
   if (action.type === SETUP_RUNTIME) {
     return reduceSetupRuntime(state, action);
   }
@@ -46,14 +71,14 @@ export default function reducer(state = INITIAL_STATE, action) {
   return state;
 }
 
-function createOrDestroyRuntimeForState(state) {
+function createOrDestroyRuntimeForState(state: RuntimeState): RuntimeState {
   if (!state.runtime && state.dataService && state.enableShell) {
     return {
       ...state,
-      runtime: createWorkerRuntime(state.dataService, state.appRegistry),
+      runtime: createWorkerRuntime(state.dataService, state.appRegistry!),
     };
   } else if (state.runtime && (!state.dataService || !state.enableShell)) {
-    state.runtime.terminate();
+    void state.runtime.terminate();
     return {
       ...state,
       runtime: null,
@@ -62,7 +87,10 @@ function createOrDestroyRuntimeForState(state) {
   return { ...state };
 }
 
-function reduceSetupRuntime(state, action) {
+function reduceSetupRuntime(
+  state: RuntimeState,
+  action: SetupRuntimeAction
+): RuntimeState {
   return createOrDestroyRuntimeForState({
     ...state,
     error: action.error,
@@ -71,7 +99,10 @@ function reduceSetupRuntime(state, action) {
   });
 }
 
-function reduceChangeEnableShell(state, action) {
+function reduceChangeEnableShell(
+  state: RuntimeState,
+  action: ChangeEnableShellAction
+): RuntimeState {
   return createOrDestroyRuntimeForState({
     ...state,
     enableShell: action.enableShell,
@@ -87,32 +118,45 @@ function reduceChangeEnableShell(state, action) {
  *
  * @returns {Object} The data service connected action.
  */
-export const setupRuntime = (error, dataService, appRegistry) => ({
+export const setupRuntime = (
+  error: Error | null,
+  dataService: DataService | null,
+  appRegistry: AppRegistry | null
+) => ({
   type: SETUP_RUNTIME,
   error,
   dataService,
   appRegistry,
 });
 
-export const changeEnableShell = (enableShell) => ({
+export const changeEnableShell = (
+  enableShell: boolean
+): ChangeEnableShellAction => ({
   type: CHANGE_ENABLE_SHELL,
   enableShell,
 });
 
-function createWorkerRuntime(dataService, appRegistry) {
+function createWorkerRuntime(
+  dataService: DataService,
+  appRegistry: AppRegistry
+): typeof WorkerRuntime['prototype'] {
   const {
     url: driverUrl,
     options: driverOptions,
     // Not really provided by dataService, used only for testing purposes
     cliOptions,
-  } = dataService.getMongoClientConnectionOptions();
+  } = {
+    cliOptions: {},
+    url: '',
+    ...dataService.getMongoClientConnectionOptions(),
+  };
 
   return new WorkerRuntime(
     driverUrl,
     driverOptions,
     cliOptions ?? {},
     {
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
       serialization: 'advanced',
     },
     appRegistry

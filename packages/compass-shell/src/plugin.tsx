@@ -2,13 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import CompassShellStore from './stores';
 import { HistoryStorage } from './modules/history-storage';
+import type CompassShellComponentType from './components/compass-shell';
 
 function createPlugin() {
   const store = new CompassShellStore();
 
   function CompassShellPlugin() {
-    const [ShellComponent, setShellComponent] = useState(null);
-    const historyStorage = useRef(null);
+    const [ShellComponent, setShellComponent] = useState<
+      typeof CompassShellComponentType | null
+    >(null);
+    const historyStorage = useRef<HistoryStorage | null>(null);
 
     if (!historyStorage.current) {
       historyStorage.current = new HistoryStorage();
@@ -17,7 +20,7 @@ function createPlugin() {
     useEffect(() => {
       let mounted = true;
 
-      import(/* webpackPreload: true */ './components/compass-shell').then(
+      void import(/* webpackPreload: true */ './components/compass-shell').then(
         ({ default: Component }) => {
           if (mounted) {
             setShellComponent(Component);

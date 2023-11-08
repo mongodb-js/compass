@@ -67,13 +67,22 @@ const operationInProgressStyles = css({
   marginLeft: spacing[2],
 });
 
+export interface ShellHeaderProps {
+  isExpanded: boolean;
+  isOperationInProgress: boolean;
+  onShellToggleClicked: () => void;
+  showInfoModal: () => void;
+}
+
 export const ShellHeader = ({
   darkMode,
   isExpanded,
   isOperationInProgress,
   onShellToggleClicked,
   showInfoModal,
-}) => {
+}: {
+  darkMode: boolean | undefined;
+} & ShellHeaderProps) => {
   useHotkeys('ctrl + `', onShellToggleClicked);
 
   return (
@@ -126,7 +135,6 @@ export const ShellHeader = ({
               <IconButton
                 ref={ref}
                 data-testid="shell-info-button"
-                variant="dark"
                 aria-label="Shell Info"
                 aria-haspopup="dialog"
                 onClick={showInfoModal}
@@ -137,7 +145,6 @@ export const ShellHeader = ({
           />
         )}
         <IconButton
-          variant="dark"
           aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
           onClick={onShellToggleClicked}
           aria-pressed={isExpanded}
@@ -157,4 +164,6 @@ ShellHeader.propTypes = {
   showInfoModal: PropTypes.func.isRequired,
 };
 
-export default withDarkMode(ShellHeader);
+export default withDarkMode(
+  ShellHeader
+) as React.FunctionComponent<ShellHeaderProps>;
