@@ -1,6 +1,7 @@
 {
   "name": "@mongodb-js/compass-settings",
   "description": "Settings for compass",
+  "productName": "Compass Settings Plugin",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -13,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.21.0",
+  "version": "0.21.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -59,11 +60,11 @@
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/atlas-service": "^0.10.0",
+    "@mongodb-js/atlas-service": "^0.10.1",
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.5",
-    "compass-preferences-model": "^2.15.5",
-    "hadron-app-registry": "^9.0.13",
+    "@mongodb-js/compass-logging": "^1.2.6",
+    "compass-preferences-model": "^2.15.6",
+    "hadron-app-registry": "^9.0.14",
     "hadron-ipc": "^3.2.4",
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",

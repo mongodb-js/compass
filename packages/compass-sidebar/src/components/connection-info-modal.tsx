@@ -2,22 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { InfoModal, Body, css, spacing } from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
-import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { ConnectionOptions } from '../modules/connection-options';
-
-type Collection = {
-  id: string;
-  name: string;
-  type: string;
-};
-
-type Database = {
-  _id: string;
-  name: string;
-  collectionsStatus: string;
-  collectionsLength: number;
-  collections: Collection[];
-};
+import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { RootState } from '../modules';
+import type { Database } from '../modules/databases';
 
 type ConnectionInfo = {
   term: string;
@@ -107,15 +94,13 @@ function getVersionDistro({
   return isEnterprise ? 'Enterprise' : 'Community';
 }
 
-type InfoParameters = {
-  instance: MongoDBInstance;
+type InfoParameters = Pick<RootState, 'instance' | 'connectionOptions'> & {
   databases: Database[];
-  connectionInfo: ConnectionInfo;
-  connectionOptions: ConnectionOptions;
+  connectionInfo: Partial<ConnectionStorageConnectionInfo>;
 };
 
 function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
-  const isReady = instance.refreshingStatus === 'ready';
+  const isReady = instance?.refreshingStatus === 'ready';
 
   const numDbs = isReady ? databases.length : '-';
   const numCollections = isReady
@@ -135,7 +120,7 @@ function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
 }
 
 function getHostInfo({ instance }: InfoParameters): ConnectionInfo {
-  const { type, servers } = instance.topologyDescription;
+  const { type, servers = [] } = instance?.topologyDescription ?? {};
 
   let heading = servers.length === 1 ? 'Host' : 'Hosts';
   if (type === TopologyType.LOAD_BALANCED) {
@@ -168,7 +153,7 @@ function makeNodesInfo(
 }
 
 function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
-  const { type, setName, servers } = instance.topologyDescription;
+  const { type, setName, servers = [] } = instance?.topologyDescription ?? {};
 
   let clusterType: string;
   let nodesInfo;
@@ -205,12 +190,12 @@ function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
 function getVersionInfo({ instance }: InfoParameters): ConnectionInfo {
   return {
     term: 'Edition',
-    description: instance.dataLake.isDataLake
-      ? `Atlas Data Federation ${instance.dataLake.version ?? ''}`
-      : `MongoDB ${instance.build.version} ${getVersionDistro({
-          isEnterprise: instance.build.isEnterprise,
-          isLocalAtlas: instance.isLocalAtlas,
-          isAtlas: instance.isAtlas,
+    description: instance?.dataLake.isDataLake
+      ? `Atlas Data Federation ${instance?.dataLake.version ?? ''}`
+      : `MongoDB ${instance?.build.version} ${getVersionDistro({
+          isEnterprise: instance?.build.isEnterprise,
+          isLocalAtlas: instance?.isLocalAtlas,
+          isAtlas: instance?.isAtlas,
         })}`,
   };
 }
@@ -254,16 +239,7 @@ function getInfos(infoParameters: InfoParameters) {
   return infos;
 }
 
-const mapStateToProps = (state: {
-  instance: MongoDBInstance;
-  databases: {
-    databases: Database[];
-  };
-  connectionInfo: {
-    connectionInfo: ConnectionInfo;
-  };
-  connectionOptions: ConnectionOptions;
-}) => {
+const mapStateToProps = (state: RootState) => {
   const { instance, databases, connectionOptions } = state;
   const { connectionInfo } = state.connectionInfo;
 

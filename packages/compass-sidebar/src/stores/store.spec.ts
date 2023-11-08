@@ -1,13 +1,15 @@
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
-import store from './';
+import store from '.';
 import { reset } from '../modules/reset';
 import { createInstance } from '../../test/helpers';
+import type { Database } from '../modules/databases';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 const instance = createInstance();
 
-function getDatabases(_instance) {
-  return _instance.databases.map((db) => {
+function getDatabases(_instance: MongoDBInstance) {
+  return _instance.databases.map((db: Database) => {
     return {
       _id: db._id,
       name: db.name,

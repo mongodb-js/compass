@@ -7,7 +7,7 @@ import reducer, {
 
 describe('connection options module', function () {
   it('correctly sets the initial state', function () {
-    expect(reducer(undefined, {})).to.deep.equal(INITIAL_STATE);
+    expect(reducer(undefined, {} as any)).to.deep.equal(INITIAL_STATE);
   });
 
   it('does not truncate hosts shorter than 25 characters', function () {

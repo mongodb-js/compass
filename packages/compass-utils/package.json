@@ -1,6 +1,5 @@
 {
   "name": "@mongodb-js/compass-utils",
-  "productName": "compass-utils Plugin",
   "description": "Utilities for MongoDB Compass Development",
   "author": {
     "name": "MongoDB Inc",
@@ -14,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
