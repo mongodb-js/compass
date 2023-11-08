@@ -41,11 +41,10 @@ describe('CompassShell', function () {
       wrapper = null;
     });
 
-    it.only('has the shell display none', function () {
+    it('has the shell display none', function () {
       const shellDomNode = wrapper
         .find('[data-testid="shell-content"]')
         .getDOMNode();
-      console.log({ shellDomNode });
       const shellDisplayStyle =
         getComputedStyle(shellDomNode).getPropertyValue('display');
       expect(shellDisplayStyle).to.equal('none');
