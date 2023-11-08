@@ -177,22 +177,9 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - **'compass:export-to-language:opened', source**: Indicates
   `export-to-language` was opened. `source` refers to the module it is opened
   from, in this case `Aggregations`.
-- **'compass:aggregations:pipeline-imported'**: Indicates a pipeline ws
-  imported, either from pasting the pipeline in, or from using the import
-  functionality. Sends data to metrics.
-- **'compass:aggregations:create-view', numOfStages**: Indicates `Create View` was
-  successful. `numOfStages` refers to pipeline length. Sends data to metrics.
-- **'compass:aggregations:pipeline-opened'**: Indicates a saved pipeline was
-  opened. Sends pipeline data to metrics.
 - **'open-namespace-in-new-tab'**: Indicates current pipeline's namespace is to
   be opened in a new tab. Called when `Create View` is successful, when
   `$merge` are to be shown, when `$out` results are to be shown.
-- **'compass:aggregations:update-view', numOfStages**: Indicates a pipeline view
-  was updated. `numOfStages` refers to the length of the pipeline. Sends data to
-  metrics.
-- **'compass:aggregations:settings-applied', settings**: Indicates pipeline
-  settings are to be applied. `settings` include: `isExpanded`, `isCommentMode`,
-  `isDirty`, `sampleSize`, `maxTimeMS`, `limit`.
 - **'refresh-data'**: Indicates a data refresh is required within Compass.
 - **'select-namespace', metadata**: Indicates a namespace is being selected.
   Emitted when updating a collection. `metadata` refers to information about the
@@ -238,11 +225,6 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - `agg-pipeline-deleted`
 - `agg-pipeline-executed`
 - `agg-pipeline-out-executed`
-- `compass:aggregations:update-view`
-- `compass:aggregations:create-view`
-- `compass:aggregations:pipeline-opened`
-- `compass:aggregations:settings-applied`
-- `compass:aggregations:pipeline-imported`
 
 ## Development
 

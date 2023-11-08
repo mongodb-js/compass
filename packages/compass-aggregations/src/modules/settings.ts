@@ -109,11 +109,6 @@ export const applySettings = (): PipelineBuilderThunkAction<void> => {
     const { settings } = getState();
     dispatch(doApplySettings(settings));
     dispatch(updatePipelinePreview());
-    dispatch(
-      globalAppRegistryEmit('compass:aggregations:settings-applied', {
-        settings,
-      })
-    );
   };
 };
 
