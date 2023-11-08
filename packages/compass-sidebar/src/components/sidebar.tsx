@@ -3,7 +3,6 @@ import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   css,
   spacing,
@@ -26,6 +25,7 @@ import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
 import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import type { RootState } from '../modules';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -47,7 +47,7 @@ export function Sidebar({
   csfleMode,
 }: {
   isExpanded: boolean;
-  connectionInfo: ConnectionInfo;
+  connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
   globalAppRegistryEmit: any;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
@@ -206,14 +206,7 @@ export function Sidebar({
   );
 }
 
-const mapStateToProps = (state: {
-  isExpanded: boolean;
-  connectionInfo: {
-    connectionInfo: ConnectionInfo;
-  };
-  isGenuineMongoDBVisible: boolean;
-  instance?: MongoDBInstance;
-}) => ({
+const mapStateToProps = (state: RootState) => ({
   isExpanded: state.isExpanded,
   connectionInfo: state.connectionInfo.connectionInfo,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,

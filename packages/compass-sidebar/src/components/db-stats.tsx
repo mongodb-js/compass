@@ -10,7 +10,8 @@ import {
   Subtitle,
   Overline,
 } from '@mongodb-js/compass-components';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { RootState } from '../modules';
+import type { Database } from '../modules/databases';
 
 type RefreshingStatus =
   | 'initial'
@@ -18,20 +19,6 @@ type RefreshingStatus =
   | 'refreshing'
   | 'ready'
   | 'error';
-
-type Collection = {
-  id: string;
-  name: string;
-  type: string;
-};
-
-type Database = {
-  _id: string;
-  name: string;
-  collectionsStatus: string;
-  collectionsLength: number;
-  collections: Collection[];
-};
 
 const dbStats = css({
   display: 'flex',
@@ -93,12 +80,7 @@ export function DBStats({
   );
 }
 
-const mapStateToProps = (state: {
-  instance?: MongoDBInstance;
-  databases: {
-    databases: Database[];
-  };
-}) => ({
+const mapStateToProps = (state: RootState) => ({
   refreshingStatus: state.instance
     ? state.instance.refreshingStatus
     : 'initial',
