@@ -1,10 +1,7 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import { combineReducers } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
+import type { AnyAction, Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import fs from 'fs';
 import _ from 'lodash';
-
 import {
   createProjectionFromSchemaFields,
   gatherFieldsFromQuery,
@@ -16,11 +13,7 @@ import type {
   ExportResult,
 } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
-import {
-  globalAppRegistryEmit,
-  globalAppRegistry,
-  dataService,
-} from './compass';
+import { globalAppRegistryEmit } from './compass';
 import {
   exportCSVFromAggregation,
   exportCSVFromQuery,
@@ -39,6 +32,7 @@ import {
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
+import type { ExportThunkAction } from '../stores/export-store';
 
 const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
@@ -338,15 +332,7 @@ export const runExport = ({
   filePath: string;
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
-}): ExportThunkAction<
-  Promise<void>,
-  | RunExportAction
-  | ExportFileErrorAction
-  | ReturnType<typeof globalAppRegistryEmit>
-  | CancelExportAction
-  | RunExportErrorAction
-  | RunExportSuccessAction
-> => {
+}): ExportThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     let outputWriteStream: fs.WriteStream;
     try {
@@ -574,7 +560,10 @@ export const runExport = ({
   };
 };
 
-const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
+export const exportReducer: Reducer<ExportState> = (
+  state = initialState,
+  action
+) => {
   if (isAction<OpenExportAction>(action, ExportActionTypes.OpenExport)) {
     // When an export is already in progress show the in progress modal.
     if (state.status === 'in-progress') {
@@ -844,20 +833,3 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
 
   return state;
 };
-
-const rootExportReducer = combineReducers({
-  export: exportReducer,
-  globalAppRegistry,
-  dataService,
-});
-
-export type RootState = ReturnType<typeof rootExportReducer>;
-
-type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
-  R,
-  RootState,
-  void,
-  A
->;
-
-export { rootExportReducer };

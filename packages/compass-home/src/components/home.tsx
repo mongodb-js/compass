@@ -33,7 +33,7 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useLocalAppRegistry, useAppRegistryRole } from 'hadron-app-registry';
+import { useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
@@ -48,6 +48,7 @@ import {
   CreateCollectionPlugin,
   DropCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
+import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -325,8 +326,6 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  const globalModals = useAppRegistryRole('Global.Modal');
-
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
@@ -365,9 +364,6 @@ function Home({
           />
         </div>
       </div>
-      {globalModals?.map(({ name, component: GlobalModalComponent }) => {
-        return <GlobalModalComponent key={name}></GlobalModalComponent>;
-      })}
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CreateViewPlugin></CreateViewPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
@@ -375,6 +371,8 @@ function Home({
       <DropDatabasePlugin></DropDatabasePlugin>
       <CreateCollectionPlugin></CreateCollectionPlugin>
       <DropCollectionPlugin></DropCollectionPlugin>
+      <ImportPlugin></ImportPlugin>
+      <ExportPlugin></ExportPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );

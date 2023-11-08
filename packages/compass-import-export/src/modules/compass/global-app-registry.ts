@@ -1,5 +1,5 @@
 import type AppRegistry from 'hadron-app-registry';
-import type { AnyAction } from 'redux';
+import type { Reducer } from 'redux';
 
 /**
  * The prefix.
@@ -39,13 +39,8 @@ export const globalAppRegistryEmit = (name: string, ...args: unknown[]) => ({
 
 /**
  * Handle changes to the state.
- *
- * @param {String} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {String} The state.
  */
-const reducer = (state: State = INITIAL_STATE, action: AnyAction): State => {
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   if (action.type === GLOBAL_APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
   }

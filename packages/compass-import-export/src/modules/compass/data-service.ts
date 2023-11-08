@@ -1,5 +1,5 @@
 import type { DataService } from 'mongodb-data-service';
-import type { AnyAction } from 'redux';
+import type { Reducer } from 'redux';
 
 /**
  * Action for the dataService connection.
@@ -35,10 +35,7 @@ export const dataServiceDisconnected = () => {
   };
 };
 
-const reducer = (
-  state: State = getInitialState(),
-  action: AnyAction
-): State => {
+const reducer: Reducer<State> = (state = getInitialState(), action) => {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,

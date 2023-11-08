@@ -1,45 +1,13 @@
 import { expect } from 'chai';
-import { createStore, applyMiddleware } from 'redux';
-import type { ThunkDispatch } from 'redux-thunk';
-import type { AnyAction } from 'redux';
-import thunk from 'redux-thunk';
 import path from 'path';
-
-import {
-  onStarted,
-  openImport,
-  selectImportFileName,
-  INITIAL_STATE,
-} from './import';
-import { rootImportReducer } from './import';
-import type { RootImportState } from '../stores/import-store';
-
-type DispatchFunctionType = ThunkDispatch<RootImportState, void, AnyAction>;
-
-const mockEmptyState = {
-  import: {
-    ...INITIAL_STATE,
-  },
-};
+import { onStarted, openImport, selectImportFileName } from './import';
+import { configureStore } from '../stores/import-store';
 
 describe('import [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let mockStore = createStore(
-    rootImportReducer,
-    mockEmptyState,
-    applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
-  );
+  let mockStore = configureStore();
   beforeEach(function () {
-    const mockState = {
-      import: {
-        ...INITIAL_STATE,
-      },
-    };
-    mockStore = createStore(
-      rootImportReducer,
-      mockState,
-      applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
-    );
+    mockStore = configureStore();
   });
 
   describe('#openImport', function () {
@@ -61,7 +29,7 @@ describe('import [module]', function () {
         openImport({
           namespace: 'test.test',
           origin: 'menu',
-        })
+        }) as any
       );
 
       expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
@@ -83,7 +51,7 @@ describe('import [module]', function () {
         openImport({
           namespace: 'test.test',
           origin: 'menu',
-        })
+        }) as any
       );
 
       expect(mockStore.getState().ns).to.equal(testNS);
@@ -107,7 +75,7 @@ describe('import [module]', function () {
 
       expect(mockStore.getState().import.fileName).to.equal('');
 
-      await mockStore.dispatch(selectImportFileName(fileName));
+      await mockStore.dispatch(selectImportFileName(fileName) as any);
 
       expect(mockStore.getState().import.fileName).to.equal(fileName);
     });
@@ -118,7 +86,7 @@ describe('import [module]', function () {
       expect(mockStore.getState().import.fileName).to.equal('');
       expect(mockStore.getState().import.errors.length).to.equal(0);
 
-      await mockStore.dispatch(selectImportFileName(noExistFile));
+      await mockStore.dispatch(selectImportFileName(noExistFile) as any);
 
       expect(mockStore.getState().import.fileName).to.equal('');
 
