@@ -6,7 +6,6 @@ import path from 'path';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
-import { once } from 'events';
 
 temp.track();
 
@@ -21,15 +20,20 @@ import {
   closeExport,
   runExport,
 } from './export';
-import { dataServiceConnected, globalAppRegistryActivated } from './compass';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { configureStore } from '../stores/export-store';
 
+const mockServices = {
+  dataService: { findCursor() {}, aggregateCursor() {} },
+  globalAppRegistry: new AppRegistry(),
+} as any;
+
 describe('export [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let testStore = configureStore();
+  let testStore = configureStore(mockServices);
+
   beforeEach(function () {
-    testStore = configureStore();
+    testStore = configureStore(mockServices);
   });
 
   describe('#openExport', function () {
@@ -299,10 +303,12 @@ describe('export [module]', function () {
         testDoc: true,
       });
 
-      testStore.dispatch(dataServiceConnected(undefined, dataService));
-
       appRegistry = new AppRegistry();
-      testStore.dispatch(globalAppRegistryActivated(appRegistry));
+
+      testStore = configureStore({
+        dataService,
+        globalAppRegistry: appRegistry,
+      });
     });
 
     afterEach(async function () {
@@ -324,15 +330,13 @@ describe('export [module]', function () {
       );
 
       const textExportFilePath = path.join(tmpdir, 'run-export-test.json');
-      void testStore.dispatch(
+      await testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
           jsonFormatVariant: 'default',
           fileType: 'json',
         }) as any
       );
-
-      await once(appRegistry, 'export-finished');
 
       let resultText;
       try {
@@ -373,15 +377,13 @@ describe('export [module]', function () {
       );
 
       const textExportFilePath = path.join(tmpdir, 'run-export-test-2.json');
-      void testStore.dispatch(
+      await testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
           jsonFormatVariant: 'default',
           fileType: 'json',
         }) as any
       );
-
-      await once(appRegistry, 'export-finished');
 
       let resultText;
       try {

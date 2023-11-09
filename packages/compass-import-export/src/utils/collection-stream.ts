@@ -78,7 +78,7 @@ export type CollectionStreamStats = Required<NumericBulkWriteResult> & {
   writeConcernErrors: WriteCollectionStreamProgressError[];
 };
 export class WritableCollectionStream extends Writable {
-  dataService: DataService;
+  dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
   ns: string;
   BATCH_SIZE: number;
   docsWritten: number;
@@ -89,7 +89,11 @@ export class WritableCollectionStream extends Writable {
   _stats: CollectionStreamStats;
   _errors: CollectionStreamProgressError[];
 
-  constructor(dataService: DataService, ns: string, stopOnErrors: boolean) {
+  constructor(
+    dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>,
+    ns: string,
+    stopOnErrors: boolean
+  ) {
     super({ objectMode: true });
     this.dataService = dataService;
     this.ns = ns;
@@ -275,7 +279,7 @@ export class WritableCollectionStream extends Writable {
 }
 
 export const createCollectionWriteStream = function (
-  dataService: DataService,
+  dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>,
   ns: string,
   stopOnErrors: boolean
 ) {

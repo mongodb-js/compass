@@ -141,7 +141,7 @@ export async function gatherFieldsFromQuery({
   ...exportOptions
 }: Omit<GatherFieldsOptions, 'input'> & {
   ns: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'findCursor'>;
   query?: ExportQuery;
   sampleSize?: number;
 }): ReturnType<typeof _gatherFields> {

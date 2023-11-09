@@ -12,7 +12,6 @@ import type { Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
-import { globalAppRegistryEmit, nsChanged } from './compass';
 import type { ProcessStatus } from '../constants/process-status';
 import type { AcceptedFileType } from '../constants/file-types';
 import type {
@@ -40,7 +39,6 @@ import {
   showInProgressToast,
   showStartingToast,
 } from '../components/import-toast';
-import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
 import type { ImportThunkAction } from '../stores/import-store';
 
 const checkFileExists = promisify(fs.exists);
@@ -122,6 +120,8 @@ type ImportState = {
   analyzeResult?: AnalyzeCSVFieldsResult;
   analyzeStatus: ProcessStatus;
   analyzeError?: Error;
+
+  namespace: string;
 };
 
 export const INITIAL_STATE: ImportState = {
@@ -147,6 +147,7 @@ export const INITIAL_STATE: ImportState = {
   transform: [],
   fileType: '',
   analyzeStatus: PROCESS_STATUS.UNSPECIFIED,
+  namespace: '',
 };
 
 export const onStarted = ({
@@ -192,11 +193,14 @@ async function getErrorLogPath(fileName: string) {
 }
 
 export const startImport = (): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, globalAppRegistry: appRegistry }
+  ) => {
     const startTime = Date.now();
 
     const {
-      ns,
       import: {
         fileName,
         fileType,
@@ -208,9 +212,8 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         stopOnErrors,
         exclude,
         transform,
+        namespace: ns,
       },
-      dataService: { dataService },
-      globalAppRegistry: appRegistry,
     } = getState();
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
@@ -305,7 +308,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     if (fileType === 'csv') {
       promise = importCSV({
-        dataService: dataService!,
+        dataService,
         ns,
         input,
         output: errorLogWriteStream,
@@ -320,7 +323,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       });
     } else {
       promise = importJSON({
-        dataService: dataService!,
+        dataService,
         ns,
         input,
         output: errorLogWriteStream,
@@ -443,9 +446,9 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       hasTransformed: transform.length > 0,
     };
 
-    // Don't emit when the data service is disconnected or not the same.
-    if (dataService === getState().dataService.dataService) {
-      dispatch(globalAppRegistryEmit('import-finished', payload));
+    // Don't emit when the data service is disconnected
+    if (dataService.isConnected()) {
+      appRegistry.emit('import-finished', payload);
     }
   };
 };
@@ -837,12 +840,10 @@ export const openImport = ({
       });
       return;
     }
-
     track('Import Opened', {
       origin,
     });
-    dispatch(nsChanged(namespace));
-    dispatch({ type: OPEN });
+    dispatch({ type: OPEN, namespace });
   };
 };
 
@@ -1049,6 +1050,7 @@ export const importReducer: Reducer<ImportState> = (
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
+      namespace: action.namespace,
       isOpen: true,
     };
   }
@@ -1112,18 +1114,6 @@ export const importReducer: Reducer<ImportState> = (
     return {
       ...state,
       analyzeBytesProcessed: action.analyzeBytesProcessed,
-    };
-  }
-  if (action.type === DATA_SERVICE_DISCONNECTED) {
-    // Abort any ongoing imports/exports.
-    state.abortController?.abort();
-    state.analyzeAbortController?.abort();
-
-    return {
-      ...state,
-      analyzeAbortController: undefined,
-      abortController: undefined,
-      isOpen: false,
     };
   }
 

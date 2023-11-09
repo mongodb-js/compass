@@ -33,7 +33,7 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useLocalAppRegistry } from 'hadron-app-registry';
+import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
@@ -49,6 +49,7 @@ import {
   DropCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import { DataServiceProvider } from 'mongodb-data-service/provider';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -326,6 +327,12 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  if (isConnected && !connectedDataService.current) {
+    throw new Error(
+      'Application is connected, but DataService is not available'
+    );
+  }
+
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
@@ -344,7 +351,16 @@ function Home({
         track('Signal Closed', { id });
       }}
     >
-      {isConnected && <Workspace namespace={namespace} />}
+      {isConnected && connectedDataService.current && (
+        // AppRegistry scope for a connected application
+        <AppRegistryProvider>
+          <DataServiceProvider value={connectedDataService.current}>
+            <ImportPlugin></ImportPlugin>
+            <ExportPlugin></ExportPlugin>
+            <Workspace namespace={namespace} />
+          </DataServiceProvider>
+        </AppRegistryProvider>
+      )}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
       <div
@@ -371,8 +387,6 @@ function Home({
       <DropDatabasePlugin></DropDatabasePlugin>
       <CreateCollectionPlugin></CreateCollectionPlugin>
       <DropCollectionPlugin></DropCollectionPlugin>
-      <ImportPlugin></ImportPlugin>
-      <ExportPlugin></ExportPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
