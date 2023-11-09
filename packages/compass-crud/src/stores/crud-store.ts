@@ -1100,7 +1100,7 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateDialog() {
-    await this.updateBulkUpdatePreview('{ $set: { }}');
+    await this.updateBulkUpdatePreview('{ $set: { } }');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -2002,6 +2002,18 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     globalAppRegistry.on('refresh-data', () => {
       void store.refreshDocuments();
     });
+
+    globalAppRegistry.on(
+      'favorites:open-bulk-update-favorite',
+      (query: QueryState & { update: BSONObject }) => {
+        void store.onQueryChanged(query);
+        void store.refreshDocuments();
+        void store.openBulkUpdateDialog();
+        void store.updateBulkUpdatePreview(
+          toJSString(query.update) || '{ $set: { } }'
+        );
+      }
+    );
 
     globalAppRegistry.on('import-finished', ({ ns }) => {
       if (ns === store.state.ns) {

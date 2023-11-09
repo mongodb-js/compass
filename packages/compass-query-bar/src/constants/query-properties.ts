@@ -29,6 +29,7 @@ export type QueryFormFields = {
   skip: FormField<number>;
   limit: FormField<number>;
   maxTimeMS: FormField<number>;
+  update: FormField<Document>;
 };
 
 export type QueryFormFieldEntries = {
