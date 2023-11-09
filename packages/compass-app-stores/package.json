@@ -21,13 +21,14 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./provider": "./dist/provider.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./dist/index.ts",
+    "./provider": "./dist/provider.ts"
   },
   "types": "./dist/src/index.d.ts",
   "scripts": {
