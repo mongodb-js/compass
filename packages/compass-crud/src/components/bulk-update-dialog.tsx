@@ -3,7 +3,6 @@ import type { UpdatePreview } from 'mongodb-data-service';
 import HadronDocument from 'hadron-document';
 import { toJSString } from 'mongodb-query-parser';
 import {
-  FormModal,
   css,
   cx,
   spacing,
@@ -16,6 +15,11 @@ import {
   Link,
   useDarkMode,
   usePrevious,
+  Modal,
+  ModalFooter,
+  Button,
+  ModalHeader,
+  ModalBody,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -107,6 +111,22 @@ const updatePreviewStyles = css({
   gap: spacing[3],
 });
 
+const modalFooterToolbarSpacingStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+});
+
+const modalFooterFormActionsStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[2],
+});
+
+const modalFooterAdditionalActionsStyles = css({
+  alignSelf: 'start',
+});
+
 export type BulkUpdateDialogProps = {
   isOpen: boolean;
   ns: string;
@@ -178,93 +198,110 @@ export default function BulkUpdateDialog({
   }, [isOpen, wasOpen, updateText]);
 
   return (
-    <FormModal
+    <Modal
       title={title}
-      subtitle={ns}
-      size="large"
       open={isOpen}
-      onSubmit={runBulkUpdate}
-      onCancel={closeBulkUpdateDialog}
-      cancelButtonText="Close"
-      submitButtonText="Update documents"
-      submitDisabled={!!(syntaxError || serverError)}
+      setOpen={closeBulkUpdateDialog}
+      size="large"
     >
-      <div className={columnsStyles}>
-        <div className={queryStyles}>
-          <div className={queryFieldStyles}>
-            <ReadonlyFilter
-              queryLabel="Filter"
-              filterQuery={toJSString(filter) ?? ''}
-            />
-          </div>
-
-          <div className={cx(queryFieldStyles, updateFieldStyles)}>
-            <Label htmlFor="bulk-update-update">Update</Label>
-            <Description className={descriptionStyles}>
-              <Link href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update">
-                Learn more about Update syntax
-              </Link>
-            </Description>
-            <KeylineCard
-              className={cx(
-                codeContainerStyles,
-                multilineContainerStyles,
-                darkMode ? codeDarkContainerStyles : codeLightContainerStyles
-              )}
-            >
-              <CodemirrorMultilineEditor
-                text={text}
-                onChangeText={onChangeText}
-                id="bulk-update-update"
-                data-testid="bulk-update-update"
-                onBlur={() => ({})}
-                className={codeEditorStyles}
-                annotations={annotations}
+      <ModalHeader title={title} subtitle={ns} />
+      <ModalBody>
+        <div className={columnsStyles}>
+          <div className={queryStyles}>
+            <div className={queryFieldStyles}>
+              <ReadonlyFilter
+                queryLabel="Filter"
+                filterQuery={toJSString(filter) ?? ''}
               />
+            </div>
 
-              <div className={bannerContainerStyles}>
-                {syntaxError && (
-                  <Banner
-                    variant={BannerVariant.Warning}
-                    className={bannerStyles}
-                  >
-                    {syntaxError.message}
-                  </Banner>
+            <div className={cx(queryFieldStyles, updateFieldStyles)}>
+              <Label htmlFor="bulk-update-update">Update</Label>
+              <Description className={descriptionStyles}>
+                <Link href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update">
+                  Learn more about Update syntax
+                </Link>
+              </Description>
+              <KeylineCard
+                className={cx(
+                  codeContainerStyles,
+                  multilineContainerStyles,
+                  darkMode ? codeDarkContainerStyles : codeLightContainerStyles
                 )}
-                {serverError && !syntaxError && (
-                  <Banner
-                    variant={BannerVariant.Danger}
-                    className={bannerStyles}
-                  >
-                    {serverError.message}
-                  </Banner>
-                )}
-              </div>
-            </KeylineCard>
-          </div>
-        </div>
-        <div className={previewStyles}>
-          <Label htmlFor="bulk-update-preview">
-            Preview{' '}
-            <Description className={previewDescriptionStyles}>
-              (sample of {preview.changes.length} document
-              {preview.changes.length !== 1 && 's'})
-            </Description>
-          </Label>
-          <div className={updatePreviewStyles}>
-            {previewDocuments.map((doc: HadronDocument, index: number) => {
-              return (
-                <UpdatePreviewDocument
-                  key={`change=${index}`}
-                  data-testid="bulk-update-preview-document"
-                  doc={doc}
+              >
+                <CodemirrorMultilineEditor
+                  text={text}
+                  onChangeText={onChangeText}
+                  id="bulk-update-update"
+                  data-testid="bulk-update-update"
+                  onBlur={() => ({})}
+                  className={codeEditorStyles}
+                  annotations={annotations}
                 />
-              );
-            })}
+
+                <div className={bannerContainerStyles}>
+                  {syntaxError && (
+                    <Banner
+                      variant={BannerVariant.Warning}
+                      className={bannerStyles}
+                    >
+                      {syntaxError.message}
+                    </Banner>
+                  )}
+                  {serverError && !syntaxError && (
+                    <Banner
+                      variant={BannerVariant.Danger}
+                      className={bannerStyles}
+                    >
+                      {serverError.message}
+                    </Banner>
+                  )}
+                </div>
+              </KeylineCard>
+            </div>
+          </div>
+          <div className={previewStyles}>
+            <Label htmlFor="bulk-update-preview">
+              Preview{' '}
+              <Description className={previewDescriptionStyles}>
+                (sample of {preview.changes.length} document
+                {preview.changes.length !== 1 && 's'})
+              </Description>
+            </Label>
+            <div className={updatePreviewStyles}>
+              {previewDocuments.map((doc: HadronDocument, index: number) => {
+                return (
+                  <UpdatePreviewDocument
+                    key={`change=${index}`}
+                    data-testid="bulk-update-preview-document"
+                    doc={doc}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
-    </FormModal>
+      </ModalBody>
+      <ModalFooter className={modalFooterToolbarSpacingStyles}>
+        <div className={modalFooterAdditionalActionsStyles}>
+          <Button variant="default" onClick={closeBulkUpdateDialog}>
+            Save Query
+          </Button>
+        </div>
+        <div className={modalFooterFormActionsStyles}>
+          <Button variant="default" onClick={closeBulkUpdateDialog}>
+            Cancel
+          </Button>
+          <Button
+            disabled={!!(syntaxError || serverError)}
+            variant="primary"
+            onClick={runBulkUpdate}
+          >
+            Update {count} documents
+          </Button>
+        </div>
+      </ModalFooter>
+    </Modal>
   );
 }
 
