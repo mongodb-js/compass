@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import {
   Button,
   FavoriteIcon,
@@ -18,9 +18,14 @@ import type AppRegistry from 'hadron-app-registry';
 
 import Connection from './connection';
 import ConnectionsTitle from './connections-title';
+import { TextInput } from '@mongodb-js/compass-components';
 
 const newConnectionButtonContainerStyles = css({
   padding: spacing[3],
+});
+
+const savedConnectionsFilter = css({
+  margin: `${spacing[2]}px ${spacing[3]}px`,
 });
 
 const newConnectionButtonStyles = css({
@@ -88,6 +93,8 @@ const connectionListStyles = css({
   margin: 0,
   padding: 0,
 });
+
+const MIN_FAV_CONNECTIONS_TO_SHOW_FILTER = 10;
 
 function RecentIcon() {
   const darkMode = useDarkMode();
@@ -163,6 +170,20 @@ function ConnectionList({
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
+  const [favoriteConnectionsFilter, setSavedConnectionsFilter] = useState('');
+
+  const savedConnectionToShow = useMemo(() => {
+    if (!favoriteConnectionsFilter) {
+      return favoriteConnections;
+    }
+
+    return favoriteConnections.filter((connection) =>
+      connection.favorite?.name
+        ?.toLowerCase()
+        .includes(favoriteConnectionsFilter.toLowerCase())
+    );
+  }, [favoriteConnections, favoriteConnectionsFilter]);
+
   return (
     <Fragment>
       <ConnectionsTitle
@@ -211,8 +232,24 @@ function ConnectionList({
             isVisible={favoriteHeaderHover}
           ></ItemActionControls>
         </div>
+        {favoriteConnections.length > MIN_FAV_CONNECTIONS_TO_SHOW_FILTER && (
+          <TextInput
+            data-testid="sidebar-filter-saved-connections-input"
+            placeholder="Filter"
+            type="search"
+            aria-label="Saved connections filter"
+            title="Saved connections filter"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSavedConnectionsFilter(e.target.value)
+            }
+            className={savedConnectionsFilter}
+          />
+        )}
         <ul className={connectionListStyles}>
-          {favoriteConnections.map((connectionInfo, index) => (
+          {(favoriteConnections.length > MIN_FAV_CONNECTIONS_TO_SHOW_FILTER
+            ? savedConnectionToShow
+            : favoriteConnections
+          ).map((connectionInfo, index) => (
             <li
               data-testid="favorite-connection"
               data-id={`favorite-connection-${
