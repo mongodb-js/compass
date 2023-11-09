@@ -30,7 +30,6 @@ import {
   exportJSONFromQuery,
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
-import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
 import type { ExportThunkAction } from '../stores/export-store';
 
 const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
@@ -587,10 +586,7 @@ export const exportReducer: Reducer<ExportState> = (
     };
   }
 
-  if (
-    isAction<CloseExportAction>(action, ExportActionTypes.CloseExport) ||
-    action.type === DATA_SERVICE_DISCONNECTED
-  ) {
+  if (isAction<CloseExportAction>(action, ExportActionTypes.CloseExport)) {
     // Cancel any ongoing operations.
     state.fieldsToExportAbortController?.abort();
     state.exportAbortController?.abort();

@@ -4,7 +4,7 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { cancelExport, exportReducer, openExport } from '../modules/export';
+import { closeExport, exportReducer, openExport } from '../modules/export';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(
@@ -71,7 +71,9 @@ export function activatePlugin(
     store,
     deactivate() {
       globalAppRegistry.removeListener('open-export', onOpenExport);
-      store.dispatch(cancelExport());
+      // We use close and not cancel because cancel doesn't actually cancel
+      // everything
+      store.dispatch(closeExport());
     },
   };
 }

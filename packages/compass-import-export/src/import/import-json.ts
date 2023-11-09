@@ -26,7 +26,7 @@ const debug = createDebug('import-json');
 type JSONVariant = 'json' | 'jsonl';
 
 type ImportJSONOptions = {
-  dataService: DataService;
+  dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
   ns: string;
   input: Readable;
   output?: Writable;
