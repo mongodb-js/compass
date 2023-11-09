@@ -50,7 +50,7 @@ type InteractivePopoverProps = {
     ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
-  hasCustomCloseButton: boolean;
+  hasCustomCloseButton?: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
   /**
@@ -68,7 +68,7 @@ function InteractivePopover({
   className,
   children,
   trigger,
-  hasCustomCloseButton,
+  hasCustomCloseButton = false,
   open,
   setOpen,
   containedElements = [],

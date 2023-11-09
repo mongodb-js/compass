@@ -135,9 +135,18 @@ const inlineSaveQueryModalStyles = css({
   gap: spacing[3],
 });
 
+const inlineSaveQueryModalInputStyles = css({
+  width: '315px',
+});
+
 type InlineSaveQueryModalProps = {
   onSave: (name: string) => void;
 };
+
+const inlineSaveQueryModalContainedElements = [
+  '#inline-save-query-modal',
+  '#inline-save-query-modal-input',
+];
 
 const InlineSaveQueryModal: React.FunctionComponent<
   InlineSaveQueryModalProps
@@ -181,6 +190,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
 
   return (
     <InteractivePopover
+      containedElements={inlineSaveQueryModalContainedElements}
       // To prevent popover from closing when confirmation modal is shown
       trigger={({ onClick, children }) => {
         return (
@@ -196,12 +206,15 @@ const InlineSaveQueryModal: React.FunctionComponent<
           </Button>
         );
       }}
+      align="top"
       hasCustomCloseButton={true}
       open={open}
       setOpen={setOpen}
     >
-      <div className={inlineSaveQueryModalStyles}>
+      <div id="inline-save-query-modal" className={inlineSaveQueryModalStyles}>
         <TextInput
+          id="inline-save-query-modal-input"
+          className={inlineSaveQueryModalInputStyles}
           aria-label="Saved query name"
           value={favoriteName}
           onChange={updateFavoriteName}
