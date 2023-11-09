@@ -266,7 +266,7 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   onSaveUpdateQuery(name: string) {
-    this.props.store.saveUpdateQuery(name);
+    void this.props.store.saveUpdateQuery(name);
   }
 
   renderBulkUpdateModal() {
