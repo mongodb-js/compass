@@ -1,65 +1,108 @@
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import { createStore, applyMiddleware } from 'redux';
+import type { Action, AnyAction } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { Store, AnyAction } from 'redux';
-
-import { globalAppRegistryActivated } from '../modules/compass/global-app-registry';
+import {
+  globalAppRegistryActivated,
+  globalAppRegistry,
+  dataService,
+} from '../modules/compass';
 import {
   dataServiceConnected,
   dataServiceDisconnected,
 } from '../modules/compass/data-service';
-import { rootExportReducer, openExport } from '../modules/export';
+import { exportReducer, openExport } from '../modules/export';
 
 export function configureStore() {
-  return createStore(rootExportReducer, applyMiddleware(thunk));
+  return createStore(
+    combineReducers({
+      export: exportReducer,
+      globalAppRegistry,
+      dataService,
+    }),
+    applyMiddleware(thunk)
+  );
 }
 
-const _store = configureStore();
+export type RootExportState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
+export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootExportState,
+  void,
+  A
+>;
 
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
+export function activatePlugin(
+  _: unknown,
+  { globalAppRegistry }: { globalAppRegistry: AppRegistry }
+) {
+  const store = configureStore();
 
-export type RootExportActions = StoreActions<typeof _store>;
+  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-export type RootExportState = StoreState<typeof _store>;
+  const onDataServiceConnected = (
+    err: Error | undefined,
+    dataService: DataService
+  ) => {
+    store.dispatch(dataServiceConnected(err, dataService));
+  };
 
-const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
 
-    globalAppRegistry.on(
-      'data-service-connected',
-      (err: Error | undefined, dataService: DataService) => {
-        store.dispatch(dataServiceConnected(err, dataService));
-      }
+  const onDataServiceDisconnected = () => {
+    store.dispatch(dataServiceDisconnected());
+  };
+
+  // Abort the export operation when it's in progress.
+  globalAppRegistry.on('data-service-disconnected', onDataServiceDisconnected);
+
+  const onOpenExport = ({
+    namespace,
+    query,
+    exportFullCollection,
+    aggregation,
+    origin,
+  }: {
+    namespace: string;
+    query: any;
+    exportFullCollection: true;
+    aggregation: any;
+    origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
+  }) => {
+    store.dispatch(
+      openExport({
+        namespace,
+        query: {
+          // In the query bar we use `project` instead of `projection`.
+          ...query,
+          ...(query?.project ? { projection: query.project } : {}),
+        },
+        exportFullCollection,
+        aggregation,
+        origin,
+      })
     );
+  };
 
-    // Abort the export operation when it's in progress.
-    globalAppRegistry.on('data-service-disconnected', () => {
-      store.dispatch(dataServiceDisconnected());
-    });
+  globalAppRegistry.on('open-export', onOpenExport);
 
-    globalAppRegistry.on(
-      'open-export',
-      ({ namespace, query, exportFullCollection, aggregation, origin }) => {
-        store.dispatch(
-          openExport({
-            namespace,
-            query: {
-              // In the query bar we use `project` instead of `projection`.
-              ...query,
-              ...(query?.project ? { projection: query.project } : {}),
-            },
-            exportFullCollection,
-            aggregation,
-            origin,
-          })
-        );
-      }
-    );
-  },
-});
-
-export { store };
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
+      );
+      globalAppRegistry.removeListener(
+        'data-service-disconnected',
+        onDataServiceDisconnected
+      );
+      globalAppRegistry.removeListener('open-export', onOpenExport);
+    },
+  };
+}

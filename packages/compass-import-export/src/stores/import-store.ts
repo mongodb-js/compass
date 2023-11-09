@@ -1,51 +1,96 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore, applyMiddleware } from 'redux';
-import type { Store, AnyAction } from 'redux';
+import type { Action, AnyAction } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
-
-import { globalAppRegistryActivated } from '../modules/compass';
+import {
+  globalAppRegistryActivated,
+  ns,
+  dataService,
+  globalAppRegistry,
+} from '../modules/compass';
 import {
   dataServiceConnected,
   dataServiceDisconnected,
 } from '../modules/compass/data-service';
-import { rootImportReducer, openImport } from '../modules/import';
+import { importReducer, openImport } from '../modules/import';
 
-const _store = createStore(rootImportReducer, applyMiddleware(thunk));
+export function configureStore() {
+  return createStore(
+    combineReducers({
+      import: importReducer,
+      ns,
+      dataService,
+      globalAppRegistry,
+    }),
+    applyMiddleware(thunk)
+  );
+}
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
+export type RootImportState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
+export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootImportState,
+  void,
+  A
+>;
 
-export type RootImportActions = StoreActions<typeof _store>;
+export function activatePlugin(
+  _: unknown,
+  { globalAppRegistry }: { globalAppRegistry: AppRegistry }
+) {
+  // applyMiddleware should extract StoreEnhancer type automatically, but it's
+  // not working here for some reason, so we assert
+  const store = configureStore() as ReturnType<typeof configureStore> & {
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>;
+  };
 
-export type RootImportState = StoreState<typeof _store>;
+  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+  const onDataServiceConnected = (
+    err: Error | undefined,
+    dataService: DataService
+  ) => {
+    store.dispatch(dataServiceConnected(err, dataService));
+  };
 
-    globalAppRegistry.on(
-      'data-service-connected',
-      (err: Error | undefined, dataService: DataService) => {
-        store.dispatch(dataServiceConnected(err, dataService));
-      }
-    );
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
 
-    // Abort the import operation when it's in progress.
-    globalAppRegistry.on('data-service-disconnected', () => {
-      store.dispatch(dataServiceDisconnected());
-    });
+  const onDataServiceDisconnected = () => {
+    store.dispatch(dataServiceDisconnected());
+  };
 
-    globalAppRegistry.on('open-import', ({ namespace, origin }) => {
-      store.dispatch(
-        openImport({
-          namespace,
-          origin,
-        }) as unknown as AnyAction
+  // Abort the import operation when it's in progress.
+  globalAppRegistry.on('data-service-disconnected', onDataServiceDisconnected);
+
+  const onOpenImport = ({
+    namespace,
+    origin,
+  }: {
+    namespace: string;
+    origin: 'menu' | 'crud-toolbar' | 'empty-state';
+  }) => {
+    store.dispatch(openImport({ namespace, origin }));
+  };
+
+  globalAppRegistry.on('open-import', onOpenImport);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
       );
-    });
-  },
-});
-
-export { store };
+      globalAppRegistry.removeListener(
+        'data-service-disconnected',
+        onDataServiceDisconnected
+      );
+      globalAppRegistry.removeListener('open-import', onOpenImport);
+    },
+  };
+}

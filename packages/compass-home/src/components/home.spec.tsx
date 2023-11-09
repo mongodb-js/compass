@@ -45,7 +45,7 @@ describe('Home [Component]', function () {
       testAppRegistry.registerComponent(name, getComponent(name))
     );
 
-    ['Global.Modal', 'Application.Connect'].forEach((name) =>
+    ['Application.Connect'].forEach((name) =>
       testAppRegistry.registerRole(name, {
         name,
         component: getComponent(name),

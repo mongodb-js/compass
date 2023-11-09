@@ -1,31 +1,20 @@
-import type AppRegistry from 'hadron-app-registry';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import CompassFindInPage from './components/compass-find-in-page';
+import { activatePlugin } from './stores/store';
 
-import CompassFindInPagePlugin from './plugin';
-import CompassFindInPageStore from './stores';
-
-const ROLE = {
-  name: 'FindInPage',
-  component: CompassFindInPagePlugin,
-};
-
-/**
- * Activate all the components in the Compass Find In Page package.
- * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry): void {
-  // Register the CompassFindInPagePlugin as a role in Compass
-  appRegistry.registerRole('Global.Modal', ROLE);
-  appRegistry.registerStore('FindInPage.Store', CompassFindInPageStore);
+function activate(): void {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Compass Find In Page package.
- * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Global.Modal', ROLE);
-  appRegistry.deregisterStore('FindInPage.Store');
+function deactivate(): void {
+  // noop
 }
+
+export const CompassFindInPagePlugin = registerHadronPlugin({
+  name: 'CompassFindInPage',
+  component: CompassFindInPage,
+  activate: activatePlugin,
+});
 
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

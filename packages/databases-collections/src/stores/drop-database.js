@@ -4,29 +4,33 @@ import { appRegistryActivated } from '../modules/app-registry';
 import { dataServiceConnected } from '../modules/data-service';
 import reducer, { open } from '../modules/drop-database/drop-database';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+export function activatePlugin(_, { globalAppRegistry }) {
+  const store = createStore(reducer, applyMiddleware(thunk));
+  store.dispatch(appRegistryActivated(globalAppRegistry));
 
-store.onActivated = (appRegistry) => {
-  store.dispatch(appRegistryActivated(appRegistry));
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
+  const onDataServiceConnected = (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
-  });
+  };
 
-  /**
-   * When needing to drop a database from elsewhere, the app registry
-   * event is emitted.
-   *
-   * @param {String} name - The database name.
-   */
-  appRegistry.on('open-drop-database', (name) => {
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
+
+  const onOpenDropDatabase = (name) => {
     store.dispatch(open(name));
-  });
-};
+  };
 
-export default store;
+  globalAppRegistry.on('open-drop-database', onOpenDropDatabase);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
+      );
+      globalAppRegistry.removeListener(
+        'open-drop-database',
+        onOpenDropDatabase
+      );
+    },
+  };
+}
