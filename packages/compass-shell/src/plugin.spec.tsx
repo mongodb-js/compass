@@ -1,11 +1,12 @@
 import React from 'react';
+import type { ReactWrapper } from 'enzyme';
 import { mount } from 'enzyme';
-import { EventEmitter } from 'events';
 import { expect } from 'chai';
 
 import { CompassShell } from './components/compass-shell';
-import createPlugin from './plugin';
-import CompassShellStore from './stores';
+import { CompassShellPlugin } from './index';
+import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { DataServiceProvider } from 'mongodb-data-service/provider';
 
 // Wait until a component is present that is rendered in a limited number
 // of microtask queue iterations. In particular, this does *not* wait for the
@@ -26,35 +27,55 @@ async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
 }
 
 describe('CompassShellPlugin', function () {
-  it('returns a renderable plugin', async function () {
-    const { Plugin } = createPlugin();
+  const fakeDataService = {
+    getMongoClientConnectionOptions() {},
+  } as any;
+  let wrapper: ReactWrapper | null;
 
-    const wrapper = mount(<Plugin />);
+  afterEach(() => {
+    wrapper?.unmount();
+    wrapper = null;
+  });
+  it('returns a renderable plugin', async function () {
+    wrapper = mount(
+      <AppRegistryProvider>
+        {' '}
+        {/* global */}
+        <AppRegistryProvider>
+          {' '}
+          {/* local */}
+          <DataServiceProvider value={fakeDataService}>
+            <CompassShellPlugin />
+          </DataServiceProvider>
+        </AppRegistryProvider>
+      </AppRegistryProvider>
+    );
 
     const component = await waitForAsyncComponent(wrapper, CompassShell);
 
     expect(component.exists()).to.equal(true);
   });
 
-  it('returns a CompassShellStore store', function () {
-    const { store } = createPlugin();
-    const appRegistry = new EventEmitter();
-    store.onActivated(appRegistry);
-    expect(store).to.be.instanceOf(CompassShellStore);
-  });
-
   it('emits an event on the app registry when it is expanded', async function () {
-    const { store, Plugin } = createPlugin();
-
-    const appRegistry = new EventEmitter();
     let eventOccured = false;
-    appRegistry.on('compass:compass-shell:opened', () => {
+    globalAppRegistry.on('compass:compass-shell:opened', () => {
       eventOccured = true;
     });
 
-    store.onActivated(appRegistry);
+    wrapper = mount(
+      <AppRegistryProvider>
+        {' '}
+        {/* global */}
+        <AppRegistryProvider>
+          {' '}
+          {/* local */}
+          <DataServiceProvider value={fakeDataService}>
+            <CompassShellPlugin />
+          </DataServiceProvider>
+        </AppRegistryProvider>
+      </AppRegistryProvider>
+    );
 
-    const wrapper = mount(<Plugin />);
     const shellComponentWrapper = await waitForAsyncComponent(
       wrapper,
       CompassShell

@@ -58,18 +58,20 @@
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/compass-utils": "^0.5.5",
-    "@mongodb-js/mongodb-redux-common": "^2.0.15",
     "@mongosh/node-runtime-worker-thread": "^2.0.2",
-    "compass-preferences-model": "^2.15.6"
+    "compass-preferences-model": "^2.15.6",
+    "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-user-data": "^0.1.9",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/compass-utils": "^0.5.5",
-    "@mongodb-js/mongodb-redux-common": "^2.0.15",
     "@mongosh/node-runtime-worker-thread": "^2.0.2",
     "compass-preferences-model": "^2.15.6",
+    "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -85,9 +87,7 @@
     "electron": "^25.9.3",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.14",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.15.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react-dom": "^17.0.2",
