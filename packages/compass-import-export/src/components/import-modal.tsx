@@ -168,12 +168,16 @@ function ImportModal({
   if (isOpen && !fileName && errors.length === 0) {
     // Show the file input when we don't have a file to import yet.
     return (
-      <ImportFileInput
-        autoOpen
-        onCancel={handleClose}
-        fileName={fileName}
-        selectImportFileName={selectImportFileName}
-      />
+      // Don't actually show it on the screen, just render it to trigger
+      // autoOpen
+      <div style={{ display: 'none' }}>
+        <ImportFileInput
+          autoOpen
+          onCancel={handleClose}
+          fileName={fileName}
+          selectImportFileName={selectImportFileName}
+        />
+      </div>
     );
   }
 
@@ -266,7 +270,7 @@ function ImportModal({
  * Map the state of the store to component properties.
  */
 const mapStateToProps = (state: RootImportState) => ({
-  ns: state.ns,
+  ns: state.import.namespace,
   isOpen: state.import.isOpen,
   errors: state.import.errors,
   fileType: state.import.fileType,

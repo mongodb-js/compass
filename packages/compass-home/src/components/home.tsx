@@ -355,6 +355,7 @@ function Home({
         // AppRegistry scope for a connected application
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
+            <ImportPlugin></ImportPlugin>
             <ExportPlugin></ExportPlugin>
             <Workspace namespace={namespace} />
           </DataServiceProvider>
@@ -386,7 +387,6 @@ function Home({
       <DropDatabasePlugin></DropDatabasePlugin>
       <CreateCollectionPlugin></CreateCollectionPlugin>
       <DropCollectionPlugin></DropCollectionPlugin>
-      <ImportPlugin></ImportPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );

@@ -8,11 +8,18 @@ import { activatePlugin as activateExportPlugin } from './stores/export-store';
 /**
  * The import plugin.
  */
-export const ImportPlugin = registerHadronPlugin({
-  name: 'Import',
-  component: ImportPluginComponent,
-  activate: activateImportPlugin,
-});
+export const ImportPlugin = registerHadronPlugin(
+  {
+    name: 'Import',
+    component: ImportPluginComponent,
+    activate: activateImportPlugin,
+  },
+  {
+    dataService: dataServiceLocator as typeof dataServiceLocator<
+      'isConnected' | 'bulkWrite' | 'insertOne'
+    >,
+  }
+);
 
 /**
  * The export plugin.

@@ -28,7 +28,7 @@ import { ByteCounter } from '../utils/byte-counter';
 const debug = createDebug('import-csv');
 
 type ImportCSVOptions = {
-  dataService: DataService;
+  dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
   ns: string;
   input: Readable;
   output?: Writable;

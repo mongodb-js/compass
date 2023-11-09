@@ -3,11 +3,16 @@ import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
 import { configureStore } from '../stores/import-store';
 
+const mockServices = {
+  globalAppRegistry: {},
+  dataService: {},
+} as any;
+
 describe('import [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let mockStore = configureStore();
+  let mockStore = configureStore(mockServices);
   beforeEach(function () {
-    mockStore = configureStore();
+    mockStore = configureStore(mockServices);
   });
 
   describe('#openImport', function () {
@@ -41,7 +46,7 @@ describe('import [module]', function () {
     it('opens and sets the namespace', function () {
       const testNS = 'test.test';
       expect(mockStore.getState().import.status).to.equal('UNSPECIFIED');
-      expect(mockStore.getState().ns).to.not.equal(testNS);
+      expect(mockStore.getState().import.namespace).to.not.equal(testNS);
       expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );
@@ -54,7 +59,7 @@ describe('import [module]', function () {
         }) as any
       );
 
-      expect(mockStore.getState().ns).to.equal(testNS);
+      expect(mockStore.getState().import.namespace).to.equal(testNS);
       expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );
