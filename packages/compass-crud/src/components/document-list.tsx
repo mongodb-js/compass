@@ -77,6 +77,7 @@ export type DocumentListProps = {
   openBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
+  saveUpdateQuery: (name: string) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
@@ -264,6 +265,10 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
   }
 
+  onSaveUpdateQuery(name: string) {
+    this.props.store.saveUpdateQuery(name);
+  }
+
   renderBulkUpdateModal() {
     if (!this.props.isEditable) {
       return;
@@ -278,6 +283,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         closeBulkUpdateDialog={this.props.closeBulkUpdateDialog}
         updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
         runBulkUpdate={this.props.runBulkUpdate}
+        saveUpdateQuery={this.onSaveUpdateQuery.bind(this)}
       />
     );
   }
@@ -533,6 +539,7 @@ DocumentList.propTypes = {
   openBulkUpdateDialog: PropTypes.func,
   updateBulkUpdatePreview: PropTypes.func,
   runBulkUpdate: PropTypes.func,
+  saveUpdateQuery: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
   refreshDocuments: PropTypes.func,

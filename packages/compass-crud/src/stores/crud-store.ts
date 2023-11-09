@@ -13,6 +13,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
 
 import {
   countDocuments,
@@ -65,6 +66,7 @@ export type CrudActions = {
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
   openDeleteQueryExportToLanguageDialog(): void;
+  saveUpdateQuery(name: string): Promise<void>;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -331,6 +333,7 @@ type CrudStoreOptions = {
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
+  favoriteQueriesStorage: FavoriteQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -438,10 +441,13 @@ class CrudStoreImpl
   dataService!: DataService;
   localAppRegistry!: AppRegistry;
   globalAppRegistry!: AppRegistry;
+  favoriteQueriesStorage: FavoriteQueryStorage;
 
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
+    this.favoriteQueriesStorage =
+      options.favoriteQueriesStorage || new FavoriteQueryStorage();
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -1912,6 +1918,33 @@ class CrudStoreImpl
       },
       'Delete Query'
     );
+  }
+
+  async saveUpdateQuery(name: string): Promise<void> {
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    await this.favoriteQueriesStorage.saveQuery({
+      _name: name,
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
+    openToast('saved-favorite-update-query', {
+      title: '',
+      variant: 'success',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${name} added to "My Queries".`,
+    });
   }
 }
 

@@ -243,6 +243,7 @@ export type BulkUpdateDialogProps = {
   closeBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
+  saveUpdateQuery: (name: string) => void;
 };
 
 export default function BulkUpdateDialog({
@@ -257,6 +258,7 @@ export default function BulkUpdateDialog({
   closeBulkUpdateDialog,
   updateBulkUpdatePreview,
   runBulkUpdate,
+  saveUpdateQuery,
 }: BulkUpdateDialogProps) {
   const darkMode = useDarkMode();
 
@@ -380,11 +382,7 @@ export default function BulkUpdateDialog({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <InlineSaveQueryModal
-            onSave={() => {
-              return;
-            }}
-          />
+          <InlineSaveQueryModal onSave={saveUpdateQuery} />
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button variant="default" onClick={closeBulkUpdateDialog}>
