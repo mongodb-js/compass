@@ -5,7 +5,7 @@ const http = require('http');
 
 function write(payload) {
   if (process.stdout.isTTY) {
-    console.dir(payload);
+    console.dir(payload, { depth: Infinity });
   } else {
     process.stdout.write(JSON.stringify(payload) + '\n');
   }
