@@ -1,6 +1,10 @@
-import reducer, { createView, INITIAL_STATE } from '../create-view';
-import { reset } from '../create-view/reset';
-import { CLEAR_ERROR, HANDLE_ERROR } from '../create-view/error';
+import reducer, {
+  createView,
+  INITIAL_STATE,
+  reset,
+  CLEAR_ERROR,
+  HANDLE_ERROR,
+} from './';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
@@ -8,15 +12,9 @@ describe('create view module', function () {
   describe('#reducer', function () {
     describe('when an action is provided', function () {
       describe('when the action is reset', function () {
-        const dataService = 'data-service';
-
         it('returns the reset state', function () {
-          expect(
-            reducer({ dataService: dataService, appRegistry: 'test' }, reset())
-          ).to.deep.equal({
+          expect(reducer(INITIAL_STATE, reset())).to.deep.equal({
             ...INITIAL_STATE,
-            dataService: dataService,
-            appRegistry: 'test',
           });
         });
       });
@@ -28,6 +26,7 @@ describe('create view module', function () {
       describe('when the source is invalid', function () {
         const dispatchSpy = sinon.spy();
         const getState = () => ({
+          ...INITIAL_STATE,
           name: 'myView',
           source: 'dataService',
           pipeline: [
@@ -37,12 +36,13 @@ describe('create view module', function () {
               },
             },
           ],
-          dataService: { dataService: 'ds' },
         });
 
         before(async function () {
           await createView()(dispatchSpy, getState, {
-            globalAppRegistry: { on: sinon.stub() },
+            globalAppRegistry: { on: sinon.stub() } as any,
+            dataService: {} as any,
+            logger: { debug: sinon.stub(), track: sinon.stub() } as any,
           });
         });
 

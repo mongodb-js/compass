@@ -6,6 +6,8 @@ import { Aggregations } from './components/aggregations';
 import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
 /**
  * A sample role for the component.
@@ -40,11 +42,17 @@ const deactivate = (appRegistry: AppRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
 };
 
-export const CreateViewPlugin = registerHadronPlugin({
-  name: 'CreateView',
-  component: CreateViewModal,
-  activate: activateCreateViewPlugin,
-});
+export const CreateViewPlugin = registerHadronPlugin(
+  {
+    name: 'CreateView',
+    component: CreateViewModal,
+    activate: activateCreateViewPlugin,
+  },
+  {
+    dataService: dataServiceLocator as typeof dataServiceLocator<'createView'>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
+  }
+);
 
 export default AggregationsPlugin;
 export { activate, deactivate, Aggregations, StageEditor, configureStore };

@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
 import {
   Banner,
   Body,
@@ -11,12 +9,14 @@ import {
   spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
-
-import { createView } from '../../modules/create-view';
-import { changeViewName } from '../../modules/create-view/name';
-import { toggleIsVisible } from '../../modules/create-view/is-visible';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+import {
+  createView,
+  changeViewName,
+  toggleIsVisible,
+} from '../../modules/create-view';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { CreateViewRootState } from '../../stores/create-view';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -24,25 +24,21 @@ const progressContainerStyles = css({
   alignItems: 'center',
 });
 
-class CreateViewModal extends PureComponent {
-  static displayName = 'CreateViewModalComponent';
+type CreateViewModalProps = {
+  createView: () => void;
+  isVisible?: boolean;
+  toggleIsVisible: (newVal: boolean) => void;
+  name?: string;
+  changeViewName: (name: string) => void;
+  isDuplicating?: boolean;
+  source?: string;
+  pipeline?: unknown[];
+  isRunning?: boolean;
+  error: Error | null;
+  logger: LoggerAndTelemetry;
+};
 
-  static propTypes = {
-    createView: PropTypes.func.isRequired,
-
-    isVisible: PropTypes.bool.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
-
-    name: PropTypes.string,
-    changeViewName: PropTypes.func.isRequired,
-    isDuplicating: PropTypes.bool.isRequired,
-
-    source: PropTypes.string.isRequired,
-    pipeline: PropTypes.array.isRequired,
-    isRunning: PropTypes.bool.isRequired,
-    error: PropTypes.object,
-  };
-
+class CreateViewModal extends PureComponent<CreateViewModalProps> {
   static defaultProps = {
     name: '',
     source: '',
@@ -52,19 +48,17 @@ class CreateViewModal extends PureComponent {
     isDuplicating: false,
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: CreateViewModalProps) {
     if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
-      track('Screen', { name: 'create_view_modal' });
+      this.props.logger.track('Screen', { name: 'create_view_modal' });
     }
   }
 
-  onNameChange = (evt) => {
-    this.props.changeViewName(evt.target.value);
+  onNameChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.changeViewName(evt.currentTarget.value);
   };
 
-  onFormSubmit = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
+  onFormSubmit = () => {
     this.props.createView();
   };
 
@@ -74,15 +68,13 @@ class CreateViewModal extends PureComponent {
 
   /**
    * Render the save pipeline component.
-   *
-   * @returns {Component} The component.
    */
   render() {
     return (
       <FormModal
         title={this.props.isDuplicating ? 'Duplicate View' : 'Create a View'}
         open={this.props.isVisible}
-        onSubmit={this.props.createView}
+        onSubmit={this.onFormSubmit}
         onCancel={this.onCancel}
         submitButtonText="Create"
         data-testid="create-view-modal"
@@ -110,12 +102,8 @@ class CreateViewModal extends PureComponent {
 
 /**
  * Map the store state to properties to pass to the components.
- *
- * @param {Object} state - The store state.
- *
- * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: CreateViewRootState) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   isDuplicating: state.isDuplicating,
@@ -129,11 +117,14 @@ const mapStateToProps = (state) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateViewModal = connect(mapStateToProps, {
-  createView,
-  changeViewName,
-  toggleIsVisible,
-})(CreateViewModal);
+const MappedCreateViewModal = withLoggerAndTelemetry(
+  connect(mapStateToProps, {
+    createView,
+    changeViewName,
+    toggleIsVisible,
+  })(CreateViewModal),
+  'COMPASS-CREATE-VIEW-UI'
+);
 
 export default MappedCreateViewModal;
 export { CreateViewModal };
