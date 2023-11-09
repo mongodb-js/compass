@@ -259,7 +259,7 @@ export async function exportCSVFromAggregation({
   ...exportOptions
 }: Omit<ExportCSVOptions, 'input' | 'columns'> & {
   ns: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'aggregateCursor'>;
   aggregation: ExportAggregation;
 }) {
   debug('exportCSVFromAggregation()', { ns: toNS(ns), aggregation });
@@ -319,7 +319,7 @@ export async function exportCSVFromQuery({
   ...exportOptions
 }: Omit<ExportCSVOptions, 'input' | 'columns'> & {
   ns: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'findCursor'>;
   query?: ExportQuery;
 }) {
   debug('exportCSVFromQuery()', { ns: toNS(ns), query });

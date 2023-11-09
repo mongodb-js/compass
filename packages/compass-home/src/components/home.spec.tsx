@@ -2,7 +2,7 @@ import React from 'react';
 import { once } from 'events';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry, { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
 import Home from '.';
@@ -32,9 +32,9 @@ describe('Home [Component]', function () {
     }
   });
 
-  let testAppRegistry: AppRegistry;
+  const testAppRegistry = globalAppRegistry;
+
   beforeEach(function () {
-    testAppRegistry = new AppRegistry();
     [
       'Collection.Workspace',
       'Database.Workspace',
@@ -55,7 +55,10 @@ describe('Home [Component]', function () {
     testAppRegistry.onActivated();
   });
 
-  afterEach(cleanup);
+  afterEach(function () {
+    testAppRegistry.deactivate();
+    cleanup();
+  });
 
   describe('is not connected', function () {
     beforeEach(function () {

@@ -1,4 +1,5 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
@@ -16,11 +17,18 @@ export const ImportPlugin = registerHadronPlugin({
 /**
  * The export plugin.
  */
-export const ExportPlugin = registerHadronPlugin({
-  name: 'Export',
-  component: ExportPluginComponent,
-  activate: activateExportPlugin,
-});
+export const ExportPlugin = registerHadronPlugin(
+  {
+    name: 'Export',
+    component: ExportPluginComponent,
+    activate: activateExportPlugin,
+  },
+  {
+    dataService: dataServiceLocator as typeof dataServiceLocator<
+      'findCursor' | 'aggregateCursor'
+    >,
+  }
+);
 
 function activate(): void {
   // noop

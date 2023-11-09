@@ -4,25 +4,14 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import {
-  globalAppRegistryActivated,
-  globalAppRegistry,
-  dataService,
-} from '../modules/compass';
-import {
-  dataServiceConnected,
-  dataServiceDisconnected,
-} from '../modules/compass/data-service';
-import { exportReducer, openExport } from '../modules/export';
+import { cancelExport, exportReducer, openExport } from '../modules/export';
 
-export function configureStore() {
+export function configureStore(services: ExportPluginServices) {
   return createStore(
     combineReducers({
       export: exportReducer,
-      globalAppRegistry,
-      dataService,
     }),
-    applyMiddleware(thunk)
+    applyMiddleware(thunk.withExtraArgument(services))
   );
 }
 
@@ -30,36 +19,23 @@ export type RootExportState = ReturnType<
   ReturnType<typeof configureStore>['getState']
 >;
 
+export type ExportPluginServices = {
+  globalAppRegistry: AppRegistry;
+  dataService: Pick<DataService, 'findCursor' | 'aggregateCursor'>;
+};
+
 export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   RootExportState,
-  void,
+  ExportPluginServices,
   A
 >;
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry }: { globalAppRegistry: AppRegistry }
+  { globalAppRegistry, dataService }: ExportPluginServices
 ) {
-  const store = configureStore();
-
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-  const onDataServiceConnected = (
-    err: Error | undefined,
-    dataService: DataService
-  ) => {
-    store.dispatch(dataServiceConnected(err, dataService));
-  };
-
-  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
-
-  const onDataServiceDisconnected = () => {
-    store.dispatch(dataServiceDisconnected());
-  };
-
-  // Abort the export operation when it's in progress.
-  globalAppRegistry.on('data-service-disconnected', onDataServiceDisconnected);
+  const store = configureStore({ globalAppRegistry, dataService });
 
   const onOpenExport = ({
     namespace,
@@ -94,15 +70,8 @@ export function activatePlugin(
   return {
     store,
     deactivate() {
-      globalAppRegistry.removeListener(
-        'data-service-connected',
-        onDataServiceConnected
-      );
-      globalAppRegistry.removeListener(
-        'data-service-disconnected',
-        onDataServiceDisconnected
-      );
       globalAppRegistry.removeListener('open-export', onOpenExport);
+      store.dispatch(cancelExport());
     },
   };
 }

@@ -33,7 +33,7 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useLocalAppRegistry } from 'hadron-app-registry';
+import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
@@ -352,9 +352,13 @@ function Home({
       }}
     >
       {isConnected && connectedDataService.current && (
-        <DataServiceProvider value={connectedDataService.current}>
-          <Workspace namespace={namespace} />
-        </DataServiceProvider>
+        // AppRegistry scope for a connected application
+        <AppRegistryProvider>
+          <DataServiceProvider value={connectedDataService.current}>
+            <ExportPlugin></ExportPlugin>
+            <Workspace namespace={namespace} />
+          </DataServiceProvider>
+        </AppRegistryProvider>
       )}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
@@ -383,7 +387,6 @@ function Home({
       <CreateCollectionPlugin></CreateCollectionPlugin>
       <DropCollectionPlugin></DropCollectionPlugin>
       <ImportPlugin></ImportPlugin>
-      <ExportPlugin></ExportPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );

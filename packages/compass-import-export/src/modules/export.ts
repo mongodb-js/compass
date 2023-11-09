@@ -13,7 +13,6 @@ import type {
   ExportResult,
 } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
-import { globalAppRegistryEmit } from './compass';
 import {
   exportCSVFromAggregation,
   exportCSVFromQuery,
@@ -263,7 +262,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
   | FetchFieldsToExportErrorAction
   | FetchFieldsToExportSuccessAction
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { dataService }) => {
     dispatch({
       type: ExportActionTypes.SelectFieldsToExport,
     });
@@ -277,7 +276,6 @@ export const selectFieldsToExport = (): ExportThunkAction<
 
     const {
       export: { query, namespace },
-      dataService: { dataService },
     } = getState();
 
     let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
@@ -287,7 +285,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
         ns: namespace,
         abortSignal: fieldsToExportAbortController.signal,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        dataService: dataService!,
+        dataService: dataService,
         query,
         sampleSize: 50,
       });
@@ -333,7 +331,7 @@ export const runExport = ({
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
 }): ExportThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { dataService }) => {
     let outputWriteStream: fs.WriteStream;
     try {
       outputWriteStream = fs.createWriteStream(filePath);
@@ -357,7 +355,6 @@ export const runExport = ({
         selectedFieldOption,
         fieldsAddedCount,
       },
-      dataService: { dataService },
     } = getState();
 
     let fieldsIncludedCount = 0;
@@ -432,7 +429,7 @@ export const runExport = ({
     const baseExportOptions = {
       ns: namespace,
       abortSignal: exportAbortController.signal,
-      dataService: dataService!,
+      dataService: dataService,
       progressCallback,
       output: outputWriteStream,
     };
@@ -546,17 +543,6 @@ export const runExport = ({
       type: ExportActionTypes.RunExportSuccess,
       aborted,
     });
-
-    // Don't emit when the data service is disconnected or not the same.
-    if (dataService === getState().dataService.dataService) {
-      dispatch(
-        globalAppRegistryEmit(
-          'export-finished',
-          exportResult?.docsWritten,
-          fileType
-        )
-      );
-    }
   };
 };
 

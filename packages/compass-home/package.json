@@ -47,7 +47,8 @@
     "@mongodb-js/compass-import-export": "^7.19.1",
     "compass-preferences-model": "^2.15.6",
     "hadron-app-registry": "^9.0.14",
-    "hadron-ipc": "^3.2.4"
+    "hadron-ipc": "^3.2.4",
+    "mongodb-data-service": "^22.15.1"
   },
   "peerDependencies": {
     "@mongodb-js/atlas-service": "^0.10.1",
@@ -64,6 +65,7 @@
     "compass-preferences-model": "^2.15.6",
     "hadron-app-registry": "^9.0.14",
     "hadron-ipc": "^3.2.4",
+    "mongodb-data-service": "^22.15.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -82,7 +84,6 @@
     "eventemitter3": "^4.0.0",
     "mocha": "^10.2.0",
     "mongodb-collection-model": "^5.15.1",
-    "mongodb-data-service": "^22.15.1",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
