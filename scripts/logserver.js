@@ -2,7 +2,15 @@
 // replies with 200 Ok. This is very useful when debugging telemetry:
 // env HADRON_METRICS_SEGMENT_API_KEY='ignore' HADRON_METRICS_SEGMENT_HOST='http://localhost:8000' npm start
 const http = require('http');
+const { inspect } = require('util');
 
+function write(payload) {
+  if (process.stdout.isTTY) {
+    console.log(inspect(payload, { depth: Infinity, colors: true }));
+  } else {
+    process.stdout.write(JSON.stringify(payload) + '\n');
+  }
+}
 http
   .createServer((req, res) => {
     let body = '';
@@ -17,7 +25,8 @@ http
         } catch {
           //
         }
-        console.dir({ headers: req.headers, body }, { depth: Infinity });
+
+        write({ headers: req.headers, body });
         res.writeHead(200);
         res.end('Ok\n');
       });
