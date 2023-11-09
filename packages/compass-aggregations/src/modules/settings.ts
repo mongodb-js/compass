@@ -1,5 +1,4 @@
 import type { AnyAction, Reducer } from 'redux';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/settings';
