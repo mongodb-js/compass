@@ -49,6 +49,7 @@ import {
   DropCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import { DataServiceProvider } from 'mongodb-data-service/provider';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -326,6 +327,12 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  if (isConnected && !connectedDataService.current) {
+    throw new Error(
+      'Application is connected, but DataService is not available'
+    );
+  }
+
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
@@ -344,7 +351,11 @@ function Home({
         track('Signal Closed', { id });
       }}
     >
-      {isConnected && <Workspace namespace={namespace} />}
+      {isConnected && connectedDataService.current && (
+        <DataServiceProvider value={connectedDataService.current}>
+          <Workspace namespace={namespace} />
+        </DataServiceProvider>
+      )}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
       <div
