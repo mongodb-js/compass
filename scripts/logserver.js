@@ -2,11 +2,10 @@
 // replies with 200 Ok. This is very useful when debugging telemetry:
 // env HADRON_METRICS_SEGMENT_API_KEY='ignore' HADRON_METRICS_SEGMENT_HOST='http://localhost:8000' npm start
 const http = require('http');
-const { inspect } = require('util');
 
 function write(payload) {
   if (process.stdout.isTTY) {
-    console.log(inspect(payload, { depth: Infinity, colors: true }));
+    console.dir(payload);
   } else {
     process.stdout.write(JSON.stringify(payload) + '\n');
   }
