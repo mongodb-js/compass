@@ -20,6 +20,7 @@ import {
   Button,
   ModalHeader,
   ModalBody,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -168,9 +169,6 @@ export default function BulkUpdateDialog({
     updateBulkUpdatePreview(value);
   };
 
-  const title =
-    count === undefined ? 'Update documents' : `Update documents (${count})`;
-
   const annotations = useMemo<Annotation[]>(() => {
     if (syntaxError?.loc?.index) {
       return [
@@ -196,13 +194,8 @@ export default function BulkUpdateDialog({
   }, [isOpen, wasOpen, updateText]);
 
   return (
-    <Modal
-      title={title}
-      open={isOpen}
-      setOpen={closeBulkUpdateDialog}
-      size="large"
-    >
-      <ModalHeader title={title} subtitle={ns} />
+    <Modal open={isOpen} setOpen={closeBulkUpdateDialog} size="large">
+      <ModalHeader title={`Update ${count || 0} documents`} subtitle={ns} />
       <ModalBody>
         <div className={columnsStyles}>
           <div className={queryStyles}>
@@ -283,7 +276,8 @@ export default function BulkUpdateDialog({
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
           <Button variant="default" onClick={closeBulkUpdateDialog}>
-            Save Query
+            <Icon glyph="Favorite" />
+            Save
           </Button>
         </div>
         <div className={modalFooterFormActionsStyles}>
