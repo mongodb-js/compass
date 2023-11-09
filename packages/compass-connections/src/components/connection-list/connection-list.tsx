@@ -172,7 +172,7 @@ function ConnectionList({
 
   const [favoriteConnectionsFilter, setSavedConnectionsFilter] = useState('');
 
-  const savedConnectionToShow = useMemo(() => {
+  const filteredSavedConnections = useMemo(() => {
     if (!favoriteConnectionsFilter) {
       return favoriteConnections;
     }
@@ -183,6 +183,8 @@ function ConnectionList({
         .includes(favoriteConnectionsFilter.toLowerCase())
     );
   }, [favoriteConnections, favoriteConnectionsFilter]);
+  const showFilteredSavedConnections =
+    favoriteConnections.length > MIN_FAV_CONNECTIONS_TO_SHOW_FILTER;
 
   return (
     <Fragment>
@@ -232,7 +234,7 @@ function ConnectionList({
             isVisible={favoriteHeaderHover}
           ></ItemActionControls>
         </div>
-        {favoriteConnections.length > MIN_FAV_CONNECTIONS_TO_SHOW_FILTER && (
+        {showFilteredSavedConnections && (
           <TextInput
             data-testid="sidebar-filter-saved-connections-input"
             placeholder="Filter"
@@ -246,8 +248,8 @@ function ConnectionList({
           />
         )}
         <ul className={connectionListStyles}>
-          {(favoriteConnections.length > MIN_FAV_CONNECTIONS_TO_SHOW_FILTER
-            ? savedConnectionToShow
+          {(showFilteredSavedConnections
+            ? filteredSavedConnections
             : favoriteConnections
           ).map((connectionInfo, index) => (
             <li
