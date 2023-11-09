@@ -39,10 +39,8 @@ describe('CompassShellPlugin', function () {
   it('returns a renderable plugin', async function () {
     wrapper = mount(
       <AppRegistryProvider>
-        {' '}
         {/* global */}
         <AppRegistryProvider>
-          {' '}
           {/* local */}
           <DataServiceProvider value={fakeDataService}>
             <CompassShellPlugin />
@@ -64,10 +62,8 @@ describe('CompassShellPlugin', function () {
 
     wrapper = mount(
       <AppRegistryProvider>
-        {' '}
         {/* global */}
         <AppRegistryProvider>
-          {' '}
           {/* local */}
           <DataServiceProvider value={fakeDataService}>
             <CompassShellPlugin />
