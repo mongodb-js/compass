@@ -44,14 +44,14 @@ describe('InstanceStore [Store]', function () {
   let dataService: any;
   let store: ReturnType<typeof createInstanceStore>;
 
-  let emitSpy;
-  let initialInstanceRefreshedPromise;
+  let emitSpy: any;
+  let initialInstanceRefreshedPromise: Promise<unknown>;
 
-  const hadronAppBkp = global.hadronApp;
+  const hadronAppBkp = (globalThis as any).hadronApp;
 
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
-    global.hadronApp = {};
+    (globalThis as any).hadronApp = {};
 
     emitSpy = sinon.spy(globalAppRegistry, 'emit');
     dataService = createDataService();
@@ -69,7 +69,7 @@ describe('InstanceStore [Store]', function () {
   });
 
   afterEach(function () {
-    global.hadronApp = hadronAppBkp;
+    (globalThis as any).hadronApp = hadronAppBkp;
     emitSpy = null;
     store.dispatch(reset());
     store.deactivate();
@@ -87,12 +87,12 @@ describe('InstanceStore [Store]', function () {
     it('creates instance and makes it globally available through global.hadronApp.instance', function () {
       const instance = store.getInstance();
       expect((instance as any).getType()).to.equal('Instance');
-      expect(global.hadronApp.instance).to.equal(instance);
+      expect((globalThis as any).hadronApp.instance).to.equal(instance);
     });
 
     it('emits instance-refreshed event', async function () {
       await initialInstanceRefreshedPromise;
-      const events = emitSpy.args.map(([evtName]) => evtName);
+      const events = emitSpy.args.map(([evtName]: any) => evtName);
       expect(events).to.eql(['instance-created', 'instance-refreshed']);
     });
   });
@@ -119,7 +119,7 @@ describe('InstanceStore [Store]', function () {
     });
 
     it('emits instance-changed event', function () {
-      const events = emitSpy.args.map(([evtName]) => evtName);
+      const events = emitSpy.args.map(([evtName]: any) => evtName);
       expect(events).to.eql([
         'instance-created',
         'instance-refreshed',
@@ -151,7 +151,7 @@ describe('InstanceStore [Store]', function () {
     });
 
     it('emits instance-changed event', function () {
-      const events = emitSpy.args.map(([evtName]) => evtName);
+      const events = emitSpy.args.map(([evtName]: any) => evtName);
       expect(events).to.eql([
         'instance-created',
         'instance-refreshed',

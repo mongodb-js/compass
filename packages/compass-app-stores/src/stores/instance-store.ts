@@ -217,7 +217,9 @@ export function createInstanceStore({
   const instance = new MongoDBInstance(
     initialInstanceProps as MongoDBInstanceProps
   );
-  (globalThis as any).hadronApp.instance = instance;
+  if ((globalThis as any).hadronApp) {
+    (globalThis as any).hadronApp.instance = instance;
+  }
 
   debug('instance-created');
   appRegistry.emit('instance-created', { instance });
