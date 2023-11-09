@@ -189,6 +189,19 @@ export const SavedItemCard: React.FunctionComponent<
     defaultActionProps
   );
 
+  let badge: string;
+  switch (type) {
+    case 'query':
+      badge = 'find';
+      break;
+    case 'updatemany':
+      badge = 'updatemany';
+      break;
+    case 'aggregation':
+      badge = 'aggregate';
+      break;
+  }
+
   const formattedDate = useFormattedDate(lastModified);
   const darkMode = useDarkMode();
 
@@ -199,7 +212,7 @@ export const SavedItemCard: React.FunctionComponent<
     <Card key={id} contentStyle="clickable" data-id={id} {...cardProps}>
       <div className={actionsRow}>
         <Badge variant="darkgray" className={cardBadge}>
-          .{type === 'query' ? 'find' : 'aggregate'}
+          .{badge}
         </Badge>
 
         <div className={cardActions}>
