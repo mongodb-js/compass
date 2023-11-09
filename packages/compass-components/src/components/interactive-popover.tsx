@@ -50,6 +50,7 @@ type InteractivePopoverProps = {
     ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
+  hasCustomCloseButton: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
   /**
@@ -67,6 +68,7 @@ function InteractivePopover({
   className,
   children,
   trigger,
+  hasCustomCloseButton,
   open,
   setOpen,
   containedElements = [],
@@ -182,19 +184,21 @@ function InteractivePopover({
           >
             {children}
 
-            <IconButton
-              className={cx(closeButtonStyles, closeButtonClassName)}
-              data-testid="interactive-popover-close-button"
-              onClick={(evt) => {
-                evt.stopPropagation();
-                onClose();
-              }}
-              aria-label="Close"
-              id={closeButtonId}
-              ref={closeButtonRef}
-            >
-              <Icon glyph="X" />
-            </IconButton>
+            {!hasCustomCloseButton && (
+              <IconButton
+                className={cx(closeButtonStyles, closeButtonClassName)}
+                data-testid="interactive-popover-close-button"
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  onClose();
+                }}
+                aria-label="Close"
+                id={closeButtonId}
+                ref={closeButtonRef}
+              >
+                <Icon glyph="X" />
+              </IconButton>
+            )}
           </div>
         </FocusTrap>
       </Popover>

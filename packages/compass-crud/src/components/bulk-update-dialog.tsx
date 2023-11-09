@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import type { UpdatePreview } from 'mongodb-data-service';
 import HadronDocument from 'hadron-document';
 import { toJSString } from 'mongodb-query-parser';
@@ -21,6 +21,8 @@ import {
   ModalHeader,
   ModalBody,
   Icon,
+  InteractivePopover,
+  TextInput,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -125,6 +127,96 @@ const modalFooterFormActionsStyles = css({
 });
 
 const modalFooterAdditionalActionsStyles = css({});
+
+const inlineSaveQueryModalStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  padding: spacing[3],
+  gap: spacing[3],
+});
+
+type InlineSaveQueryModalProps = {
+  onSave: (name: string) => void;
+};
+
+const InlineSaveQueryModal: React.FunctionComponent<
+  InlineSaveQueryModalProps
+> = ({ onSave }) => {
+  const [open, setOpen] = useState(false);
+  const [favoriteName, setFavoriteName] = useState('');
+  const [valid, setValid] = useState(false);
+
+  const cleanClose = useCallback(() => {
+    setOpen(false);
+    setFavoriteName('');
+  }, [setOpen, setFavoriteName]);
+
+  const onClickSave = useCallback(() => {
+    onSave(favoriteName);
+    cleanClose();
+  }, [onSave, favoriteName, cleanClose]);
+
+  const updateFavoriteName = useCallback(
+    (ev: React.ChangeEvent) => {
+      const target = ev.target as any as { value: string };
+      const favoriteName: string = (target.value || '').trim();
+
+      setFavoriteName(favoriteName);
+      setValid(favoriteName !== '');
+    },
+    [setFavoriteName]
+  );
+
+  const handleSpecialKeyboardEvents = useCallback(
+    (ev: React.KeyboardEvent) => {
+      if (ev.key === 'Enter') {
+        onSave(favoriteName);
+        cleanClose();
+      } else if (ev.key === 'Escape') {
+        cleanClose();
+      }
+    },
+    [favoriteName, onSave, cleanClose]
+  );
+
+  return (
+    <InteractivePopover
+      // To prevent popover from closing when confirmation modal is shown
+      trigger={({ onClick, children }) => {
+        return (
+          <Button
+            variant="default"
+            onClick={onClick}
+            aria-haspopup="true"
+            aria-expanded={open ? true : undefined}
+          >
+            <Icon glyph="Favorite" />
+            Save
+            {children}
+          </Button>
+        );
+      }}
+      hasCustomCloseButton={true}
+      open={open}
+      setOpen={setOpen}
+    >
+      <div className={inlineSaveQueryModalStyles}>
+        <TextInput
+          aria-label="Saved query name"
+          value={favoriteName}
+          onChange={updateFavoriteName}
+          onKeyUp={handleSpecialKeyboardEvents}
+        />
+        <Button variant="primary" disabled={!valid} onClick={onClickSave}>
+          Save
+        </Button>
+        <Button variant="default" onClick={cleanClose}>
+          Cancel
+        </Button>
+      </div>
+    </InteractivePopover>
+  );
+};
 
 export type BulkUpdateDialogProps = {
   isOpen: boolean;
@@ -275,10 +367,11 @@ export default function BulkUpdateDialog({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <Button variant="default" onClick={closeBulkUpdateDialog}>
-            <Icon glyph="Favorite" />
-            Save
-          </Button>
+          <InlineSaveQueryModal
+            onSave={() => {
+              return;
+            }}
+          />
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button variant="default" onClick={closeBulkUpdateDialog}>
