@@ -208,6 +208,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         copyable={false}
         formattable={false}
         customActions={actions}
+        minLines={3}
         readOnly={!editing}
         showLineNumbers={editing}
         className={cx(editorStyles, darkMode && editorDarkModeStyles)}
