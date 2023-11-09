@@ -123,9 +123,7 @@ const modalFooterFormActionsStyles = css({
   gap: spacing[2],
 });
 
-const modalFooterAdditionalActionsStyles = css({
-  alignSelf: 'start',
-});
+const modalFooterAdditionalActionsStyles = css({});
 
 export type BulkUpdateDialogProps = {
   isOpen: boolean;
