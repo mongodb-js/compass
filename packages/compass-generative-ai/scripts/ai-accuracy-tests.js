@@ -26,7 +26,8 @@ const { MongoClient } = require('mongodb');
 const { EJSON } = require('bson');
 const { getSimplifiedSchema } = require('mongodb-schema');
 const path = require('path');
-
+const util = require('util');
+const execFile = util.promisify(require('child_process').execFile);
 const DigestClient = require('digest-fetch');
 const nodeFetch = require('node-fetch');
 const decomment = require('decomment');
@@ -45,6 +46,10 @@ const TESTS_TO_RUN_CONCURRENTLY = 3;
 // when the test returns a result quickly.
 const ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS = 5000;
 const TIMEOUT_BETWEEN_TESTS_MS = 3000;
+
+const monorepoRoot = path.join(__dirname, '..', '..', '..');
+const TEST_RESULTS_DB = 'test_generative_ai_accuracy_evergreen';
+const TEST_RESULTS_COL = 'evergreen_runs';
 
 let PQueue;
 
@@ -377,6 +382,41 @@ const anyOf = (assertions) => (actual) => {
   }
 };
 
+/**
+ * Insert the generative ai results to a db
+ * so we can track how they perform overtime.
+ * @param {Array} results
+ * @param {Boolean} anyFailed
+ * @param {Number} httpsErrors
+ */
+async function pushResultsToDB(results, anyFailed, httpErrors) {
+  const client = new MongoClient(
+    process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING
+  );
+
+  try {
+    const database = client.db(TEST_RESULTS_DB);
+    const collection = database.collection(TEST_RESULTS_COL);
+
+    const gitCommitHash = await execFile('git', ['rev-parse', 'HEAD'], {
+      cwd: monorepoRoot,
+    });
+
+    const doc = {
+      gitHash: gitCommitHash.stdout.trim(),
+      completedAt: new Date(),
+      attemptsPerTest: ATTEMPTS_PER_TEST,
+      anyFailed,
+      httpErrors,
+      results: results,
+    };
+
+    await collection.insertOne(doc);
+  } finally {
+    await client.close();
+  }
+}
+
 const tests = [
   {
     type: 'query',
@@ -598,7 +638,7 @@ const tests = [
 async function main() {
   try {
     await setup();
-    const table = [];
+    const results = [];
 
     let anyFailed = false;
 
@@ -615,7 +655,7 @@ async function main() {
         const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
         const failed = accuracy < minAccuracy;
 
-        table.push({
+        results.push({
           Type: test.type.slice(0, 1).toUpperCase(),
           'User Input': test.userInput.slice(0, 50),
           Namespace: `${test.databaseName}.${test.collectionName}`,
@@ -631,7 +671,7 @@ async function main() {
 
     await testPromiseQueue.onIdle();
 
-    console.table(table, [
+    console.table(results, [
       'Type',
       'User Input',
       'Namespace',
@@ -640,6 +680,10 @@ async function main() {
       // 'Completion Tokens',
       'Pass',
     ]);
+
+    if (process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING) {
+      await pushResultsToDB(results, anyFailed, httpErrors);
+    }
 
     console.log('\nTotal HTTP errors received', httpErrors);
 
