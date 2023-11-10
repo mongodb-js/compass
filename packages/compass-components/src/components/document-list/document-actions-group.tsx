@@ -201,14 +201,14 @@ const DocumentActionsGroup: React.FunctionComponent<
                 tooltipEnabled={isActive}
                 size="xsmall"
                 rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
-                aria-label="Copy document"
+                aria-label="Copy document to clipboard"
                 data-testid="copy-document-button"
                 onClick={() => {
                   setShowCopyButtonTooltip(true);
                   onCopy();
                 }}
                 className={actionsGroupItem}
-                tooltipText="Copy"
+                tooltipText="Copy to clipboard"
               />
               {children}
             </div>
