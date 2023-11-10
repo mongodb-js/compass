@@ -73,6 +73,36 @@ function useElementParentHoverState<T extends HTMLElement>(
   return isHovered;
 }
 
+function ActionButton({
+  tooltipText,
+  tooltipEnabled,
+  ...props
+}: Partial<React.ComponentProps<typeof Button>> & {
+  tooltipText: string;
+  tooltipEnabled: boolean;
+}) {
+  return (
+    <Tooltip
+      // We pass `enabled` as the buttons set their styles `display: false`
+      // the container isn't hovered, which causes the tooltips to reset
+      // their position to 0,0 and glitch visually without enabled.
+      enabled={tooltipEnabled}
+      trigger={({ children, ...tooltipProps }) => {
+        return (
+          <div data-action-item {...tooltipProps}>
+            <Button {...props} />
+            {children}
+          </div>
+        );
+      }}
+      justify="middle"
+      delay={200} // The copy and clone buttons look alike so we keep the delay short.
+    >
+      {tooltipText}
+    </Tooltip>
+  );
+}
+
 const DocumentActionsGroup: React.FunctionComponent<
   {
     onEdit?: () => void;
@@ -121,22 +151,22 @@ const DocumentActionsGroup: React.FunctionComponent<
       )}
     >
       {onExpand && (
-        <Button
+        <ActionButton
           size="xsmall"
+          tooltipEnabled={isActive}
           rightGlyph={
             <Icon
               role="presentation"
               glyph={expanded ? 'CaretDown' : 'CaretRight'}
             ></Icon>
           }
-          title={expanded ? 'Collapse all' : 'Expand all'}
           aria-label={expanded ? 'Collapse all' : 'Expand all'}
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
           className={actionsGroupItem}
-          data-action-item
-        ></Button>
+          tooltipText={expanded ? 'Collapse all' : 'Expand all'}
+        />
       )}
       <span className={actionsGroupItemSeparator}></span>
       {insights && (
@@ -151,67 +181,66 @@ const DocumentActionsGroup: React.FunctionComponent<
         </div>
       )}
       {onEdit && (
-        <Button
+        <ActionButton
+          tooltipEnabled={isActive}
           size="xsmall"
           rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
-          title="Edit document"
           aria-label="Edit document"
           data-testid="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
-          data-action-item
-        ></Button>
+          tooltipText="Edit document"
+        />
       )}
       {onCopy && (
         <Tooltip
           open={showCopyButtonTooltip}
-          trigger={({ children }) => {
-            return (
-              <div data-action-item>
-                <Button
-                  size="xsmall"
-                  rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
-                  title="Copy document"
-                  aria-label="Copy document"
-                  data-testid="copy-document-button"
-                  onClick={() => {
-                    setShowCopyButtonTooltip(true);
-                    onCopy();
-                  }}
-                  className={actionsGroupItem}
-                ></Button>
-                {children}
-              </div>
-            );
-          }}
+          trigger={({ children }) => (
+            <div data-action-item>
+              <ActionButton
+                tooltipEnabled={isActive}
+                size="xsmall"
+                rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
+                aria-label="Copy document"
+                data-testid="copy-document-button"
+                onClick={() => {
+                  setShowCopyButtonTooltip(true);
+                  onCopy();
+                }}
+                className={actionsGroupItem}
+                tooltipText="Copy"
+              />
+              {children}
+            </div>
+          )}
           justify="middle"
         >
           Copied!
         </Tooltip>
       )}
       {onClone && (
-        <Button
+        <ActionButton
           size="xsmall"
+          tooltipEnabled={isActive}
           rightGlyph={<Icon role="presentation" glyph="Clone"></Icon>}
-          title="Clone document"
           aria-label="Clone document"
           data-testid="clone-document-button"
           onClick={onClone}
           className={actionsGroupItem}
-          data-action-item
-        ></Button>
+          tooltipText="Clone document"
+        />
       )}
       {onRemove && (
-        <Button
+        <ActionButton
           size="xsmall"
+          tooltipEnabled={isActive}
           rightGlyph={<Icon role="presentation" glyph="Trash"></Icon>}
-          title="Remove document"
           aria-label="Remove document"
           data-testid="remove-document-button"
           onClick={onRemove}
           className={actionsGroupItem}
-          data-action-item
-        ></Button>
+          tooltipText="Remove document"
+        />
       )}
     </div>
   );
