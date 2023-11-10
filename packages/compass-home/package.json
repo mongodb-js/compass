@@ -36,6 +36,7 @@
   "dependencies": {
     "@mongodb-js/atlas-service": "^0.10.1",
     "@mongodb-js/compass-aggregations": "^9.20.0",
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-connections": "^1.20.1",
     "@mongodb-js/compass-logging": "^1.2.6",
@@ -54,6 +55,7 @@
   "peerDependencies": {
     "@mongodb-js/atlas-service": "^0.10.1",
     "@mongodb-js/compass-aggregations": "^9.20.0",
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-connections": "^1.20.1",
     "@mongodb-js/compass-logging": "^1.2.6",

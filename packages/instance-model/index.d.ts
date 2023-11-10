@@ -51,7 +51,7 @@ interface TopologyDescription {
 declare class MongoDBInstanceProps {
   _id: string;
   hostname: string;
-  port: string;
+  port: number;
   status: string;
   statusError: string | null;
   databasesStatus: string;

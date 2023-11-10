@@ -50,6 +50,7 @@ import {
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
+import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -355,10 +356,12 @@ function Home({
         // AppRegistry scope for a connected application
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
-            <ImportPlugin></ImportPlugin>
-            <ExportPlugin></ExportPlugin>
-            <CreateViewPlugin></CreateViewPlugin>
-            <Workspace namespace={namespace} />
+            <CompassInstanceStorePlugin>
+              <ImportPlugin></ImportPlugin>
+              <ExportPlugin></ExportPlugin>
+              <CreateViewPlugin></CreateViewPlugin>
+              <Workspace namespace={namespace} />
+            </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
       )}
