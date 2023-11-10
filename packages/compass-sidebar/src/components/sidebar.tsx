@@ -21,6 +21,7 @@ import CSFLEConnectionModal from './csfle-connection-modal';
 import CSFLEMarker from './csfle-marker';
 import NonGenuineMarker from './non-genuine-marker';
 
+import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
@@ -219,6 +220,7 @@ const MappedSidebar = connect(mapStateToProps, {
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
 })(Sidebar);
 
 export default MappedSidebar;
