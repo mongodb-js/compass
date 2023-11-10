@@ -100,6 +100,7 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   }): Promise<Collection | null>;
   removeAllListeners(): void;
   on(evt: string, fn: (...args: any) => void);
+  off(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived?: boolean }): this;
 }
 

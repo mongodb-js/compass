@@ -47,6 +47,7 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-logging": "^1.2.6",
@@ -87,6 +88,7 @@
     "sinon": "^9.2.3"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-logging": "^1.2.6",
