@@ -10,7 +10,6 @@ import {
   useDarkMode,
   Label,
   Link,
-  GuideCue,
 } from '@mongodb-js/compass-components';
 import {
   AIExperienceEntry,
@@ -269,26 +268,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           )}
         </div>
         {showExplainButton && newExplainPlan && (
-          <GuideCue
-            cueId="query-bar-explain-plan"
-            title="“Explain Plan” has changed"
-            description={
-              'To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.'
-            }
-            trigger={({ ref }) => (
-              <Button
-                ref={ref}
-                aria-label="Reset query"
-                data-testid="query-bar-explain-button"
-                onClick={onExplain}
-                disabled={!isQueryValid}
-                size="small"
-                type="button"
-              >
-                Explain
-              </Button>
-            )}
-          />
+          <Button
+            aria-label="Explain query"
+            title="View the execution plan for the current query"
+            data-testid="query-bar-explain-button"
+            onClick={onExplain}
+            disabled={!isQueryValid}
+            size="small"
+            type="button"
+          >
+            Explain
+          </Button>
         )}
         <Button
           aria-label="Reset query"
