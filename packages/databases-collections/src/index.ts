@@ -7,12 +7,14 @@ import CollectionsStore from './stores/collections-store';
 import DatabasesStore from './stores/databases-store';
 import CreateDatabaseModal from './components/create-database-modal';
 import { activatePlugin as activateCreateDatabasePlugin } from './stores/create-database';
-import DropDatabaseModal from './components/drop-database-modal';
-import { activatePlugin as activateDropDatabasePlugin } from './stores/drop-database';
-import DropCollectionModal from './components/drop-collection-modal';
-import { activatePlugin as activateDropCollectionPlugin } from './stores/drop-collection';
 import CreateCollectionModal from './components/create-collection-modal';
 import { activatePlugin as activateCreateCollectionPlugin } from './stores/create-collection';
+import {
+  DropNamespaceComponent,
+  activatePlugin as activateDropNamespacePlugin,
+} from './stores/drop-namespace';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
 
 // View collections list plugin.
 const COLLECTIONS_PLUGIN_ROLE = {
@@ -35,13 +37,6 @@ export const CreateCollectionPlugin = registerHadronPlugin({
   activate: activateCreateCollectionPlugin,
 });
 
-// Drop collection modal plugin.
-export const DropCollectionPlugin = registerHadronPlugin({
-  name: 'DropCollection',
-  component: DropCollectionModal,
-  activate: activateDropCollectionPlugin,
-});
-
 // Create database modal plugin.
 export const CreateDatabasePlugin = registerHadronPlugin({
   name: 'CreateDatabase',
@@ -51,12 +46,19 @@ export const CreateDatabasePlugin = registerHadronPlugin({
   activate: activateCreateDatabasePlugin,
 });
 
-// Drop database modal plugin.
-export const DropDatabasePlugin = registerHadronPlugin({
-  name: 'DropDatabase',
-  component: DropDatabaseModal,
-  activate: activateDropDatabasePlugin,
-});
+export const DropNamespacePlugin = registerHadronPlugin(
+  {
+    name: 'DropNamespacePlugin',
+    component: DropNamespaceComponent,
+    activate: activateDropNamespacePlugin,
+  },
+  {
+    logger: createLoggerAndTelemetryLocator('COMPASS-DROP-NAMESPACE-UI'),
+    dataService: dataServiceLocator as typeof dataServiceLocator<
+      'dropDatabase' | 'dropCollection'
+    >,
+  }
+);
 
 /**
  * Activate all the components in the package.

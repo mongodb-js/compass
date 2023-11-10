@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-
 import {
   default as ConfirmationModal,
   Variant as ConfirmationModalVariant,
@@ -7,13 +6,18 @@ import {
 
 export { ConfirmationModalVariant };
 
-type ConfirmationProperties = {
-  title: string;
-  description: React.ReactNode;
-  buttonText?: string;
-  variant?: ConfirmationModalVariant;
-  requiredInputText?: string;
+type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
+
+type ConfirmationProperties = Partial<
+  Pick<
+    ConfirmationModalProps,
+    'title' | 'buttonText' | 'variant' | 'requiredInputText'
+  >
+> & {
+  description?: React.ReactNode;
+  'data-testid'?: string;
 };
+
 type ConfirmationCallback = (value: boolean) => void;
 
 interface ConfirmationModalContextData {
@@ -130,7 +134,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     <ConfirmationModalContext.Provider value={contextValue}>
       {children}
       <ConfirmationModal
-        data-testid={'confirmation-modal'}
+        data-testid={confirmationProps['data-testid'] ?? 'confirmation-modal'}
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
