@@ -132,7 +132,7 @@ describe('importJSON', function () {
           hasUnboundArray: false,
         });
 
-        const docs = await dataService.find(ns, {});
+        const docs = await dataService.find(ns, {}, { promoteValues: false });
 
         expect(docs).to.have.length(totalRows);
 
@@ -158,7 +158,7 @@ describe('importJSON', function () {
           throw err;
         }
 
-        const expectedResult = EJSON.parse(text);
+        const expectedResult = EJSON.parse(text, { relaxed: false });
         expect(
           docs,
           basename.replace(/\.((jsonl?)|(csv))$/, '.imported.ejson')

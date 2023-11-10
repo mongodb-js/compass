@@ -78,7 +78,9 @@ export async function importJSON({
           throw new Error('Value is not an object');
         }
 
-        const doc = EJSON.deserialize(chunk.value);
+        const doc = EJSON.deserialize(chunk.value as Document, {
+          relaxed: false,
+        });
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
