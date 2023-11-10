@@ -218,6 +218,7 @@ export function createInstanceStore({
     initialInstanceProps as MongoDBInstanceProps
   );
   if ((globalThis as any).hadronApp) {
+    // TODO(COMPASS-7442): Remove this
     (globalThis as any).hadronApp.instance = instance;
   }
 
@@ -241,6 +242,7 @@ export function createInstanceStore({
       topologyDescription: getTopologyDescription(newDescription),
     });
   }
+
   dataService.on('topologyDescriptionChanged', onTopologyDescriptionChanged);
   cleanup.push(() =>
     dataService.off?.(
@@ -250,70 +252,46 @@ export function createInstanceStore({
   );
 
   cleanup.push(() => {
+    instance.removeAllListeners();
     const hadronApp = (globalThis as any).hadronApp;
     if (hadronApp?.instance === instance) {
-      hadronApp.instance?.removeAllListeners();
       hadronApp.instance = null;
     }
     appRegistry.emit('instance-destroyed', { instance: null });
     store.dispatch(reset());
   });
 
+  function onAppRegistryEvent(ev: string, listener: (...args: any[]) => void) {
+    appRegistry.on(ev, listener);
+    cleanup.push(() => appRegistry.removeListener(ev, listener));
+  }
   const onSelectDatabase = voidify(fetchDatabaseDetails);
-  appRegistry.on('select-database', onSelectDatabase);
-  cleanup.push(() =>
-    appRegistry.removeListener('select-database', onSelectDatabase)
-  );
+  onAppRegistryEvent('select-database', onSelectDatabase);
 
   const onSidebarExpandDatabase = (dbName: string) =>
     void fetchDatabaseDetails(dbName, { nameOnly: true });
-  appRegistry.on('sidebar-expand-database', onSidebarExpandDatabase);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'sidebar-expand-database',
-      onSidebarExpandDatabase
-    )
-  );
+  onAppRegistryEvent('sidebar-expand-database', onSidebarExpandDatabase);
 
   const onSidebarFilterNavigationList = voidify(fetchAllCollections);
-  appRegistry.on(
+  onAppRegistryEvent(
     'sidebar-filter-navigation-list',
     onSidebarFilterNavigationList
-  );
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'sidebar-filter-navigation-list',
-      onSidebarFilterNavigationList
-    )
   );
 
   const onSelectNamespace = ({ namespace }: { namespace: string }) =>
     void fetchCollectionDetails(namespace);
-  appRegistry.on('select-namespace', onSelectNamespace);
-  cleanup.push(() =>
-    appRegistry.removeListener('select-namespace', onSelectNamespace)
-  );
+  onAppRegistryEvent('select-namespace', onSelectNamespace);
 
   const onOpenNamespaceInNewTab = ({ namespace }: { namespace: string }) =>
     void fetchCollectionDetails(namespace);
-  appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'open-namespace-in-new-tab',
-      onOpenNamespaceInNewTab
-    )
-  );
+  onAppRegistryEvent('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
 
   const onRefreshData = voidify(refreshInstance);
-  appRegistry.on('refresh-data', onRefreshData);
-  cleanup.push(() => appRegistry.removeListener('refresh-data', onRefreshData));
+  onAppRegistryEvent('refresh-data', onRefreshData);
 
   const onDatabaseDropped = () =>
     void getInstance().fetchDatabases({ dataService, force: true });
-  appRegistry.on('database-dropped', onDatabaseDropped);
-  cleanup.push(() =>
-    appRegistry.removeListener('database-dropped', onDatabaseDropped)
-  );
+  onAppRegistryEvent('database-dropped', onDatabaseDropped);
 
   const onCollectionDropped = voidify(async (namespace: string) => {
     const instance = getInstance();
@@ -323,10 +301,7 @@ export function createInstanceStore({
     // If it was last collection, there will be no db returned
     await db?.fetchCollections({ dataService, force: true });
   });
-  appRegistry.on('collection-dropped', onCollectionDropped);
-  cleanup.push(() =>
-    appRegistry.removeListener('collection-dropped', onCollectionDropped)
-  );
+  onAppRegistryEvent('collection-dropped', onCollectionDropped);
 
   // Event emitted when the Databases grid needs to be refreshed
   // We additionally refresh the list of collections as well
@@ -340,10 +315,7 @@ export function createInstanceStore({
       )
     );
   });
-  appRegistry.on('refresh-databases', onRefreshDatabases);
-  cleanup.push(() =>
-    appRegistry.removeListener('refresh-databases', onRefreshDatabases)
-  );
+  onAppRegistryEvent('refresh-databases', onRefreshDatabases);
 
   // Event emitted when the Collections grid needs to be refreshed
   // with new collections or collection stats for existing ones.
@@ -358,45 +330,24 @@ export function createInstanceStore({
       await db.fetchCollectionsDetails({ dataService, force: true });
     }
   });
-  appRegistry.on('refresh-collections', onRefreshCollections);
-  cleanup.push(() =>
-    appRegistry.removeListener('refresh-collections', onRefreshCollections)
-  );
+  onAppRegistryEvent('refresh-collections', onRefreshCollections);
 
   const onAggPipelineOutExecuted = voidify(refreshInstance);
-  appRegistry.on('agg-pipeline-out-executed', onAggPipelineOutExecuted);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'agg-pipeline-out-executed',
-      onAggPipelineOutExecuted
-    )
-  );
+  onAppRegistryEvent('agg-pipeline-out-executed', onAggPipelineOutExecuted);
 
   const onRefreshNamespaceStats = ({ ns }: { ns: string }) => {
     void refreshNamespaceStats(ns);
   };
-  appRegistry.on('document-deleted', onRefreshNamespaceStats);
-  cleanup.push(() =>
-    appRegistry.removeListener('document-deleted', onRefreshNamespaceStats)
-  );
-  appRegistry.on('document-inserted', onRefreshNamespaceStats);
-  cleanup.push(() =>
-    appRegistry.removeListener('document-inserted', onRefreshNamespaceStats)
-  );
-  appRegistry.on('import-finished', onRefreshNamespaceStats);
-  cleanup.push(() =>
-    appRegistry.removeListener('import-finished', onRefreshNamespaceStats)
-  );
+  onAppRegistryEvent('document-deleted', onRefreshNamespaceStats);
+  onAppRegistryEvent('document-inserted', onRefreshNamespaceStats);
+  onAppRegistryEvent('import-finished', onRefreshNamespaceStats);
 
   const onCollectionCreated = voidify(async ({ ns, database }) => {
     await refreshNamespace({ ns, database });
     const metadata = await fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
-  appRegistry.on('collection-created', onCollectionCreated);
-  cleanup.push(() =>
-    appRegistry.removeListener('collection-created', onCollectionCreated)
-  );
+  onAppRegistryEvent('collection-created', onCollectionCreated);
 
   const onActiveCollectionDropped = (ns: string) => {
     // This callback will fire after drop collection happened, we force it into
@@ -417,24 +368,12 @@ export function createInstanceStore({
       })
     );
   };
-  appRegistry.on('active-collection-dropped', onActiveCollectionDropped);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'active-collection-dropped',
-      onActiveCollectionDropped
-    )
-  );
+  onAppRegistryEvent('active-collection-dropped', onActiveCollectionDropped);
 
   const onActiveDatabaseDropped = () => {
     appRegistry.emit('open-instance-workspace', 'Databases');
   };
-  appRegistry.on('active-database-dropped', onActiveDatabaseDropped);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'active-database-dropped',
-      onActiveDatabaseDropped
-    )
-  );
+  onAppRegistryEvent('active-database-dropped', onActiveDatabaseDropped);
 
   /**
    * Opens collection in the current active tab. No-op if currently open tab has
@@ -455,36 +394,18 @@ export function createInstanceStore({
     }
   );
 
-  appRegistry.on('collections-list-select-collection', openCollectionInSameTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'collections-list-select-collection',
-      openCollectionInSameTab
-    )
+  onAppRegistryEvent(
+    'collections-list-select-collection',
+    openCollectionInSameTab
   );
-  appRegistry.on('sidebar-select-collection', openCollectionInSameTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'sidebar-select-collection',
-      openCollectionInSameTab
-    )
-  );
-  appRegistry.on(
+  onAppRegistryEvent('sidebar-select-collection', openCollectionInSameTab);
+  onAppRegistryEvent(
     'collection-workspace-select-namespace',
     openCollectionInSameTab
   );
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'collection-workspace-select-namespace',
-      openCollectionInSameTab
-    )
-  );
-  appRegistry.on('collection-tab-select-collection', openCollectionInSameTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'collection-tab-select-collection',
-      openCollectionInSameTab
-    )
+  onAppRegistryEvent(
+    'collection-tab-select-collection',
+    openCollectionInSameTab
   );
 
   /**
@@ -508,66 +429,33 @@ export function createInstanceStore({
     }
   );
 
-  appRegistry.on('sidebar-open-collection-in-new-tab', openCollectionInNewTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'sidebar-open-collection-in-new-tab',
-      openCollectionInNewTab
-    )
+  onAppRegistryEvent(
+    'sidebar-open-collection-in-new-tab',
+    openCollectionInNewTab
   );
-  appRegistry.on(
+  onAppRegistryEvent(
     'import-export-open-collection-in-new-tab',
     openCollectionInNewTab
   );
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'import-export-open-collection-in-new-tab',
-      openCollectionInNewTab
-    )
-  );
-  appRegistry.on(
+  onAppRegistryEvent(
     'collection-workspace-open-collection-in-new-tab',
     openCollectionInNewTab
   );
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'collection-workspace-open-collection-in-new-tab',
-      openCollectionInNewTab
-    )
-  );
-  appRegistry.on('my-queries-open-saved-item', openCollectionInNewTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'my-queries-open-saved-item',
-      openCollectionInNewTab
-    )
-  );
-  appRegistry.on('search-indexes-run-aggregate', openCollectionInNewTab);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'search-indexes-run-aggregate',
-      openCollectionInNewTab
-    )
-  );
+  onAppRegistryEvent('my-queries-open-saved-item', openCollectionInNewTab);
+  onAppRegistryEvent('search-indexes-run-aggregate', openCollectionInNewTab);
 
   // In case of opening result collection we're always assuming the namespace
   // wasn't yet updated, so opening a new tab always with refresh
   const onOpenResultNamespace = (ns: string) => {
     openCollectionInNewTab({ ns }, true);
   };
-  appRegistry.on('aggregations-open-result-namespace', onOpenResultNamespace);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'aggregations-open-result-namespace',
-      onOpenResultNamespace
-    )
+  onAppRegistryEvent(
+    'aggregations-open-result-namespace',
+    onOpenResultNamespace
   );
-  appRegistry.on('create-view-open-result-namespace', onOpenResultNamespace);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'create-view-open-result-namespace',
-      onOpenResultNamespace
-    )
+  onAppRegistryEvent(
+    'create-view-open-result-namespace',
+    onOpenResultNamespace
   );
 
   const openModifyView = voidify(
@@ -598,20 +486,11 @@ export function createInstanceStore({
     }
   );
 
-  appRegistry.on('sidebar-modify-view', openModifyView);
-  cleanup.push(() =>
-    appRegistry.removeListener('sidebar-modify-view', openModifyView)
-  );
+  onAppRegistryEvent('sidebar-modify-view', openModifyView);
   const onCollectionTabModifyView = ({ ns }: { ns: string }) => {
     openModifyView({ ns, sameTab: true });
   };
-  appRegistry.on('collection-tab-modify-view', onCollectionTabModifyView);
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'collection-tab-modify-view',
-      onCollectionTabModifyView
-    )
-  );
+  onAppRegistryEvent('collection-tab-modify-view', onCollectionTabModifyView);
 
   const onSidebarDuplicateView = voidify(async ({ ns }) => {
     const coll = await fetchCollectionDetails(ns);
@@ -628,24 +507,15 @@ export function createInstanceStore({
       );
     }
   });
-  appRegistry.on('sidebar-duplicate-view', onSidebarDuplicateView);
-  cleanup.push(() =>
-    appRegistry.removeListener('sidebar-duplicate-view', onSidebarDuplicateView)
-  );
+  onAppRegistryEvent('sidebar-duplicate-view', onSidebarDuplicateView);
 
   const onAggregationsOpenViewAfterUpdate = voidify(async function (ns) {
     const metadata = await fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
-  appRegistry.on(
+  onAppRegistryEvent(
     'aggregations-open-view-after-update',
     onAggregationsOpenViewAfterUpdate
-  );
-  cleanup.push(() =>
-    appRegistry.removeListener(
-      'aggregations-open-view-after-update',
-      onAggregationsOpenViewAfterUpdate
-    )
   );
 
   store.subscribe(() => {
