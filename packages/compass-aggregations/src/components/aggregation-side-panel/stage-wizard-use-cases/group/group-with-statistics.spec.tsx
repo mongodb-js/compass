@@ -150,5 +150,17 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[1]).to.be.null;
       });
     });
+
+    context('$count', function () {
+      it('when selecting count adds a "count" field with the $count accumulator to the generated stage', function () {
+        setSelectValue(/select accumulator/i, 'count');
+        expect(onChange.lastCall.args[0]).to.equal(
+          JSON.stringify({
+            _id: null,
+            count: { $count: {} },
+          })
+        );
+      });
+    });
   });
 });
