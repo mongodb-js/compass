@@ -23,12 +23,14 @@ const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
   onDelete: (id: string) => void;
+  onUpdateFavoriteChoosen: () => void;
 };
 
 const FavoriteItem = ({
   query,
   onApply,
   onDelete,
+  onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   query: FavoriteQuery;
 }) => {
@@ -38,8 +40,9 @@ const FavoriteItem = ({
       id: query._id,
       screen: 'documents',
     });
+    onUpdateFavoriteChoosen();
     onApply(attributes);
-  }, [onApply, query._id, attributes]);
+  }, [onApply, onUpdateFavoriteChoosen, query._id, attributes]);
 
   const isUpdateQuery = useMemo(() => !!query.update, [query]);
 
@@ -75,6 +78,7 @@ const FavoriteList = ({
   queries,
   onApply,
   onDelete,
+  onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   queries: FavoriteQuery[];
 }) => {
@@ -87,6 +91,7 @@ const FavoriteList = ({
       query={query}
       onApply={onApply}
       onDelete={onDelete}
+      onUpdateFavoriteChoosen={onUpdateFavoriteChoosen}
     />
   ));
   return <>{content}</>;

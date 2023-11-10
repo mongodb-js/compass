@@ -27,9 +27,13 @@ export type QueryHistoryTab = 'recent' | 'favorite';
 
 type QueryHistoryProps = {
   namespace: string;
+  onUpdateFavoriteChoosen: () => void;
 };
 
-const QueryHistory = ({ namespace }: QueryHistoryProps) => {
+const QueryHistory = ({
+  namespace,
+  onUpdateFavoriteChoosen,
+}: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
 
   useTrackOnChange(
@@ -52,7 +56,9 @@ const QueryHistory = ({ namespace }: QueryHistoryProps) => {
         {tab === 'recent' && (
           <RecentList onSaveFavorite={() => setTab('favorite')} />
         )}
-        {tab === 'favorite' && <FavoriteList />}
+        {tab === 'favorite' && (
+          <FavoriteList onUpdateFavoriteChoosen={onUpdateFavoriteChoosen} />
+        )}
       </div>
     </div>
   );
