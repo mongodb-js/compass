@@ -357,6 +357,7 @@ function Home({
           <DataServiceProvider value={connectedDataService.current}>
             <ImportPlugin></ImportPlugin>
             <ExportPlugin></ExportPlugin>
+            <CreateViewPlugin></CreateViewPlugin>
             <Workspace namespace={namespace} />
           </DataServiceProvider>
         </AppRegistryProvider>
@@ -381,7 +382,6 @@ function Home({
         </div>
       </div>
       <CompassSettingsPlugin></CompassSettingsPlugin>
-      <CreateViewPlugin></CreateViewPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
       <CreateDatabasePlugin></CreateDatabasePlugin>
       <DropDatabasePlugin></DropDatabasePlugin>

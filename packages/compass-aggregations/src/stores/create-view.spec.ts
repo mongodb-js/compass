@@ -3,21 +3,25 @@ import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
 
 describe('CreateViewStore [Store]', function () {
-  if (typeof window !== 'undefined' && window?.process?.type === 'renderer') {
+  if (
+    typeof window !== 'undefined' &&
+    (window?.process as any)?.type === 'renderer'
+  ) {
     // These tests don't pass in electron environment in Evergreen CI for some
     // reason, disable for now
     return;
   }
 
-  let store;
-  let deactivate;
+  let store: any;
+  let deactivate: any;
   const globalAppRegistry = new AppRegistry();
-  const ds = 'data-service';
+  const ds = 'data-service' as any;
+  const logger = {} as any;
 
   beforeEach(function () {
     ({ store, deactivate } = activateCreateViewPlugin(
       {},
-      { globalAppRegistry }
+      { globalAppRegistry, dataService: ds, logger }
     ));
   });
 
@@ -27,11 +31,6 @@ describe('CreateViewStore [Store]', function () {
   });
 
   describe('#configureStore', function () {
-    it('dispatches the data service connected action on data-service-connected event', function () {
-      globalAppRegistry.emit('data-service-connected', null, ds);
-      expect(store.getState().dataService.dataService).to.equal(ds);
-    });
-
     describe('when open create view is emitted', function () {
       beforeEach(function () {
         globalAppRegistry.emit('open-create-view', {
