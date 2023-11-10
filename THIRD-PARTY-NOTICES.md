@@ -85,7 +85,7 @@ This document was automatically generated on Fri Nov 10 2023.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#38372c7bd5e55cf414aa83de669b3d3f9c39307c311c02545509468b09a1c0ba)**                                   | 2.0.12       | MIT                                 |
+| **[@electron/remote](#8d1f4c0466a0244db9ac9b68898ae7ad9a8b305c9e9c8830c2f3d479eecafa67)**                                   | 2.1.0        | MIT                                 |
 | **[@emotion/cache](#c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521)**                                     | 11.11.0      | MIT                                 |
 | **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
 | **[@emotion/hash](#b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206)**                                      | 0.9.1        | MIT                                 |
@@ -257,7 +257,7 @@ This document was automatically generated on Fri Nov 10 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                                 | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#3031c5f2e4f18a691d60df0557dea81c254702627247972a2585b11d5a143fdc)**                                           | 25.9.3       | MIT                                 |
+| **[electron](#324b1a9d8354ed2a6c7bd85bf151f79d738c47935092b00ba45f7921c25131e8)**                                           | 25.9.4       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -7863,9 +7863,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="38372c7bd5e55cf414aa83de669b3d3f9c39307c311c02545509468b09a1c0ba"></a>
+<a id="8d1f4c0466a0244db9ac9b68898ae7ad9a8b305c9e9c8830c2f3d479eecafa67"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.0.12)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.0)
 
 License tags: MIT
 
@@ -21147,9 +21147,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="3031c5f2e4f18a691d60df0557dea81c254702627247972a2585b11d5a143fdc"></a>
+<a id="324b1a9d8354ed2a6c7bd85bf151f79d738c47935092b00ba45f7921c25131e8"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 25.9.3)
+### [electron](https://www.npmjs.com/package/electron) (version 25.9.4)
 
 License tags: MIT
 
