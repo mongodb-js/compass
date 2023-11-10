@@ -70,8 +70,6 @@
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "react-redux": "^8.0.5",
-    "redux": "^4.2.1",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   },
