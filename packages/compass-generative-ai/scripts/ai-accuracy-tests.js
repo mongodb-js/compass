@@ -44,7 +44,7 @@ const TESTS_TO_RUN_CONCURRENTLY = 3;
 // To avoid rate limit we also reduce the time between tests running
 // when the test returns a result quickly.
 const ADD_TIMEOUT_BETWEEN_TESTS_THRESHOLD_MS = 5000;
-const TIMEOUT_BETWEEN_TESTS_MS = 2000;
+const TIMEOUT_BETWEEN_TESTS_MS = 3000;
 
 let PQueue;
 
@@ -498,6 +498,84 @@ const tests = [
         _id: '1',
         filter: true,
       },
+    ]),
+  },
+  {
+    type: 'query',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    userInput:
+      'give me just the price and the first 3 amenities of the listing has "Step-free access" in its amenities.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          _id: '10108388',
+          price: {
+            $numberDecimal: '185.00',
+          },
+          amenities: ['TV', 'Wifi', 'Air conditioning'],
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          price: {
+            $numberDecimal: '185.00',
+          },
+          amenities: ['TV', 'Wifi', 'Air conditioning'],
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    userInput:
+      '¿Qué alojamiento tiene el precio más bajo? devolver el número en un campo llamado "precio"',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          precio: {
+            $numberDecimal: '40.00',
+          },
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: '10117617',
+          precio: {
+            $numberDecimal: '40.00',
+          },
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          precio: 40,
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    userInput:
+      'give only me the cancellation policy and host url of the most expensive listing',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          cancellation_policy: 'moderate',
+          host: {
+            host_url: 'https://www.airbnb.com/users/show/51471538',
+          },
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          cancellation_policy: 'moderate',
+          host_url: 'https://www.airbnb.com/users/show/51471538',
+        },
+      ]),
     ]),
   },
   {
