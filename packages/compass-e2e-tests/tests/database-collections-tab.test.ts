@@ -128,7 +128,7 @@ describe('Database collections tab', function () {
 
     await browser.clickVisible(Selectors.CollectionCardDrop);
 
-    await browser.dropCollection(collectionName);
+    await browser.dropNamespace(collectionName);
 
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });

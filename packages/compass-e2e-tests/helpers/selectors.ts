@@ -290,13 +290,6 @@ export const CreateDatabaseCreateButton =
 export const CreateDatabaseCancelButton =
   '[data-testid="create-database-modal"] [data-testid="cancel-button"]';
 
-// Drop database modal
-export const DropDatabaseModal = '[data-testid="drop-database-modal"]';
-export const DropDatabaseConfirmName =
-  '[data-testid="confirm-drop-database-name"]';
-export const DropDatabaseDropButton =
-  '[data-testid="drop-database-modal"] [data-testid="submit-button"]';
-
 // Create collection modal
 export const CreateCollectionModal = '[data-testid="create-collection-modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
@@ -361,12 +354,16 @@ export const createCollectionCustomCollationFieldMenu = (
   return `[data-testid="use-custom-collation-fields"] #collation-field-${fieldName}-menu`;
 };
 
-// Drop collection modal
-export const DropCollectionModal = '[data-testid="drop-collection-modal"]';
-export const DropCollectionConfirmName =
-  '[data-testid="confirm-drop-collection-name"]';
-export const DropCollectionDropButton =
-  '[data-testid="drop-collection-modal"] [data-testid="submit-button"]';
+// Drop namespace modal
+export const DropNamespaceModal =
+  '[data-testid="drop-namespace-confirmation-modal"]';
+export const DropNamespaceConfirmNameInput = `${DropNamespaceModal} input`;
+export const DropNamespaceDropButton = `${DropNamespaceModal} button:first-of-type`;
+export const DropNamespaceCancelButton = `${DropNamespaceModal} button:last-of-type`;
+export const DropNamespaceSuccessToast =
+  '[data-testid="toast-drop-namespace-success"]';
+export const DropNamespaceSuccessToastCloseButton =
+  '[data-testid="toast-drop-namespace-success"] [data-testid="lg-toast-dismiss-button"]';
 
 // Shell
 export const ShellSection = '[data-testid="shell-section"]';

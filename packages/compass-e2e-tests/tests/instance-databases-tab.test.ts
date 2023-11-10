@@ -123,7 +123,7 @@ describe('Instance databases tab', function () {
 
     await browser.clickVisible(Selectors.DatabaseCardDrop);
 
-    await browser.dropDatabase(dbName);
+    await browser.dropNamespace(dbName);
 
     // wait for it to be gone (which it will be anyway because the app should
     // redirect back to the databases tab)
