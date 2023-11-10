@@ -162,7 +162,7 @@ describe('group with statistics', function () {
         );
       });
 
-      it('clear field selection when the $count accumulator is chosen', function () {
+      it('clears the field selection', function () {
         setSelectValue(/select accumulator/i, 'sum');
         setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
         setSelectValue(/select accumulator/i, 'count');
