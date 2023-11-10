@@ -142,8 +142,13 @@ const GroupAccumulatorForm = ({
     if (!value) {
       return;
     }
+
     const newData = [...data];
     newData[index][key] = value;
+    if (key === 'accumulator' && value === '$count') {
+      newData[index].field = '';
+    }
+
     onChange(newData);
   };
 

@@ -152,12 +152,28 @@ describe('group with statistics', function () {
     });
 
     context('$count', function () {
-      it('when selecting count adds a "count" field with the $count accumulator to the generated stage', function () {
+      it('adds a "count" field with the $count accumulator to the generated stage', function () {
         setSelectValue(/select accumulator/i, 'count');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
             count: { $count: {} },
+          })
+        );
+      });
+
+      it('clear field selection when the $count accumulator is chosen', function () {
+        setSelectValue(/select accumulator/i, 'sum');
+        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
+        setSelectValue(/select accumulator/i, 'count');
+
+        // re-select sum, we expect the field to be gone, and the new accumulator to
+        // be invalid (not present in the result)
+        setSelectValue(/select accumulator/i, 'sum');
+
+        expect(onChange.lastCall.args[0]).to.equal(
+          JSON.stringify({
+            _id: null,
           })
         );
       });
