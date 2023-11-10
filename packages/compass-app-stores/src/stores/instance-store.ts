@@ -1,4 +1,3 @@
-import { createStore } from 'redux';
 import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import {
   MongoDBInstance,
@@ -8,11 +7,6 @@ import {
   TopologyDescription,
 } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
-import reducer from '../modules/instance';
-import { reset } from '../modules/instance/reset';
-import { changeInstance } from '../modules/instance/instance';
-import { changeErrorMessage } from '../modules/instance/error-message';
-import { changeDataService } from '../modules/instance/data-service';
 import type { DataService } from 'mongodb-data-service';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -43,12 +37,7 @@ export function createInstanceStore({
   logger: LoggerAndTelemetry;
   globalAppRegistry: AppRegistry;
 }) {
-  const store = createStore(reducer);
   const cleanup: (() => void)[] = [];
-
-  function getInstance() {
-    return store.getState().instance!;
-  }
 
   async function refreshInstance(
     refreshOptions: Omit<
@@ -56,27 +45,18 @@ export function createInstanceStore({
       'dataService'
     > = {}
   ) {
-    const { instance, dataService } = store.getState();
-
-    if (!instance || !dataService) {
-      debug(
-        'Trying to refresh the MongoDB instance model without the model or dataService in the state'
-      );
-      return;
-    }
-
     try {
       await instance.refresh({ dataService, ...refreshOptions });
 
-      store.dispatch(changeErrorMessage(''));
       appRegistry.emit('instance-refreshed', {
-        ...store.getState(),
+        instance,
+        dataService,
         errorMessage: '',
       });
     } catch (err: any) {
-      store.dispatch(changeErrorMessage(err.message));
       appRegistry.emit('instance-refreshed', {
-        ...store.getState(),
+        instance,
+        dataService,
         errorMessage: err.message,
       });
     }
@@ -86,15 +66,6 @@ export function createInstanceStore({
     dbName: string,
     { nameOnly = false } = {}
   ) {
-    const { instance, dataService } = store.getState();
-
-    if (!instance || !dataService) {
-      debug(
-        'Trying to fetch database details without the model or dataService in the state'
-      );
-      return;
-    }
-
     const db = instance.databases.get(dbName);
 
     if (nameOnly) {
@@ -105,15 +76,6 @@ export function createInstanceStore({
   }
 
   async function fetchCollectionDetails(ns: string) {
-    const { instance, dataService } = store.getState();
-
-    if (!instance || !dataService) {
-      debug(
-        'Trying to fetch collection details without the model or dataService in the state'
-      );
-      return;
-    }
-
     const { database } = toNS(ns);
     const coll = instance.databases.get(database)?.collections.get(ns);
     await coll?.fetch({ dataService }).catch((err) => {
@@ -127,15 +89,6 @@ export function createInstanceStore({
   }
 
   async function fetchAllCollections() {
-    const { instance, dataService } = store.getState();
-
-    if (!instance || !dataService) {
-      debug(
-        'Trying to fetch collections without the model or dataService in the state'
-      );
-      return;
-    }
-
     // It is possible to get here before the databases finished loading. We have
     // to wait for the databases, otherwise it will load all the collections for 0
     // databases.
@@ -153,15 +106,7 @@ export function createInstanceStore({
    * that events like open-in-new-tab, select-namespace, edit-view require
    */
   async function fetchCollectionMetadata(ns: string) {
-    const { instance, dataService } = store.getState();
     const { database, collection } = toNS(ns);
-
-    if (!instance || !dataService) {
-      debug(
-        'Trying to fetch collection metadata without the model or dataService in the state'
-      );
-      return;
-    }
 
     const coll = await instance.getNamespace({
       database,
@@ -179,7 +124,6 @@ export function createInstanceStore({
     ns: string;
     database: string;
   }) {
-    const instance = getInstance();
     if (!instance.databases.get(database)) {
       await instance.fetchDatabases({ dataService, force: true });
     }
@@ -191,7 +135,6 @@ export function createInstanceStore({
   }
 
   async function refreshNamespaceStats(ns: string) {
-    const instance = getInstance();
     const { database } = toNS(ns);
     const db = instance.databases.get(database);
     const coll = db?.collections.get(ns);
@@ -225,9 +168,6 @@ export function createInstanceStore({
   debug('instance-created');
   appRegistry.emit('instance-created', { instance });
 
-  store.dispatch(changeDataService(dataService));
-  store.dispatch(changeInstance(instance));
-
   void refreshInstance({
     fetchDatabases: true,
     fetchDbStats: true,
@@ -258,7 +198,6 @@ export function createInstanceStore({
       hadronApp.instance = null;
     }
     appRegistry.emit('instance-destroyed', { instance: null });
-    store.dispatch(reset());
   });
 
   function onAppRegistryEvent(ev: string, listener: (...args: any[]) => void) {
@@ -290,11 +229,10 @@ export function createInstanceStore({
   onAppRegistryEvent('refresh-data', onRefreshData);
 
   const onDatabaseDropped = () =>
-    void getInstance().fetchDatabases({ dataService, force: true });
+    void instance.fetchDatabases({ dataService, force: true });
   onAppRegistryEvent('database-dropped', onDatabaseDropped);
 
   const onCollectionDropped = voidify(async (namespace: string) => {
-    const instance = getInstance();
     const { database } = toNS(namespace);
     await instance.fetchDatabases({ dataService, force: true });
     const db = instance.databases.get(database);
@@ -307,7 +245,6 @@ export function createInstanceStore({
   // We additionally refresh the list of collections as well
   // since there is the side navigation which could be in expanded mode
   const onRefreshDatabases = voidify(async () => {
-    const instance = getInstance();
     await instance.fetchDatabases({ dataService, force: true });
     await Promise.allSettled(
       instance.databases.map((db) =>
@@ -320,7 +257,6 @@ export function createInstanceStore({
   // Event emitted when the Collections grid needs to be refreshed
   // with new collections or collection stats for existing ones.
   const onRefreshCollections = voidify(async ({ ns }: { ns: string }) => {
-    const instance = getInstance();
     const { database } = toNS(ns);
     if (!instance.databases.get(database)) {
       await instance.fetchDatabases({ dataService, force: true });
@@ -355,7 +291,6 @@ export function createInstanceStore({
     // databases and collections list update before we run our check here
     queueMicrotask(
       voidify(async () => {
-        const instance = getInstance();
         const { database } = toNS(ns);
         await instance.fetchDatabases({ dataService });
         const db = instance.databases.get(database);
@@ -518,13 +453,11 @@ export function createInstanceStore({
     onAggregationsOpenViewAfterUpdate
   );
 
-  store.subscribe(() => {
-    const state = store.getState();
-    debug('App.InstanceStore changed to', state);
-  });
-
-  return Object.assign(store, {
-    getInstance,
+  return {
+    state: { instance }, // Using LegacyRefluxProvider here to pass state to provider
+    getState() {
+      return { instance };
+    }, // Legacy, for getStore('App.InstanceStore').getState() compat
     refreshInstance,
     fetchDatabaseDetails,
     fetchCollectionDetails,
@@ -535,5 +468,5 @@ export function createInstanceStore({
     deactivate() {
       for (const cleaner of cleanup) cleaner();
     },
-  });
+  };
 }

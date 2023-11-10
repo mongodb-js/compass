@@ -1,7 +1,5 @@
 import { EventEmitter } from 'events';
 import AppRegistry from 'hadron-app-registry';
-import { reset } from '../modules/instance/reset';
-import { changeDataService } from '../modules/instance/data-service';
 import { createInstanceStore } from './instance-store';
 import { once } from 'events';
 import sinon from 'sinon';
@@ -46,14 +44,16 @@ describe('InstanceStore [Store]', function () {
 
   let emitSpy: any;
   let initialInstanceRefreshedPromise: Promise<unknown>;
+  let sandbox: sinon.SinonSandbox;
 
   const hadronAppBkp = (globalThis as any).hadronApp;
 
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
     (globalThis as any).hadronApp = {};
+    sandbox = sinon.createSandbox();
 
-    emitSpy = sinon.spy(globalAppRegistry, 'emit');
+    emitSpy = sandbox.spy(globalAppRegistry, 'emit');
     dataService = createDataService();
     const logger = createLoggerAndTelemetry('COMPASS-INSTANCE-STORE');
     initialInstanceRefreshedPromise = once(
@@ -71,21 +71,13 @@ describe('InstanceStore [Store]', function () {
   afterEach(function () {
     (globalThis as any).hadronApp = hadronAppBkp;
     emitSpy = null;
-    store.dispatch(reset());
+    sandbox.restore();
     store.deactivate();
   });
 
   context('when data service connects', function () {
-    beforeEach(function () {
-      expect(store.getState().dataService).to.deep.equal(dataService); // initial state
-    });
-
-    it('dispatches the change data service action', function () {
-      expect(store.getState().dataService).to.equal(dataService);
-    });
-
     it('creates instance and makes it globally available through global.hadronApp.instance', function () {
-      const instance = store.getInstance();
+      const instance = store.state.instance;
       expect((instance as any).getType()).to.equal('Instance');
       expect((globalThis as any).hadronApp.instance).to.equal(instance);
     });
@@ -99,13 +91,13 @@ describe('InstanceStore [Store]', function () {
 
   context('on refresh data', function () {
     beforeEach(async function () {
+      sandbox
+        .stub(dataService, 'instance')
+        .returns({ build: { version: '3.2.1' } });
       await initialInstanceRefreshedPromise;
       expect(store.getState().instance).to.have.nested.property(
         'build.version',
         '1.2.3'
-      );
-      store.dispatch(
-        changeDataService(createDataService({ build: { version: '3.2.1' } }))
       );
       globalAppRegistry.emit('refresh-data');
       await once(globalAppRegistry, 'instance-refreshed');
@@ -131,13 +123,13 @@ describe('InstanceStore [Store]', function () {
 
   context('on agg pipeline out', function () {
     beforeEach(async function () {
+      sandbox
+        .stub(dataService, 'instance')
+        .returns({ build: { version: '3.2.1' } });
       await initialInstanceRefreshedPromise;
       expect(store.getState().instance).to.have.nested.property(
         'build.version',
         '1.2.3'
-      );
-      store.dispatch(
-        changeDataService(createDataService({ build: { version: '3.2.1' } }))
       );
       globalAppRegistry.emit('agg-pipeline-out-executed');
       await once(globalAppRegistry, 'instance-refreshed');
