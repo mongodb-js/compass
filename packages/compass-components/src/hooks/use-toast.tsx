@@ -10,6 +10,7 @@ import {
   ToastProvider,
   useToast as useLeafygreenToast,
 } from '../components/leafygreen';
+import { css } from '@leafygreen-ui/emotion';
 
 export type ToastProperties = Pick<
   ToastProps,
@@ -153,9 +154,11 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
   );
 };
 
+const toastAreaFronLayerStyles = css({ zIndex: 1 });
+
 export const ToastArea: React.FunctionComponent = ({ children }) => {
   return (
-    <ToastProvider>
+    <ToastProvider portalClassName={toastAreaFronLayerStyles}>
       <_ToastArea>{children}</_ToastArea>
     </ToastProvider>
   );
