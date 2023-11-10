@@ -359,6 +359,7 @@ function Home({
             <CompassInstanceStorePlugin>
               <ImportPlugin></ImportPlugin>
               <ExportPlugin></ExportPlugin>
+              <CreateViewPlugin></CreateViewPlugin>
               <Workspace namespace={namespace} />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
@@ -384,7 +385,6 @@ function Home({
         </div>
       </div>
       <CompassSettingsPlugin></CompassSettingsPlugin>
-      <CreateViewPlugin></CreateViewPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
       <CreateDatabasePlugin></CreateDatabasePlugin>
       <DropDatabasePlugin></DropDatabasePlugin>

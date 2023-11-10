@@ -304,9 +304,7 @@ export class CompassShell extends Component<
 
 export default connect((state: RootState) => ({
   emitShellPluginOpened: () => {
-    if (state.appRegistry && state.appRegistry.globalAppRegistry) {
-      state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
-    }
+    state.runtime.appRegistry?.emit('compass:compass-shell:opened');
   },
   runtime: state.runtime ? state.runtime.runtime : null,
 }))(withPreferences(CompassShell, ['enableShell'], React));
