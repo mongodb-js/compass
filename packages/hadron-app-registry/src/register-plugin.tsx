@@ -58,7 +58,7 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
    * clean up subscriptions or any other store-related state
    */
   activate: (
-    options: T,
+    initialProps: T,
     services: Registries & Services<S>
   ) => {
     /**
@@ -144,7 +144,6 @@ export function registerHadronPlugin<
 
   return Object.assign(
     (props: React.PropsWithChildren<T>) => {
-      const propsRef = useRef(props);
       const globalAppRegistry = useGlobalAppRegistry();
       const localAppRegistry = useLocalAppRegistry();
 
@@ -169,7 +168,7 @@ export function registerHadronPlugin<
         () =>
           localAppRegistry.getPlugin(registryName) ??
           (() => {
-            const plugin = config.activate(propsRef.current, {
+            const plugin = config.activate(props, {
               globalAppRegistry,
               localAppRegistry,
               ...serviceImpls,
@@ -182,14 +181,14 @@ export function registerHadronPlugin<
       if (isReduxStore(store)) {
         return (
           <ReduxStoreProvider store={store}>
-            <Component {...propsRef.current}></Component>
+            <Component {...props}></Component>
           </ReduxStoreProvider>
         );
       }
 
       return (
         <LegacyRefluxProvider store={store} actions={actions}>
-          <Component {...propsRef.current}></Component>
+          <Component {...props}></Component>
         </LegacyRefluxProvider>
       );
     },

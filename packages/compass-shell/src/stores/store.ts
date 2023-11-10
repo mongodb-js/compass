@@ -3,14 +3,11 @@ import { createStore } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeEnableShell, setupRuntime } from '../modules/runtime';
-import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-
-const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
 export default class CompassShellStore {
   reduxStore: Store<RootState, RootAction>;
@@ -21,23 +18,27 @@ export default class CompassShellStore {
 
   globalAppRegistry: AppRegistry | null = null;
 
-  onActivated(appRegistry: AppRegistry) {
+  onActivated({
+    globalAppRegistry,
+    logger: { log, track, debug },
+    dataService,
+  }: {
+    globalAppRegistry: AppRegistry;
+    logger: LoggerAndTelemetry;
+    dataService: DataService;
+  }): () => void {
     debug('activated');
 
-    this.globalAppRegistry = appRegistry;
+    this.globalAppRegistry = globalAppRegistry;
 
-    appRegistry.on('data-service-connected', this.onDataServiceConnected);
-
-    appRegistry.on('data-service-disconnected', this.onDataServiceDisconnected);
-
-    preferences.onPreferenceValueChanged(
+    const unsubscribePreference = preferences.onPreferenceValueChanged(
       'enableShell',
       this.onEnableShellChanged
     );
     this.onEnableShellChanged(preferences.getPreferences().enableShell);
 
     setupLoggerAndTelemetry(
-      appRegistry,
+      globalAppRegistry,
       log.unbound,
       {
         identify: () => {
@@ -60,23 +61,20 @@ export default class CompassShellStore {
     );
     // We also don't need to pass a proper user id, since that is
     // handled by the Compass tracking code.
-    appRegistry.emit('mongosh:new-user', '<compass user>');
+    globalAppRegistry.emit('mongosh:new-user', '<compass user>');
 
     // Set the global app registry in the store.
-    this.reduxStore.dispatch(globalAppRegistryActivated(appRegistry));
+    this.reduxStore.dispatch(
+      setupRuntime(null, dataService, this.globalAppRegistry)
+    );
+
+    return () => {
+      unsubscribePreference();
+      this.reduxStore.dispatch(setupRuntime(null, null, null));
+    };
   }
 
   onEnableShellChanged = (value: boolean) => {
     this.reduxStore.dispatch(changeEnableShell(value));
-  };
-
-  onDataServiceConnected = (error: null | Error, dataService: DataService) => {
-    this.reduxStore.dispatch(
-      setupRuntime(error, dataService, this.globalAppRegistry)
-    );
-  };
-
-  onDataServiceDisconnected = () => {
-    this.reduxStore.dispatch(setupRuntime(null, null, null));
   };
 }

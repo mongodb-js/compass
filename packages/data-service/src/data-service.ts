@@ -159,6 +159,10 @@ export interface DataService {
     event: K,
     listener: DataServiceEventMap[K]
   ): this;
+  off?<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
   once<K extends keyof DataServiceEventMap>(
     event: K,
     listener: DataServiceEventMap[K]
@@ -931,6 +935,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   on(...args: Parameters<DataService['on']>) {
     this._emitter.on(...args);
+    return this;
+  }
+
+  off(...args: Parameters<DataService['on']>) {
+    this._emitter.off(...args);
     return this;
   }
 
