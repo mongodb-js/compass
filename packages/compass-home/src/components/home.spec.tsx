@@ -2,10 +2,9 @@ import React from 'react';
 import { once } from 'events';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import ipc from 'hadron-ipc';
+import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
-import AppRegistryContext from '../contexts/app-registry-context';
 import Home from '.';
 
 const getComponent = (name: string) => {
@@ -23,7 +22,26 @@ const getComponent = (name: string) => {
   return TestComponent;
 };
 
-const createDataService = () => ({});
+const createDataService = () => ({
+  getConnectionString() {
+    return { hosts: ['localhost:27020'] };
+  },
+  getConnectionOptions() {
+    return {};
+  },
+  getMongoClientConnectionOptions() {
+    return {};
+  },
+  getLastSeenTopology() {
+    return {
+      type: 'Unknown',
+      servers: [],
+      setName: 'foo',
+    };
+  },
+  on() {},
+  off() {},
+});
 
 describe('Home [Component]', function () {
   before(function () {
@@ -33,9 +51,9 @@ describe('Home [Component]', function () {
     }
   });
 
-  let testAppRegistry: AppRegistry;
+  const testAppRegistry = globalAppRegistry;
+
   beforeEach(function () {
-    testAppRegistry = new AppRegistry();
     [
       'Collection.Workspace',
       'Database.Workspace',
@@ -46,7 +64,7 @@ describe('Home [Component]', function () {
       testAppRegistry.registerComponent(name, getComponent(name))
     );
 
-    ['Global.Modal', 'Application.Connect'].forEach((name) =>
+    ['Application.Connect'].forEach((name) =>
       testAppRegistry.registerRole(name, {
         name,
         component: getComponent(name),
@@ -56,14 +74,17 @@ describe('Home [Component]', function () {
     testAppRegistry.onActivated();
   });
 
-  afterEach(cleanup);
+  afterEach(function () {
+    testAppRegistry.deactivate();
+    cleanup();
+  });
 
   describe('is not connected', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <Home appName="home-testing" />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 
@@ -82,9 +103,9 @@ describe('Home [Component]', function () {
       connectionOptions = { connectionString: 'mongodb+srv://mongodb.net/' }
     ) {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <Home appName="home-testing" />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
       testAppRegistry.emit('data-service-connected', null, dataService, {
         connectionOptions,
@@ -110,6 +131,7 @@ describe('Home [Component]', function () {
         );
         dataServiceDisconnectedSpy = sinon.fake.resolves(true);
         const dataService = {
+          ...createDataService(),
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };
@@ -128,16 +150,16 @@ describe('Home [Component]', function () {
       describe('on `app:disconnect`', function () {
         // Skip disconnect testing when we're not running in a renderer instance.
         // eslint-disable-next-line mocha/no-setup-in-describe
-        if (!ipc.ipcRenderer) {
+        if (!ipcRenderer) {
           // eslint-disable-next-line mocha/no-setup-in-describe, no-console
           console.warn(
             'Skipping "app:disconnect" ipc event tests on non-renderer environment.'
           );
-          return;
+          return this;
         }
 
         beforeEach(async function () {
-          ipc.ipcRenderer.emit('app:disconnect');
+          ipcRenderer?.emit('app:disconnect');
           await once(testAppRegistry, 'data-service-disconnected');
         });
 
@@ -159,9 +181,9 @@ describe('Home [Component]', function () {
   describe('when rendered', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <Home appName="home-testing" />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 
@@ -184,9 +206,9 @@ describe('Home [Component]', function () {
   describe('on dismount', function () {
     beforeEach(function () {
       const { unmount } = render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
           <Home appName="home-testing" />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
       unmount();
     });

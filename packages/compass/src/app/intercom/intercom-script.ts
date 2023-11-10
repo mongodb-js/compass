@@ -1,4 +1,4 @@
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug, mongoLogId, log } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
 const INTERCOM_SCRIPT_ELEM_ID = 'intercom-script';

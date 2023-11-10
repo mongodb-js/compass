@@ -1,4 +1,5 @@
 import type { Store as RefluxStore } from 'reflux';
+import type { Store as ReduxStore } from 'redux';
 import EventEmitter from 'eventemitter3';
 import { Actions } from './actions';
 
@@ -17,14 +18,25 @@ interface Role {
   storeName?: string;
   configureStore?: (storeSetup: any) => any;
   order?: number;
-  hasQueryHistory?: boolean;
 }
 
-type Store = Partial<
-  RefluxStore & {
-    onActivated?: (appRegistry: AppRegistry) => void;
-  }
->;
+export type Store = (ReduxStore | Partial<RefluxStore>) & {
+  onActivated?: (appRegistry: AppRegistry) => void;
+};
+
+export function isReduxStore(store: Store): store is ReduxStore {
+  return (
+    store &&
+    typeof store === 'object' &&
+    Object.prototype.hasOwnProperty.call(store, 'dispatch')
+  );
+}
+
+export interface Plugin {
+  store: Store;
+  actions?: Record<string, unknown>;
+  deactivate?: () => void;
+}
 
 /**
  * Is a registry for all user interface components, stores, and actions
@@ -36,6 +48,7 @@ export class AppRegistry {
   components: Record<string, React.ComponentType<any>>;
   stores: Record<string, Store>;
   roles: Record<string, Role[]>;
+  plugins: Record<string, Plugin>;
   storeMisses: Record<string, number>;
 
   /**
@@ -47,6 +60,7 @@ export class AppRegistry {
     this.components = {};
     this.stores = {};
     this.roles = {};
+    this.plugins = {};
     this.storeMisses = {};
   }
 
@@ -114,6 +128,11 @@ export class AppRegistry {
     return this;
   }
 
+  deregisterPlugin(name: string): this {
+    delete this.plugins[name];
+    return this;
+  }
+
   /**
    * Get an action for the name.
    *
@@ -156,6 +175,10 @@ export class AppRegistry {
    */
   getStore(name: string): Store | undefined {
     return this.stores[name];
+  }
+
+  getPlugin(name: string): Plugin | undefined {
+    return this.plugins[name];
   }
 
   /**
@@ -251,6 +274,20 @@ export class AppRegistry {
       Actions.storeRegistered(name);
     }
     return this;
+  }
+
+  registerPlugin(name: string, plugin: Plugin): this {
+    this.plugins[name] = plugin;
+    return this;
+  }
+
+  deactivate() {
+    for (const plugin of Object.values(this.plugins)) {
+      plugin.deactivate?.();
+    }
+    for (const event of this.eventNames()) {
+      this.removeAllListeners(event);
+    }
   }
 
   /**

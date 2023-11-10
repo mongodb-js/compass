@@ -1,4 +1,4 @@
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 import type { ConnectionOptions, DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';

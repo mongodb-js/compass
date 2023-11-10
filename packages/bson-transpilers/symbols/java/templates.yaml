@@ -29,8 +29,8 @@ Templates:
                 newStr = str.substr(1, str.length - 2);
             }
             const uri = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-
-
+            const exportMode = spec.exportMode;
+            delete spec.exportMode;
 
             const connection = `MongoClient mongoClient = new MongoClient(
             new MongoClientURI(
@@ -42,7 +42,21 @@ Templates:
 
         MongoCollection<Document> collection = database.getCollection("${spec.options.collection}");`;
 
-
+        let driverMethod;
+        let driverResult;
+        switch (exportMode) {
+            case 'Delete Query':
+                driverMethod = 'deleteMany';
+                driverResult = 'DeleteResult';
+                break;
+            case 'Update Query':
+                driverMethod = 'updateMany';
+                driverResult = 'UpdateResult';
+                break;
+            default:
+                driverMethod = 'find';
+                driverResult = 'FindIterable<Document>';
+        }
             if ('aggregation' in spec) {
                 return `${comment}\n */\n\n${connection}
 
@@ -51,6 +65,7 @@ Templates:
 
             let warning = '';
             const defs = Object.keys(spec).reduce((s, k) => {
+                if (!spec[k]) return s;
                 if (k === 'options' || k === 'maxTimeMS' || k === 'skip' || k === 'limit' || k === 'collation') return s;
                 if (s === '') return `Bson ${k} = ${spec[k]};`;
                 return `${s}
@@ -75,11 +90,14 @@ Templates:
                     case 'collation':
                         warning = '\n *\n * Warning: translating collation to Java not yet supported, so will be ignored';
                         return s;
+                    case 'exportMode':
+                        return s;
                     default:
+                        if (!spec[k]) return s;
                         return `${s}
             .${k}(${k})`;
                 }
-            }, 'FindIterable<Document> result = collection.find(filter)');
+            }, `${driverResult} result = collection.${driverMethod}(filter)`);
 
             return `${comment}${warning}\n */\n\n${defs}
 
@@ -974,8 +992,10 @@ Templates:
                 'import org.bson.Document;\n';
             if (mode === 'Query') {
                 imports += 'import com.mongodb.client.FindIterable;';
-            } else {
+            } else if (mode === 'Pipeline') {
                 imports += 'import com.mongodb.client.AggregateIterable;';
+            } else if (mode === 'Delete Query') {
+                imports += 'import com.mongodb.client.result.DeleteResult;';
             }
             return imports;
         }

@@ -33,16 +33,23 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  AppRegistryRoles,
-  useAppRegistryContext,
-  useAppRegistryRole,
-} from '../contexts/app-registry-context';
+import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
+import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
+import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
+import {
+  CreateDatabasePlugin,
+  DropDatabasePlugin,
+  CreateCollectionPlugin,
+  DropCollectionPlugin,
+} from '@mongodb-js/compass-databases-collections';
+import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import { DataServiceProvider } from 'mongodb-data-service/provider';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -169,7 +176,7 @@ function Home({
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
 
   const [
@@ -320,7 +327,11 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+  if (isConnected && !connectedDataService.current) {
+    throw new Error(
+      'Application is connected, but DataService is not available'
+    );
+  }
 
   return (
     <SignalHooksProvider
@@ -340,7 +351,17 @@ function Home({
         track('Signal Closed', { id });
       }}
     >
-      {isConnected && <Workspace namespace={namespace} />}
+      {isConnected && connectedDataService.current && (
+        // AppRegistry scope for a connected application
+        <AppRegistryProvider>
+          <DataServiceProvider value={connectedDataService.current}>
+            <ImportPlugin></ImportPlugin>
+            <ExportPlugin></ExportPlugin>
+            <CreateViewPlugin></CreateViewPlugin>
+            <Workspace namespace={namespace} />
+          </DataServiceProvider>
+        </AppRegistryProvider>
+      )}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
       <div
@@ -360,9 +381,12 @@ function Home({
           />
         </div>
       </div>
-      {globalModals?.map(({ name, component: GlobalModalComponent }) => {
-        return <GlobalModalComponent key={name}></GlobalModalComponent>;
-      })}
+      <CompassSettingsPlugin></CompassSettingsPlugin>
+      <CompassFindInPagePlugin></CompassFindInPagePlugin>
+      <CreateDatabasePlugin></CreateDatabasePlugin>
+      <DropDatabasePlugin></DropDatabasePlugin>
+      <CreateCollectionPlugin></CreateCollectionPlugin>
+      <DropCollectionPlugin></DropCollectionPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
@@ -380,7 +404,7 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),

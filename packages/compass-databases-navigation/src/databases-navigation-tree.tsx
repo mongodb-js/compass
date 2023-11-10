@@ -66,7 +66,7 @@ type TreeItem = PlaceholderTreeItem | DatabaseTreeItem | CollectionTreeItem;
 type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
-  activeNamespace: string;
+  activeNamespace?: string;
   currentTabbable?: string;
   onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
   onNamespaceAction(this: void, namespace: string, action: Actions): void;

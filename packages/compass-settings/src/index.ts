@@ -1,21 +1,24 @@
-import type AppRegistry from 'hadron-app-registry';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import SettingsPlugin from './components/index';
-import SettingsStore from './stores';
+import { onActivated } from './stores';
 
-const ROLE = {
-  name: 'SettingsModal',
-  component: SettingsPlugin,
-};
-
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Global.Modal', ROLE);
-  appRegistry.registerStore('Settings.Store', SettingsStore);
+function activate(): void {
+  // noop
 }
 
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Global.Modal', ROLE);
-  appRegistry.deregisterStore('Settings.Store');
+function deactivate(): void {
+  // noop
 }
+
+export const CompassSettingsPlugin = registerHadronPlugin(
+  {
+    name: 'CompassSettings',
+    component: SettingsPlugin,
+    activate: onActivated,
+  },
+  { logger: createLoggerAndTelemetryLocator('COMPASS-SETTINGS') }
+);
 
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

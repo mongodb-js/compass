@@ -89,7 +89,9 @@ export const OutputStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-  const enableAggregationBuilderRunPipeline = usePreference(
+  // When explicit pipeline run is not enabled, we allow to run output stage
+  // from the preview
+  const showOutputActions = !usePreference(
     'enableAggregationBuilderRunPipeline',
     React
   );
@@ -98,31 +100,35 @@ export const OutputStage = ({
     return null;
   }
 
-  if (isLoading) {
-    return <Loader destinationNamespace={destinationNamespace} />;
-  }
+  // Following states are only allowed when running out stage from the preview
+  // card is enabled
+  if (showOutputActions) {
+    // Stage editor show the error message.
+    if (hasServerError) {
+      return null;
+    }
 
-  // Stage editor show the error message.
-  if (hasServerError) {
-    return null;
-  }
+    if (isLoading) {
+      return <Loader destinationNamespace={destinationNamespace} />;
+    }
 
-  if (isFinishedPersistingDocuments) {
-    return (
-      <div className={stagePreviewStyles}>
-        <Body className={stagePreviewTextStyles}>
-          {documentsPersistedText(destinationNamespace)}
-        </Body>
-        <Link
-          data-testid="goto-output-collection"
-          as="button"
-          className={stagePreviewLinkStyles}
-          onClick={onGoToOutputResults}
-        >
-          Go to collection.
-        </Link>
-      </div>
-    );
+    if (isFinishedPersistingDocuments) {
+      return (
+        <div className={stagePreviewStyles}>
+          <Body className={stagePreviewTextStyles}>
+            {documentsPersistedText(destinationNamespace)}
+          </Body>
+          <Link
+            data-testid="goto-output-collection"
+            as="button"
+            className={stagePreviewLinkStyles}
+            onClick={onGoToOutputResults}
+          >
+            Go to collection.
+          </Link>
+        </div>
+      );
+    }
   }
 
   return (
@@ -132,7 +138,7 @@ export const OutputStage = ({
           ? MERGE_STAGE_PREVIEW_TEXT
           : OUT_STAGE_PREVIEW_TEXT}
       </div>
-      {enableAggregationBuilderRunPipeline && (
+      {showOutputActions && (
         <Button
           variant="primary"
           data-testid="save-output-documents"

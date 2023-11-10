@@ -25,21 +25,29 @@ Templates:
                 project: 'projection'
             };
 
+            const exportMode = spec.exportMode;
+            delete spec.exportMode;
+            
+            const args = {};
+            Object.keys(spec).forEach((k) => {
+                if (k !== 'options') {
+                    args[k in translateKey ? translateKey[k] : k] = spec[k];
+                }
+            });
+            
             let cmd;
             let defs;
+            if (exportMode == 'Delete Query') {
+                defs = `const filter = ${args.filter};\n`;
+                cmd = `const result = coll.deleteMany(filter);`;
+            }
             if ('aggregation' in spec) {
                 const agg = spec.aggregation;
-                cmd = `const cursor = coll.aggregate(agg);`;
+                cmd = `const cursor = coll.aggregate(agg);\nconst result = await cursor.toArray();`;
                 defs = `const agg = ${agg};\n`;
-            } else {
+            } else if (!cmd) {
                 let opts = '';
-                const args = {};
-                Object.keys(spec).forEach((k) => {
-                    if (k !== 'options') {
-                        args[k in translateKey ? translateKey[k] : k] = spec[k];
-                    }
-                });
-
+                
                 if (Object.keys(args).length > 0) {
                     defs = Object.keys(args).reduce((s, k) => {
                         if (k !== 'filter') {
@@ -53,7 +61,7 @@ Templates:
                     }, '');
                     opts = opts === '' ? '' : `, { ${opts} }`;
                 }
-                cmd = `const cursor = coll.find(filter${opts});`;
+                cmd = `const cursor = coll.find(filter${opts});\nconst result = await cursor.toArray();`;
             }
             return `${comment}\n\n${defs}
         const client = await MongoClient.connect(
@@ -61,7 +69,6 @@ Templates:
         );
         const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
         ${cmd}
-        const result = await cursor.toArray();
         await client.close();`;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >

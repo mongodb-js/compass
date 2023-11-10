@@ -46,9 +46,9 @@ export function configureStore(options: CollectionTabOptions) {
     throw new Error('Expected to get instance from App.InstanceStore');
   }
 
-  const configureFieldStore = globalAppRegistry.getStore('Field.Store') as (
-    ...args: any
-  ) => void | undefined; // our handcrafted d.ts file doesn't match the actual code
+  const configureFieldStore = globalAppRegistry.getStore(
+    'Field.Store'
+  ) as unknown as (...args: any) => void | undefined; // Field.Store is odd because it registers a configure method, not the actual store
 
   configureFieldStore?.({
     localAppRegistry: localAppRegistry,

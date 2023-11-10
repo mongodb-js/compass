@@ -1,7 +1,9 @@
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionInfo } from './connection-info';
 
-export function getConnectionTitle(info: ConnectionInfo): string {
+export function getConnectionTitle(
+  info: Pick<ConnectionInfo, 'favorite' | 'connectionOptions'>
+): string {
   if (info.favorite?.name) {
     return info.favorite.name;
   }

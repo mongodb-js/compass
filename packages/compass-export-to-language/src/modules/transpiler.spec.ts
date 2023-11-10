@@ -6,6 +6,12 @@ import type { InputExpression } from './transpiler';
 
 describe('transpiler', function () {
   describe('getInputExpressionMode', function () {
+    it('returns the provided exportMode', function () {
+      expect(
+        getInputExpressionMode({ exportMode: 'Delete Query', filter: 'foo' })
+      ).to.equal('Delete Query');
+    });
+
     it('returns Query for basic queries', function () {
       expect(getInputExpressionMode({ filter: 'foo' })).to.equal('Query');
     });

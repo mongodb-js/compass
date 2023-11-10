@@ -12,7 +12,10 @@ function renderModal(exportState: any = {}) {
   // component in a state that can actually be achieved when actions are emitted
   // on the store. Refactor this to either test unconnected component, or to
   // not mutate state directly for tests
-  const store = configureStore();
+  const store = configureStore({
+    dataService: {},
+    globalAppRegistry: {},
+  } as any);
   const state = store.getState();
   state.export = {
     ...state.export,

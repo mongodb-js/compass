@@ -57,11 +57,26 @@ Templates:
             };
             const options = spec.options;
             const filter = spec.filter || {}
+            const exportMode = spec.exportMode;
+
             delete spec.options;
             delete spec.filter
+            delete spec.exportMode;
 
             const connect = `client = Mongo::Client.new('${options.uri}', :database => '${options.database}')`;
             const coll = `client.database['${options.collection}']`;
+
+            let driverMethod;
+            switch (exportMode) {
+                case 'Delete Query':
+                    driverMethod = 'delete_many';
+                    break;
+                case 'Update Query':
+                    driverMethod = 'update_many';
+                    break;
+                default:
+                    driverMethod = 'find';
+            }
 
             if ('aggregation' in spec) {
                 return `${comment}\n\n${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
@@ -82,7 +97,7 @@ Templates:
                 ''
             );
 
-            const cmd = `result = ${coll}.find(${filter}${args ? `, {\n${args}\n}` : ''})`;
+            const cmd = `result = ${coll}.${driverMethod}(${filter}${args ? `, {\n${args}\n}` : ''})`;
 
             return `${comment}\n\n${vars}\n\n${cmd}`;
         }

@@ -22,6 +22,7 @@ import DatabaseCollectionFilter from './database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 
 import { changeFilterRegex } from '../modules/databases';
+import type { RootState } from '../modules';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -272,45 +273,31 @@ export function NavigationItems({
   );
 }
 
-const mapStateToProps =
-  (state: // TODO(COMPASS-6914): Properly type stores instead of this
-  {
-    location: string | null;
-    databases: {
-      databases: any[];
-    };
-    instance?: {
-      dataLake: {
-        isDataLake: boolean;
-      };
-      isWritable: boolean;
-      databasesStatus: string;
-    };
-  }) => {
-    const totalCollectionsCount = state.databases.databases.reduce(
-      (acc: number, db: { collectionsLength: number }) => {
-        return acc + db.collectionsLength;
-      },
-      0
-    );
+const mapStateToProps = (state: RootState) => {
+  const totalCollectionsCount = state.databases.databases.reduce(
+    (acc: number, db: { collectionsLength: number }) => {
+      return acc + db.collectionsLength;
+    },
+    0
+  );
 
-    const databasesStatus = state.instance?.databasesStatus;
-    const isReady =
-      databasesStatus !== undefined &&
-      !['initial', 'fetching'].includes(databasesStatus);
+  const databasesStatus = state.instance?.databasesStatus;
+  const isReady =
+    databasesStatus !== undefined &&
+    !['initial', 'fetching'].includes(databasesStatus);
 
-    const numNonSpecialDatabases = state.databases.databases
-      .map((x: { _id: string }) => toNS(x._id))
-      .filter((x) => !x.specialish).length;
+  const numNonSpecialDatabases = state.databases.databases
+    .map((x: { _id: string }) => toNS(x._id))
+    .filter((x) => !x.specialish).length;
 
-    return {
-      currentLocation: state.location,
-      isDataLake: state.instance?.dataLake.isDataLake,
-      isWritable: state.instance?.isWritable,
-      showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
-      showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
-    };
+  return {
+    currentLocation: state.location,
+    isDataLake: state.instance?.dataLake.isDataLake,
+    isWritable: state.instance?.isWritable,
+    showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
+    showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
   };
+};
 
 const MappedNavigationItems = connect(mapStateToProps, {
   changeFilterRegex,

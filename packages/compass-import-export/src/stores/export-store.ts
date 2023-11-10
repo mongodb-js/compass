@@ -1,65 +1,79 @@
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import { createStore, applyMiddleware } from 'redux';
+import type { Action, AnyAction } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { Store, AnyAction } from 'redux';
+import { closeExport, exportReducer, openExport } from '../modules/export';
 
-import { globalAppRegistryActivated } from '../modules/compass/global-app-registry';
-import {
-  dataServiceConnected,
-  dataServiceDisconnected,
-} from '../modules/compass/data-service';
-import { rootExportReducer, openExport } from '../modules/export';
-
-export function configureStore() {
-  return createStore(rootExportReducer, applyMiddleware(thunk));
+export function configureStore(services: ExportPluginServices) {
+  return createStore(
+    combineReducers({
+      export: exportReducer,
+    }),
+    applyMiddleware(thunk.withExtraArgument(services))
+  );
 }
 
-const _store = configureStore();
+export type RootExportState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
+export type ExportPluginServices = {
+  globalAppRegistry: AppRegistry;
+  dataService: Pick<DataService, 'findCursor' | 'aggregateCursor'>;
+};
 
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
+export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootExportState,
+  ExportPluginServices,
+  A
+>;
 
-export type RootExportActions = StoreActions<typeof _store>;
+export function activatePlugin(
+  _: unknown,
+  { globalAppRegistry, dataService }: ExportPluginServices
+) {
+  const store = configureStore({ globalAppRegistry, dataService });
 
-export type RootExportState = StoreState<typeof _store>;
-
-const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-    globalAppRegistry.on(
-      'data-service-connected',
-      (err: Error | undefined, dataService: DataService) => {
-        store.dispatch(dataServiceConnected(err, dataService));
-      }
+  const onOpenExport = ({
+    namespace,
+    query,
+    exportFullCollection,
+    aggregation,
+    origin,
+  }: {
+    namespace: string;
+    query: any;
+    exportFullCollection: true;
+    aggregation: any;
+    origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
+  }) => {
+    store.dispatch(
+      openExport({
+        namespace,
+        query: {
+          // In the query bar we use `project` instead of `projection`.
+          ...query,
+          ...(query?.project ? { projection: query.project } : {}),
+        },
+        exportFullCollection,
+        aggregation,
+        origin,
+      })
     );
+  };
 
-    // Abort the export operation when it's in progress.
-    globalAppRegistry.on('data-service-disconnected', () => {
-      store.dispatch(dataServiceDisconnected());
-    });
+  globalAppRegistry.on('open-export', onOpenExport);
 
-    globalAppRegistry.on(
-      'open-export',
-      ({ namespace, query, exportFullCollection, aggregation, origin }) => {
-        store.dispatch(
-          openExport({
-            namespace,
-            query: {
-              // In the query bar we use `project` instead of `projection`.
-              ...query,
-              ...(query?.project ? { projection: query.project } : {}),
-            },
-            exportFullCollection,
-            aggregation,
-            origin,
-          })
-        );
-      }
-    );
-  },
-});
-
-export { store };
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener('open-export', onOpenExport);
+      // We use close and not cancel because cancel doesn't actually cancel
+      // everything
+      store.dispatch(closeExport());
+    },
+  };
+}

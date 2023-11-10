@@ -1,8 +1,7 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import AppRegistryContext from '../contexts/app-registry-context';
+import { globalAppRegistry, AppRegistryProvider } from 'hadron-app-registry';
 import WorkspaceContent from './workspace-content';
 
 const getComponent = (name: string) => {
@@ -21,28 +20,18 @@ const getComponent = (name: string) => {
 };
 
 describe('WorkspaceContent [Component]', function () {
-  let testAppRegistry: AppRegistry;
-  beforeEach(function () {
-    testAppRegistry = new AppRegistry();
-
+  before(function () {
     ['Collection.Workspace', 'Database.Workspace', 'Instance.Workspace'].map(
-      (name) => testAppRegistry.registerComponent(name, getComponent(name))
+      (name) => globalAppRegistry.registerComponent(name, getComponent(name))
     );
-    testAppRegistry.onActivated();
+    globalAppRegistry.onActivated();
   });
 
-  afterEach(function () {
-    testAppRegistry = null;
-    cleanup();
-  });
+  afterEach(cleanup);
 
   describe('namespace is unset', function () {
     beforeEach(function () {
-      render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
-          <WorkspaceContent namespace={{ database: '', collection: '' }} />
-        </AppRegistryContext.Provider>
-      );
+      render(<WorkspaceContent namespace={{ database: '', collection: '' }} />);
     });
 
     it('renders content correctly', function () {
@@ -55,9 +44,9 @@ describe('WorkspaceContent [Component]', function () {
   describe('namespace has a db', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider>
           <WorkspaceContent namespace={{ database: 'db', collection: '' }} />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 
@@ -71,9 +60,9 @@ describe('WorkspaceContent [Component]', function () {
   describe('namespace has db and collection', function () {
     beforeEach(function () {
       render(
-        <AppRegistryContext.Provider value={testAppRegistry}>
+        <AppRegistryProvider>
           <WorkspaceContent namespace={{ database: 'db', collection: 'col' }} />
-        </AppRegistryContext.Provider>
+        </AppRegistryProvider>
       );
     });
 

@@ -203,7 +203,8 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
         Object.entries(getState().queryBar.fields).map(([key, field]) => {
           return [key, field.string];
         })
-      )
+      ),
+      'Query'
     );
   };
 };

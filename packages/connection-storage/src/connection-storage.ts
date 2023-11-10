@@ -3,7 +3,7 @@ import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   type ConnectionSecrets,
   mergeSecrets,

@@ -37,6 +37,7 @@ const textInputStyles = css({
   input: {
     fontFamily: fontFamilies.code,
   },
+  width: '100%',
 });
 
 type ReadonlyFilterProps = {

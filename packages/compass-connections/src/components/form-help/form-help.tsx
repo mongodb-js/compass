@@ -13,7 +13,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 const formHelpContainerStyles = css({
