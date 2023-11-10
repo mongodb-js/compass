@@ -52,3 +52,15 @@ export const DeleteActionButton = ({ onClick }: ActionButtonProps) => {
     </IconButton>
   );
 };
+
+export const OpensInModal = () => {
+  return (
+    <IconButton
+      data-testid="query-opens-in-modal-button"
+      aria-label="Open in Modal"
+      title="Open in Modal"
+    >
+      <Icon glyph="OpenNewTab" />
+    </IconButton>
+  );
+};

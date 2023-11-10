@@ -17,6 +17,7 @@ import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
+import { OpensInModal } from './query-item/query-item-action-buttons';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type FavoriteActions = {
@@ -40,6 +41,8 @@ const FavoriteItem = ({
     onApply(attributes);
   }, [onApply, query._id, attributes]);
 
+  const isUpdateQuery = useMemo(() => !!query.update, [query]);
+
   const onDeleteClick = useCallback(() => {
     track('Query History Favorite Removed', {
       id: query._id,
@@ -59,6 +62,7 @@ const FavoriteItem = ({
             onClick={() => copyToClipboard(formatQuery(attributes))}
           />
           <DeleteActionButton onClick={onDeleteClick} />
+          {isUpdateQuery && <OpensInModal />}
         </QueryItemHeading>
       )}
     >
