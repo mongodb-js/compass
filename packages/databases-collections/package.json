@@ -53,6 +53,7 @@
     "@mongodb-js/databases-collections-list": "^1.19.1",
     "compass-preferences-model": "^2.15.6",
     "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -73,7 +74,6 @@
     "mocha": "^10.2.0",
     "mongodb": "^6.0.0",
     "mongodb-collection-model": "^5.15.1",
-    "mongodb-data-service": "^22.15.1",
     "mongodb-instance-model": "^12.15.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^3.1.3",
@@ -92,6 +92,7 @@
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/databases-collections-list": "^1.19.1",
     "compass-preferences-model": "^2.15.6",
-    "hadron-app-registry": "^9.0.14"
+    "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1"
   }
 }

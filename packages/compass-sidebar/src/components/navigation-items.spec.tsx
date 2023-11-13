@@ -22,7 +22,6 @@ function renderNavigationItems(
           /* noop */
         }}
         currentLocation={null}
-        showCreateDatabaseGuideCue={false}
         {...props}
       />
     </Provider>
@@ -43,17 +42,6 @@ describe('NavigationItems [Component]', function () {
       renderNavigationItems();
       expect(screen.getByLabelText(refreshCTAText)).to.be.visible;
     });
-
-    it('shows guide cue when no databases are created', async function () {
-      renderNavigationItems({
-        showCreateDatabaseGuideCue: true,
-      });
-
-      await screen.findByRole('dialog', undefined, {
-        timeout: 2000,
-      });
-      expect(screen.getByText('It looks a bit empty around here')).to.exist;
-    });
   });
 
   describe('when rendered read only', function () {
@@ -62,14 +50,6 @@ describe('NavigationItems [Component]', function () {
         readOnly: true,
       });
       expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
-    });
-
-    it('does not show guide cue when no databases are created', function () {
-      renderNavigationItems({
-        readOnly: true,
-        showCreateDatabaseGuideCue: true,
-      });
-      expect(() => screen.getByRole('dialog')).to.throw;
     });
   });
 });

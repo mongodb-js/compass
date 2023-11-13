@@ -18,7 +18,7 @@ export async function dropDatabaseFromSidebar(
 
   await browser.clickVisible(Selectors.DropDatabaseButton);
 
-  await browser.dropDatabase(dbName);
+  await browser.dropNamespace(dbName);
 
   // wait for it to be gone
   await browser

@@ -9,7 +9,6 @@ import {
   spacing,
   SegmentedControl,
   SegmentedControlOption,
-  GuideCue,
   Button,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
@@ -114,30 +113,18 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       {showStageWizard && (
-        <GuideCue
-          cueId="aggregation-toolbar-stage-wizard"
-          title="Stage Wizard"
-          description={
-            'You can quickly build your stages based on your needs. You should try it out.'
-          }
-          trigger={({ ref }) => (
-            <Button
-              ref={ref}
-              size="xsmall"
-              leftGlyph={<Icon glyph="Wizard" />}
-              onClick={onToggleSidePanel}
-              title="Toggle Stage Wizard"
-              aria-label="Toggle Stage Wizard"
-              data-testid="pipeline-toolbar-side-panel-button"
-              className={toggleStageWizardStyles}
-              disabled={pipelineMode === 'as-text'}
-            >
-              <span className={hiddenOnNarrowPipelineToolbarStyles}>
-                Wizard
-              </span>
-            </Button>
-          )}
-        />
+        <Button
+          size="xsmall"
+          leftGlyph={<Icon glyph="Wizard" />}
+          onClick={onToggleSidePanel}
+          title="Toggle Stage Wizard"
+          aria-label="Toggle Stage Wizard"
+          data-testid="pipeline-toolbar-side-panel-button"
+          className={toggleStageWizardStyles}
+          disabled={pipelineMode === 'as-text'}
+        >
+          <span className={hiddenOnNarrowPipelineToolbarStyles}>Wizard</span>
+        </Button>
       )}
       <IconButton
         title="More Settings"

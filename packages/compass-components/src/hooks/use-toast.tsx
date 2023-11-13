@@ -153,11 +153,19 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
   );
 };
 
+const ToastAreaMountedContext = React.createContext(false);
+
 export const ToastArea: React.FunctionComponent = ({ children }) => {
+  if (useContext(ToastAreaMountedContext)) {
+    return <>{children}</>;
+  }
+
   return (
-    <ToastProvider>
-      <_ToastArea>{children}</_ToastArea>
-    </ToastProvider>
+    <ToastAreaMountedContext.Provider value={true}>
+      <ToastProvider>
+        <_ToastArea>{children}</_ToastArea>
+      </ToastProvider>
+    </ToastAreaMountedContext.Provider>
   );
 };
 

@@ -62,8 +62,8 @@ describe('Collection Tab Content store', function () {
 
   beforeEach(function () {
     globalAppRegistry.registerStore('App.InstanceStore', {
-      getInstance() {
-        return instance;
+      getState() {
+        return { instance };
       },
     } as any);
     globalAppRegistry.registerRole(

@@ -37,10 +37,10 @@ export function configureStore(options: CollectionTabOptions) {
   const instance = (
     globalAppRegistry.getStore('App.InstanceStore') as
       | {
-          getInstance(): MongoDBInstance;
+          getState(): { instance: MongoDBInstance };
         }
       | undefined
-  )?.getInstance();
+  )?.getState().instance;
 
   if (!instance) {
     throw new Error('Expected to get instance from App.InstanceStore');

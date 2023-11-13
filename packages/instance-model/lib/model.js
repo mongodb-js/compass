@@ -365,7 +365,6 @@ const InstanceModel = AmpersandModel.extend(
 
     removeAllListeners() {
       removeListenersRec(this);
-      VisitedModels.deleteAll();
     },
 
     toJSON(opts = { derived: true }) {

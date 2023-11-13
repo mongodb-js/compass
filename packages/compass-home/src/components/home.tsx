@@ -44,12 +44,12 @@ import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import {
   CreateDatabasePlugin,
-  DropDatabasePlugin,
   CreateCollectionPlugin,
-  DropCollectionPlugin,
+  DropNamespacePlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
+import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -355,10 +355,13 @@ function Home({
         // AppRegistry scope for a connected application
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
-            <ImportPlugin></ImportPlugin>
-            <ExportPlugin></ExportPlugin>
-            <CreateViewPlugin></CreateViewPlugin>
-            <Workspace namespace={namespace} />
+            <CompassInstanceStorePlugin>
+              <ImportPlugin></ImportPlugin>
+              <ExportPlugin></ExportPlugin>
+              <CreateViewPlugin></CreateViewPlugin>
+              <DropNamespacePlugin></DropNamespacePlugin>
+              <Workspace namespace={namespace} />
+            </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
       )}
@@ -384,9 +387,7 @@ function Home({
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
       <CreateDatabasePlugin></CreateDatabasePlugin>
-      <DropDatabasePlugin></DropDatabasePlugin>
       <CreateCollectionPlugin></CreateCollectionPlugin>
-      <DropCollectionPlugin></DropCollectionPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
