@@ -163,14 +163,13 @@ const InlineSaveQueryModal: React.FunctionComponent<
   }, [onSave, favoriteName, cleanClose]);
 
   const updateFavoriteName = useCallback(
-    (ev: React.ChangeEvent) => {
-      const target = ev.target as any as { value: string };
-      const favoriteName: string = (target.value || '').trim();
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      const favoriteName: string = ev.target.value || '';
 
       setFavoriteName(favoriteName);
       setValid(favoriteName !== '');
     },
-    [setFavoriteName]
+    [setFavoriteName, setValid]
   );
 
   const handleSpecialKeyboardEvents = useCallback(

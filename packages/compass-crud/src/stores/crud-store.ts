@@ -2003,8 +2003,8 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       void store.refreshDocuments();
     });
 
-    globalAppRegistry.on(
-      'favorites:open-bulk-update-favorite',
+    instance.on(
+      'favorites-open-bulk-update-favorite',
       (query: QueryState & { update: BSONObject }) => {
         void store.onQueryChanged(query);
         void store.refreshDocuments();
