@@ -17,7 +17,7 @@ import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
-import { OpensInModal } from './query-item/query-item-action-buttons';
+import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type FavoriteActions = {
@@ -61,12 +61,13 @@ const FavoriteItem = ({
       data-testid="favorite-query-list-item"
       header={(isHovered: boolean) => (
         <QueryItemHeading title={query._name} isHovered={true}>
-          <CopyActionButton
-            visible={isHovered}
-            onClick={() => copyToClipboard(formatQuery(attributes))}
-          />
-          <DeleteActionButton visible={isHovered} onClick={onDeleteClick} />
-          <OpensInModal visible={isUpdateQuery} />
+          {isHovered && (
+            <CopyActionButton
+              onClick={() => copyToClipboard(formatQuery(attributes))}
+            />
+          )}
+          {isHovered && <DeleteActionButton onClick={onDeleteClick} />}
+          <OpenBulkUpdateActionButton onClick={onCardClick} />
         </QueryItemHeading>
       )}
     >

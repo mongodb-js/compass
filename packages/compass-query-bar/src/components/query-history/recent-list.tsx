@@ -78,18 +78,11 @@ const RecentItem = ({
         }
         return (
           <QueryItemHeading title={title} isHovered={isHovered}>
-            <FavoriteActionButton
-              visible={true}
-              onClick={() => setIsAddingFavorite(true)}
-            />
+            <FavoriteActionButton onClick={() => setIsAddingFavorite(true)} />
             <CopyActionButton
-              visible={true}
               onClick={() => copyToClipboard(formatQuery(attributes))}
             />
-            <DeleteActionButton
-              visible={true}
-              onClick={() => onDelete(query._id)}
-            />
+            <DeleteActionButton onClick={() => onDelete(query._id)} />
           </QueryItemHeading>
         );
       }}
