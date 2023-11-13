@@ -26,7 +26,7 @@ const debug = createDebug('import-json');
 type JSONVariant = 'json' | 'jsonl';
 
 type ImportJSONOptions = {
-  dataService: DataService;
+  dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
   ns: string;
   input: Readable;
   output?: Writable;
@@ -78,7 +78,9 @@ export async function importJSON({
           throw new Error('Value is not an object');
         }
 
-        const doc = EJSON.deserialize(chunk.value);
+        const doc = EJSON.deserialize(chunk.value as Document, {
+          relaxed: false,
+        });
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({

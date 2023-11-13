@@ -1,5 +1,4 @@
 import type { AnyAction, Reducer } from 'redux';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/settings';
@@ -109,11 +108,6 @@ export const applySettings = (): PipelineBuilderThunkAction<void> => {
     const { settings } = getState();
     dispatch(doApplySettings(settings));
     dispatch(updatePipelinePreview());
-    dispatch(
-      globalAppRegistryEmit('compass:aggregations:settings-applied', {
-        settings,
-      })
-    );
   };
 };
 

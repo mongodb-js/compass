@@ -118,7 +118,7 @@ export async function exportJSONFromAggregation({
   ...exportOptions
 }: Omit<ExportJSONOptions, 'input'> & {
   ns: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'aggregateCursor'>;
   aggregation: ExportAggregation;
 }) {
   debug('exportJSONFromAggregation()', { ns: toNS(ns), aggregation });
@@ -146,7 +146,7 @@ export async function exportJSONFromQuery({
   ...exportOptions
 }: Omit<ExportJSONOptions, 'input'> & {
   ns: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'findCursor'>;
   query?: ExportQuery;
 }) {
   debug('exportJSONFromQuery()', { ns: toNS(ns), query });

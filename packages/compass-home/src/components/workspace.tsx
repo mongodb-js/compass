@@ -4,6 +4,7 @@ import { css } from '@mongodb-js/compass-components';
 import WorkspaceContent from './workspace-content';
 import type Namespace from '../types/namespace';
 import { useAppRegistryComponent } from 'hadron-app-registry';
+import { CompassShellPlugin } from '@mongodb-js/compass-shell';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -40,7 +41,6 @@ export default function Workspace({
   namespace: Namespace;
 }): React.ReactElement {
   const SidebarComponent = useAppRegistryComponent('Sidebar.Component');
-  const GlobalShellComponent = useAppRegistryComponent('Global.Shell');
 
   return (
     <>
@@ -54,7 +54,7 @@ export default function Workspace({
           </div>
         </div>
         <div className={shellContainerStyles}>
-          {GlobalShellComponent && <GlobalShellComponent />}
+          <CompassShellPlugin />
         </div>
       </div>
     </>

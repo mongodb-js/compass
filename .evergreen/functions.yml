@@ -654,6 +654,7 @@ functions:
           <<: *compass-env
           ATLAS_PUBLIC_KEY: ${atlas_public_key}
           ATLAS_PRIVATE_KEY: ${atlas_private_key}
+          AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING: ${accuracy_results_mdb_connection_string}
         script: |
           set -e
           # Load environment variables

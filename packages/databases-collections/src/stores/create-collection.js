@@ -8,39 +8,46 @@ import {
 import { serverVersionChanged } from '../modules/server-version';
 import reducer, { open } from '../modules/create-collection';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+export function activatePlugin(_, { globalAppRegistry }) {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-store.onActivated = (appRegistry) => {
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
+  const onDataServiceConnected = (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
     if (dataService) {
       dataService.on('topologyDescriptionChanged', () => {
         store.dispatch(dataServiceUpdated(dataService));
       });
     }
-  });
+  };
 
-  appRegistry.on('instance-created', ({ instance }) => {
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
+
+  const onInstanceCreated = ({ instance }) => {
     instance.build.on('change:version', () => {
       store.dispatch(serverVersionChanged(instance.build.version));
     });
-  });
+  };
 
-  /**
-   * When needing to create a collection from elsewhere, the app registry
-   * event is emitted.
-   *
-   * @param {{ database: string }} ns Parsed namespace
-   */
-  appRegistry.on('open-create-collection', ({ database }) => {
+  globalAppRegistry.on('instance-created', onInstanceCreated);
+
+  const onOpenCreateCollection = ({ database }) => {
     store.dispatch(open(database));
-  });
-};
+  };
 
-export default store;
+  globalAppRegistry.on('open-create-collection', onOpenCreateCollection);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
+      );
+      globalAppRegistry.removeListener('instance-created', onInstanceCreated);
+      globalAppRegistry.removeListener(
+        'open-create-collection',
+        onOpenCreateCollection
+      );
+    },
+  };
+}

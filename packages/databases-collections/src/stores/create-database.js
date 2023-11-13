@@ -5,32 +5,41 @@ import { dataServiceConnected } from '../modules/data-service';
 import { serverVersionChanged } from '../modules/server-version';
 import reducer, { open } from '../modules/create-database';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+export function activatePlugin(_, { globalAppRegistry }) {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-store.onActivated = (appRegistry) => {
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
+  const onDataServiceConnected = (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
-  });
+  };
 
-  appRegistry.on('instance-created', ({ instance }) => {
+  globalAppRegistry.on('data-service-connected', onDataServiceConnected);
+
+  const onInstanceCreated = ({ instance }) => {
     instance.build.on('change:version', () => {
       store.dispatch(serverVersionChanged(instance.build.version));
     });
-  });
+  };
 
-  /**
-   * When needing to create a database from elsewhere, the app registry
-   * event is emitted.
-   */
-  appRegistry.on('open-create-database', () => {
+  globalAppRegistry.on('instance-created', onInstanceCreated);
+
+  const onOpenCreateDatabase = () => {
     store.dispatch(open());
-  });
-};
+  };
 
-export default store;
+  globalAppRegistry.on('open-create-database', onOpenCreateDatabase);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'data-service-connected',
+        onDataServiceConnected
+      );
+      globalAppRegistry.removeListener('instance-created', onInstanceCreated);
+      globalAppRegistry.removeListener(
+        'open-create-database',
+        onOpenCreateDatabase
+      );
+    },
+  };
+}

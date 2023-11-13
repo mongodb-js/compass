@@ -58,6 +58,7 @@ const fixtures = {
   json: {
     good: path.join(__dirname, 'json', 'good.json'),
     complex: path.join(__dirname, 'json', 'complex.json'),
+    promotable: path.join(__dirname, 'json', 'promotable.json'),
   },
 
   // jsonl

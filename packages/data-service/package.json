@@ -18,14 +18,21 @@
   ],
   "main": "lib/index.js",
   "compass:main": "src/index.ts",
+  "exports": {
+    ".": "./lib/index.js",
+    "./provider": "./lib/provider.js"
+  },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "package.json",
-    "README.md"
+    "README.md",
+    "provider.js",
+    "provider.d.ts"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
@@ -48,7 +55,8 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "mongodb": "^6.0.0"
+    "mongodb": "^6.0.0",
+    "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.2.6",
@@ -83,6 +91,7 @@
     "mongodb": "^6.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
+    "react": "^17.0.2",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4"
   },

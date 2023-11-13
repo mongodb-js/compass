@@ -1,23 +1,16 @@
 import os from 'os';
 import { expect } from 'chai';
-import { createStore, applyMiddleware } from 'redux';
-import type { ThunkDispatch } from 'redux-thunk';
-import type { AnyAction } from 'redux';
-import thunk from 'redux-thunk';
 import temp from 'temp';
 import fs from 'fs';
 import path from 'path';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
-import { once } from 'events';
 
 temp.track();
 
 import {
   openExport,
-  initialState,
-  rootExportReducer,
   addFieldToExport,
   toggleExportAllSelectedFields,
   toggleFieldToExport,
@@ -27,36 +20,20 @@ import {
   closeExport,
   runExport,
 } from './export';
-import type { RootState } from './export';
-import { dataServiceConnected, globalAppRegistryActivated } from './compass';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { configureStore } from '../stores/export-store';
 
-type DispatchFunctionType = ThunkDispatch<RootState, void, AnyAction>;
-
-const mockEmptyState = {
-  export: {
-    ...initialState,
-  },
-};
+const mockServices = {
+  dataService: { findCursor() {}, aggregateCursor() {} },
+  globalAppRegistry: new AppRegistry(),
+} as any;
 
 describe('export [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let testStore = createStore(
-    rootExportReducer,
-    mockEmptyState,
-    applyMiddleware<DispatchFunctionType, RootState>(thunk)
-  );
+  let testStore = configureStore(mockServices);
+
   beforeEach(function () {
-    const mockState = {
-      export: {
-        ...initialState,
-      },
-    };
-    testStore = createStore(
-      rootExportReducer,
-      mockState,
-      applyMiddleware<DispatchFunctionType, RootState>(thunk)
-    );
+    testStore = configureStore(mockServices);
   });
 
   describe('#openExport', function () {
@@ -216,7 +193,7 @@ describe('export [module]', function () {
         undefined
       );
 
-      await testStore.dispatch(selectFieldsToExport());
+      await testStore.dispatch(selectFieldsToExport() as any);
 
       expect(
         testStore.getState().export.errorLoadingFieldsToExport
@@ -326,10 +303,12 @@ describe('export [module]', function () {
         testDoc: true,
       });
 
-      testStore.dispatch(dataServiceConnected(undefined, dataService));
-
       appRegistry = new AppRegistry();
-      testStore.dispatch(globalAppRegistryActivated(appRegistry));
+
+      testStore = configureStore({
+        dataService,
+        globalAppRegistry: appRegistry,
+      });
     });
 
     afterEach(async function () {
@@ -351,15 +330,13 @@ describe('export [module]', function () {
       );
 
       const textExportFilePath = path.join(tmpdir, 'run-export-test.json');
-      void testStore.dispatch(
+      await testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
           jsonFormatVariant: 'default',
           fileType: 'json',
-        })
+        }) as any
       );
-
-      await once(appRegistry, 'export-finished');
 
       let resultText;
       try {
@@ -400,15 +377,13 @@ describe('export [module]', function () {
       );
 
       const textExportFilePath = path.join(tmpdir, 'run-export-test-2.json');
-      void testStore.dispatch(
+      await testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
           jsonFormatVariant: 'default',
           fileType: 'json',
-        })
+        }) as any
       );
-
-      await once(appRegistry, 'export-finished');
 
       let resultText;
       try {

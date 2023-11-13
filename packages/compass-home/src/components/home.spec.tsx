@@ -2,7 +2,7 @@ import React from 'react';
 import { once } from 'events';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry, { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
 import Home from '.';
@@ -22,7 +22,26 @@ const getComponent = (name: string) => {
   return TestComponent;
 };
 
-const createDataService = () => ({});
+const createDataService = () => ({
+  getConnectionString() {
+    return { hosts: ['localhost:27020'] };
+  },
+  getConnectionOptions() {
+    return {};
+  },
+  getMongoClientConnectionOptions() {
+    return {};
+  },
+  getLastSeenTopology() {
+    return {
+      type: 'Unknown',
+      servers: [],
+      setName: 'foo',
+    };
+  },
+  on() {},
+  off() {},
+});
 
 describe('Home [Component]', function () {
   before(function () {
@@ -32,9 +51,9 @@ describe('Home [Component]', function () {
     }
   });
 
-  let testAppRegistry: AppRegistry;
+  const testAppRegistry = globalAppRegistry;
+
   beforeEach(function () {
-    testAppRegistry = new AppRegistry();
     [
       'Collection.Workspace',
       'Database.Workspace',
@@ -45,7 +64,7 @@ describe('Home [Component]', function () {
       testAppRegistry.registerComponent(name, getComponent(name))
     );
 
-    ['Global.Modal', 'Application.Connect'].forEach((name) =>
+    ['Application.Connect'].forEach((name) =>
       testAppRegistry.registerRole(name, {
         name,
         component: getComponent(name),
@@ -55,7 +74,10 @@ describe('Home [Component]', function () {
     testAppRegistry.onActivated();
   });
 
-  afterEach(cleanup);
+  afterEach(function () {
+    testAppRegistry.deactivate();
+    cleanup();
+  });
 
   describe('is not connected', function () {
     beforeEach(function () {
@@ -109,6 +131,7 @@ describe('Home [Component]', function () {
         );
         dataServiceDisconnectedSpy = sinon.fake.resolves(true);
         const dataService = {
+          ...createDataService(),
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };

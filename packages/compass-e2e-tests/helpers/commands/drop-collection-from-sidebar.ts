@@ -38,7 +38,7 @@ export async function dropCollectionFromSidebar(
   await browser.clickVisible(Selectors.CollectionShowActionsButton);
   await browser.clickVisible(Selectors.DropCollectionButton);
 
-  await browser.dropCollection(collectionName);
+  await browser.dropNamespace(collectionName);
 
   // wait for it to be gone
   await collectionElement.waitForExist({ reverse: true });

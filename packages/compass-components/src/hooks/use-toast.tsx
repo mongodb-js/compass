@@ -155,12 +155,19 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
 };
 
 const toastAreaFronLayerStyles = css({ zIndex: 1 });
+const ToastAreaMountedContext = React.createContext(false);
 
 export const ToastArea: React.FunctionComponent = ({ children }) => {
+  if (useContext(ToastAreaMountedContext)) {
+    return <>{children}</>;
+  }
+
   return (
-    <ToastProvider portalClassName={toastAreaFronLayerStyles}>
-      <_ToastArea>{children}</_ToastArea>
-    </ToastProvider>
+    <ToastAreaMountedContext.Provider value={true}>
+      <ToastProvider portalClassName={toastAreaFronLayerStyles}>
+        <_ToastArea>{children}</_ToastArea>
+      </ToastProvider>
+    </ToastAreaMountedContext.Provider>
   );
 };
 

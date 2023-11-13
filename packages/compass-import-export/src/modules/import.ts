@@ -8,20 +8,10 @@ import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
-import { combineReducers } from 'redux';
-import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
-import {
-  globalAppRegistryEmit,
-  globalAppRegistry,
-  dataService,
-  nsChanged,
-  ns,
-} from './compass';
 import type { ProcessStatus } from '../constants/process-status';
 import type { AcceptedFileType } from '../constants/file-types';
 import type {
@@ -49,7 +39,7 @@ import {
   showInProgressToast,
   showStartingToast,
 } from '../components/import-toast';
-import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
+import type { ImportThunkAction } from '../stores/import-store';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -130,6 +120,8 @@ type ImportState = {
   analyzeResult?: AnalyzeCSVFieldsResult;
   analyzeStatus: ProcessStatus;
   analyzeError?: Error;
+
+  namespace: string;
 };
 
 export const INITIAL_STATE: ImportState = {
@@ -155,6 +147,7 @@ export const INITIAL_STATE: ImportState = {
   transform: [],
   fileType: '',
   analyzeStatus: PROCESS_STATUS.UNSPECIFIED,
+  namespace: '',
 };
 
 export const onStarted = ({
@@ -199,15 +192,15 @@ async function getErrorLogPath(fileName: string) {
   return path.join(importErrorLogsPath, errorLogFileName);
 }
 
-export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
+export const startImport = (): ImportThunkAction<Promise<void>> => {
   return async (
-    dispatch: ImportThunkDispatch<AnyAction>,
-    getState: () => RootState
+    dispatch,
+    getState,
+    { dataService, globalAppRegistry: appRegistry }
   ) => {
     const startTime = Date.now();
 
     const {
-      ns,
       import: {
         fileName,
         fileType,
@@ -219,9 +212,8 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         stopOnErrors,
         exclude,
         transform,
+        namespace: ns,
       },
-      dataService: { dataService },
-      globalAppRegistry: appRegistry,
     } = getState();
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
@@ -316,7 +308,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
 
     if (fileType === 'csv') {
       promise = importCSV({
-        dataService: dataService!,
+        dataService,
         ns,
         input,
         output: errorLogWriteStream,
@@ -331,7 +323,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
       });
     } else {
       promise = importJSON({
-        dataService: dataService!,
+        dataService,
         ns,
         input,
         output: errorLogWriteStream,
@@ -454,9 +446,9 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
       hasTransformed: transform.length > 0,
     };
 
-    // Don't emit when the data service is disconnected or not the same.
-    if (dataService === getState().dataService.dataService) {
-      dispatch(globalAppRegistryEmit('import-finished', payload));
+    // Don't emit when the data service is disconnected
+    if (dataService.isConnected()) {
+      appRegistry.emit('import-finished', payload);
     }
   };
 };
@@ -466,11 +458,8 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
  *
  * @api public
  */
-export const cancelImport = (): ImportThunkAction<void, AnyAction> => {
-  return (
-    dispatch: ImportThunkDispatch<AnyAction>,
-    getState: () => RootState
-  ) => {
+export const cancelImport = (): ImportThunkAction<void> => {
+  return (dispatch, getState) => {
     const {
       import: { abortController, analyzeAbortController },
     } = getState();
@@ -497,11 +486,8 @@ export const cancelImport = (): ImportThunkAction<void, AnyAction> => {
   };
 };
 
-export const skipCSVAnalyze = (): ImportThunkAction<void, AnyAction> => {
-  return (
-    dispatch: ImportThunkDispatch<AnyAction>,
-    getState: () => RootState
-  ) => {
+export const skipCSVAnalyze = (): ImportThunkAction<void> => {
+  return (dispatch, getState) => {
     const {
       import: { analyzeAbortController },
     } = getState();
@@ -522,8 +508,8 @@ export const skipCSVAnalyze = (): ImportThunkAction<void, AnyAction> => {
 const loadTypes = (
   fields: FieldFromCSV[],
   values: string[][]
-): ImportThunkAction<Promise<void>, AnyAction> => {
-  return async (dispatch, getState): Promise<void> => {
+): ImportThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
     const {
       fileName,
       delimiter,
@@ -603,8 +589,8 @@ const loadTypes = (
   };
 };
 
-const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>, AnyAction> => {
-  return async (dispatch, getState): Promise<void> => {
+const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
     const { fileName, delimiter, newline } = getState().import;
 
     const input = fs.createReadStream(fileName);
@@ -711,8 +697,10 @@ export const setFieldType = (path: string, bsonType: string) => {
   };
 };
 
-export const selectImportFileName = (fileName: string) => {
-  return async (dispatch: ImportThunkDispatch<AnyAction>) => {
+export const selectImportFileName = (
+  fileName: string
+): ImportThunkAction<Promise<void>> => {
+  return async (dispatch) => {
     try {
       const exists = await checkFileExists(fileName);
       if (!exists) {
@@ -778,11 +766,10 @@ export const selectImportFileName = (fileName: string) => {
 /**
  * Set the tabular delimiter.
  */
-export const setDelimiter = (delimiter: Delimiter) => {
-  return async (
-    dispatch: ImportThunkDispatch<AnyAction>,
-    getState: () => RootState
-  ) => {
+export const setDelimiter = (
+  delimiter: Delimiter
+): ImportThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
     const { fileName, fileType, fileIsMultilineJSON } = getState().import;
     dispatch({
       type: SET_DELIMITER,
@@ -844,11 +831,8 @@ export const openImport = ({
 }: {
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
-}): ImportThunkAction<void, AnyAction> => {
-  return (
-    dispatch: ImportThunkDispatch<AnyAction>,
-    getState: () => RootState
-  ) => {
+}): ImportThunkAction<void> => {
+  return (dispatch, getState) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({
@@ -856,12 +840,10 @@ export const openImport = ({
       });
       return;
     }
-
     track('Import Opened', {
       origin,
     });
-    dispatch(nsChanged(namespace));
-    dispatch({ type: OPEN });
+    dispatch({ type: OPEN, namespace });
   };
 };
 
@@ -886,10 +868,10 @@ function csvFields(fields: (FieldFromCSV | FieldFromJSON)[]): FieldFromCSV[] {
 /**
  * The import module reducer.
  */
-const importReducer: Reducer<ImportState> = (
+export const importReducer: Reducer<ImportState> = (
   state = INITIAL_STATE,
-  action: AnyAction
-): ImportState => {
+  action
+) => {
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
@@ -1068,6 +1050,7 @@ const importReducer: Reducer<ImportState> = (
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
+      namespace: action.namespace,
       isOpen: true,
     };
   }
@@ -1133,42 +1116,6 @@ const importReducer: Reducer<ImportState> = (
       analyzeBytesProcessed: action.analyzeBytesProcessed,
     };
   }
-  if (action.type === DATA_SERVICE_DISCONNECTED) {
-    // Abort any ongoing imports/exports.
-    state.abortController?.abort();
-    state.analyzeAbortController?.abort();
-
-    return {
-      ...state,
-      analyzeAbortController: undefined,
-      abortController: undefined,
-      isOpen: false,
-    };
-  }
 
   return state;
 };
-
-const rootImportReducer = combineReducers({
-  import: importReducer,
-  ns,
-  globalAppRegistry,
-  dataService,
-});
-
-export type RootState = ReturnType<typeof rootImportReducer>;
-
-type ImportThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
-  RootState,
-  void,
-  A
->;
-
-export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
-  R,
-  RootState,
-  void,
-  A
->;
-
-export { rootImportReducer };

@@ -1,0 +1,7 @@
+[
+  {
+    "doubleNum": {
+      "$numberDouble": "-45"
+    }
+  }
+]

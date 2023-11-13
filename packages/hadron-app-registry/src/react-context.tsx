@@ -106,7 +106,7 @@ export function useLocalAppRegistry(): AppRegistry {
 export function useAppRegistryComponent(
   componentName: string
 ): React.JSXElementConstructor<unknown> | null {
-  const appRegistry = useLocalAppRegistry();
+  const appRegistry = useGlobalAppRegistry();
 
   const [component] = useState(() => {
     const newComponent = appRegistry.getComponent(componentName);
@@ -128,7 +128,7 @@ export function useAppRegistryRole(roleName: string):
       name: string;
     }[]
   | null {
-  const appRegistry = useLocalAppRegistry();
+  const appRegistry = useGlobalAppRegistry();
 
   const [role] = useState(() => {
     const newRole = appRegistry.getRole(roleName);

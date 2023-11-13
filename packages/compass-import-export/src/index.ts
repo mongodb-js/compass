@@ -1,45 +1,49 @@
-import type AppRegistry from 'hadron-app-registry';
-
-import ImportPlugin from './import-plugin';
-import ExportPlugin from './export-plugin';
-import { store as exportStore } from './stores/export-store';
-import { store as importStore } from './stores/import-store';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import ImportPluginComponent from './import-plugin';
+import { activatePlugin as activateImportPlugin } from './stores/import-store';
+import ExportPluginComponent from './export-plugin';
+import { activatePlugin as activateExportPlugin } from './stores/export-store';
 
 /**
  * The import plugin.
  */
-const IMPORT_ROLE = {
-  name: 'Import',
-  component: ImportPlugin,
-};
+export const ImportPlugin = registerHadronPlugin(
+  {
+    name: 'Import',
+    component: ImportPluginComponent,
+    activate: activateImportPlugin,
+  },
+  {
+    dataService: dataServiceLocator as typeof dataServiceLocator<
+      'isConnected' | 'bulkWrite' | 'insertOne'
+    >,
+  }
+);
 
 /**
  * The export plugin.
  */
-const EXPORT_ROLE = {
-  name: 'Export',
-  component: ExportPlugin,
-};
+export const ExportPlugin = registerHadronPlugin(
+  {
+    name: 'Export',
+    component: ExportPluginComponent,
+    activate: activateExportPlugin,
+  },
+  {
+    dataService: dataServiceLocator as typeof dataServiceLocator<
+      'findCursor' | 'aggregateCursor'
+    >,
+  }
+);
 
-/**
- * Activate all the components in the Import Export package.
- **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Global.Modal', EXPORT_ROLE);
-  appRegistry.registerStore('ExportModal.Store', exportStore);
-  appRegistry.registerRole('Global.Modal', IMPORT_ROLE);
-  appRegistry.registerStore('ImportModal.Store', importStore);
+function activate(): void {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Import Export package.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Global.Modal', EXPORT_ROLE);
-  appRegistry.deregisterStore('ExportModal.Store');
-  appRegistry.deregisterRole('Global.Modal', IMPORT_ROLE);
-  appRegistry.deregisterStore('ImportModal.Store');
+function deactivate(): void {
+  // noop
 }
 
-export { activate, deactivate, ImportPlugin, ExportPlugin };
+export { activate, deactivate };
 export { default as metadata } from '../package.json';

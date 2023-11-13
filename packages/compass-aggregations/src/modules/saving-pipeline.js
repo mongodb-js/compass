@@ -1,5 +1,5 @@
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export const SAVING_PIPELINE_NAME_CHANGED =
@@ -133,6 +133,6 @@ export const openCreateView = () => {
       pipeline: sourcePipeline,
     };
 
-    dispatch(localAppRegistryEmit('open-create-view', meta));
+    dispatch(globalAppRegistryEmit('open-create-view', meta));
   };
 };
