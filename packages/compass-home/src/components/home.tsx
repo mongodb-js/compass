@@ -210,8 +210,10 @@ function Home({
     });
   }
 
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>();
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      setConnectionInfo(connectionInfo);
       appRegistry.emit(
         'data-service-connected',
         null, // No error connecting.
@@ -360,7 +362,10 @@ function Home({
               <CreateViewPlugin></CreateViewPlugin>
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
-              <Workspace namespace={namespace} />
+              <Workspace
+                namespace={namespace}
+                connectionInfo={connectionInfo}
+              />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>

@@ -1,25 +1,63 @@
-import type { AppRegistry } from 'hadron-app-registry';
+import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
 import SidebarPlugin from './plugin';
-import SidebarStore from './stores';
+import { createSidebarStore } from './stores';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { DataService } from 'mongodb-data-service';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
-/**
- * Activate all the components in the Sidebar package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry) {
-  appRegistry.registerComponent('Sidebar.Component', SidebarPlugin);
-  appRegistry.registerStore('Sidebar.Store', SidebarStore);
+function activate() {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Sidebar package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry) {
-  appRegistry.deregisterComponent('Sidebar.Component');
-  appRegistry.deregisterStore('Sidebar.Store');
+function deactivate() {
+  // noop
 }
 
-export default SidebarPlugin;
+interface SidebarPluginProps {
+  connectionInfo: ConnectionInfo | null | undefined;
+}
+
+export const CompassSidebarPlugin = registerHadronPlugin<
+  SidebarPluginProps,
+  {
+    instance: () => MongoDBInstance;
+    dataService: () => DataService;
+  }
+>(
+  {
+    name: 'CompassSidebar',
+    component: SidebarPlugin,
+    activate(
+      { connectionInfo }: SidebarPluginProps,
+      {
+        globalAppRegistry,
+        instance,
+        dataService,
+      }: {
+        globalAppRegistry: AppRegistry;
+        instance: MongoDBInstance;
+        dataService: DataService;
+      }
+    ) {
+      const { store, deactivate } = createSidebarStore({
+        globalAppRegistry,
+        instance,
+        dataService,
+        connectionInfo,
+      });
+      return {
+        store,
+        deactivate,
+      };
+    },
+  },
+  {
+    instance: mongoDBInstanceLocator,
+    dataService: dataServiceLocator,
+  }
+);
+
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

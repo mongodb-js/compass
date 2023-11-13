@@ -90,6 +90,10 @@ type GroupWithStatisticsFormData = {
 const _getGroupAccumulatorKey = ({ field, accumulator }: GroupAccumulators) => {
   // we will always prepend an accumulator to the key as user
   // can choose to calculate values of the same field in a document.
+  if (accumulator === '$count') {
+    return 'count';
+  }
+
   const prefix = accumulator.replace(/\$/g, '');
   const propertyName = mapFieldToPropertyName(field);
   const underscore = propertyName.startsWith('_') ? '' : '_';
@@ -110,7 +114,7 @@ const mapGroupFormStateToStageValue = (
 ): Document => {
   const values = Object.fromEntries(
     data.groupAccumulators
-      .filter((x) => x.accumulator && x.field)
+      .filter((x) => x.accumulator && (x.accumulator === '$count' || x.field))
       .map((x) => [_getGroupAccumulatorKey(x), _getGroupAccumulatorValue(x)])
   );
   return {
@@ -138,8 +142,13 @@ const GroupAccumulatorForm = ({
     if (!value) {
       return;
     }
+
     const newData = [...data];
     newData[index][key] = value;
+    if (key === 'accumulator' && value === '$count') {
+      newData[index].field = '';
+    }
+
     onChange(newData);
   };
 
@@ -203,15 +212,19 @@ const GroupAccumulatorForm = ({
                   );
                 })}
               </Select>
-              <Body>of</Body>
-              <FieldCombobox
-                className={accumulatorFieldcomboboxStyles}
-                value={item.field}
-                onChange={(value: string | null) =>
-                  onChangeGroup(index, 'field', value)
-                }
-                fields={fields}
-              />
+              {item.accumulator !== '$count' && (
+                <>
+                  <Body>of</Body>
+                  <FieldCombobox
+                    className={accumulatorFieldcomboboxStyles}
+                    value={item.field}
+                    onChange={(value: string | null) =>
+                      onChangeGroup(index, 'field', value)
+                    }
+                    fields={fields}
+                  />
+                </>
+              )}
             </div>
           );
         }}
@@ -247,8 +260,10 @@ export const GroupWithStatistics = ({
     setFormData(newData);
 
     const isValuesEmpty =
-      newData.groupAccumulators.filter((x) => x.accumulator && x.field)
-        .length === 0;
+      newData.groupAccumulators.filter(
+        (x) => x.accumulator && (x.accumulator === '$count' || x.field)
+      ).length === 0;
+
     onChange(
       JSON.stringify(mapGroupFormStateToStageValue(newData)),
       isValuesEmpty ? new Error('Select one group accumulator') : null

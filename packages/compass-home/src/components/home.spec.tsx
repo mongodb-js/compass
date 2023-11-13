@@ -35,7 +35,7 @@ const createDataService = () => ({
   getLastSeenTopology() {
     return {
       type: 'Unknown',
-      servers: [],
+      servers: ['localhost:27020'],
       setName: 'foo',
     };
   },
@@ -61,8 +61,6 @@ describe('Home [Component]', function () {
       'Collection.Workspace',
       'Database.Workspace',
       'Instance.Workspace',
-      'Sidebar.Component',
-      'Global.Shell',
     ].forEach((name) =>
       testAppRegistry.registerComponent(name, getComponent(name))
     );
