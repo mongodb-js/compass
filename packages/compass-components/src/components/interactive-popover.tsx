@@ -165,7 +165,7 @@ function InteractivePopover({
         popoverZIndex={popoverZIndex}
       >
         <FocusTrap
-          active={open && !hasCustomCloseButton}
+          active={open}
           focusTrapOptions={{
             clickOutsideDeactivates: true,
             // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
@@ -198,6 +198,11 @@ function InteractivePopover({
               >
                 <Icon glyph="X" />
               </IconButton>
+            )}
+            {hasCustomCloseButton && (
+              <button id={closeButtonId} className={css({ display: 'none' })}>
+                Not Visible
+              </button>
             )}
           </div>
         </FocusTrap>

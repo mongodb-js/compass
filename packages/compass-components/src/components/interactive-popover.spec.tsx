@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, prettyDOM } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -40,7 +40,7 @@ function renderPopover(
   );
 }
 
-describe('InteractivePopover Component', function () {
+describe.only('InteractivePopover Component', function () {
   afterEach(function () {
     cleanup();
   });
