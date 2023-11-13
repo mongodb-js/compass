@@ -11,7 +11,7 @@ export type Location = keyof typeof locations;
 export const CHANGE_LOCATION = 'sidebar/navigation/CHANGE_LOCATION' as const;
 interface ChangeLocationAction {
   type: typeof CHANGE_LOCATION;
-  location: Location;
+  location: Location | null;
 }
 export type LocationAction = ChangeLocationAction;
 export type LocationState = null | Location;
@@ -28,7 +28,9 @@ export default function reducer(
   return state;
 }
 
-export const changeLocation = (location: Location): ChangeLocationAction => ({
+export const changeLocation = (
+  location: Location | null
+): ChangeLocationAction => ({
   type: CHANGE_LOCATION,
   location,
 });

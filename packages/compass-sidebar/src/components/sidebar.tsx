@@ -21,6 +21,7 @@ import CSFLEConnectionModal from './csfle-connection-modal';
 import CSFLEMarker from './csfle-marker';
 import NonGenuineMarker from './non-genuine-marker';
 
+import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
@@ -43,6 +44,7 @@ export function Sidebar({
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
 }: {
@@ -53,6 +55,7 @@ export function Sidebar({
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
   setIsExpanded: (isExpanded: boolean) => void;
+  setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
@@ -140,13 +143,6 @@ export function Sidebar({
     setIsCSFLEModalVisible(!isCSFLEModalVisible);
   }, [setIsCSFLEModalVisible, isCSFLEModalVisible]);
 
-  const setConnectionIsCSFLEEnabled = useCallback(
-    (enabled: boolean) => {
-      globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
-    },
-    [globalAppRegistryEmit]
-  );
-
   return (
     <ResizableSidebar
       collapsable={true}
@@ -219,6 +215,7 @@ const MappedSidebar = connect(mapStateToProps, {
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
 })(Sidebar);
 
 export default MappedSidebar;
