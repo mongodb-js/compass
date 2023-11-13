@@ -1,13 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  render,
-  screen,
-  cleanup,
-  waitFor,
-  prettyDOM,
-} from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BulkUpdateDialog from './bulk-update-dialog';
 

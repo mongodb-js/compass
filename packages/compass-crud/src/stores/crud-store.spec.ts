@@ -2595,11 +2595,14 @@ describe('store', function () {
   describe('saveUpdateQuery', function () {
     const favoriteQueriesStorage: FavoriteQueryStorage =
       new FavoriteQueryStorage();
+
+    let saveQueryStub;
     let actions;
     let store;
 
     beforeEach(function () {
-      sinon.stub(favoriteQueriesStorage, 'saveQuery').resolves();
+      saveQueryStub = sinon.stub().resolves();
+      favoriteQueriesStorage.saveQuery = saveQueryStub;
 
       actions = configureActions();
       store = configureStore({
@@ -2620,7 +2623,7 @@ describe('store', function () {
       await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
       await store.saveUpdateQuery('my-query');
 
-      expect(favoriteQueriesStorage.saveQuery).to.have.been.calledWith({
+      expect(saveQueryStub).to.have.been.calledWith({
         _name: 'my-query',
         _ns: 'compass-crud.testview',
         filter: {
