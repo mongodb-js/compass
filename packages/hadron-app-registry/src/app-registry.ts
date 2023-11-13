@@ -282,8 +282,9 @@ export class AppRegistry {
   }
 
   deactivate() {
-    for (const plugin of Object.values(this.plugins)) {
+    for (const [name, plugin] of Object.entries(this.plugins)) {
       plugin.deactivate?.();
+      this.deregisterPlugin(name);
     }
     for (const event of this.eventNames()) {
       this.removeAllListeners(event);

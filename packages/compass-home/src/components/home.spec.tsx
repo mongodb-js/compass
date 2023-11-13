@@ -39,6 +39,9 @@ const createDataService = () => ({
       setName: 'foo',
     };
   },
+  configuredKMSProviders() {
+    return [];
+  },
   on() {},
   off() {},
 });

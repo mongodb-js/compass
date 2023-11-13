@@ -14,10 +14,7 @@ const debug = createDebug('hadron-app-registry:react');
  */
 export const GlobalAppRegistryContext = createContext(globalAppRegistry);
 
-/**
- * @internal exported for the mock plugin helper implementation
- */
-export const LocalAppRegistryContext = createContext<AppRegistry | null>(null);
+const LocalAppRegistryContext = createContext<AppRegistry | null>(null);
 
 type AppRegistryProviderProps =
   | {

@@ -2,15 +2,10 @@ import React, { useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import type { Actions } from './actions';
-import {
-  type Store,
-  AppRegistry,
-  isReduxStore,
-  globalAppRegistry,
-} from './app-registry';
+import { type Store, AppRegistry, isReduxStore } from './app-registry';
 import {
   GlobalAppRegistryContext,
-  LocalAppRegistryContext,
+  AppRegistryProvider,
   useGlobalAppRegistry,
   useLocalAppRegistry,
 } from './react-context';
@@ -229,8 +224,13 @@ export function registerHadronPlugin<
         mocks: Partial<Registries & Services<S>>
       ): React.FunctionComponent<T> {
         const {
-          globalAppRegistry: _globalAppRegistry,
-          localAppRegistry: _localAppRegistry,
+          // In case globalAppRegistry mock is not provided, we use the one
+          // created in scope so that plugins don't leak their events and
+          // registered metadata on the globalAppRegistry
+          globalAppRegistry = new AppRegistry(),
+          // If localAppRegistry is not explicitly provided, use the passed mock
+          // for global app registry instead
+          localAppRegistry = globalAppRegistry,
           ...mockServices
         } = mocks;
         const mockServiceLocators = Object.fromEntries(
@@ -241,16 +241,10 @@ export function registerHadronPlugin<
         const MockPlugin = registerHadronPlugin(config, mockServiceLocators);
         return function MockPluginWithContext(props: T) {
           return (
-            <GlobalAppRegistryContext.Provider
-              value={_globalAppRegistry ?? globalAppRegistry}
-            >
-              <LocalAppRegistryContext.Provider
-                value={
-                  _localAppRegistry ?? _globalAppRegistry ?? new AppRegistry()
-                }
-              >
+            <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+              <AppRegistryProvider localAppRegistry={localAppRegistry}>
                 <MockPlugin {...(props as any)}></MockPlugin>
-              </LocalAppRegistryContext.Provider>
+              </AppRegistryProvider>
             </GlobalAppRegistryContext.Provider>
           );
         };

@@ -11,7 +11,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 
-describe('DropNamespacePlugin', function () {
+describe('CreateNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
