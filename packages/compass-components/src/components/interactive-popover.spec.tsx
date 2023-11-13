@@ -40,7 +40,7 @@ function renderPopover(
   );
 }
 
-describe.only('InteractivePopover Component', function () {
+describe('InteractivePopover Component', function () {
   afterEach(function () {
     cleanup();
   });
