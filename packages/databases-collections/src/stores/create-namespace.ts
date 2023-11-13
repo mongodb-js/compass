@@ -73,7 +73,7 @@ export function activatePlugin(_: unknown, services: CreateNamespaceServices) {
   return {
     store,
     deactivate() {
-      instance.off('change:topologyDescription', onTopologyChange);
+      instance.removeListener('change:topologyDescription', onTopologyChange);
       globalAppRegistry.removeListener(
         'open-create-database',
         onOpenCreateDatabase
