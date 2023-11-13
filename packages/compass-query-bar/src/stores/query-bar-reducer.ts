@@ -215,7 +215,7 @@ type ApplyFromHistoryAction = {
 };
 
 export const applyFromHistory = (
-  query: BaseQuery
+  query: BaseQuery & { update?: Document }
 ): QueryBarThunkAction<Promise<void>, ApplyFromHistoryAction> => {
   return async (dispatch, getState, { globalAppRegistry }) => {
     dispatch({

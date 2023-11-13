@@ -77,12 +77,14 @@ export const documentEditorLabelContainerStyles = css(
   }
 );
 
+type QueryBarProperty = Exclude<QueryProperty, 'update'>;
+
 type QueryOptionProps = {
   id: string;
-  name: QueryProperty;
+  name: QueryBarProperty;
   value?: string;
   hasError: boolean;
-  onChange: (name: QueryProperty, value: string) => void;
+  onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
