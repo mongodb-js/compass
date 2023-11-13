@@ -93,14 +93,27 @@ function InteractivePopover({
     });
   }, [setOpen]);
 
-  const onClickTrigger = useCallback(() => {
-    if (open) {
-      onClose();
-      return;
-    }
+  const onClickTrigger = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (open) {
+        if (
+          containedElements.some((selector) => {
+            return document
+              .querySelector(selector)
+              ?.contains(event.target as Node);
+          })
+        ) {
+          return;
+        }
 
-    setOpen(!open);
-  }, [open, setOpen, onClose]);
+        onClose();
+        return;
+      }
+
+      setOpen(!open);
+    },
+    [open, setOpen, onClose, containedElements]
+  );
 
   // When the popover is open, close it when an item that isn't the popover
   // is clicked.
@@ -150,7 +163,7 @@ function InteractivePopover({
   const closeButtonId = useId('close-button-id');
 
   return trigger({
-    onClick: onClickTrigger,
+    onClick: onClickTrigger as any,
     ref: triggerRef,
     children: (
       <Popover

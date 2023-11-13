@@ -143,10 +143,7 @@ type InlineSaveQueryModalProps = {
   onSave: (name: string) => void;
 };
 
-const inlineSaveQueryModalContainedElements = [
-  '#inline-save-query-modal',
-  '#inline-save-query-modal-input',
-];
+const inlineSaveQueryModalContainedElements = ['#inline-save-query-modal *'];
 
 const InlineSaveQueryModal: React.FunctionComponent<
   InlineSaveQueryModalProps
@@ -197,6 +194,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
           <Button
             variant="default"
             onClick={onClick}
+            data-testid="inline-save-query-modal-opener"
             aria-haspopup="true"
             aria-expanded={open ? true : undefined}
           >
@@ -214,13 +212,19 @@ const InlineSaveQueryModal: React.FunctionComponent<
       <div id="inline-save-query-modal" className={inlineSaveQueryModalStyles}>
         <TextInput
           id="inline-save-query-modal-input"
+          data-testid="inline-save-query-modal-input"
           className={inlineSaveQueryModalInputStyles}
           aria-label="Saved query name"
           value={favoriteName}
           onChange={updateFavoriteName}
           onKeyUp={handleSpecialKeyboardEvents}
         />
-        <Button variant="primary" disabled={!valid} onClick={onClickSave}>
+        <Button
+          data-testid="inline-save-query-modal-submit"
+          variant="primary"
+          disabled={!valid}
+          onClick={onClickSave}
+        >
           Save
         </Button>
         <Button variant="default" onClick={cleanClose}>

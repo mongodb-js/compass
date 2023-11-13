@@ -893,7 +893,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { }}',
+        updateText: '{ $set: { } }',
       });
     });
 
@@ -928,7 +928,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { }}',
+        updateText: '{ $set: { } }',
       });
     });
   });
