@@ -216,13 +216,13 @@ describe('queryBarReducer', function () {
   });
 
   describe('applyFromHistory', function () {
-    it('should reset query to whatever was passed in the action', function () {
+    it('should reset query to whatever was passed in the action', async function () {
       const newQuery = {
         filter: { _id: 2 },
         sort: { _id: -1 },
       };
 
-      store.dispatch(applyFromHistory(newQuery));
+      await store.dispatch(applyFromHistory(newQuery));
 
       expect(store.getState().queryBar)
         .to.have.nested.property('fields.filter.value')

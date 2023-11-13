@@ -1,5 +1,5 @@
 import { isEmpty, isObject } from 'lodash';
-import { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 
 export const getQueryAttributes = ({
   filter,
