@@ -129,7 +129,10 @@ export class FavoriteQueryStorage extends QueryStorage<
   }
 
   async saveQuery(
-    data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
+    data: Omit<
+      z.input<typeof FavoriteQuerySchema>,
+      '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
+    >
   ): Promise<void> {
     const _id = new UUID().toString();
     const favoriteQuery = {
