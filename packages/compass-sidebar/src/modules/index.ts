@@ -43,7 +43,10 @@ import type { IsExpandedAction, IsExpandedState } from './is-expanded';
 import isExpanded, { INITIAL_STATE as IS_EXPANDED_IS } from './is-expanded';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { DataServiceAction, DataServiceState } from './data-service';
-import dataService, { INITIAL_STATE as DATA_SERVICE_IS } from './data-service';
+import dataService, {
+  INITIAL_STATE as DATA_SERVICE_IS,
+  SET_CSFLE_ENABLED,
+} from './data-service';
 
 export interface RootState {
   appRegistry: {
@@ -115,6 +118,10 @@ const rootReducer = (
       location: LOCATION_IS,
       isExpanded: IS_EXPANDED_IS,
     };
+  }
+  if (action.type === SET_CSFLE_ENABLED) {
+    const { globalAppRegistry } = state.appRegistry;
+    queueMicrotask(() => globalAppRegistry?.emit('refresh-data'));
   }
   return reducer(state, action);
 };
