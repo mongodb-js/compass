@@ -14,6 +14,7 @@ function renderPopover(
     <InteractivePopover
       className=""
       open={false}
+      hasCustomCloseButton={props?.hasCustomCloseButton}
       setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>
@@ -110,5 +111,15 @@ describe('InteractivePopover Component', function () {
     button.click();
     expect(openSpy.calledOnce).to.be.true;
     expect(openSpy.firstCall.firstArg).to.equal(false);
+  });
+
+  it('when open with a custom button, the general close button is not visible', function () {
+    renderPopover({
+      open: true,
+      hasCustomCloseButton: true,
+    });
+
+    expect(screen.queryByTestId('interactive-popover-close-button')).to.not
+      .exist;
   });
 });
