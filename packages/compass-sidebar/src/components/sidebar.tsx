@@ -44,6 +44,7 @@ export function Sidebar({
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
 }: {
@@ -54,6 +55,7 @@ export function Sidebar({
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
   setIsExpanded: (isExpanded: boolean) => void;
+  setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
@@ -140,13 +142,6 @@ export function Sidebar({
   const toggleCSFLEModalVisible = useCallback(() => {
     setIsCSFLEModalVisible(!isCSFLEModalVisible);
   }, [setIsCSFLEModalVisible, isCSFLEModalVisible]);
-
-  const setConnectionIsCSFLEEnabled = useCallback(
-    (enabled: boolean) => {
-      globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
-    },
-    [globalAppRegistryEmit]
-  );
 
   return (
     <ResizableSidebar
