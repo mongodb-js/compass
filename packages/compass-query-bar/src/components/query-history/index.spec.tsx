@@ -74,7 +74,7 @@ const renderQueryHistory = (basepath: string) => {
   const data = createStore(basepath);
   render(
     <Provider store={data.store}>
-      <QueryHistory />
+      <QueryHistory onUpdateFavoriteChoosen={() => {}} />
     </Provider>
   );
   return data;
