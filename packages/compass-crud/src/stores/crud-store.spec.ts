@@ -15,6 +15,7 @@ import configureStore, {
 import configureActions from '../actions';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
 
 chai.use(chaiAsPromised);
 
@@ -2588,6 +2589,47 @@ describe('store', function () {
         expect(find).to.have.been.calledOnce;
         expect(err).to.be.instanceOf(MongoServerError);
       }
+    });
+  });
+
+  describe('saveUpdateQuery', function () {
+    const favoriteQueriesStorage: FavoriteQueryStorage =
+      new FavoriteQueryStorage();
+    let actions;
+    let store;
+
+    beforeEach(function () {
+      sinon.stub(favoriteQueriesStorage, 'saveQuery').resolves();
+
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          dataProvider: dataService,
+        },
+        actions: actions,
+        namespace: 'compass-crud.testview',
+        noRefreshOnConfigure: true,
+        favoriteQueriesStorage: favoriteQueriesStorage,
+      });
+    });
+
+    it('should save the query once is submitted to save', async function () {
+      await store.onQueryChanged({ filter: { field: 1 } });
+      await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+      await store.saveUpdateQuery('my-query');
+
+      expect(favoriteQueriesStorage.saveQuery).to.have.been.calledWith({
+        _name: 'my-query',
+        _ns: 'compass-crud.testview',
+        filter: {
+          field: 1,
+        },
+        update: {
+          $set: { anotherField: 2 },
+        },
+      });
     });
   });
 });

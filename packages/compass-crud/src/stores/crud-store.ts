@@ -333,7 +333,7 @@ type CrudStoreOptions = {
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
-  favoriteQueriesStorage: FavoriteQueryStorage;
+  favoriteQueriesStorage?: FavoriteQueryStorage;
 };
 
 export type InsertCSFLEState = {
