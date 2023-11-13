@@ -77,13 +77,22 @@ const multilineContainerStyles = css({
 
 // We use custom color here so need to disable default one that we use
 // everywhere else
-const codeEditorStyles = css({
-  background: 'transparent !important',
+const codeEditorDarkStyles = css({
+  background: `${palette.gray.dark4} !important`,
   '& .cm-gutters': {
-    background: 'transparent !important',
+    background: `${palette.gray.dark4} !important`,
   },
   '& .cm-editor': {
-    background: 'transparent !important',
+    background: `${palette.gray.dark4} !important`,
+  },
+});
+const codeEditorLightStyles = css({
+  background: `${palette.gray.light3} !important`,
+  '& .cm-gutters': {
+    background: `${palette.gray.light3} !important`,
+  },
+  '& .cm-editor': {
+    background: `${palette.gray.light3} !important`,
   },
 });
 
@@ -218,7 +227,9 @@ export default function BulkUpdateDialog({
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
                 onBlur={() => ({})}
-                className={codeEditorStyles}
+                className={
+                  darkMode ? codeEditorDarkStyles : codeEditorLightStyles
+                }
                 annotations={annotations}
               />
 
