@@ -60,12 +60,13 @@ const FavoriteItem = ({
       onClick={onCardClick}
       data-testid="favorite-query-list-item"
       header={(isHovered: boolean) => (
-        <QueryItemHeading title={query._name} isHovered={isHovered}>
+        <QueryItemHeading title={query._name} isHovered={true}>
           <CopyActionButton
+            visible={isHovered}
             onClick={() => copyToClipboard(formatQuery(attributes))}
           />
-          <DeleteActionButton onClick={onDeleteClick} />
-          {isUpdateQuery && <OpensInModal />}
+          <DeleteActionButton visible={isHovered} onClick={onDeleteClick} />
+          <OpensInModal visible={isUpdateQuery} />
         </QueryItemHeading>
       )}
     >
