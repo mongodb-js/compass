@@ -2421,11 +2421,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
           throw err;
         }
       },
-      async (session) => {
-        if (session.inTransaction()) {
-          await session.abortTransaction();
-          await session.endSession();
-        }
+      async () => {
+        // Rely on the session being killed when we cancel the operation. It can
+        // take a few seconds before the driver reacts, but the Promise.race()
+        // against the abort signal should cause the UI to immediately be
+        // notified that the operation was cancelled. We don't abort the
+        // transaction or end the session as well because the code we run inside
+        // session.withTransaction() above would experience race conditions.
       },
       abortSignal
     );
