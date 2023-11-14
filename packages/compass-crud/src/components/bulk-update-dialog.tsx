@@ -173,7 +173,6 @@ const InlineSaveQueryModal: React.FunctionComponent<
   return (
     <InteractivePopover
       containedElements={inlineSaveQueryModalContainedElements}
-      // To prevent popover from closing when confirmation modal is shown
       trigger={({ onClick, children }) => {
         return (
           <Button
