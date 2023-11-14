@@ -95,10 +95,12 @@ const reducer: Reducer<CreateNamespaceState> = (
   }
   if (action.type === OPEN) {
     return {
-      ...INITIAL_STATE,
-      isVisible: true,
+      ...state,
       databaseName: action.databaseName,
-      serverVersion: state.serverVersion,
+      // Reset form related state on open
+      isRunning: false,
+      isVisible: true,
+      error: null,
     };
   }
   if (action.type === HANDLE_ERROR) {
