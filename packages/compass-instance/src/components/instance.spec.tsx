@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 
 import { InstanceComponent } from './instance';
+import { InstanceTabsProvider } from './instance-tabs-provider';
 
 const testText = 'Testing';
 
@@ -21,16 +22,17 @@ describe('Database [Component]', function () {
   describe('when status is ready', function () {
     beforeEach(function () {
       render(
-        <InstanceComponent
-          status="ready"
-          tabs={[ROLE]}
-          isDataLake={false}
-          error={null}
-          onTabClick={() => {
-            /* noop */
-          }}
-          activeTabId={0}
-        />
+        <InstanceTabsProvider tabs={[ROLE]}>
+          <InstanceComponent
+            instanceInfoLoadingStatus="ready"
+            isDataLake={false}
+            instanceInfoLoadingError={null}
+            onTabClick={() => {
+              /* noop */
+            }}
+            activeTabName={ROLE.name}
+          />
+        </InstanceTabsProvider>
       );
     });
 
@@ -43,14 +45,13 @@ describe('Database [Component]', function () {
     beforeEach(function () {
       render(
         <InstanceComponent
-          status="error"
-          tabs={[ROLE]}
+          instanceInfoLoadingStatus="error"
           isDataLake={false}
-          error="Pineapple"
+          instanceInfoLoadingError="Pineapple"
           onTabClick={() => {
             /* noop */
           }}
-          activeTabId={0}
+          activeTabName={null}
         />
       );
     });
