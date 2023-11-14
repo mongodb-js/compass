@@ -15,6 +15,7 @@ function renderPopover(
       className=""
       open={false}
       hasCustomCloseButton={props?.hasCustomCloseButton}
+      customTrapFallback={`#${innerContentTestId}`}
       setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>
@@ -30,6 +31,7 @@ function renderPopover(
         <button
           type="button"
           onClick={() => {}}
+          id={innerContentTestId}
           data-testid={innerContentTestId}
         >
           Action Button

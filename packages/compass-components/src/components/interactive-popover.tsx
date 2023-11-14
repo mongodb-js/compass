@@ -51,6 +51,7 @@ type InteractivePopoverProps = {
     children: React.ReactNode;
   }) => React.ReactElement;
   hasCustomCloseButton?: boolean;
+  customTrapFallback?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   /**
@@ -69,6 +70,7 @@ function InteractivePopover({
   children,
   trigger,
   hasCustomCloseButton = false,
+  customTrapFallback = undefined,
   open,
   setOpen,
   containedElements = [],
@@ -182,7 +184,7 @@ function InteractivePopover({
           focusTrapOptions={{
             clickOutsideDeactivates: true,
             // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
-            fallbackFocus: `#${closeButtonId}`,
+            fallbackFocus: customTrapFallback || `#${closeButtonId}`,
           }}
         >
           <div
@@ -211,11 +213,6 @@ function InteractivePopover({
               >
                 <Icon glyph="X" />
               </IconButton>
-            )}
-            {hasCustomCloseButton && (
-              <button id={closeButtonId} className={css({ display: 'none' })}>
-                Not Visible
-              </button>
             )}
           </div>
         </FocusTrap>
