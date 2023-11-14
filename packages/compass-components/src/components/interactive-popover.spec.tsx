@@ -15,7 +15,7 @@ function renderPopover(
       className=""
       open={false}
       hasCustomCloseButton={props?.hasCustomCloseButton}
-      customTrapFallback={`#${innerContentTestId}`}
+      customFocusTrapFallback={`#${innerContentTestId}`}
       setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>

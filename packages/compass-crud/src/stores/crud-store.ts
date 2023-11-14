@@ -1976,6 +1976,7 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
   // Set global app registry to get status actions.
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
+    const localAppRegistry = options.localAppRegistry;
 
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
     const instance = instanceStore.getState().instance;
@@ -2003,7 +2004,7 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       void store.refreshDocuments();
     });
 
-    globalAppRegistry.on(
+    localAppRegistry?.on(
       'favorites-open-bulk-update-favorite',
       (query: QueryState & { update: BSONObject }) => {
         void store.onQueryChanged(query);

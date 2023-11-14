@@ -217,14 +217,14 @@ type ApplyFromHistoryAction = {
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document }
 ): QueryBarThunkAction<Promise<void>, ApplyFromHistoryAction> => {
-  return async (dispatch, getState, { globalAppRegistry }) => {
+  return async (dispatch, getState, { localAppRegistry }) => {
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       query,
     } as ApplyFromHistoryAction);
 
     if (query.update) {
-      globalAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
+      localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
     }
 
     return Promise.resolve();
