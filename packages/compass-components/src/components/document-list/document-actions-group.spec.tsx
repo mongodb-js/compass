@@ -11,8 +11,8 @@ describe('DocumentActionsGroup', function () {
   it('should render Edit action', function () {
     const spy = Sinon.spy();
     render(<DocumentActionsGroup onEdit={spy}></DocumentActionsGroup>);
-    expect(screen.getByTitle('Edit document')).to.exist;
-    userEvent.click(screen.getByTitle('Edit document'), undefined, {
+    expect(screen.getByTestId('edit-document-button')).to.exist;
+    userEvent.click(screen.getByTestId('edit-document-button'), undefined, {
       // Leafygreen applies pointer-event: none to the element that renders
       // label inside the button, so even though click does work (the listener
       // is not attached to the button label), we have to enable this option
@@ -25,8 +25,8 @@ describe('DocumentActionsGroup', function () {
   it('should render Copy action', function () {
     const spy = Sinon.spy();
     render(<DocumentActionsGroup onCopy={spy}></DocumentActionsGroup>);
-    expect(screen.getByTitle('Copy document')).to.exist;
-    userEvent.click(screen.getByTitle('Copy document'), undefined, {
+    expect(screen.getByTestId('copy-document-button')).to.exist;
+    userEvent.click(screen.getByTestId('copy-document-button'), undefined, {
       // See above
       skipPointerEventsCheck: true,
     });
@@ -36,8 +36,8 @@ describe('DocumentActionsGroup', function () {
   it('should render Clone action', function () {
     const spy = Sinon.spy();
     render(<DocumentActionsGroup onClone={spy}></DocumentActionsGroup>);
-    expect(screen.getByTitle('Clone document')).to.exist;
-    userEvent.click(screen.getByTitle('Clone document'), undefined, {
+    expect(screen.getByTestId('clone-document-button')).to.exist;
+    userEvent.click(screen.getByTestId('clone-document-button'), undefined, {
       // See above
       skipPointerEventsCheck: true,
     });
@@ -47,8 +47,8 @@ describe('DocumentActionsGroup', function () {
   it('should render Remove action', function () {
     const spy = Sinon.spy();
     render(<DocumentActionsGroup onRemove={spy}></DocumentActionsGroup>);
-    expect(screen.getByTitle('Remove document')).to.exist;
-    userEvent.click(screen.getByTitle('Remove document'), undefined, {
+    expect(screen.getByTestId('remove-document-button')).to.exist;
+    userEvent.click(screen.getByTestId('remove-document-button'), undefined, {
       // See above
       skipPointerEventsCheck: true,
     });
@@ -63,8 +63,8 @@ describe('DocumentActionsGroup', function () {
         expanded={false}
       ></DocumentActionsGroup>
     );
-    expect(screen.getByTitle('Expand all')).to.exist;
-    userEvent.click(screen.getByTitle('Expand all'), undefined, {
+    expect(screen.getByTestId('expand-document-button')).to.exist;
+    userEvent.click(screen.getByTestId('expand-document-button'), undefined, {
       // See above
       skipPointerEventsCheck: true,
     });
