@@ -189,7 +189,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
         );
       }}
       align="top"
-      hasCustomCloseButton={true}
+      hideCloseButton={true}
       customFocusTrapFallback={'#inline-save-query-modal-cancel-button'}
       open={open}
       setOpen={setOpen}

@@ -50,7 +50,7 @@ type InteractivePopoverProps = {
     ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
-  hasCustomCloseButton?: boolean;
+  hideCloseButton?: boolean;
   customFocusTrapFallback?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -69,7 +69,7 @@ function InteractivePopover({
   className,
   children,
   trigger,
-  hasCustomCloseButton = false,
+  hideCloseButton = false,
   customFocusTrapFallback = undefined,
   open,
   setOpen,
@@ -95,14 +95,8 @@ function InteractivePopover({
     });
   }, [setOpen]);
 
-  const onClickTrigger: React.EventHandler<
-    React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>
-  > = useCallback(
-    (
-      event:
-        | React.MouseEvent<HTMLButtonElement>
-        | React.TouchEvent<HTMLButtonElement>
-    ) => {
+  const onClickTrigger = useCallback(
+    (event) => {
       if (open) {
         if (
           containedElements.some((selector) => {
@@ -205,7 +199,7 @@ function InteractivePopover({
           >
             {children}
 
-            {!hasCustomCloseButton && (
+            {!hideCloseButton && (
               <IconButton
                 className={cx(closeButtonStyles, closeButtonClassName)}
                 data-testid="interactive-popover-close-button"

@@ -14,7 +14,7 @@ function renderPopover(
     <InteractivePopover
       className=""
       open={false}
-      hasCustomCloseButton={props?.hasCustomCloseButton}
+      hideCloseButton={props?.hideCloseButton}
       customFocusTrapFallback={`#${innerContentTestId}`}
       setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
@@ -118,7 +118,7 @@ describe('InteractivePopover Component', function () {
   it('when open with a custom button, the general close button is not visible', function () {
     renderPopover({
       open: true,
-      hasCustomCloseButton: true,
+      hideCloseButton: true,
     });
 
     expect(screen.queryByTestId('interactive-popover-close-button')).to.not
