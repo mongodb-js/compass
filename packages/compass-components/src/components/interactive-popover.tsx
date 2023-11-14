@@ -95,8 +95,14 @@ function InteractivePopover({
     });
   }, [setOpen]);
 
-  const onClickTrigger = useCallback(
-    (event: MouseEvent | TouchEvent) => {
+  const onClickTrigger: React.EventHandler<
+    React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>
+  > = useCallback(
+    (
+      event:
+        | React.MouseEvent<HTMLButtonElement>
+        | React.TouchEvent<HTMLButtonElement>
+    ) => {
       if (open) {
         if (
           containedElements.some((selector) => {
@@ -165,7 +171,7 @@ function InteractivePopover({
   const closeButtonId = useId('close-button-id');
 
   return trigger({
-    onClick: onClickTrigger as any,
+    onClick: onClickTrigger,
     ref: triggerRef,
     children: (
       <Popover
