@@ -1,6 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
-import { DropNamespaceComponent, activatePlugin } from './drop-namespace';
+import { DropNamespacePlugin } from '../index';
 import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
 import { render, cleanup, screen, waitFor } from '@testing-library/react';
@@ -14,19 +14,17 @@ describe('DropNamespacePlugin', function () {
     dropDatabase: sandbox.stub().resolves(true),
     dropCollection: sandbox.stub().resolves(true),
   };
-  const logger = { track: sandbox.stub() };
 
   beforeEach(function () {
-    render(<DropNamespaceComponent></DropNamespaceComponent>);
-    activatePlugin(
-      {},
-      { globalAppRegistry: appRegistry, dataService, logger: logger as any }
-    );
+    const Plugin = DropNamespacePlugin.withMockServices({
+      globalAppRegistry: appRegistry,
+      dataService,
+    });
+    render(<Plugin></Plugin>);
   });
 
   afterEach(function () {
     sandbox.resetHistory();
-    appRegistry.deactivate();
     cleanup();
   });
 
