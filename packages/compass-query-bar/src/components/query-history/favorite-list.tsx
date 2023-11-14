@@ -34,17 +34,20 @@ const FavoriteItem = ({
 }: FavoriteActions & {
   query: FavoriteQuery;
 }) => {
+  const isUpdateQuery = useMemo(() => !!query.update, [query]);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
   const onCardClick = useCallback(() => {
     track('Query History Favorite Used', {
       id: query._id,
       screen: 'documents',
     });
-    onUpdateFavoriteChoosen();
-    onApply(attributes);
-  }, [onApply, onUpdateFavoriteChoosen, query._id, attributes]);
 
-  const isUpdateQuery = useMemo(() => !!query.update, [query]);
+    if (isUpdateQuery) {
+      onUpdateFavoriteChoosen();
+    }
+
+    onApply(attributes);
+  }, [onApply, onUpdateFavoriteChoosen, query._id, attributes, isUpdateQuery]);
 
   const onDeleteClick = useCallback(() => {
     track('Query History Favorite Removed', {
@@ -67,7 +70,9 @@ const FavoriteItem = ({
             />
           )}
           {isHovered && <DeleteActionButton onClick={onDeleteClick} />}
-          <OpenBulkUpdateActionButton onClick={onCardClick} />
+          {isUpdateQuery && (
+            <OpenBulkUpdateActionButton onClick={onCardClick} />
+          )}
         </QueryItemHeading>
       )}
     >
