@@ -1970,13 +1970,24 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
 
     localAppRegistry.on('fields-changed', store.updateFields.bind(store));
 
+    localAppRegistry.on(
+      'favorites-open-bulk-update-favorite',
+      (query: QueryState & { update: BSONObject }) => {
+        void store.onQueryChanged(query);
+        void store.refreshDocuments();
+        void store.openBulkUpdateDialog();
+        void store.updateBulkUpdatePreview(
+          toJSString(query.update) || '{ $set: { } }'
+        );
+      }
+    );
+
     setLocalAppRegistry(store, options.localAppRegistry);
   }
 
   // Set global app registry to get status actions.
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
-    const localAppRegistry = options.localAppRegistry;
 
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
     const instance = instanceStore.getState().instance;
@@ -2003,18 +2014,6 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     globalAppRegistry.on('refresh-data', () => {
       void store.refreshDocuments();
     });
-
-    localAppRegistry?.on(
-      'favorites-open-bulk-update-favorite',
-      (query: QueryState & { update: BSONObject }) => {
-        void store.onQueryChanged(query);
-        void store.refreshDocuments();
-        void store.openBulkUpdateDialog();
-        void store.updateBulkUpdatePreview(
-          toJSString(query.update) || '{ $set: { } }'
-        );
-      }
-    );
 
     globalAppRegistry.on('import-finished', ({ ns }) => {
       if (ns === store.state.ns) {
