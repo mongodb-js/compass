@@ -63,9 +63,7 @@ const codeContainerStyles = css({
   paddingBottom: spacing[2],
 });
 
-const codeDarkContainerStyles = css({
-  background: palette.gray.dark4,
-});
+const codeDarkContainerStyles = css({});
 
 const codeLightContainerStyles = css({
   backgroundColor: palette.gray.light3,
