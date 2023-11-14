@@ -30,7 +30,6 @@ import type {
   RecentQuery,
   FavoriteQuery,
 } from '@mongodb-js/my-queries-storage';
-import { globalAppRegistry } from 'hadron-app-registry';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {
