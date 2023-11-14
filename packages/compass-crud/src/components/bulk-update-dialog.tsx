@@ -191,6 +191,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
       }}
       align="top"
       hasCustomCloseButton={true}
+      customTrapFallback={'#inline-save-query-modal-cancel-button'}
       open={open}
       setOpen={setOpen}
     >
@@ -212,7 +213,11 @@ const InlineSaveQueryModal: React.FunctionComponent<
         >
           Save
         </Button>
-        <Button variant="default" onClick={cleanClose}>
+        <Button
+          id="inline-save-query-modal-cancel-button"
+          variant="default"
+          onClick={cleanClose}
+        >
           Cancel
         </Button>
       </div>

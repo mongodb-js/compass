@@ -64,7 +64,9 @@ const QueryHistoryButtonPopover = ({
     [onOpenPopover]
   );
 
-  const closePopover = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const closePopover = useCallback(() => {
+    setIsOpen(false);
+  }, [setIsOpen]);
 
   return (
     <InteractivePopover

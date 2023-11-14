@@ -30,6 +30,7 @@ import type {
   RecentQuery,
   FavoriteQuery,
 } from '@mongodb-js/my-queries-storage';
+import { globalAppRegistry } from 'hadron-app-registry';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {
@@ -217,14 +218,14 @@ type ApplyFromHistoryAction = {
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document }
 ): QueryBarThunkAction<Promise<void>, ApplyFromHistoryAction> => {
-  return async (dispatch, getState, { localAppRegistry }) => {
+  return async (dispatch, getState, { globalAppRegistry }) => {
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       query,
     } as ApplyFromHistoryAction);
 
     if (query.update) {
-      localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
+      globalAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
     }
 
     return Promise.resolve();
