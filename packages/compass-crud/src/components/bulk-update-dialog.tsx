@@ -75,27 +75,6 @@ const multilineContainerStyles = css({
   maxHeight: spacing[4] * 20,
 });
 
-// We use custom color here so need to disable default one that we use
-// everywhere else
-const codeEditorDarkStyles = css({
-  background: `${palette.gray.dark4} !important`,
-  '& .cm-gutters': {
-    background: `${palette.gray.dark4} !important`,
-  },
-  '& .cm-editor': {
-    background: `${palette.gray.dark4} !important`,
-  },
-});
-const codeEditorLightStyles = css({
-  background: `${palette.gray.light3} !important`,
-  '& .cm-gutters': {
-    background: `${palette.gray.light3} !important`,
-  },
-  '& .cm-editor': {
-    background: `${palette.gray.light3} !important`,
-  },
-});
-
 const bannerContainerStyles = css({
   // don't jump when an error appears
   minHeight: spacing[4] * 2 + 2,
@@ -227,9 +206,6 @@ export default function BulkUpdateDialog({
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
                 onBlur={() => ({})}
-                className={
-                  darkMode ? codeEditorDarkStyles : codeEditorLightStyles
-                }
                 annotations={annotations}
               />
 
