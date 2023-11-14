@@ -113,16 +113,12 @@ const fallbackContainer = css({
   right: 0,
   bottom: 0,
   left: 0,
-  opacity: 0,
-  transition: 'opacity display .16s ease-out',
   pointerEvents: 'none',
   display: 'none',
 });
 
 const fallbackContainerVisible = css({
-  opacity: 1,
   display: 'block',
-  transitionTimingFunction: 'ease-in',
 });
 
 type FadeInPlaceholderProps = {
