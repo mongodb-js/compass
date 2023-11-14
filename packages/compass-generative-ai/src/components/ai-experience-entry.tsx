@@ -16,6 +16,12 @@ import {
   aiEntrySVGStyles,
 } from './ai-entry-svg';
 
+const hiddenOnNarrowStyles = css({
+  [`@container compass-workspace-container (width < 900px)`]: {
+    display: 'none',
+  },
+});
+
 const aiEntryStyles = css(
   {
     // Reset button styles.
@@ -98,7 +104,7 @@ function AIExperienceEntry({
       data-testid={dataTestId}
       type="button"
     >
-      Generate {type}
+      <span className={hiddenOnNarrowStyles}>Generate {type}</span>
       <AIEntrySVG darkMode={darkMode} />
     </button>
   );
