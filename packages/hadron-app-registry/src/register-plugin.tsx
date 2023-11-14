@@ -2,8 +2,13 @@ import React, { useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import type { Actions } from './actions';
-import { type Store, type AppRegistry, isReduxStore } from './app-registry';
-import { useGlobalAppRegistry, useLocalAppRegistry } from './react-context';
+import { type Store, AppRegistry, isReduxStore } from './app-registry';
+import {
+  GlobalAppRegistryContext,
+  AppRegistryProvider,
+  useGlobalAppRegistry,
+  useLocalAppRegistry,
+} from './react-context';
 
 function LegacyRefluxProvider({
   store,
@@ -78,8 +83,29 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
   };
 };
 
-export type HadronPluginComponent<T> = React.FunctionComponent<T> & {
+export type HadronPluginComponent<
+  T,
+  S extends Record<string, () => unknown>
+> = React.FunctionComponent<T> & {
   displayName: string;
+  /**
+   * Convenience method for testing: allows to override services and app
+   * registries available in the plugin context
+   *
+   * @example
+   * const PluginWithLogger = registerHadronPlugin({ ... }, { logger: loggerLocator });
+   *
+   * const MockPlugin = PluginWithLogger.withMockServices({ logger: Sinon.stub() });
+   *
+   * @param mocks Overrides for the services locator values and registries
+   *              passed to the plugin in runtime. When `globalAppRegistry`
+   *              override is passed, it will be also used for the
+   *              localAppRegistry override unless `localAppRegistry` is also
+   *              explicitly passed as a mock service.
+   */
+  withMockServices(
+    mocks: Partial<Registries & Services<S>>
+  ): React.FunctionComponent<T>;
 };
 
 /**
@@ -138,7 +164,7 @@ export type HadronPluginComponent<T> = React.FunctionComponent<T> & {
 export function registerHadronPlugin<
   T,
   S extends Record<string, () => unknown>
->(config: HadronPluginConfig<T, S>, services?: S): HadronPluginComponent<T> {
+>(config: HadronPluginConfig<T, S>, services?: S): HadronPluginComponent<T, S> {
   const Component = config.component;
   const registryName = `${config.name}.Plugin`;
 
@@ -194,6 +220,35 @@ export function registerHadronPlugin<
     },
     {
       displayName: config.name,
+      withMockServices(
+        mocks: Partial<Registries & Services<S>>
+      ): React.FunctionComponent<T> {
+        const {
+          // In case globalAppRegistry mock is not provided, we use the one
+          // created in scope so that plugins don't leak their events and
+          // registered metadata on the globalAppRegistry
+          globalAppRegistry = new AppRegistry(),
+          // If localAppRegistry is not explicitly provided, use the passed mock
+          // for global app registry instead
+          localAppRegistry = globalAppRegistry,
+          ...mockServices
+        } = mocks;
+        const mockServiceLocators = Object.fromEntries(
+          Object.keys(services ?? {}).map((s) => {
+            return [s, mockServices[s] ? () => mockServices[s] : services?.[s]];
+          })
+        ) as unknown as S;
+        const MockPlugin = registerHadronPlugin(config, mockServiceLocators);
+        return function MockPluginWithContext(props: T) {
+          return (
+            <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+              <AppRegistryProvider localAppRegistry={localAppRegistry}>
+                <MockPlugin {...(props as any)}></MockPlugin>
+              </AppRegistryProvider>
+            </GlobalAppRegistryContext.Provider>
+          );
+        };
+      },
     }
   );
 }
