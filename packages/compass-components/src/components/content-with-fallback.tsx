@@ -114,12 +114,14 @@ const fallbackContainer = css({
   bottom: 0,
   left: 0,
   opacity: 0,
-  transition: 'opacity .16s ease-out',
+  transition: 'opacity display .16s ease-out',
   pointerEvents: 'none',
+  display: 'none',
 });
 
 const fallbackContainerVisible = css({
   opacity: 1,
+  display: 'block',
   transitionTimingFunction: 'ease-in',
 });
 
