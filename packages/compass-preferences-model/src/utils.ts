@@ -51,30 +51,21 @@ export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
 export function isAIFeatureEnabled(
   preferences: Pick<
     AllPreferences,
-    | 'enableGenAIFeatures'
-    | 'enableGenAIExperience'
-    | 'cloudFeatureRolloutAccess'
+    'enableGenAIFeatures' | 'cloudFeatureRolloutAccess'
   > = preferencesAccess.getPreferences()
 ) {
   const {
     // a "kill switch" property from configuration file to be able to disable
     // feature in global config
     enableGenAIFeatures,
-    // feature flag
-    enableGenAIExperience,
     // based on mms backend rollout response
     cloudFeatureRolloutAccess,
   } = preferences;
-  return (
-    enableGenAIFeatures &&
-    enableGenAIExperience &&
-    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
-  );
+  return enableGenAIFeatures && !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
 }
 
 export function useIsAIFeatureEnabled(React: ReactHooks) {
   const enableGenAIFeatures = usePreference('enableGenAIFeatures', React);
-  const enableGenAIExperience = usePreference('enableGenAIExperience', React);
   const cloudFeatureRolloutAccess = usePreference(
     'cloudFeatureRolloutAccess',
     React
@@ -82,7 +73,6 @@ export function useIsAIFeatureEnabled(React: ReactHooks) {
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,
-    enableGenAIExperience,
     cloudFeatureRolloutAccess,
   });
 }
