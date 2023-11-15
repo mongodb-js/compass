@@ -156,7 +156,7 @@
     "depcheck": "depcheck",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "repository": {
     "type": "git",
