@@ -73,4 +73,5 @@ const Tooltip: React.FunctionComponent<TooltipProps> = ({
   );
 };
 
-export { Tooltip, TooltipProps };
+export type { TooltipProps };
+export { Tooltip };

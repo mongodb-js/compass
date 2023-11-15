@@ -1,21 +1,23 @@
 import connect from './connect';
-import { ConnectionOptions, ConnectionSshOptions } from './connection-options';
-import {
+import type {
+  ConnectionOptions,
+  ConnectionSshOptions,
+} from './connection-options';
+import type {
   DataService,
   UpdatePreview,
   UpdatePreviewChange,
 } from './data-service';
 import { configuredKMSProviders } from './instance-detail-helper';
 
-export {
+export type {
   ConnectionOptions,
   ConnectionSshOptions,
   DataService,
-  connect,
-  configuredKMSProviders,
   UpdatePreview,
   UpdatePreviewChange,
 };
+export { connect, configuredKMSProviders };
 
 export type { ReauthenticationHandler } from './connect-mongo-client';
 export type { ExplainExecuteOptions } from './data-service';
