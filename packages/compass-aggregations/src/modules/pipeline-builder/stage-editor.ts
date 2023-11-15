@@ -744,6 +744,40 @@ export const updateWizardValue = (
   };
 };
 
+const formatWizardValue = (value?: string): string => {
+  if (!value) {
+    return '';
+  }
+
+  // Each wizard forms are currently in charge of building and providing the stage content as
+  // a string, however they are not also completely formatting them.
+  //
+  // In order to centralize the prettification and indentation of the
+  // code produced, without making too many assumptions on the content
+  // we first try to re-parse them as JSON to properly indent the code, and then
+  // we attempt to prettify, giving up on malformed strings, to
+  // allow wizards create arbitrary strings.
+  //
+  // NOTE: this is a good candidate for refactor unless we are going to really take advantage of
+  // this relaxed contract between the forms and the rest of the code based on strings,
+  // we would rather benefit from more clear types and being able to make assumptions
+  // on the structure of generated stages.
+
+  let reIndented = value;
+  try {
+    reIndented = JSON.stringify(JSON.parse(value), null, 2);
+  } catch (e) {
+    // not valid json
+  }
+
+  try {
+    return prettify(reIndented);
+  } catch (e) {
+    // not valid js (ie. the generated stage has placeholders for the user to fill etc ..)
+    return reIndented;
+  }
+};
+
 export const convertWizardToStage = (
   at: number
 ): PipelineBuilderThunkAction<
@@ -778,7 +812,8 @@ export const convertWizardToStage = (
     const afterStageIndex = storeIndexToPipelineIndex(stages, at);
     const stage = pipelineBuilder.addStage(afterStageIndex);
     stage.changeOperator(itemAtIdx.stageOperator);
-    stage.changeValue(prettify(itemAtIdx.value as string));
+
+    stage.changeValue(formatWizardValue(itemAtIdx.value as string));
 
     track('Aggregation Edited', {
       num_stages: pipelineFromStore(stages).length + 1,
