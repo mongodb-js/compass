@@ -88,6 +88,15 @@ describe('ConnectionStorage', function () {
   });
 
   describe('migrateToSafeStorage', function () {
+    let sandbox: Sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = Sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
     context('does not migrate connections', function () {
       it('when there are no connections', async function () {
         await ConnectionStorage.migrateToSafeStorage();
@@ -98,13 +107,13 @@ describe('ConnectionStorage', function () {
       it('when there are only legacy connections', async function () {
         await writeFakeConnection(tmpDir, connection1270);
 
-        const encryptSecretsSpy = Sinon.spy(
+        const encryptSecretsSpy = sandbox.spy(
           ConnectionStorage,
-          'encryptSecrets'
+          <any>'encryptSecrets'
         );
-        const getKeytarCredentialsSpy = Sinon.spy(
+        const getKeytarCredentialsSpy = sandbox.spy(
           ConnectionStorage,
-          'getKeytarCredentials'
+          <any>'getKeytarCredentials'
         );
 
         await ConnectionStorage.migrateToSafeStorage();
@@ -134,13 +143,13 @@ describe('ConnectionStorage', function () {
           version: 1,
         });
 
-        const encryptSecretsSpy = Sinon.spy(
+        const encryptSecretsSpy = sandbox.spy(
           ConnectionStorage,
-          'encryptSecrets'
+          <any>'encryptSecrets'
         );
-        const getKeytarCredentialsSpy = Sinon.spy(
+        const getKeytarCredentialsSpy = sandbox.spy(
           ConnectionStorage,
-          'getKeytarCredentials'
+          <any>'getKeytarCredentials'
         );
 
         await ConnectionStorage.migrateToSafeStorage();
@@ -188,26 +197,20 @@ describe('ConnectionStorage', function () {
           connectionInfo: connectionInfo2,
         });
 
-        // Keytar fake
-        Sinon.replace(
-          ConnectionStorage,
-          'getKeytarCredentials',
-          Sinon.fake.returns({
-            [connectionInfo1.id]: {
-              password: 'password1',
-            },
-            [connectionInfo2.id]: {
-              password: 'password2',
-            },
-          })
-        );
+        // Keytar stub
+        sandbox.stub(ConnectionStorage, <any>'getKeytarCredentials').returns({
+          [connectionInfo1.id]: {
+            password: 'password1',
+          },
+          [connectionInfo2.id]: {
+            password: 'password2',
+          },
+        });
 
-        // safeStorage.encryptString fake
-        Sinon.replace(
-          ConnectionStorage,
-          'encryptSecrets',
-          Sinon.fake.returns('encrypted-password')
-        );
+        // safeStorage.encryptString stub
+        sandbox
+          .stub(ConnectionStorage, <any>'encryptSecrets')
+          .returns('encrypted-password');
 
         await ConnectionStorage.migrateToSafeStorage();
 
@@ -244,11 +247,9 @@ describe('ConnectionStorage', function () {
         });
 
         // Keytar fake
-        Sinon.replace(
-          ConnectionStorage,
-          'getKeytarCredentials',
-          Sinon.fake.returns({})
-        );
+        sandbox
+          .stub(ConnectionStorage, <any>'getKeytarCredentials')
+          .returns({});
 
         // Since there're no secrets in keychain, we do not expect to call safeStorage.encryptString
         // and connection.connectionSecrets should be undefined
@@ -288,12 +289,10 @@ describe('ConnectionStorage', function () {
           connectionInfo: connectionInfo2,
         });
 
-        // Keytar fake
-        Sinon.replace(
-          ConnectionStorage,
-          'getKeytarCredentials',
-          Sinon.fake.returns({})
-        );
+        // Keytar stub
+        sandbox
+          .stub(ConnectionStorage, <any>'getKeytarCredentials')
+          .returns({});
 
         await ConnectionStorage.migrateToSafeStorage();
 
