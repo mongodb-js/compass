@@ -86,6 +86,8 @@ class CompassApplication {
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
 
+    await ConnectionStorage.migrateToSafeStorage();
+
     if (mode === 'CLI') {
       return;
     }
