@@ -1502,7 +1502,9 @@ describe('Collection aggregations tab', function () {
       const stageContent = await browser
         .$(Selectors.stageContent(oldLength))
         .getText();
-      expect(stageContent).to.equal('{ name: 1 }');
+      expect(stageContent).to.equal(`{
+  name: 1,
+}`);
     });
   });
 
