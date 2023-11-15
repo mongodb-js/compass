@@ -43,8 +43,7 @@ import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import {
-  CreateDatabasePlugin,
-  CreateCollectionPlugin,
+  CreateNamespacePlugin,
   DropNamespacePlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
@@ -361,6 +360,7 @@ function Home({
               <ImportPlugin></ImportPlugin>
               <ExportPlugin></ExportPlugin>
               <CreateViewPlugin></CreateViewPlugin>
+              <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <Workspace
                 namespace={namespace}
@@ -391,8 +391,6 @@ function Home({
       </div>
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
-      <CreateDatabasePlugin></CreateDatabasePlugin>
-      <CreateCollectionPlugin></CreateCollectionPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );

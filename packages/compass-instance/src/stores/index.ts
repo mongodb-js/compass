@@ -1,115 +1,126 @@
+import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware } from 'redux';
-import appRegistryReducer from '@mongodb-js/mongodb-redux-common/app-registry';
 import type AppRegistry from 'hadron-app-registry';
-import type { Role } from 'hadron-app-registry';
-import type { Store, AnyAction } from 'redux';
+import type { AnyAction, Reducer, Action } from 'redux';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
-type State = {
-  appRegistry: {
-    localAppRegistry: AppRegistry | null;
-    globalAppRegistry: AppRegistry | null;
-  };
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  error: string | null;
+export type State = {
+  activeTabName: string | null;
+  instanceInfoLoadingStatus: MongoDBInstance['status'];
+  instanceInfoLoadingError: string | null;
   isDataLake: boolean;
-  activeTabId: number;
-  tabs: Role[];
 };
 
-const INITIAL_STATE: State = {
-  appRegistry: {
-    localAppRegistry: null,
-    globalAppRegistry: null,
-  },
-  status: 'initial',
-  error: null,
+const INITIAL_STATE = {
+  activeTabName: null,
+  instanceInfoLoadingStatus: 'initial',
+  instanceInfoLoadingError: null,
   isDataLake: false,
-  activeTabId: 0,
-  tabs: [],
 };
 
-function reducer(
-  state: State = { ...INITIAL_STATE },
-  action: AnyAction
-): State {
-  // Bit of a hacky way to be able to use the mongodb-redux-common/app-registry
-  // reducer without converting this entire package to the combineReducers()
-  // pattern.
-  state.appRegistry = appRegistryReducer(state.appRegistry, action);
+type InstanceWorkspaceThunkAction<
+  R,
+  A extends Action = AnyAction
+> = ThunkAction<
+  R,
+  State,
+  Pick<InstanceWorkspaceServices, 'globalAppRegistry'>,
+  A
+>;
 
-  switch (action.type) {
-    case 'app-registry-activated':
-      return {
-        ...state,
-        tabs: action.appRegistry.getRole('Instance.Tab') ?? [],
-      };
-    case 'instance-status-change':
-      return {
-        ...state,
-        status: action.instance.status,
-        error: action.instance.statusError,
-        isDataLake: action.instance.dataLake.isDataLake,
-      };
-    case 'reset':
-      return {
-        ...state,
-        ...INITIAL_STATE,
-        appRegistry: state.appRegistry,
-        tabs:
-          state.appRegistry.globalAppRegistry?.getRole('Instance.Tab') ?? [],
-      };
-    case 'change-tab':
-      return { ...state, activeTabId: action.id };
-    default:
-      return state;
+type InstanceWorkspaceServices = {
+  globalAppRegistry: AppRegistry;
+  instance: MongoDBInstance;
+};
+
+const CHANGE_TAB = 'change-tab';
+
+export const changeTab = (tabName: string) => {
+  return { type: CHANGE_TAB, tabName };
+};
+
+export const emitChangeTab = (
+  tabName: string
+): InstanceWorkspaceThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    // By emitting open-instance-workspace rather than change-tab directly,
+    // the clicks on the tabs work the same way compared to when we select a
+    // tab from the outside. That way things like the sidebar can be aware
+    // that the instance tab is changing.
+    //
+    // TODO(COMPASS-7354): Will go away with workspaces plugin
+    globalAppRegistry.emit('open-instance-workspace', tabName);
+  };
+};
+
+const MONGODB_INSTANCE_INFO_STATUS_CHANGED =
+  'mongodb-instance-info-status-changed';
+
+const instanceInfoStatusChanged = (instance: MongoDBInstance) => {
+  return {
+    type: MONGODB_INSTANCE_INFO_STATUS_CHANGED,
+    status: instance.status,
+    error: instance.statusError,
+    isDataLake: instance.dataLake.isDataLake,
+  };
+};
+
+const reducer: Reducer<State> = (state = { ...INITIAL_STATE }, action) => {
+  if (action.type === CHANGE_TAB) {
+    return {
+      ...state,
+      activeTabName: action.tabName,
+    };
   }
+
+  if (action.type === MONGODB_INSTANCE_INFO_STATUS_CHANGED) {
+    return {
+      ...state,
+      instanceInfoLoadingStatus: action.status,
+      instanceInfoLoadingError: action.error,
+      isDataLake: action.isDataLake,
+    };
+  }
+
+  return state;
+};
+
+export function activatePlugin(
+  _: unknown,
+  { globalAppRegistry, instance }: InstanceWorkspaceServices
+) {
+  const store = createStore(
+    reducer,
+    {
+      ...INITIAL_STATE,
+      isDataLake: instance.dataLake.isDataLake,
+      instanceInfoLoadingStatus: instance.status,
+      instanceInfoLoadingError: instance.statusError,
+    },
+    applyMiddleware(thunk.withExtraArgument({ globalAppRegistry }))
+  );
+
+  const onOpenInstanceWorkspace = (tabName: string) => {
+    store.dispatch(changeTab(tabName));
+  };
+
+  globalAppRegistry.on('open-instance-workspace', onOpenInstanceWorkspace);
+
+  const onInstanceStatusChanged = () => {
+    store.dispatch(instanceInfoStatusChanged(instance));
+  };
+
+  instance.on('change:status', onInstanceStatusChanged);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener(
+        'open-instance-workspace',
+        onOpenInstanceWorkspace
+      );
+      instance.removeListener('change:status', onInstanceStatusChanged);
+    },
+  };
 }
-
-const _store = createStore(reducer, applyMiddleware(thunk));
-
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
-
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
-
-export type RootActions = StoreActions<typeof _store>;
-
-export type RootState = StoreState<typeof _store>;
-
-const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
-    store.dispatch({
-      type: 'app-registry-activated',
-      appRegistry: globalAppRegistry,
-    });
-    store.dispatch(
-      appRegistryReducer.globalAppRegistryActivated(globalAppRegistry)
-    );
-
-    globalAppRegistry.on('instance-created', ({ instance }) => {
-      store.dispatch({ type: 'instance-status-change', instance });
-      instance.on('change:status', () => {
-        store.dispatch({ type: 'instance-status-change', instance });
-      });
-    });
-
-    globalAppRegistry.on('instance-destroyed', () => {
-      store.dispatch({ type: 'reset' });
-    });
-
-    globalAppRegistry.on('open-instance-workspace', (tabName: string) => {
-      if (!tabName) {
-        store.dispatch({ type: 'change-tab', id: 0 });
-      } else {
-        const id = store
-          .getState()
-          .tabs.findIndex((tab) => tab.name === tabName);
-        if (id !== -1) {
-          store.dispatch({ type: 'change-tab', id });
-        }
-      }
-    });
-  },
-});
-
-export default store;

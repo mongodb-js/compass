@@ -63,9 +63,7 @@ const codeContainerStyles = css({
   paddingBottom: spacing[2],
 });
 
-const codeDarkContainerStyles = css({
-  background: palette.gray.dark4,
-});
+const codeDarkContainerStyles = css({});
 
 const codeLightContainerStyles = css({
   backgroundColor: palette.gray.light3,
@@ -73,18 +71,6 @@ const codeLightContainerStyles = css({
 
 const multilineContainerStyles = css({
   maxHeight: spacing[4] * 20,
-});
-
-// We use custom color here so need to disable default one that we use
-// everywhere else
-const codeEditorStyles = css({
-  background: 'transparent !important',
-  '& .cm-gutters': {
-    background: 'transparent !important',
-  },
-  '& .cm-editor': {
-    background: 'transparent !important',
-  },
 });
 
 const bannerContainerStyles = css({
@@ -218,7 +204,6 @@ export default function BulkUpdateDialog({
                 id="bulk-update-update"
                 data-testid="bulk-update-update"
                 onBlur={() => ({})}
-                className={codeEditorStyles}
                 annotations={annotations}
               />
 
