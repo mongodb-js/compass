@@ -1,12 +1,13 @@
-import { css, cx, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 import React from 'react';
-
-const containerQueryName = 'pipeline-toolbar-container';
 
 const containerStyles = css({
   padding: spacing[3],
-  containerName: containerQueryName,
-  containerType: 'inline-size',
 });
 
 const containerDisplayStyles = css({
@@ -19,7 +20,7 @@ const containerDisplayStyles = css({
 });
 
 export const hiddenOnNarrowPipelineToolbarStyles = css({
-  [`@container ${containerQueryName} (width < 900px)`]: {
+  [`@container ${WorkspaceContainer.containerQueryName} (width < 900px)`]: {
     display: 'none',
   },
 });
