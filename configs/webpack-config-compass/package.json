@@ -42,7 +42,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.11",
@@ -83,6 +83,7 @@
     "postcss-loader": "^6.1.1",
     "postcss-preset-env": "^6.7.0",
     "react-refresh": "^0.10.0",
+    "source-map-loader": "^4.0.1",
     "style-loader": "^3.2.1",
     "webpack": "^5.86.0",
     "webpack-bundle-analyzer": "^4.9.0",

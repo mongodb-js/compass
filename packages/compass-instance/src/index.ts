@@ -23,9 +23,7 @@ const InstanceWorkspacePlugin = registerHadronPlugin(
 );
 
 export default InstanceWorkspacePlugin;
-export {
-  InstanceTabsProvider,
-  InstanceTab,
-} from './components/instance-tabs-provider';
+export type { InstanceTab } from './components/instance-tabs-provider';
+export { InstanceTabsProvider } from './components/instance-tabs-provider';
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

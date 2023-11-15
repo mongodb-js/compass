@@ -29,7 +29,7 @@
     "test-ci-electron": "npm run test-electron",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "bootstrap": "npm run compile",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "license": "SSPL",
   "peerDependencies": {

@@ -16,7 +16,7 @@
     "posttest-ci": "npm run coverage-merge",
     "test-packaged": "npm run test -- -- --test-packaged-app",
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix",
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "start-server": "mongodb-runner start --id=e2e --topology=replset --secondaries=0 -- --port 27091",
     "stop-server": "mongodb-runner stop --id=e2e",
     "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",

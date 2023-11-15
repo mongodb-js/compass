@@ -50,7 +50,8 @@ import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import TextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export { ToastProvider, useToast, ToastProps } from '@leafygreen-ui/toast';
+export type { ToastProps } from '@leafygreen-ui/toast';
+export { ToastProvider, useToast } from '@leafygreen-ui/toast';
 export { usePrevious } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import {
