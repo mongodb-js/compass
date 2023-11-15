@@ -115,7 +115,7 @@ export class ConnectionStorage {
     );
     if (connections.length === 0) {
       log.info(
-        mongoLogId(1_001_000_200),
+        mongoLogId(1_001_000_270),
         'Connection Storage',
         'No connections to migrate'
       );
@@ -127,7 +127,7 @@ export class ConnectionStorage {
         .length === connections.length
     ) {
       log.info(
-        mongoLogId(1_001_000_205),
+        mongoLogId(1_001_000_271),
         'Connection Storage',
         'Connections already migrated'
       );
@@ -142,7 +142,7 @@ export class ConnectionStorage {
     // are not expected to have a version property.
     const unmigratedConnections = connections.filter((x) => !('version' in x));
     log.info(
-      mongoLogId(1_001_000_206),
+      mongoLogId(1_001_000_272),
       'Connection Storage',
       'Migrating connections',
       {
@@ -169,7 +169,7 @@ export class ConnectionStorage {
       } catch (e) {
         numFailedToMigrate++;
         log.error(
-          mongoLogId(1_001_000_207),
+          mongoLogId(1_001_000_273),
           'Connection Storage',
           'Failed to migrate connection',
           { message: (e as Error).message, connectionId: _id }
@@ -178,7 +178,7 @@ export class ConnectionStorage {
     }
 
     log.info(
-      mongoLogId(1_001_000_267),
+      mongoLogId(1_001_000_274),
       'Connection Storage',
       'Migration complete',
       {
