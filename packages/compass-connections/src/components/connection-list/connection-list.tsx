@@ -237,7 +237,7 @@ function ConnectionList({
         {showFilteredSavedConnections && (
           <TextInput
             data-testid="sidebar-filter-saved-connections-input"
-            placeholder="Filter"
+            placeholder="Search"
             type="search"
             aria-label="Saved connections filter"
             title="Saved connections filter"
