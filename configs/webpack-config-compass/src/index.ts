@@ -1,5 +1,9 @@
 import fs from 'fs';
-import type { ResolveOptions, WebpackPluginInstance } from 'webpack';
+import type {
+  ResolveOptions,
+  WebpackPluginInstance,
+  Configuration,
+} from 'webpack';
 import { merge } from 'webpack-merge';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -12,6 +16,7 @@ import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import type { ConfigArgs, WebpackConfig, WebpackCLIArgs } from './args';
 import { isServe, webpackArgsWithDefaults } from './args';
 import {
+  sourceMapLoader,
   javascriptLoader,
   nodeLoader,
   sourceLoader,
@@ -30,6 +35,17 @@ import {
 import { sharedExternals, pluginExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+
+const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
+  // Usually caused by published d.ts files pointing to non-existent ts files in
+  // the ignored for publish source folder
+  /Failed to parse source map.+?ENOENT/,
+  // Expected in most cases for Compass
+  /require function is used in a way in which dependencies cannot be statically extracted/,
+  /the request of a dependency is an expression/,
+  // Optional, platform-specific dependencies (mostly from driver)
+  /Module not found.+?(mongo_crypt_v1.(dll|so|dylib)|@mongodb-js\/zstd|aws-crt|gcp-metadata)/,
+];
 
 const sharedResolveOptions = (
   target: ConfigArgs['target']
@@ -96,6 +112,7 @@ export function createElectronMainConfig(
     target: opts.target,
     module: {
       rules: [
+        sourceMapLoader(opts),
         javascriptLoader(opts),
         nodeLoader(opts),
         resourceLoader(opts),
@@ -111,6 +128,7 @@ export function createElectronMainConfig(
       ...sharedResolveOptions(opts.target),
     },
     plugins: [new WebpackPluginMulticompilerProgress()],
+    ignoreWarnings: sharedIgnoreWarnings,
   };
 
   return merge<WebpackConfig>(
@@ -162,6 +180,7 @@ export function createElectronRendererConfig(
     target: opts.target,
     module: {
       rules: [
+        sourceMapLoader(opts),
         javascriptLoader(opts),
         nodeLoader(opts),
         cssLoader(opts),
@@ -182,6 +201,7 @@ export function createElectronRendererConfig(
       aliasFields: [],
       ...sharedResolveOptions(opts.target),
     },
+    ignoreWarnings: sharedIgnoreWarnings,
   };
 
   return merge<WebpackConfig>(
@@ -279,6 +299,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     target: opts.target,
     module: {
       rules: [
+        sourceMapLoader(opts),
         javascriptLoader(opts, true),
         nodeLoader(opts),
         cssLoader(opts, true),
@@ -297,6 +318,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     resolve: {
       ...sharedResolveOptions(opts.target),
     },
+    ignoreWarnings: sharedIgnoreWarnings,
   };
 }
 
