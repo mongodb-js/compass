@@ -6,12 +6,16 @@ import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
 import { useDarkMode } from '../hooks/use-theme';
 
+const workspaceContainerQueryName = 'compass-workspace-container';
+
 const workspaceContainerStyles = css({
   height: '100%',
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+  containerName: workspaceContainerQueryName,
+  containerType: 'inline-size',
 });
 
 const toolbarStyles = css({
@@ -150,5 +154,7 @@ function WorkspaceContainer({
     </div>
   );
 }
+
+WorkspaceContainer.containerQueryName = workspaceContainerQueryName;
 
 export { WorkspaceContainer };

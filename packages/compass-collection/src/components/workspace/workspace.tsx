@@ -28,14 +28,9 @@ const workspaceViewsStyles = css({
   overflow: 'auto',
 });
 
-// This is relied on in other places in Compass; coupled.
-const workspaceContainerName = 'compass-workspace-container';
-
 const workspaceViewTabStyles = css({
   height: '100%',
   width: '100%',
-  containerName: workspaceContainerName,
-  containerType: 'inline-size',
 });
 
 function getIconGlyphForCollectionType(type: string) {

@@ -6,6 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -17,7 +18,7 @@ import {
 } from './ai-entry-svg';
 
 const hiddenOnNarrowStyles = css({
-  [`@container compass-workspace-container (width < 900px)`]: {
+  [`@container ${WorkspaceContainer.containerQueryName} (width < 900px)`]: {
     display: 'none',
   },
 });
