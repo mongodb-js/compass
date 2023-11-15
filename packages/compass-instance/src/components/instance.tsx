@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Banner,
   BannerVariant,
@@ -7,10 +7,10 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { Role } from 'hadron-app-registry';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-INSTANCE');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { InstanceTab } from './instance-tabs-provider';
+import { useInstanceTabs } from './instance-tabs-provider';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 function trackingIdForTabName({ name }: { name: string }) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -37,70 +37,79 @@ const instanceComponentContainerSyles = css({
 });
 
 type InstanceComponentProps = {
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  error: string | null;
+  activeTabName: string | null;
+  onTabClick: (name: string) => void;
   isDataLake: boolean;
-  tabs: Role[];
-  activeTabId: number;
-  onTabClick: (index: number) => void;
+  instanceInfoLoadingStatus: MongoDBInstance['status'];
+  instanceInfoLoadingError: string | null;
 };
 
-function InstanceComponent({
-  status,
-  error,
-  isDataLake,
-  tabs,
-  activeTabId,
+const InstanceComponent: React.FunctionComponent<InstanceComponentProps> = ({
+  activeTabName,
   onTabClick,
-}: InstanceComponentProps) {
-  const filteredTabs = useMemo(() => {
-    return tabs.filter((tabRole) => {
-      switch (tabRole.name) {
+  isDataLake,
+  instanceInfoLoadingStatus,
+  instanceInfoLoadingError,
+}) => {
+  const { track, log, mongoLogId } = useLoggerAndTelemetry('COMPASS-INSTANCE');
+  const filterTabByName = useCallback(
+    (tab: InstanceTab) => {
+      switch (tab.name) {
         case 'Performance':
           return !isDataLake;
         default:
           return true;
       }
-    });
-  }, [isDataLake, tabs]);
+    },
+    [isDataLake]
+  );
+  const [tabs, activeTabIndex] = useInstanceTabs(
+    activeTabName,
+    filterTabByName
+  );
 
-  const activeTab = filteredTabs[activeTabId];
+  const activeTab = tabs[activeTabIndex];
 
   useEffect(() => {
-    track('Screen', { name: trackingIdForTabName(activeTab) });
-  }, [activeTab]);
+    if (activeTab) {
+      track('Screen', { name: trackingIdForTabName(activeTab) });
+    }
+  }, [activeTab, track]);
 
-  if (status === 'error') {
-    if (error?.includes(NOT_MASTER_ERROR)) {
-      error = `'${error}': ${RECOMMEND_READ_PREF_MSG}`;
+  if (instanceInfoLoadingStatus === 'error') {
+    if (instanceInfoLoadingError?.includes(NOT_MASTER_ERROR)) {
+      instanceInfoLoadingError = `'${instanceInfoLoadingError}': ${RECOMMEND_READ_PREF_MSG}`;
     }
 
     return (
       <div className={errorContainerStyles}>
         <Banner variant={BannerVariant.Danger}>
-          {ERROR_WARNING}: {error}
+          {ERROR_WARNING}: {instanceInfoLoadingError}
         </Banner>
       </div>
     );
   }
 
-  if (status === 'ready' || status === 'refreshing') {
+  if (
+    instanceInfoLoadingStatus === 'ready' ||
+    instanceInfoLoadingStatus === 'refreshing'
+  ) {
     return (
       <div className={instanceComponentContainerSyles}>
         <TabNavBar
           data-testid="instance-tabs"
           aria-label="Instance Tabs"
-          tabs={filteredTabs.map((tab) => {
+          tabs={tabs.map((tab) => {
             return tab.name;
           })}
-          views={filteredTabs.map((tab) => {
+          views={tabs.map((tab) => {
             return (
               <ErrorBoundary
                 displayName={tab.name}
                 key={tab.name}
                 onError={(err, errorInfo) => {
                   log.error(
-                    mongoLogId(1001000110),
+                    mongoLogId(1_001_000_110),
                     'Instance Workspace',
                     'Rendering instance tab failed',
                     { name: tab.name, error: err.message, errorInfo }
@@ -111,14 +120,16 @@ function InstanceComponent({
               </ErrorBoundary>
             );
           })}
-          activeTabIndex={activeTabId}
-          onTabClicked={onTabClick}
+          activeTabIndex={activeTabIndex}
+          onTabClicked={(idx) => {
+            onTabClick(tabs[idx].name);
+          }}
         />
       </div>
     );
   }
 
   return null;
-}
+};
 
 export { InstanceComponent };
