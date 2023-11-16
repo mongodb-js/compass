@@ -49,12 +49,12 @@ function isStable(id: string) {
   return !isBeta(id);
 }
 
-const distributionLabel: Record<string, string> = {
+const distributionLabels: Record<string, string> = {
   'compass-readonly': 'Readonly Edition',
   'compass-isolated': 'Isolated Edition',
 };
 
-const channelLabel: Record<string, string> = {
+const channelLabels: Record<string, string> = {
   stable: 'Stable',
   beta: 'Beta',
 };
@@ -67,15 +67,14 @@ export function versionId(version: string, distribution = '') {
 
 export function readableVersionName(
   version: string,
-  channel: string,
-  distribution: string
+  channel?: string,
+  distribution?: string
 ) {
-  let desc;
-  if (distribution) {
-    desc = [distributionLabel[distribution], channelLabel[channel]]
-      .filter(Boolean)
-      .join(' ');
-  }
+  const distributionLabel = distribution
+    ? distributionLabels[distribution]
+    : '';
+  const channelLabel = channel ? channelLabels[channel] : '';
+  const desc = [distributionLabel, channelLabel].filter(Boolean).join(' ');
 
   return `${version} ${desc ? `(${desc})` : ''}`.trim();
 }
