@@ -64,8 +64,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Action } from '@mongodb-js/hadron-plugin-manager';
 
-import { setupTheme } from './theme';
-
 import { setupIntercom } from './intercom';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
@@ -212,9 +210,6 @@ app.extend({
       if (err) {
         throw err;
       }
-
-      // Get theme from the preferences and set accordingly.
-      setupTheme();
 
       Action.pluginActivationCompleted.listen(async () => {
         state.preRender();
