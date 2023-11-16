@@ -165,13 +165,25 @@ describe('Atlas Login', function () {
 
       const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
 
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
+      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq(
+        'false',
+        'Expected TOS toggle to be unchecked'
+      );
 
       await browser.clickVisible(acceptTOSToggle);
 
       await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('true');
+      // We are not just waiting here, this is asserting that toggle was
+      // switched on, indicating that TOS was accepted
+      await browser.waitUntil(
+        async () => {
+          return (
+            (await acceptTOSToggle.getAttribute('aria-checked')) === 'true'
+          );
+        },
+        { timeoutMsg: 'Expected TOS toggle to be checked' }
+      );
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {
