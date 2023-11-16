@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "electron": "^25.9.4",
+    "electron": "^25.9.5",
     "is-electron-renderer": "^2.0.1"
   }
 }
