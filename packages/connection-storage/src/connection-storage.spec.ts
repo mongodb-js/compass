@@ -16,6 +16,7 @@ import Sinon from 'sinon';
 import connection1270 from './../test/fixtures/favorite_connection_1.27.0.json';
 import connection1310 from './../test/fixtures/favorite_connection_1.31.0.json';
 import connection1380 from './../test/fixtures/favorite_connection_1.38.0.json';
+import * as exportedConnectionFixtures from './../test/fixtures/compass-connections';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -56,7 +57,6 @@ async function readConnection(tmpDir: string, id: string) {
 const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
-  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
   const ipcMain = ConnectionStorage['ipcMain'];
 
   let tmpDir: string;
@@ -69,8 +69,6 @@ describe('ConnectionStorage', function () {
       createHandle: Sinon.stub(),
     };
     ConnectionStorage.init(tmpDir);
-
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(async function () {
@@ -79,12 +77,23 @@ describe('ConnectionStorage', function () {
 
     ConnectionStorage['calledOnce'] = false;
     ConnectionStorage['ipcMain'] = ipcMain;
+  });
 
-    if (initialKeytarEnvValue) {
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
-    } else {
-      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
+  it('reminds us to remove keytar in', function () {
+    const testDate = new Date('2023-11-17T00:00:00.000Z');
+
+    const endOfKeytarDate = new Date(testDate);
+    endOfKeytarDate.setMonth(endOfKeytarDate.getMonth() + 3);
+
+    // Based on milestone #2 of Move from keytar to Electron safeStorage,
+    // we should remove keytar in 3 months from now. And as such, we are
+    // intentionally failing this test to remind us to remove keytar.
+    // If we want to continue using keytar for now, check with the product and
+    // please update this test accordingly.
+    expect(
+      new Date(),
+      'Expected to have keytar removed completely by now. If we want to continue using it for now, please update this test.'
+    ).to.be.lessThan(endOfKeytarDate);
   });
 
   describe('migrateToSafeStorage', function () {
@@ -317,6 +326,92 @@ describe('ConnectionStorage', function () {
         });
       });
     });
+
+    context(
+      'imports already exported connections from compass using keytar',
+      function () {
+        const exportedConnections = [
+          {
+            label: 'connection with plain secrets',
+            data: exportedConnectionFixtures.connectionsWithPlainSecrets,
+          },
+          {
+            label: 'connection with encrypted secrets',
+            data: exportedConnectionFixtures.connectionsWithEncryptedSecrets,
+            importOptions: {
+              passphrase: 'password',
+            },
+          },
+        ];
+
+        for (const exportUseCase of exportedConnections) {
+          it(exportUseCase.label, async function () {
+            const countOfConnections = exportUseCase.data.connections.length;
+            // Import
+            {
+              // When importing connections, we will encrypt secrets using safeStorage.
+              // So, we mock the *encryptSecrets* implementation to not trigger keychain.
+              const encryptSecretsStub = sandbox
+                .stub(ConnectionStorage, <any>'encryptSecrets')
+                .returns('encrypted-password');
+              // Import
+              await ConnectionStorage.importConnections({
+                content: JSON.stringify(exportUseCase.data),
+                options: exportUseCase.importOptions,
+              });
+              expect(
+                encryptSecretsStub.getCalls().map((x) => x.args),
+                `makes ${countOfConnections} calls with correct arguments when encrypting`
+              ).to.deep.equal(
+                Array.from({ length: countOfConnections }).map(() => [
+                  { password: 'password' },
+                ])
+              );
+            }
+
+            // Read imported connections using ConnectionStorage
+            {
+              // When reading, we will mock *decryptSecrets* implementation.
+              const decryptSecretsStub = sandbox
+                .stub(ConnectionStorage, <any>'decryptSecrets')
+                .returns({ password: 'password' });
+
+              const connections = await ConnectionStorage.loadAll();
+
+              expect(connections).to.have.lengthOf(countOfConnections);
+
+              expect(
+                decryptSecretsStub.getCalls().map((x) => x.args),
+                `makes ${countOfConnections} calls with correct arguments when decrypting`
+              ).to.deep.equal(
+                Array.from({ length: countOfConnections }).map(() => [
+                  'encrypted-password',
+                ])
+              );
+            }
+
+            // Read imported connections using fs from disk
+            {
+              const connections = await Promise.all(
+                exportUseCase.data.connections.map(({ id }) =>
+                  readConnection(tmpDir, id)
+                )
+              );
+
+              expect(connections).to.have.lengthOf(countOfConnections);
+
+              for (const connection of connections) {
+                expect(connection).to.have.a.property('version', 1);
+                expect(connection).to.have.a.property(
+                  'connectionSecrets',
+                  'encrypted-password'
+                );
+              }
+            }
+          });
+        }
+      }
+    );
   });
 
   describe('loadAll', function () {
@@ -525,42 +620,112 @@ describe('ConnectionStorage', function () {
         });
         expect.fail('Expected connection string to be required.');
       } catch (e) {
-        expect(e).to.have.nested.property(
-          'errors[0].message',
-          'Connection string is required.'
+        expect(e).to.have.property(
+          'message',
+          'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
         );
       }
     });
 
-    // In tests we can not use keytar and have it disabled. When saving any data,
-    // its completely stored on disk without anything removed.
-    it('it stores all the fleOptions on disk', async function () {
-      const id = new UUID().toString();
-      const connectionInfo = {
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-          fleOptions: {
-            storeCredentials: false,
-            autoEncryption: {
-              keyVaultNamespace: 'db.coll',
-              kmsProviders: {
-                local: {
-                  key: 'my-key',
+    context('it stores all the fleOptions on disk', function () {
+      it('removes secrets when storeCredentials is false', async function () {
+        const id = new UUID().toString();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            fleOptions: {
+              storeCredentials: false,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
                 },
               },
             },
           },
-        },
-      };
-      await ConnectionStorage.save({ connectionInfo });
+        };
 
-      const content = await fs.readFile(
-        getConnectionFilePath(tmpDir, id),
-        'utf-8'
-      );
-      const { connectionInfo: expectedConnectionInfo } = JSON.parse(content);
-      expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
+        // // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+        // // and make assertions on that.
+        const encryptSecretsStub = Sinon.stub(
+          ConnectionStorage,
+          <any>'encryptSecrets'
+        ).returns(undefined);
+
+        await ConnectionStorage.save({ connectionInfo });
+
+        const expectedConnection = await readConnection(tmpDir, id);
+        connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
+          {} as any;
+        expect(expectedConnection).to.deep.equal({
+          _id: connectionInfo.id,
+          connectionInfo,
+          version: 1,
+        });
+
+        expect(encryptSecretsStub.calledOnce).to.be.true;
+        expect(
+          encryptSecretsStub.firstCall.firstArg,
+          'it should not store any secrets'
+        ).to.deep.equal({});
+      });
+
+      it('encrypt and store secrets when storeCredentials is true', async function () {
+        const id = new UUID().toString();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            fleOptions: {
+              storeCredentials: true,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+        // and make assertions on that.
+        const encryptSecretsStub = Sinon.stub(
+          ConnectionStorage,
+          <any>'encryptSecrets'
+        ).returns('encrypted-data');
+
+        await ConnectionStorage.save({ connectionInfo });
+
+        const expectedConnection = await readConnection(tmpDir, id);
+        connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
+          {} as any;
+        expect(expectedConnection).to.deep.equal({
+          _id: connectionInfo.id,
+          connectionInfo,
+          connectionSecrets: 'encrypted-data',
+          version: 1,
+        });
+
+        expect(encryptSecretsStub.calledOnce).to.be.true;
+        expect(
+          encryptSecretsStub.firstCall.firstArg,
+          'it should store secrets'
+        ).to.deep.equal({
+          autoEncryption: {
+            kmsProviders: {
+              local: {
+                key: 'my-key',
+              },
+            },
+          },
+        });
+      });
     });
 
     it('saves a connection with _id', async function () {
@@ -571,6 +736,13 @@ describe('ConnectionStorage', function () {
         expect(e).to.be.instanceOf(Error);
       }
 
+      // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+      // and make assertions on that.
+      const encryptSecretsStub = Sinon.stub(
+        ConnectionStorage,
+        <any>'encryptSecrets'
+      ).returns('encrypted-password');
+
       await ConnectionStorage.save({
         connectionInfo: {
           id,
@@ -580,19 +752,24 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      const savedConnection = JSON.parse(
-        await fs.readFile(getConnectionFilePath(tmpDir, id), 'utf-8')
-      );
-
+      const savedConnection = await readConnection(tmpDir, id);
       expect(savedConnection).to.deep.equal({
         connectionInfo: {
           id,
           connectionOptions: {
-            connectionString: 'mongodb://root:password@localhost:27017',
+            connectionString: 'mongodb://root@localhost:27017/',
           },
         },
+        connectionSecrets: 'encrypted-password',
+        version: 1,
         _id: id,
       });
+
+      expect(encryptSecretsStub.calledOnce).to.be.true;
+      expect(
+        encryptSecretsStub.firstCall.firstArg,
+        'it encrypts the connection secrets correctly'
+      ).to.deep.equal({ password: 'password' });
     });
 
     context(`max allowed connections ${maxAllowedConnections}`, function () {
