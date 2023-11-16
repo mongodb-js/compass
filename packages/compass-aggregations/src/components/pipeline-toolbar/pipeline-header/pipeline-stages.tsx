@@ -94,12 +94,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
             </>
           )}
           {isAIFeatureEnabled && showAIEntry && (
-            <div className={aiExperienceContainerStyles}>
+            <span className={aiExperienceContainerStyles}>
               <AIExperienceEntry
                 onClick={onShowAIInputClick}
                 type="aggregation"
               />
-            </div>
+            </span>
           )}
         </Description>
       ) : (

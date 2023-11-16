@@ -226,7 +226,11 @@ const setupRole = (
 
       return {
         name,
-        component: React.createElement(component, { store, actions }),
+        component: React.createElement(component, {
+          store,
+          actions,
+          key: name,
+        }),
       };
     });
   };
