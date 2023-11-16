@@ -994,7 +994,15 @@ export class Target {
 
       const dmgOptions: CreateOptions = {
         ...this.installerOptions,
-        name: assertNonEmptyString(this.installerOptions.name),
+
+        // "name" was referring to "this.installerOptions.name" before this code was
+        // converted to typescript, that variable was always undefined however,
+        // `createDMG` seems to work regardless, so here we set it to an empty string
+        // to make tsc happy.
+        //
+        // This can also be a problem with types being out of sync with the version
+        // of "electron-installer-dmg" that we are using.
+        name: '',
         appPath: assertNonEmptyString(this.installerOptions.appPath),
       };
 
