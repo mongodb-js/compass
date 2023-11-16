@@ -10,7 +10,7 @@ const { log } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ProtocolsList = { name: string; schemes: string[] }[];
 async function appProtocolsConfig(): Promise<ProtocolsList> {
-  return (await import('../../package.json')).config.hadron.protocols;
+  return (await import('../../package.json')).config['compass-build'].protocols;
 }
 
 const commandArgv = process.defaultApp
