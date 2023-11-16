@@ -28,7 +28,7 @@ const pkg = {
  * @return {String}
  * @api private
  */
-function getSalt(secret: any) {
+export function getSalt(secret: any) {
   const salt = _.chain(secret).split('').reverse().join('').value();
   return salt;
 }

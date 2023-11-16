@@ -1,21 +1,13 @@
 import type { ArgumentsCamelCase, CommandModule } from 'yargs';
-import _ from 'lodash';
-import { flatten } from 'flat';
-import jsYaml from 'js-yaml';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 import { Target } from '../lib/target';
 
-const serialize = (target: any) => {
-  const res = _.omitBy(target, function (value) {
-    return _.isFunction(value) || _.isRegExp(value) || _.isUndefined(value);
-  });
-
-  return JSON.parse(JSON.stringify(res));
-};
-
 export default {
-  command: 'info',
-  describe: 'Display information about the application',
+  command: 'debug',
+  describe:
+    'Print debug information about the configuration used for build tasks',
   builder: {
     dir: {
       type: 'string',
@@ -43,7 +35,7 @@ export default {
     },
   },
 
-  handler: (
+  handler: async (
     argv: ArgumentsCamelCase<{
       dir?: string;
       version?: string;
@@ -58,10 +50,13 @@ export default {
       arch: argv.arch ?? process.arch,
     });
 
-    const flattened = flatten(serialize(target));
-    const yaml = jsYaml.dump(flattened);
+    const json = JSON.stringify(target, null, 2);
 
-    // eslint-disable-next-line no-console
-    console.info(yaml);
+    if (argv.out) {
+      await fs.writeFile(path.resolve(process.cwd(), argv.out), json);
+    } else {
+      // eslint-disable-next-line no-console
+      console.info(json);
+    }
   },
 } as CommandModule;
