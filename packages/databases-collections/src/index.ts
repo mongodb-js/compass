@@ -15,6 +15,8 @@ import {
 import CreateNamespaceModal from './components/create-namespace-modal';
 import { activatePlugin as activateCreateNamespacePlugin } from './stores/create-namespace';
 import { DatabasesPlugin } from './databases-plugin';
+import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
+import { activateRenameCollectionPlugin } from './stores/rename-collection';
 
 // View collections list plugin.
 const COLLECTIONS_PLUGIN_ROLE = {
@@ -56,6 +58,12 @@ export const DropNamespacePlugin = registerHadronPlugin(
     >,
   }
 );
+
+export const RenameCollectionPlugin = registerHadronPlugin({
+  name: 'RenameCollectionPlugin',
+  component: MappedRenameCollectionModal,
+  activate: activateRenameCollectionPlugin,
+});
 
 /**
  * Activate all the components in the package.

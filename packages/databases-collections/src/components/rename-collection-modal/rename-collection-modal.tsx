@@ -10,10 +10,10 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import type { RenameCollectionRootState } from '../modules/rename-collection/rename-collection';
-import { renameCollection } from '../modules/rename-collection/rename-collection';
-import { toggleIsVisible } from '../modules/is-visible';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
+import { renameCollection } from '../../modules/rename-collection/rename-collection';
+import { toggleIsVisible } from '../../modules/is-visible';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 export interface RenameCollectionModalProps {
   isVisible: boolean;
@@ -72,7 +72,6 @@ function RenameCollectionModal({
     },
     [isVisible],
     undefined,
-    React
   );
 
   const onHide = useCallback(() => {
