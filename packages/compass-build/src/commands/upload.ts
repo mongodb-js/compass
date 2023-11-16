@@ -127,7 +127,6 @@ export function generateVersionsForAssets(
         .filter((asset) => {
           return asset.config.distribution === distribution;
         })
-        // eslint-disable-next-line no-shadow
         .flatMap(({ assets, config }) => {
           return assets
             .filter(({ downloadCenter }) => {

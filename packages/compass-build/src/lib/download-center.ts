@@ -1,4 +1,3 @@
-/* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import path from 'path';
 import { DownloadCenter } from '@mongodb-js/dl-center';

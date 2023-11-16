@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable no-sync */
 
 // Replaces signtool.exe in electron-winstaller with the emulated version
 // that uses the notary service.

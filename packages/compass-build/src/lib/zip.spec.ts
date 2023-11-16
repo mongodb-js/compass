@@ -1,5 +1,3 @@
-/* eslint-disable mocha/no-top-level-hooks */
-/* eslint-disable no-sync */
 import { promises as fs } from 'fs';
 
 import path from 'path';

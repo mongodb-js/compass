@@ -399,7 +399,6 @@ export class Target {
 
   createInstaller!: () => Promise<void>;
 
-  // eslint-disable-next-line complexity
   constructor(dir: string, targetOptions: TargetOptions = {}) {
     const pkg = getApplicationPackageJson(dir);
 
