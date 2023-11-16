@@ -26,9 +26,6 @@ const debug = Debug('compass-e2e-tests');
 const { gunzip } = zlib;
 const { Z_SYNC_FLUSH } = zlib.constants;
 
-const compileAssetsAsync = promisify(compileAssets);
-const packageCompassAsync = promisify(packageCompass);
-
 export const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
@@ -810,9 +807,11 @@ export async function buildCompass(
     }
   }
 
-  await packageCompassAsync({
+  await packageCompass({
+    distribution: process.env.HADRON_DISTRIBUTION ?? 'compass',
     dir: compassPath,
-    skip_installer: true,
+    noAsar: false,
+    skipInstaller: true,
   });
 }
 

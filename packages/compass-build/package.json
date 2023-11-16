@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "bin": {
-    "compass-build": "bin/cli.js"
+    "compass-build": "./bin/cli.js"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "version": "0.1.0",
@@ -106,6 +106,7 @@
     "semver": "^7.5.4",
     "superagent": "^8.1.2",
     "tar": "^6.2.0",
+    "ts-node": "^10.9.1",
     "which": "^2.0.2",
     "yargs": "^17.7.2"
   },
