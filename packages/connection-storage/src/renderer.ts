@@ -1,7 +1,10 @@
 import { ipcRenderer } from 'hadron-ipc';
 
 import type { ConnectionStorage as ConnectionStorageMain } from './connection-storage';
-export { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
+export type {
+  ConnectionInfo,
+  ConnectionFavoriteOptions,
+} from './connection-info';
 export { getConnectionTitle } from './connection-title';
 
 export class ConnectionStorage {

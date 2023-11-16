@@ -1,3 +1,2 @@
-import configureStore, { setDataProvider } from './store';
+import configureStore from './store';
 export default configureStore;
-export { setDataProvider };

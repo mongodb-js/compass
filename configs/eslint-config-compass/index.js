@@ -11,6 +11,10 @@ const extraTsRules = {
   '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
   '@typescript-eslint/restrict-template-expressions': 'warn',
   '@typescript-eslint/restrict-plus-operands': 'warn',
+  '@typescript-eslint/consistent-type-exports': [
+    'error',
+    { fixMixedExportsWithInlineTypeSpecifier: false },
+  ],
 };
 
 const tsRules = {

@@ -182,10 +182,9 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
     }
   }
 
-  if (connectionInfo.connectionOptions.oidc?.serializedState) {
-    secrets.oidcSerializedState =
-      connectionInfo.connectionOptions.oidc.serializedState;
-    delete connectionInfo.connectionOptions.oidc.serializedState;
+  if (connectionOptions.oidc?.serializedState) {
+    secrets.oidcSerializedState = connectionOptions.oidc.serializedState;
+    delete connectionOptions.oidc.serializedState;
   }
 
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };

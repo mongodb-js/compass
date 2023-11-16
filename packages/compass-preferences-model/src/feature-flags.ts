@@ -14,7 +14,6 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
-  enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
@@ -27,19 +26,6 @@ export type FeatureFlags = {
 export const featureFlags: Required<{
   [K in keyof FeatureFlags]: FeatureFlagDefinition;
 }> = {
-  /**
-   * Currently Compass uses `darkreader` to globally change the views of
-   * Compass to a dark theme. Turning on this feature flag stops darkreader
-   * from being used and instead components which have darkMode
-   * support will listen to the theme to change their styles.
-   */
-  enableLgDarkmode: {
-    stage: 'released',
-    description: {
-      short: 'Modern Dark Mode',
-    },
-  },
-
   /**
    * Feature flag for enabling OIDC authentication.
    * Epic: COMPASS-5955

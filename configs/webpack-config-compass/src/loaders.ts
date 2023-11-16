@@ -119,6 +119,21 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
   },
 });
 
+export const sourceMapLoader = (args: ConfigArgs) => ({
+  test: /\.(mjs|c?jsx?|tsx?)$/,
+  enforce: 'pre',
+  use: [
+    {
+      loader: require.resolve('source-map-loader'),
+      options: {
+        filterSourceMappingUrl() {
+          return args.env.WEBPACK_SERVE === true ? 'consume' : 'remove';
+        },
+      },
+    },
+  ],
+});
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const nodeLoader = (_args: ConfigArgs) => ({
   test: /\.node$/,

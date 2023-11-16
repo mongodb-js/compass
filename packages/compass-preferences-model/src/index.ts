@@ -1,4 +1,5 @@
-export { THEMES, getSettingDescription } from './preferences';
+export type { THEMES } from './preferences';
+export { getSettingDescription } from './preferences';
 export { featureFlags } from './feature-flags';
 
 import type {
