@@ -745,7 +745,7 @@ export async function rebuildNativeModules(
   );
   const {
     config: {
-      hadron: { rebuild: rebuildConfig },
+      'compass-build': { rebuild: rebuildConfig },
     },
   } = JSON.parse(await fs.readFile(fullCompassPath, 'utf8'));
 
@@ -768,7 +768,7 @@ export async function compileCompassAssets(
 ): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore some weirdness from util-callbackify
-  await compileAssetsAsync({ dir: compassPath });
+  await compileAssets({ dir: compassPath });
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {
