@@ -6,7 +6,7 @@ import path from 'path';
 import type { Target } from './target';
 
 const execFile = promisify(execFileCb);
-const debug = createDebug('hadron-build:zip');
+const debug = createDebug('compass-build:zip');
 
 async function removeFileIfExists(filePath: string) {
   try {

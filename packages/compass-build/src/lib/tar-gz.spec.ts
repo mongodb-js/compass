@@ -17,7 +17,7 @@ describe('tar', function () {
   beforeEach(async function () {
     tmpdir = path.join(
       os.tmpdir(),
-      'hadron-build-tar-test',
+      'compass-build-tar-test',
       `test-${Date.now()}`
     );
 

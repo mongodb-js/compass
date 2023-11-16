@@ -7,7 +7,7 @@ app.on('ready', () => {
   dialog.showMessageBox(
     {
       type: 'info',
-      title: 'Test Fixture App for hadron-build',
+      title: 'Test Fixture App for compass-build',
       message:
         'Showing this message is all this app does and is only for testing.',
       buttons: ['OK'],

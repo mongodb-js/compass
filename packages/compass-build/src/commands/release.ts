@@ -2,7 +2,7 @@
 import childProcess from 'child_process';
 import util, { format } from 'util';
 import path from 'path';
-import { deleteAsync as del } from 'del';
+import del from 'del';
 import { promises as fs, constants as fsConstants } from 'fs';
 import _ from 'lodash';
 import asar from '@electron/asar';
@@ -23,7 +23,9 @@ export const compileAssets = async (target: Target) => {
 const createBrandedApplication = async (target: Target) => {
   console.debug('running electron-packager');
 
-  const electronPackagerResult = await packager(target.packagerOptions as any);
+  // @ts-expect-error The types for electron-packager here doesn't match
+  // what was passed before the conversion to typescript
+  const electronPackagerResult = await packager(target.packagerOptions);
 
   console.debug(
     'Packager result is: ' + JSON.stringify(electronPackagerResult, null, 2)
@@ -168,7 +170,7 @@ const transformPackageJson = async (target: Target) => {
     'dependency-check',
     'repository',
     'check',
-    'config.hadron.build',
+    'config.compass-build.build',
   ];
 
   const newPackageJson = {
@@ -188,7 +190,7 @@ const transformPackageJson = async (target: Target) => {
     throw new Error('invalid package json content');
   }
 
-  const distributions = newPackageJson.config.hadron.distributions;
+  const distributions = newPackageJson.config['compass-build'].distributions;
   distributions[newPackageJson.distribution].productName = target.productName;
   distributions[newPackageJson.distribution].metrics_intercom_app_id =
     process.env.HADRON_METRICS_INTERCOM_APP_ID;
@@ -399,7 +401,7 @@ async function cleanupCopiedNpmRc(dir: string) {
   });
 }
 
-export async function runRelease({
+export async function packageCompass({
   dir,
   distribution,
   skipInstaller,
@@ -480,6 +482,6 @@ export default {
       process.env.HADRON_SKIP_INSTALLER === 'true' || !!args.skipInstaller;
     const noAsar = process.env.NO_ASAR === 'true' || !!args.noAsar;
 
-    await runRelease({ distribution, skipInstaller, noAsar, dir });
+    await packageCompass({ distribution, skipInstaller, noAsar, dir });
   },
 } as CommandModule;

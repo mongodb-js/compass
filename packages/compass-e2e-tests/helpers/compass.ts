@@ -10,10 +10,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
-import {
-  run as packageCompass,
-  compileAssets,
-} from 'hadron-build/commands/release';
+import { packageCompass, compileAssets } from '@mongodb-js/compass-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';

@@ -9,9 +9,6 @@ import {
 
 import { Target } from '../lib/target';
 
-// // eslint-disable-next-line @typescript-eslint/no-var-requires
-// const Target = require('hadron-build/lib/target');
-
 describe('upload', function () {
   describe('versionId', function () {
     it('returns a version number', function () {

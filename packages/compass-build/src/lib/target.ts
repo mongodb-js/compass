@@ -21,7 +21,7 @@ import { tarGz } from './tar-gz';
 
 import createDebug from 'debug';
 import type { CreateOptions } from 'electron-installer-dmg';
-const debug = createDebug('hadron-build:target');
+const debug = createDebug('compass-build:target');
 
 type CompassDistribution = 'compass' | 'compass-readonly' | 'compass-isolated';
 
@@ -32,7 +32,7 @@ export type TargetOptions = {
   distribution?: string;
 };
 
-type HadronConfig = {
+type CompassBuildConfig = {
   endpoint: string;
   protocols: {
     name: string;
@@ -90,7 +90,7 @@ type PackageConfig = {
   author: { name: string };
   electronVersion: string;
   shortcutFolderName: string;
-  config: { hadron: HadronConfig };
+  config: { 'compass-build': CompassBuildConfig };
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
@@ -421,7 +421,7 @@ export class Target {
     this.out = path.join(this.dir, 'dist');
     this.pkg = pkg;
 
-    const allDistributionConfigs = pkg.config.hadron.distributions;
+    const allDistributionConfigs = pkg.config['compass-build'].distributions;
 
     this.distribution = assertValidDistribution(opts.distribution);
     const distributionConfig = assertValidDistributionConfig({
@@ -470,12 +470,14 @@ export class Target {
       this.slug += `-${this.channel}`;
     }
 
-    this.autoUpdateBaseUrl = pkg.config.hadron.endpoint;
+    this.autoUpdateBaseUrl = pkg.config['compass-build'].endpoint;
 
-    this.asar = { unpack: [], ...pkg.config.hadron.asar };
+    this.asar = { unpack: [], ...pkg.config['compass-build'].asar };
 
-    this.rebuild = { ...pkg.config.hadron.rebuild };
-    this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
+    this.rebuild = { ...pkg.config['compass-build'].rebuild };
+    this.macosEntitlements = this.src(
+      pkg.config['compass-build'].macosEntitlements
+    );
 
     /**
      * Add `channel` suffix to product name, e.g. "Compass Beta".
@@ -593,7 +595,7 @@ export class Target {
    * Apply Windows specific configuration.
    */
   configureForWin32() {
-    const platformSettings = this.pkg.config.hadron.build.win32;
+    const platformSettings = this.pkg.config['compass-build'].build.win32;
 
     if (!platformSettings) {
       throw new Error('could not find win32 platform settings in package.json');
@@ -768,7 +770,7 @@ export class Target {
    */
   configureForDarwin() {
     this.truncatedProductName = this.productName.substring(0, 25);
-    const platformSettings = this.pkg.config.hadron.build.darwin;
+    const platformSettings = this.pkg.config['compass-build'].build.darwin;
 
     if (!platformSettings) {
       throw new Error('darwin configuration missing in package json.');
@@ -790,7 +792,8 @@ export class Target {
       icon: this.src(platformSettings.icon),
       appBundleId: this.bundleId,
       appCategoryType: platformSettings.app_category_type,
-      protocols: _.get(this, 'config.hadron.protocols', []),
+      // protocols are added in "manually in the plist"
+      protocols: [],
     });
 
     if (this.channel !== 'stable') {
@@ -867,14 +870,14 @@ export class Target {
 
         const plistContent: PlistObject = {
           ...parsedPlistContent,
-          CFBundleURLTypes: _.get(this.pkg, 'config.hadron.protocols', []).map(
-            (protocol) => ({
-              CFBundleTypeRole: 'Editor',
-              CFBundleURLIconFile: platformSettings.icon,
-              CFBundleURLName: protocol.name,
-              CFBundleURLSchemes: protocol.schemes,
-            })
-          ),
+          CFBundleURLTypes: (
+            this.pkg.config['compass-build'].protocols ?? []
+          ).map((protocol) => ({
+            CFBundleTypeRole: 'Editor',
+            CFBundleURLIconFile: platformSettings.icon,
+            CFBundleURLName: protocol.name,
+            CFBundleURLSchemes: protocol.schemes,
+          })),
         };
 
         await fs.promises.writeFile(plistFilePath, plist.build(plistContent));
@@ -997,7 +1000,7 @@ export class Target {
    * Apply Linux specific configuration.
    */
   configureForLinux() {
-    const platformSettings = this.pkg.config.hadron.build.linux;
+    const platformSettings = this.pkg.config['compass-build'].build.linux;
 
     if (!platformSettings) {
       throw new Error(
@@ -1016,7 +1019,7 @@ export class Target {
 
     const debianVersion = this.version;
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
-    const debianSection = _.get(platformSettings, 'deb_section');
+    const debianSection = platformSettings.deb_section;
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
 
     const rhelVersion = [
@@ -1026,7 +1029,7 @@ export class Target {
     ].join('.');
     const rhelRevision = this.semver.prerelease.join('.') || '1';
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
-    const rhelCategories = _.get(platformSettings, 'rpm_categories');
+    const rhelCategories = platformSettings.rpm_categories;
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
     this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
@@ -1059,7 +1062,7 @@ export class Target {
       }. All Rights Reserved.`;
     }
 
-    const mimeType = _.get(this.pkg, 'config.hadron.protocols', [])
+    const mimeType = this.pkg.config['compass-build'].protocols
       .flatMap((protocol) => protocol.schemes)
       .map((scheme) => `x-scheme-handler/${scheme}`);
 
@@ -1152,7 +1155,7 @@ export class Target {
    * @return {null|Asset}
    * @example
    * target.getAssetWithExtension('.zip')
-   * >>> {name: 'hadron-app-darwin-x64.zip', path:...}
+   * >>> {name: 'compass-app-darwin-x64.zip', path:...}
    * target.getAssetWithExtension('.k7z')
    * >>> null
    */

@@ -4,7 +4,7 @@ import path from 'path';
 import createDebug from 'debug';
 
 const execFile = promisify(childProcess.execFile);
-const debug = createDebug('hadron-build:signtool');
+const debug = createDebug('compass-build:signtool');
 
 export async function signtool(fileToSign: string) {
   const signtoolPath = path.resolve(__dirname, '..', 'signtool/signtool.exe');

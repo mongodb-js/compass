@@ -1,7 +1,7 @@
 // @ts-check
 const path = require('path');
-// @ts-ignore
-const HadronBuildTarget = require('hadron-build/lib/target');
+
+const { Target: HadronBuildTarget } = require('@mongodb-js/compass-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const {
@@ -76,7 +76,7 @@ module.exports = (_env, args) => {
 
   const target = new HadronBuildTarget(__dirname);
 
-  // This should be provided either with env vars directly or from hadron-build
+  // This should be provided either with env vars directly or from compass-build
   // when application is compiled
   const hadronEnvConfig = {
     // Required env variables with defaults
