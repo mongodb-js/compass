@@ -232,7 +232,7 @@ export const assertValidPlatformAndArch = (
     return supportedPlatform;
   }
 
-  throw new Error(`unsupported platform and arch pair: ${platform} ${arch}`);
+  throw new Error(`unsupported platform and arch pair: <${platform}, ${arch}>`);
 };
 
 export const assertValidDistribution = (
@@ -414,7 +414,14 @@ export class Target {
       sign: true,
     };
 
-    const opts = _.defaults(targetOptions, envOptions, pkg, defaultOptions);
+    const opts = _.defaults(
+      // this _.mapValues call is ere so that default would override also values
+      // that are empty, and not only undefined.
+      _.mapValues(targetOptions, (v) => v || undefined),
+      envOptions,
+      pkg,
+      defaultOptions
+    );
 
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');

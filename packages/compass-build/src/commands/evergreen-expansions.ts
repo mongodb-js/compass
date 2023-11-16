@@ -30,6 +30,11 @@ export default {
       default: undefined,
       type: 'string',
     },
+    distribution: {
+      description: 'Target distribution',
+      default: undefined,
+      type: 'string',
+    },
     out: {
       description: 'Output file path',
       default: undefined,
@@ -44,6 +49,7 @@ export default {
       platform?: string;
       arch?: string;
       out?: string;
+      distribution?: string;
     }>
   ) => {
     // Force absolute paths to be used in expansions
@@ -52,6 +58,7 @@ export default {
       version: argv.version,
       platform: argv.platform ?? process.platform,
       arch: argv.arch ?? process.arch,
+      distribution: argv.distribution,
     });
 
     const expansionKeys = [
@@ -83,7 +90,8 @@ export default {
     const yaml = jsYaml.dump(expansions);
 
     if (argv.out) {
-      await fs.writeFile(path.resolve(process.cwd(), argv.out), yaml);
+      const outPath = path.resolve(process.cwd(), argv.out);
+      await fs.writeFile(outPath, yaml);
     } else {
       // eslint-disable-next-line no-console
       console.info(yaml);

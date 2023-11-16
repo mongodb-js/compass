@@ -28,6 +28,11 @@ export default {
       default: undefined,
       type: 'string',
     },
+    distribution: {
+      description: 'Target distribution',
+      default: undefined,
+      type: 'string',
+    },
     out: {
       description: 'Output file path',
       default: undefined,
@@ -42,12 +47,14 @@ export default {
       platform?: string;
       arch?: string;
       out?: string;
+      distribution?: string;
     }>
   ) => {
     const target = new Target(argv.dir ?? process.cwd(), {
       version: argv.version,
       platform: argv.platform ?? process.platform,
       arch: argv.arch ?? process.arch,
+      distribution: argv.distribution,
     });
 
     const json = JSON.stringify(target, null, 2);
