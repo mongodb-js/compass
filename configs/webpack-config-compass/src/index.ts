@@ -171,10 +171,11 @@ export function createElectronRendererConfig(
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].[contenthash].renderer.js',
       assetModuleFilename: 'assets/[name].[hash][ext]',
-      library: getLibraryNameFromCwd(opts.cwd),
+      library: opts.library ?? getLibraryNameFromCwd(opts.cwd),
       libraryTarget: 'umd',
       strictModuleErrorHandling: true,
       strictModuleExceptionHandling: true,
+      globalObject: 'globalThis',
     },
     mode: opts.mode,
     target: opts.target,
@@ -283,7 +284,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].js',
       assetModuleFilename: 'assets/[name][ext]',
-      library: getLibraryNameFromCwd(opts.cwd),
+      library: opts.library ?? getLibraryNameFromCwd(opts.cwd),
       libraryTarget: 'umd',
       // These two options are subtly different, and while
       // `strictModuleExceptionHandling` is deprecated, it is the only
@@ -294,6 +295,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       // typical development mode that we work in.
       strictModuleErrorHandling: true,
       strictModuleExceptionHandling: true,
+      globalObject: 'globalThis',
     },
     mode: opts.mode,
     target: opts.target,
