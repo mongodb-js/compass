@@ -46,7 +46,9 @@ export default {
       out?: string;
     }>
   ) => {
-    const target = new Target(argv.dir ?? process.cwd(), {
+    // Force absolute paths to be used in expansions
+    const absoluteDir = path.resolve(argv.dir ?? process.cwd());
+    const target = new Target(absoluteDir, {
       version: argv.version,
       platform: argv.platform ?? process.platform,
       arch: argv.arch ?? process.arch,

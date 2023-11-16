@@ -1,92 +1,95 @@
-import fs from 'fs-extra';
-import plist from 'plist';
-import assert from 'assert';
+// import fs from 'fs-extra';
+// import plist from 'plist';
+// import assert from 'assert';
 
-import path from 'path';
-// const getConfig = require('./helpers').getConfig;
+// import path from 'path';
+// import { getTestTarget } from '../../test/helpers';
+// import type { Target } from '../../dist/lib/target';
+// import { runRelease } from './release';
 
-// TODO: Investigate why it's failing in GitHub Actions CI
-describe.skip('hadron-build::release', function () {
-  if (
-    // Functional tests on appveyor too slow. Skipping.
-    process.platform === 'win32' ||
-    // Fails too often on darwin due to hdiutil electron issue
-    process.platform === 'darwin'
-  ) {
-    return;
-  }
+// // TODO: Investigate why it's failing in GitHub Actions CI
+// describe.skip('hadron-build::release', function () {
 
-  this.timeout(300000);
-  let target = null;
+//   if (
+//     // Functional tests on appveyor too slow. Skipping.
+//     process.platform === 'win32' ||
+//     // Fails too often on darwin due to hdiutil electron issue
+//     process.platform === 'darwin'
+//   ) {
+//     return;
+//   }
 
-  before(function (done) {
-    fs.remove(
-      path.join(__dirname, 'fixtures', 'hadron-app', 'dist'),
-      (_err) => {
-        if (_err) {
-          return done(_err);
-        }
-        target = getConfig();
-        commands.release.run(target, done);
-      }
-    );
-  });
+//   this.timeout(300000);
+//   let target: Target;
 
-  it('should symlink `Electron` to the app binary on OS X', function (done) {
-    if (target.platform !== 'darwin') {
-      return this.skip();
-    }
-    const bin = target.dest(
-      `${target.productName}-darwin-${target.arch}`,
-      `${target.productName}.app`,
-      'Contents',
-      'MacOS',
-      'Electron'
-    );
-    fs.exists(bin, function (exists) {
-      assert(exists, `Expected ${bin} to exist`);
-      done();
-    });
-  });
+//   before(function (done) {
+//     fs.remove(
+//       path.join(__dirname, 'fixtures', 'hadron-app', 'dist'),
+//       (_err) => {
+//         if (_err) {
+//           return done(_err);
+//         }
+//         target = getTestTarget();
+//         runRelease(target, done);
+//       }
+//     );
+//   });
 
-  it('has the correct product name', function () {
-    assert.equal(
-      target.productName,
-      'MongoDB Compass Enterprise super long test name Beta'
-    );
-  });
+//   it('should symlink `Electron` to the app binary on OS X', function (done) {
+//     if (target.platform !== 'darwin') {
+//       return this.skip();
+//     }
+//     const bin = target.dest(
+//       `${target.productName}-darwin-${target.arch}`,
+//       `${target.productName}.app`,
+//       'Contents',
+//       'MacOS',
+//       'Electron'
+//     );
+//     fs.exists(bin, function (exists) {
+//       assert(exists, `Expected ${bin} to exist`);
+//       done();
+//     });
+//   });
 
-  it('sets the correct CFBundleIdentifier', function () {
-    if (target.platform !== 'darwin') {
-      return this.skip();
-    }
-    const info = target.dest(
-      `${target.productName}-darwin-${target.arch}`,
-      `${target.productName}.app`,
-      'Contents',
-      'Info.plist'
-    );
-    // eslint-disable-next-line no-sync
-    const config = plist.parse(fs.readFileSync(info, 'utf8'));
-    assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
-  });
+//   it('has the correct product name', function () {
+//     assert.equal(
+//       target.productName,
+//       'MongoDB Compass Enterprise super long test name Beta'
+//     );
+//   });
 
-  /**
-   * TODO (imlucas) Compare from `CONFIG.icon` to
-   * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
-   * Should have matching md5 of contents.
-   */
-  it('should have the correct application icon', function () {});
+//   it('sets the correct CFBundleIdentifier', function () {
+//     if (target.platform !== 'darwin') {
+//       return this.skip();
+//     }
+//     const info = target.dest(
+//       `${target.productName}-darwin-${target.arch}`,
+//       `${target.productName}.app`,
+//       'Contents',
+//       'Info.plist'
+//     );
+//     // eslint-disable-next-line no-sync
+//     const config = plist.parse(fs.readFileSync(info, 'utf8'));
+//     assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
+//   });
 
-  it.skip('should have all assets specified in the manifest', function () {
-    const missing = target.assets
-      .map(function (asset) {
-        // eslint-disable-next-line no-sync
-        return [asset.path, fs.existsSync(asset.path)];
-      })
-      .filter(([, existing]) => !existing)
-      .map(([assetPath]) => assetPath);
+//   /**
+//    * TODO (imlucas) Compare from `CONFIG.icon` to
+//    * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
+//    * Should have matching md5 of contents.
+//    */
+//   it('should have the correct application icon', function () {});
 
-    assert.deepStrictEqual(missing, []);
-  });
-});
+//   it.skip('should have all assets specified in the manifest', function () {
+//     const missing = target.assets
+//       .map(function (asset) {
+//         // eslint-disable-next-line no-sync
+//         return [asset.path, fs.existsSync(asset.path)];
+//       })
+//       .filter(([, existing]) => !existing)
+//       .map(([assetPath]) => assetPath);
+
+//     assert.deepStrictEqual(missing, []);
+//   });
+// });

@@ -23,10 +23,11 @@ import {
 
 import download from 'download';
 import type { CommandModule } from 'yargs';
+import { getMonorepoRoot } from '../lib/monorepo';
 
 type AssetsForVersion = ReturnType<typeof Target.getAssetsForVersion>;
 
-const root = path.resolve(__dirname, '..', '..', '..');
+const root = getMonorepoRoot();
 
 async function checkAssetsExist(paths: string[]) {
   await Promise.all(
@@ -58,13 +59,13 @@ const channelLabel: Record<string, string> = {
   beta: 'Beta',
 };
 
-function versionId(version: string, distribution = '') {
+export function versionId(version: string, distribution = '') {
   return [version, distribution.replace(/compass-?/, '')]
     .filter(Boolean)
     .join('-');
 }
 
-function readableVersionName(
+export function readableVersionName(
   version: string,
   channel: string,
   distribution: string
@@ -79,7 +80,11 @@ function readableVersionName(
   return `${version} ${desc ? `(${desc})` : ''}`.trim();
 }
 
-function readablePlatformName(arch: string, platform: string, fileName = '') {
+export function readablePlatformName(
+  arch: string,
+  platform: string,
+  fileName = ''
+) {
   let name = null;
 
   switch (`${platform}-${arch}`) {
@@ -114,7 +119,7 @@ function readablePlatformName(arch: string, platform: string, fileName = '') {
   return name;
 }
 
-function generateVersionsForAssets(
+export function generateVersionsForAssets(
   assets: AssetsForVersion,
   version: string,
   channel: string
@@ -395,32 +400,6 @@ async function updateManifest(dryRun: boolean) {
   }
 }
 
-const command = 'upload [options]';
-
-const describe = 'Upload assets from `release`.';
-
-const builder = {
-  dir: {
-    description: 'Project root directory',
-    default: process.cwd(),
-  },
-  version: {
-    description: 'Target version',
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    default: require(path.join(process.cwd(), 'package.json')).version,
-  },
-  manifest: {
-    description:
-      'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
-    default: false,
-  },
-  ['dry-run']: {
-    description:
-      'Does everything the real script will do without actually publishing assets to GH / download center',
-    default: process.env.npm_config_dry_run === 'true',
-  },
-};
-
 const handler = async function handler(argv: {
   version?: string;
   dir?: string;
@@ -498,8 +477,31 @@ const handler = async function handler(argv: {
 };
 
 export default {
-  command,
-  describe,
-  builder,
+  command: 'upload [options]',
+
+  describe: 'Upload assets from `release`.',
+
+  builder: {
+    dir: {
+      description: 'Project root directory',
+      default: process.cwd(),
+    },
+    version: {
+      description: 'Target version',
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      default: require(path.join(process.cwd(), 'package.json')).version,
+    },
+    manifest: {
+      description:
+        'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
+      default: false,
+    },
+    ['dry-run']: {
+      description:
+        'Does everything the real script will do without actually publishing assets to GH / download center',
+      default: process.env.npm_config_dry_run === 'true',
+    },
+  },
+
   handler,
 } as CommandModule;

@@ -399,7 +399,7 @@ async function cleanupCopiedNpmRc(dir: string) {
   });
 }
 
-async function runRelease({
+export async function runRelease({
   dir,
   distribution,
   skipInstaller,

@@ -335,8 +335,9 @@ type Asset = {
 };
 
 export class Target {
-  static supportedPlatforms: { platform: string; arch: string }[];
-  static supportedDistributions: CompassDistribution[];
+  static supportedPlatforms: { platform: string; arch: string }[] =
+    supportedPlatforms;
+  static supportedDistributions: CompassDistribution[] = supportedDistributions;
 
   dir: string;
   out: string;
