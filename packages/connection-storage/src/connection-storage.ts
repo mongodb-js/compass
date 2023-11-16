@@ -111,7 +111,10 @@ export class ConnectionStorage {
     // If user lands on this version of Compass with legacy connections (using storage mixin),
     // we will ignore those and only migrate connections that have connectionInfo.
     const connections = (await this.getConnections()).filter(
-      (x) => x.connectionInfo
+      (
+        x
+      ): x is ConnectionWithLegacyProps &
+        Required<Pick<ConnectionProps, 'connectionInfo'>> => !!x.connectionInfo
     );
     if (connections.length === 0) {
       log.info(
@@ -154,9 +157,7 @@ export class ConnectionStorage {
     let numFailedToMigrate = 0;
 
     for (const { connectionInfo } of unmigratedConnections) {
-      // We have connectionInfo as we are limiting this migration to
-      // connections that have connectionInfo (not legacy connections)
-      const _id = connectionInfo!.id;
+      const _id = connectionInfo.id;
       const connectionSecrets = secrets[_id];
 
       try {
