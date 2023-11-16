@@ -1,8 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { DownloadCenter } from '@mongodb-js/dl-center';
-import download from 'download';
 import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import download from 'download';
+import stream from 'stream';
+import { promisify } from 'util';
+
+const pipeline = promisify(stream.pipeline);
 
 const DOWNLOADS_BUCKET = 'downloads.10gen.com';
 const MANIFEST_BUCKET = 'info-mongodb-com';
@@ -54,29 +58,21 @@ export const uploadManifest = async (manifest: DownloadCenterConfig) => {
   return dlCenter.uploadConfig(MANIFEST_OBJECT_KEY, manifest);
 };
 
-export const downloadAssetFromEvergreen = ({
+export const downloadAssetFromEvergreen = async ({
   name,
   path: dest,
 }: {
   name: string;
   path: string;
 }): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    requireEnvironmentVariables([
-      'EVERGREEN_BUCKET_NAME',
-      'EVERGREEN_BUCKET_KEY_PREFIX',
-    ]);
-    const bucket = process.env.EVERGREEN_BUCKET_NAME;
-    const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
-    const url = `https://${bucket}.s3.amazonaws.com/${key}`;
-    const stream = download(url);
-    fs.promises
-      .mkdir(path.dirname(dest), { recursive: true })
-      .then(() => {
-        stream.pipe(fs.createWriteStream(dest));
-        stream.on('end', resolve);
-        stream.on('error', reject);
-      })
-      .catch(reject);
-  });
+  requireEnvironmentVariables([
+    'EVERGREEN_BUCKET_NAME',
+    'EVERGREEN_BUCKET_KEY_PREFIX',
+  ]);
+  const bucket = process.env.EVERGREEN_BUCKET_NAME;
+  const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
+  const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+  await fs.promises.mkdir(path.dirname(dest), { recursive: true });
+  const stream = download(url);
+  await pipeline(stream, fs.createWriteStream(dest));
 };
