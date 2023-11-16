@@ -37,6 +37,7 @@ type CompassConfigArgs = {
   devServerPort: number;
   cwd: string;
   coverage?: string;
+  library?: string;
 };
 
 export type ConfigArgs = WebpackCLIArgs & CompassConfigArgs;
