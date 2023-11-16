@@ -1,0 +1,16 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": [
+    "src/**/*",
+    "____test/index.spec.js",
+    "____test/release.spec.js",
+    "____test/tar-gz.spec.js",
+    "____test/target.spec.js",
+    "____test/upload.spec.js",
+    "____test/windows-installer-version.spec.js"
+  ],
+  "exclude": ["./src/**/*.spec.*"]
+}

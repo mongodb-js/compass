@@ -48,6 +48,7 @@ describe('target', () => {
 
     const target = new Target(path.join(__dirname, 'fixtures', 'hadron-app'));
 
+    expect(target).to.have.property('channel', 'my-custom-distribution');
     expect(target).to.have.property('distribution', 'my-custom-distribution');
     expect(target).to.have.property('name', 'compass-compass');
     expect(target).to.have.property(

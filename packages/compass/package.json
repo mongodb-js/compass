@@ -31,7 +31,6 @@
         }
       ],
       "distributions": {
-        "default": "compass",
         "compass": {
           "name": "mongodb-compass",
           "productName": "MongoDB Compass",

@@ -1,0 +1,148 @@
+{
+  "name": "compass-app",
+  "description": "Compass build's test fixture app.",
+  "version": "1.2.0-beta",
+  "main": "main.js",
+  "productName": "Compass",
+  "author": {"name": "MongoDB Inc."},
+  "license": "MIT",
+  "config": {
+    "hadron": {
+      "endpoint": "https://compass.mongodb.com",
+      "protocols": [
+        {
+          "name": "MongoDB Protocol",
+          "schemes": [
+            "mongodb"
+          ]
+        },
+        {
+          "name": "MongoDB+SRV Protocol",
+          "schemes": [
+            "mongodb+srv"
+          ]
+        }
+      ],
+      "distributions": {
+        "compass": {
+          "name": "compass",
+          "productName": "MongoDB Compass Enterprise super long test name",
+          "bundleId": "com.mongodb.hadron-testing",
+          "plugins-directory": ".mongodb/compass/plugins",
+          "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1"
+        },
+        "compass-readonly": {
+          "name": "compass-readonly",
+          "productName": "MongoDB Compass Readonly",
+          "bundleId": "com.mongodb.hadron-testing",
+          "plugins-directory": ".mongodb/compass/plugins",
+          "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1"
+        }
+      },
+      "build": {
+        "win32": {
+          "icon": "app-icons/win32/mongodb-compass.ico",
+          "favicon_url": "https://compass.mongodb.com/favicon.ico",
+          "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
+          "background": "app-icons/win32/background.jpg",
+          "banner": "app-icons/win32/banner.jpg"
+        },
+        "darwin": {
+          "icon": "app-icons/darwin/mongodb-compass.icns",
+          "dmg_background": "app-icons/darwin/background.png",
+          "app_category_type": "public.app-category.productivity"
+        },
+        "linux": {
+          "icon": "app-icons/linux/mongodb-compass.png",
+          "deb_section": "Databases",
+          "rpm_categories": [
+            "Office",
+            "Database",
+            "Building",
+            "Debugger",
+            "IDE",
+            "GUIDesigner",
+            "Profiling"
+          ]
+        }
+      },
+      "asar": {
+        "unpack": [
+          "**/@mongosh/node-runtime-worker-thread/**",
+          "**/interruptor/**",
+          "**/kerberos/**",
+          "**/snappy/**",
+          "**/mongodb-client-encryption/index.js",
+          "**/mongodb-client-encryption/package.json",
+          "**/mongodb-client-encryption/lib/**",
+          "**/mongodb-client-encryption/build/**",
+          "**/socks/**",
+          "**/smart-buffer/**",
+          "**/ip/**",
+          "**/bl/**",
+          "**/nan/**",
+          "**/node_modules/bindings/**",
+          "**/file-uri-to-path/**",
+          "**/bson/**",
+          "**/os-dns-native/**",
+          "**/debug/**",
+          "**/ms/**",
+          "**/bindings/**",
+          "**/ipv6-normalize/**",
+          "**/node-addon-api/**",
+          "**/win-export-certificate-and-key/**",
+          "**/macos-export-certificate-and-key/**",
+          "**/system-ca/**",
+          "**/node-forge/**",
+          "**/mongo_crypt_v1.*"
+        ]
+      },
+      "rebuild": {
+        "onlyModules": [
+          "interruptor",
+          "keytar",
+          "kerberos",
+          "os-dns-native",
+          "win-export-certificate-and-key",
+          "macos-export-certificate-and-key"
+        ]
+      },
+      "macosEntitlements": "./scripts/macos-entitlements.xml"
+    }
+  },
+  "scripts": {
+    "start": "compass-build develop",
+    "prepublish": "compass-build release",
+    "postuninstall": "compass-build clean",
+    "test-check-ci": "npm run test",
+    "clean": "compass-build clean",
+    "compile-ui": "compass-build ui",
+    "release": "compass-build release",
+    "upload": "compass-build upload"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/compass-fixture-app.git"
+  },
+  "dependencies": {
+    "compass-unused-plugin": "compass/plugin",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "compass-build": "^0.1.9",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "spectron": "^0.34.1",
+    "xvfb-maybe": "^0.1.3"
+  },
+  "_path": "/Users/modetojoy/work/mongodb-js/compass-build/test/fixtures/compass-app/package.json",
+  "bugs": {
+    "url": "https://github.com/mongodb-js/compass-fixture-app/issues"
+  },
+  "readme": "ERROR: No README data found!",
+  "homepage": "https://github.com/mongodb-js/compass-fixture-app#readme",
+  "_id": "compass-app@1.2.0",
+  "github_owner": "mongodb-js",
+  "github_repo": "compass-fixture-app",
+  "electronVersion": "1.4.12"
+}

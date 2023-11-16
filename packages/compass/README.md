@@ -42,7 +42,6 @@ And in package.json:
 
 ```js
 "distributions": {
-  "default": "compass",
   "compass": {
     "name": "mongodb-compass",
     "plugins": [

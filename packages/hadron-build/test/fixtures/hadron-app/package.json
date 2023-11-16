@@ -4,7 +4,7 @@
   "version": "1.2.0-beta",
   "main": "main.js",
   "productName": "Hadron",
-  "authors": "MongoDB Inc.",
+  "author": {"name": "MongoDB Inc."},
   "license": "MIT",
   "config": {
     "hadron": {
@@ -25,7 +25,6 @@
       },
       "distributions": {
         "plugin-prefix": "compass",
-        "default": "compass",
         "compass": {
           "name": "compass",
           "bundleId": "com.mongodb.hadron-testing",
@@ -79,8 +78,5 @@
   "_id": "hadron-app@1.2.0",
   "github_owner": "mongodb-js",
   "github_repo": "hadron-fixture-app",
-  "author": {
-    "name": "MongoDB Inc."
-  },
   "electronVersion": "1.4.12"
 }
