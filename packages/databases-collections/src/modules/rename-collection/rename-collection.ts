@@ -1,29 +1,21 @@
-import { combineReducers } from 'redux';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
-import isRunning, {
-  toggleIsRunning,
-  INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
-} from '../is-running';
-import isVisible, {
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
-} from '../is-visible';
-import error, {
-  clearError,
-  handleError,
-  INITIAL_STATE as ERROR_INITIAL_STATE,
-} from '../error';
-import dataService from '../data-service';
-import appRegistry from '../app-registry';
 import { openToast as openToastDefault } from '@mongodb-js/compass-components';
 import type { Reducer } from 'redux';
+import type { DataService } from 'mongodb-data-service';
+import type AppRegistry from 'hadron-app-registry';
 
 /**
  * Open action name.
  */
 const OPEN = 'databases-collections/rename-collection/OPEN';
-const RESET = 'database-collections/rename-collection/RESET';
+const CLOSE = 'database-collections/rename-collection/CLOSE';
+const TOGGLE_IS_VISIBLE =
+  'database-collections/rename-collection/TOGGLE_IS_VISIBLE';
+const RENAME_REQUEST_IN_PROGRESS =
+  'database-collections/rename-collection/TOGGLE_IS_RUNNING';
+const HANDLE_ERROR = 'database-collections/rename-collection/HANDLE_ERROR';
 
 /**
  * Open drop database action creator.
@@ -34,58 +26,79 @@ export const open = (db: string, collection: string) => ({
   collection,
 });
 
-export const reset = () => ({
-  type: RESET,
+export const toggleIsVisible = () => ({
+  type: TOGGLE_IS_VISIBLE,
 });
 
-/**
- * A simple reducer that reduces a single string value.
- */
-const stringReducer = (s = '') => s;
+const close = () => ({
+  type: CLOSE,
+});
 
-/**
- * The main reducer.
- */
-const reducer = combineReducers({
-  isRunning,
-  isVisible,
+const renameRequestInProgress = () => ({
+  type: RENAME_REQUEST_IN_PROGRESS,
+});
+
+const handleError = (error: Error) => ({
+  type: HANDLE_ERROR,
   error,
-  databaseName: stringReducer,
-  initialCollectionName: stringReducer,
-  dataService,
-  appRegistry,
 });
 
-export type RenameCollectionRootState = ReturnType<typeof reducer>;
+export type RenameCollectionRootState = {
+  error: Error | null;
+  initialCollectionName: string;
+  isRunning: boolean;
+  isVisible: boolean;
+  databaseName: string;
+};
 
-// @ts-expect-error state is never undefined
 const rootReducer: Reducer<RenameCollectionRootState, AnyAction> = (
   state: RenameCollectionRootState,
   action: AnyAction
 ): RenameCollectionRootState => {
-  if (action.type === RESET) {
+  if (action.type === CLOSE) {
     return {
-      ...state,
-      isRunning: IS_RUNNING_INITIAL_STATE,
-      isVisible: IS_VISIBLE_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
+      isRunning: false,
+      isVisible: false,
+      error: null,
       databaseName: '',
       initialCollectionName: '',
     };
   } else if (action.type === OPEN) {
     return {
-      ...state,
       initialCollectionName: action.collection,
       databaseName: action.db,
       isVisible: true,
-      isRunning: IS_RUNNING_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
+      isRunning: false,
+      error: null,
+    };
+  } else if (action.type === RENAME_REQUEST_IN_PROGRESS) {
+    return {
+      ...state,
+      isRunning: true,
+      error: null,
+    };
+  } else if (action.type === HANDLE_ERROR) {
+    return {
+      ...state,
+      error: action.error,
+      isRunning: false,
     };
   }
-  return reducer(state, action);
+  return state;
 };
 
 export default rootReducer;
+
+export const hideModal = (): ThunkAction<
+  void,
+  RenameCollectionRootState,
+  void,
+  AnyAction
+> => {
+  return (dispatch) => {
+    dispatch(close());
+  };
+};
 
 /**
  * A thunk action that renames a collection.
@@ -93,41 +106,41 @@ export default rootReducer;
 export const renameCollection = (
   newCollectionName: string,
   openToast: typeof openToastDefault = openToastDefault
-): ThunkAction<Promise<void>, RenameCollectionRootState, void, AnyAction> => {
+): ThunkAction<
+  Promise<void>,
+  RenameCollectionRootState,
+  { dataService: DataService; globalAppRegistry: AppRegistry },
+  AnyAction
+> => {
   return async (
-    dispatch: ThunkDispatch<RenameCollectionRootState, void, AnyAction>,
-    getState: () => RenameCollectionRootState
+    dispatch: ThunkDispatch<
+      RenameCollectionRootState,
+      { dataService: DataService; globalAppRegistry: AppRegistry },
+      AnyAction
+    >,
+    getState: () => RenameCollectionRootState,
+    { dataService, globalAppRegistry }
   ) => {
     const state = getState();
-    const ds = state.dataService.dataService;
     const { databaseName, initialCollectionName } = state;
 
-    dispatch(clearError());
-
-    if (!ds) {
-      return;
-    }
+    dispatch(renameRequestInProgress());
+    const oldNamespace = `${databaseName}.${initialCollectionName}`;
+    const newNamespace = `${databaseName}.${newCollectionName}`;
 
     try {
-      dispatch(toggleIsRunning(true));
-      await ds.renameCollection(
-        `${databaseName}.${initialCollectionName}`,
-        newCollectionName
-      );
-      const { appRegistry } = getState();
-
-      appRegistry?.emit('collection-renamed', {
-        to: `${databaseName}.${newCollectionName}`,
-        from: `${databaseName}.${initialCollectionName}`,
+      await dataService.renameCollection(oldNamespace, newCollectionName);
+      globalAppRegistry.emit('collection-renamed', {
+        to: newNamespace,
+        from: oldNamespace,
       });
-      dispatch(reset());
+      dispatch(close());
       openToast('collection-rename-success', {
         variant: 'success',
         title: `Collection renamed to ${newCollectionName}`,
         timeout: 5_000,
       });
     } catch (e: any) {
-      dispatch(toggleIsRunning(false));
       dispatch(handleError(e));
     }
   };

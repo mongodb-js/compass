@@ -59,11 +59,16 @@ export const DropNamespacePlugin = registerHadronPlugin(
   }
 );
 
-export const RenameCollectionPlugin = registerHadronPlugin({
-  name: 'RenameCollectionPlugin',
-  component: MappedRenameCollectionModal,
-  activate: activateRenameCollectionPlugin,
-});
+export const RenameCollectionPlugin = registerHadronPlugin(
+  {
+    name: 'RenameCollectionPlugin',
+    component: MappedRenameCollectionModal,
+    activate: activateRenameCollectionPlugin,
+  },
+  {
+    dataService: dataServiceLocator,
+  }
+);
 
 /**
  * Activate all the components in the package.

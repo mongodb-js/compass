@@ -11,8 +11,10 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
-import { renameCollection } from '../../modules/rename-collection/rename-collection';
-import { toggleIsVisible } from '../../modules/is-visible';
+import {
+  renameCollection,
+  hideModal,
+} from '../../modules/rename-collection/rename-collection';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 export interface RenameCollectionModalProps {
@@ -20,7 +22,7 @@ export interface RenameCollectionModalProps {
   error: Error | null;
   initialCollectionName: string;
   isRunning: boolean;
-  toggleIsVisible: (isVisible: boolean) => void;
+  hideModal: () => void;
   renameCollection: (newCollectionName: string) => void;
 }
 
@@ -37,7 +39,7 @@ function RenameCollectionModal({
   error,
   initialCollectionName,
   isRunning,
-  toggleIsVisible,
+  hideModal,
   renameCollection,
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
@@ -71,12 +73,12 @@ function RenameCollectionModal({
       }
     },
     [isVisible],
-    undefined,
+    undefined
   );
 
   const onHide = useCallback(() => {
-    toggleIsVisible(false);
-  }, [toggleIsVisible]);
+    hideModal();
+  }, [hideModal]);
 
   return (
     <FormModal
@@ -132,11 +134,11 @@ function RenameCollectionModal({
 const MappedRenameCollectionModal = connect(
   (
     state: RenameCollectionRootState
-  ): Omit<RenameCollectionModalProps, 'renameCollection' | 'toggleIsVisible'> =>
+  ): Omit<RenameCollectionModalProps, 'renameCollection' | 'hideModal'> =>
     state,
   {
-    toggleIsVisible,
-    renameCollection: renameCollection,
+    hideModal,
+    renameCollection,
   }
 )(RenameCollectionModal);
 
