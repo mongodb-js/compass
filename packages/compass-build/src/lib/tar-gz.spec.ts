@@ -1,6 +1,6 @@
 import path from 'path';
 import os from 'os';
-import { promises as fs } from 'fs';
+import { promises as fs, constants as fsConstants } from 'fs';
 import { execFile as execFileCb } from 'child_process';
 import util from 'util';
 const execFile = util.promisify(execFileCb);
@@ -13,7 +13,7 @@ describe('tar', function () {
     }
   });
 
-  let tmpdir;
+  let tmpdir: string;
   beforeEach(async function () {
     tmpdir = path.join(
       os.tmpdir(),
@@ -43,6 +43,6 @@ describe('tar', function () {
     await execFile('gunzip', ['-t', destFile]);
     await execFile('tar', ['-xvzf', destFile, '-C', extracted]);
     const extractedExecutable = path.join(extracted, 'src', 'executable');
-    await fs.access(extractedExecutable, fs.constants.X_OK);
+    await fs.access(extractedExecutable, fsConstants.X_OK);
   });
 });

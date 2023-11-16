@@ -4,7 +4,9 @@
   "version": "1.2.0-beta",
   "main": "main.js",
   "productName": "Compass",
-  "author": {"name": "MongoDB Inc."},
+  "author": {
+    "name": "MongoDB Inc."
+  },
   "license": "MIT",
   "config": {
     "hadron": {

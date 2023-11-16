@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import _ from 'lodash';
 
 import { getTestTarget } from '../../test/helpers';
-import type { TargetOptions } from './target';
+import type { TargetOptions, Target } from './target';
 
 describe('target', function () {
-  let env;
+  let env: NodeJS.ProcessEnv;
 
   beforeEach(function () {
     env = { ...process.env };
@@ -151,17 +151,18 @@ describe('target', function () {
       arch: 'x64',
     };
 
-    let res;
+    let res: Target;
     before(function () {
       res = getTestTarget(windows);
     });
-    it.skip('should have the platform specific packager options', function () {
+
+    it('should have the platform specific packager options', function () {
       const versionString = res.packagerOptions['version-string'];
       expect(versionString).to.be.a('object');
-      expect(versionString.CompanyName).to.equal('MongoDB Inc');
-      expect(versionString.FileDescription).to.be.a('string');
-      expect(versionString.ProductName).to.be.a('string');
-      expect(versionString.InternalName).to.be.a('string');
+      expect(versionString?.CompanyName).to.equal('MongoDB Inc.');
+      expect(versionString?.FileDescription).to.be.a('string');
+      expect(versionString?.ProductName).to.be.a('string');
+      expect(versionString?.InternalName).to.be.a('string');
     });
 
     it('should have the platform specific evergreen expansions', function () {
@@ -196,7 +197,7 @@ describe('target', function () {
     });
 
     describe('For non-stable channel releases', function () {
-      let dev;
+      let dev: Target;
       before(function () {
         dev = getTestTarget({
           version: '1.2.0-dev.5',
@@ -207,7 +208,7 @@ describe('target', function () {
 
       it('should append the channel name to the product name', function () {
         const versionString = dev.packagerOptions['version-string'];
-        expect(versionString.ProductName).to.equal(
+        expect(versionString?.ProductName).to.equal(
           'MongoDB Compass Enterprise super long test name Dev'
         );
       });

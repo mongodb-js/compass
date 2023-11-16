@@ -3,11 +3,13 @@ import path from 'path';
 import { Target } from '../lib/target';
 import { downloadAssetFromEvergreen } from '../lib/download-center';
 import { getMonorepoRoot } from '../lib/monorepo';
-import type { CommandModule } from 'yargs';
+import type { ArgumentsCamelCase, CommandModule } from 'yargs';
 
 const root = getMonorepoRoot();
 
-async function handler(argv: { dir?: string; version?: string }) {
+async function handler(
+  argv: ArgumentsCamelCase<{ dir?: string; version?: string }>
+) {
   const dir = argv.dir ?? process.cwd();
 
   const rawVersion: string =

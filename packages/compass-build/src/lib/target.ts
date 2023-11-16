@@ -114,6 +114,12 @@ type PackagerOptions = {
   electronVersion: string;
   sign: null;
   afterExtract: ((...args: any[]) => any)[];
+  'version-string'?: {
+    CompanyName: string;
+    FileDescription: string;
+    ProductName: string;
+    InternalName: string;
+  };
 };
 
 async function signLinuxPackage(src: string) {

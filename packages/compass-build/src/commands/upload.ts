@@ -1,12 +1,8 @@
 /* eslint-disable no-console */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable complexity */
+
 /**
  * Upload release assets to GitHub and S3.
  */
-
-// eslint-disable-next-line strict
-'use strict';
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
@@ -22,7 +18,7 @@ import {
 } from '../lib/download-center';
 
 import download from 'download';
-import type { CommandModule } from 'yargs';
+import type { ArgumentsCamelCase, CommandModule } from 'yargs';
 import { getMonorepoRoot } from '../lib/monorepo';
 
 type AssetsForVersion = ReturnType<typeof Target.getAssetsForVersion>;
@@ -399,12 +395,14 @@ async function updateManifest(dryRun: boolean) {
   }
 }
 
-const handler = async function handler(argv: {
-  version?: string;
-  dir?: string;
-  dryRun?: boolean;
-  manifest?: string;
-}) {
+const handler = async function handler(
+  argv: ArgumentsCamelCase<{
+    version?: string;
+    dir?: string;
+    dryRun?: boolean;
+    manifest?: string;
+  }>
+) {
   if (!argv.version) {
     throw new Error('the version argument is required');
   }

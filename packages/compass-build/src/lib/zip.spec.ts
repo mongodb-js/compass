@@ -12,7 +12,7 @@ import { createZipPackage } from './zip';
 import { expect } from 'chai';
 import type { Target } from '../../dist/lib/target';
 
-function skipUnlessRunningOn(platform) {
+function skipUnlessRunningOn(platform: string) {
   before(function () {
     if (process.platform !== platform) {
       this.skip();
