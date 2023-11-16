@@ -445,8 +445,9 @@ export async function packageCompass({
 }
 
 export default {
-  command: 'release',
+  command: 'release [distribution]',
   describe: 'Build a packaged version of Compass',
+
   builder: {
     dir: {
       description: 'Project root directory',
@@ -468,11 +469,13 @@ export default {
       dir?: string;
       skipInstaller?: boolean;
       noAsar?: boolean;
+      distribution?: string;
     }>
   ) => {
-    const distribution = String(args._[1]) ?? process.env.HADRON_DISTRIBUTION;
+    const distribution =
+      args.distribution ?? process.env.HADRON_DISTRIBUTION ?? 'compass';
 
-    // copy back distribution to HADRON_DISTRIBUTION in case it was set via command line
+    // Copy back the distribution to env.HADRON_DISTRIBUTION
     if (distribution) {
       process.env.HADRON_DISTRIBUTION = distribution;
     }

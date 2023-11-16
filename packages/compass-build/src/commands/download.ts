@@ -42,7 +42,7 @@ async function handler(
 }
 
 export default {
-  command: 'download [options]',
+  command: 'download',
   describe: 'Download all `release` assets from evergreen bucket',
   builder: {
     dir: {

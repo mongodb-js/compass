@@ -473,7 +473,7 @@ const handler = async function handler(
 };
 
 export default {
-  command: 'upload [options]',
+  command: 'upload',
 
   describe: 'Upload assets from `release`.',
 
