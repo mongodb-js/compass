@@ -237,12 +237,14 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       }
 
       if (key === 'data') {
-        if (item.type === 'query') {
+        if (item.type === 'query' || item.type === 'updatemany') {
           return JSON.stringify({
             filter: item.query.filter,
           });
-        } else {
+        } else if (item.type === 'aggregation') {
           return item.aggregation.pipelineText;
+        } else {
+          return [];
         }
       }
 
