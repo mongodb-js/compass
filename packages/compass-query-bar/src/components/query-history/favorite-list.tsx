@@ -28,11 +28,13 @@ type FavoriteActions = {
 
 const FavoriteItem = ({
   query,
+  isReadonly,
   onApply,
   onDelete,
   onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   query: FavoriteQuery;
+  isReadonly: boolean;
 }) => {
   const isUpdateQuery = useMemo(() => !!query.update, [query]);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
@@ -42,12 +44,23 @@ const FavoriteItem = ({
       screen: 'documents',
     });
 
+    if (isReadonly) {
+      return;
+    }
+
     if (isUpdateQuery) {
       onUpdateFavoriteChoosen();
     }
 
     onApply(attributes);
-  }, [onApply, onUpdateFavoriteChoosen, query._id, attributes, isUpdateQuery]);
+  }, [
+    onApply,
+    onUpdateFavoriteChoosen,
+    query._id,
+    attributes,
+    isUpdateQuery,
+    isReadonly,
+  ]);
 
   const onDeleteClick = useCallback(() => {
     track('Query History Favorite Removed', {
@@ -60,6 +73,7 @@ const FavoriteItem = ({
   return (
     <QueryItemCard
       key={query._id}
+      disabled={isReadonly}
       onClick={onCardClick}
       data-testid="favorite-query-list-item"
       header={(isHovered: boolean) => (
@@ -70,7 +84,7 @@ const FavoriteItem = ({
             />
           )}
           {isHovered && <DeleteActionButton onClick={onDeleteClick} />}
-          {isUpdateQuery && (
+          {isUpdateQuery && !isReadonly && (
             <OpenBulkUpdateActionButton onClick={onCardClick} />
           )}
         </QueryItemHeading>
@@ -83,11 +97,13 @@ const FavoriteItem = ({
 
 const FavoriteList = ({
   queries,
+  isReadonly,
   onApply,
   onDelete,
   onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   queries: FavoriteQuery[];
+  isReadonly: boolean;
 }) => {
   if (queries.length === 0) {
     return <ZeroGraphic text={'Your favorite queries will appear here.'} />;
@@ -96,6 +112,7 @@ const FavoriteList = ({
     <FavoriteItem
       key={query._id}
       query={query}
+      isReadonly={isReadonly}
       onApply={onApply}
       onDelete={onDelete}
       onUpdateFavoriteChoosen={onUpdateFavoriteChoosen}
@@ -105,8 +122,9 @@ const FavoriteList = ({
 };
 
 export default connect(
-  ({ queryBar: { favoriteQueries } }: RootState) => ({
+  ({ queryBar: { favoriteQueries, isReadonlyConnection } }: RootState) => ({
     queries: favoriteQueries,
+    isReadonly: !isReadonlyConnection,
   }),
   {
     onApply: applyFromHistory,
