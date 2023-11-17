@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { FavoriteList } from './favorite-list';
