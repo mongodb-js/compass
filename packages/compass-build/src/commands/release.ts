@@ -17,7 +17,9 @@ import { createZipPackage } from '../lib/zip';
 const execFile = util.promisify(childProcess.execFile);
 
 export const compileAssets = async (target: Target) => {
-  await execFile('npm', ['run', 'compile'], { cwd: target.dir });
+  const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+  await execFile(npmExecutable, ['run', 'compile'], { cwd: target.dir });
 };
 
 const createBrandedApplication = async (target: Target) => {

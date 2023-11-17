@@ -17,7 +17,8 @@ async function main() {
     .demandCommand(1, 'Please specify a command.')
     .strict()
     .version(false)
-    .help('help');
+    .showHelpOnFail(false)
+    .help();
 
   await program.parse();
 }
