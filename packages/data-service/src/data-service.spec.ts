@@ -550,9 +550,9 @@ describe('DataService', function () {
           'initialCollection',
           'renamedCollection',
         ]) {
-          await dataService.dropCollection(
-            `${testDatabaseName}.${collectionName}`
-          );
+          await dataService
+            .dropCollection(`${testDatabaseName}.${collectionName}`)
+            .catch(() => null);
         }
         await dataService.createCollection(
           `${testDatabaseName}.initialCollection`,
