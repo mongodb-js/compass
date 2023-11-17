@@ -72,7 +72,14 @@ export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 
-export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
+export type { ToastActions } from './hooks/use-toast';
+export {
+  useToast,
+  openToast,
+  closeToast,
+  ToastArea,
+  toastProviderLocator,
+} from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';

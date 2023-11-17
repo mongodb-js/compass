@@ -1,24 +1,32 @@
 import React from 'react';
+import Sinon from 'sinon';
 import { expect } from 'chai';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import store from '../stores/rename-collection';
 
-import RenameCollectionModal from './rename-collection-modal';
-import { Provider } from 'react-redux';
-import { open } from '../modules/rename-collection/rename-collection';
+import { RenameCollectionPlugin } from '../..';
+import AppRegistry from 'hadron-app-registry';
 
 describe('CreateCollectionModal [Component]', function () {
+  const sandbox = Sinon.createSandbox();
+  const appRegistry = sandbox.spy(new AppRegistry());
+  const dataService = {
+    renameCollection: sandbox.stub().resolves({}),
+  };
   context('when the modal is visible', function () {
     beforeEach(function () {
-      render(
-        <Provider store={store}>
-          <RenameCollectionModal />
-        </Provider>
-      );
-      store.dispatch(open('foo', 'bar'));
+      const Plugin = RenameCollectionPlugin.withMockServices({
+        globalAppRegistry: appRegistry,
+        dataService,
+      });
+      render(<Plugin> </Plugin>);
+      appRegistry.emit('open-rename-collection', {
+        database: 'foo',
+        collection: 'bar',
+      });
     });
 
     afterEach(function () {
+      sandbox.resetHistory();
       cleanup();
     });
 
@@ -32,13 +40,11 @@ describe('CreateCollectionModal [Component]', function () {
     });
 
     it('opens with the collection name in the input', () => {
-      store.dispatch(open('foo', 'bar'));
       const input = screen.getByTestId('rename-collection-name-input');
       expect(input.value).to.equal('bar');
     });
 
     it('disables the submit button when the value is equal to the initial collection name', () => {
-      store.dispatch(open('foo', 'bar'));
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
       expect(submitButton).to.have.attribute('disabled');

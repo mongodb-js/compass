@@ -18,6 +18,8 @@ import { DatabasesPlugin } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
 
+import { toastProviderLocator } from '@mongodb-js/compass-components';
+
 // View collections list plugin.
 const COLLECTIONS_PLUGIN_ROLE = {
   name: 'Collections',
@@ -67,6 +69,7 @@ export const RenameCollectionPlugin = registerHadronPlugin(
   },
   {
     dataService: dataServiceLocator,
+    toastService: toastProviderLocator,
   }
 );
 

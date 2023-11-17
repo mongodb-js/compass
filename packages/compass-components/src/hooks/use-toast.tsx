@@ -21,7 +21,7 @@ const defaultToastProperties: Partial<ToastProperties> = {
   dismissible: true,
 };
 
-interface ToastActions {
+export interface ToastActions {
   openToast: (id: string, toastProperties: ToastProperties) => void;
   closeToast: (id: string) => void;
 }
@@ -208,4 +208,15 @@ export function useToast(namespace: string): ToastActions {
     openToast,
     closeToast,
   };
+}
+
+export function toastProviderLocator(): ToastActions {
+  const toastService = useContext(ToastContext);
+  if (!toastService) {
+    throw new Error(
+      'The ToastContext is not available in the component context.'
+    );
+  }
+
+  return toastService;
 }

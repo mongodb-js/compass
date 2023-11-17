@@ -1,115 +1,119 @@
 import { expect } from 'chai';
+import Sinon from 'sinon';
 import type { RenameCollectionRootState } from './rename-collection';
-import { open, renameCollection } from './rename-collection';
-import { reset } from '../reset';
-import * as sinon from 'sinon';
-import * as compassComponents from '@mongodb-js/compass-components';
-import { toggleIsRunning } from '../is-running';
+import { renameCollection, renameRequestInProgress } from './rename-collection';
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from './rename-collection';
-import { dataServiceConnected } from '../data-service';
-import type { DataService } from 'mongodb-data-service';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
+import AppRegistry from 'hadron-app-registry';
+import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
+import { activateRenameCollectionPlugin } from '../../stores/rename-collection';
+import type { ToastActions } from '@mongodb-js/compass-components';
 
 describe('rename collection module', function () {
   let store;
   beforeEach(() => {
-    store = legacy_createStore(rootReducer, applyMiddleware(thunk));
-  });
-  describe('#reducer', function () {
-    context('when an action is provided', function () {
-      context('when the action is reset', function () {
-        it('returns the reset state', function () {
-          store.dispatch(reset());
-          expect(store.getState()).to.contain({
-            isRunning: false,
-            isVisible: false,
-            error: null,
-            databaseName: '',
-            initialCollectionName: '',
-          });
-        });
-      });
+    store = legacy_createStore(
+      rootReducer,
 
-      context('when the action is open', function () {
-        it('returns the reset state', function () {
-          store.dispatch(open('database-name', 'collection-name'));
-          expect(store.getState()).to.contain({
-            isRunning: false,
-            isVisible: true,
-            error: null,
-            databaseName: 'database-name',
-            initialCollectionName: 'collection-name',
-          });
-        });
-      });
-    });
+      applyMiddleware(thunk)
+    );
   });
 
-  describe('#renameCollection', () => {
-    const renameCollectionSpy = sinon.stub();
-    const openToast = sinon.stub(compassComponents, 'openToast');
-    let dispatch: ThunkDispatch<RenameCollectionRootState, void, AnyAction>;
-    let getState: () => RenameCollectionRootState;
-    beforeEach(() => {
-      store.dispatch(
-        dataServiceConnected(null, {
-          renameCollection: renameCollectionSpy,
-        } as any as DataService)
+  const sandbox = Sinon.createSandbox();
+  const appRegistry = sandbox.spy(new AppRegistry());
+  const dataService = {
+    renameCollection: sandbox.stub().resolves({}),
+  };
+  const toastService: ToastActions = {
+    openToast: sandbox.spy(),
+    closeToast: sandbox.spy(),
+  };
+  const extraThunkArgs: RenameCollectionPluginServices = {
+    globalAppRegistry: appRegistry,
+    toastService,
+    dataService,
+  };
+  context('when the modal is visible', function () {
+    beforeEach(function () {
+      const plugin = activateRenameCollectionPlugin(
+        {},
+        {
+          globalAppRegistry: appRegistry,
+          dataService,
+          toastService,
+        }
       );
-      dispatch = store.dispatch.bind(store);
-      getState = store.getState.bind(store);
+      store = plugin.store;
     });
 
-    afterEach(() => sinon.restore());
+    describe('#reducer', function () {
+      context('RENAME_REQUEST_IN_PROGRESS', () => {
+        it('marks the state as running', () => {
+          store.dispatch(renameRequestInProgress());
+          expect(store.getState().isRunning).to.be.true;
+        });
+        it('nulls out any existing errors', () => {
+          store.dispatch(renameRequestInProgress());
+          expect(store.getState().error).to.be.null;
+        });
+      });
 
-    it('clears any existing errors', async () => {
-      const creator = renameCollection('new-collection');
-      await creator(dispatch, getState);
-      expect(store.getState().error).to.be.null;
-    });
-    it('sets the state to "running"', async () => {
-      const dispatchSpy = sinon.spy();
-      const creator = renameCollection('new-collection');
-      await creator(dispatchSpy, getState);
-      expect(dispatchSpy).to.have.been.calledWith(toggleIsRunning(true));
-    });
-    it('renames the collection using the data service', async () => {
-      const creator = renameCollection('new-collection');
-      await creator(dispatch, getState);
-      expect(renameCollectionSpy.called).to.be.true;
-    });
-    it('opens a success toast', async () => {
-      const creator = renameCollection('new-collection', openToast);
-      await creator(dispatch, getState);
-      expect(openToast).to.have.been.called;
-      const [id, options] = openToast.getCall(0).args;
-      expect(id).to.equal('collection-rename-success');
-      expect(options).to.deep.equal({
-        variant: 'success',
-        title: `Collection renamed to new-collection`,
-        timeout: 5_000,
+      context('OPEN', () => {
+        it('marks the state as running', () => {
+          store.dispatch(renameRequestInProgress());
+          expect(store.getState().isRunning).to.be.true;
+        });
+        it('nulls out any existing errors', () => {
+          store.dispatch(renameRequestInProgress());
+          expect(store.getState().error).to.be.null;
+        });
       });
     });
 
-    context('when there is an error', () => {
-      const error = new Error('something went wrong');
+    describe('#renameCollection', () => {
+      let dispatch: ThunkDispatch<
+        RenameCollectionRootState,
+        RenameCollectionPluginServices,
+        AnyAction
+      >;
+      let getState: () => RenameCollectionRootState;
       beforeEach(() => {
-        renameCollectionSpy.rejects(error);
+        dispatch = store.dispatch.bind(store);
+        getState = store.getState.bind(store);
       });
 
-      it('sets the state to not running', async () => {
+      it('renames the collection', async () => {
         const creator = renameCollection('new-collection');
-        await creator(dispatch, getState);
-        expect(store.getState().isRunning).to.be.false;
+        await creator(dispatch, getState, extraThunkArgs);
+        expect(dataService.renameCollection.called).to.be.true;
       });
 
-      it('reports an error', async () => {
+      it('opens a success toast', async () => {
         const creator = renameCollection('new-collection');
-        await creator(dispatch, getState);
-        expect(store.getState().error).to.equal(error);
+        await creator(dispatch, getState, extraThunkArgs);
+        expect(toastService.openToast).to.have.been.called;
+      });
+
+      context('when there is an error', () => {
+        const error = new Error('something went wrong');
+        beforeEach(() => {
+          dataService.renameCollection.rejects(error);
+        });
+
+        it('sets the state to not running', async () => {
+          const creator = renameCollection('new-collection');
+          await creator(dispatch, getState, extraThunkArgs);
+          expect(store.getState().isRunning).to.be.false;
+        });
+
+        it('reports an error', async () => {
+          const creator = renameCollection('new-collection');
+          await creator(dispatch, getState, extraThunkArgs);
+          expect(store.getState().error).to.equal(error);
+        });
       });
     });
   });

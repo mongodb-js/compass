@@ -5,13 +5,21 @@ import type { DataService } from 'mongodb-data-service';
 import rootReducer, {
   open,
 } from '../modules/rename-collection/rename-collection';
+import type { ToastActions } from '@mongodb-js/compass-components';
+
+export type RenameCollectionPluginServices = {
+  dataService: DataService;
+  globalAppRegistry: AppRegistry;
+  toastService: ToastActions;
+};
 
 export function activateRenameCollectionPlugin(
   _,
   {
     globalAppRegistry,
     dataService,
-  }: { globalAppRegistry: AppRegistry; dataService: DataService }
+    toastService,
+  }: RenameCollectionPluginServices
 ) {
   const store = legacy_createStore(
     rootReducer,
@@ -19,6 +27,7 @@ export function activateRenameCollectionPlugin(
       thunk.withExtraArgument({
         globalAppRegistry,
         dataService,
+        toastService,
       })
     )
   );

@@ -5,6 +5,8 @@ import { openToast as openToastDefault } from '@mongodb-js/compass-components';
 import type { Reducer } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
+import { ToastActions } from '@mongodb-js/compass-components';
+import { RenameCollectionPluginServices } from '../../stores/rename-collection';
 
 /**
  * Open action name.
@@ -30,11 +32,11 @@ export const toggleIsVisible = () => ({
   type: TOGGLE_IS_VISIBLE,
 });
 
-const close = () => ({
+export const close = () => ({
   type: CLOSE,
 });
 
-const renameRequestInProgress = () => ({
+export const renameRequestInProgress = () => ({
   type: RENAME_REQUEST_IN_PROGRESS,
 });
 
@@ -51,18 +53,20 @@ export type RenameCollectionRootState = {
   databaseName: string;
 };
 
+const defaultState: RenameCollectionRootState = {
+  isRunning: false,
+  isVisible: false,
+  error: null,
+  databaseName: '',
+  initialCollectionName: '',
+};
+
 const rootReducer: Reducer<RenameCollectionRootState, AnyAction> = (
-  state: RenameCollectionRootState,
+  state: RenameCollectionRootState = defaultState,
   action: AnyAction
 ): RenameCollectionRootState => {
   if (action.type === CLOSE) {
-    return {
-      isRunning: false,
-      isVisible: false,
-      error: null,
-      databaseName: '',
-      initialCollectionName: '',
-    };
+    return defaultState;
   } else if (action.type === OPEN) {
     return {
       initialCollectionName: action.collection,
@@ -104,22 +108,17 @@ export const hideModal = (): ThunkAction<
  * A thunk action that renames a collection.
  *  */
 export const renameCollection = (
-  newCollectionName: string,
-  openToast: typeof openToastDefault = openToastDefault
+  newCollectionName: string
 ): ThunkAction<
   Promise<void>,
   RenameCollectionRootState,
-  { dataService: DataService; globalAppRegistry: AppRegistry },
+  RenameCollectionPluginServices,
   AnyAction
 > => {
   return async (
-    dispatch: ThunkDispatch<
-      RenameCollectionRootState,
-      { dataService: DataService; globalAppRegistry: AppRegistry },
-      AnyAction
-    >,
-    getState: () => RenameCollectionRootState,
-    { dataService, globalAppRegistry }
+    dispatch,
+    getState,
+    { dataService, globalAppRegistry, toastService }
   ) => {
     const state = getState();
     const { databaseName, initialCollectionName } = state;
@@ -135,7 +134,7 @@ export const renameCollection = (
         from: oldNamespace,
       });
       dispatch(close());
-      openToast('collection-rename-success', {
+      toastService.openToast('collection-rename-success', {
         variant: 'success',
         title: `Collection renamed to ${newCollectionName}`,
         timeout: 5_000,

@@ -184,9 +184,10 @@ const reducer: Reducer<CollectionTabsState> = (
     };
   }
   if (action.type === CollectionTabsActions.CollectionRenamed) {
-    const { tabs, activeTabIndex } = action;
+    const { tabs } = action;
 
-    const activeTabId = tabs[activeTabIndex]?.id;
+    const activeTabIndex = getActiveTabIndex(state);
+    const activeTabId = tabs[activeTabIndex]?.id ?? nulld;
     return {
       ...state,
       tabs,
@@ -420,12 +421,10 @@ export const collectionRenamed = ({
           )
         : tab
     );
-    const activeTabIndex = getActiveTabIndex(getState());
 
     dispatch({
       type: CollectionTabsActions.CollectionRenamed,
       tabs,
-      activeTabIndex: activeTabIndex >= 0 ? activeTabIndex : null,
     });
   };
 };

@@ -219,7 +219,6 @@ describe('Collection Rename Modal', () => {
       const modal = new RenameCollectionModal(browser);
       await modal.isVisible();
 
-      console.error('modal is visible');
       await browser.clickVisible(modal.dismissButton);
       await modal.isNotVisible();
     });
