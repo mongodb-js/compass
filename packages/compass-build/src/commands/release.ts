@@ -16,10 +16,10 @@ import { createZipPackage } from '../lib/zip';
 
 const execFile = util.promisify(childProcess.execFile);
 
-export const compileAssets = async (target: Target) => {
-  const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
-  await execFile(npmExecutable, ['run', 'compile'], { cwd: target.dir });
+export const compileAssets = async (target: Target) => {
+  await execFile(NPM_BIN, ['run', 'compile'], { cwd: target.dir });
 };
 
 const createBrandedApplication = async (target: Target) => {
@@ -254,7 +254,7 @@ const installDependencies = async (target: Target) => {
     cwd: appPackagePath,
   };
 
-  await execFile('npm', ['install', '--production'], opts);
+  await execFile(NPM_BIN, ['install', '--production'], opts);
 
   console.debug('Production dependencies installed');
 
