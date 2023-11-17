@@ -1,0 +1,8 @@
+ignores: [
+  "electron-mocha",
+  "getos",
+  "got",
+  "in-publish",
+  "node-abi",
+  "xvfb-maybe"
+]

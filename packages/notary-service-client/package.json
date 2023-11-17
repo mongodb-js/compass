@@ -1,0 +1,39 @@
+{
+  "name": "@mongodb-js/mongodb-notary-service-client",
+  "description": "A client for our notary-service: an API for codesigning",
+  "version": "2.0.4",
+  "scripts": {
+    "check": "npm run lint && npm run depcheck",
+    "test": "mocha",
+    "test-check-ci": "npm run check && npm test",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck",
+    "test-ci": "npm run test"
+  },
+  "main": "index.js",
+  "compass:main": "index.js",
+  "homepage": "https://github.com/mongodb-js/compass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "dotenv": "^4.0.0",
+    "lodash": "^4.17.21",
+    "pbkdf2": "^3.0.9",
+    "superagent": "^3.3.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "depcheck": "^1.4.1",
+    "eslint": "^7.25.0",
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^10.2.0"
+  },
+  "license": "SSPL"
+}
