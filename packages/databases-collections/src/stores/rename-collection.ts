@@ -6,7 +6,7 @@ import reducer, { open } from '../modules/rename-collection/rename-collection';
 import type { ToastActions } from '@mongodb-js/compass-components';
 
 export type RenameCollectionPluginServices = {
-  dataService: DataService;
+  dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
   toastService: ToastActions;
 };

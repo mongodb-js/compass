@@ -68,7 +68,8 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     activate: activateRenameCollectionPlugin,
   },
   {
-    dataService: dataServiceLocator,
+    dataService:
+      dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
     toastService: toastProviderLocator,
   }
 );

@@ -97,7 +97,7 @@ async function renameCollectionSuccessFlow(
   await page.successToast.waitForDisplayed();
 }
 
-describe('Collection Rename Modal', () => {
+describe.only('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
 
