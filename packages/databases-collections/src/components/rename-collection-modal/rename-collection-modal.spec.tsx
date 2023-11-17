@@ -40,7 +40,9 @@ describe('CreateCollectionModal [Component]', function () {
     });
 
     it('opens with the collection name in the input', () => {
-      const input = screen.getByTestId('rename-collection-name-input');
+      const input: HTMLInputElement = screen.getByTestId(
+        'rename-collection-name-input'
+      );
       expect(input.value).to.equal('bar');
     });
 

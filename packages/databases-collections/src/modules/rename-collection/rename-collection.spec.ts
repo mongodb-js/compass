@@ -13,7 +13,7 @@ import { activateRenameCollectionPlugin } from '../../stores/rename-collection';
 import type { ToastActions } from '@mongodb-js/compass-components';
 
 describe('rename collection module', function () {
-  let store;
+  let store: ReturnType<typeof activateRenameCollectionPlugin>['store'];
   beforeEach(() => {
     store = legacy_createStore(
       rootReducer,
