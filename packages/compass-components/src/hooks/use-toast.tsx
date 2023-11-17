@@ -211,6 +211,7 @@ export function useToast(namespace: string): ToastActions {
 }
 
 export function toastProviderLocator(): ToastActions {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const toastService = useContext(ToastContext);
   if (!toastService) {
     throw new Error(

@@ -121,18 +121,21 @@ export const CollectionItem: React.FunctionComponent<
           icon: 'Edit',
         }
       );
-    } else {
+
+      return actions;
+    }
+
+    type !== 'timeseries' &&
       actions.push({
         action: 'rename-collection',
         label: 'Rename collection',
         icon: 'Edit',
       });
-      actions.push({
-        action: 'drop-collection',
-        label: 'Drop collection',
-        icon: 'Trash',
-      });
-    }
+    actions.push({
+      action: 'drop-collection',
+      label: 'Drop collection',
+      icon: 'Trash',
+    });
 
     return actions;
   }, [type, isReadOnly]);

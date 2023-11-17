@@ -1,20 +1,14 @@
 import type { AnyAction } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 
-import { openToast as openToastDefault } from '@mongodb-js/compass-components';
 import type { Reducer } from 'redux';
-import type { DataService } from 'mongodb-data-service';
-import type AppRegistry from 'hadron-app-registry';
-import { ToastActions } from '@mongodb-js/compass-components';
-import { RenameCollectionPluginServices } from '../../stores/rename-collection';
+import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 
 /**
  * Open action name.
  */
 const OPEN = 'databases-collections/rename-collection/OPEN';
 const CLOSE = 'database-collections/rename-collection/CLOSE';
-const TOGGLE_IS_VISIBLE =
-  'database-collections/rename-collection/TOGGLE_IS_VISIBLE';
 const RENAME_REQUEST_IN_PROGRESS =
   'database-collections/rename-collection/TOGGLE_IS_RUNNING';
 const HANDLE_ERROR = 'database-collections/rename-collection/HANDLE_ERROR';
@@ -26,10 +20,6 @@ export const open = (db: string, collection: string) => ({
   type: OPEN,
   db,
   collection,
-});
-
-export const toggleIsVisible = () => ({
-  type: TOGGLE_IS_VISIBLE,
 });
 
 export const close = () => ({
@@ -61,7 +51,7 @@ const defaultState: RenameCollectionRootState = {
   initialCollectionName: '',
 };
 
-const rootReducer: Reducer<RenameCollectionRootState, AnyAction> = (
+const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
   state: RenameCollectionRootState = defaultState,
   action: AnyAction
 ): RenameCollectionRootState => {
@@ -91,7 +81,7 @@ const rootReducer: Reducer<RenameCollectionRootState, AnyAction> = (
   return state;
 };
 
-export default rootReducer;
+export default reducer;
 
 export const hideModal = (): ThunkAction<
   void,

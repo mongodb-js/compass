@@ -16,7 +16,7 @@ import tabs, {
   collectionRenamed,
 } from '../modules/tabs';
 import { globalAppRegistry } from 'hadron-app-registry';
-import { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 type ThunkExtraArg = {
   globalAppRegistry: AppRegistry;
