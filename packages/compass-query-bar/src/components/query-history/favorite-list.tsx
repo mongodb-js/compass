@@ -20,7 +20,7 @@ import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
-type FavoriteActions = {
+export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
   onDelete: (id: string) => void;
   onUpdateFavoriteChoosen: () => void;
@@ -37,6 +37,11 @@ const FavoriteItem = ({
   isReadonly: boolean;
 }) => {
   const isUpdateQuery = useMemo(() => !!query.update, [query]);
+  const isDisabled = useMemo(
+    () => isUpdateQuery && isReadonly,
+    [isUpdateQuery, isReadonly]
+  );
+
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
   const onCardClick = useCallback(() => {
     track('Query History Favorite Used', {
@@ -44,7 +49,7 @@ const FavoriteItem = ({
       screen: 'documents',
     });
 
-    if (isReadonly) {
+    if (isDisabled) {
       return;
     }
 
@@ -59,7 +64,7 @@ const FavoriteItem = ({
     query._id,
     attributes,
     isUpdateQuery,
-    isReadonly,
+    isDisabled,
   ]);
 
   const onDeleteClick = useCallback(() => {
@@ -73,7 +78,7 @@ const FavoriteItem = ({
   return (
     <QueryItemCard
       key={query._id}
-      disabled={isReadonly}
+      disabled={isDisabled}
       onClick={onCardClick}
       data-testid="favorite-query-list-item"
       header={(isHovered: boolean) => (
@@ -95,7 +100,7 @@ const FavoriteItem = ({
   );
 };
 
-const FavoriteList = ({
+export const FavoriteList = ({
   queries,
   isReadonly,
   onApply,
