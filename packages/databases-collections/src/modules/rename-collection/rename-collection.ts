@@ -139,8 +139,8 @@ export const renameCollection = (
         title: `Collection renamed to ${newCollectionName}`,
         timeout: 5_000,
       });
-    } catch (e: any) {
-      dispatch(handleError(e));
+    } catch (e) {
+      dispatch(handleError(e as Error));
     }
   };
 };

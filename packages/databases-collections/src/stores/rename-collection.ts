@@ -14,7 +14,7 @@ export type RenameCollectionPluginServices = {
 };
 
 export function activateRenameCollectionPlugin(
-  _,
+  _: unknown,
   {
     globalAppRegistry,
     dataService,
