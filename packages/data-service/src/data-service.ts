@@ -1578,7 +1578,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.drop(options);
   }
 
-  @op(mongoLogId(1_001_000_269))
+  @op(mongoLogId(1_001_000_270))
   renameCollection(
     ns: string,
     newCollectionName: string
