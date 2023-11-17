@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-const MAX_SIZE_MB = 200;
+const MAX_SIZE_MB = 400;
 const MIN_SIZE_MB = 50;
 
 async function getDirectorySize(dirPath: string): Promise<number> {
