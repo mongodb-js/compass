@@ -187,7 +187,7 @@ const reducer: Reducer<CollectionTabsState> = (
     const { tabs } = action;
 
     const activeTabIndex = getActiveTabIndex(state);
-    const activeTabId = tabs[activeTabIndex]?.id ?? nulld;
+    const activeTabId = tabs[activeTabIndex]?.id ?? null;
     return {
       ...state,
       tabs,
