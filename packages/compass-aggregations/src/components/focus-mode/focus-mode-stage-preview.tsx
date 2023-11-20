@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Body,
   css,
@@ -6,6 +6,7 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
+import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
@@ -91,6 +92,31 @@ export const FocusModePreview = ({
     useState<PipelineOutputOption>('collapse');
   const isExpanded = pipelineOutputOption === 'expand';
 
+  const {
+    docs,
+    copyToClipboard,
+  }: Omit<
+    React.ComponentProps<typeof DocumentListView>,
+    'isExpanded' | 'className' | 'isEditable' | 'docs'
+  > & { docs: HadronDocument[] } = useMemo(
+    () => ({
+      docs: (documents ?? []).map((doc) => new HadronDocument(doc)),
+      copyToClipboard: (doc: HadronDocument) => {
+        const str = doc.toEJSON();
+        void navigator.clipboard.writeText(str);
+      },
+    }),
+    [documents]
+  );
+
+  useEffect(() => {
+    if (isExpanded) {
+      docs.forEach((doc) => doc.expandAllFields());
+    } else {
+      docs.forEach((doc) => doc.collapseAllFields());
+    }
+  }, [isExpanded, docs]);
+
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
@@ -123,13 +149,9 @@ export const FocusModePreview = ({
   } else if (documents && documents.length > 0) {
     content = (
       <DocumentListView
-        docs={documents}
-        copyToClipboard={(doc) => {
-          const str = doc.toEJSON();
-          void navigator.clipboard.writeText(str);
-        }}
         isEditable={false}
-        isExpanded={isExpanded}
+        docs={docs}
+        copyToClipboard={copyToClipboard}
         className={documentListStyles}
       />
     );

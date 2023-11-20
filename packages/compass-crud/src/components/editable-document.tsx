@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { ElementEvents } from 'hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -20,7 +20,6 @@ const INITIAL_FIELD_LIMIT = 25;
 
 export type EditableDocumentProps = {
   doc: Document;
-  expandAll?: boolean;
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
@@ -32,7 +31,7 @@ export type EditableDocumentProps = {
 type EditableDocumentState = {
   editing: boolean;
   deleting: boolean;
-  expandAll?: boolean;
+  expanded: boolean;
   renderSize?: number;
 };
 
@@ -48,7 +47,7 @@ class EditableDocument extends React.Component<
     this.state = {
       editing: false,
       deleting: false,
-      expandAll: props.expandAll ?? false,
+      expanded: props.doc.isExpanded(),
     };
   }
 
@@ -77,9 +76,6 @@ class EditableDocument extends React.Component<
         });
       }
     }
-    if (prevProps.expandAll !== this.props.expandAll) {
-      this.setState({ expandAll: this.props.expandAll });
-    }
   }
 
   /**
@@ -96,6 +92,9 @@ class EditableDocument extends React.Component<
    */
   subscribeToDocumentEvents(doc: Document) {
     doc.on(HadronDocument.Events.Cancel, this.handleCancel);
+    doc.on(HadronDocument.Events.Expanded, this.handleExpanded);
+    doc.on(ElementEvents.Collapsed, this.handleElementCollapsed);
+    doc.on(HadronDocument.Events.Collapsed, this.handleCollapsed);
     doc.on('remove-success', this.handleRemoveSuccess);
     doc.on('update-success', this.handleUpdateSuccess);
   }
@@ -107,6 +106,9 @@ class EditableDocument extends React.Component<
    */
   unsubscribeFromDocumentEvents(doc: Document) {
     doc.removeListener(HadronDocument.Events.Cancel, this.handleCancel);
+    doc.removeListener(HadronDocument.Events.Expanded, this.handleExpanded);
+    doc.removeListener(HadronDocument.Events.Collapsed, this.handleCollapsed);
+    doc.removeListener(ElementEvents.Collapsed, this.handleElementCollapsed);
     doc.removeListener('remove-success', this.handleRemoveSuccess);
     doc.removeListener('update-success', this.handleUpdateSuccess);
   }
@@ -134,6 +136,20 @@ class EditableDocument extends React.Component<
       deleting: false,
       renderSize: INITIAL_FIELD_LIMIT,
     });
+  };
+
+  handleExpanded = () => {
+    this.setState({ expanded: true });
+  };
+
+  handleCollapsed = () => {
+    this.setState({ expanded: false });
+  };
+
+  handleElementCollapsed = () => {
+    if (this.state.expanded) {
+      this.setState({ expanded: false });
+    }
   };
 
   /**
@@ -175,7 +191,12 @@ class EditableDocument extends React.Component<
    * Handle clicking the expand all button.
    */
   handleExpandAll() {
-    this.setState({ expandAll: !this.state.expandAll });
+    const { doc } = this.props;
+    if (doc.isExpanded()) {
+      doc.collapseAllFields();
+    } else {
+      doc.expandAllFields();
+    }
   }
 
   /**
@@ -192,7 +213,7 @@ class EditableDocument extends React.Component<
           onRemove={this.handleDelete.bind(this)}
           onClone={this.handleClone.bind(this)}
           onExpand={this.handleExpandAll.bind(this)}
-          expanded={!!this.state.expandAll}
+          expanded={this.state.expanded}
           insights={
             this.props.showInsights
               ? getInsightsForDocument(this.props.doc)
@@ -213,7 +234,6 @@ class EditableDocument extends React.Component<
     return (
       <DocumentList.Document
         value={this.props.doc}
-        expanded={this.state.expandAll}
         editable
         editing={this.state.editing}
         onEditStart={this.handleEdit.bind(this)}

@@ -66,6 +66,7 @@ export class Element extends EventEmitter {
   currentTypeValid?: boolean;
   invalidTypeMessage?: string;
   decrypted: boolean;
+  expanded = false;
 
   /**
    * Cancel any modifications to the element.
@@ -720,6 +721,48 @@ export class Element extends EventEmitter {
   }
 
   /**
+   * Expands only the target element
+   */
+  expand(): void {
+    this.expanded = true;
+    this._bubbleUp(ElementEvents.Expanded, this);
+  }
+
+  /**
+   * Collapses only the target element
+   */
+  collapse(): void {
+    this.expanded = false;
+    this._bubbleUp(ElementEvents.Collapsed, this);
+  }
+
+  /**
+   * Expands the target element and all of its sub-elements
+   */
+  expandAllFields(): void {
+    this.expanded = true;
+    if (this.elements) {
+      for (const element of this.elements) {
+        element.expandAllFields();
+      }
+    }
+    this.emit(ElementEvents.Expanded, this);
+  }
+
+  /**
+   * Collapses the target element and all of its sub-elements
+   */
+  collapseAllFields(): void {
+    this.expanded = false;
+    if (this.elements) {
+      for (const element of this.elements) {
+        element.collapseAllFields();
+      }
+    }
+    this.emit(ElementEvents.Collapsed, this);
+  }
+
+  /**
    * Fire and bubble up the event.
    *
    * @param evt - The event.
@@ -773,6 +816,17 @@ export class Element extends EventEmitter {
    */
   _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
     return isPlainObject(value) || isArray(value);
+  }
+
+  isExpanded(includeChildren = false): boolean {
+    if (includeChildren && this.elements) {
+      return (
+        this.expanded &&
+        this.elements.every((element) => element.isExpanded(includeChildren))
+      );
+    } else {
+      return this.expanded;
+    }
   }
 
   /**

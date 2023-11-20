@@ -11,9 +11,10 @@ import {
   Decimal128,
 } from 'bson';
 import { expect } from 'chai';
-import { Document, Element } from '../src/';
+import { Document, Element, ElementEvents } from '../src/';
 import { DATE_FORMAT } from '../src/element';
 import moment from 'moment';
+import Sinon from 'sinon';
 
 describe('Element', function () {
   describe('#get', function () {
@@ -2727,4 +2728,83 @@ describe('Element', function () {
       });
     });
   });
+
+  context('when just the target element is expanded/collapsed', function () {
+    it('should expand/collapse only the target element itself and leave the children as is', function () {
+      const element = new Element(
+        'names',
+        { firstName: 'A', lastName: 'B' },
+        undefined,
+        false
+      );
+      expect(element.isExpanded()).to.be.false;
+      element.expand();
+      expect(element.isExpanded()).to.be.true;
+      expect(element.elements?.every((el) => el.isExpanded())).to.false;
+
+      element.collapse();
+      expect(element.isExpanded()).to.be.false;
+      expect(element.elements?.every((el) => el.isExpanded())).to.false;
+    });
+
+    it('should emit an expand/collapse event on the parent as well', function () {
+      const emitSpy = Sinon.spy();
+      const element = new Element(
+        'names',
+        'A',
+        { emit: emitSpy, isRoot: () => true } as unknown as Document,
+        false
+      );
+
+      element.expand();
+      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Expanded, element);
+
+      element.collapse();
+      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Collapsed, element);
+    });
+  });
+
+  context(
+    'when the target element is expanded/collapsed along with its children',
+    function () {
+      it('should expand/collapse the target element and its children as well', function () {
+        const element = new Element(
+          'names',
+          { firstName: 'A', lastName: 'B' },
+          undefined,
+          false
+        );
+        expect(element.isExpanded()).to.be.false;
+        element.expandAllFields();
+        expect(element.isExpanded()).to.be.true;
+        expect(element.elements?.every((el) => el.isExpanded())).to.true;
+
+        element.collapseAllFields();
+        expect(element.isExpanded()).to.be.false;
+        expect(element.elements?.every((el) => el.isExpanded())).to.false;
+      });
+
+      it('should emit an expand/collapse event on the target element itself', function () {
+        const emitSpy = Sinon.spy();
+        const element = new Element(
+          'names',
+          { firstName: 'A', lastName: 'B' },
+          undefined,
+          false
+        );
+        element.emit = emitSpy;
+        element.expandAllFields();
+        expect(emitSpy).to.be.calledWithExactly(
+          ElementEvents.Expanded,
+          element
+        );
+
+        element.collapseAllFields();
+        expect(emitSpy).to.be.calledWithExactly(
+          ElementEvents.Collapsed,
+          element
+        );
+      });
+    }
+  );
 });

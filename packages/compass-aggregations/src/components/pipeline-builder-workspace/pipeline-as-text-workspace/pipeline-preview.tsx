@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -89,20 +89,30 @@ const PreviewResults = ({
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: Omit<
+  const {
+    docs,
+    copyToClipboard,
+  }: Omit<
     React.ComponentProps<typeof DocumentListView>,
-    'isExpanded' | 'className'
-  > = useMemo(
+    'isExpanded' | 'className' | 'isEditable' | 'docs'
+  > & { docs: HadronDocument[] } = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
-      isEditable: false,
-      copyToClipboard(doc: HadronDocument) {
+      copyToClipboard: (doc: HadronDocument) => {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
     }),
     [previewDocs]
   );
+
+  useEffect(() => {
+    if (isExpanded) {
+      docs.forEach((doc) => doc.expandAllFields());
+    } else {
+      docs.forEach((doc) => doc.collapseAllFields());
+    }
+  }, [isExpanded, docs]);
 
   if (isLoading) {
     return (
@@ -147,8 +157,9 @@ const PreviewResults = ({
         <WarningSummary warnings={['Output outdated and no longer in sync.']} />
       )}
       <DocumentListView
-        {...listProps}
-        isExpanded={isExpanded}
+        docs={docs}
+        copyToClipboard={copyToClipboard}
+        isEditable={false}
         className={documentListStyles}
       />
     </>

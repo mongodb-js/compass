@@ -17,6 +17,8 @@ import type { HadronEJSONOptions } from './utils';
  */
 export const Events = {
   Cancel: 'Document::Cancel',
+  Expanded: 'Document::Expanded',
+  Collapsed: 'Document::Collapsed',
 };
 
 /**
@@ -337,6 +339,15 @@ export class Document extends EventEmitter {
   }
 
   /**
+   * Determines if the Document is expanded or not
+   *
+   * @returns {Boolean} If the document is expanded
+   */
+  isExpanded(): boolean {
+    return this.elements.every((element) => element.isExpanded(true));
+  }
+
+  /**
    * Generates a sequence of elements.
    *
    * @returns {Array} The elements.
@@ -385,6 +396,26 @@ export class Document extends EventEmitter {
         ? this.generateOriginalObject()
         : this.generateObject();
     return objectToIdiomaticEJSON(obj, options);
+  }
+
+  /**
+   * Expands a document by expanding all of its fields
+   */
+  expandAllFields(): void {
+    for (const element of this.elements) {
+      element.expandAllFields();
+    }
+    this.emit(Events.Expanded);
+  }
+
+  /**
+   * Collapses a document by collapsing all of its fields
+   */
+  collapseAllFields(): void {
+    for (const element of this.elements) {
+      element.collapseAllFields();
+    }
+    this.emit(Events.Collapsed);
   }
 }
 

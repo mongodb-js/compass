@@ -35,7 +35,6 @@ export type DocumentListViewProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
-  | 'isExpanded'
 >;
 
 /**
@@ -67,7 +66,6 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
               replaceDocument={this.props.replaceDocument}
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-              isExpanded={this.props.isExpanded}
             />
           </KeylineCard>
         </li>
@@ -100,7 +98,6 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
     updateDocument: PropTypes.func,
     openInsertDocumentDialog: PropTypes.func,
     copyToClipboard: PropTypes.func,
-    isExpanded: PropTypes.bool,
     className: PropTypes.string,
   };
 

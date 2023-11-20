@@ -220,4 +220,23 @@ describe('Document', function () {
 
     expect(editor).to.eq(document.activeElement);
   });
+
+  it('should render doc in expanded/collapsed mode when the entire doc is expanded/collapsed', function () {
+    const hadronDoc = new HadronDocument({
+      names: {
+        firstName: 'A',
+        lastName: 'B',
+      },
+    });
+    hadronDoc.expandAllFields();
+    render(<Document value={hadronDoc}></Document>);
+
+    expect(screen.getByText('names')).to.exist;
+    expect(screen.getByText('firstName')).to.exist;
+    expect(screen.getByText('lastName')).to.exist;
+
+    hadronDoc.collapseAllFields();
+    expect(() => screen.getByText('firstName')).to.throw;
+    expect(() => screen.getByText('lastName')).to.throw;
+  });
 });

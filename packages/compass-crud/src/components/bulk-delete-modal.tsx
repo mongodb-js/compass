@@ -80,7 +80,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       {sampleDocuments.map((doc, i) => {
         return (
           <KeylineCard key={i} className={cx(documentContainerStyles)}>
-            <ReadonlyDocument doc={doc as any} expandAll={false} />
+            <ReadonlyDocument doc={doc as any} />
           </KeylineCard>
         );
       })}
