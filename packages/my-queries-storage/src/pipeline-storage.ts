@@ -101,6 +101,13 @@ export class PipelineStorage {
     }
   }
 
+  /** loads all pipelines that satisfy `predicate` */
+  loadMany(
+    predicate: (arg0: SavedPipeline) => boolean
+  ): Promise<SavedPipeline[]> {
+    return this.loadAll().then((pipelines) => pipelines.filter(predicate));
+  }
+
   private async loadOne(id: string): Promise<SavedPipeline> {
     const [item, stats] = await this.userData.readOneWithStats(id);
     return this.mergeStats(item, stats);
@@ -125,7 +132,10 @@ export class PipelineStorage {
     return await this.loadOne(data.id);
   }
 
-  async updateAttributes(id: string, attributes: Partial<SavedPipeline>) {
+  async updateAttributes(
+    id: string,
+    attributes: Partial<SavedPipeline>
+  ): Promise<SavedPipeline> {
     await this.userData.write(id, {
       ...(await this.loadOne(id)),
       ...attributes,

@@ -717,6 +717,9 @@ export const FavouriteQueriesButton = `${QueryBarHistory} [data-testid="past-que
 export const FavouriteQueryListItem = `${QueryBarHistory} [data-testid="favorite-query-list-item"]`;
 export const FavouriteQueryTitle = `${QueryBarHistory} [data-testid="query-history-query-title"]`;
 
+export const QueryHistoryFavoritesButton = `[data-testid="past-queries-favorites"]`;
+export const QueryHistoryFavoriteItem = `[data-testid="favorite-query-list-item"]`;
+
 export const myQueriesItem = (title: string): string => {
   return `[data-testid="my-queries-content"] [title="${title}"]`;
 };

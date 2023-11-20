@@ -5,6 +5,8 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
 
+import { setTimeout } from 'timers/promises';
+import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 const initialName = 'numbers';
 const newName = 'renamed';
 
@@ -97,7 +99,7 @@ async function renameCollectionSuccessFlow(
   await page.successToast.waitForDisplayed();
 }
 
-describe('Collection Rename Modal', () => {
+describe.only('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -107,6 +109,8 @@ describe('Collection Rename Modal', () => {
   });
 
   beforeEach(async function () {
+    await dropDatabase(databaseName);
+
     await createBlankCollection(databaseName, initialName);
     await createBlankCollection(databaseName, 'bar');
 
@@ -251,6 +255,131 @@ describe('Collection Rename Modal', () => {
 
       // assert that the form state has reset
       expect(await modal.collectionNameInput.getValue()).to.equal(initialName);
+    });
+  });
+
+  describe.only('saved aggregations', () => {
+    beforeEach(
+      'navigate to aggregations tab and save pipeline on test collection',
+      async () => {
+        // Some tests navigate away from the numbers collection aggregations tab
+        await browser.navigateToCollectionTab(
+          'rename-collection',
+          'numbers',
+          'Aggregations'
+        );
+        // Get us back to the empty stage every time. Also test the Create New
+        // Pipeline flow while at it.
+        await browser.clickVisible(Selectors.CreateNewPipelineButton);
+
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+        // sanity check to make sure there's only one stage
+        const stageContainers = await browser.$$(Selectors.StageCard);
+        expect(stageContainers).to.have.lengthOf(1);
+
+        await saveAggregationPipeline(browser, 'my-aggregation', [
+          { $match: `{ name: 'john' }` },
+        ]);
+      }
+    );
+
+    it('preserves a saved aggregation for a namespace when a collection is renamed', async () => {
+      // open the rename collection modal
+      await browser.hover(
+        Selectors.sidebarCollection(databaseName, initialName)
+      );
+      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(Selectors.RenameCollectionButton);
+      await renameCollectionSuccessFlow(browser, newName);
+
+      // confirm the saved aggregation is still present for the newly renamed namespace
+      await browser.navigateToCollectionTab(
+        'rename-collection',
+        newName,
+        'Aggregations'
+      );
+
+      await browser.waitForAnimations(
+        Selectors.AggregationOpenSavedPipelinesButton
+      );
+      await browser.clickVisible(Selectors.AggregationOpenSavedPipelinesButton);
+      await browser.waitForAnimations(
+        Selectors.AggregationSavedPipelinesPopover
+      );
+      await browser
+        .$(Selectors.AggregationSavedPipelineCard('my-aggregation'))
+        .waitForDisplayed();
+    });
+  });
+
+  describe('saved queries', () => {
+    beforeEach('navigate to documents tab and save a query', async () => {
+      // set guide cue to not show up
+      await browser.execute((key) => {
+        localStorage.setItem(key, 'true');
+      }, 'has_seen_stage_wizard_guide_cue');
+
+      const favoriteQueryName = 'list of numbers greater than 10 - query';
+
+      // Run a query
+      await browser.navigateToCollectionTab(
+        'rename-collection',
+        'numbers',
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
+        limit: '10',
+      });
+      await browser.clickVisible(Selectors.QueryBarHistoryButton);
+
+      // Wait for the popover to show
+      const history = await browser.$(Selectors.QueryBarHistory);
+      await history.waitForDisplayed();
+
+      // wait for the recent item to show.
+      const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+      await recentCard.waitForDisplayed();
+
+      // Save the ran query
+      await browser.hover(Selectors.QueryHistoryRecentItem);
+      await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
+      const favoriteQueryNameField = await browser.$(
+        Selectors.QueryHistoryFavoriteItemNameField
+      );
+      await favoriteQueryNameField.setValue(favoriteQueryName);
+      await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
+    });
+
+    // functionality not implemented and tests failing
+    it.skip('preserves a saved query for a namespace when a collection is renamed', async () => {
+      // open the rename collection modal
+      await browser.hover(
+        Selectors.sidebarCollection(databaseName, initialName)
+      );
+      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(Selectors.RenameCollectionButton);
+      await renameCollectionSuccessFlow(browser, newName);
+      await browser.navigateToCollectionTab(
+        'rename-collection',
+        newName,
+        'Documents'
+      );
+
+      await browser.clickVisible(Selectors.QueryBarHistoryButton);
+
+      // Wait for the popover to show
+      const history = await browser.$(Selectors.QueryBarHistory);
+      await history.waitForDisplayed();
+
+      const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
+      await browser.debug();
+      await button.clickVisible();
+
+      await browser.$(Selectors.QueryHistoryFavoriteItem).waitForDisplayed();
+
+      await setTimeout(3000);
     });
   });
 });

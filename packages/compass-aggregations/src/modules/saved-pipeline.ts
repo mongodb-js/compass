@@ -128,6 +128,38 @@ function restorePipeline(
     },
   };
 }
+export const handleNamespaceChanged = ({
+  oldNamespace,
+  newNamespace,
+}: {
+  oldNamespace: string;
+  newNamespace: string;
+}): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState, { pipelineStorage }) => {
+    async function update() {
+      const pipelines: SavedPipeline[] = await pipelineStorage
+        .loadMany(({ namespace }) => namespace === oldNamespace)
+        .then((pipelines) =>
+          pipelines.map(
+            (pipeline): SavedPipeline => ({
+              ...pipeline,
+              namespace: newNamespace,
+            })
+          )
+        );
+      await Promise.allSettled(
+        pipelines.map((pipeline) =>
+          pipelineStorage.updateAttributes(pipeline.id, pipeline)
+        )
+      );
+      dispatch(savedPipelineAdd(pipelines));
+    }
+
+    update().catch(() => {
+      // todo - how to handle?
+    });
+  };
+};
 
 /**
  * Restore pipeline by an ID

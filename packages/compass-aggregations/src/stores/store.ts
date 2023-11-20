@@ -8,7 +8,10 @@ import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
-import { openStoredPipeline } from '../modules/saved-pipeline';
+import {
+  handleNamespaceChanged,
+  openStoredPipeline,
+} from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
