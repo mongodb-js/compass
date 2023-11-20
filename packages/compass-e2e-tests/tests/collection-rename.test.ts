@@ -7,6 +7,7 @@ import * as Selectors from '../helpers/selectors';
 
 import { setTimeout } from 'timers/promises';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
+import { setFeature } from '../helpers/commands';
 const initialName = 'numbers';
 const newName = 'renamed';
 
@@ -106,6 +107,8 @@ describe.only('Collection Rename Modal', () => {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+
+    await setFeature(browser, 'enableRenameCollectionModal', true);
   });
 
   beforeEach(async function () {
@@ -258,7 +261,7 @@ describe.only('Collection Rename Modal', () => {
     });
   });
 
-  describe.only('saved aggregations', () => {
+  describe('saved aggregations', () => {
     beforeEach(
       'navigate to aggregations tab and save pipeline on test collection',
       async () => {

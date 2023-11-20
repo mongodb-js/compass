@@ -21,6 +21,7 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
+import { usePreference } from 'compass-preferences-model';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -64,6 +65,10 @@ export const CollectionItem: React.FunctionComponent<
   style,
   onNamespaceAction,
 }) => {
+  const isRenameCollectionEnabled = usePreference(
+    'enableRenameCollectionModal',
+    React
+  );
   const [hoverProps, isHovered] = useHoverState();
 
   const onDefaultAction = useCallback(
@@ -125,12 +130,14 @@ export const CollectionItem: React.FunctionComponent<
       return actions;
     }
 
-    type !== 'timeseries' &&
+    if (type !== 'timeseries' && isRenameCollectionEnabled) {
       actions.push({
         action: 'rename-collection',
         label: 'Rename collection',
         icon: 'Edit',
       });
+    }
+
     actions.push({
       action: 'drop-collection',
       label: 'Drop collection',
@@ -138,7 +145,7 @@ export const CollectionItem: React.FunctionComponent<
     });
 
     return actions;
-  }, [type, isReadOnly]);
+  }, [type, isReadOnly, isRenameCollectionEnabled]);
 
   return (
     <ItemContainer
