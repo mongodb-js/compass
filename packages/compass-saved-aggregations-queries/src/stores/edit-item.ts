@@ -41,7 +41,7 @@ export type Actions =
   | EditItemCancelledAction
   | EditItemUpdatedAction;
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.EditItemClicked:
       return {
@@ -86,10 +86,7 @@ export const updateItem =
             _name: attributes.name,
             _dateModified: new Date(),
           })
-        : ((await pipelineStorage.updateAttributes(
-            id,
-            attributes
-          )) as SavedPipeline);
+        : await pipelineStorage.updateAttributes(id, attributes);
 
     dispatch({
       type: ActionTypes.EditItemUpdated,
