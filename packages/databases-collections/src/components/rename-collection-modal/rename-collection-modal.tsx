@@ -112,13 +112,21 @@ function RenameCollectionModal({
         </FormFieldContainer>
       )}
       {modalState === 'confirmation-screen' && (
-        <div data-testid="rename-collection-confirmation-screen">
-          {`Are you sure you want to rename "${initialCollectionName}" to "${newName}"?`}{' '}
-        </div>
+        <FormFieldContainer>
+          <div data-testid="rename-collection-confirmation-screen">
+            {`Are you sure you want to rename "${initialCollectionName}" to "${newName}"?`}
+          </div>
+        </FormFieldContainer>
       )}
-      {error && (
+      {error && modalState === 'input-form' && (
         <Banner variant="danger" data-testid="rename-collection-modal-error">
           {error.message}
+        </Banner>
+      )}
+      {modalState === 'confirmation-screen' && (
+        <Banner variant="info" data-testid="rename-collection-modal-warning">
+          Renaming collection will result in loss of any unsaved queries,
+          filters or aggregation pipeline
         </Banner>
       )}
       {isRunning && (
