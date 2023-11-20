@@ -877,8 +877,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
             key: 'Ctrl-Shift-c',
             run: copyAll,
           },
-          ...defaultKeymap,
+          // Close brackets keymap overrides default backspace handler for
+          // matching bracket case
           ...closeBracketsKeymap,
+          ...defaultKeymap,
           ...historyKeymap,
           ...foldKeymap,
           ...completionKeymap,

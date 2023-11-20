@@ -191,7 +191,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
-            hasAutofix={name === 'filter'}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>

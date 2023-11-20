@@ -5,19 +5,23 @@ import type {
   CompletionResult,
 } from '@codemirror/autocomplete';
 import { CompletionContext } from '@codemirror/autocomplete';
-import { languages } from '../src/json-editor';
+import { languages } from '../src/editor';
 
 export const setupCodemirrorCompleter = <
   T extends (...args: any[]) => CompletionSource
 >(
   completer: T
 ) => {
-  const el = window.document.createElement('div');
-  window.document.body.appendChild(el);
-  const editor = new EditorView({
-    doc: '',
-    extensions: [languages['javascript-expression']()],
-    parent: el,
+  let el: HTMLDivElement;
+  let editor: EditorView;
+  before(function () {
+    el = window.document.createElement('div');
+    window.document.body.appendChild(el);
+    editor = new EditorView({
+      doc: '',
+      extensions: [languages['javascript-expression']()],
+      parent: el,
+    });
   });
   const getCompletions = (text = '', ...args: Parameters<T>) => {
     editor.dispatch({

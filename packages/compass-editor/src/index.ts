@@ -6,7 +6,7 @@ export {
   CodemirrorMultilineEditor,
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
-} from './json-editor';
+} from './editor';
 export type {
   EditorView,
   Command,
@@ -14,7 +14,7 @@ export type {
   Action,
   EditorRef,
   Completer,
-} from './json-editor';
+} from './editor';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
 export { createQueryAutocompleter } from './codemirror/query-autocompleter';

@@ -82,7 +82,11 @@ const insightsBadgeStyles = css({
 type OptionEditorProps = {
   id?: string;
   hasError?: boolean;
-  hasAutofix?: boolean;
+  /**
+   * When `true` will insert an empty document in the input on focus and put
+   * cursor in the middle of the inserted string. Default is `true`
+   */
+  insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
   onBlur?(): void;
@@ -97,7 +101,7 @@ type OptionEditorProps = {
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   id,
   hasError = false,
-  hasAutofix = false,
+  insertEmptyDocOnFocus = true,
   onChange,
   onApply,
   onBlur,
@@ -150,7 +154,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, [schemaFields, serverVersion]);
 
   const onFocus = () => {
-    if (hasAutofix) {
+    if (insertEmptyDocOnFocus) {
       rafraf(() => {
         if (editorRef.current?.editorContents === '') {
           editorRef.current?.applySnippet('\\{${}}');
@@ -160,7 +164,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   };
 
   const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (hasAutofix && editorRef.current) {
+    if (insertEmptyDocOnFocus && editorRef.current) {
       const { main: currentSelection } =
         editorRef.current.editor?.state.selection ?? {};
       const currentContents = editorRef.current.editorContents;
