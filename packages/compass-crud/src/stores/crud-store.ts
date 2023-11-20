@@ -1819,7 +1819,7 @@ class CrudStoreImpl
       bulkDelete: {
         previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
         status: 'open',
-        affected: this.state.count || 0,
+        affected: this.state.count ?? undefined,
       },
     });
   }

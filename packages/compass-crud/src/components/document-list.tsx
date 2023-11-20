@@ -312,7 +312,7 @@ class DocumentList extends React.Component<DocumentListProps> {
       <BulkDeleteModal
         open={this.props.store.state.bulkDelete.status === 'open'}
         namespace={this.props.store.state.ns}
-        documentCount={this.props.store.state.bulkDelete.affected || 0}
+        documentCount={this.props.store.state.bulkDelete.affected}
         filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}

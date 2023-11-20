@@ -66,6 +66,16 @@ describe('BulkUpdateDialog Component', function () {
       .exist;
   });
 
+  it('renders with count=undefined', function () {
+    renderBulkUpdateDialog({ count: undefined });
+    expect(screen.getByRole('button', { name: 'Update documents' })).to.exist;
+  });
+
+  it('renders with count=1', function () {
+    renderBulkUpdateDialog({ count: 1 });
+    expect(screen.getByRole('button', { name: 'Update 1 document' })).to.exist;
+  });
+
   it('resets if the modal is re-opened', async function () {
     // initial open
     const { rerender } = renderBulkUpdateDialog({ isOpen: true });
