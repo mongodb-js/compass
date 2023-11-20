@@ -234,12 +234,12 @@ const configureStore = (options: ConfigureStoreOptions) => {
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // The panel is shown by default if THE FEATURE IS ENABLED IN
-          // PREFERENCES and initial state in localStorage is not set or
-          // `"true"` (not `"false"`)
+          // if the feature is enabled in preferences, the state of the
+          // panel is fetched and then kept in sync with a localStorage entry.
+          // The initial state, if the localStorage entry is not set,
+          // should be 'hidden'.
           preferencesAccess.getPreferences().enableStageWizard &&
-          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) !==
-            'false',
+          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
     applyMiddleware(
