@@ -2,9 +2,6 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 import type { RenameCollectionRootState } from './rename-collection';
 import { renameCollection, renameRequestInProgress } from './rename-collection';
-import { legacy_createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import rootReducer from './rename-collection';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import AppRegistry from 'hadron-app-registry';
@@ -14,13 +11,6 @@ import type { ToastActions } from '@mongodb-js/compass-components';
 
 describe('rename collection module', function () {
   let store: ReturnType<typeof activateRenameCollectionPlugin>['store'];
-  beforeEach(() => {
-    store = legacy_createStore(
-      rootReducer,
-
-      applyMiddleware(thunk)
-    );
-  });
 
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
