@@ -533,6 +533,7 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
+export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 
 // Insert Document modal
 
@@ -585,6 +586,15 @@ export const importPreviewFieldHeaderSelectMenu = (
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
+
+// Bulk Update Modal
+export const BulkUpdateModal = '[data-testid="bulk-update-dialog"]';
+export const BulkUpdateReadonlyFilter = `${BulkUpdateModal} [data-testid="readonly-filter"]`;
+export const BulkUpdateUpdate = `${BulkUpdateModal} [data-testid="bulk-update-update"]`;
+export const BulkUpdateTitle = `${BulkUpdateModal} [data-testid="modal-title"]`;
+export const BulkUpdateUpdateButton = `${BulkUpdateModal} [data-testid="update-button"]`;
+export const BulkUpdateCancelButton = `${BulkUpdateModal} [data-testid="cancel-button"]`;
+export const BulkUpdatePreviewDocument = `${BulkUpdateModal} [data-testid="bulk-update-preview-document"]`;
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =

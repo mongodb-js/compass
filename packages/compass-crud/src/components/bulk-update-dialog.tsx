@@ -294,8 +294,16 @@ export default function BulkUpdateDialog({
   }, [isOpen, wasOpen, updateText]);
 
   return (
-    <Modal open={isOpen} setOpen={closeBulkUpdateDialog} size="large">
-      <ModalHeader title={`Update ${count || 0} documents`} subtitle={ns} />
+    <Modal
+      open={isOpen}
+      setOpen={closeBulkUpdateDialog}
+      size="large"
+      data-testid="bulk-update-dialog"
+    >
+      <ModalHeader
+        title={`Update ${count || 0} document${count === 1 ? '' : 's'}`}
+        subtitle={ns}
+      />
       <ModalBody>
         <div className={columnsStyles}>
           <div className={queryStyles}>
@@ -355,7 +363,7 @@ export default function BulkUpdateDialog({
               Preview{' '}
               <Description className={previewDescriptionStyles}>
                 (sample of {preview.changes.length} document
-                {preview.changes.length !== 1 && 's'})
+                {preview.changes.length === 1 ? '' : 's'})
               </Description>
             </Label>
             <div className={updatePreviewStyles}>
@@ -377,15 +385,20 @@ export default function BulkUpdateDialog({
           <InlineSaveQueryModal onSave={saveUpdateQuery} />
         </div>
         <div className={modalFooterFormActionsStyles}>
-          <Button variant="default" onClick={closeBulkUpdateDialog}>
+          <Button
+            variant="default"
+            onClick={closeBulkUpdateDialog}
+            data-testid="cancel-button"
+          >
             Cancel
           </Button>
           <Button
             disabled={!!(syntaxError || serverError)}
             variant="primary"
             onClick={runBulkUpdate}
+            data-testid="update-button"
           >
-            Update {count} documents
+            Update {count} document{count === 1 ? '' : 's'}
           </Button>
         </div>
       </ModalFooter>
