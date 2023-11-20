@@ -36,7 +36,7 @@ function renderWorkspaceContent(
 
 describe('WorkspaceContent [Component]', function () {
   before(function () {
-    ['Collection.Workspace', 'Database.Workspace'].map((name) =>
+    ['Collection.Workspace'].map((name) =>
       globalAppRegistry.registerComponent(name, getComponent(name))
     );
     globalAppRegistry.onActivated();
@@ -50,7 +50,6 @@ describe('WorkspaceContent [Component]', function () {
     });
 
     it('renders content correctly', function () {
-      expect(screen.queryByTestId('test-Database.Workspace')).to.not.exist;
       expect(screen.queryByTestId('test-Collection.Workspace')).to.not.exist;
     });
   });
@@ -61,7 +60,6 @@ describe('WorkspaceContent [Component]', function () {
     });
 
     it('renders content correctly', function () {
-      expect(screen.getByTestId('test-Database.Workspace')).to.be.visible;
       expect(screen.queryByTestId('test-Collection.Workspace')).to.not.exist;
     });
   });
@@ -74,7 +72,6 @@ describe('WorkspaceContent [Component]', function () {
     });
 
     it('renders content correctly', function () {
-      expect(screen.queryByTestId('test-Database.Workspace')).to.not.exist;
       expect(screen.getByTestId('test-Collection.Workspace')).to.be.visible;
     });
   });

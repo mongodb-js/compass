@@ -1,22 +1,30 @@
-import type AppRegistry from 'hadron-app-registry';
-import DatabasePlugin from './plugin';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { DatabasePlugin, onActivated } from './plugin';
 
-/**
- * Activate all the components in the Database package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerComponent('Database.Workspace', DatabasePlugin);
+function activate(): void {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Database package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterComponent('Database.Workspace');
+function deactivate(): void {
+  // noop
 }
 
-export default DatabasePlugin;
+export const CompassDatabasePlugin = registerHadronPlugin<
+  object,
+  { logger: () => LoggerAndTelemetry }
+>(
+  {
+    name: 'CompassDatabase',
+    component: DatabasePlugin as React.FunctionComponent,
+    activate: onActivated,
+  },
+  {
+    logger: createLoggerAndTelemetryLocator('COMPASS-DATABASES'),
+  }
+);
+
+export { DatabaseTabsProvider } from './components/database-tabs-provider';
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

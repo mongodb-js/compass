@@ -1,9 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ErrorBoundary, TabNavBar, css } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type AppRegistry from 'hadron-app-registry';
-
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATABASES');
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useDatabaseTabs } from './database-tabs-provider';
 
 const databaseStyles = css({
   display: 'flex',
@@ -12,7 +10,11 @@ const databaseStyles = css({
   height: '100%',
 });
 
-function Database() {
+export interface DatabaseProps {
+  logger: LoggerAndTelemetry;
+}
+
+export function Database({ logger: { log, mongoLogId } }: DatabaseProps) {
   const [activeTab, setActiveTab] = useState(0);
 
   const onTabClicked = useCallback(
@@ -25,29 +27,28 @@ function Database() {
     [activeTab]
   );
 
-  const roles = useRef(
-    ((global as any).hadronApp?.appRegistry as AppRegistry).getRole(
-      'Database.Tab'
-    ) || []
-  );
-  const tabs = useRef(roles.current.map((role) => role.name));
-  const views = useRef(
-    roles.current.map((role, i) => (
-      <ErrorBoundary
-        displayName={role.name}
-        key={i}
-        onError={(error, errorInfo) => {
-          log.error(
-            mongoLogId(1001000109),
-            'Database Workspace',
-            'Rendering database tab failed',
-            { name: role.name, error: error.message, errorInfo }
-          );
-        }}
-      >
-        <role.component />
-      </ErrorBoundary>
-    ))
+  const tabs = useDatabaseTabs();
+
+  const tabNames = useMemo(() => tabs.map((tab) => tab.name), [tabs]);
+  const views = useMemo(
+    () =>
+      tabs.map((tab, i) => (
+        <ErrorBoundary
+          displayName={tab.name}
+          key={i}
+          onError={(error, errorInfo) => {
+            log.error(
+              mongoLogId(1001000109),
+              'Database Workspace',
+              'Rendering database tab failed',
+              { name: tab.name, error: error.message, errorInfo }
+            );
+          }}
+        >
+          <tab.component />
+        </ErrorBoundary>
+      )),
+    [tabs, log, mongoLogId]
   );
 
   return (
@@ -55,13 +56,11 @@ function Database() {
       <TabNavBar
         data-testid="database-tabs"
         aria-label="Database Tabs"
-        tabs={tabs.current}
-        views={views.current}
+        tabs={tabNames}
+        views={views}
         activeTabIndex={activeTab}
         onTabClicked={onTabClicked}
       />
     </div>
   );
 }
-
-export { Database };
