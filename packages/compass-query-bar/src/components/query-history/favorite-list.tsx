@@ -18,6 +18,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
+import { usePreference } from 'compass-preferences-model';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 export type FavoriteActions = {
@@ -36,13 +37,11 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const isUpdateQuery = useMemo(() => !!query.update, [query]);
-  const isDisabled = useMemo(
-    () => isUpdateQuery && isReadonly,
-    [isUpdateQuery, isReadonly]
-  );
-
+  const readOnlyCompass = usePreference('readOnly', React);
+  const isUpdateQuery = !!query.update;
+  const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
+
   const onCardClick = useCallback(() => {
     track('Query History Favorite Used', {
       id: query._id,
@@ -89,7 +88,7 @@ const FavoriteItem = ({
             />
           )}
           {isHovered && <DeleteActionButton onClick={onDeleteClick} />}
-          {isUpdateQuery && !isReadonly && (
+          {isUpdateQuery && !isReadonly && !readOnlyCompass && (
             <OpenBulkUpdateActionButton onClick={onCardClick} />
           )}
         </QueryItemHeading>
@@ -129,7 +128,7 @@ export const FavoriteList = ({
 export default connect(
   ({ queryBar: { favoriteQueries, isReadonlyConnection } }: RootState) => ({
     queries: favoriteQueries,
-    isReadonly: !isReadonlyConnection,
+    isReadonly: isReadonlyConnection,
   }),
   {
     onApply: applyFromHistory,
