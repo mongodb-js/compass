@@ -97,7 +97,7 @@ type OptionEditorProps = {
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   id,
   hasError = false,
-  hasAutofix = false,
+  hasAutofix = true,
   onChange,
   onApply,
   onBlur,
