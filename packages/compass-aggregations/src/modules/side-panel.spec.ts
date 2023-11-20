@@ -30,26 +30,26 @@ describe('side-panel module', function () {
       fakeLocalStorage.restore();
     });
 
-    it('starts with an open state', function () {
-      expect(store.getState().sidePanel.isPanelOpen).to.equal(true);
+    it('starts with an closed state', function () {
+      expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
 
     it('toggles the side panel', function () {
       store.dispatch(toggleSidePanel() as any);
-      expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
-      store.dispatch(toggleSidePanel() as any);
       expect(store.getState().sidePanel.isPanelOpen).to.equal(true);
+      store.dispatch(toggleSidePanel() as any);
+      expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
 
     it('persists the last state', function () {
       const store1 = configureStore();
-      expect(store1.getState().sidePanel.isPanelOpen).to.equal(true);
-
-      store1.dispatch(toggleSidePanel() as any);
       expect(store1.getState().sidePanel.isPanelOpen).to.equal(false);
 
+      store1.dispatch(toggleSidePanel() as any);
+      expect(store1.getState().sidePanel.isPanelOpen).to.equal(true);
+
       const store2 = configureStore();
-      expect(store2.getState().sidePanel.isPanelOpen).to.equal(false);
+      expect(store2.getState().sidePanel.isPanelOpen).to.equal(true);
     });
   });
 });
