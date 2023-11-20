@@ -25,7 +25,7 @@ export type Item = {
   collection: string;
 } & (
   | {
-      type: 'query';
+      type: 'query' | 'updatemany';
       query: FavoriteQuery;
     }
   | {
@@ -125,7 +125,7 @@ const mapQueryToItem = (query: FavoriteQuery): Item => {
     lastModified: (query._dateModified ?? query._dateSaved).getTime(),
     database,
     collection,
-    type: 'query',
+    type: query.update ? 'updatemany' : 'query',
     query,
   };
 };

@@ -54,7 +54,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "echo \"TODO(COMPASS-6779): These tests are broken and disabled for now\"",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
     "@mongodb-js/compass-user-data": "^0.1.9",
@@ -87,7 +87,7 @@
     "@mongosh/logging": "^2.0.2",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^25.9.4",
+    "electron": "^25.9.5",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",

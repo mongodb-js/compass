@@ -17,28 +17,37 @@ import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
+import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
   onDelete: (id: string) => void;
+  onUpdateFavoriteChoosen: () => void;
 };
 
 const FavoriteItem = ({
   query,
   onApply,
   onDelete,
+  onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   query: FavoriteQuery;
 }) => {
+  const isUpdateQuery = useMemo(() => !!query.update, [query]);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
   const onCardClick = useCallback(() => {
     track('Query History Favorite Used', {
       id: query._id,
       screen: 'documents',
     });
+
+    if (isUpdateQuery) {
+      onUpdateFavoriteChoosen();
+    }
+
     onApply(attributes);
-  }, [onApply, query._id, attributes]);
+  }, [onApply, onUpdateFavoriteChoosen, query._id, attributes, isUpdateQuery]);
 
   const onDeleteClick = useCallback(() => {
     track('Query History Favorite Removed', {
@@ -54,11 +63,16 @@ const FavoriteItem = ({
       onClick={onCardClick}
       data-testid="favorite-query-list-item"
       header={(isHovered: boolean) => (
-        <QueryItemHeading title={query._name} isHovered={isHovered}>
-          <CopyActionButton
-            onClick={() => copyToClipboard(formatQuery(attributes))}
-          />
-          <DeleteActionButton onClick={onDeleteClick} />
+        <QueryItemHeading title={query._name} isHovered={true}>
+          {isHovered && (
+            <CopyActionButton
+              onClick={() => copyToClipboard(formatQuery(attributes))}
+            />
+          )}
+          {isHovered && <DeleteActionButton onClick={onDeleteClick} />}
+          {isUpdateQuery && (
+            <OpenBulkUpdateActionButton onClick={onCardClick} />
+          )}
         </QueryItemHeading>
       )}
     >
@@ -71,6 +85,7 @@ const FavoriteList = ({
   queries,
   onApply,
   onDelete,
+  onUpdateFavoriteChoosen,
 }: FavoriteActions & {
   queries: FavoriteQuery[];
 }) => {
@@ -83,6 +98,7 @@ const FavoriteList = ({
       query={query}
       onApply={onApply}
       onDelete={onDelete}
+      onUpdateFavoriteChoosen={onUpdateFavoriteChoosen}
     />
   ));
   return <>{content}</>;

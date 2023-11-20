@@ -3,7 +3,8 @@ import { css } from '@mongodb-js/compass-components';
 
 import WorkspaceContent from './workspace-content';
 import type Namespace from '../types/namespace';
-import { useAppRegistryComponent } from 'hadron-app-registry';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
 import { CompassShellPlugin } from '@mongodb-js/compass-shell';
 
 const verticalSplitStyles = css({
@@ -37,17 +38,17 @@ const shellContainerStyles = css({
 
 export default function Workspace({
   namespace,
+  connectionInfo,
 }: {
   namespace: Namespace;
+  connectionInfo: ConnectionInfo | null | undefined;
 }): React.ReactElement {
-  const SidebarComponent = useAppRegistryComponent('Sidebar.Component');
-
   return (
     <>
       <div data-testid="home-view" className={verticalSplitStyles}>
         <div className={horizontalSplitStyles}>
           <div className={sidebarStyles}>
-            {SidebarComponent && <SidebarComponent />}
+            <CompassSidebarPlugin connectionInfo={connectionInfo} />
           </div>
           <div className={homePageContentStyles}>
             <WorkspaceContent namespace={namespace} />

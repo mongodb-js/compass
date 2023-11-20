@@ -26,6 +26,7 @@ describe('get-query-attributes', function () {
         sort: { name: 1 },
         skip: 1,
         limit: 20,
+        update: { $set: { a: 1 } },
       })
     ).to.deep.equal({
       filter: {
@@ -34,6 +35,7 @@ describe('get-query-attributes', function () {
       sort: { name: 1 },
       skip: 1,
       limit: 20,
+      update: { $set: { a: 1 } },
     });
   });
 });

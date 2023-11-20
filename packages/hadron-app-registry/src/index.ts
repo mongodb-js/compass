@@ -9,9 +9,9 @@ export {
   useAppRegistryComponent,
   useAppRegistryRole,
 } from './react-context';
-export {
-  registerHadronPlugin,
+export type {
   HadronPluginComponent,
   HadronPluginConfig,
 } from './register-plugin';
+export { registerHadronPlugin } from './register-plugin';
 export default AppRegistry;

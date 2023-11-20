@@ -1,18 +1,29 @@
-import type AppRegistry from 'hadron-app-registry';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import InstanceWorkspace from './plugin';
+import { activatePlugin } from './stores';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 
-import InstancePlugin from './plugin';
-import InstanceStore from './stores';
-
-function activate(appRegistry: AppRegistry) {
-  appRegistry.registerComponent('Instance.Workspace', InstancePlugin);
-  appRegistry.registerStore('Instance.Store', InstanceStore);
+function activate() {
+  // noop
 }
 
-function deactivate(appRegistry: AppRegistry) {
-  appRegistry.deregisterComponent('Instance.Workspace');
-  appRegistry.deregisterStore('Instance.Store');
+function deactivate() {
+  // noop
 }
 
-export default InstancePlugin;
+const InstanceWorkspacePlugin = registerHadronPlugin(
+  {
+    name: 'InstanceWorkspace',
+    component: InstanceWorkspace,
+    activate: activatePlugin,
+  },
+  {
+    instance: mongoDBInstanceLocator,
+  }
+);
+
+export default InstanceWorkspacePlugin;
+export type { InstanceTab } from './components/instance-tabs-provider';
+export { InstanceTabsProvider } from './components/instance-tabs-provider';
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

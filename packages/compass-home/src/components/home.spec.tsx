@@ -35,9 +35,12 @@ const createDataService = () => ({
   getLastSeenTopology() {
     return {
       type: 'Unknown',
-      servers: [],
+      servers: ['localhost:27020'],
       setName: 'foo',
     };
+  },
+  configuredKMSProviders() {
+    return [];
   },
   on() {},
   off() {},
@@ -54,13 +57,7 @@ describe('Home [Component]', function () {
   const testAppRegistry = globalAppRegistry;
 
   beforeEach(function () {
-    [
-      'Collection.Workspace',
-      'Database.Workspace',
-      'Instance.Workspace',
-      'Sidebar.Component',
-      'Global.Shell',
-    ].forEach((name) =>
+    ['Collection.Workspace', 'Database.Workspace'].forEach((name) =>
       testAppRegistry.registerComponent(name, getComponent(name))
     );
 
@@ -136,7 +133,6 @@ describe('Home [Component]', function () {
           addReauthenticationHandler: sinon.stub(),
         };
         await renderHome(dataService);
-        await waitFor(() => screen.getByTestId('test-Instance.Workspace'));
       });
 
       afterEach(function () {

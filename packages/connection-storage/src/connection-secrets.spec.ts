@@ -176,6 +176,11 @@ describe('connection secrets', function () {
             port: 22,
             identityKeyPassphrase: 'passphrase',
           },
+          oidc: {
+            serializedState: 'oidcSerializedState',
+            openBrowser: false,
+            redirectURI: 'redirectURI',
+          },
           fleOptions: {
             storeCredentials: true,
             autoEncryption: {
@@ -245,6 +250,10 @@ describe('connection secrets', function () {
             username: 'user',
             port: 22,
           },
+          oidc: {
+            openBrowser: false,
+            redirectURI: 'redirectURI',
+          },
           fleOptions: {
             storeCredentials: true,
             autoEncryption: {
@@ -295,6 +304,7 @@ describe('connection secrets', function () {
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
         proxyPassword: 'bar',
+        oidcSerializedState: 'oidcSerializedState',
         autoEncryption: {
           kmsProviders: {
             aws: {

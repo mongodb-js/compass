@@ -43,8 +43,7 @@ import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import {
-  CreateDatabasePlugin,
-  CreateCollectionPlugin,
+  CreateNamespacePlugin,
   DropNamespacePlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
@@ -107,7 +106,6 @@ const defaultNS: Namespace = toNS('');
 
 type ThemeState = {
   theme: Theme;
-  enabled: boolean;
 };
 
 type State = {
@@ -211,8 +209,10 @@ function Home({
     });
   }
 
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>();
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      setConnectionInfo(connectionInfo);
       appRegistry.emit(
         'data-service-connected',
         null, // No error connecting.
@@ -359,8 +359,12 @@ function Home({
               <ImportPlugin></ImportPlugin>
               <ExportPlugin></ExportPlugin>
               <CreateViewPlugin></CreateViewPlugin>
+              <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
-              <Workspace namespace={namespace} />
+              <Workspace
+                namespace={namespace}
+                connectionInfo={connectionInfo}
+              />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
@@ -386,18 +390,13 @@ function Home({
       </div>
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
-      <CreateDatabasePlugin></CreateDatabasePlugin>
-      <CreateCollectionPlugin></CreateCollectionPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
 }
 
 function getCurrentTheme(): Theme {
-  return preferences.getPreferences().enableLgDarkmode &&
-    remote?.nativeTheme?.shouldUseDarkColors
-    ? Theme.Dark
-    : Theme.Light;
+  return remote?.nativeTheme?.shouldUseDarkColors ? Theme.Dark : Theme.Light;
 }
 
 function ThemedHome(
@@ -409,31 +408,21 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
-    enabled: !!preferences.getPreferences().enableLgDarkmode,
   });
 
-  const darkMode = useMemo(
-    () => theme.enabled && theme.theme === Theme.Dark,
-    [theme]
-  );
+  const darkMode = useMemo(() => theme.theme === Theme.Dark, [theme]);
 
   useEffect(() => {
     const listener = () => {
       setTheme({
         theme: getCurrentTheme(),
-        enabled: !!preferences.getPreferences().enableLgDarkmode,
       });
     };
 
-    const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
-      'enableLgDarkmode',
-      listener
-    );
     remote?.nativeTheme?.on('updated', listener);
 
     return () => {
       // Cleanup preference listeners.
-      unsubscribeLgDarkmodeListener();
       remote?.nativeTheme?.off('updated', listener);
     };
   }, [appRegistry]);

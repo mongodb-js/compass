@@ -61,3 +61,38 @@ if (
     path.join(app.getPath('userData'), 'CrashReporter')
   );
 }
+
+if (
+  // type `renderer` is electron renderer process (browser window runtime)
+  process.type === 'renderer'
+) {
+  if (process.env.NODE_ENV === 'development') {
+    const ignoreLeafygreenWarnings = [
+      // Not relevant
+      /using the Leafygreen SearchInput/i,
+      // We don't always use SegmentedControl as a view switcher, aria-controls
+      // doesn't apply
+      /The property `aria-controls` is required/i,
+      // TODO(COMPASS-7046): Should go away after leafygreen update
+      /For screen-reader accessibility, label or aria-labelledby/i,
+    ];
+    for (const method of ['warn', 'error'] as const) {
+      /* eslint-disable no-console */
+      const fn = console[method];
+      console[method] = function (...args) {
+        const [msg] = args;
+        if (typeof msg === 'string') {
+          if (
+            ignoreLeafygreenWarnings.some((regex) => {
+              return regex.test(msg);
+            })
+          ) {
+            return;
+          }
+        }
+        return fn.apply(this, args);
+      };
+      /* eslint-enable no-console */
+    }
+  }
+}

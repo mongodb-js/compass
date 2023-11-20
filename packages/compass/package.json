@@ -156,7 +156,7 @@
     "depcheck": "depcheck",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "repository": {
     "type": "git",
@@ -221,10 +221,9 @@
     "chalk": "^4.1.2",
     "clean-stack": "^2.0.0",
     "compass-preferences-model": "^2.15.6",
-    "darkreader": "^4.9.40",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^25.9.4",
+    "electron": "^25.9.5",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",

@@ -6,6 +6,7 @@ import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app
 import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
+import type { Location } from '../modules/location';
 import { changeLocation } from '../modules/location';
 import type { Database } from '../modules/databases';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
@@ -13,21 +14,35 @@ import { reset } from '../modules/reset';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
+import { setDataService } from '../modules/data-service';
 import { toggleSidebar } from '../modules/is-expanded';
-import type AppRegistry from 'hadron-app-registry';
+import type { AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { DataService } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type toNS from 'mongodb-ns';
+type NS = ReturnType<typeof toNS>;
 
-// We use these symbols so that nothing from outside can access these values on
-// the store
-const kInstance = Symbol('instance');
+export function createSidebarStore({
+  globalAppRegistry,
+  instance,
+  dataService,
+  connectionInfo,
+}: {
+  globalAppRegistry: AppRegistry;
+  instance: MongoDBInstance;
+  dataService: DataService;
+  connectionInfo: ConnectionInfo | null | undefined;
+}): {
+  store: Store<RootState, RootAction>;
+  deactivate: () => void;
+} {
+  const cleanup: (() => void)[] = [];
+  const store: Store<RootState, RootAction> = createStore(
+    reducer,
+    applyMiddleware(thunk)
+  );
 
-const store: Store<RootState, RootAction> & {
-  [kInstance]: null | MongoDBInstance;
-} = Object.assign(createStore(reducer, applyMiddleware(thunk)), {
-  [kInstance]: null,
-});
-
-const onActivated = (appRegistry: AppRegistry) => {
   const onInstanceChangeNow = (instance: any /* MongoDBInstance */) => {
     store.dispatch(
       changeInstance({
@@ -80,138 +95,140 @@ const onActivated = (appRegistry: AppRegistry) => {
     store.dispatch(changeDatabases(dbs));
   }, 300);
 
-  store.dispatch(globalAppRegistryActivated(appRegistry));
+  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-  appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
-    store.dispatch(changeConnectionInfo(connectionInfo));
-    const connectionOptions = dataService.getConnectionOptions();
-    store.dispatch(changeConnectionOptions(connectionOptions)); // stores ssh tunnel status
+  function on(
+    eventEmitter: {
+      on(ev: string, l: (...args: any[]) => void): void;
+      removeListener(ev: string, l: (...args: any[]) => void): void;
+    },
+    ev: string,
+    listener: (...args: any[]) => void
+  ) {
+    eventEmitter.on(ev, listener);
+    cleanup.push(() => eventEmitter.removeListener(ev, listener));
+  }
+  const onAppRegistryEvent = (ev: string, listener: (...args: any[]) => void) =>
+    on(globalAppRegistry, ev, listener);
+  const onInstanceEvent = (ev: string, listener: (...args: any[]) => void) =>
+    on(instance, ev, listener);
 
-    appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
-    appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
-      dataService.setCSFLEEnabled(enabled);
-      appRegistry.emit('refresh-data');
-    });
+  store.dispatch(setDataService(dataService));
+  if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
+  const connectionOptions = dataService.getConnectionOptions();
+  store.dispatch(changeConnectionOptions(connectionOptions)); // stores ssh tunnel status
+
+  onInstanceChangeNow(instance);
+  onDatabasesChange(instance.databases);
+
+  onInstanceEvent('change:csfleMode', () => {
+    onInstanceChange(instance);
   });
 
-  appRegistry.on('instance-destroyed', () => {
-    const instance = store[kInstance] as any;
-    if (instance) {
-      instance.off();
-      instance.build.off();
-      instance.dataLake.off();
-      instance.genuineMongoDB.off();
-    }
-    store[kInstance] = null;
-    onInstanceChange.cancel();
-    onDatabasesChange.cancel();
-  });
-
-  appRegistry.on('instance-created', ({ instance }) => {
-    if (store[kInstance]) {
-      // we should probably throw in this case
-      return;
-    }
-
-    store[kInstance] = instance;
-
+  onInstanceEvent('change:refreshingStatus', () => {
+    // This will always fire when we start fetching the instance details which
+    // will cause a 300ms throttle before any instance details can update if
+    // we send it though the throttled update. That's long enough for the
+    // sidebar to display that we're connected to a standalone instance when
+    // we're really connected to dataLake.
     onInstanceChangeNow(instance);
+  });
+
+  onInstanceEvent('change:databasesStatus', () => {
+    onInstanceChange(instance);
     onDatabasesChange(instance.databases);
-
-    instance.on('change:csfleMode', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.on('change:refreshingStatus', () => {
-      // This will always fire when we start fetching the instance details which
-      // will cause a 300ms throttle before any instance details can update if
-      // we send it though the throttled update. That's long enough for the
-      // sidebar to display that we're connected to a standalone instance when
-      // we're really connected to dataLake.
-      onInstanceChangeNow(instance);
-    });
-
-    instance.on('change:databasesStatus', () => {
-      onInstanceChange(instance);
-      onDatabasesChange(instance.databases);
-    });
-
-    instance.on('change:databases', () => {
-      onDatabasesChange(instance.databases);
-    });
-
-    instance.on('change:databases.collectionsStatus', () => {
-      onDatabasesChange(instance.databases);
-    });
-
-    instance.build.on('change:isEnterprise', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.build.on('change:version', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.dataLake.on('change:isDataLake', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.dataLake.on('change:version', () => {
-      onInstanceChange(instance);
-    });
-
-    store.dispatch(
-      toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
-    );
-
-    instance.genuineMongoDB.on(
-      'change:isGenuine',
-      (model: unknown, isGenuine: boolean) => {
-        onInstanceChange(instance); // isGenuineMongoDB is part of instance state
-        store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
-      }
-    );
-
-    instance.on('change:topologyDescription', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.on('change:isWritable', () => {
-      onInstanceChange(instance);
-    });
-
-    instance.on('change:env', () => {
-      onInstanceChange(instance);
-    });
   });
 
-  appRegistry.on('select-namespace', ({ namespace }) => {
-    store.dispatch(changeActiveNamespace(namespace));
-    store.dispatch(changeLocation('collection'));
+  onInstanceEvent('change:databases', () => {
+    onDatabasesChange(instance.databases);
   });
 
-  appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
-    store.dispatch(changeActiveNamespace(namespace));
-    store.dispatch(changeLocation('collection'));
+  onInstanceEvent('change:databases.collectionsStatus', () => {
+    onDatabasesChange(instance.databases);
   });
 
-  appRegistry.on('select-database', (dbName) => {
+  on(instance.build as any, 'change:isEnterprise', () => {
+    onInstanceChange(instance);
+  });
+
+  on(instance.build as any, 'change:version', () => {
+    onInstanceChange(instance);
+  });
+
+  on(instance.dataLake as any, 'change:isDataLake', () => {
+    onInstanceChange(instance);
+  });
+
+  on(instance.dataLake as any, 'change:version', () => {
+    onInstanceChange(instance);
+  });
+
+  store.dispatch(
+    toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
+  );
+
+  on(
+    instance.genuineMongoDB as any,
+    'change:isGenuine',
+    (model: unknown, isGenuine: boolean) => {
+      onInstanceChange(instance); // isGenuineMongoDB is part of instance state
+      store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
+    }
+  );
+
+  onInstanceEvent('change:topologyDescription', () => {
+    onInstanceChange(instance);
+  });
+
+  onInstanceEvent('change:isWritable', () => {
+    onInstanceChange(instance);
+  });
+
+  onInstanceEvent('change:env', () => {
+    onInstanceChange(instance);
+  });
+
+  onAppRegistryEvent(
+    'select-namespace',
+    ({ namespace }: { namespace: string | NS }) => {
+      store.dispatch(changeActiveNamespace(namespace));
+      store.dispatch(changeLocation('collection'));
+    }
+  );
+
+  onAppRegistryEvent(
+    'open-namespace-in-new-tab',
+    ({ namespace }: { namespace: string | NS }) => {
+      store.dispatch(changeActiveNamespace(namespace));
+      store.dispatch(changeLocation('collection'));
+    }
+  );
+
+  onAppRegistryEvent('select-database', (dbName: string) => {
     store.dispatch(changeActiveNamespace(dbName));
     store.dispatch(changeLocation('database'));
   });
 
-  appRegistry.on('open-instance-workspace', (tabName = null) => {
-    store.dispatch(changeActiveNamespace(''));
-    store.dispatch(changeLocation(tabName));
-  });
+  onAppRegistryEvent(
+    'open-instance-workspace',
+    (tabName: Location | null = null) => {
+      store.dispatch(changeActiveNamespace(''));
+      store.dispatch(changeLocation(tabName));
+    }
+  );
 
-  appRegistry.on('data-service-disconnected', () => {
+  onAppRegistryEvent('data-service-disconnected', () => {
     store.dispatch(reset());
   });
 
-  appRegistry.on('toggle-sidebar', () => {
+  onAppRegistryEvent('toggle-sidebar', () => {
     store.dispatch(toggleSidebar());
   });
-};
 
-export default Object.assign(store, { onActivated });
+  return {
+    store,
+    deactivate() {
+      for (const cleaner of cleanup) cleaner();
+    },
+  };
+}

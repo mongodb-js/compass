@@ -1,14 +1,17 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import reducer from '../modules';
 
 import { NavigationItems } from './navigation-items';
-import store from '../stores/store';
 
 function renderNavigationItems(
   props?: Partial<React.ComponentProps<typeof NavigationItems>>
 ) {
+  const store = createStore(reducer, applyMiddleware(thunk));
   return render(
     <Provider store={store}>
       <NavigationItems
@@ -32,6 +35,8 @@ const createDatabaseText = 'Create database';
 const refreshCTAText = 'Refresh databases';
 
 describe('NavigationItems [Component]', function () {
+  afterEach(cleanup);
+
   describe('when rendered', function () {
     it('renders the create database button', function () {
       renderNavigationItems();

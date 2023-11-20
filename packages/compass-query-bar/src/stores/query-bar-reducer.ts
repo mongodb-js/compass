@@ -214,8 +214,19 @@ type ApplyFromHistoryAction = {
   query: BaseQuery;
 };
 
-export const applyFromHistory = (query: BaseQuery): ApplyFromHistoryAction => {
-  return { type: QueryBarActions.ApplyFromHistory, query };
+export const applyFromHistory = (
+  query: BaseQuery & { update?: Document }
+): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
+  return (dispatch, getState, { localAppRegistry }) => {
+    dispatch({
+      type: QueryBarActions.ApplyFromHistory,
+      query,
+    });
+
+    if (query.update) {
+      localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
+    }
+  };
 };
 
 type RecentQueriesFetchedAction = {

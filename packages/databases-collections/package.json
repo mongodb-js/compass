@@ -44,9 +44,10 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-logging": "^1.2.6",
@@ -87,6 +88,7 @@
     "sinon": "^9.2.3"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-logging": "^1.2.6",

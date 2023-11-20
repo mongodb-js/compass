@@ -6,6 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -15,6 +16,12 @@ import {
   aiEntrySVGLightModeStyles,
   aiEntrySVGStyles,
 } from './ai-entry-svg';
+
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.containerQueryName} (width < 900px)`]: {
+    display: 'none',
+  },
+});
 
 const aiEntryStyles = css(
   {
@@ -98,7 +105,7 @@ function AIExperienceEntry({
       data-testid={dataTestId}
       type="button"
     >
-      Generate {type}
+      <span className={hiddenOnNarrowStyles}>Generate {type}</span>
       <AIEntrySVG darkMode={darkMode} />
     </button>
   );
