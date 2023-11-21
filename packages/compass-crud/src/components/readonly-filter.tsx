@@ -6,6 +6,7 @@ import {
   css,
   spacing,
   KeylineCard,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
 
 type QueryLabelProps = {
@@ -31,11 +32,12 @@ const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
   );
 };
 
-const textInputStyles = css({
+const readOnlyFilterStyles = css({
   padding: spacing[2],
   overflow: 'scroll',
   width: '100%',
   whiteSpace: 'nowrap',
+  fontFamily: fontFamilies.code,
   '::-webkit-scrollbar': {
     display: 'none',
   },
@@ -60,7 +62,7 @@ export function ReadonlyFilter({
         id="readonly-filter"
         data-testid="readonly-filter"
         disabled={true}
-        className={textInputStyles}
+        className={readOnlyFilterStyles}
       >
         <code>{filterQuery}</code>
       </KeylineCard>
