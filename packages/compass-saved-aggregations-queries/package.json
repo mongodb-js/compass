@@ -60,7 +60,7 @@
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/my-queries-storage": "^0.2.1",
-    "bson": "^6.0.0",
+    "bson": "^6.2.0",
     "hadron-app-registry": "^9.0.14",
     "mongodb-data-service": "^22.15.1",
     "react": "^17.0.2"
@@ -70,7 +70,7 @@
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/my-queries-storage": "^0.2.1",
-    "bson": "^6.0.0",
+    "bson": "^6.2.0",
     "hadron-app-registry": "^9.0.14",
     "mongodb-data-service": "^22.15.1"
   },
