@@ -5,6 +5,7 @@ import os from 'os';
 import { DEFAULT_QUERY_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import {
+  QueryBarActions,
   applyFromHistory,
   applyQuery,
   changeField,
@@ -239,6 +240,18 @@ describe('queryBarReducer', function () {
         'fields.sort.string',
         '{_id: -1}'
       );
+    });
+  });
+
+  describe('isReadonlyConnection', function () {
+    it('should refresh the readonly status when requested', function () {
+      const store = createStore({});
+      store.dispatch({
+        type: QueryBarActions.ChangeReadonlyConnectionStatus,
+        readonly: true,
+      });
+
+      expect(store.getState().queryBar.isReadonlyConnection).to.be.true;
     });
   });
 

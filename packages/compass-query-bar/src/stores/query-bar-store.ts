@@ -17,6 +17,7 @@ import {
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   changeSchemaFields,
   applyFilterChange,
+  QueryBarActions,
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -113,6 +114,26 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
       })
     )
   );
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+
+    const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
+
+    store.dispatch({
+      type: QueryBarActions.ChangeReadonlyConnectionStatus,
+      readonly: !instance.isWritable,
+    });
+
+    // these can change later
+    instance.on('change:isWritable', () => {
+      store.dispatch({
+        type: QueryBarActions.ChangeReadonlyConnectionStatus,
+        readonly: !instance.isWritable,
+      });
+    });
+  }
 
   atlasService.on('user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
