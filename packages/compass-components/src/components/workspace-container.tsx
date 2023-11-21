@@ -6,7 +6,7 @@ import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
 import { useDarkMode } from '../hooks/use-theme';
 
-const workspaceContainerQueryName = 'compass-workspace-container';
+const workspacetoolbarContainerQueryName = 'compass-workspace-container';
 
 const workspaceContainerStyles = css({
   height: '100%',
@@ -14,12 +14,12 @@ const workspaceContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  containerName: workspaceContainerQueryName,
-  containerType: 'inline-size',
 });
 
 const toolbarStyles = css({
   flex: 'none',
+  containerName: workspacetoolbarContainerQueryName,
+  containerType: 'inline-size',
 });
 
 const scrollBoxStyles = css({
@@ -134,7 +134,14 @@ function WorkspaceContainer({
       data-testid={dataTestId}
       {...props}
     >
-      {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
+      {toolbar && (
+        <div
+          data-testid="workspace-container-toolbar"
+          className={toolbarStyles}
+        >
+          {toolbar}
+        </div>
+      )}
       <div className={scrollBoxStyles} ref={scrollContainer}>
         {triggerStillInView || (
           <div className={shadowContainerStyles}>
@@ -155,6 +162,7 @@ function WorkspaceContainer({
   );
 }
 
-WorkspaceContainer.containerQueryName = workspaceContainerQueryName;
+WorkspaceContainer.toolbarContainerQueryName =
+  workspacetoolbarContainerQueryName;
 
 export { WorkspaceContainer };
