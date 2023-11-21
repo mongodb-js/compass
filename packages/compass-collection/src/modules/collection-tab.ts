@@ -5,7 +5,6 @@ import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import toNs from 'mongodb-ns';
-import preferencesAccess from 'compass-preferences-model';
 import React from 'react';
 
 type CollectionThunkAction<
@@ -257,12 +256,7 @@ export const renderTabs = (): CollectionThunkAction<
     // makes sure that other plugins can use query bar
     dispatch(setupRole('Query.QueryBar'));
 
-    return dispatch(setupRole('Collection.Tab')).filter((role) => {
-      return !(
-        preferencesAccess.getPreferences().newExplainPlan &&
-        role.name === 'Explain Plan'
-      );
-    });
+    return dispatch(setupRole('Collection.Tab'));
   };
 };
 
