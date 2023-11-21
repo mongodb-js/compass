@@ -1,5 +1,4 @@
-// @ts-expect-error TopologyDescription is exported as an interface, not a class
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 
 export function createInstance(
   dbs = [
@@ -24,6 +23,6 @@ export function createInstance(
         }),
       };
     }),
-    topologyDescription: new TopologyDescription(topologyDescription),
+    topologyDescription,
   } as any);
 }

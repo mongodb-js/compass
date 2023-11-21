@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 
 import {
   validatorChanged,
@@ -17,10 +17,10 @@ import {
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import configureStore from './';
 
-const topologyDescription = new TopologyDescription({
+const topologyDescription = {
   type: 'Unknown',
   servers: [{ type: 'Unknown' }],
-});
+};
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',
@@ -130,10 +130,10 @@ describe('Schema Validation Store', function () {
         });
 
         fakeInstance.set({
-          topologyDescription: new TopologyDescription({
+          topologyDescription: {
             type: 'Single',
             servers: [{ type: 'Standalone' }],
-          }),
+          },
         });
 
         expect(store.getState().editMode).to.deep.equal({

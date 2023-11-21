@@ -1,84 +1,78 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
-import type { Store, AnyAction, Action } from 'redux';
+import type { AnyAction, Action } from 'redux';
 import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
-import instanceReducer, { setInstance, resetInstance } from './instance';
-import dataServiceReducer, {
-  setDataService,
-  resetDataService,
-} from './data-service';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import appRegistryReducer, { setAppRegistry } from './app-registry';
-
 import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
 import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import type { DataService } from 'mongodb-data-service';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-// Exporting so that they can be stubed/spied in tests
-export const queryStorage = new FavoriteQueryStorage();
-export const pipelineStorage = new PipelineStorage();
+type MyQueriesServices = {
+  dataService: DataService;
+  instance: MongoDBInstance;
+  globalAppRegistry: AppRegistry;
+  logger: LoggerAndTelemetry;
+};
 
-const _store = createStore(
-  combineReducers({
-    savedItems: itemsReducer,
-    instance: instanceReducer,
-    dataService: dataServiceReducer,
-    openItem: openItemReducer,
-    editItem: editItemReducer,
-    appRegistry: appRegistryReducer,
-  }),
-  applyMiddleware(
-    thunk.withExtraArgument({
-      pipelineStorage,
-      queryStorage,
-    })
-  )
-);
-
-export type SavedQueryAggregationExtraArgs = {
+// TODO(COMPASS-7411): should also be service injected, this type will merge
+// with the one above
+type Storages = {
   pipelineStorage: PipelineStorage;
   queryStorage: FavoriteQueryStorage;
 };
+
+function configureStore({
+  globalAppRegistry,
+  dataService,
+  instance,
+  logger,
+  pipelineStorage = new PipelineStorage(),
+  queryStorage = new FavoriteQueryStorage(),
+}: MyQueriesServices & Partial<Storages>) {
+  return createStore(
+    combineReducers({
+      savedItems: itemsReducer,
+      openItem: openItemReducer,
+      editItem: editItemReducer,
+    }),
+    applyMiddleware(
+      thunk.withExtraArgument({
+        globalAppRegistry,
+        dataService,
+        instance,
+        logger,
+        pipelineStorage,
+        queryStorage,
+      })
+    )
+  );
+}
+
+export type RootState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
+
+type SavedQueryAggregationExtraArgs = MyQueriesServices & Storages;
 
 export type SavedQueryAggregationThunkAction<
   R,
   A extends Action = AnyAction
 > = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
-
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
-
-export type RootActions = StoreActions<typeof _store>;
-
-export type RootState = StoreState<typeof _store>;
-
-const store = Object.assign(_store, {
-  onActivated(appRegistry: AppRegistry) {
-    store.dispatch(setAppRegistry(appRegistry));
-
-    appRegistry.on('data-service-connected', (err, dataService) => {
-      if (err) {
-        return;
-      }
-
-      store.dispatch(setDataService(dataService));
-    });
-
-    appRegistry.on('data-service-disconnected', () => {
-      store.dispatch(resetDataService());
-    });
-
-    appRegistry.on('instance-created', ({ instance }) => {
-      store.dispatch(setInstance(instance));
-    });
-
-    appRegistry.on('instance-destroyed', () => {
-      store.dispatch(resetInstance());
-    });
-  },
-});
-
-export default store;
+export function activatePlugin(
+  _: unknown,
+  services: MyQueriesServices & Partial<Storages>
+) {
+  const store = configureStore(services);
+  return {
+    store,
+    deactivate() {
+      // noop, no subscriptions in this plugin
+    },
+  };
+}

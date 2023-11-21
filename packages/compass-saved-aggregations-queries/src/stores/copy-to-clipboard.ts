@@ -1,10 +1,6 @@
-import type { RootActions, RootState } from './index';
-import type { ThunkAction } from 'redux-thunk';
+import type { SavedQueryAggregationThunkAction } from './index';
 import { EJSON } from 'bson';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { type FavoriteQuery } from '@mongodb-js/my-queries-storage';
-
-const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 function formatQuery(query: FavoriteQuery) {
   const { collation, filter, limit, project, skip, sort } = query;
@@ -24,8 +20,8 @@ function formatQuery(query: FavoriteQuery) {
 
 export function copyToClipboard(
   id: string
-): ThunkAction<Promise<void>, RootState, void, RootActions> {
-  return async (_dispatch, getState) => {
+): SavedQueryAggregationThunkAction<Promise<void>> {
+  return async (_dispatch, getState, { logger: { track } }) => {
     const {
       savedItems: { items },
     } = getState();
