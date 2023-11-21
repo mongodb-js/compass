@@ -134,14 +134,7 @@ function WorkspaceContainer({
       data-testid={dataTestId}
       {...props}
     >
-      {toolbar && (
-        <div
-          data-testid="workspace-container-toolbar"
-          className={toolbarStyles}
-        >
-          {toolbar}
-        </div>
-      )}
+      {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
       <div className={scrollBoxStyles} ref={scrollContainer}>
         {triggerStillInView || (
           <div className={shadowContainerStyles}>
