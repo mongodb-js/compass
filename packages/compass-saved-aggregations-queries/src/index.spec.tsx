@@ -1,4 +1,5 @@
 import React from 'react';
+import Sinon from 'sinon';
 import {
   render,
   screen,
@@ -8,45 +9,41 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
-import ConnectedList from './index';
-import * as store from './../stores';
-
-import { queries, pipelines } from '../../test/fixtures';
-import Sinon from 'sinon';
-
-const DATE = new Date('01/01/2020');
+import { queries, pipelines, DATE } from '../test/fixtures';
+import { MyQueriesPlugin } from '.';
 
 describe('AggregationsQueriesList', function () {
-  let sandbox: Sinon.SinonSandbox;
-  let favoriteQueryStorageMock: Sinon.SinonMock;
-  let pipelineStorageMock: Sinon.SinonMock;
+  const sandbox = Sinon.createSandbox();
+  const dataService = {} as any;
+  const instance = {} as any;
+  const queryStorage = {
+    loadAll: sandbox.stub().resolves([]),
+    updateAttributes: sandbox.stub().resolves({}),
+  };
+  const pipelineStorage = {
+    loadAll: sandbox.stub().resolves([]),
+    updateAttributes: sandbox.stub().resolves({}),
+  };
 
-  beforeEach(function () {
-    sandbox = Sinon.createSandbox();
-    favoriteQueryStorageMock = sandbox.mock(FavoriteQueryStorage.prototype);
-    pipelineStorageMock = sandbox.mock(PipelineStorage.prototype);
-
-    sandbox.stub(store, 'queryStorage').returns(favoriteQueryStorageMock);
-    sandbox.stub(store, 'pipelineStorage').returns(pipelineStorageMock);
+  const Plugin = MyQueriesPlugin.withMockServices({
+    dataService,
+    instance,
+    queryStorage,
+    pipelineStorage,
   });
 
   afterEach(function () {
-    sandbox.restore();
+    sandbox.resetHistory();
     cleanup();
   });
 
   it('should display no saved items when user has no saved queries/aggregations', async function () {
-    favoriteQueryStorageMock.expects('loadAll').resolves([]);
-    pipelineStorageMock.expects('loadAll').resolves([]);
-
-    render(<ConnectedList></ConnectedList>);
+    render(<Plugin></Plugin>);
     expect(await screen.findByText('No saved queries yet.')).to.exist;
   });
 
   it('should load queries and display them in the list', async function () {
-    favoriteQueryStorageMock.expects('loadAll').resolves([
+    queryStorage.loadAll.resolves([
       {
         _id: '123',
         _name: 'Query',
@@ -54,14 +51,13 @@ describe('AggregationsQueriesList', function () {
         _dateSaved: DATE,
       },
     ]);
-    pipelineStorageMock.expects('loadAll').resolves([]);
-    render(<ConnectedList></ConnectedList>);
+    render(<Plugin></Plugin>);
     expect(await screen.findByText('Query')).to.exist;
   });
 
   it('should load aggregations and display them in the list', async function () {
-    favoriteQueryStorageMock.expects('loadAll').resolves([]);
-    pipelineStorageMock.expects('loadAll').resolves([
+    queryStorage.loadAll.resolves([]);
+    pipelineStorage.loadAll.resolves([
       {
         id: '123',
         name: 'Aggregation',
@@ -69,13 +65,13 @@ describe('AggregationsQueriesList', function () {
         lastModified: 0,
       },
     ]);
-    render(<ConnectedList></ConnectedList>);
+    render(<Plugin></Plugin>);
     expect(await screen.findByText('Aggregation')).to.exist;
   });
 
   describe('copy to clipboard', function () {
     it('should copy query to the clipboard', async function () {
-      favoriteQueryStorageMock.expects('loadAll').resolves([
+      queryStorage.loadAll.resolves([
         {
           _id: '123',
           _name: 'My Query',
@@ -85,9 +81,9 @@ describe('AggregationsQueriesList', function () {
           sort: { bar: -1 },
         },
       ]);
-      pipelineStorageMock.expects('loadAll').resolves([]);
+      pipelineStorage.loadAll.resolves([]);
 
-      render(<ConnectedList></ConnectedList>);
+      render(<Plugin></Plugin>);
 
       await waitFor(async () => await screen.findByText('My Query'));
 
@@ -113,8 +109,8 @@ describe('AggregationsQueriesList', function () {
     });
 
     it('should copy aggregation to the clipboard', async function () {
-      favoriteQueryStorageMock.expects('loadAll').resolves([]);
-      pipelineStorageMock.expects('loadAll').resolves([
+      queryStorage.loadAll.resolves([]);
+      pipelineStorage.loadAll.resolves([
         {
           id: '123',
           name: 'My Aggregation',
@@ -130,7 +126,7 @@ describe('AggregationsQueriesList', function () {
         },
       ]);
 
-      render(<ConnectedList></ConnectedList>);
+      render(<Plugin></Plugin>);
 
       await waitFor(async () => await screen.findByText('My Aggregation'));
 
@@ -153,13 +149,12 @@ describe('AggregationsQueriesList', function () {
 
   context('with fixtures', function () {
     beforeEach(async function () {
-      favoriteQueryStorageMock
-        .expects('loadAll')
-        .resolves(queries.map((item) => (item as any).query));
-      pipelineStorageMock
-        .expects('loadAll')
-        .resolves(pipelines.map((item) => (item as any).aggregation));
-      render(<ConnectedList></ConnectedList>);
+      queryStorage.loadAll.resolves(queries.map((item) => item.query));
+      pipelineStorage.loadAll.resolves(
+        pipelines.map((item) => item.aggregation)
+      );
+
+      render(<Plugin></Plugin>);
 
       // Wait for the items to "load"
       await screen.findByText(queries[0].name);
@@ -169,28 +164,12 @@ describe('AggregationsQueriesList', function () {
       const { database, collection } = queries[0];
 
       // select database
-      userEvent.click(screen.getByText('All databases'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-      userEvent.click(
-        screen.getByRole('option', {
-          name: database,
-        }),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
+      userEvent.click(screen.getByRole('button', { name: 'All databases' }));
+      userEvent.click(screen.getByRole('option', { name: database }));
 
       // select collection
-      userEvent.click(screen.getByText('All collections'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-      userEvent.click(
-        screen.getByRole('option', {
-          name: collection,
-        }),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
+      userEvent.click(screen.getByRole('button', { name: 'All collections' }));
+      userEvent.click(screen.getByRole('option', { name: collection }));
 
       const expectedItems = [...queries, ...pipelines].filter(
         (item) => item.database === database && item.collection === collection
@@ -207,8 +186,8 @@ describe('AggregationsQueriesList', function () {
       const updatedName = 'the updated name';
 
       // The first item is a query, so we are mocking that
-      favoriteQueryStorageMock.expects('updateAttributes').resolves({
-        ...(item as any).query,
+      queryStorage.updateAttributes.resolves({
+        ...item.query,
         _name: updatedName,
       });
 
@@ -229,12 +208,15 @@ describe('AggregationsQueriesList', function () {
       const title = new RegExp('rename query', 'i');
       expect(within(modal).getByText(title), 'show title').to.exist;
 
-      const nameInput = within(modal).getByRole<HTMLInputElement>('textbox', {
+      const nameInput = within(modal).getByRole('textbox', {
         name: /name/i,
       });
 
       expect(nameInput, 'show name input').to.exist;
-      expect(nameInput.value, 'input with item name').to.equal(item.name);
+      expect(nameInput, 'input with item name').to.have.property(
+        'value',
+        item.name
+      );
 
       expect(
         within(modal).getByRole<HTMLButtonElement>('button', {
