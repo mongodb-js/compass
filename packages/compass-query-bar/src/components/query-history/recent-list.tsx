@@ -52,24 +52,29 @@ const RecentItem = ({
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
   const title = useFormattedDate(query._lastExecuted.getTime());
 
+  const onClickRecent = useCallback(() => {
+    if (isDisabled) {
+      return;
+    }
+
+    if (isUpdateQuery) {
+      onUpdateRecentChoosen();
+    }
+
+    track('Query History Recent Used');
+    onApply(attributes);
+  }, [isDisabled, isUpdateQuery, onApply, attributes, onUpdateRecentChoosen]);
+
   const onCardClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       // If the click event originates from the form, ignore.
-      if (
-        formRef.current?.contains(event.target as HTMLElement) ||
-        isDisabled
-      ) {
+      if (formRef.current?.contains(event.target as HTMLElement)) {
         return;
       }
 
-      if (isUpdateQuery) {
-        onUpdateRecentChoosen();
-      }
-
-      track('Query History Recent Used');
-      onApply(attributes);
+      onClickRecent();
     },
-    [onApply, attributes, isUpdateQuery, onUpdateRecentChoosen, isDisabled]
+    [onClickRecent]
   );
 
   const onSaveQuery = useCallback(
@@ -103,7 +108,7 @@ const RecentItem = ({
             />
             <DeleteActionButton onClick={() => onDelete(query._id)} />
             {isUpdateQuery && !isReadonly && !readOnlyCompass && (
-              <OpenBulkUpdateActionButton onClick={onCardClick} />
+              <OpenBulkUpdateActionButton onClick={onClickRecent} />
             )}
           </QueryItemHeading>
         );
