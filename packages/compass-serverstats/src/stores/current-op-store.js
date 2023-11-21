@@ -10,6 +10,8 @@ const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
  * This store listens to the
  * 'currentOpComplete' action, fetches the current op data, and
  * triggers with the result of the command.
+ *
+ * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService)}}
  */
 const CurrentOpStore = Reflux.createStore({
   /**
@@ -26,11 +28,8 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.killOp, this.killOp);
   },
 
-  onActivated: function (appRegistry) {
-    appRegistry.on('data-service-connected', (err, ds) => {
-      if (err) throw err;
-      this.dataService = ds;
-    });
+  onActivated: function (ds) {
+    this.dataService = ds;
   },
 
   restart: function () {

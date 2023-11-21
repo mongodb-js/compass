@@ -5,13 +5,13 @@
   "apiVersion": "3.0.0",
   "description": "Compass Real Time",
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
@@ -33,13 +33,19 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
+    "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1",
     "react": "^17.0.2"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-stores": "^7.6.1",
     "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.6"
+    "@mongodb-js/compass-logging": "^1.2.6",
+    "hadron-app-registry": "^9.0.14",
+    "mongodb-data-service": "^22.15.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.11",
@@ -58,10 +64,8 @@
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app": "^5.15.1",
-    "hadron-app-registry": "^9.0.14",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.15.1",
     "mongodb-js-errors": "^0.3.2",
     "mongodb-ns": "^2.4.0",
     "prop-types": "^15.7.2",
