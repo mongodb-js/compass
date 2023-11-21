@@ -4,7 +4,6 @@ import { expect } from 'chai';
 
 import { Database } from './database';
 import { DatabaseTabsProvider } from './database-tabs-provider';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 class Collections extends React.Component {
   render() {
@@ -22,7 +21,7 @@ describe('Database [Component]', function () {
   beforeEach(function () {
     render(
       <DatabaseTabsProvider tabs={[ROLE]}>
-        <Database logger={createLoggerAndTelemetry('COMPASS-DATABASE-TEST')} />
+        <Database />
       </DatabaseTabsProvider>
     );
   });

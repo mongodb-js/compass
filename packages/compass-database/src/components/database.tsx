@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { ErrorBoundary, TabNavBar, css } from '@mongodb-js/compass-components';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { useDatabaseTabs } from './database-tabs-provider';
 
 const databaseStyles = css({
@@ -10,11 +10,8 @@ const databaseStyles = css({
   height: '100%',
 });
 
-export interface DatabaseProps {
-  logger: LoggerAndTelemetry;
-}
-
-export function Database({ logger: { log, mongoLogId } }: DatabaseProps) {
+export function Database() {
+  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-DATABASES');
   const [activeTab, setActiveTab] = useState(0);
 
   const onTabClicked = useCallback(

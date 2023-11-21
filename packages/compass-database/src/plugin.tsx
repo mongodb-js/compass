@@ -1,15 +1,14 @@
 import React from 'react';
-import type { DatabaseProps } from './components/database';
 import { Database } from './components/database';
 
-export function DatabasePlugin(props: DatabaseProps) {
-  return <Database {...props} />;
+export function DatabasePlugin() {
+  return <Database />;
 }
 
-export function onActivated(_: unknown, { logger }: DatabaseProps) {
+export function onActivated() {
   return {
     store: {
-      state: { logger },
+      state: {},
     },
     deactivate() {
       /* nothing to do */

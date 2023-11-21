@@ -1,5 +1,4 @@
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { DatabasePlugin, onActivated } from './plugin';
 
@@ -14,16 +13,11 @@ function deactivate(): void {
 export const CompassDatabasePlugin = registerHadronPlugin<
   object,
   { logger: () => LoggerAndTelemetry }
->(
-  {
-    name: 'CompassDatabase',
-    component: DatabasePlugin as React.FunctionComponent,
-    activate: onActivated,
-  },
-  {
-    logger: createLoggerAndTelemetryLocator('COMPASS-DATABASES'),
-  }
-);
+>({
+  name: 'CompassDatabase',
+  component: DatabasePlugin as React.FunctionComponent,
+  activate: onActivated,
+});
 
 export { DatabaseTabsProvider } from './components/database-tabs-provider';
 export { activate, deactivate };
