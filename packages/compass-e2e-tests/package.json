@@ -50,7 +50,7 @@
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
     "glob": "^10.2.5",
-    "hadron-build": "^25.4.3",
+    "@mongodb-js/compass-build": "^0.1.0",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.0.0",

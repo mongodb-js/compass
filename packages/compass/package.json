@@ -14,7 +14,7 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "config": {
-    "hadron": {
+    "compass-build": {
       "endpoint": "https://compass.mongodb.com",
       "protocols": [
         {
@@ -31,7 +31,6 @@
         }
       ],
       "distributions": {
-        "default": "compass",
         "compass": {
           "name": "mongodb-compass",
           "productName": "MongoDB Compass",
@@ -137,18 +136,18 @@
     "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.*\"",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "webpack": "webpack-compass",
+    "precompile": "npm run compile -w @mongodb-js/compass-build",
     "compile": "npm run webpack -- --mode production",
     "postcompile": "npm run generate-3rd-party-notices",
     "check-bundled-app-size": "ts-node ./scripts/check-bundled-app-size.ts",
     "generate-3rd-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='Mongodb Compass' --dependencies=../../.sbom/dependencies.json > THIRD-PARTY-NOTICES.md",
     "postgenerate-3rd-party-notices": "prettier --write THIRD-PARTY-NOTICES.md",
     "run-compiled": "electron .",
-    "package-compass": "hadron-build release",
-    "package-compass-debug": "DEBUG='*' HADRON_SKIP_INSTALLER=true NO_ASAR=true hadron-build release",
-    "upload": "hadron-build upload",
-    "download": "hadron-build download",
-    "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
-    "build-info": "hadron-build info",
+    "package-compass": "compass-build release",
+    "package-compass-debug": "DEBUG='*' HADRON_SKIP_INSTALLER=true NO_ASAR=true compass-build release",
+    "upload": "compass-build upload",
+    "download": "compass-build download",
+    "evergreen-expansions": "compass-build evergreen-expansions",
     "jsx": "babel ./src --out-dir ./lib",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -196,6 +195,7 @@
     "@mongodb-js/compass-logging": "^1.2.6",
     "@mongodb-js/compass-query-bar": "^8.20.0",
     "@mongodb-js/compass-saved-aggregations-queries": "^1.20.1",
+    "@mongodb-js/compass-build": "^0.1.0",
     "@mongodb-js/compass-schema": "^6.21.0",
     "@mongodb-js/compass-schema-validation": "^6.20.0",
     "@mongodb-js/compass-serverstats": "^16.19.1",
@@ -232,7 +232,6 @@
     "eslint": "^7.25.0",
     "hadron-app": "^5.15.1",
     "hadron-app-registry": "^9.0.14",
-    "hadron-build": "^25.4.3",
     "hadron-ipc": "^3.2.4",
     "local-links": "^1.4.0",
     "lodash": "^4.17.21",

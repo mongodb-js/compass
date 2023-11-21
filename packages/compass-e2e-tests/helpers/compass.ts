@@ -10,10 +10,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
-import {
-  run as packageCompass,
-  compileAssets,
-} from 'hadron-build/commands/release';
+import { packageCompass, compileAssets } from '@mongodb-js/compass-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
@@ -28,9 +25,6 @@ const debug = Debug('compass-e2e-tests');
 
 const { gunzip } = zlib;
 const { Z_SYNC_FLUSH } = zlib.constants;
-
-const compileAssetsAsync = promisify(compileAssets);
-const packageCompassAsync = promisify(packageCompass);
 
 export const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
@@ -751,7 +745,7 @@ export async function rebuildNativeModules(
   );
   const {
     config: {
-      hadron: { rebuild: rebuildConfig },
+      'compass-build': { rebuild: rebuildConfig },
     },
   } = JSON.parse(await fs.readFile(fullCompassPath, 'utf8'));
 
@@ -774,7 +768,7 @@ export async function compileCompassAssets(
 ): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore some weirdness from util-callbackify
-  await compileAssetsAsync({ dir: compassPath });
+  await compileAssets({ dir: compassPath });
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {
@@ -813,9 +807,11 @@ export async function buildCompass(
     }
   }
 
-  await packageCompassAsync({
+  await packageCompass({
+    distribution: process.env.HADRON_DISTRIBUTION ?? 'compass',
     dir: compassPath,
-    skip_installer: true,
+    noAsar: false,
+    skipInstaller: true,
   });
 }
 

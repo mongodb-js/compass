@@ -222,7 +222,7 @@ export class WritableCollectionStream extends Writable {
     return callback(this._makeStreamError());
   }
 
-  _makeStreamError(): CollectionStreamError | undefined {
+  _makeStreamError(): CollectionStreamError | Error | undefined {
     if (this.stopOnErrors && this._errors.length) {
       const error = this._errors[0];
       if (Object.prototype.toString.call(error) === '[object Error]') {

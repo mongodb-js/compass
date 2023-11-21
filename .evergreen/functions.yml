@@ -297,7 +297,7 @@ functions:
           echo "Synchronizing evergreen environment from Compass build tools..."
 
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
-          npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
+          npm run --workspace mongodb-compass evergreen-expansions -- --platform=${target_platform} --arch=${target_arch} --distribution=${compass_distribution} --out expansions.yml
     - command: expansions.update
       params:
         # packaging and publishing is using all the *_filename variables

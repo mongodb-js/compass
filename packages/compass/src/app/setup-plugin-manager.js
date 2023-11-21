@@ -21,7 +21,7 @@ const ROOT = path.join(__dirname, '..', '..');
  * The current distribution information.
  */
 const DISTRIBUTION =
-  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+  pkg.config['compass-build'].distributions[process.env.HADRON_DISTRIBUTION];
 
 /**
  * The plugins directory constant.
