@@ -1,25 +1,37 @@
 import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import {
-  MongoDBInstance,
-  // @ts-expect-error mongodb-instance-model needs better typing
-  serversArray,
-  // @ts-expect-error mongodb-instance-model needs better typing
-  TopologyDescription,
-} from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
+function serversArray(
+  serversMap: NonNullable<
+    ReturnType<DataService['getLastSeenTopology']>
+  >['servers']
+) {
+  const servers = [];
+
+  for (const desc of serversMap.values()) {
+    servers.push({
+      address: desc.address,
+      type: desc.type,
+      tags: desc.tags,
+    });
+  }
+
+  return servers;
+}
+
 function getTopologyDescription(
   topologyDescription: ReturnType<DataService['getLastSeenTopology']>
-) {
+): MongoDBInstance['topologyDescription'] | undefined {
   if (!topologyDescription) return undefined;
-  return new TopologyDescription({
+  return {
     type: topologyDescription.type,
     servers: serversArray(topologyDescription.servers),
     setName: topologyDescription.setName,
-  });
+  };
 }
 
 function voidify<T extends (...args: any[]) => Promise<void>>(

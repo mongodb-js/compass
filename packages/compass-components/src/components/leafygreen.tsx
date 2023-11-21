@@ -93,6 +93,7 @@ const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
 const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 
 delete (MarketingModal as React.ComponentType<any>).propTypes;
+delete (Checkbox as React.ComponentType<any>).propTypes;
 
 // 3. Export the leafygreen components.
 export {

@@ -3,7 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
@@ -23,10 +23,10 @@ const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
 
 const delay = util.promisify(setTimeout);
 
-const topologyDescription = new TopologyDescription({
+const topologyDescription = {
   type: 'Unknown',
   servers: [{ type: 'Unknown' }],
-});
+};
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',
@@ -37,7 +37,7 @@ const fakeInstance = new MongoDBInstance({
   dataLake: {
     isDataLake: false,
   },
-});
+} as any);
 
 const fakeAppInstanceStore = {
   getState: function () {
