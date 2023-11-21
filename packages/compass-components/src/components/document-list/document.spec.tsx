@@ -228,14 +228,14 @@ describe('Document', function () {
         lastName: 'B',
       },
     });
-    hadronDoc.expandAllFields();
+    hadronDoc.expand();
     render(<Document value={hadronDoc}></Document>);
 
     expect(screen.getByText('names')).to.exist;
     expect(screen.getByText('firstName')).to.exist;
     expect(screen.getByText('lastName')).to.exist;
 
-    hadronDoc.collapseAllFields();
+    hadronDoc.collapse();
     expect(() => screen.getByText('firstName')).to.throw;
     expect(() => screen.getByText('lastName')).to.throw;
   });

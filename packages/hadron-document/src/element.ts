@@ -89,8 +89,8 @@ export class Element extends EventEmitter {
    *
    * @param key - The key.
    * @param value - The value.
-   * @param added - Is the element a new 'addition'?
    * @param parent - The parent element.
+   * @param added - Is the element a new 'addition'?
    */
   constructor(
     key: string | number,
@@ -721,42 +721,36 @@ export class Element extends EventEmitter {
   }
 
   /**
-   * Expands only the target element
+   * Expands the target element and optionally its children as well.
+   * Document.expand is when we would want to expand the children otherwise we
+   * will most expand the element itself.
    */
-  expand(): void {
-    this.expanded = true;
-    this._bubbleUp(ElementEvents.Expanded, this);
-  }
+  expand(expandChildren = false): void {
+    if (!this._isExpandable(this.originalExpandableValue)) {
+      return;
+    }
 
-  /**
-   * Collapses only the target element
-   */
-  collapse(): void {
-    this.expanded = false;
-    this._bubbleUp(ElementEvents.Collapsed, this);
-  }
-
-  /**
-   * Expands the target element and all of its sub-elements
-   */
-  expandAllFields(): void {
     this.expanded = true;
-    if (this.elements) {
+    if (expandChildren && this.elements) {
       for (const element of this.elements) {
-        element.expandAllFields();
+        element.expand(expandChildren);
       }
     }
     this.emit(ElementEvents.Expanded, this);
   }
 
   /**
-   * Collapses the target element and all of its sub-elements
+   * Collapses only the target element
    */
-  collapseAllFields(): void {
+  collapse(): void {
+    if (!this._isExpandable(this.originalExpandableValue)) {
+      return;
+    }
+
     this.expanded = false;
     if (this.elements) {
       for (const element of this.elements) {
-        element.collapseAllFields();
+        element.collapse();
       }
     }
     this.emit(ElementEvents.Collapsed, this);
@@ -816,17 +810,6 @@ export class Element extends EventEmitter {
    */
   _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
     return isPlainObject(value) || isArray(value);
-  }
-
-  isExpanded(includeChildren = false): boolean {
-    if (includeChildren && this.elements) {
-      return (
-        this.expanded &&
-        this.elements.every((element) => element.isExpanded(includeChildren))
-      );
-    } else {
-      return this.expanded;
-    }
   }
 
   /**

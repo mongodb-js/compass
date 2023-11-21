@@ -2729,82 +2729,54 @@ describe('Element', function () {
     });
   });
 
-  context('when just the target element is expanded/collapsed', function () {
-    it('should expand/collapse only the target element itself and leave the children as is', function () {
-      const element = new Element(
-        'names',
-        { firstName: 'A', lastName: 'B' },
-        undefined,
-        false
-      );
-      expect(element.isExpanded()).to.be.false;
+  context('when attempting to expand a non-expandable element', function () {
+    it('should do nothing', function () {
+      const element = new Element('name', 'A');
+
+      const expandListener = Sinon.fake();
+      element.on(ElementEvents.Expanded, expandListener);
       element.expand();
-      expect(element.isExpanded()).to.be.true;
-      expect(element.elements?.every((el) => el.isExpanded())).to.false;
-
-      element.collapse();
-      expect(element.isExpanded()).to.be.false;
-      expect(element.elements?.every((el) => el.isExpanded())).to.false;
-    });
-
-    it('should emit an expand/collapse event on the parent as well', function () {
-      const emitSpy = Sinon.spy();
-      const element = new Element(
-        'names',
-        'A',
-        { emit: emitSpy, isRoot: () => true } as unknown as Document,
-        false
-      );
-
-      element.expand();
-      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Expanded, element);
-
-      element.collapse();
-      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Collapsed, element);
+      expect(expandListener).to.not.be.called;
     });
   });
 
-  context(
-    'when the target element is expanded/collapsed along with its children',
-    function () {
-      it('should expand/collapse the target element and its children as well', function () {
-        const element = new Element(
-          'names',
-          { firstName: 'A', lastName: 'B' },
-          undefined,
-          false
-        );
-        expect(element.isExpanded()).to.be.false;
-        element.expandAllFields();
-        expect(element.isExpanded()).to.be.true;
-        expect(element.elements?.every((el) => el.isExpanded())).to.true;
-
-        element.collapseAllFields();
-        expect(element.isExpanded()).to.be.false;
-        expect(element.elements?.every((el) => el.isExpanded())).to.false;
+  context('when expanding just the element itself', function () {
+    it('should only expand the target element', function () {
+      const element = new Element('names', {
+        firstName: 'A',
+        addresses: [1, 2],
       });
+      expect(element.expanded).to.be.false;
 
-      it('should emit an expand/collapse event on the target element itself', function () {
-        const emitSpy = Sinon.spy();
-        const element = new Element(
-          'names',
-          { firstName: 'A', lastName: 'B' },
-          undefined,
-          false
-        );
-        element.emit = emitSpy;
-        element.expandAllFields();
-        expect(emitSpy).to.be.calledWithExactly(
-          ElementEvents.Expanded,
-          element
-        );
+      element.expand();
+      expect(element.expanded).to.be.true;
+      expect(element.elements?.every((el) => el.expanded)).to.false;
+    });
 
-        element.collapseAllFields();
-        expect(emitSpy).to.be.calledWithExactly(
-          ElementEvents.Collapsed,
-          element
-        );
+    it('should emit an expanded event on the target element itself', function () {
+      const element = new Element('names', { firstName: 'A', lastName: 'B' });
+      const emitSpy = Sinon.spy(element, 'emit');
+      element.expand();
+      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Expanded, element);
+    });
+  });
+
+  context('when expanding the element along with its children', function () {
+    it('should expand the target element and its children', function () {
+      const element = new Element('names', {
+        firstName: 'A',
+        addresses: [1, 2],
       });
-    }
-  );
+      expect(element.expanded).to.be.false;
+
+      element.expand(true);
+      expect(element.expanded).to.be.true;
+
+      for (const el of element.elements ?? []) {
+        if (el._isExpandable(el.originalExpandableValue)) {
+          expect(el.expanded).to.be.true;
+        }
+      }
+    });
+  });
 });

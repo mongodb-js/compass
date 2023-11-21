@@ -308,7 +308,7 @@ export const expandPreviewDocs = (): PipelineBuilderThunkAction<void> => {
       },
     } = getState();
 
-    previewDocs?.forEach((doc) => doc.expandAllFields());
+    previewDocs?.forEach((doc) => doc.expand());
   };
 };
 
@@ -322,7 +322,7 @@ export const collapsePreviewDocs = (): PipelineBuilderThunkAction<void> => {
       },
     } = getState();
 
-    previewDocs?.forEach((doc) => doc.collapseAllFields());
+    previewDocs?.forEach((doc) => doc.collapse());
   };
 };
 

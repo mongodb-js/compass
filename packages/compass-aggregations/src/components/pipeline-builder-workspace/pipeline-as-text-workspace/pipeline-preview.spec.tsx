@@ -91,10 +91,10 @@ describe('PipelinePreview', function () {
     renderPipelineEditor({
       previewDocs,
       expandPreviewDocs: () => {
-        previewDocs[0].expandAllFields();
+        previewDocs[0].expand();
       },
       collapsePreviewDocs: () => {
-        previewDocs[0].collapseAllFields();
+        previewDocs[0].collapse();
       },
     });
 

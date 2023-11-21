@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
-import HadronDocument, { ElementEvents } from 'hadron-document';
+import HadronDocument from 'hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -47,7 +47,7 @@ class EditableDocument extends React.Component<
     this.state = {
       editing: false,
       deleting: false,
-      expanded: props.doc.isExpanded(),
+      expanded: props.doc.expanded,
     };
   }
 
@@ -94,7 +94,6 @@ class EditableDocument extends React.Component<
     doc.on(HadronDocument.Events.Cancel, this.handleCancel);
     doc.on(HadronDocument.Events.Expanded, this.handleExpanded);
     doc.on(HadronDocument.Events.Collapsed, this.handleCollapsed);
-    doc.on(ElementEvents.Collapsed, this.handleElementCollapsed);
     doc.on('remove-success', this.handleRemoveSuccess);
     doc.on('update-success', this.handleUpdateSuccess);
   }
@@ -108,7 +107,6 @@ class EditableDocument extends React.Component<
     doc.removeListener(HadronDocument.Events.Cancel, this.handleCancel);
     doc.removeListener(HadronDocument.Events.Expanded, this.handleExpanded);
     doc.removeListener(HadronDocument.Events.Collapsed, this.handleCollapsed);
-    doc.removeListener(ElementEvents.Collapsed, this.handleElementCollapsed);
     doc.removeListener('remove-success', this.handleRemoveSuccess);
     doc.removeListener('update-success', this.handleUpdateSuccess);
   }
@@ -144,12 +142,6 @@ class EditableDocument extends React.Component<
 
   handleCollapsed = () => {
     this.setState({ expanded: false });
-  };
-
-  handleElementCollapsed = () => {
-    if (this.state.expanded) {
-      this.setState({ expanded: false });
-    }
   };
 
   /**
@@ -192,10 +184,10 @@ class EditableDocument extends React.Component<
    */
   handleExpandAll() {
     const { doc } = this.props;
-    if (doc.isExpanded()) {
-      doc.collapseAllFields();
+    if (this.state.expanded) {
+      doc.collapse();
     } else {
-      doc.expandAllFields();
+      doc.expand();
     }
   }
 

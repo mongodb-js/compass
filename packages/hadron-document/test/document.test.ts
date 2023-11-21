@@ -2409,13 +2409,13 @@ describe('Document', function () {
       hadronDoc.on(DocumentEvents.Expanded, expandedSpy);
       hadronDoc.on(DocumentEvents.Collapsed, collapsedSpy);
 
-      expect(hadronDoc.isExpanded()).to.be.false;
-      hadronDoc.expandAllFields();
-      expect(hadronDoc.isExpanded()).to.be.true;
+      expect(hadronDoc.expanded).to.be.false;
+      hadronDoc.expand();
+      expect(hadronDoc.expanded).to.be.true;
       expect(expandedSpy).to.be.calledOnce;
 
-      hadronDoc.collapseAllFields();
-      expect(hadronDoc.isExpanded()).to.be.false;
+      hadronDoc.collapse();
+      expect(hadronDoc.expanded).to.be.false;
       expect(collapsedSpy).to.be.calledOnce;
     });
   });

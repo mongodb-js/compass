@@ -310,7 +310,7 @@ export const expandPreviewDocsForStage = (
     } = getState();
 
     if (stageIdx === -1) {
-      inputDocuments.forEach((doc) => doc.expandAllFields());
+      inputDocuments.forEach((doc) => doc.expand());
       return;
     }
 
@@ -319,7 +319,7 @@ export const expandPreviewDocsForStage = (
       return;
     }
 
-    stage.previewDocs?.forEach((doc) => doc.expandAllFields());
+    stage.previewDocs?.forEach((doc) => doc.expand());
   };
 };
 
@@ -335,7 +335,7 @@ export const collapsePreviewDocsForStage = (
     } = getState();
 
     if (stageIdx === -1) {
-      inputDocuments.forEach((doc) => doc.collapseAllFields());
+      inputDocuments.forEach((doc) => doc.collapse());
       return;
     }
 
@@ -344,7 +344,7 @@ export const collapsePreviewDocsForStage = (
       return;
     }
 
-    stage.previewDocs?.forEach((doc) => doc.collapseAllFields());
+    stage.previewDocs?.forEach((doc) => doc.collapse());
   };
 };
 

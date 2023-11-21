@@ -38,6 +38,7 @@ export class Document extends EventEmitter {
   type: 'Document';
   currentType: 'Document';
   size: number | null = null;
+  expanded = false;
 
   /**
    * Send cancel event.
@@ -339,15 +340,6 @@ export class Document extends EventEmitter {
   }
 
   /**
-   * Determines if the Document is expanded or not
-   *
-   * @returns {Boolean} If the document is expanded
-   */
-  isExpanded(): boolean {
-    return this.elements.every((element) => element.isExpanded(true));
-  }
-
-  /**
    * Generates a sequence of elements.
    *
    * @returns {Array} The elements.
@@ -401,9 +393,10 @@ export class Document extends EventEmitter {
   /**
    * Expands a document by expanding all of its fields
    */
-  expandAllFields(): void {
+  expand(): void {
+    this.expanded = true;
     for (const element of this.elements) {
-      element.expandAllFields();
+      element.expand(true);
     }
     this.emit(Events.Expanded);
   }
@@ -411,9 +404,10 @@ export class Document extends EventEmitter {
   /**
    * Collapses a document by collapsing all of its fields
    */
-  collapseAllFields(): void {
+  collapse(): void {
+    this.expanded = false;
     for (const element of this.elements) {
-      element.collapseAllFields();
+      element.collapse();
     }
     this.emit(Events.Collapsed);
   }

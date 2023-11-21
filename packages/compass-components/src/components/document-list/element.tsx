@@ -166,7 +166,7 @@ function useHadronElement(el: HadronElementType) {
     parentType: el.parent?.currentType,
     removed: el.isRemoved(),
     internal: el.isInternalField(),
-    expanded: el.isExpanded(),
+    expanded: el.expanded,
     expand: el.expand.bind(el),
     collapse: el.collapse.bind(el),
   };

@@ -395,7 +395,7 @@ export const expandPipelineResults = (): PipelineBuilderThunkAction<void> => {
       aggregation: { documents },
     } = getState();
 
-    documents.forEach((doc) => doc.expandAllFields());
+    documents.forEach((doc) => doc.expand());
   };
 };
 
@@ -405,7 +405,7 @@ export const collapsePipelineResults = (): PipelineBuilderThunkAction<void> => {
       aggregation: { documents },
     } = getState();
 
-    documents.forEach((doc) => doc.collapseAllFields());
+    documents.forEach((doc) => doc.collapse());
   };
 };
 
