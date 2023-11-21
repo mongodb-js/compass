@@ -93,8 +93,8 @@ class EditableDocument extends React.Component<
   subscribeToDocumentEvents(doc: Document) {
     doc.on(HadronDocument.Events.Cancel, this.handleCancel);
     doc.on(HadronDocument.Events.Expanded, this.handleExpanded);
-    doc.on(ElementEvents.Collapsed, this.handleElementCollapsed);
     doc.on(HadronDocument.Events.Collapsed, this.handleCollapsed);
+    doc.on(ElementEvents.Collapsed, this.handleElementCollapsed);
     doc.on('remove-success', this.handleRemoveSuccess);
     doc.on('update-success', this.handleUpdateSuccess);
   }

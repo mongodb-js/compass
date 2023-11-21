@@ -591,4 +591,6 @@ FindIterable<Document> result = collection.find(filter);`);
       'Query executed without index'
     );
   });
+
+  it('expands all fields in a document', async function () {});
 });

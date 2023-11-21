@@ -1,4 +1,5 @@
 import type { Reducer } from 'redux';
+import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -46,7 +47,7 @@ type EditorPreviewFetchSkippedAction = {
 
 type EditorPreviewFetchSuccessAction = {
   type: EditorActionTypes.EditorPreviewFetchSuccess;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 type EditorPreviewFetchErrorAction = {
@@ -60,7 +61,7 @@ export type TextEditorState = {
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   isLoading: boolean;
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
 };
 
@@ -253,7 +254,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
       dispatch({
         type: EditorActionTypes.EditorPreviewFetchSuccess,
-        previewDocs,
+        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -294,6 +295,34 @@ export const changeEditorValue = (
 
     void dispatch(loadPreviewForPipeline());
     void dispatch(fetchExplainForPipeline());
+  };
+};
+
+export const expandPreviewDocs = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { previewDocs },
+        },
+      },
+    } = getState();
+
+    previewDocs?.forEach((doc) => doc.expandAllFields());
+  };
+};
+
+export const collapsePreviewDocs = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { previewDocs },
+        },
+      },
+    } = getState();
+
+    previewDocs?.forEach((doc) => doc.collapseAllFields());
   };
 };
 

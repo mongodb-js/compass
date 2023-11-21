@@ -34,6 +34,8 @@ const renderFocusModePreview = (
         stageOperator={null}
         documents={null}
         isMissingAtlasOnlyStageSupport={false}
+        expandPreviewDocsForStage={() => {}}
+        collapsePreviewDocsForStage={() => {}}
         {...props}
       />
     </Provider>
@@ -42,14 +44,24 @@ const renderFocusModePreview = (
 
 describe('FocusModeStagePreview', function () {
   it('renders stage input', function () {
-    render(<InputPreview />);
+    render(
+      <InputPreview
+        expandPreviewDocsForStage={() => {}}
+        collapsePreviewDocsForStage={() => {}}
+      />
+    );
     const preview = screen.getByTestId('focus-mode-stage-preview');
     expect(preview).to.exist;
     expect(within(preview).getByText(/stage input/i)).to.exist;
   });
 
   it('renders stage output', function () {
-    render(<OutputPreview />);
+    render(
+      <OutputPreview
+        expandPreviewDocsForStage={() => {}}
+        collapsePreviewDocsForStage={() => {}}
+      />
+    );
     const preview = screen.getByTestId('focus-mode-stage-preview');
     expect(preview).to.exist;
     expect(within(preview).getByText(/stage output/i)).to.exist;

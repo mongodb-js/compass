@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Document } from 'mongodb';
+import type { default as HadronDocument } from 'hadron-document';
 import {
   css,
   cx,
@@ -98,10 +98,9 @@ const OutResultBanner: React.FunctionComponent<{
 };
 
 type PipelineResultsWorkspaceProps = {
-  documents: Document[];
+  documents: HadronDocument[];
   isLoading?: boolean;
   isError?: boolean;
-  allDocsExpanded?: boolean;
   error?: string | null;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
@@ -117,7 +116,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 > = ({
   documents,
   isLoading,
-  allDocsExpanded,
   error,
   isError,
   isEmpty,
@@ -177,11 +175,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     results = <PipelineEmptyResults />;
   } else {
     results = (
-      <PipelineResultsList
-        documents={documents}
-        allDocsExpanded={allDocsExpanded}
-        view={resultsViewType}
-      />
+      <PipelineResultsList documents={documents} view={resultsViewType} />
     );
   }
 

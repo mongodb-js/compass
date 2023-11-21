@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Body,
   css,
@@ -6,7 +6,7 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import HadronDocument from 'hadron-document';
+import type { default as HadronDocumentType } from 'hadron-document';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
@@ -20,6 +20,10 @@ import {
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
+import {
+  collapsePreviewDocsForStage,
+  expandPreviewDocsForStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
@@ -78,6 +82,8 @@ type FocusModePreviewProps = {
   stageIndex?: number;
   stageOperator?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
+  expandPreviewDocsForStage: (stageIdx: number) => void;
+  collapsePreviewDocsForStage: (stageIdx: number) => void;
 };
 
 export const FocusModePreview = ({
@@ -87,35 +93,24 @@ export const FocusModePreview = ({
   stageIndex = -1,
   stageOperator = '',
   isMissingAtlasOnlyStageSupport = false,
+  expandPreviewDocsForStage,
+  collapsePreviewDocsForStage,
 }: FocusModePreviewProps) => {
-  const [pipelineOutputOption, setPipelineOutputOption] =
-    useState<PipelineOutputOption>('collapse');
-  const isExpanded = pipelineOutputOption === 'expand';
+  const copyToClipboard = useCallback((doc: HadronDocumentType) => {
+    const str = doc.toEJSON();
+    void navigator.clipboard.writeText(str);
+  }, []);
 
-  const {
-    docs,
-    copyToClipboard,
-  }: Omit<
-    React.ComponentProps<typeof DocumentListView>,
-    'isExpanded' | 'className' | 'isEditable' | 'docs'
-  > & { docs: HadronDocument[] } = useMemo(
-    () => ({
-      docs: (documents ?? []).map((doc) => new HadronDocument(doc)),
-      copyToClipboard: (doc: HadronDocument) => {
-        const str = doc.toEJSON();
-        void navigator.clipboard.writeText(str);
-      },
-    }),
-    [documents]
+  const handlePipelineOutputOptionChanged = useCallback(
+    (option: PipelineOutputOption) => {
+      if (option === 'expand') {
+        expandPreviewDocsForStage(stageIndex);
+      } else if (option === 'collapse') {
+        collapsePreviewDocsForStage(stageIndex);
+      }
+    },
+    [expandPreviewDocsForStage, collapsePreviewDocsForStage, stageIndex]
   );
-
-  useEffect(() => {
-    if (isExpanded) {
-      docs.forEach((doc) => doc.expandAllFields());
-    } else {
-      docs.forEach((doc) => doc.collapseAllFields());
-    }
-  }, [isExpanded, docs]);
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -150,7 +145,7 @@ export const FocusModePreview = ({
     content = (
       <DocumentListView
         isEditable={false}
-        docs={docs}
+        docs={documents ?? []}
         copyToClipboard={copyToClipboard}
         className={documentListStyles}
       />
@@ -178,8 +173,7 @@ export const FocusModePreview = ({
           {isPipelineOptionsMenuVisible && (
             <PipelineOutputOptionsMenu
               buttonText="Options"
-              option={pipelineOutputOption}
-              onChangeOption={setPipelineOutputOption}
+              onChangeOption={handlePipelineOutputOptionChanged}
             />
           )}
         </div>
@@ -250,6 +244,10 @@ export const FocusModeStageInput = connect(
       stageOperator: previousStage.stageOperator,
       isMissingAtlasOnlyStageSupport,
     };
+  },
+  {
+    expandPreviewDocsForStage,
+    collapsePreviewDocsForStage,
   }
 )(InputPreview);
 
@@ -278,5 +276,9 @@ export const FocusModeStageOutput = connect(
       stageOperator: stage.stageOperator,
       isMissingAtlasOnlyStageSupport,
     };
+  },
+  {
+    expandPreviewDocsForStage,
+    collapsePreviewDocsForStage,
   }
 )(OutputPreview);

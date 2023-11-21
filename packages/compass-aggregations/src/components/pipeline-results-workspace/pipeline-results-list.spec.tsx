@@ -1,4 +1,5 @@
 import React from 'react';
+import HadronDocument from 'hadron-document';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 
@@ -6,13 +7,7 @@ import PipelineResultsList from './pipeline-results-list';
 
 describe('PipelineResultsList', function () {
   it('does not render when documents are empty', function () {
-    render(
-      <PipelineResultsList
-        allDocsExpanded={false}
-        documents={[]}
-        view="document"
-      />
-    );
+    render(<PipelineResultsList documents={[]} view="document" />);
     expect(() => {
       screen.getByTestId('document-list-item');
     }).to.throw;
@@ -21,8 +16,10 @@ describe('PipelineResultsList', function () {
   it('renders list view', function () {
     render(
       <PipelineResultsList
-        allDocsExpanded={false}
-        documents={[{ id: 1 }, { id: 2 }]}
+        documents={[
+          new HadronDocument({ id: 1 }),
+          new HadronDocument({ id: 2 }),
+        ]}
         view="document"
       />
     );
@@ -34,8 +31,11 @@ describe('PipelineResultsList', function () {
   it('renders json view', function () {
     render(
       <PipelineResultsList
-        allDocsExpanded={false}
-        documents={[{ id: 3 }, { id: 4 }, { id: 5 }]}
+        documents={[
+          new HadronDocument({ id: 3 }),
+          new HadronDocument({ id: 4 }),
+          new HadronDocument({ id: 5 }),
+        ]}
         view="json"
       />
     );

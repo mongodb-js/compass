@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { css, Overline, spacing } from '@mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import { changeViewType } from '../../modules/aggregation';
+import {
+  changeViewType,
+  expandPipelineResults,
+  collapsePipelineResults,
+} from '../../modules/aggregation';
 import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
@@ -14,8 +18,8 @@ type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsViewType: ResultsViewType;
   isMergeOrOutPipeline: boolean;
-  onChangePipelineOutputOption: (val: PipelineOutputOption) => void;
-  pipelineOutputOption: PipelineOutputOption;
+  expandPipelineResults: () => void;
+  collapsePipelineResults: () => void;
 };
 
 const containerStyles = css({
@@ -41,9 +45,20 @@ export const PipelineResultsHeader: React.FunctionComponent<
   onChangeResultsView,
   resultsViewType,
   isMergeOrOutPipeline,
-  onChangePipelineOutputOption,
-  pipelineOutputOption,
+  expandPipelineResults,
+  collapsePipelineResults,
 }) => {
+  const handlePipelineOutputOptionsMenuChange = useCallback(
+    (option: PipelineOutputOption) => {
+      if (option === 'expand') {
+        expandPipelineResults();
+      } else if (option === 'collapse') {
+        collapsePipelineResults();
+      }
+    },
+    [expandPipelineResults, collapsePipelineResults]
+  );
+
   if (isMergeOrOutPipeline) {
     return null;
   }
@@ -52,8 +67,7 @@ export const PipelineResultsHeader: React.FunctionComponent<
       <div className={pipelineOptionsStyles}>
         <Overline>All Results</Overline>
         <PipelineOutputOptionsMenu
-          option={pipelineOutputOption}
-          onChangeOption={onChangePipelineOutputOption}
+          onChangeOption={handlePipelineOutputOptionsMenuChange}
         />
       </div>
       <div className={pipelinePaginationStyles}>
@@ -81,6 +95,8 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
   onChangeResultsView: changeViewType,
+  expandPipelineResults,
+  collapsePipelineResults,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsHeader);
