@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import store from './collections-store';
 import { reset } from '../modules/reset';
 
@@ -17,10 +17,10 @@ const dbs = [
   { _id: 'db1', storage_size: 10, collections: [coll], index_count: 2 },
 ];
 
-const topologyDescription = new TopologyDescription({
+const topologyDescription = {
   type: 'Unknown',
   servers: [{ type: 'Unknown' }],
-});
+};
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',

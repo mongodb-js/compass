@@ -4,15 +4,14 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import CollectionsPlugin from './collections-plugin';
-import DatabasesPlugin from './databases-plugin';
 import CollectionsStore from './stores/collections-store';
-import DatabasesStore from './stores/databases-store';
 import {
   DropNamespaceComponent,
   activatePlugin as activateDropNamespacePlugin,
 } from './stores/drop-namespace';
 import CreateNamespaceModal from './components/create-namespace-modal';
 import { activatePlugin as activateCreateNamespacePlugin } from './stores/create-namespace';
+import { DatabasesPlugin } from './databases-plugin';
 
 // View collections list plugin.
 const COLLECTIONS_PLUGIN_ROLE = {
@@ -21,11 +20,9 @@ const COLLECTIONS_PLUGIN_ROLE = {
   order: 1,
 };
 
-// View databases list plugin.
-const DATABASES_PLUGIN_ROLE = {
+export const InstanceTab = {
   name: 'Databases',
   component: DatabasesPlugin,
-  order: 2,
 };
 
 export const CreateNamespacePlugin = registerHadronPlugin(
@@ -66,9 +63,6 @@ function activate(appRegistry: AppRegistry) {
     'CollectionsPlugin.CollectionsStore',
     CollectionsStore
   );
-
-  appRegistry.registerRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
-  appRegistry.registerStore('DatabasesPlugin.DatabasesStore', DatabasesStore);
 }
 
 /**
@@ -77,9 +71,6 @@ function activate(appRegistry: AppRegistry) {
 function deactivate(appRegistry: AppRegistry) {
   appRegistry.deregisterRole('Database.Tab', COLLECTIONS_PLUGIN_ROLE);
   appRegistry.deregisterStore('CollectionsPlugin.CollectionsStore');
-
-  appRegistry.deregisterRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
-  appRegistry.deregisterStore('DatabasesPlugin.DatabasesStore');
 }
 
 export { activate, deactivate };

@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { MongoDBInstance, TopologyDescription } = require('../');
+const { MongoDBInstance } = require('../');
 
 describe('mongodb-instance-model', function () {
   it('should be in initial state when created', function () {
@@ -39,55 +39,90 @@ describe('mongodb-instance-model', function () {
 
   context('with topologyDescription', function () {
     it('contains derived properties', function () {
-      const topologyDescription = {
-        type: 'Unknown',
-        servers: [{
-          address: 'foo.com:1234',
-          type: 'Unknown',
-          tags: ['foo', 'bar', 'baz']
-        }],
-        setName: 'bar'
+      const getTopologyDescription = (override) => {
+        return Object.assign(
+          {
+            type: 'Unknown',
+            servers: [
+              {
+                address: 'foo.com:1234',
+                type: 'Unknown',
+                tags: ['foo', 'bar', 'baz'],
+              },
+            ],
+            setName: 'bar',
+          },
+          override ?? {}
+        );
       };
 
       const instance = new MongoDBInstance({
         _id: 'foo',
         hostname: 'foo.com',
         port: 1234,
-        topologyDescription: new TopologyDescription(topologyDescription)
+        topologyDescription: getTopologyDescription(),
       });
 
-      expect(instance.isWritable).to.equal(false);
-      expect(instance.description).to.equal('Topology type: Unknown is not writable');
-      expect(instance.isTopologyWritable).to.equal(false);
-      expect(instance.isServerWritable).to.equal(false);
-      expect(instance.singleServerType).to.equal(null);
+      expect(instance).to.have.property('isWritable', false);
+      expect(instance).to.have.property(
+        'description',
+        'Topology type: Unknown is not writable'
+      );
+      expect(instance).to.have.property('isTopologyWritable', false);
+      expect(instance).to.have.property('isServerWritable', false);
+      expect(instance).to.have.property('singleServerType', null);
 
-      topologyDescription.type = 'ReplicaSetWithPrimary';
-      instance.set({ topologyDescription: new TopologyDescription(topologyDescription) })
+      instance.set({
+        topologyDescription: getTopologyDescription({
+          type: 'ReplicaSetWithPrimary',
+        }),
+      });
 
-      expect(instance.isWritable).to.equal(true);
-      expect(instance.description).to.equal('Topology type: Replica Set (With Primary) is writable');
-      expect(instance.isTopologyWritable).to.equal(true);
-      expect(instance.isServerWritable).to.equal(false);
-      expect(instance.singleServerType).to.equal(null);
+      expect(instance).to.have.property('isWritable', true);
+      expect(instance).to.have.property(
+        'description',
+        'Topology type: Replica Set (With Primary) is writable'
+      );
+      expect(instance).to.have.property('isTopologyWritable', true);
+      expect(instance).to.have.property('isServerWritable', false);
+      expect(instance).to.have.property('singleServerType', null);
 
-      topologyDescription.type = 'Single';
-      instance.set({ topologyDescription: new TopologyDescription(topologyDescription) })
+      instance.set({
+        topologyDescription: getTopologyDescription({
+          type: 'Single',
+        }),
+      });
 
-      expect(instance.isWritable).to.equal(false);
-      expect(instance.description).to.equal('Single connection to server type: Unknown is not writable');
-      expect(instance.isTopologyWritable).to.equal(true);
-      expect(instance.isServerWritable).to.equal(false);
-      expect(instance.singleServerType).to.equal('Unknown');
+      expect(instance).to.have.property('isWritable', false);
+      expect(instance).to.have.property(
+        'description',
+        'Single connection to server type: Unknown is not writable'
+      );
+      expect(instance).to.have.property('isTopologyWritable', true);
+      expect(instance).to.have.property('isServerWritable', false);
+      expect(instance).to.have.property('singleServerType', 'Unknown');
 
-      topologyDescription.servers[0].type = 'Standalone';
-      instance.set({ topologyDescription: new TopologyDescription(topologyDescription) })
+      instance.set({
+        topologyDescription: getTopologyDescription({
+          type: 'Single',
+          servers: [
+            {
+              address: 'foo.com:1234',
+              type: 'Standalone',
+              tags: ['foo', 'bar', 'baz'],
+            },
+          ],
+        }),
+      });
 
-      expect(instance.isWritable).to.equal(true);
-      expect(instance.description).to.equal('Single connection to server type: Standalone is writable');
-      expect(instance.isTopologyWritable).to.equal(true);
-      expect(instance.isServerWritable).to.equal(true);
-      expect(instance.singleServerType).to.equal('Standalone');
+      expect(instance).to.have.property('isWritable', true);
+      expect(instance).to.have.property(
+        'description',
+        'Single connection to server type: Standalone is writable'
+      );
+      expect(instance).to.have.property('isTopologyWritable', true);
+      expect(instance).to.have.property('isServerWritable', true);
+      expect(instance).to.have.property('singleServerType', 'Standalone');
     });
   });
 });
