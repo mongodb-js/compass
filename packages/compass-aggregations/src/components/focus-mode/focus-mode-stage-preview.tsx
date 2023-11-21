@@ -7,7 +7,6 @@ import {
   Overline,
 } from '@mongodb-js/compass-components';
 import type { default as HadronDocumentType } from 'hadron-document';
-import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
@@ -78,7 +77,7 @@ const loaderStyles = css({
 type FocusModePreviewProps = {
   title: string;
   isLoading?: boolean;
-  documents?: Document[] | null;
+  documents?: HadronDocumentType[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;

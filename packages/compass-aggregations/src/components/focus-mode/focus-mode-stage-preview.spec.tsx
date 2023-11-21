@@ -1,4 +1,5 @@
 import React, { type ComponentProps } from 'react';
+import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
@@ -79,7 +80,10 @@ describe('FocusModeStagePreview', function () {
     it('renders list of documents', function () {
       renderFocusModePreview({
         isLoading: false,
-        documents: [{ _id: 12345 }, { _id: 54321 }],
+        documents: [
+          new HadronDocument({ _id: 12345 }),
+          new HadronDocument({ _id: 54321 }),
+        ],
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/12345/i)).to.exist;
