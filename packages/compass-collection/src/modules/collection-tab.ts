@@ -5,7 +5,6 @@ import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import toNs from 'mongodb-ns';
-import preferencesAccess from 'compass-preferences-model';
 import React from 'react';
 
 type CollectionThunkAction<
