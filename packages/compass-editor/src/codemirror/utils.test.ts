@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { languages } from '../json-editor';
+import { languages } from '../editor';
 import { EditorView } from '@codemirror/view';
 import { getAncestryOfToken, resolveTokenAtCursor } from './utils';
 import { CompletionContext } from '@codemirror/autocomplete';

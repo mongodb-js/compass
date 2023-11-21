@@ -18,11 +18,23 @@ const mockQueryHistoryRole = {
   actionName: 'Query.History.Actions',
 };
 
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: {
+        on() {},
+      },
+    };
+  },
+} as any;
+
 describe('QueryBar [Plugin]', function () {
   let store: ReturnType<typeof configureStore>;
 
   const globalAppRegistry = new AppRegistry();
   globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   const localAppRegistry = new AppRegistry();
   localAppRegistry.registerStore('Query.History', {

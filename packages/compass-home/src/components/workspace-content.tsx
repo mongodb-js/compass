@@ -11,6 +11,7 @@ import {
   CompassDatabasePlugin,
   DatabaseTabsProvider,
 } from '@mongodb-js/compass-database';
+import CompassSavedAggregationsQueriesPlugin from '@mongodb-js/compass-saved-aggregations-queries';
 import type Namespace from '../types/namespace';
 
 const EmptyComponent: React.FunctionComponent = () => null;
@@ -37,7 +38,9 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   }
 
   return (
-    <InstanceTabsProvider tabs={instanceTabs ?? []}>
+    <InstanceTabsProvider
+      tabs={[CompassSavedAggregationsQueriesPlugin, ...(instanceTabs ?? [])]}
+    >
       <InstanceWorkspacePlugin></InstanceWorkspacePlugin>
     </InstanceTabsProvider>
   );
