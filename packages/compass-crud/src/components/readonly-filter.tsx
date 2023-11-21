@@ -1,12 +1,11 @@
 import React from 'react';
 
 import {
-  TextInput,
   InfoSprinkle,
   Label,
   css,
   spacing,
-  fontFamilies,
+  KeylineCard,
 } from '@mongodb-js/compass-components';
 
 type QueryLabelProps = {
@@ -18,7 +17,6 @@ const queryLabelStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
-  height: '17px', // align with the Preview label
 });
 
 const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
@@ -34,10 +32,13 @@ const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
 };
 
 const textInputStyles = css({
-  input: {
-    fontFamily: fontFamilies.code,
-  },
+  padding: spacing[2],
+  overflow: 'scroll',
   width: '100%',
+  whiteSpace: 'nowrap',
+  '::-webkit-scrollbar': {
+    display: 'none',
+  },
 });
 
 type ReadonlyFilterProps = {
@@ -50,20 +51,19 @@ export function ReadonlyFilter({
   filterQuery,
 }: ReadonlyFilterProps) {
   return (
-    <TextInput
-      id="readonly-filter"
-      data-testid="readonly-filter"
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore the label can be any component, but it's weirdly typed to string
-      label={
-        <QueryLabel
-          label={queryLabel}
-          tooltip="Return to the Documents tab to edit this query."
-        />
-      }
-      disabled={true}
-      value={filterQuery}
-      className={textInputStyles}
-    />
+    <>
+      <QueryLabel
+        label={queryLabel}
+        tooltip="Return to the Documents tab to edit this query."
+      />
+      <KeylineCard
+        id="readonly-filter"
+        data-testid="readonly-filter"
+        disabled={true}
+        className={textInputStyles}
+      >
+        <code>{filterQuery}</code>
+      </KeylineCard>
+    </>
   );
 }
