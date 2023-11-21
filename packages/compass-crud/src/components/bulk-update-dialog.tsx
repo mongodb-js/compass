@@ -301,7 +301,7 @@ export default function BulkUpdateDialog({
       data-testid="bulk-update-dialog"
     >
       <ModalHeader
-        title={`Update ${count || 0} document${count === 1 ? '' : 's'}`}
+        title={`Update ${count ?? ''} document${count === 1 ? '' : 's'}`}
         subtitle={ns}
       />
       <ModalBody>
@@ -398,7 +398,7 @@ export default function BulkUpdateDialog({
             onClick={runBulkUpdate}
             data-testid="update-button"
           >
-            Update {count} document{count === 1 ? '' : 's'}
+            Update {count ?? ''} document{count === 1 ? '' : 's'}
           </Button>
         </div>
       </ModalFooter>
