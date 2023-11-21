@@ -7,7 +7,10 @@ import {
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
 import type { RootState } from '../../stores/query-bar-store';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import {
+  useSavedQueries,
+  type RecentQuery,
+} from '@mongodb-js/my-queries-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,
@@ -102,6 +105,8 @@ const RecentList = ({
   queries: RecentQuery[];
   onSaveFavorite: () => void;
 }) => {
+  const { recents, saveRecent } = useSavedQueries();
+
   const onFavorite = useCallback(
     async (query: RecentQuery, name: string) => {
       const saved = await _onFavorite(query, name);
@@ -116,7 +121,7 @@ const RecentList = ({
   if (queries.length === 0) {
     return <ZeroGraphic text={'Your recent queries will appear here.'} />;
   }
-  const content = queries.map((query) => (
+  const content = recents.map((query) => (
     <RecentItem
       key={query._id}
       query={query}
@@ -125,7 +130,22 @@ const RecentList = ({
       onDelete={onDelete}
     />
   ));
-  return <>{content}</>;
+  return (
+    <>
+      <button
+        onClick={() =>
+          saveRecent({
+            _ns: queries[0]._ns,
+            _lastExecuted: new Date(),
+            filter: { a: Math.random() },
+          })
+        }
+      >
+        Make Up Recent Query
+      </button>
+      {content}
+    </>
+  );
 };
 
 export default connect(
