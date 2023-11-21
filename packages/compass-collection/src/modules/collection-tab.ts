@@ -257,12 +257,7 @@ export const renderTabs = (): CollectionThunkAction<
     // makes sure that other plugins can use query bar
     dispatch(setupRole('Query.QueryBar'));
 
-    return dispatch(setupRole('Collection.Tab')).filter((role) => {
-      return !(
-        preferencesAccess.getPreferences().newExplainPlan &&
-        role.name === 'Explain Plan'
-      );
-    });
+    return dispatch(setupRole('Collection.Tab'));
   };
 };
 

@@ -182,7 +182,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onHideAIInputClick,
 }) => {
   const darkMode = useDarkMode();
-  const newExplainPlan = usePreference('newExplainPlan', React);
   const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
   const onFormSubmit = useCallback(
@@ -267,7 +266,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             </div>
           )}
         </div>
-        {showExplainButton && newExplainPlan && (
+        {showExplainButton && (
           <Button
             aria-label="Explain query"
             title="View the execution plan for the current query"
