@@ -102,7 +102,80 @@ describe('Bulk Update', () => {
     });
   });
 
-  it('can save an update query as a favourite and return to it');
+  it('can save an update query as a favourite and return to it', async function () {
+    // Set a query that we'll use.
+    await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
+
+    // Open the modal.
+    await browser.clickVisible(Selectors.OpenBulkUpdateButton);
+    await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
+
+    // Change the update text
+    await browser.setCodemirrorEditorValue(
+      Selectors.BulkUpdateUpdate,
+      '{ $set: { k: 0 } }'
+    );
+
+    // Click save to open the popover
+    await browser.clickVisible(Selectors.BulkUpdateSaveFavorite);
+
+    // Fill in a name
+    const input = await browser.$(Selectors.BulkUpdateFavouriteNameInput);
+    input.waitForDisplayed();
+    input.setValue('My Update Query');
+
+    // Click save to save the query
+    await browser.$(Selectors.BulkUpdateFavouriteSaveButton).waitForEnabled();
+    await browser.clickVisible(Selectors.BulkUpdateFavouriteSaveButton);
+
+    // Close the modal
+    await browser.clickVisible(Selectors.BulkUpdateCancelButton);
+
+    // Wait for the modal to go away
+    await browser
+      .$(Selectors.BulkUpdateModal)
+      .waitForDisplayed({ reverse: true });
+
+    // Open the dropdown
+    await browser.clickVisible(Selectors.QueryBarHistoryButton);
+
+    // Wait for the popover to show
+    await browser.$(Selectors.QueryBarHistory).waitForDisplayed();
+
+    // Browse to Favourites
+    await browser.clickVisible(Selectors.FavouriteQueriesButton);
+
+    // Wait for the favourite to show and click it
+    await browser.waitUntil(async () => {
+      const favouriteElements = await browser.$$(
+        Selectors.FavouriteQueryListItem
+      );
+      for (const element of favouriteElements) {
+        const favouriteName = await element
+          .$(Selectors.FavouriteQueryTitle)
+          .getText();
+        console.log(favouriteName);
+        if (favouriteName === 'My Update Query') {
+          await element.click();
+          return true;
+        }
+      }
+      return false;
+    });
+
+    // The modal should open
+    await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
+
+    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
+
+    // Check that the modal starts with the expected update text
+    expect(await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)).to
+      .equal(`{
+ $set: {
+  k: 0
+ }
+}`);
+  });
 });
 
 async function getFormattedDocument(browser: CompassBrowser): Promise<string> {
