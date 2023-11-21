@@ -20,12 +20,12 @@ const commonMetadata = {
   _host: z.string().optional(),
 };
 
-const RecentQuerySchema = z.object({
+export const RecentQuerySchema = z.object({
   ...queryProps,
   ...commonMetadata,
 });
 
-const FavoriteQuerySchema = z.object({
+export const FavoriteQuerySchema = z.object({
   ...queryProps,
   ...commonMetadata,
   _name: z.string().nonempty(),
