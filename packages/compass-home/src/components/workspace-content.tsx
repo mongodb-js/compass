@@ -12,7 +12,8 @@ import {
   DatabaseTabsProvider,
 } from '@mongodb-js/compass-database';
 import CompassSavedAggregationsQueriesPlugin from '@mongodb-js/compass-saved-aggregations-queries';
-import { InstanceTab as DatabasesPlugin } from '@mongodb-js/compass-databases-collections';
+import { InstanceTab as DatabasesTabPlugin } from '@mongodb-js/compass-databases-collections';
+import { InstanceTab as PerformanceTabPlugin } from '@mongodb-js/compass-serverstats';
 import type Namespace from '../types/namespace';
 
 const EmptyComponent: React.FunctionComponent = () => null;
@@ -20,7 +21,6 @@ const EmptyComponent: React.FunctionComponent = () => null;
 const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   namespace,
 }) => {
-  const instanceTabs = useAppRegistryRole('Instance.Tab');
   const databaseTabs = useAppRegistryRole('Database.Tab');
 
   const Collection =
@@ -42,8 +42,8 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
     <InstanceTabsProvider
       tabs={[
         CompassSavedAggregationsQueriesPlugin,
-        DatabasesPlugin,
-        ...(instanceTabs ?? []),
+        DatabasesTabPlugin,
+        PerformanceTabPlugin,
       ]}
     >
       <InstanceWorkspacePlugin></InstanceWorkspacePlugin>
