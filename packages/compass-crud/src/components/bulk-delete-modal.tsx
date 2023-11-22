@@ -96,7 +96,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
         <div className={queryBarStyles}>
-          <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
+          <ReadonlyFilter queryLabel="Filter" filterQuery={filterQuery} />
           <Button
             className={exportToLanguageButtonStyles}
             variant="primaryOutline"
