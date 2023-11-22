@@ -10,6 +10,10 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import type {
+  ValidationLevel,
+  ValidationServerAction,
+} from '../modules/validation';
 
 const ACTION_HELP_URL =
   'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationAction';
@@ -29,8 +33,8 @@ const selectStyles = css({
 
 type ActionSelectorProps = {
   isEditable: boolean;
-  validationActionChanged: (value: string) => void;
-  validationAction: 'warn' | 'error';
+  validationActionChanged: (value: ValidationServerAction) => void;
+  validationAction: ValidationServerAction;
 };
 
 export function ActionSelector({
@@ -55,7 +59,7 @@ export function ActionSelector({
         data-testid="validation-action-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
-        onChange={validationActionChanged}
+        onChange={validationActionChanged as (value: string) => void}
         value={validationAction}
         allowDeselect={false}
         className={selectStyles}
@@ -70,8 +74,8 @@ export function ActionSelector({
 
 type LevelSelectorProps = {
   isEditable: boolean;
-  validationLevelChanged: (value: string) => void;
-  validationLevel: 'off' | 'moderate' | 'strict';
+  validationLevelChanged: (value: ValidationLevel) => void;
+  validationLevel: ValidationLevel;
 };
 
 export function LevelSelector({
@@ -96,7 +100,7 @@ export function LevelSelector({
         data-testid="validation-level-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
-        onChange={validationLevelChanged}
+        onChange={validationLevelChanged as (value: string) => void}
         value={validationLevel}
         allowDeselect={false}
         className={selectStyles}
