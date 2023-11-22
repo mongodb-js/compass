@@ -43,7 +43,7 @@ export function ReadonlyFilter({
   queryLabel,
   filterQuery,
 }: ReadonlyFilterProps) {
-  const readOnlyFilterId = useId('readonly-filter');
+  const readOnlyFilterId = useId();
   return (
     <>
       <div className={queryLabelStyles}>

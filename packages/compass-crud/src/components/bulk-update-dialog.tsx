@@ -306,7 +306,7 @@ export default function BulkUpdateDialog({
     return `Update ${count} documents`;
   }, [count]);
 
-  const bulkUpdateUpdateId = useId('bulk-update-update');
+  const bulkUpdateUpdateId = useId();
   return (
     <Modal
       open={isOpen}

@@ -88,7 +88,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
     </div>
   );
 
-  const exportButtonId = useId('export-button');
+  const exportButtonId = useId();
   return (
     <Modal
       initialFocus={`#${exportButtonId}`}
