@@ -11,6 +11,8 @@ const debug = require('debug')('mongodb-compass:server-stats:top-store');
  * This store listens to the
  * 'topComplete' action, fetches the top data, and
  * triggers with the result of the command.
+ *
+ * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService, instance: import('@mongodb-js/compass-app-stores/provider').MongoDBInstance)}}
  */
 const TopStore = Reflux.createStore({
   /**
@@ -26,12 +28,10 @@ const TopStore = Reflux.createStore({
     this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
-  onActivated: function (appRegistry) {
-    appRegistry.on('data-service-connected', (err, ds) => {
-      if (err) throw err;
-      this.dataService = ds;
-      this.isMongos = ds.isMongos();
-    });
+  onActivated: function (ds, instance) {
+    this.dataService = ds;
+    this.isMongos = ds.isMongos();
+    this.mongoDBInstance = instance;
   },
 
   restart: function () {
@@ -120,7 +120,7 @@ const TopStore = Reflux.createStore({
       if (response !== undefined && 'totals' in response) {
         doc = response.totals;
       }
-      const numCores = global.hadronApp.instance.host.cpu_cores;
+      const numCores = this.mongoDBInstance.host.cpu_cores;
       const cadence = 1000000; // Can safetly assume we're polling 1x/sec TODO
       const t2s = {};
       for (let collname in doc) {

@@ -1,13 +1,13 @@
-import type { Item } from '../src/stores/aggregations-queries-items';
-const DATE = new Date('01/01/2020');
-export const queries: Item[] = [
+export const DATE = new Date('01/01/2020');
+
+export const queries = [
   {
     id: '1234',
     name: 'spaces in berlin',
     database: 'airbnb',
     collection: 'listings',
     lastModified: 11,
-    type: 'query',
+    type: 'query' as const,
     query: {
       _id: '1234',
       _name: 'spaces in berlin',
@@ -39,7 +39,7 @@ export const queries: Item[] = [
     database: 'airbnb',
     collection: 'listings',
     lastModified: 12,
-    type: 'query',
+    type: 'query' as const,
     query: {
       _id: '5678',
       _name: 'best spaces in berlin',
@@ -72,7 +72,7 @@ export const queries: Item[] = [
     database: 'airbnb',
     collection: 'hosts',
     lastModified: 13,
-    type: 'query',
+    type: 'query' as const,
     query: {
       _id: '9012',
       _name: 'best hosts in berlin',
@@ -99,13 +99,13 @@ export const queries: Item[] = [
   },
 ];
 
-export const pipelines: Item[] = [
+export const pipelines = [
   {
     id: '61b753fdce2a0a1d7a32ae1d',
     name: 'Demo',
     database: 'airbnb',
     collection: 'listings',
-    type: 'aggregation',
+    type: 'aggregation' as const,
     lastModified: 21,
     aggregation: {
       namespace: 'airbnb.listings',

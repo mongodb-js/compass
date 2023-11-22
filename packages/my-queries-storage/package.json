@@ -70,6 +70,6 @@
   "dependencies": {
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-user-data": "^0.1.9",
-    "bson": "^6.0.0"
+    "bson": "^6.2.0"
   }
 }

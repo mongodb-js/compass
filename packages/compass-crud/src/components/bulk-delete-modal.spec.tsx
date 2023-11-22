@@ -17,6 +17,7 @@ function renderBulkDeleteModal(
       sampleDocuments={[]}
       onCancel={() => {}}
       onConfirmDeletion={() => {}}
+      onExportToLanguage={() => {}}
       {...props}
     />
   );
@@ -39,7 +40,26 @@ describe('BulkDeleteModal Component', function () {
 
   it('shows the number of documents that will be deleted', function () {
     renderBulkDeleteModal({ documentCount: 42 });
-    expect(screen.queryAllByText('Delete 42 documents')[0]).to.be.visible;
+    const elements = screen.queryAllByText('Delete 42 documents');
+    expect(elements).to.have.length(2);
+    expect(elements[0]).to.be.visible;
+    expect(elements[1]).to.be.visible;
+  });
+
+  it('correctly pluralizes 1', function () {
+    renderBulkDeleteModal({ documentCount: 1 });
+    const elements = screen.queryAllByText('Delete 1 document');
+    expect(elements).to.have.length(2);
+    expect(elements[0]).to.be.visible;
+    expect(elements[1]).to.be.visible;
+  });
+
+  it('does not show the number of documents that will be deleted if it is undefined', function () {
+    renderBulkDeleteModal({ documentCount: undefined });
+    const elements = screen.queryAllByText('Delete documents');
+    expect(elements).to.have.length(2);
+    expect(elements[0]).to.be.visible;
+    expect(elements[1]).to.be.visible;
   });
 
   it('shows the affected collection', function () {

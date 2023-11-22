@@ -56,7 +56,7 @@ const exportToLanguageButtonStyles = css({
 
 type BulkDeleteModalProps = {
   open: boolean;
-  documentCount: number;
+  documentCount?: number;
   filterQuery: string;
   namespace: string;
   sampleDocuments: Document[];
@@ -90,7 +90,9 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   return (
     <Modal setOpen={onCancel} open={open}>
       <ModalHeader
-        title={`Delete ${documentCount} documents`}
+        title={`Delete ${documentCount ?? ''} document${
+          documentCount === 1 ? '' : 's'
+        }`}
         subtitle={namespace}
         variant={'danger'}
       />
@@ -110,13 +112,16 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         </div>
 
         <div>
-          <b>Preview (sample of {sampleDocuments.length} documents)</b>
+          <b>
+            Preview (sample of {sampleDocuments.length} document
+            {sampleDocuments.length === 1 ? '' : 's'})
+          </b>
           {preview}
         </div>
       </ModalBody>
       <ModalFooter className={modalFooterSpacingStyles}>
         <Button variant="danger" onClick={onConfirmDeletion}>
-          Delete {documentCount} documents
+          Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
         </Button>
         <Button variant="default" onClick={onCancel}>
           Cancel

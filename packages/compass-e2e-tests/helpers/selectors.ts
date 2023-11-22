@@ -534,6 +534,7 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
+export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 
 // Insert Document modal
 
@@ -586,6 +587,18 @@ export const importPreviewFieldHeaderSelectMenu = (
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
+
+// Bulk Update Modal
+export const BulkUpdateModal = '[data-testid="bulk-update-dialog"]';
+export const BulkUpdateReadonlyFilter = `${BulkUpdateModal} [data-testid="readonly-filter"]`;
+export const BulkUpdateUpdate = `${BulkUpdateModal} [data-testid="bulk-update-update"]`;
+export const BulkUpdateTitle = `${BulkUpdateModal} [data-testid="modal-title"]`;
+export const BulkUpdateUpdateButton = `${BulkUpdateModal} [data-testid="update-button"]`;
+export const BulkUpdateCancelButton = `${BulkUpdateModal} [data-testid="cancel-button"]`;
+export const BulkUpdatePreviewDocument = `${BulkUpdateModal} [data-testid="bulk-update-preview-document"]`;
+export const BulkUpdateSaveFavorite = `${BulkUpdateModal} [data-testid="inline-save-query-modal-opener"]`;
+export const BulkUpdateFavouriteNameInput = `${BulkUpdateModal} [data-testid="inline-save-query-modal-input"]`;
+export const BulkUpdateFavouriteSaveButton = `${BulkUpdateModal} [data-testid="inline-save-query-modal-submit"]`;
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =
@@ -670,6 +683,9 @@ export const SavedItemMenu = '[data-testid="saved-item-actions"]';
 export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
 export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
 export const SavedItemMenuItemDelete = `${SavedItemMenu} [data-testid="saved-item-actions-delete-action"]`;
+export const FavouriteQueriesButton = `${QueryBarHistory} [data-testid="past-queries-favorites"] button`;
+export const FavouriteQueryListItem = `${QueryBarHistory} [data-testid="favorite-query-list-item"]`;
+export const FavouriteQueryTitle = `${QueryBarHistory} [data-testid="query-history-query-title"]`;
 
 export const myQueriesItem = (title: string): string => {
   return `[data-testid="my-queries-content"] [title="${title}"]`;
