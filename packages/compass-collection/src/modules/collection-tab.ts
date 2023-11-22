@@ -49,6 +49,7 @@ export type CollectionState = {
   initialAggregation?: unknown;
   initialPipelineText?: unknown;
   editViewName?: string;
+  localAppRegistry?: AppRegistry;
 };
 
 export function pickCollectionStats(

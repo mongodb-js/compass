@@ -16,6 +16,8 @@ import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { configureStore } from '../stores/collection-tab';
 import { useCollectionTabPlugins } from './collection-tab-provider';
+import type AppRegistry from 'hadron-app-registry';
+import { AppRegistryProvider } from 'hadron-app-registry';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'
@@ -60,12 +62,14 @@ const collectionModalContainerStyles = css({
 });
 
 const CollectionTab: React.FunctionComponent<{
+  localAppRegistry: AppRegistry | undefined;
   currentTab: string;
   collectionTabPluginMetadata: CollectionTabPluginMetadata;
   renderScopedModals(): React.ReactElement[];
   renderTabs(): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
 }> = ({
+  localAppRegistry,
   currentTab,
   collectionTabPluginMetadata,
   renderScopedModals,
@@ -76,10 +80,16 @@ const CollectionTab: React.FunctionComponent<{
   const legacyTabs = renderTabs();
   const tabs = [
     ...legacyTabs,
-    ...pluginTabs.map(({ name, component: Component }) => ({
-      name,
-      component: <Component {...collectionTabPluginMetadata} />,
-    })),
+    ...(localAppRegistry ? pluginTabs : []).map(
+      ({ name, component: Component }) => ({
+        name,
+        component: (
+          <AppRegistryProvider localAppRegistry={localAppRegistry}>
+            <Component {...collectionTabPluginMetadata} />
+          </AppRegistryProvider>
+        ),
+      })
+    ),
   ];
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
@@ -138,6 +148,7 @@ const CollectionTab: React.FunctionComponent<{
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
+      localAppRegistry: state.localAppRegistry,
       currentTab: state.currentTab,
       collectionTabPluginMetadata: createCollectionStoreMetadata(state),
     };
