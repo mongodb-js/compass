@@ -23,6 +23,7 @@ import {
   Icon,
   InteractivePopover,
   TextInput,
+  useId,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -305,12 +306,14 @@ export default function BulkUpdateDialog({
     return `Update ${count} documents`;
   }, [count]);
 
+  const bulkUpdateUpdateId = useId('bulk-update-update');
   return (
     <Modal
       open={isOpen}
       setOpen={closeBulkUpdateDialog}
       size="large"
       data-testid="bulk-update-dialog"
+      initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />
       <ModalBody>
@@ -324,7 +327,7 @@ export default function BulkUpdateDialog({
             </div>
 
             <div className={cx(queryFieldStyles, updateFieldStyles)}>
-              <Label htmlFor="bulk-update-update">Update</Label>
+              <Label htmlFor={bulkUpdateUpdateId}>Update</Label>
               <Description className={descriptionStyles}>
                 <Link
                   tabIndex={0}
@@ -343,7 +346,7 @@ export default function BulkUpdateDialog({
                 <CodemirrorMultilineEditor
                   text={text}
                   onChangeText={onChangeText}
-                  id="bulk-update-update"
+                  id={bulkUpdateUpdateId}
                   data-testid="bulk-update-update"
                   onBlur={() => ({})}
                   annotations={annotations}

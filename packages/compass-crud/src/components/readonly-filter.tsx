@@ -7,12 +7,8 @@ import {
   spacing,
   KeylineCard,
   fontFamilies,
+  useId,
 } from '@mongodb-js/compass-components';
-
-type QueryLabelProps = {
-  tooltip: string;
-  label: string;
-};
 
 const queryLabelStyles = css({
   display: 'flex',
@@ -20,27 +16,22 @@ const queryLabelStyles = css({
   alignItems: 'center',
 });
 
-const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
-  tooltip,
-  label,
-}) => {
-  return (
-    <div className={queryLabelStyles}>
-      <Label htmlFor="readonly-filter">{label}</Label>
-      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
-    </div>
-  );
-};
-
 const readOnlyFilterStyles = css({
   padding: spacing[2],
   overflow: 'scroll',
   width: '100%',
   whiteSpace: 'nowrap',
-  fontFamily: fontFamilies.code,
+  display: 'inline-block',
+  verticalAlign: 'middle',
+  lineHeight: `${spacing[3] + 2}px`,
   '::-webkit-scrollbar': {
     display: 'none',
   },
+});
+
+const codeStyles = css({
+  fontSize: 14,
+  fontFamily: fontFamilies.code,
 });
 
 type ReadonlyFilterProps = {
@@ -52,19 +43,22 @@ export function ReadonlyFilter({
   queryLabel,
   filterQuery,
 }: ReadonlyFilterProps) {
+  const readOnlyFilterId = useId('readonly-filter');
   return (
     <>
-      <QueryLabel
-        label={queryLabel}
-        tooltip="Return to the Documents tab to edit this query."
-      />
+      <div className={queryLabelStyles}>
+        <Label htmlFor={readOnlyFilterId}>{queryLabel}</Label>
+        <InfoSprinkle align="right">
+          Return to the Documents tab to edit this query.
+        </InfoSprinkle>
+      </div>
       <KeylineCard
-        id="readonly-filter"
+        id={readOnlyFilterId}
         data-testid="readonly-filter"
         disabled={true}
         className={readOnlyFilterStyles}
       >
-        <code>{filterQuery}</code>
+        <code className={codeStyles}>{filterQuery}</code>
       </KeylineCard>
     </>
   );
