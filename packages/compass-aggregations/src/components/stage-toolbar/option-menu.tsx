@@ -12,6 +12,8 @@ import {
 import {
   addStage,
   removeStage,
+  expandPreviewDocsForStage,
+  collapsePreviewDocsForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
@@ -26,10 +28,14 @@ export const OptionMenu = ({
   index,
   onAddStageClick,
   onDeleteStageClick,
+  expandPreviewDocsForStage,
+  collapsePreviewDocsForStage,
 }: {
   index: number;
   onAddStageClick: (index: number) => void;
   onDeleteStageClick: (index: number) => void;
+  expandPreviewDocsForStage: (stageIdx: number) => void;
+  collapsePreviewDocsForStage: (stageIdx: number) => void;
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -95,6 +101,28 @@ export const OptionMenu = ({
           Delete stage
         </div>
       </MenuItem>
+      <MenuItem
+        onClick={() => {
+          expandPreviewDocsForStage(index);
+          setMenuOpen(false);
+        }}
+      >
+        <div className={menuItemStyles}>
+          <Icon color={palette.gray.dark2} glyph="ChevronDown" size="small" />
+          Expand documents
+        </div>
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          collapsePreviewDocsForStage(index);
+          setMenuOpen(false);
+        }}
+      >
+        <div className={menuItemStyles}>
+          <Icon color={palette.gray.dark2} glyph="ChevronUp" size="small" />
+          Collapse documents
+        </div>
+      </MenuItem>
     </Menu>
   );
 };
@@ -111,5 +139,7 @@ export default connect(
   {
     onAddStageClick: addStage,
     onDeleteStageClick: removeStage,
+    expandPreviewDocsForStage,
+    collapsePreviewDocsForStage,
   }
 )(OptionMenu);
