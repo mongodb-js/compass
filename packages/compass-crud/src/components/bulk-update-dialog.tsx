@@ -233,6 +233,7 @@ export type BulkUpdateDialogProps = {
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error;
+  enablePreview?: boolean;
   closeBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -248,6 +249,7 @@ export default function BulkUpdateDialog({
   preview,
   syntaxError,
   serverError,
+  enablePreview = false,
   closeBulkUpdateDialog,
   updateBulkUpdatePreview,
   runBulkUpdate,
@@ -297,7 +299,7 @@ export default function BulkUpdateDialog({
     <Modal
       open={isOpen}
       setOpen={closeBulkUpdateDialog}
-      size="large"
+      size={enablePreview ? 'large' : 'default'}
       data-testid="bulk-update-dialog"
     >
       <ModalHeader
@@ -305,7 +307,7 @@ export default function BulkUpdateDialog({
         subtitle={ns}
       />
       <ModalBody>
-        <div className={columnsStyles}>
+        <div className={enablePreview ? columnsStyles : undefined}>
           <div className={queryStyles}>
             <div className={queryFieldStyles}>
               <ReadonlyFilter
@@ -358,26 +360,28 @@ export default function BulkUpdateDialog({
               </KeylineCard>
             </div>
           </div>
-          <div className={previewStyles}>
-            <Label htmlFor="bulk-update-preview">
-              Preview{' '}
-              <Description className={previewDescriptionStyles}>
-                (sample of {preview.changes.length} document
-                {preview.changes.length === 1 ? '' : 's'})
-              </Description>
-            </Label>
-            <div className={updatePreviewStyles}>
-              {previewDocuments.map((doc: HadronDocument, index: number) => {
-                return (
-                  <UpdatePreviewDocument
-                    key={`change=${index}`}
-                    data-testid="bulk-update-preview-document"
-                    doc={doc}
-                  />
-                );
-              })}
+          {enablePreview && (
+            <div className={previewStyles}>
+              <Label htmlFor="bulk-update-preview">
+                Preview{' '}
+                <Description className={previewDescriptionStyles}>
+                  (sample of {preview.changes.length} document
+                  {preview.changes.length === 1 ? '' : 's'})
+                </Description>
+              </Label>
+              <div className={updatePreviewStyles}>
+                {previewDocuments.map((doc: HadronDocument, index: number) => {
+                  return (
+                    <UpdatePreviewDocument
+                      key={`change=${index}`}
+                      data-testid="bulk-update-preview-document"
+                      doc={doc}
+                    />
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
