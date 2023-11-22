@@ -88,7 +88,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   );
 
   return (
-    <Modal setOpen={onCancel} open={open}>
+    <Modal setOpen={onCancel} open={open} data-testid="bulk-delete-modal">
       <ModalHeader
         title={`Delete ${documentCount ?? ''} document${
           documentCount === 1 ? '' : 's'
@@ -105,14 +105,14 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
             size="default"
             leftGlyph={<Icon glyph="Code" />}
             onClick={onExportToLanguage}
-            data-testid="pipeline-toolbar-export-button"
+            data-testid="export-button"
           >
             Export
           </Button>
         </div>
 
         <div>
-          <b>
+          <b data-testid="preview-title">
             Preview (sample of {sampleDocuments.length} document
             {sampleDocuments.length === 1 ? '' : 's'})
           </b>
@@ -120,10 +120,18 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
         </div>
       </ModalBody>
       <ModalFooter className={modalFooterSpacingStyles}>
-        <Button variant="danger" onClick={onConfirmDeletion}>
+        <Button
+          variant="danger"
+          onClick={onConfirmDeletion}
+          data-testid="delete-button"
+        >
           Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
         </Button>
-        <Button variant="default" onClick={onCancel}>
+        <Button
+          variant="default"
+          onClick={onCancel}
+          data-testid="cancel-button"
+        >
           Cancel
         </Button>
       </ModalFooter>

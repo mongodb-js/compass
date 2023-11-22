@@ -534,6 +534,7 @@ export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
+export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 
 // Insert Document modal
 
@@ -598,6 +599,15 @@ export const BulkUpdatePreviewDocument = `${BulkUpdateModal} [data-testid="bulk-
 export const BulkUpdateSaveFavorite = `${BulkUpdateModal} [data-testid="inline-save-query-modal-opener"]`;
 export const BulkUpdateFavouriteNameInput = `${BulkUpdateModal} [data-testid="inline-save-query-modal-input"]`;
 export const BulkUpdateFavouriteSaveButton = `${BulkUpdateModal} [data-testid="inline-save-query-modal-submit"]`;
+
+// Bulk Delete Modal
+export const BulkDeleteModal = '[data-testid="bulk-delete-modal"]';
+export const BulkDeleteModalReadonlyFilter = `${BulkDeleteModal} [data-testid="readonly-filter"]`;
+export const BulkDeleteModalTitle = `${BulkDeleteModal} [data-testid="modal-title"]`;
+export const BulkDeleteModalExportButton = `${BulkDeleteModal} [data-testid="export-button"]`;
+export const BulkDeleteModalPreviewTitle = `${BulkDeleteModal} [data-testid="preview-title"]`;
+export const BulkDeleteModalDeleteButton = `${BulkDeleteModal} [data-testid="delete-button"]`;
+export const BulkDeleteModalCancelButton = `${BulkDeleteModal} [data-testid="cancel-button"]`;
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =
@@ -1141,6 +1151,10 @@ export const ConfirmationModalInput =
 export const ConfirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
+
+export const ConfirmationModalCancelButton = (
+  modalSelector = ConfirmationModal
+) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
