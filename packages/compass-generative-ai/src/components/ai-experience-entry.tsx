@@ -18,9 +18,10 @@ import {
 } from './ai-entry-svg';
 
 const hiddenOnNarrowStyles = css({
-  [`@container ${WorkspaceContainer.containerQueryName} (width < 900px)`]: {
-    display: 'none',
-  },
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
 });
 
 const aiEntryStyles = css(
