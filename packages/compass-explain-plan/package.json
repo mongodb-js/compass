@@ -27,6 +27,7 @@
   "compass:main": "src/index.js",
   "types": "dist/src/index.d.ts",
   "exports": {
+    "compass": "./src/index.js",
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },

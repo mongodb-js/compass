@@ -1,3 +1,4 @@
+/// <reference path="./typings.d.ts" />
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { ShellPlugin, onActivated } from './plugin';

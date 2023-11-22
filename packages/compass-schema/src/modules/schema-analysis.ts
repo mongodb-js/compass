@@ -115,9 +115,8 @@ function _calculateSchemaFieldDepth(
       const increment =
         (fieldOrType as ArraySchemaType).bsonType === 'Array' ? 1 : 0;
       const deepestFieldPath =
-        _calculateSchemaFieldDepth(
-          (fieldOrType as ArraySchemaType | SchemaField).types
-        ) + increment;
+        // TODO: types wrong
+        _calculateSchemaFieldDepth((fieldOrType as any).types) + increment;
 
       deepestPath = Math.max(deepestFieldPath, deepestPath);
     }
@@ -152,8 +151,8 @@ function _containsGeoData(
     }
 
     const hasGeoData = _containsGeoData(
-      (fieldOrType as ArraySchemaType | SchemaField).types ??
-        (fieldOrType as DocumentSchemaType).fields
+      // TODO: types wrong
+      (fieldOrType as any).types ?? (fieldOrType as DocumentSchemaType).fields
     );
     if (hasGeoData) {
       return true;

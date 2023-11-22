@@ -137,7 +137,10 @@ export const fetchSettings = (): SettingsThunkAction<Promise<void>> => {
   };
 };
 
-export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
+// TODO: types hard
+export const changeFieldValue: any = <
+  K extends keyof UserConfigurablePreferences
+>(
   field: K,
   value: UserConfigurablePreferences[K]
 ): SettingsThunkAction<Promise<void>> => {

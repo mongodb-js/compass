@@ -47,7 +47,14 @@ export const isOptionDisabled = (selectedOptions: string[], option: string) => {
   return selectedOptions.some((field) => field.startsWith(`${option}.`));
 };
 
-export const FieldCombobox = ({
+export const FieldCombobox: React.FunctionComponent<
+  Partial<CustomComboboxProps> & {
+    fields: WizardComponentProps['fields'];
+    // When selecting a field, if its nested or parent field should be disabled.
+    // Only applicable when its a multiselect combobox.
+    isRelatedFieldDisabled?: boolean;
+  }
+> = ({
   fields: schemaFields,
   multiselect,
   'aria-label': ariaLabel,
@@ -55,11 +62,6 @@ export const FieldCombobox = ({
   isRelatedFieldDisabled = false,
   value,
   ...props
-}: Partial<CustomComboboxProps> & {
-  fields: WizardComponentProps['fields'];
-  // When selecting a field, if its nested or parent field should be disabled.
-  // Only applicable when its a multiselect combobox.
-  isRelatedFieldDisabled?: boolean;
 }) => {
   const fields = useMemo(
     () => schemaFields.map(({ name, type }) => ({ value: name, type })),

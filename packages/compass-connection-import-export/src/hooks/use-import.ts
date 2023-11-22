@@ -93,10 +93,10 @@ export function useImportConnections(
     trackingProps?: Record<string, unknown>;
     connectionStorage?: typeof ConnectionStorage;
   },
-  importConnections = ConnectionStorage.importConnections.bind(
+  importConnections: typeof ConnectionStorage['importConnections'] = ConnectionStorage.importConnections.bind(
     ConnectionStorage
   ),
-  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
+  deserializeConnections: typeof ConnectionStorage['deserializeConnections'] = ConnectionStorage.deserializeConnections.bind(
     ConnectionStorage
   )
 ): {

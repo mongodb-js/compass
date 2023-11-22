@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 import { getResponseChannel } from './common';
 import electron from 'electron';
 import type { IpcRenderer } from 'electron';
@@ -78,11 +79,6 @@ const ipcRenderer = electron.ipcRenderer
   : undefined;
 
 let cId = 0;
-
-type PickByValue<T, K> = Pick<
-  T,
-  { [k in keyof T]: T[k] extends K ? k : never }[keyof T]
->;
 
 export function ipcInvoke<
   T,

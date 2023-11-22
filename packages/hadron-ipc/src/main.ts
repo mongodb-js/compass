@@ -1,9 +1,9 @@
+/// <reference path="./types.d.ts" />
 import type { IpcMain, IpcMainEvent } from 'electron';
 import electron from 'electron';
 import createDebug from 'debug';
 import { getResponseChannel } from './common';
 import { serializeErrorForIpc } from './serialized-error';
-
 const debug = createDebug('hadron-ipc:main');
 
 const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {

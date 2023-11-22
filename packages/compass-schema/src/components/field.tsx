@@ -139,9 +139,9 @@ function getNestedDocType(
   // Otherwise check for nested documents inside an array.
   const arrType = find(types, { name: 'Array' });
   if (arrType) {
-    return find((arrType as ArraySchemaType).types, { name: 'Document' }) as
-      | DocumentSchemaType
-      | undefined;
+    return find((arrType as ArraySchemaType).types, {
+      name: 'Document',
+    }) as DocumentSchemaType | null | undefined; // TODO: types wrong
   }
   return null;
 }

@@ -1,3 +1,4 @@
+/// <reference path="./typings.d.ts" />
 import type AppRegistry from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import AggregationsPlugin from './plugin';

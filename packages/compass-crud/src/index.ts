@@ -1,5 +1,5 @@
+/// <reference path="./typings.d.ts" />
 import type AppRegistry from 'hadron-app-registry';
-
 import type { DocumentProps } from './components/document';
 import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';

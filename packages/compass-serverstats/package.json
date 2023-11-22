@@ -7,6 +7,7 @@
   "main": "dist/index.js",
   "compass:main": "src/index.js",
   "exports": {
+    "compass": "./src/index.js",
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },

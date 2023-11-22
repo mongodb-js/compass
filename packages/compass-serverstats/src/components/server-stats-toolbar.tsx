@@ -61,7 +61,7 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
   const darkMode = useDarkMode();
 
   const [time, setTime] = useState('00:00:00');
-  const [isPaused, setPaused] = useState((ServerStatsStore as any).isPaused);
+  const [isPaused, setPaused] = useState(ServerStatsStore.isPaused);
 
   useEffect(() => {
     eventDispatcher.on('newXValue', (xDate) => {

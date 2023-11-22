@@ -1,0 +1,7 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  }
+}

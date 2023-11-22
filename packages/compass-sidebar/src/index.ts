@@ -1,3 +1,4 @@
+/// <reference path="./typings.d.ts" />
 import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';

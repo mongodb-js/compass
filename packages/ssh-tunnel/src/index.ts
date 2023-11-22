@@ -1,3 +1,4 @@
+/// <reference path="./socksv5.d.ts" />
 import { promisify } from 'util';
 import { EventEmitter, once } from 'events';
 import type { Socket } from 'net';

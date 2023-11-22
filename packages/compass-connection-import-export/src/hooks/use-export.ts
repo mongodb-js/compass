@@ -47,7 +47,7 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = ConnectionStorage.exportConnections.bind(
+  exportConnections: typeof ConnectionStorage['exportConnections'] = ConnectionStorage.exportConnections.bind(
     ConnectionStorage
   )
 ): {

@@ -92,13 +92,13 @@ function PerformancePanelMsgs() {
 
   return (
     <div>
-      {(ServerStatsStore as any).isMongos && (
+      {ServerStatsStore.isMongos && (
         <Banner className={mongosWarningStyles} variant="warning">
           Top command is not available for mongos, some charts may not show any
           data.
         </Banner>
       )}
-      {(TopStore as any).topUnableToRetrieveSomeCollections && (
+      {TopStore.topUnableToRetrieveSomeCollections && (
         <Banner className={mongosWarningStyles} variant="warning">
           Top command is unable to retrieve information about certain
           collections, resulting in incomplete data being displayed on the

@@ -1,5 +1,5 @@
+/// <reference path="./typings.d.ts" />
 import type AppRegistry from 'hadron-app-registry';
-
 import IndexesPlugin from './plugin';
 import CreateIndexPlugin from './create-index-plugin';
 import DropIndexPlugin from './drop-index-plugin';

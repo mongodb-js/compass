@@ -5,6 +5,7 @@ const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 
 const extraTsRules = {
+  '@typescript-eslint/triple-slash-reference': 'off',
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
   '@typescript-eslint/no-unsafe-argument': 'warn',

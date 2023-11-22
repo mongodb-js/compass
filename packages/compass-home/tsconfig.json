@@ -1,7 +1,9 @@
 {
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.plugin.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    // Some monorepo dependencies are still on js
+    "allowJs": true
   },
   "files": ["./src/index.d.ts"],
   "include": ["src/**/*"],

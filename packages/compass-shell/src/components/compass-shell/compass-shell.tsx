@@ -302,9 +302,13 @@ export class CompassShell extends Component<
   }
 }
 
-export default connect((state: RootState) => ({
+const ConnectedCompassShell: React.FunctionComponent<
+  Omit<CompassShellProps, 'emitShellPluginOpened' | 'runtime' | 'enableShell'>
+> = connect((state: RootState) => ({
   emitShellPluginOpened: () => {
     state.runtime.appRegistry?.emit('compass:compass-shell:opened');
   },
   runtime: state.runtime ? state.runtime.runtime : null,
 }))(withPreferences(CompassShell, ['enableShell'], React));
+
+export default ConnectedCompassShell;
