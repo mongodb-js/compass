@@ -57,14 +57,13 @@ describe('Bulk Delete', () => {
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
 
-    // Press delete in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-
     // The modal should go away
     await browser
       .$(Selectors.BulkDeleteModal)
       .waitForDisplayed({ reverse: true });
 
+    // Press delete in the confirmation modal
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // the document is deleted
@@ -95,13 +94,13 @@ describe('Bulk Delete', () => {
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
 
-    // Press cancel in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalCancelButton());
-
     // The modal should go away
     await browser
       .$(Selectors.BulkDeleteModal)
       .waitForDisplayed({ reverse: true });
+
+    // Press cancel in the confirmation modal
+    await browser.clickVisible(Selectors.ConfirmationModalCancelButton());
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
