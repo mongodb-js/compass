@@ -11,7 +11,6 @@ import chaiAsPromised from 'chai-as-promised';
 import configureStore, {
   findAndModifyWithFLEFallback,
   fetchDocuments,
-  CrudActions,
 } from './crud-store';
 import configureActions from '../actions';
 import { Int32 } from 'bson';
