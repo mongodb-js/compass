@@ -45,8 +45,6 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
-
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
@@ -84,8 +82,6 @@ describe('Bulk Delete', () => {
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
-
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
 
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
