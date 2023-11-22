@@ -280,6 +280,7 @@ export const fetchInvalidDocument = () => {
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
+    // Calling checkValidator twice here seems wrong
     const checkedValidator = checkValidator(validator);
     const query = checkValidator(
       checkedValidator.validator as string
