@@ -13,7 +13,10 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+import {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
 import {
   countDocuments,
@@ -335,6 +338,7 @@ type CrudStoreOptions = {
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
   favoriteQueriesStorage?: FavoriteQueryStorage;
+  recentQueriesStorage?: RecentQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -444,12 +448,15 @@ class CrudStoreImpl
   localAppRegistry!: AppRegistry;
   globalAppRegistry!: AppRegistry;
   favoriteQueriesStorage: FavoriteQueryStorage;
+  recentQueriesStorage: RecentQueryStorage;
 
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
     this.favoriteQueriesStorage =
       options.favoriteQueriesStorage || new FavoriteQueryStorage();
+    this.recentQueriesStorage =
+      options.recentQueriesStorage || new RecentQueryStorage();
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -1246,6 +1253,12 @@ class CrudStoreImpl
       // probably OK - the button will soon appear disabled to the user anyway.
       return;
     }
+
+    await this.recentQueriesStorage.saveQuery({
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
 
     openToast('bulk-update-toast', {
       title: '',
