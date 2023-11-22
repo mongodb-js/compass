@@ -55,7 +55,6 @@ export function ReadonlyFilter({
       <KeylineCard
         id={readOnlyFilterId}
         data-testid="readonly-filter"
-        disabled={true}
         className={readOnlyFilterStyles}
       >
         <code className={codeStyles}>{filterQuery}</code>
