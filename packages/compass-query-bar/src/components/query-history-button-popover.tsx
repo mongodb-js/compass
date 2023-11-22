@@ -94,7 +94,10 @@ const QueryHistoryButtonPopover = ({
       open={isOpen}
       setOpen={setOpen}
     >
-      <QueryHistory onUpdateFavoriteChoosen={closePopover} />
+      <QueryHistory
+        onUpdateRecentChoosen={closePopover}
+        onUpdateFavoriteChoosen={closePopover}
+      />
     </InteractivePopover>
   );
 };

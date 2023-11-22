@@ -19,6 +19,10 @@ const queryHoveredStyles = css({
   cursor: 'pointer',
 });
 
+const queryHoveredStylesDisabled = css({
+  cursor: 'not-allowed',
+});
+
 export const QueryItemCard: React.FunctionComponent<{
   onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
   header: (isHovered: boolean) => React.ReactNode;
@@ -26,7 +30,7 @@ export const QueryItemCard: React.FunctionComponent<{
   ['data-testid']?: string;
 }> = ({ children, onClick, header, disabled, 'data-testid': dataTestId }) => {
   const [hoverProps, isHovered] = useHoverState();
-  let hoverStyles;
+  let hoverStyles = queryHoveredStylesDisabled;
 
   if (isHovered && !disabled) {
     hoverStyles = queryHoveredStyles;
