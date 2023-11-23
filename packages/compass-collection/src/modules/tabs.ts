@@ -1,11 +1,10 @@
 import React from 'react';
-import type { AnyAction, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
 import AppRegistry, { AppRegistryProvider } from 'hadron-app-registry';
+import type { Reducer } from 'redux';
 import { ObjectId } from 'bson';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type { DataService } from 'mongodb-data-service';
 import toNs from 'mongodb-ns';
+import type { CollectionTabsThunkAction } from '../stores/tabs';
 
 export type CollectionTab = {
   id: string;
@@ -35,22 +34,7 @@ enum CollectionTabsActions {
   SubtabChanged = 'compass-colection/SubtabChanged',
   CollectionDropped = 'compass-collection/CollectionDropped',
   DatabaseDropped = 'compass-collection/DatabaseDropped',
-  DataServiceConnected = 'compass-collection/DataServiceConnected',
-  DataServiceDisconnected = 'compass-collection/DataServiceDisconnected',
 }
-
-type CollectionTabsThunkAction<
-  ReturnType,
-  Action extends AnyAction = AnyAction
-> = ThunkAction<
-  ReturnType,
-  CollectionTabsState,
-  {
-    globalAppRegistry: AppRegistry;
-    dataService: DataService | null;
-  },
-  Action
->;
 
 const reducer: Reducer<CollectionTabsState> = (
   state = { tabs: [], activeTabId: null },
@@ -161,15 +145,6 @@ const reducer: Reducer<CollectionTabsState> = (
       tabs: newTabs,
     };
   }
-  if (
-    action.type === CollectionTabsActions.DataServiceConnected ||
-    action.type === CollectionTabsActions.DataServiceDisconnected
-  ) {
-    return {
-      activeTabId: null,
-      tabs: [],
-    };
-  }
   if (action.type === CollectionTabsActions.SubtabChanged) {
     const tabIndex = state.tabs.findIndex((tab) => {
       return tab.id === action.id;
@@ -199,11 +174,6 @@ const createNewTab = (
     if (!collectionTabRole || !collectionTabRole.configureStore) {
       throw new Error(
         "Can't open a colleciton tab if collection tab role is not registered"
-      );
-    }
-    if (!dataService) {
-      throw new Error(
-        "Can't open a collection tab while data service is not connected"
       );
     }
     const localAppRegistry = new AppRegistry();
@@ -380,15 +350,6 @@ export const databaseDropped = (
       globalAppRegistry.emit('active-database-dropped', database);
     }
   };
-};
-
-export const dataServiceConnected = () => {
-  return { type: CollectionTabsActions.DataServiceConnected };
-};
-
-export const dataServiceDisconnected = () => {
-  // TODO: get localAppRegistry for existing tabs and clean up
-  return { type: CollectionTabsActions.DataServiceDisconnected };
 };
 
 export default reducer;

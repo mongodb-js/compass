@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { configureStore } from './tabs';
+import { activatePlugin } from './tabs';
 import {
   openCollection,
   openCollectionInNewTab,
@@ -45,7 +45,7 @@ describe('Collection Tabs Store', function () {
 
   describe('openCollectionInNewTab', function () {
     it('should set up new collection tab', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -73,7 +73,7 @@ describe('Collection Tabs Store', function () {
 
   describe('openCollection', function () {
     it('should open collection in the same tab', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
 
       store.dispatch(openCollection({ namespace: 'test.foo' } as any));
       expect(store.getState()).to.have.property('tabs').have.lengthOf(1);
@@ -98,7 +98,7 @@ describe('Collection Tabs Store', function () {
     });
 
     it('should do nothing when opening tab for the same namespace as the active tab', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollection({ namespace: 'test.foo' } as any));
       const stateWithOneTab = store.getState();
 
@@ -112,7 +112,7 @@ describe('Collection Tabs Store', function () {
 
   describe('openNewTabForCurrentCollection', function () {
     it('should emit an event to open new tab with the same namespace as the active tab', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollection({ namespace: 'test.foo' } as any));
       store.dispatch(openNewTabForCurrentCollection());
       expect(globalAppRegistry.emit).to.have.been.calledWith(
@@ -124,7 +124,7 @@ describe('Collection Tabs Store', function () {
 
   describe('selectNextTab', function () {
     it('should select next tab circular', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -157,7 +157,7 @@ describe('Collection Tabs Store', function () {
 
   describe('selectPreviousTab', function () {
     it('should select previous tab circular', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -190,7 +190,7 @@ describe('Collection Tabs Store', function () {
 
   describe('selectTabByIndex', function () {
     it('should select tab by index', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -217,7 +217,7 @@ describe('Collection Tabs Store', function () {
 
   describe('moveTabByIndex', function () {
     it('should move tab by index without changing active tab', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -237,7 +237,7 @@ describe('Collection Tabs Store', function () {
 
   describe('closeTabAtIndex', function () {
     it('should remove the tab on close', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.buz' } as any));
@@ -250,7 +250,7 @@ describe('Collection Tabs Store', function () {
     });
 
     it("should emit 'select-database' when last tab is closed", function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(closeTabAtIndex(0));
       expect(store.getState().tabs).to.have.lengthOf(0);
@@ -263,7 +263,7 @@ describe('Collection Tabs Store', function () {
 
   describe('databaseDropped', function () {
     it('should remove all tabs with dropped database', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'meow.buz' } as any));
@@ -276,7 +276,7 @@ describe('Collection Tabs Store', function () {
     });
 
     it("should emit 'active-database-dropped' when action closes all open tabs", function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.bar' } as any));
       store.dispatch(databaseDropped('test'));
@@ -290,7 +290,7 @@ describe('Collection Tabs Store', function () {
 
   describe('collectionDropped', function () {
     it('should remove all tabs with dropped collection', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'meow.buz' } as any));
@@ -303,7 +303,7 @@ describe('Collection Tabs Store', function () {
     });
 
     it("should emit 'active-collection-dropped' when action closes all open tabs", function () {
-      const store = configureStore({ globalAppRegistry, dataService });
+      const { store } = activatePlugin({}, { globalAppRegistry, dataService });
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(openCollectionInNewTab({ namespace: 'test.foo' } as any));
       store.dispatch(collectionDropped('test.foo'));
@@ -315,17 +315,14 @@ describe('Collection Tabs Store', function () {
     });
   });
 
-  describe('onActivated', function () {
+  describe('when activated', function () {
     it('should set up listeners on globalAppRegistry', function () {
-      const store = configureStore({ globalAppRegistry, dataService });
-      store.onActivated(globalAppRegistry);
+      activatePlugin({}, { globalAppRegistry, dataService });
       expect(globalAppRegistry['_emitter'].eventNames()).to.deep.eq([
         'open-namespace-in-new-tab',
         'select-namespace',
         'collection-dropped',
         'database-dropped',
-        'data-service-connected',
-        'data-service-disconnected',
         'menu-share-schema-json',
         'open-active-namespace-export',
         'open-active-namespace-import',

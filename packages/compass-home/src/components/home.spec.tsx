@@ -57,10 +57,6 @@ describe('Home [Component]', function () {
   const testAppRegistry = globalAppRegistry;
 
   beforeEach(function () {
-    ['Collection.Workspace'].forEach((name) =>
-      testAppRegistry.registerComponent(name, getComponent(name))
-    );
-
     ['Application.Connect'].forEach((name) =>
       testAppRegistry.registerRole(name, {
         name,

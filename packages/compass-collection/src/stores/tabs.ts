@@ -1,7 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
-import type { AnyAction, Store } from 'redux';
+import type { AnyAction } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
-import type { ThunkDispatch } from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { CollectionTabsState } from '../modules/tabs';
@@ -11,137 +11,146 @@ import tabs, {
   openCollectionInNewTab,
   openCollection,
   getActiveTab,
-  dataServiceDisconnected,
-  dataServiceConnected,
 } from '../modules/tabs';
-import { globalAppRegistry } from 'hadron-app-registry';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
-type ThunkExtraArg = {
+type CollectionTabsWorkspaceServices = {
   globalAppRegistry: AppRegistry;
-  dataService: DataService | null;
+  dataService: DataService;
 };
 
-type RootStore = Store<CollectionTabsState, AnyAction> & {
-  dispatch: ThunkDispatch<
-    any,
-    {
-      globalAppRegistry: Readonly<AppRegistry>;
-      dataService: DataService | null;
-    },
-    AnyAction
-  >;
-} & {
-  onActivated(globalAppRegistry: AppRegistry): void;
-};
-
-export function configureStore({
-  globalAppRegistry: _globalAppRegistry,
-  dataService,
-}: Partial<ThunkExtraArg> = {}): RootStore {
-  const thunkExtraArg = {
-    globalAppRegistry: _globalAppRegistry ?? globalAppRegistry,
-    dataService: dataService ?? null,
-  };
-
-  const store = createStore(
-    tabs,
-    applyMiddleware(thunk.withExtraArgument(thunkExtraArg))
-  );
-
-  Object.assign(store, {
-    onActivated: (globalAppRegistry: AppRegistry) => {
-      thunkExtraArg.globalAppRegistry = globalAppRegistry;
-      /**
-       * When emitted, will always open a collection namespace in new tab
-       */
-      globalAppRegistry.on('open-namespace-in-new-tab', (metadata) => {
-        if (!metadata.namespace) {
-          return;
-        }
-        store.dispatch(openCollectionInNewTab(metadata));
-      });
-
-      /**
-       * When emitted, will either replace content of the current tab if namespace
-       * doesn't match current tab namespace, or will do nothing when "selecting"
-       * namespace is the same as currently active
-       */
-      globalAppRegistry.on('select-namespace', (metadata) => {
-        if (!metadata.namespace) {
-          return;
-        }
-        store.dispatch(openCollection(metadata));
-      });
-
-      globalAppRegistry.on('collection-dropped', (namespace: string) => {
-        store.dispatch(collectionDropped(namespace));
-      });
-
-      globalAppRegistry.on('database-dropped', (namespace: string) => {
-        store.dispatch(databaseDropped(namespace));
-      });
-
-      /**
-       * Set the data service in the store when connected.
-       */
-      globalAppRegistry.on(
-        'data-service-connected',
-        (error, dataService: DataService) => {
-          thunkExtraArg.dataService = dataService;
-          store.dispatch(dataServiceConnected());
-        }
-      );
-
-      /**
-       * When we disconnect from the instance, clear all the tabs.
-       */
-      globalAppRegistry.on('data-service-disconnected', () => {
-        store.dispatch(dataServiceDisconnected());
-        thunkExtraArg.dataService = null;
-      });
-
-      globalAppRegistry.on('menu-share-schema-json', () => {
-        const activeTab = getActiveTab(store.getState());
-        if (!activeTab) {
-          return;
-        }
-        activeTab.localAppRegistry.emit('menu-share-schema-json');
-      });
-
-      globalAppRegistry.on('open-active-namespace-export', function () {
-        const activeTab = getActiveTab(store.getState());
-
-        if (!activeTab) {
-          return;
-        }
-
-        globalAppRegistry.emit('open-export', {
-          exportFullCollection: true,
-          namespace: activeTab.namespace,
-          origin: 'menu',
-        });
-      });
-
-      globalAppRegistry.on('open-active-namespace-import', function () {
-        const activeTab = getActiveTab(store.getState());
-
-        if (!activeTab) {
-          return;
-        }
-
-        globalAppRegistry.emit('open-import', {
-          namespace: activeTab.namespace,
-          origin: 'menu',
-        });
-      });
-    },
-  });
-
-  return store as RootStore;
+export function configureStore(services: CollectionTabsWorkspaceServices) {
+  return createStore(tabs, applyMiddleware(thunk.withExtraArgument(services)));
 }
 
-const store = configureStore();
+export type RootState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
-export type RootState = ReturnType<typeof store['getState']>;
+export type CollectionTabsThunkAction<
+  ReturnType,
+  Action extends AnyAction = AnyAction
+> = ThunkAction<
+  ReturnType,
+  CollectionTabsState,
+  CollectionTabsWorkspaceServices,
+  Action
+>;
 
-export default store;
+export function activatePlugin(
+  _: unknown,
+  { globalAppRegistry, dataService }: CollectionTabsWorkspaceServices
+) {
+  const store = configureStore({
+    globalAppRegistry,
+    dataService,
+  });
+
+  const cleanup: (() => void)[] = [];
+
+  function subscribeToRegistry(
+    appRegistry: AppRegistry,
+    name: string,
+    fn: (...args: any[]) => any
+  ) {
+    appRegistry.on(name, fn);
+    cleanup.push(() => {
+      appRegistry.removeListener(name, fn);
+    });
+  }
+
+  /**
+   * When emitted, will always open a collection namespace in new tab
+   */
+  subscribeToRegistry(
+    globalAppRegistry,
+    'open-namespace-in-new-tab',
+    (metadata: CollectionMetadata) => {
+      store.dispatch(openCollectionInNewTab(metadata));
+    }
+  );
+
+  /**
+   * When emitted, will either replace content of the current tab if namespace
+   * doesn't match current tab namespace, or will do nothing when "selecting"
+   * namespace is the same as currently active
+   */
+  subscribeToRegistry(
+    globalAppRegistry,
+    'select-namespace',
+    (metadata: CollectionMetadata) => {
+      store.dispatch(openCollection(metadata));
+    }
+  );
+
+  subscribeToRegistry(
+    globalAppRegistry,
+    'collection-dropped',
+    (namespace: string) => {
+      store.dispatch(collectionDropped(namespace));
+    }
+  );
+
+  subscribeToRegistry(
+    globalAppRegistry,
+    'database-dropped',
+    (namespace: string) => {
+      store.dispatch(databaseDropped(namespace));
+    }
+  );
+
+  subscribeToRegistry(globalAppRegistry, 'menu-share-schema-json', () => {
+    const activeTab = getActiveTab(store.getState());
+    if (!activeTab) {
+      return;
+    }
+    activeTab.localAppRegistry.emit('menu-share-schema-json');
+  });
+
+  subscribeToRegistry(
+    globalAppRegistry,
+    'open-active-namespace-export',
+    function () {
+      const activeTab = getActiveTab(store.getState());
+
+      if (!activeTab) {
+        return;
+      }
+
+      globalAppRegistry.emit('open-export', {
+        exportFullCollection: true,
+        namespace: activeTab.namespace,
+        origin: 'menu',
+      });
+    }
+  );
+
+  subscribeToRegistry(
+    globalAppRegistry,
+    'open-active-namespace-import',
+    function () {
+      const activeTab = getActiveTab(store.getState());
+
+      if (!activeTab) {
+        return;
+      }
+
+      globalAppRegistry.emit('open-import', {
+        namespace: activeTab.namespace,
+        origin: 'menu',
+      });
+    }
+  );
+
+  return {
+    store,
+    deactivate() {
+      for (const unsub of cleanup) {
+        unsub();
+      }
+      for (const { localAppRegistry } of store.getState().tabs) {
+        localAppRegistry.deactivate();
+      }
+    },
+  };
+}

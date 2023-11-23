@@ -1,9 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import {
-  useAppRegistryComponent,
-  useAppRegistryRole,
-} from 'hadron-app-registry';
+import { useAppRegistryRole } from 'hadron-app-registry';
 import InstanceWorkspacePlugin, {
   InstanceTabsProvider,
 } from '@mongodb-js/compass-instance';
@@ -16,22 +13,19 @@ import CompassSavedAggregationsQueriesPlugin from '@mongodb-js/compass-saved-agg
 import { InstanceTab as DatabasesTabPlugin } from '@mongodb-js/compass-databases-collections';
 import { InstanceTab as PerformanceTabPlugin } from '@mongodb-js/compass-serverstats';
 import type Namespace from '../types/namespace';
-import { CollectionTabsProvider } from '@mongodb-js/compass-collection';
-
-const EmptyComponent: React.FunctionComponent = () => null;
+import CollectionTabsPlugin, {
+  CollectionTabsProvider,
+} from '@mongodb-js/compass-collection';
 
 const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   namespace,
 }) => {
   const databaseTabs = useAppRegistryRole('Database.Tab');
 
-  const Collection =
-    useAppRegistryComponent('Collection.Workspace') ?? EmptyComponent;
-
   if (namespace.collection) {
     return (
       <CollectionTabsProvider tabs={[CompassSchemaValidationPlugin]}>
-        <Collection />
+        <CollectionTabsPlugin />
       </CollectionTabsProvider>
     );
   }
