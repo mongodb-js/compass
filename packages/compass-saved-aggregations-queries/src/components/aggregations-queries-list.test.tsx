@@ -32,7 +32,7 @@ function renderQueriesList(props: Partial<AggregationsQueriesListProps>) {
   );
 }
 
-describe.only('AggregationsQueriesList', function () {
+describe('AggregationsQueriesList', function () {
   afterEach(function () {
     cleanup();
   });
