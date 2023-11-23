@@ -215,6 +215,7 @@ const createNewTab = (
     });
     const component = React.createElement(AppRegistryProvider, {
       localAppRegistry: localAppRegistry,
+      deactivateOnUnmount: false,
       children: React.createElement(collectionTabRole.component, {
         store,
       }),
