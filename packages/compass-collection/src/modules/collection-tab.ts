@@ -137,7 +137,6 @@ export const selectTab = (
     localAppRegistry.emit('subtab-changed', tabName);
   };
 };
-
 export const selectDatabase = (): CollectionThunkAction<void> => {
   return (dispatch, getState, { globalAppRegistry }) => {
     const { metadata } = getState();
@@ -164,6 +163,20 @@ export const returnToView = (): CollectionThunkAction<void> => {
   };
 };
 
+export function createCollectionStoreMetadata(state: CollectionState) {
+  return {
+    ...state.metadata,
+    query: state.initialQuery,
+    aggregation: state.initialAggregation,
+    pipelineText: state.initialPipelineText,
+    editViewName: state.editViewName,
+  };
+}
+
+export type CollectionTabPluginMetadata = ReturnType<
+  typeof createCollectionStoreMetadata
+>;
+
 const setupRole = (
   roleName: string
 ): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
@@ -187,7 +200,7 @@ const setupRole = (
       } = role;
 
       const collectionStoreMetadata = {
-        ...getState().metadata,
+        ...createCollectionStoreMetadata(getState()),
         localAppRegistry,
         globalAppRegistry,
         dataProvider: {
@@ -196,10 +209,6 @@ const setupRole = (
           error: null,
           dataProvider: dataService,
         },
-        query: getState().initialQuery,
-        aggregation: getState().initialAggregation,
-        pipelineText: getState().initialPipelineText,
-        editViewName: getState().editViewName,
       };
 
       let actions;
