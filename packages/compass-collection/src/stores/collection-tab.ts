@@ -71,7 +71,6 @@ export function configureStore(options: CollectionTabOptions) {
   const store = createStore(
     reducer,
     {
-      localAppRegistry,
       metadata: {
         ...collectionMetadata,
         // NB: While it's technically possible for these values to change during
