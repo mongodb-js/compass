@@ -46,6 +46,15 @@ import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
+import {
+  openBulkDeleteFailureToast,
+  openBulkDeleteProgressToast,
+  openBulkDeleteSuccessToast,
+  openBulkUpdateFailureToast,
+  openBulkUpdateProgressToast,
+  openBulkUpdateSuccessToast,
+} from '../components/bulk-actions-toasts';
+
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -1235,37 +1244,20 @@ class CrudStoreImpl
       update,
     });
 
-    openToast('bulk-update-toast', {
-      title: '',
-      variant: 'progress',
-      dismissible: true,
-      timeout: null,
-      description: `${
-        this.state.bulkUpdate.affected || 0
-      } documents are being updated.`,
+    openBulkUpdateProgressToast({
+      affectedDocuments: this.state.bulkUpdate.affected || 0,
     });
 
     try {
       await this.dataService.updateMany(ns, filter, update);
 
-      openToast('bulk-update-toast', {
-        title: '',
-        variant: 'success',
-        dismissible: true,
-        timeout: 6_000,
-        description: `${
-          this.state.bulkUpdate.affected || 0
-        } documents have been updated.`,
+      openBulkUpdateSuccessToast({
+        affectedDocuments: this.state.bulkUpdate.affected || 0,
+        onRefresh: () => void this.refreshDocuments(),
       });
     } catch (err: any) {
-      openToast('bulk-update-toast', {
-        title: '',
-        variant: 'warning',
-        dismissible: true,
-        timeout: 6_000,
-        description: `${
-          this.state.bulkUpdate.affected || 0
-        } documents could not be updated.`,
+      openBulkUpdateFailureToast({
+        affectedDocuments: this.state.bulkUpdate.affected || 0,
       });
 
       log.error(
@@ -1845,26 +1837,14 @@ class CrudStoreImpl
       },
     });
 
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'progress',
-      dismissible: true,
-      timeout: null,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents are being deleted.`,
+    openBulkDeleteProgressToast({
+      affectedDocuments: this.state.bulkDelete.affected || 0,
     });
   }
 
   bulkDeleteFailed(ex: Error) {
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'warning',
-      dismissible: true,
-      timeout: 6_000,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents could not be deleted.`,
+    openBulkDeleteFailureToast({
+      affectedDocuments: this.state.bulkDelete.affected || 0,
     });
 
     log.error(
@@ -1876,14 +1856,9 @@ class CrudStoreImpl
   }
 
   bulkDeleteSuccess() {
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'success',
-      dismissible: true,
-      timeout: 6_000,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents have been deleted. Please refresh to preview.`,
+    openBulkDeleteSuccessToast({
+      affectedDocuments: this.state.bulkDelete.affected || 0,
+      onRefresh: () => void this.refreshDocuments(),
     });
   }
 
@@ -1902,10 +1877,12 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: `Delete ${affected || 0} documents`,
+      buttonText: `Delete ${affected || 0} document${
+        affected !== 1 ? 's' : ''
+      }`,
       description: `This action can not be undone. This will permanently delete ${
         affected || 0
-      } documents.`,
+      } document${affected !== 1 ? 's' : ''}.`,
       variant: 'danger',
     });
 

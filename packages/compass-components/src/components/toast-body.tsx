@@ -1,25 +1,26 @@
 import React from 'react';
-import { css, Link, spacing } from '@mongodb-js/compass-components';
+import { Link } from './leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+
+const toastBodyFlexStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+})
+
+const toastBodyTextStyles = css({
+  flexGrow: 1
+});
 
 const toastActionStyles = css({
   textTransform: 'uppercase',
-
-  // Show the link action always to the right of the text.
-  // We float it so that it does not constantly reposition when
-  // contents, like a count, changes often.
-  float: 'right',
-
-  // Override LeafyGreen toast button positioning styles.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  position: 'relative !important' as any,
+  flexGrow: 0,
+  alignSelf: "center",
 
   // Remove button styles.
   border: 'none',
   padding: 0,
   margin: 0,
   background: 'none',
-
-  marginLeft: spacing[2],
 });
 
 // TODO(COMPASS-6808): Once we update our `@leafygreen-ui/toast` we can use the
@@ -34,8 +35,8 @@ export function ToastBody({
   actionText: string;
 }) {
   return (
-    <>
-      <span>{statusMessage}</span>
+    <div className={toastBodyFlexStyles}>
+      <p className={toastBodyTextStyles}>{statusMessage}</p>
       {!!actionHandler && (
         <Link
           as="button"
@@ -47,6 +48,6 @@ export function ToastBody({
           {actionText}
         </Link>
       )}
-    </>
+    </div>
   );
 }
