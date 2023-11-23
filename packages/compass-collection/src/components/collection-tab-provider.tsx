@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 
 export interface CollectionTabPlugin {
@@ -11,8 +11,9 @@ const CollectionTabsContext = React.createContext<CollectionTabPlugin[]>([]);
 export const CollectionTabsProvider: React.FunctionComponent<{
   tabs: CollectionTabPlugin[];
 }> = ({ tabs, children }) => {
+  const tabsRef = useRef(tabs);
   return (
-    <CollectionTabsContext.Provider value={tabs}>
+    <CollectionTabsContext.Provider value={tabsRef.current}>
       {children}
     </CollectionTabsContext.Provider>
   );
