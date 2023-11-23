@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
-import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
+import HadronDocument from 'hadron-document';
+import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
@@ -66,7 +67,7 @@ export type StagePreviewFetchSkippedAction = {
 export type StagePreviewFetchSuccessAction = {
   type: StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 export type StagePreviewFetchErrorAction = {
@@ -83,7 +84,7 @@ export type StageRunAction = {
 export type StageRunSuccessAction = {
   type: StageEditorActionTypes.StageRunSuccess;
   id: number;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 export type StageRunErrorAction = {
@@ -282,7 +283,7 @@ export const loadStagePreview = (
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
         id: idx,
-        previewDocs,
+        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -294,6 +295,56 @@ export const loadStagePreview = (
         error: err as MongoServerError,
       });
     }
+  };
+};
+
+export const expandPreviewDocsForStage = (
+  stageIdx: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      inputDocuments: { documents: inputDocuments },
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    if (stageIdx === -1) {
+      inputDocuments.forEach((doc) => doc.expand());
+      return;
+    }
+
+    const stage = stages[stageIdx];
+    if (!stage || stage.type !== 'stage') {
+      return;
+    }
+
+    stage.previewDocs?.forEach((doc) => doc.expand());
+  };
+};
+
+export const collapsePreviewDocsForStage = (
+  stageIdx: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      inputDocuments: { documents: inputDocuments },
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    if (stageIdx === -1) {
+      inputDocuments.forEach((doc) => doc.collapse());
+      return;
+    }
+
+    const stage = stages[stageIdx];
+    if (!stage || stage.type !== 'stage') {
+      return;
+    }
+
+    stage.previewDocs?.forEach((doc) => doc.collapse());
   };
 };
 
@@ -362,7 +413,7 @@ export const runStage = (
       dispatch({
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
-        previewDocs: result,
+        previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
     } catch (error) {
@@ -846,7 +897,7 @@ export type StoreStage = {
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   loading: boolean;
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;

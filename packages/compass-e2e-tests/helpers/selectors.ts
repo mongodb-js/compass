@@ -520,6 +520,7 @@ export const ImportFileOption =
   '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
+export const DocumentExpandButton = '[data-testid="expand-document-button"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';
 export const SelectListView = '[data-testid="toolbar-view-list"]';
@@ -842,12 +843,18 @@ export const stageMoreOptions = (stageIndex: number): string => {
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+export const StagePreviewDocsExpand = `[data-testid="stage-option-menu-content"] [data-text="Expand documents"]`;
+export const StagePreviewDocsCollapse = `[data-testid="stage-option-menu-content"] [data-text="Collapse documents"]`;
 
 // Focus Mode
 export const FocusModeModal = '[data-testid="focus-mode-modal"]';
 export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
 export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
 export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
+export const focusModeOutputOptionBtn = (
+  location: 'stage-input' | 'stage-output'
+) =>
+  `${FocusModeModal} [data-testid="${location}"] [data-testid="pipeline-output-options-show-actions"]`;
 export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
 export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
 export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
@@ -882,6 +889,12 @@ export const AggregationAsTextPreviewMerge =
   '[data-testid="$merge-preview-banner"]';
 export const AggregationAsTextPreviewAtlasOperator =
   '[data-testid="stage-preview-missing-search-support"]';
+export const AggregationAsTextShowActionsBtn = `${AggregationAsTextPreview} [data-testid="pipeline-output-options-show-actions"]`;
+export const PipelineResultsShowActionsBtn = `[data-testid="pipeline-results-header"] [data-testid="pipeline-output-options-show-actions"]`;
+export const PipelineOutputOptionsMenu =
+  '[data-testid="pipeline-output-options"]';
+export const PipelineOutputOption = (optionText: 'expand' | 'collapse') =>
+  `${PipelineOutputOptionsMenu} [data-testid="pipeline-output-options-${optionText}-action"]`;
 
 // Aggregation Wizard
 export const AggregationSidePanelToggleButton =

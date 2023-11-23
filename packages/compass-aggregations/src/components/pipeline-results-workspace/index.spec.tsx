@@ -1,3 +1,4 @@
+import HadronDocument from 'hadron-document';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
@@ -16,7 +17,6 @@ const renderPipelineResultsWorkspace = (
       <PipelineResultsWorkspace
         documents={[]}
         isLoading={false}
-        allDocsExpanded={false}
         isError={false}
         isEmpty={false}
         isMergeOrOutPipeline={false}
@@ -45,7 +45,12 @@ describe('PipelineResultsWorkspace', function () {
   });
 
   it('renders documents', function () {
-    renderPipelineResultsWorkspace({ documents: [{ id: '1' }, { id: '2' }] });
+    renderPipelineResultsWorkspace({
+      documents: [
+        new HadronDocument({ id: '1' }),
+        new HadronDocument({ id: '2' }),
+      ],
+    });
     const container = screen.getByTestId('pipeline-results-workspace');
     expect(
       container.querySelectorAll('[data-testid="document-list-item"]')

@@ -68,17 +68,10 @@ const INITIAL_FIELD_LIMIT = 25;
 // https://jira.mongodb.org/browse/COMPASS-5614
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
-  expanded?: boolean;
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
-}> = ({
-  value: document,
-  expanded = false,
-  editable = false,
-  editing = false,
-  onEditStart,
-}) => {
+}> = ({ value: document, editable = false, editing = false, onEditStart }) => {
   const { elements } = useHadronDocument(document);
   const [visibleFieldsCount, setVisibleFieldsCount] =
     useState(INITIAL_FIELD_LIMIT);
@@ -111,7 +104,6 @@ const HadronDocument: React.FunctionComponent<{
                 value={el}
                 editable={editable}
                 editingEnabled={editing}
-                allExpanded={expanded}
                 onEditStart={
                   editable
                     ? (id, type) => {

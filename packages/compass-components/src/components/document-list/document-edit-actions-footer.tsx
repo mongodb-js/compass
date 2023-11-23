@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import type { default as HadronDocumentType } from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
@@ -68,7 +68,7 @@ const StatusMessages: Record<Status, string> = {
 };
 
 function useHadronDocumentStatus(
-  doc: HadronDocumentType,
+  doc: HadronDocument,
   editing: boolean,
   deleting: boolean
 ) {
@@ -252,7 +252,7 @@ function getColorStyles(
 }
 
 const EditActionsFooter: React.FunctionComponent<{
-  doc: HadronDocumentType;
+  doc: HadronDocument;
   editing: boolean;
   deleting: boolean;
   modified?: boolean;

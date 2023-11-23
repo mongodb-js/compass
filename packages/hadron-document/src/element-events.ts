@@ -9,4 +9,6 @@ export default {
   Converted: 'Element::Converted',
   Invalid: 'Element::Invalid',
   Valid: 'Element::Valid',
+  Expanded: 'Element::Expanded',
+  Collapsed: 'Element::Collapsed',
 } as const;
