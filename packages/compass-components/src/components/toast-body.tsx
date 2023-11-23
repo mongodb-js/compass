@@ -5,16 +5,16 @@ import { css } from '@leafygreen-ui/emotion';
 const toastBodyFlexStyles = css({
   display: 'flex',
   flexDirection: 'row',
-})
+});
 
 const toastBodyTextStyles = css({
-  flexGrow: 1
+  flexGrow: 1,
 });
 
 const toastActionStyles = css({
   textTransform: 'uppercase',
   flexGrow: 0,
-  alignSelf: "center",
+  alignSelf: 'center',
 
   // Remove button styles.
   border: 'none',
