@@ -32,7 +32,7 @@ export function ToastBody({
 }: {
   statusMessage: string;
   actionHandler?: () => void;
-  actionText: string;
+  actionText?: string;
 }) {
   return (
     <div className={toastBodyFlexStyles}>
@@ -40,7 +40,7 @@ export function ToastBody({
       {!!actionHandler && (
         <Link
           as="button"
-          data-testid={`toast-action-${actionText}`}
+          data-testid={`toast-action-${actionText ?? 'none'}`}
           onClick={actionHandler}
           hideExternalIcon
           className={toastActionStyles}

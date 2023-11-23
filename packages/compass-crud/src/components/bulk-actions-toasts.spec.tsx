@@ -17,7 +17,7 @@ function renderToastPortal() {
   return render(<ToastArea></ToastArea>);
 }
 
-describe.only('Bulk Action Toasts', function () {
+describe('Bulk Action Toasts', function () {
   beforeEach(function () {
     renderToastPortal();
   });
