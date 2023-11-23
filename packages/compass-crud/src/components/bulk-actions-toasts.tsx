@@ -59,8 +59,8 @@ export function openBulkDeleteFailureToast({
 }: BulkDeleteFailureToastProps): void {
   const text =
     affectedDocuments === 1
-      ? `${affectedDocuments} document could not be deleted.`
-      : `${affectedDocuments} documents could not be deleted.`;
+      ? `${affectedDocuments} document could not been deleted.`
+      : `${affectedDocuments} documents could not been deleted.`;
 
   openToast('bulk-delete-toast', {
     title: '',
@@ -129,8 +129,8 @@ export function openBulkUpdateFailureToast({
 }: BulkUpdateFailureToastProps): void {
   const text =
     affectedDocuments === 1
-      ? `${affectedDocuments} document could not be updated.`
-      : `${affectedDocuments} documents could not be updated.`;
+      ? `${affectedDocuments} document could not been updated.`
+      : `${affectedDocuments} documents could not been updated.`;
 
   openToast('bulk-update-toast', {
     title: '',
