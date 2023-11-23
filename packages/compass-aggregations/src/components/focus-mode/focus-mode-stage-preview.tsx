@@ -6,7 +6,7 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import type { default as HadronDocumentType } from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
@@ -77,12 +77,12 @@ const loaderStyles = css({
 type FocusModePreviewProps = {
   title: string;
   isLoading?: boolean;
-  documents?: HadronDocumentType[] | null;
+  documents?: HadronDocument[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
-  expandPreviewDocsForStage: (stageIdx: number) => void;
-  collapsePreviewDocsForStage: (stageIdx: number) => void;
+  onExpand: (stageIdx: number) => void;
+  onCollapse: (stageIdx: number) => void;
 };
 
 export const FocusModePreview = ({
@@ -92,10 +92,10 @@ export const FocusModePreview = ({
   stageIndex = -1,
   stageOperator = '',
   isMissingAtlasOnlyStageSupport = false,
-  expandPreviewDocsForStage,
-  collapsePreviewDocsForStage,
+  onExpand,
+  onCollapse,
 }: FocusModePreviewProps) => {
-  const copyToClipboard = useCallback((doc: HadronDocumentType) => {
+  const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
     void navigator.clipboard.writeText(str);
   }, []);
@@ -103,12 +103,12 @@ export const FocusModePreview = ({
   const handlePipelineOutputOptionChanged = useCallback(
     (option: PipelineOutputOption) => {
       if (option === 'expand') {
-        expandPreviewDocsForStage(stageIndex);
+        onExpand(stageIndex);
       } else if (option === 'collapse') {
-        collapsePreviewDocsForStage(stageIndex);
+        onCollapse(stageIndex);
       }
     },
-    [expandPreviewDocsForStage, collapsePreviewDocsForStage, stageIndex]
+    [onExpand, onCollapse, stageIndex]
   );
 
   const docCount = documents?.length ?? 0;
@@ -245,8 +245,8 @@ export const FocusModeStageInput = connect(
     };
   },
   {
-    expandPreviewDocsForStage,
-    collapsePreviewDocsForStage,
+    onExpand: expandPreviewDocsForStage,
+    onCollapse: collapsePreviewDocsForStage,
   }
 )(InputPreview);
 
@@ -277,7 +277,7 @@ export const FocusModeStageOutput = connect(
     };
   },
   {
-    expandPreviewDocsForStage,
-    collapsePreviewDocsForStage,
+    onExpand: expandPreviewDocsForStage,
+    onCollapse: collapsePreviewDocsForStage,
   }
 )(OutputPreview);

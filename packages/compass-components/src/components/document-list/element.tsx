@@ -390,9 +390,9 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
-  const toggleExpanded = useCallback(() => {
+  const toggleExpanded = () => {
     expanded ? collapse() : expand();
-  }, [expand, collapse, expanded]);
+  };
 
   const lineNumberMinWidth = useMemo(() => {
     // Only account for ~ line count length if we are in editing mode

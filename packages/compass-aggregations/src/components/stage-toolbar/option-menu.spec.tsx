@@ -11,8 +11,8 @@ describe('OptionMenu', function () {
         index={0}
         onAddStageClick={() => {}}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
       />
     );
     expect(screen.getByLabelText('More options')).to.exist;
@@ -23,8 +23,8 @@ describe('OptionMenu', function () {
         index={0}
         onAddStageClick={() => {}}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
       />
     );
     screen.getByLabelText('More options').click();
@@ -39,8 +39,8 @@ describe('OptionMenu', function () {
         index={1}
         onAddStageClick={onAddStageClick}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
       />
     );
     screen.getByLabelText('More options').click();
@@ -55,8 +55,8 @@ describe('OptionMenu', function () {
         index={1}
         onAddStageClick={onAddStageClick}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
       />
     );
     screen.getByLabelText('More options').click();
@@ -71,8 +71,8 @@ describe('OptionMenu', function () {
         index={0}
         onAddStageClick={() => {}}
         onDeleteStageClick={onDeleteStageClick}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
       />
     );
     screen.getByLabelText('More options').click();
@@ -87,8 +87,8 @@ describe('OptionMenu', function () {
         index={0}
         onAddStageClick={() => {}}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={expandPreviewDocsForStageSpy}
-        collapsePreviewDocsForStage={() => {}}
+        onExpand={expandPreviewDocsForStageSpy}
+        onCollapse={() => {}}
       />
     );
     screen.getByLabelText('More options').click();
@@ -103,8 +103,8 @@ describe('OptionMenu', function () {
         index={0}
         onAddStageClick={() => {}}
         onDeleteStageClick={() => {}}
-        expandPreviewDocsForStage={() => {}}
-        collapsePreviewDocsForStage={collapsePreviewDocsForStageSpy}
+        onExpand={() => {}}
+        onCollapse={collapsePreviewDocsForStageSpy}
       />
     );
     screen.getByLabelText('More options').click();

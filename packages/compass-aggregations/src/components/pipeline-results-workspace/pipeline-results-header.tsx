@@ -18,8 +18,8 @@ type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsViewType: ResultsViewType;
   isMergeOrOutPipeline: boolean;
-  expandPipelineResults: () => void;
-  collapsePipelineResults: () => void;
+  onExpand: () => void;
+  onCollapse: () => void;
 };
 
 const containerStyles = css({
@@ -45,18 +45,18 @@ export const PipelineResultsHeader: React.FunctionComponent<
   onChangeResultsView,
   resultsViewType,
   isMergeOrOutPipeline,
-  expandPipelineResults,
-  collapsePipelineResults,
+  onExpand,
+  onCollapse,
 }) => {
   const handlePipelineOutputOptionsMenuChange = useCallback(
     (option: PipelineOutputOption) => {
       if (option === 'expand') {
-        expandPipelineResults();
+        onExpand();
       } else if (option === 'collapse') {
-        collapsePipelineResults();
+        onCollapse();
       }
     },
-    [expandPipelineResults, collapsePipelineResults]
+    [onExpand, onCollapse]
   );
 
   if (isMergeOrOutPipeline) {
@@ -95,8 +95,8 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
   onChangeResultsView: changeViewType,
-  expandPipelineResults,
-  collapsePipelineResults,
+  onExpand: expandPipelineResults,
+  onCollapse: collapsePipelineResults,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsHeader);

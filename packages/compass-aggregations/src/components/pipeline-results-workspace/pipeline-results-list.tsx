@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { DocumentListView, DocumentJsonView } from '@mongodb-js/compass-crud';
-import type { default as HadronDocument } from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import { css, spacing } from '@mongodb-js/compass-components';
 
 export type ResultsViewType = 'document' | 'json';

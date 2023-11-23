@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { DocumentListView } from '@mongodb-js/compass-crud';
-import type { default as HadronDocument } from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
@@ -75,8 +75,8 @@ type PipelinePreviewProps = {
   atlasOperator: string;
   previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
-  expandPreviewDocs: () => void;
-  collapsePreviewDocs: () => void;
+  onExpand: () => void;
+  onCollapse: () => void;
 };
 
 const PreviewResults = ({
@@ -157,8 +157,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   previewDocs,
   atlasOperator,
   isPreviewStale,
-  expandPreviewDocs,
-  collapsePreviewDocs,
+  onExpand,
+  onCollapse,
 }) => {
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -168,12 +168,12 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   const handlePipelineOutputOptionChanged = useCallback(
     (option: PipelineOutputOption) => {
       if (option === 'expand') {
-        expandPreviewDocs();
+        onExpand();
       } else if (option === 'collapse') {
-        collapsePreviewDocs();
+        onCollapse();
       }
     },
-    [expandPreviewDocs, collapsePreviewDocs]
+    [onExpand, onCollapse]
   );
 
   return (
@@ -229,9 +229,7 @@ const mapState = (state: RootState) => {
   };
 };
 
-const mapDispatch = {
-  expandPreviewDocs,
-  collapsePreviewDocs,
-};
-
-export default connect(mapState, mapDispatch)(PipelinePreview);
+export default connect(mapState, {
+  onExpand: expandPreviewDocs,
+  onCollapse: collapsePreviewDocs,
+})(PipelinePreview);

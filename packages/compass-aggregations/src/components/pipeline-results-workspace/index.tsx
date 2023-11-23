@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { default as HadronDocument } from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import {
   css,
   cx,

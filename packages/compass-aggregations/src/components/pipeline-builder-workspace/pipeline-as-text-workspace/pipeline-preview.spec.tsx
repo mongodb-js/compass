@@ -24,8 +24,8 @@ const renderPipelineEditor = (
         previewDocs={null}
         isMissingAtlasSupport={false}
         atlasOperator=""
-        expandPreviewDocs={() => {}}
-        collapsePreviewDocs={() => {}}
+        onExpand={() => {}}
+        onCollapse={() => {}}
         {...props}
       />
     </Provider>
@@ -90,10 +90,10 @@ describe('PipelinePreview', function () {
     ];
     renderPipelineEditor({
       previewDocs,
-      expandPreviewDocs: () => {
+      onExpand: () => {
         previewDocs[0].expand();
       },
-      collapsePreviewDocs: () => {
+      onCollapse: () => {
         previewDocs[0].collapse();
       },
     });
