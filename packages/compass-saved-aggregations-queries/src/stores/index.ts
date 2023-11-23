@@ -26,7 +26,7 @@ type Storages = {
   queryStorage: FavoriteQueryStorage;
 };
 
-function configureStore({
+export function configureStore({
   globalAppRegistry,
   dataService,
   instance,

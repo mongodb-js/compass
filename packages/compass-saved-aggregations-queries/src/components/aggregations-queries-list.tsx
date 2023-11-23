@@ -69,7 +69,7 @@ const GridControls = () => {
   );
 };
 
-type AggregationsQueriesListProps = {
+export type AggregationsQueriesListProps = {
   loading: boolean;
   items: Item[];
   onMount(): void;
@@ -79,7 +79,7 @@ type AggregationsQueriesListProps = {
   onCopyToClipboard(id: string): void;
 };
 
-const AggregationsQueriesList = ({
+export const AggregationsQueriesList = ({
   loading,
   items,
   onMount,
@@ -99,6 +99,7 @@ const AggregationsQueriesList = ({
   } = useGridFilters(items);
 
   const filteredItems = useFilteredItems(items, filters, search)
+    .filter((e) => e.item.type !== 'updatemany')
     .sort((a, b) => {
       return a.score - b.score;
     })
