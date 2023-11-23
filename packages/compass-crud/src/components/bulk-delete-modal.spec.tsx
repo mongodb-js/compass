@@ -69,7 +69,9 @@ describe('BulkDeleteModal Component', function () {
 
   it('shows the provided query', function () {
     renderBulkDeleteModal({ filterQuery: '{ a: 1 }' });
-    expect(screen.queryByDisplayValue('{ a: 1 }')).to.be.visible;
+    expect(screen.getByTestId('readonly-filter').textContent).to.equal(
+      '{ a: 1 }'
+    );
   });
 
   it('closes the modal when cancelled', function () {

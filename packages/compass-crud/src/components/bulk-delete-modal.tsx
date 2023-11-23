@@ -10,6 +10,7 @@ import {
   css,
   cx,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
@@ -87,8 +88,14 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
     </div>
   );
 
+  const exportButtonId = useId();
   return (
-    <Modal setOpen={onCancel} open={open} data-testid="bulk-delete-modal">
+    <Modal
+      initialFocus={`#${exportButtonId}`}
+      setOpen={onCancel}
+      open={open}
+      data-testid="bulk-delete-modal"
+    >
       <ModalHeader
         title={`Delete ${documentCount ?? ''} document${
           documentCount === 1 ? '' : 's'
@@ -106,6 +113,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
             leftGlyph={<Icon glyph="Code" />}
             onClick={onExportToLanguage}
             data-testid="export-button"
+            id={exportButtonId}
           >
             Export
           </Button>
