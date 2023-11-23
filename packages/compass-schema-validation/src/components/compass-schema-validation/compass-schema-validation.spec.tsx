@@ -3,15 +3,15 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import CompassSchemaValidation from '.';
-import { createBareStore } from '../../stores/store';
+import { configureStore } from '../../stores/store';
 import { Provider } from 'react-redux';
 
 describe('CompassSchemaValidation [Component]', function () {
   let component: any;
-  let store: ReturnType<typeof createBareStore> | null;
+  let store: ReturnType<typeof configureStore> | null;
 
   beforeEach(function () {
-    store = createBareStore();
+    store = configureStore();
     component = mount(
       <Provider store={store}>
         <CompassSchemaValidation />

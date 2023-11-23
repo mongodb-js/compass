@@ -27,7 +27,7 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 const MIN_VERSION = '3.2.0';
 
 // Exposed for testing
-export function createBareStore(): Store<RootState, RootAction> {
+export function configureStore(): Store<RootState, RootAction> {
   return createStore(reducer, applyMiddleware(thunk));
 }
 
@@ -48,7 +48,7 @@ export function onActivated(
     instance: MongoDBInstance;
   }
 ) {
-  const store = createBareStore();
+  const store = configureStore();
   const cleanup: (() => void)[] = [];
   function on(
     eventEmitter: {

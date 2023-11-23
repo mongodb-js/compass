@@ -3,11 +3,11 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 import SampleDocuments from '.';
 import { Provider } from 'react-redux';
-import { createBareStore } from '../../stores/store';
+import { configureStore } from '../../stores/store';
 
 describe('SampleDocuments [Component]', function () {
   it('renders a valid and invalid document preview', function () {
-    const store = createBareStore();
+    const store = configureStore();
     const component = mount(
       <Provider store={store}>
         <SampleDocuments />

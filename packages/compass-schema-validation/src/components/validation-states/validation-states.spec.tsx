@@ -11,14 +11,14 @@ import { Provider } from 'react-redux';
 
 import ValidationStates from '.';
 import ValidationEditor from '../validation-editor';
-import { createBareStore } from '../../stores/store';
+import { configureStore } from '../../stores/store';
 
 describe('ValidationStates [Component]', function () {
   let props: any;
   let component: ReturnType<typeof mount>;
 
   const mountComponent = (props: any) => {
-    const store = createBareStore();
+    const store = configureStore();
     return mount(
       <Provider store={store}>
         <ValidationStates {...props} />
