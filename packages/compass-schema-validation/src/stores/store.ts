@@ -103,7 +103,7 @@ export function onActivated(
     store.dispatch(namespaceChanged(namespace));
   }
 
-  // XXX: Verify that this is the correct way of handling this now that tabs are loaded ad-hoc?
+  // Activate validation when this plugin is first rendered
   (store.dispatch as ThunkDispatch<RootState, unknown, RootAction>)(
     activateValidation()
   );
