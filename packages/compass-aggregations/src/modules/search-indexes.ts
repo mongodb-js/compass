@@ -1,5 +1,5 @@
-import type { AnyAction, Reducer } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
+import type { Reducer } from 'redux';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
@@ -32,6 +32,11 @@ type FetchIndexesFailedAction = {
   type: ActionTypes.FetchIndexesFailed;
 };
 
+export type SearchIndexesAction =
+  | FetchIndexesFailedAction
+  | FetchIndexesStartedAction
+  | FetchIndexesFinishedAction;
+
 type State = {
   isSearchIndexesSupported: boolean;
   indexes: SearchIndex[];
@@ -44,7 +49,7 @@ export const INITIAL_STATE: State = {
   status: SearchIndexesStatuses.INITIAL,
 };
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action: AnyAction) => {
+const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {
@@ -97,6 +102,9 @@ export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
     });
 
     try {
+      if (!dataService.getSearchIndexes) {
+        throw new Error('Cannot get search indexes in this environment');
+      }
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch({
         type: ActionTypes.FetchIndexesFinished,

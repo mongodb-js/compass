@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import reducer, { fetchIndexes, ActionTypes } from './search-indexes';
 import configureStore from '../../test/configure-store';
-import { DATA_SERVICE_CONNECTED } from './data-service';
 import sinon from 'sinon';
 
 describe('search-indexes module', function () {
@@ -10,7 +9,7 @@ describe('search-indexes module', function () {
       expect(
         reducer(undefined, {
           type: 'test',
-        })
+        } as any)
       ).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [],
@@ -32,7 +31,7 @@ describe('search-indexes module', function () {
       expect(
         reducer(undefined, {
           type: ActionTypes.FetchIndexesFinished,
-          indexes: [{ name: 'default' }, { name: 'vector_index' }],
+          indexes: [{ name: 'default' }, { name: 'vector_index' }] as any,
         })
       ).to.deep.equal({
         isSearchIndexesSupported: false,
@@ -53,17 +52,26 @@ describe('search-indexes module', function () {
     });
   });
   describe('#actions', function () {
+    let getSearchIndexesStub: sinon.SinonStub;
+    let sandbox: sinon.SinonSandbox;
     let store: ReturnType<typeof configureStore>;
     beforeEach(function () {
-      store = configureStore({
-        pipeline: [],
-        isSearchIndexesSupported: true,
-        namespace: 'test.listings',
-      });
+      sandbox = sinon.createSandbox();
+      getSearchIndexesStub = sandbox.stub();
+      store = configureStore(
+        {
+          pipeline: [],
+          isSearchIndexesSupported: true,
+          namespace: 'test.listings',
+        },
+        {
+          getSearchIndexes: getSearchIndexesStub,
+        } as any
+      );
     });
     context('fetchIndexes', function () {
       it('fetches search indexes and sets status to READY', async function () {
-        const spy = sinon.spy((ns: string) => {
+        getSearchIndexesStub.callsFake((ns: string) => {
           expect(ns).to.equal('test.listings');
           return Promise.resolve([
             { name: 'default' },
@@ -71,14 +79,7 @@ describe('search-indexes module', function () {
           ]);
         });
 
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            getSearchIndexes: spy,
-          },
-        });
-
-        await store.dispatch(fetchIndexes());
+        await store.dispatch(fetchIndexes() as any);
 
         expect(store.getState().searchIndexes).to.deep.equal({
           isSearchIndexesSupported: true,
@@ -93,41 +94,25 @@ describe('search-indexes module', function () {
           type: ActionTypes.FetchIndexesStarted,
         });
 
-        const spy = sinon.spy();
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            getSearchIndexes: spy,
-          },
-        });
+        await store.dispatch(fetchIndexes() as any);
+        await store.dispatch(fetchIndexes() as any);
+        await store.dispatch(fetchIndexes() as any);
 
-        await store.dispatch(fetchIndexes());
-        await store.dispatch(fetchIndexes());
-        await store.dispatch(fetchIndexes());
-
-        expect(spy.callCount).to.equal(0);
+        expect(getSearchIndexesStub.callCount).to.equal(0);
       });
 
       it('does not fetch indexes when status is READY', async function () {
         // Set the status to LOADING
         store.dispatch({
           type: ActionTypes.FetchIndexesFinished,
-          indexes: [{ name: 'default' }, { name: 'vector_index' }],
+          indexes: [{ name: 'default' }, { name: 'vector_index' }] as any,
         });
 
-        const spy = sinon.spy();
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            getSearchIndexes: spy,
-          },
-        });
+        await store.dispatch(fetchIndexes() as any);
+        await store.dispatch(fetchIndexes() as any);
+        await store.dispatch(fetchIndexes() as any);
 
-        await store.dispatch(fetchIndexes());
-        await store.dispatch(fetchIndexes());
-        await store.dispatch(fetchIndexes());
-
-        expect(spy.callCount).to.equal(0);
+        expect(getSearchIndexesStub.callCount).to.equal(0);
 
         expect(store.getState().searchIndexes).to.deep.equal({
           isSearchIndexesSupported: true,
@@ -137,19 +122,12 @@ describe('search-indexes module', function () {
       });
 
       it('sets ERROR status when fetching indexes fails', async function () {
-        const spy = sinon.spy((ns: string) => {
+        getSearchIndexesStub.callsFake((ns: string) => {
           expect(ns).to.equal('test.listings');
           return Promise.reject(new Error('Failed to fetch indexes'));
         });
 
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            getSearchIndexes: spy,
-          },
-        });
-
-        await store.dispatch(fetchIndexes());
+        await store.dispatch(fetchIndexes() as any);
 
         expect(store.getState().searchIndexes).to.deep.equal({
           isSearchIndexesSupported: true,
@@ -164,7 +142,7 @@ describe('search-indexes module', function () {
           type: ActionTypes.FetchIndexesFailed,
         });
 
-        const spy = sinon.spy((ns: string) => {
+        getSearchIndexesStub.callsFake((ns: string) => {
           expect(ns).to.equal('test.listings');
           return Promise.resolve([
             { name: 'default' },
@@ -172,14 +150,7 @@ describe('search-indexes module', function () {
           ]);
         });
 
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            getSearchIndexes: spy,
-          },
-        });
-
-        await store.dispatch(fetchIndexes());
+        await store.dispatch(fetchIndexes() as any);
 
         expect(store.getState().searchIndexes).to.deep.equal({
           isSearchIndexesSupported: true,

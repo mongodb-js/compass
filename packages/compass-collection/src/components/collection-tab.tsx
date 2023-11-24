@@ -81,6 +81,21 @@ const CollectionTab: React.FunctionComponent<{
       component: <Component {...collectionTabPluginMetadata} />,
     })),
   ];
+  // TODO(COMPASS-7404): While the legacy tabs and the provider-injected ones exist,
+  // we cannot just rely on the HadronRole ordering anymore
+  tabs.sort(
+    (
+      (order) =>
+      (a, b): number =>
+        order[a.name] - order[b.name]
+    )({
+      Documents: 0,
+      Aggregations: 1,
+      Schema: 2,
+      Indexes: 3,
+      Validation: 4,
+    } as Record<string, number>)
+  );
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   useEffect(() => {

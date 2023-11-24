@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { PipelineBuilderThunkAction } from '..';
+import type { PipelineBuilderThunkAction, RootAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
@@ -38,7 +38,12 @@ type OutputStageFetchFailedAction = {
   serverError: MongoServerError;
 };
 
-type OutputStageState = {
+export type OutputStageAction =
+  | OutputStageFetchStartedAction
+  | OutputStageFetchSuccededAction
+  | OutputStageFetchFailedAction;
+
+export type OutputStageState = {
   isLoading: boolean;
   serverError: MongoServerError | null;
   isComplete: boolean;
@@ -50,7 +55,10 @@ const INITIAL_STATE: OutputStageState = {
   serverError: null,
 };
 
-const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<OutputStageState, RootAction> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (
     isAction<EditorValueChangeAction>(
       action,
@@ -160,7 +168,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
         type: OutputStageActionTypes.FetchSucceded,
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
-    } catch (error) {
+    } catch (error: any) {
       dispatch({
         type: OutputStageActionTypes.FetchFailed,
         serverError: error,

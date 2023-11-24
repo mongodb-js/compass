@@ -4,17 +4,25 @@ import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
 
 export const TOGGLE_IS_RUNNING =
-  'aggregations/create-view/is-running/TOGGLE_IS_RUNNING';
+  'aggregations/create-view/is-running/TOGGLE_IS_RUNNING' as const;
+interface ToggleIsRunningAction {
+  type: typeof TOGGLE_IS_RUNNING;
+  isRunning: boolean;
+}
 
-export const toggleIsRunning = (isRunning: boolean) => ({
+export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
   type: TOGGLE_IS_RUNNING,
   isRunning: isRunning,
 });
 
 export const TOGGLE_IS_VISIBLE =
-  'aggregations/create-view/is-visible/TOGGLE_IS_VISIBLE';
+  'aggregations/create-view/is-visible/TOGGLE_IS_VISIBLE' as const;
+interface ToggleIsVisibleAction {
+  type: typeof TOGGLE_IS_VISIBLE;
+  isVisible: boolean;
+}
 
-export const toggleIsVisible = (isVisible: boolean) => ({
+export const toggleIsVisible = (isVisible: boolean): ToggleIsVisibleAction => ({
   type: TOGGLE_IS_VISIBLE,
   isVisible: isVisible,
 });
@@ -22,41 +30,73 @@ export const toggleIsVisible = (isVisible: boolean) => ({
 /**
  * Handle error action name.
  */
-export const HANDLE_ERROR = `aggregations/create-view/error/HANDLE_ERROR`;
+export const HANDLE_ERROR =
+  `aggregations/create-view/error/HANDLE_ERROR` as const;
+interface HandleErrorAction {
+  type: typeof HANDLE_ERROR;
+  error: Error;
+}
 
 /**
  * Handle error action creator.
  */
-export const handleError = (error: Error) => ({
+export const handleError = (error: Error): HandleErrorAction => ({
   type: HANDLE_ERROR,
   error: error,
 });
 
-export const CLEAR_ERROR = `aggregations/create-view/error/CLEAR_ERROR`;
+export const CLEAR_ERROR =
+  `aggregations/create-view/error/CLEAR_ERROR` as const;
+interface ClearErrorAction {
+  type: typeof CLEAR_ERROR;
+}
 
-export const clearError = () => ({
+export const clearError = (): ClearErrorAction => ({
   type: CLEAR_ERROR,
 });
 
-export const CHANGE_VIEW_NAME = 'aggregations/create-view/name/CHANGE_NAME';
+export const CHANGE_VIEW_NAME =
+  'aggregations/create-view/name/CHANGE_NAME' as const;
+interface ChangeViewNameAction {
+  type: typeof CHANGE_VIEW_NAME;
+  name: string;
+}
 
-export const changeViewName = (name: string) => ({
+export const changeViewName = (name: string): ChangeViewNameAction => ({
   type: CHANGE_VIEW_NAME,
   name: name,
 });
 
-export const RESET = 'aggregations/create-view/reset';
+export const RESET = 'aggregations/create-view/reset' as const;
+interface ResetAction {
+  type: typeof RESET;
+}
 
-export const reset = () => ({
+export const reset = (): ResetAction => ({
   type: RESET,
 });
 
 /**
  * Open action name.
  */
-const OPEN = 'aggregations/create-view/OPEN';
+const OPEN = 'aggregations/create-view/OPEN' as const;
+interface OpenAction {
+  type: typeof OPEN;
+  source: string;
+  pipeline: unknown[];
+  duplicate: boolean;
+}
 
-type CreateViewState = {
+export type CreateViewAction =
+  | ToggleIsRunningAction
+  | ToggleIsVisibleAction
+  | HandleErrorAction
+  | ClearErrorAction
+  | ChangeViewNameAction
+  | ResetAction
+  | OpenAction;
+
+export type CreateViewState = {
   isRunning: boolean;
   isVisible: boolean;
   isDuplicating: boolean;
@@ -66,7 +106,7 @@ type CreateViewState = {
   pipeline: unknown[];
 };
 
-export const INITIAL_STATE = {
+export const INITIAL_STATE: CreateViewState = {
   isRunning: false,
   isVisible: false,
   isDuplicating: false,
@@ -79,7 +119,10 @@ export const INITIAL_STATE = {
 /**
  * The main reducer.
  */
-const reducer: Reducer<CreateViewState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<CreateViewState, CreateViewAction> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (action.type === RESET) {
     return { ...INITIAL_STATE };
   }
@@ -145,7 +188,7 @@ export const open = (
   sourceNs: string,
   sourcePipeline: unknown[],
   duplicate: boolean
-) => ({
+): OpenAction => ({
   type: OPEN,
   source: sourceNs,
   pipeline: sourcePipeline,

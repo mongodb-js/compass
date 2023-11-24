@@ -1,7 +1,7 @@
-import type { AnyAction, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
+import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
@@ -104,7 +104,7 @@ export const INITIAL_STATE: State = {
   resultsViewType: 'document',
 };
 
-const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
     case ConfirmNewPipelineActions.NewPipelineConfirmed:

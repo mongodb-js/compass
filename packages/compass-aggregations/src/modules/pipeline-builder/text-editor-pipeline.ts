@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '..';
+import type { PipelineBuilderThunkAction, RootAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
@@ -55,6 +55,13 @@ type EditorPreviewFetchErrorAction = {
   serverError: MongoServerError;
 };
 
+export type TextEditorAction =
+  | EditorPreviewFetchAction
+  | EditorPreviewFetchErrorAction
+  | EditorPreviewFetchSuccessAction
+  | EditorPreviewFetchSkippedAction
+  | EditorValueChangeAction;
+
 export type TextEditorState = {
   pipelineText: string;
   pipeline: Document[];
@@ -75,7 +82,10 @@ const INITIAL_STATE: TextEditorState = {
   isPreviewStale: false,
 };
 
-const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<TextEditorState, RootAction> = (
+  state = INITIAL_STATE,
+  action
+) => {
   // NB: Anything that this action handling reacts to should probably be also
   // accounted for in text-editor-output-stage slice. If you are changing this
   // code, don't forget to change the other reducer
@@ -186,7 +196,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
 };
 
 export function canRunPipeline(
-  autoPreview: boolean,
+  autoPreview: boolean | undefined,
   syntaxErrors: PipelineParserError[]
 ) {
   return autoPreview && syntaxErrors.length === 0;
@@ -243,7 +253,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count,
+        totalDocumentCount: inputDocuments.count ?? undefined,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(

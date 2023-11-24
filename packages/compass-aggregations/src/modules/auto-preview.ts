@@ -1,5 +1,4 @@
-import type { AnyAction } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { RESTORE_PIPELINE } from './saved-pipeline';
@@ -12,13 +11,15 @@ export type AutoPreviewToggledAction = {
   type: ActionTypes.AutoPreviewToggled;
   value: boolean;
 };
+export type AutoPreviewAction = AutoPreviewToggledAction;
+export type AutoPreviewState = boolean | undefined;
 
-export const INITIAL_STATE = true;
+export const INITIAL_STATE: AutoPreviewState = true;
 
 export default function reducer(
-  state = INITIAL_STATE,
-  action: AnyAction
-): boolean {
+  state: AutoPreviewState = INITIAL_STATE,
+  action: RootAction
+): AutoPreviewState {
   if (action.type === ActionTypes.AutoPreviewToggled) {
     return action.value;
   }

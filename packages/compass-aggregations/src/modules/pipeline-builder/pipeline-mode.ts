@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { Document } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '..';
+import type { PipelineBuilderThunkAction, RootAction } from '..';
 import { isAction } from '../../utils/is-action';
 import {
   getPipelineFromBuilderState,
@@ -34,11 +34,15 @@ export type PipelineModeToggledAction = {
   stages: Stage[];
 };
 
-type State = PipelineMode;
+export type PipelineModeState = PipelineMode;
+export type PipelineModeAction = PipelineModeToggledAction;
 
-export const INITIAL_STATE: State = 'builder-ui';
+export const INITIAL_STATE: PipelineModeState = 'builder-ui';
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<PipelineModeState, RootAction> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (
     isAction<PipelineModeToggledAction>(action, ActionTypes.PipelineModeToggled)
   ) {

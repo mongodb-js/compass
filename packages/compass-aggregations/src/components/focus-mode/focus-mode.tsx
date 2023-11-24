@@ -80,15 +80,13 @@ const editorAreaExpanded = css({
 
 type FocusModeProps = {
   isModalOpen: boolean;
-  isAutoPreviewEnabled: boolean;
+  isAutoPreviewEnabled: boolean | undefined;
   onCloseModal: () => void;
 };
 
 const FocusModeContent = ({
   isAutoPreviewEnabled,
-}: {
-  isAutoPreviewEnabled: boolean;
-}) => {
+}: Pick<FocusModeProps, 'isAutoPreviewEnabled'>) => {
   const darkMode = useDarkMode();
   if (!isAutoPreviewEnabled) {
     return (

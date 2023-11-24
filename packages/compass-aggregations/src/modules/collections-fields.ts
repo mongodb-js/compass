@@ -1,6 +1,5 @@
-import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
@@ -37,6 +36,11 @@ type CollectionDataUpdatedAction = {
   data: CollectionData;
 };
 
+export type CollectionFieldsAction =
+  | CollectionsFetchedAction
+  | CollectionFieldsFetchedAction
+  | CollectionDataUpdatedAction;
+
 export type CollectionData = {
   isLoading: boolean;
   type: CollectionType;
@@ -50,7 +54,7 @@ export const INITIAL_STATE: State = {};
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: AnyAction
+  action: RootAction
 ): State {
   if (
     isAction<CollectionsFetchedAction>(action, ActionTypes.CollectionsFetch)
@@ -157,6 +161,11 @@ export const fetchCollectionFields = (
     });
 
     try {
+      if (!dataService.find || !dataService.sample) {
+        throw new Error(
+          'Collection schema sampling not available in this context'
+        );
+      }
       const { database } = toNS(namespace);
       const namespaceToQuery = `${database}.${collection}`;
 

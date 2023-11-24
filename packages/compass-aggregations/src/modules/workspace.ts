@@ -1,9 +1,9 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 import {
   ActionTypes as AggregationActionTypes,
   cancelAggregation,
 } from './aggregation';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { cancelCount } from './count-documents';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 
@@ -23,7 +23,7 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.WorkspaceChanged:
       return action.view;

@@ -1,19 +1,21 @@
 import type { CollationOptions } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
-import type { AnyAction } from 'redux';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import type { RootAction } from '.';
 
 /**
  * Collation string changed action.
  */
 export const COLLATION_STRING_CHANGED =
-  'aggregations/collation/COLLATION_STRING_CHANGED';
+  'aggregations/collation/COLLATION_STRING_CHANGED' as const;
 
 export type CollationStringChangedAction = {
   type: typeof COLLATION_STRING_CHANGED;
   value: string;
 };
+
+export type CollationStringAction = CollationStringChangedAction;
 
 export type CollationStringState = {
   text: string;
@@ -46,19 +48,17 @@ export function getCollationStateFromString(
  */
 export default function reducer(
   state: CollationStringState = INITIAL_STATE,
-  action: AnyAction
+  action: RootAction
 ): CollationStringState {
   if (action.type === COLLATION_STRING_CHANGED) {
-    return getCollationStateFromString(action.value as string);
+    return getCollationStateFromString(action.value);
   }
   if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return { ...INITIAL_STATE };
   }
   if (action.type === RESTORE_PIPELINE) {
     if (action.storedOptions.collationString) {
-      return getCollationStateFromString(
-        action.storedOptions.collationString as string
-      );
+      return getCollationStateFromString(action.storedOptions.collationString);
     }
     return state;
   }

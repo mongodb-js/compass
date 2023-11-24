@@ -3,18 +3,23 @@ import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { cancellableWait } from '@mongodb-js/compass-utils';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { getStageOperator, isOutputStage } from '../utils/stage';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
-  'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS';
+  'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;
+interface FetchExplainPlanSuccessAction {
+  type: typeof FETCH_EXPLAIN_PLAN_SUCCESS;
+  explainPlan: ExplainPlan;
+}
+export type InsightsAction = FetchExplainPlanSuccessAction;
 
 const INITIAL_STATE = { isCollectionScan: false };
 
-const reducer: Reducer<{ isCollectionScan: boolean }> = (
+const reducer: Reducer<{ isCollectionScan: boolean }, RootAction> = (
   state = INITIAL_STATE,
   action
 ) => {

@@ -1,6 +1,6 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction, RootAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
@@ -42,7 +42,7 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
     case ConfirmNewPipelineActions.NewPipelineConfirmed:
