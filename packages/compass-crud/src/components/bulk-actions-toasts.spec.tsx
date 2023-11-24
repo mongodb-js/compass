@@ -31,6 +31,11 @@ describe('Bulk Action Toasts', function () {
       const USE_CASES = [
         {
           modal: openBulkDeleteSuccessToast,
+          affected: undefined,
+          expected: 'The delete operation finished successfully.',
+        },
+        {
+          modal: openBulkDeleteSuccessToast,
           affected: 1,
           expected: '1 document has been deleted.',
         },
@@ -41,6 +46,11 @@ describe('Bulk Action Toasts', function () {
         },
         {
           modal: openBulkDeleteProgressToast,
+          affected: undefined,
+          expected: 'The delete operation is in progress.',
+        },
+        {
+          modal: openBulkDeleteProgressToast,
           affected: 1,
           expected: '1 document is being deleted.',
         },
@@ -48,6 +58,11 @@ describe('Bulk Action Toasts', function () {
           modal: openBulkDeleteProgressToast,
           affected: 2,
           expected: '2 documents are being deleted.',
+        },
+        {
+          modal: openBulkDeleteFailureToast,
+          affected: undefined,
+          expected: 'The delete operation failed.',
         },
         {
           modal: openBulkDeleteFailureToast,
@@ -62,7 +77,7 @@ describe('Bulk Action Toasts', function () {
       ];
 
       for (const useCase of USE_CASES) {
-        it(`${useCase.modal.name} shows the text '${useCase.expected}' when ${useCase.affected} document/s affected`, async function () {
+        it(`${useCase.modal.name} shows the text '${useCase.expected}' when affected document/s is/are '${useCase.affected}'`, async function () {
           useCase.modal({
             affectedDocuments: useCase.affected,
             onRefresh: () => {},
@@ -104,6 +119,11 @@ describe('Bulk Action Toasts', function () {
       const USE_CASES = [
         {
           modal: openBulkUpdateSuccessToast,
+          affected: undefined,
+          expected: 'The update operation finished successfully.',
+        },
+        {
+          modal: openBulkUpdateSuccessToast,
           affected: 1,
           expected: '1 document has been updated.',
         },
@@ -114,6 +134,11 @@ describe('Bulk Action Toasts', function () {
         },
         {
           modal: openBulkUpdateProgressToast,
+          affected: undefined,
+          expected: 'The update operation is in progress.',
+        },
+        {
+          modal: openBulkUpdateProgressToast,
           affected: 1,
           expected: '1 document is being updated.',
         },
@@ -121,6 +146,11 @@ describe('Bulk Action Toasts', function () {
           modal: openBulkUpdateProgressToast,
           affected: 2,
           expected: '2 documents are being updated.',
+        },
+        {
+          modal: openBulkUpdateFailureToast,
+          affected: undefined,
+          expected: 'The update operation failed.',
         },
         {
           modal: openBulkUpdateFailureToast,

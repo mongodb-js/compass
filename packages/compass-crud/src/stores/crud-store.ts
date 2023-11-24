@@ -1245,19 +1245,19 @@ class CrudStoreImpl
     });
 
     openBulkUpdateProgressToast({
-      affectedDocuments: this.state.bulkUpdate.affected || 0,
+      affectedDocuments: this.state.bulkUpdate.affected,
     });
 
     try {
       await this.dataService.updateMany(ns, filter, update);
 
       openBulkUpdateSuccessToast({
-        affectedDocuments: this.state.bulkUpdate.affected || 0,
+        affectedDocuments: this.state.bulkUpdate.affected,
         onRefresh: () => void this.refreshDocuments(),
       });
     } catch (err: any) {
       openBulkUpdateFailureToast({
-        affectedDocuments: this.state.bulkUpdate.affected || 0,
+        affectedDocuments: this.state.bulkUpdate.affected,
       });
 
       log.error(
@@ -1838,13 +1838,13 @@ class CrudStoreImpl
     });
 
     openBulkDeleteProgressToast({
-      affectedDocuments: this.state.bulkDelete.affected || 0,
+      affectedDocuments: this.state.bulkDelete.affected,
     });
   }
 
   bulkDeleteFailed(ex: Error) {
     openBulkDeleteFailureToast({
-      affectedDocuments: this.state.bulkDelete.affected || 0,
+      affectedDocuments: this.state.bulkDelete.affected,
     });
 
     log.error(
@@ -1857,7 +1857,7 @@ class CrudStoreImpl
 
   bulkDeleteSuccess() {
     openBulkDeleteSuccessToast({
-      affectedDocuments: this.state.bulkDelete.affected || 0,
+      affectedDocuments: this.state.bulkDelete.affected,
       onRefresh: () => void this.refreshDocuments(),
     });
   }

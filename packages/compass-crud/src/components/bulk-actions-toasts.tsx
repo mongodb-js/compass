@@ -2,7 +2,7 @@ import React from 'react';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
 
 type BulkDeleteSuccessToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
   onRefresh: () => void;
 };
 
@@ -10,10 +10,17 @@ export function openBulkDeleteSuccessToast({
   affectedDocuments,
   onRefresh,
 }: BulkDeleteSuccessToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document has been deleted.`
-      : `${affectedDocuments} documents have been deleted.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The delete operation finished successfully.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document has been deleted.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents have been deleted.`;
+  }
 
   openToast('bulk-delete-toast', {
     title: '',
@@ -31,16 +38,23 @@ export function openBulkDeleteSuccessToast({
 }
 
 type BulkDeleteInProgressToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
 };
 
 export function openBulkDeleteProgressToast({
   affectedDocuments,
 }: BulkDeleteInProgressToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document is being deleted.`
-      : `${affectedDocuments} documents are being deleted.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The delete operation is in progress.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document is being deleted.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents are being deleted.`;
+  }
 
   openToast('bulk-delete-toast', {
     title: '',
@@ -51,16 +65,23 @@ export function openBulkDeleteProgressToast({
 }
 
 type BulkDeleteFailureToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
 };
 
 export function openBulkDeleteFailureToast({
   affectedDocuments,
 }: BulkDeleteFailureToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document could not been deleted.`
-      : `${affectedDocuments} documents could not been deleted.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The delete operation failed.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document could not been deleted.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents could not been deleted.`;
+  }
 
   openToast('bulk-delete-toast', {
     title: '',
@@ -72,7 +93,7 @@ export function openBulkDeleteFailureToast({
 }
 
 type BulkUpdateSuccessToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
   onRefresh: () => void;
 };
 
@@ -80,10 +101,17 @@ export function openBulkUpdateSuccessToast({
   affectedDocuments,
   onRefresh,
 }: BulkUpdateSuccessToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document has been updated.`
-      : `${affectedDocuments} documents have been updated.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The update operation finished successfully.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document has been updated.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents have been updated.`;
+  }
 
   openToast('bulk-update-toast', {
     title: '',
@@ -101,16 +129,23 @@ export function openBulkUpdateSuccessToast({
 }
 
 type BulkUpdateInProgressToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
 };
 
 export function openBulkUpdateProgressToast({
   affectedDocuments,
 }: BulkUpdateInProgressToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document is being updated.`
-      : `${affectedDocuments} documents are being updated.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The update operation is in progress.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document is being updated.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents are being updated.`;
+  }
 
   openToast('bulk-update-toast', {
     title: '',
@@ -121,16 +156,23 @@ export function openBulkUpdateProgressToast({
 }
 
 type BulkUpdateFailureToastProps = {
-  affectedDocuments: number;
+  affectedDocuments?: number;
 };
 
 export function openBulkUpdateFailureToast({
   affectedDocuments,
 }: BulkUpdateFailureToastProps): void {
-  const text =
-    affectedDocuments === 1
-      ? `${affectedDocuments} document could not been updated.`
-      : `${affectedDocuments} documents could not been updated.`;
+  let text;
+  switch (affectedDocuments) {
+    case undefined:
+      text = 'The update operation failed.';
+      break;
+    case 1:
+      text = `${affectedDocuments} document could not been updated.`;
+      break;
+    default:
+      text = `${affectedDocuments} documents could not been updated.`;
+  }
 
   openToast('bulk-update-toast', {
     title: '',
