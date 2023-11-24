@@ -23,6 +23,7 @@ import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -123,6 +124,25 @@ function Connections({
     []
   );
 
+  const preferences = {
+    protectConnectionStrings: usePreference('protectConnectionStrings', React),
+    forceConnectionOptions: usePreference('forceConnectionOptions', React),
+    showKerberosPasswordField: usePreference(
+      'showKerberosPasswordField',
+      React
+    ),
+    showOIDCDeviceAuthFlow: usePreference('showOIDCDeviceAuthFlow', React),
+    enableOidc: usePreference('enableOidc', React),
+    enableDebugUseCsfleSchemaMap: usePreference(
+      'enableDebugUseCsfleSchemaMap',
+      React
+    ),
+    protectConnectionStringsForNewConnections: usePreference(
+      'protectConnectionStringsForNewConnections',
+      React
+    ),
+  };
+
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
@@ -166,6 +186,7 @@ function Connections({
               onSaveConnectionClicked={saveConnection}
               initialConnectionInfo={activeConnectionInfo}
               connectionErrorMessage={connectionErrorMessage}
+              preferences={preferences}
             />
           </ErrorBoundary>
           <FormHelp />
