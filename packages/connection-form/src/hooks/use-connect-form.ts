@@ -695,6 +695,7 @@ export function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
   defaultAppName,
   notifyDeviceFlow,
+  preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
   defaultAppName?: string;
@@ -702,14 +703,21 @@ export function adjustConnectionOptionsBeforeConnect({
     verificationUrl: string;
     userCode: string;
   }) => void;
+  preferences: {
+    browserCommandForOIDCAuth?: string;
+    forceConnectionOptions: [string, string][];
+  };
 }): ConnectionOptions {
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
-    adjustOIDCConnectionOptionsBeforeConnect(notifyDeviceFlow),
-    applyForceConnectionOptions,
+    adjustOIDCConnectionOptionsBeforeConnect(
+      preferences.browserCommandForOIDCAuth,
+      notifyDeviceFlow
+    ),
+    applyForceConnectionOptions(preferences.forceConnectionOptions),
   ];
   for (const transformer of transformers) {
     connectionOptions = transformer(connectionOptions);
