@@ -60,7 +60,7 @@ const reducer = (
     return {
       ...state,
       count: action.count,
-      documents: action.documents as HadronDocument[],
+      documents: action.documents,
       error: action.error,
       isLoading: false,
     };

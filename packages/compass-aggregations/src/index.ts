@@ -1,9 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { AggregationsPlugin } from './plugin';
-import {
-  activateAggregationsPlugin,
-  type ConfigureStoreOptions,
-} from './stores/store';
+import { activateAggregationsPlugin } from './stores/store';
 import { Aggregations } from './components/aggregations';
 import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
