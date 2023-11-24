@@ -32,6 +32,7 @@ import Document from './document';
 import type { BSONObject } from '../stores/crud-store';
 
 import { ReadonlyFilter } from './readonly-filter';
+import { DocumentIcon } from '@mongodb-js/compass-components';
 
 const columnsStyles = css({
   marginTop: spacing[4],
@@ -225,6 +226,84 @@ const InlineSaveQueryModal: React.FunctionComponent<
   );
 };
 
+const previewZeroStateIconStyles = css({
+  margin: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[2],
+  alignItems: 'center',
+});
+
+const previewNoResultsLabel = css({
+  color: palette.green.dark2,
+});
+
+const previewZeroStateDescriptionStyles = css({
+  textAlign: 'center',
+  margin: 0,
+});
+
+export type BulkUpdatePreviewProps = {
+  count?: number;
+  preview: UpdatePreview;
+  loading: boolean;
+};
+
+const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
+  count,
+  preview,
+}) => {
+  const previewDocuments = useMemo(() => {
+    return preview.changes.map(
+      (change) => new HadronDocument(change.after as Record<string, unknown>)
+    );
+  }, [preview]);
+
+  if (count === undefined || count === 0) {
+    return (
+      <div className={updatePreviewStyles}>
+        <Label htmlFor="bulk-update-preview">
+          Preview{' '}
+          <Description className={previewDescriptionStyles}>
+            (sample of {preview.changes.length} document
+            {preview.changes.length === 1 ? '' : 's'})
+          </Description>
+        </Label>
+        <div className={previewZeroStateIconStyles}>
+          <DocumentIcon size={spacing[4] * 2} />
+          <b className={previewNoResultsLabel}>No results</b>
+          <p className={previewZeroStateDescriptionStyles}>
+            Try modifying your query to get results.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={previewStyles}>
+      <Label htmlFor="bulk-update-preview">
+        Preview{' '}
+        <Description className={previewDescriptionStyles}>
+          (sample of {preview.changes.length} document
+          {preview.changes.length === 1 ? '' : 's'})
+        </Description>
+      </Label>
+      <div className={updatePreviewStyles}>
+        {previewDocuments.map((doc: HadronDocument, index: number) => {
+          return (
+            <UpdatePreviewDocument
+              key={`change=${index}`}
+              data-testid="bulk-update-preview-document"
+              doc={doc}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export type BulkUpdateDialogProps = {
   isOpen: boolean;
   ns: string;
@@ -260,12 +339,6 @@ export default function BulkUpdateDialog({
 
   const [text, setText] = useState(updateText);
   const wasOpen = usePrevious(isOpen);
-
-  const previewDocuments = useMemo(() => {
-    return preview.changes.map(
-      (change) => new HadronDocument(change.after as Record<string, unknown>)
-    );
-  }, [preview]);
 
   const onChangeText = (value: string) => {
     setText(value);
@@ -376,26 +449,7 @@ export default function BulkUpdateDialog({
             </div>
           </div>
           {enablePreview && (
-            <div className={previewStyles}>
-              <Label htmlFor="bulk-update-preview">
-                Preview{' '}
-                <Description className={previewDescriptionStyles}>
-                  (sample of {preview.changes.length} document
-                  {preview.changes.length === 1 ? '' : 's'})
-                </Description>
-              </Label>
-              <div className={updatePreviewStyles}>
-                {previewDocuments.map((doc: HadronDocument, index: number) => {
-                  return (
-                    <UpdatePreviewDocument
-                      key={`change=${index}`}
-                      data-testid="bulk-update-preview-document"
-                      doc={doc}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+            <BulkUpdatePreview count={count} preview={preview} />
           )}
         </div>
       </ModalBody>
