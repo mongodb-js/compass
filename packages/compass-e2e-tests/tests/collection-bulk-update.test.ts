@@ -45,7 +45,10 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkUpdateTitle).getText()).to.equal(
@@ -166,7 +169,10 @@ describe('Bulk Update', () => {
     // The modal should open
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.equal('{ i: { $gt: 5 } }');
 
     // Check that the modal starts with the expected update text
     expect(await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)).to

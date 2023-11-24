@@ -45,6 +45,11 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
+    ).to.equal('{ i: 5 }');
+
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
