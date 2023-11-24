@@ -237,10 +237,11 @@ const previewZeroStateIconStyles = css({
 });
 
 const previewLoadingStyles = css({
-  marginTop: spacing[7],
+  margin: 'auto',
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[2],
+  alignItems: 'center',
 });
 
 const previewNoResultsLabel = css({
@@ -269,34 +270,34 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
     );
   }, [preview]);
 
-  let children;
   if (loading) {
-    children = (
+    return (
       <div className={previewLoadingStyles}>
         <SpinLoader />
         <Body>Preview documents are being loaded.</Body>
       </div>
     );
-  } else if (!loading && (count === undefined || count === 0)) {
-    children = (
-      <div className={previewZeroStateIconStyles}>
-        <DocumentIcon size={spacing[4] * 2} />
-        <b className={previewNoResultsLabel}>No results</b>
-        <p className={previewZeroStateDescriptionStyles}>
-          Try modifying your query to get results.
-        </p>
+  }
+
+  if (count === undefined || count === 0) {
+    return (
+      <div className={updatePreviewStyles}>
+        <Label htmlFor="bulk-update-preview">
+          Preview{' '}
+          <Description className={previewDescriptionStyles}>
+            (sample of {preview.changes.length} document
+            {preview.changes.length === 1 ? '' : 's'})
+          </Description>
+        </Label>
+        <div className={previewZeroStateIconStyles}>
+          <DocumentIcon size={spacing[4] * 2} />
+          <b className={previewNoResultsLabel}>No results</b>
+          <p className={previewZeroStateDescriptionStyles}>
+            Try modifying your query to get results.
+          </p>
+        </div>
       </div>
     );
-  } else if (!loading) {
-    children = previewDocuments.map((doc: HadronDocument, index: number) => {
-      return (
-        <UpdatePreviewDocument
-          key={`change=${index}`}
-          data-testid="bulk-update-preview-document"
-          doc={doc}
-        />
-      );
-    });
   }
 
   return (
@@ -308,7 +309,17 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
           {preview.changes.length === 1 ? '' : 's'})
         </Description>
       </Label>
-      <div className={updatePreviewStyles}>{children}</div>
+      <div className={updatePreviewStyles}>
+        {previewDocuments.map((doc: HadronDocument, index: number) => {
+          return (
+            <UpdatePreviewDocument
+              key={`change=${index}`}
+              data-testid="bulk-update-preview-document"
+              doc={doc}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
