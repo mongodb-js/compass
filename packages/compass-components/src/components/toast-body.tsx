@@ -23,8 +23,6 @@ const toastActionStyles = css({
   background: 'none',
 });
 
-// TODO(COMPASS-6808): Once we update our `@leafygreen-ui/toast` we can use the
-// provided action interface and remove this.
 export function ToastBody({
   statusMessage,
   actionHandler,
