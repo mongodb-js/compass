@@ -713,10 +713,10 @@ export function adjustConnectionOptionsBeforeConnect({
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
-    adjustOIDCConnectionOptionsBeforeConnect(
-      preferences.browserCommandForOIDCAuth,
-      notifyDeviceFlow
-    ),
+    adjustOIDCConnectionOptionsBeforeConnect({
+      browserCommandForOIDCAuth: preferences.browserCommandForOIDCAuth,
+      notifyDeviceFlow,
+    }),
     applyForceConnectionOptions(preferences.forceConnectionOptions),
   ];
   for (const transformer of transformers) {

@@ -38,13 +38,16 @@ export function handleUpdateOIDCParam<K extends keyof OIDCOptions>({
   };
 }
 
-export function adjustOIDCConnectionOptionsBeforeConnect(
-  browserCommandForOIDCAuth?: string,
+export function adjustOIDCConnectionOptionsBeforeConnect({
+  browserCommandForOIDCAuth,
+  notifyDeviceFlow,
+}: {
+  browserCommandForOIDCAuth?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
     userCode: string;
-  }) => void
-): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
+  }) => void;
+}): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
   return (connectionOptions) => {
     const browserCommand = browserCommandForOIDCAuth;
 

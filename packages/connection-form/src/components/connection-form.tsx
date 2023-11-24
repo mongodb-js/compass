@@ -120,12 +120,16 @@ const connectionStringErrorStyles = css({
   marginBottom: spacing[3],
 });
 
-export type ConnectionFormProps = {
+type ConnectionFormPropsWithoutPreferences = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+};
+
+export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
+  preferences?: Partial<ConnectionFormPreferences>;
 };
 
 function ConnectionForm({
@@ -135,7 +139,7 @@ function ConnectionForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
-}: ConnectionFormProps): React.ReactElement {
+}: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const darkMode = useDarkMode();
 
   const [
@@ -375,14 +379,14 @@ function ConnectionForm({
 }
 
 const ConnectionFormWithPreferences = (
-  props: ConnectionFormProps & {
-    preferences: Partial<ConnectionFormPreferences>;
+  props: ConnectionFormPropsWithoutPreferences & {
+    preferences?: Partial<ConnectionFormPreferences>;
   }
 ) => {
   const { preferences, ...rest } = props;
 
   return (
-    <ConnectionFormPreferencesContext.Provider value={preferences}>
+    <ConnectionFormPreferencesContext.Provider value={preferences ?? {}}>
       <ConnectionForm {...rest} />
     </ConnectionFormPreferencesContext.Provider>
   );
