@@ -26,7 +26,6 @@ export function openBulkDeleteSuccessToast({
     title: '',
     variant: 'success',
     dismissible: true,
-    timeout: 6_000,
     description: (
       <ToastBody
         statusMessage={text}
@@ -117,7 +116,6 @@ export function openBulkUpdateSuccessToast({
     title: '',
     variant: 'success',
     dismissible: true,
-    timeout: 6_000,
     description: (
       <ToastBody
         statusMessage={text}

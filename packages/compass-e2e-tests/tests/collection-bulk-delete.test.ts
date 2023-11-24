@@ -66,6 +66,21 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
+    // The success toast is displayed
+    await browser.$(Selectors.BulkDeleteSuccessToast).waitForDisplayed();
+
+    const toastText = await browser
+      .$(Selectors.BulkDeleteSuccessToast)
+      .getText();
+
+    expect(toastText).to.contain('1 document has been deleted.');
+    // We close the toast
+    await browser.$(Selectors.BulkDeleteSuccessToastDismissButton).click();
+
+    await browser
+      .$(Selectors.BulkDeleteSuccessToast)
+      .waitForDisplayed({ reverse: true });
+
     // the document is deleted
     expect(
       await browser.$(Selectors.DocumentListActionBarMessage).getText()
