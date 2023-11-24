@@ -186,6 +186,7 @@ describe('store', function () {
         isReadonly: false,
         isTimeSeries: false,
         namespace: 'db.col',
+        noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
         dataProvider: {
           dataProvider: dataService,
         },
@@ -206,11 +207,11 @@ describe('store', function () {
         },
         debouncingLoad: false,
         loadingCount: false,
-        collection: '',
+        collection: 'col',
         count: 0,
         docs: [],
         end: 0,
-        error: undefined,
+        error: null,
         insert: {
           doc: null,
           isCommentNeeded: true,
@@ -236,8 +237,9 @@ describe('store', function () {
         isReadonly: false,
         isSearchIndexesSupported: true,
         isTimeSeries: false,
+        isUpdatePreviewSupported: true,
         isWritable: false,
-        ns: '',
+        ns: 'db.col',
         outdated: false,
         page: 0,
         query: {
