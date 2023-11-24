@@ -107,6 +107,7 @@ export type DocumentListProps = {
   darkMode?: boolean;
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
@@ -279,6 +280,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         ns={this.props.ns}
         filter={this.props.query.filter}
         count={this.props.count}
+        enablePreview={this.props.isUpdatePreviewSupported}
         {...this.props.bulkUpdate}
         closeBulkUpdateDialog={this.props.closeBulkUpdateDialog}
         updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
@@ -564,6 +566,7 @@ DocumentList.propTypes = {
   darkMode: PropTypes.bool,
   isCollectionScan: PropTypes.bool,
   isSearchIndexesSupported: PropTypes.bool,
+  isUpdatePreviewSupported: PropTypes.bool,
 };
 
 DocumentList.defaultProps = {

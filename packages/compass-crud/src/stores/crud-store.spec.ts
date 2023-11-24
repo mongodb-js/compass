@@ -183,6 +183,14 @@ describe('store', function () {
         globalAppRegistry: globalAppRegistry,
         actions: actions,
         isSearchIndexesSupported: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        namespace: 'db.col',
+        noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
+        dataProvider: {
+          dataProvider: dataService,
+        },
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -199,7 +207,7 @@ describe('store', function () {
         },
         debouncingLoad: false,
         loadingCount: false,
-        collection: '',
+        collection: 'col',
         count: 0,
         docs: [],
         end: 0,
@@ -229,8 +237,9 @@ describe('store', function () {
         isReadonly: false,
         isSearchIndexesSupported: true,
         isTimeSeries: false,
+        isUpdatePreviewSupported: true,
         isWritable: false,
-        ns: '',
+        ns: 'db.col',
         outdated: false,
         page: 0,
         query: {
@@ -270,6 +279,14 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         actions: actions,
+        isSearchIndexesSupported: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        namespace: 'db.col',
+        dataProvider: {
+          dataProvider: dataService,
+        },
+        isUpdatePreviewSupported: true,
       });
 
       mockCopyToClipboard = sinon.fake.resolves(null);
@@ -313,6 +330,14 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         actions: actions,
+        isSearchIndexesSupported: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        namespace: 'db.col',
+        dataProvider: {
+          dataProvider: dataService,
+        },
+        isUpdatePreviewSupported: true,
       });
       await store.openInsertDocumentDialog({ foo: 1 });
     });
@@ -349,10 +374,14 @@ describe('store', function () {
         globalAppRegistry: globalAppRegistry,
         namespace: 'compass-crud.another',
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
+        isSearchIndexesSupported: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -388,12 +417,15 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           namespace: 'compass-crud.another',
           actions: actions,
           isReadonly: true,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
         store.state.table.path = ['test-path'];
         store.state.table.types = ['test-types'];
@@ -429,11 +461,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -468,12 +504,16 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
         noRefreshOnConfigure: true,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -577,11 +617,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
       await dataService.insertOne('compass-crud.test', {
         _id: 'testing',
@@ -599,7 +643,7 @@ describe('store', function () {
 
       beforeEach(function () {
         store.state.docs = [hadronDoc];
-        hadronDoc.elements.at(1).rename('new name');
+        hadronDoc.elements.at(1)?.rename('new name');
       });
 
       it('replaces the document in the list', function (done) {
@@ -692,7 +736,7 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        hadronDoc.elements.at(1).rename('new name');
+        hadronDoc.elements.at(1)?.rename('new name');
         sinon
           .stub(dataService, 'findOneAndUpdate')
           .throws({ message: 'error happened' });
@@ -713,7 +757,7 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        hadronDoc.elements.at(1).rename('new name');
+        hadronDoc.elements.at(1)?.rename('new name');
         sinon.stub(dataService, 'findOneAndUpdate').resolves(null);
       });
 
@@ -732,7 +776,7 @@ describe('store', function () {
       let stub;
 
       beforeEach(function () {
-        hadronDoc.get('name').edit('Desert Sand');
+        hadronDoc.get('name')?.edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
       });
 
@@ -760,7 +804,7 @@ describe('store', function () {
 
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
-          hadronDoc.get('name').edit('Desert Sand');
+          hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
         });
 
@@ -813,7 +857,7 @@ describe('store', function () {
         let isUpdateAllowedStub;
 
         beforeEach(function () {
-          hadronDoc.get('name').edit('Desert Sand');
+          hadronDoc.get('name')?.edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
             .resolves({});
@@ -854,11 +898,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
 
       await dataService.insertOne('compass-crud.test', { name: 'testing' });
@@ -902,6 +950,7 @@ describe('store', function () {
     });
 
     it('closes the bulk dialog keeping previous state', async function () {
+      store.openBulkUpdateDialog();
       store.openBulkUpdateDialog();
 
       await waitForState(store, (state) => {
@@ -947,11 +996,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1010,11 +1063,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1063,7 +1120,7 @@ describe('store', function () {
       let stub;
 
       beforeEach(function () {
-        hadronDoc.get('name').edit('Desert Sand');
+        hadronDoc.get('name')?.edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
       });
 
@@ -1086,7 +1143,7 @@ describe('store', function () {
 
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
-          hadronDoc.get('name').edit('Desert Sand');
+          hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
         });
 
@@ -1120,7 +1177,7 @@ describe('store', function () {
         let isUpdateAllowedStub;
 
         beforeEach(function () {
-          hadronDoc.get('name').edit('Desert Sand');
+          hadronDoc.get('name')?.edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
             .resolves({});
@@ -1161,12 +1218,16 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
         noRefreshOnConfigure: true,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1327,12 +1388,16 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
         noRefreshOnConfigure: true,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1494,11 +1559,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1672,11 +1741,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1708,11 +1781,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1741,11 +1818,15 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -1771,12 +1852,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
@@ -1843,12 +1928,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
         await dataService.insertOne('config.collections', {
           _id: 'compass-crud.test',
@@ -1885,12 +1974,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
 
         store.setState({ query: { project: { _id: 0 } } });
@@ -1922,12 +2015,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
 
         store.setState({ isEditable: false });
@@ -1963,12 +2060,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.timeseries',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
 
         store.setState({ isTimeSeries: true });
@@ -1997,7 +2098,7 @@ describe('store', function () {
         // the count should be the only aggregate we ran
         expect(spy.callCount).to.equal(1);
         const opts = spy.args[0][2];
-        expect(opts.hint).to.not.exist;
+        expect(opts?.hint).to.not.exist;
       });
     });
 
@@ -2011,12 +2112,16 @@ describe('store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: null,
+            error: undefined,
             dataProvider: dataService,
           },
           actions: actions,
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true,
         });
       });
 
@@ -2056,7 +2161,7 @@ describe('store', function () {
         // the count should be the only aggregate we ran
         expect(spy.callCount).to.equal(1);
         const opts = spy.args[0][2];
-        expect(opts.hint).to.equal('_id_');
+        expect(opts?.hint).to.equal('_id_');
       });
     });
   });
@@ -2072,12 +2177,16 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.test',
         noRefreshOnConfigure: true,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
 
       findSpy = sinon.spy(store.dataService, 'find');
@@ -2174,12 +2283,16 @@ describe('store', function () {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
-          error: null,
+          error: undefined,
           dataProvider: dataService,
         },
         actions: actions,
         namespace: 'compass-crud.testview',
         noRefreshOnConfigure: true,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
       await dataService.insertMany('compass-crud.test', [
         { _id: '001', cat: 'nori' },
@@ -2596,8 +2709,7 @@ describe('store', function () {
   });
 
   describe('saveUpdateQuery', function () {
-    const favoriteQueriesStorage: FavoriteQueryStorage =
-      new FavoriteQueryStorage();
+    const favoriteQueriesStorage = new FavoriteQueryStorage();
 
     let saveQueryStub;
     let actions;
@@ -2618,6 +2730,10 @@ describe('store', function () {
         namespace: 'compass-crud.testview',
         noRefreshOnConfigure: true,
         favoriteQueriesStorage: favoriteQueriesStorage,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 
@@ -2639,8 +2755,121 @@ describe('store', function () {
     });
   });
 
+  describe('updateBulkUpdatePreview', function () {
+    context('with isUpdatePreviewSupported=false', function () {
+      let previewUpdateStub;
+      let actions;
+      let store;
+
+      beforeEach(function () {
+        previewUpdateStub = sinon.stub().resolves({
+          changes: [
+            {
+              before: {},
+              after: {},
+            },
+          ],
+        });
+        dataService.previewUpdate = previewUpdateStub;
+        fakeInstance.topologyDescription.type = 'Single';
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            dataProvider: dataService,
+          },
+          actions: actions,
+          namespace: 'compass-crud.testview',
+          noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: false, // taken from fakeInstance.topologyDescription.type anyway
+        });
+      });
+
+      it('never calls dataService.previewUpdate()', async function () {
+        store.openBulkUpdateDialog();
+        await store.onQueryChanged({ filter: { field: 1 } });
+        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+
+        expect(previewUpdateStub.called).to.be.false;
+
+        expect(store.state.bulkUpdate).to.deep.equal({
+          isOpen: true,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{ $set: { anotherField: 2 } }',
+        });
+      });
+    });
+
+    context('with isUpdatePreviewSupported=true', function () {
+      let previewUpdateStub;
+      let actions;
+      let store;
+
+      beforeEach(function () {
+        previewUpdateStub = sinon.stub().resolves({
+          changes: [
+            {
+              before: {},
+              after: {},
+            },
+          ],
+        });
+        dataService.previewUpdate = previewUpdateStub;
+        fakeInstance.topologyDescription.type = 'Unknown'; // anything not 'Single'
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            dataProvider: dataService,
+          },
+          actions: actions,
+          namespace: 'compass-crud.testview',
+          noRefreshOnConfigure: true,
+          isReadonly: false,
+          isSearchIndexesSupported: true,
+          isTimeSeries: false,
+          isUpdatePreviewSupported: true, // taken from fakeInstance.topologyDescription.type anyway
+        });
+      });
+
+      it('calls dataService.previewUpdate()', async function () {
+        store.openBulkUpdateDialog();
+        await store.onQueryChanged({ filter: { field: 1 } });
+        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+
+        // why two? because it also gets called when the dialog opens
+        expect(previewUpdateStub.callCount).to.equal(2);
+
+        expect(store.state.bulkUpdate).to.deep.equal({
+          isOpen: true,
+          preview: {
+            changes: [
+              {
+                before: {},
+                after: {},
+              },
+            ],
+          },
+          previewAbortController: undefined,
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{ $set: { anotherField: 2 } }',
+        });
+      });
+    });
+  });
+
   describe('saveRecentQueryQuery', function () {
-    const recentQueriesStorage: RecentQueryStorage = new RecentQueryStorage();
+    const recentQueriesStorage = new RecentQueryStorage();
 
     let saveQueryStub;
     let actions;
@@ -2661,6 +2890,10 @@ describe('store', function () {
         namespace: 'compass-crud.testview',
         noRefreshOnConfigure: true,
         recentQueriesStorage: recentQueriesStorage,
+        isReadonly: false,
+        isSearchIndexesSupported: true,
+        isTimeSeries: false,
+        isUpdatePreviewSupported: true,
       });
     });
 

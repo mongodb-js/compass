@@ -23,6 +23,7 @@ function renderBulkUpdateDialog(
           },
         ],
       }}
+      enablePreview={true}
       closeBulkUpdateDialog={() => {}}
       updateBulkUpdatePreview={() => {}}
       runBulkUpdate={() => {}}
@@ -156,9 +157,37 @@ describe('BulkUpdateDialog Component', function () {
     expect(onCloseSpy).to.have.been.calledOnce;
   });
 
-  it('runs the update when the update button is clicked', function () {
+  it('runs the update when the update button is clicked (preview supported)', function () {
     const onUpdateSpy = sinon.spy();
-    renderBulkUpdateDialog({ runBulkUpdate: onUpdateSpy, count: 60 });
+    renderBulkUpdateDialog({
+      enablePreview: true,
+      runBulkUpdate: onUpdateSpy,
+      count: 60,
+    });
+
+    // has a preview
+    expect(
+      screen.getAllByTestId('bulk-update-preview-document')
+    ).to.have.lengthOf(1);
+
+    userEvent.click(
+      screen.getByRole('button', { name: 'Update 60 documents' })
+    );
+    expect(onUpdateSpy).to.have.been.calledOnce;
+  });
+
+  it('runs the update when the update button is clicked (preview unsupported)', function () {
+    const onUpdateSpy = sinon.spy();
+    renderBulkUpdateDialog({
+      enablePreview: false,
+      runBulkUpdate: onUpdateSpy,
+      count: 60,
+    });
+
+    // does not render a preview
+    expect(
+      screen.queryAllByTestId('bulk-update-preview-document')
+    ).to.have.lengthOf(0);
 
     userEvent.click(
       screen.getByRole('button', { name: 'Update 60 documents' })
