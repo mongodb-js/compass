@@ -600,6 +600,8 @@ export const BulkUpdatePreviewDocument = `${BulkUpdateModal} [data-testid="bulk-
 export const BulkUpdateSaveFavorite = `${BulkUpdateModal} [data-testid="inline-save-query-modal-opener"]`;
 export const BulkUpdateFavouriteNameInput = `${BulkUpdateModal} [data-testid="inline-save-query-modal-input"]`;
 export const BulkUpdateFavouriteSaveButton = `${BulkUpdateModal} [data-testid="inline-save-query-modal-submit"]`;
+export const BulkUpdateSuccessToast = `[data-testid="toast-bulk-update-toast"]`;
+export const BulkUpdateSuccessToastDismissButton = `[data-testid="toast-bulk-update-toast"] [data-testid="lg-toast-dismiss-button"]`;
 
 // Bulk Delete Modal
 export const BulkDeleteModal = '[data-testid="bulk-delete-modal"]';
@@ -609,6 +611,8 @@ export const BulkDeleteModalExportButton = `${BulkDeleteModal} [data-testid="exp
 export const BulkDeleteModalPreviewTitle = `${BulkDeleteModal} [data-testid="preview-title"]`;
 export const BulkDeleteModalDeleteButton = `${BulkDeleteModal} [data-testid="delete-button"]`;
 export const BulkDeleteModalCancelButton = `${BulkDeleteModal} [data-testid="cancel-button"]`;
+export const BulkDeleteSuccessToast = `[data-testid="toast-bulk-delete-toast"]`;
+export const BulkDeleteSuccessToastDismissButton = `[data-testid="toast-bulk-delete-toast"] [data-testid="lg-toast-dismiss-button"]`;
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =

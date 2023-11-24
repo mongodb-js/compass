@@ -1,8 +1,7 @@
 import React from 'react';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, ToastBody } from '@mongodb-js/compass-components';
 import path from 'path';
 
-import { ToastBody } from './toast-body';
 import revealFile from '../utils/reveal-file';
 import type { CSVExportPhase } from '../export/export-csv';
 
