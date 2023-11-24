@@ -1,4 +1,5 @@
 import React, { type ComponentProps } from 'react';
+import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
@@ -34,6 +35,8 @@ const renderFocusModePreview = (
         stageOperator={null}
         documents={null}
         isMissingAtlasOnlyStageSupport={false}
+        onExpand={() => {}}
+        onCollapse={() => {}}
         {...props}
       />
     </Provider>
@@ -42,14 +45,14 @@ const renderFocusModePreview = (
 
 describe('FocusModeStagePreview', function () {
   it('renders stage input', function () {
-    render(<InputPreview />);
+    render(<InputPreview onExpand={() => {}} onCollapse={() => {}} />);
     const preview = screen.getByTestId('focus-mode-stage-preview');
     expect(preview).to.exist;
     expect(within(preview).getByText(/stage input/i)).to.exist;
   });
 
   it('renders stage output', function () {
-    render(<OutputPreview />);
+    render(<OutputPreview onExpand={() => {}} onCollapse={() => {}} />);
     const preview = screen.getByTestId('focus-mode-stage-preview');
     expect(preview).to.exist;
     expect(within(preview).getByText(/stage output/i)).to.exist;
@@ -67,7 +70,10 @@ describe('FocusModeStagePreview', function () {
     it('renders list of documents', function () {
       renderFocusModePreview({
         isLoading: false,
-        documents: [{ _id: 12345 }, { _id: 54321 }],
+        documents: [
+          new HadronDocument({ _id: 12345 }),
+          new HadronDocument({ _id: 54321 }),
+        ],
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/12345/i)).to.exist;

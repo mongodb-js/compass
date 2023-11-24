@@ -1,4 +1,4 @@
-import type { Document } from 'mongodb';
+import HadronDocument from 'hadron-document';
 import type { AnyAction } from 'redux';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { PipelineBuilderThunkAction } from '.';
@@ -20,13 +20,13 @@ type DocumentsFetchStartedAction = {
 type DocumentsFetchFinishedAction = {
   type: ActionTypes.DocumentsFetchFinished;
   count: number | null;
-  documents: Document[];
+  documents: HadronDocument[];
   error: Error | null;
 };
 
 type State = {
   count: number | null;
-  documents: Document[];
+  documents: HadronDocument[];
   error: Error | null;
   isExpanded: boolean;
   isLoading: boolean;
@@ -53,7 +53,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction) => {
     return {
       ...state,
       count: action.count,
-      documents: action.documents,
+      documents: action.documents as HadronDocument[],
       error: action.error,
       isLoading: false,
     };
@@ -73,7 +73,7 @@ export const loadingInputDocuments = (): DocumentsFetchStartedAction => ({
 
 export const updateInputDocuments = (
   count: number | null,
-  documents: Document[],
+  documents: HadronDocument[],
   error: Error | null
 ): DocumentsFetchFinishedAction => ({
   type: ActionTypes.DocumentsFetchFinished,
@@ -113,6 +113,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;
       const docs = data[1].status === 'fulfilled' ? data[1].value : [];
+      const hadronDocs = docs.map((doc) => new HadronDocument(doc));
 
       const error =
         data[0].status === 'rejected'
@@ -120,7 +121,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
           : data[1].status === 'rejected'
           ? data[1].reason
           : null;
-      dispatch(updateInputDocuments(count, docs, error));
+      dispatch(updateInputDocuments(count, hadronDocs, error));
     } catch (error) {
       dispatch(updateInputDocuments(null, [], error as Error));
     }

@@ -45,7 +45,7 @@ interface Server {
 interface TopologyDescription {
   type: string;
   servers: Server[];
-  setName: string;
+  setName: string | null;
 }
 
 declare class MongoDBInstanceProps {

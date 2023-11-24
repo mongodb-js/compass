@@ -28,11 +28,13 @@ export type QueryHistoryTab = 'recent' | 'favorite';
 type QueryHistoryProps = {
   namespace: string;
   onUpdateFavoriteChoosen: () => void;
+  onUpdateRecentChoosen: () => void;
 };
 
 const QueryHistory = ({
   namespace,
   onUpdateFavoriteChoosen,
+  onUpdateRecentChoosen,
 }: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
 
@@ -54,7 +56,10 @@ const QueryHistory = ({
       <Toolbar tab={tab} onChange={setTab} namespace={namespace} />
       <div className={contentStyles}>
         {tab === 'recent' && (
-          <RecentList onSaveFavorite={() => setTab('favorite')} />
+          <RecentList
+            onUpdateRecentChoosen={onUpdateRecentChoosen}
+            onSaveFavorite={() => setTab('favorite')}
+          />
         )}
         {tab === 'favorite' && (
           <FavoriteList onUpdateFavoriteChoosen={onUpdateFavoriteChoosen} />

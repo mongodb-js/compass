@@ -16,7 +16,6 @@ import PipelineAI from './pipeline-ai';
 
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
-import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { PipelineToolbarContainer } from './pipeline-toolbar-container';
 
 const headerAndOptionsRowStyles = css({
@@ -48,9 +47,7 @@ type PipelineToolbarProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
-  onChangePipelineOutputOption: (val: PipelineOutputOption) => void;
   onHideAIInputClick?: () => void;
-  pipelineOutputOption: PipelineOutputOption;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
@@ -58,8 +55,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   showRunButton,
   showExportButton,
   showExplainButton,
-  onChangePipelineOutputOption,
-  pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
@@ -92,10 +87,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
         </div>
       ) : (
         <div className={settingsRowStyles}>
-          <PipelineResultsHeader
-            onChangePipelineOutputOption={onChangePipelineOutputOption}
-            pipelineOutputOption={pipelineOutputOption}
-          />
+          <PipelineResultsHeader />
         </div>
       )}
     </PipelineToolbarContainer>

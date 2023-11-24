@@ -5,6 +5,7 @@ const {
 const TopologyType = require('./topology-type');
 const ServerType = require('./server-type');
 const Environment = require('./environment');
+const TopologyDescription = require('./topology-description');
 
 const Inflight = new Map();
 
@@ -133,7 +134,6 @@ const InstanceModel = AmpersandModel.extend(
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
-      topologyDescription: 'state'
     },
     derived: {
       isRefreshing: {
@@ -149,7 +149,7 @@ const InstanceModel = AmpersandModel.extend(
         }
       },
       singleServerType: {
-        deps: ['topologyDescription.type', 'topologDescription.servers'],
+        deps: ['topologyDescription.type', 'topologyDescription.servers'],
         fn() {
           if (this.topologyDescription.type === TopologyType.SINGLE) {
             return this.topologyDescription.servers[0].type;
@@ -210,7 +210,8 @@ const InstanceModel = AmpersandModel.extend(
       build: BuildInfo,
       genuineMongoDB: GenuineMongoDB,
       dataLake: DataLake,
-      auth: AuthInfo
+      auth: AuthInfo,
+      topologyDescription: TopologyDescription,
     },
     collections: {
       databases: MongoDbDatabaseCollection,
@@ -268,13 +269,10 @@ const InstanceModel = AmpersandModel.extend(
      * @param {{ ns: string, dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<boolean>}
      */
-    async getIsSearchSupported({
-      ns,
-      dataService,
-      force = false
-    }) {
+    async getIsSearchSupported({ ns, dataService, force = false }) {
       if (this.isSearchIndexesSupported === undefined || force) {
-        const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(ns);
+        const isSearchIndexesSupported =
+          await dataService.isListSearchIndexesSupported(ns);
         this.set({ isSearchIndexesSupported });
       }
       return this.isSearchIndexesSupported;

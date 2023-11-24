@@ -1,4 +1,5 @@
 import type { AnyAction, Reducer } from 'redux';
+import HadronDocument from 'hadron-document';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -31,7 +32,7 @@ export enum ActionTypes {
 type PreviousPageData = {
   page: number;
   isLast: boolean;
-  documents: Document[];
+  documents: HadronDocument[];
 };
 
 type RunAggregation = {
@@ -46,7 +47,7 @@ type AggregationStartedAction = {
 
 type AggregationFinishedAction = {
   type: ActionTypes.AggregationFinished;
-  documents: Document[];
+  documents: HadronDocument[];
   page: number;
   isLast: boolean;
 };
@@ -82,7 +83,7 @@ export type Actions =
 
 export type State = {
   pipeline: Document[];
-  documents: Document[];
+  documents: HadronDocument[];
   page: number;
   limit: number;
   isLast: boolean;
@@ -315,7 +316,7 @@ const fetchAggregationData = (
       } else {
         dispatch({
           type: ActionTypes.AggregationFinished,
-          documents,
+          documents: documents.map((doc) => new HadronDocument(doc)),
           page,
           isLast: documents.length < limit,
         });
@@ -385,6 +386,26 @@ export const changeViewType = (newViewType: 'document' | 'json') => {
   return {
     type: ActionTypes.ResultViewTypeChanged,
     viewType: newViewType,
+  };
+};
+
+export const expandPipelineResults = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      aggregation: { documents },
+    } = getState();
+
+    documents.forEach((doc) => doc.expand());
+  };
+};
+
+export const collapsePipelineResults = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      aggregation: { documents },
+    } = getState();
+
+    documents.forEach((doc) => doc.collapse());
   };
 };
 

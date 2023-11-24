@@ -33,6 +33,7 @@ import type {
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {
+  isReadonlyConnection: boolean;
   fields: QueryFormFields;
   expanded: boolean;
   serverVersion: string;
@@ -50,6 +51,7 @@ type QueryBarState = {
 };
 
 export const INITIAL_STATE: QueryBarState = {
+  isReadonlyConnection: false,
   fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
@@ -61,7 +63,8 @@ export const INITIAL_STATE: QueryBarState = {
   favoriteQueries: [],
 };
 
-enum QueryBarActions {
+export enum QueryBarActions {
+  ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
   ChangeSchemaFields = 'compass-query-bar/ChangeSchemaFields',
@@ -72,6 +75,11 @@ enum QueryBarActions {
   RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
 }
+
+type ChangeReadonlyConnectionStatusAction = {
+  type: QueryBarActions.ChangeReadonlyConnectionStatus;
+  readonly: boolean;
+};
 
 type ToggleQueryOptionsAction = {
   type: QueryBarActions.ToggleQueryOptions;
@@ -403,6 +411,18 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   state = INITIAL_STATE,
   action
 ) => {
+  if (
+    isAction<ChangeReadonlyConnectionStatusAction>(
+      action,
+      QueryBarActions.ChangeReadonlyConnectionStatus
+    )
+  ) {
+    return {
+      ...state,
+      isReadonlyConnection: action.readonly,
+    };
+  }
+
   if (
     isAction<ToggleQueryOptionsAction>(
       action,

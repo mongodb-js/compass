@@ -17,6 +17,9 @@ import rootReducer from '../modules';
 import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import { createCancelError } from '@mongodb-js/compass-utils';
+import HadronDocument from 'hadron-document';
+import { omit } from 'lodash';
+import { EJSON } from 'bson';
 
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
   const mockedState = {
@@ -24,6 +27,12 @@ const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
     aggregation,
   };
   return createStore(rootReducer, mockedState, applyMiddleware(thunk));
+};
+
+const hadronDocsToJsonDocs = (docs: HadronDocument[]) => {
+  return docs.map((doc) => {
+    return EJSON.serialize(doc.generateOriginalObject());
+  });
 };
 
 describe('aggregation module', function () {
@@ -52,10 +61,10 @@ describe('aggregation module', function () {
     });
 
     await store.dispatch(runAggregation() as any);
+    const aggregation = store.getState().aggregation;
 
-    expect(store.getState().aggregation).to.deep.equal({
+    expect(omit(aggregation, 'documents')).to.deep.equal({
       pipeline: [],
-      documents: mockDocuments,
       isLast: true,
       page: 1,
       limit: 20,
@@ -65,10 +74,16 @@ describe('aggregation module', function () {
       previousPageData: undefined,
       resultsViewType: 'document',
     });
+
+    expect(hadronDocsToJsonDocs(aggregation.documents)).to.deep.equal(
+      mockDocuments
+    );
   });
 
   it('cancels an aggregation', async function () {
-    const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
+    const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }].map(
+      (doc) => new HadronDocument(doc)
+    );
     const store = getMockedStore({
       pipeline: [],
       isLast: false,
@@ -114,7 +129,9 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
+        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }].map(
+          (doc) => new HadronDocument(doc)
+        ),
         limit: 4,
         page: 2,
         resultsViewType: 'document',
@@ -131,10 +148,10 @@ describe('aggregation module', function () {
       });
 
       await store.dispatch(fetchNextPage() as any);
+      const aggregation = store.getState().aggregation;
 
-      expect(store.getState().aggregation).to.deep.equal({
+      expect(omit(aggregation, 'documents')).to.deep.equal({
         pipeline: [],
-        documents: mockDocuments,
         isLast: false,
         page: 3,
         limit: 4,
@@ -144,13 +161,19 @@ describe('aggregation module', function () {
         previousPageData: undefined,
         resultsViewType: 'document',
       });
+
+      expect(hadronDocsToJsonDocs(aggregation.documents)).to.deep.equal(
+        mockDocuments
+      );
     });
     it('does not run aggregation when fetching nextPage on last page', async function () {
       const store = getMockedStore({
         pipeline: [],
         isLast: true,
         loading: false,
-        documents: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        documents: [{ id: 1 }, { id: 2 }, { id: 3 }].map(
+          (doc) => new HadronDocument(doc)
+        ),
         limit: 4,
         page: 1,
         resultsViewType: 'document',
@@ -170,7 +193,9 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
+        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }].map(
+          (doc) => new HadronDocument(doc)
+        ),
         limit: 4,
         page: 2,
         resultsViewType: 'document',
@@ -188,10 +213,10 @@ describe('aggregation module', function () {
       });
 
       await store.dispatch(fetchPrevPage() as any);
+      const aggregation = store.getState().aggregation;
 
-      expect(store.getState().aggregation).to.deep.equal({
+      expect(omit(store.getState().aggregation, 'documents')).to.deep.equal({
         pipeline: [],
-        documents: mockDocuments,
         isLast: false,
         page: 1,
         limit: 4,
@@ -201,13 +226,19 @@ describe('aggregation module', function () {
         previousPageData: undefined,
         resultsViewType: 'document',
       });
+
+      expect(hadronDocsToJsonDocs(aggregation.documents)).to.deep.equal(
+        mockDocuments
+      );
     });
     it('does not run aggregation when fetching prevPage on first page', async function () {
       const store = getMockedStore({
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+        documents: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }].map(
+          (doc) => new HadronDocument(doc)
+        ),
         limit: 4,
         page: 1,
         resultsViewType: 'document',
@@ -228,7 +259,9 @@ describe('aggregation module', function () {
       pipeline: [],
       isLast: false,
       loading: false,
-      documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
+      documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }].map(
+        (doc) => new HadronDocument(doc)
+      ),
       limit: 4,
       page: 2,
       resultsViewType: 'document',

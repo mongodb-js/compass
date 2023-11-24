@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -10,9 +10,8 @@ import {
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
-import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
-import HadronDocument from 'hadron-document';
+import type HadronDocument from 'hadron-document';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
@@ -22,6 +21,10 @@ import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
 } from '../../../utils/stage';
+import {
+  expandPreviewDocs,
+  collapsePreviewDocs,
+} from '../../../modules/pipeline-builder/text-editor-pipeline';
 
 const containerStyles = css({
   display: 'flex',
@@ -70,39 +73,29 @@ type PipelinePreviewProps = {
   isOutStage: boolean;
   isMissingAtlasSupport: boolean;
   atlasOperator: string;
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
+  onExpand: () => void;
+  onCollapse: () => void;
 };
 
 const PreviewResults = ({
   previewDocs,
   isLoading,
-  isExpanded,
   isMissingAtlasSupport,
   atlasOperator,
   isPreviewStale,
 }: {
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   isLoading: boolean;
-  isExpanded: boolean;
   isMissingAtlasSupport: boolean;
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: Omit<
-    React.ComponentProps<typeof DocumentListView>,
-    'isExpanded' | 'className'
-  > = useMemo(
-    () => ({
-      docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
-      isEditable: false,
-      copyToClipboard(doc: HadronDocument) {
-        const str = doc.toEJSON();
-        void navigator.clipboard.writeText(str);
-      },
-    }),
-    [previewDocs]
-  );
+  const copyToClipboard = useCallback((doc: HadronDocument) => {
+    const str = doc.toEJSON();
+    void navigator.clipboard.writeText(str);
+  }, []);
 
   if (isLoading) {
     return (
@@ -147,8 +140,9 @@ const PreviewResults = ({
         <WarningSummary warnings={['Output outdated and no longer in sync.']} />
       )}
       <DocumentListView
-        {...listProps}
-        isExpanded={isExpanded}
+        docs={previewDocs}
+        copyToClipboard={copyToClipboard}
+        isEditable={false}
         className={documentListStyles}
       />
     </>
@@ -163,15 +157,25 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   previewDocs,
   atlasOperator,
   isPreviewStale,
+  onExpand,
+  onCollapse,
 }) => {
-  const [pipelineOutputOption, setPipelineOutputOption] =
-    useState<PipelineOutputOption>('collapse');
-  const isExpanded = pipelineOutputOption === 'expand';
-
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
   const stageOperator = isMergeStage ? '$merge' : isOutStage ? '$out' : null;
+
+  const handlePipelineOutputOptionChanged = useCallback(
+    (option: PipelineOutputOption) => {
+      if (option === 'expand') {
+        onExpand();
+      } else if (option === 'collapse') {
+        onCollapse();
+      }
+    },
+    [onExpand, onCollapse]
+  );
+
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
@@ -185,13 +189,11 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         </div>
         <div className={pipelineOutputMenuStyles}>
           <PipelineOutputOptionsMenu
-            option={pipelineOutputOption}
-            onChangeOption={setPipelineOutputOption}
+            onChangeOption={handlePipelineOutputOptionChanged}
           />
         </div>
       </div>
       <PreviewResults
-        isExpanded={isExpanded}
         isLoading={isLoading}
         isMissingAtlasSupport={isMissingAtlasSupport}
         atlasOperator={atlasOperator}
@@ -227,4 +229,7 @@ const mapState = (state: RootState) => {
   };
 };
 
-export default connect(mapState)(PipelinePreview);
+export default connect(mapState, {
+  onExpand: expandPreviewDocs,
+  onCollapse: collapsePreviewDocs,
+})(PipelinePreview);

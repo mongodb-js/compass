@@ -1,7 +1,7 @@
 import React from 'react';
 import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { AppRegistryProvider } from 'hadron-app-registry';
 import { ObjectId } from 'bson';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
@@ -213,8 +213,12 @@ const createNewTab = (
       localAppRegistry,
       ...collectionMetadata,
     });
-    const component = React.createElement(collectionTabRole.component, {
-      store,
+    const component = React.createElement(AppRegistryProvider, {
+      localAppRegistry: localAppRegistry,
+      deactivateOnUnmount: false,
+      children: React.createElement(collectionTabRole.component, {
+        store,
+      }),
     });
     const tab: CollectionTab = {
       id: new ObjectId().toHexString(),

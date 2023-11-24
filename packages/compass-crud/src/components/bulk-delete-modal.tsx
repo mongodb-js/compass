@@ -10,6 +10,7 @@ import {
   css,
   cx,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
@@ -56,7 +57,7 @@ const exportToLanguageButtonStyles = css({
 
 type BulkDeleteModalProps = {
   open: boolean;
-  documentCount: number;
+  documentCount?: number;
   filterQuery: string;
   namespace: string;
   sampleDocuments: Document[];
@@ -80,45 +81,65 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       {sampleDocuments.map((doc, i) => {
         return (
           <KeylineCard key={i} className={cx(documentContainerStyles)}>
-            <ReadonlyDocument doc={doc as any} expandAll={false} />
+            <ReadonlyDocument doc={doc as any} />
           </KeylineCard>
         );
       })}
     </div>
   );
 
+  const exportButtonId = useId();
   return (
-    <Modal setOpen={onCancel} open={open}>
+    <Modal
+      initialFocus={`#${exportButtonId}`}
+      setOpen={onCancel}
+      open={open}
+      data-testid="bulk-delete-modal"
+    >
       <ModalHeader
-        title={`Delete ${documentCount} documents`}
+        title={`Delete ${documentCount ?? ''} document${
+          documentCount === 1 ? '' : 's'
+        }`}
         subtitle={namespace}
         variant={'danger'}
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
         <div className={queryBarStyles}>
-          <ReadonlyFilter queryLabel="Query" filterQuery={filterQuery} />
+          <ReadonlyFilter queryLabel="Filter" filterQuery={filterQuery} />
           <Button
             className={exportToLanguageButtonStyles}
             variant="primaryOutline"
             size="default"
             leftGlyph={<Icon glyph="Code" />}
             onClick={onExportToLanguage}
-            data-testid="pipeline-toolbar-export-button"
+            data-testid="export-button"
+            id={exportButtonId}
           >
             Export
           </Button>
         </div>
 
         <div>
-          <b>Preview (sample of {sampleDocuments.length} documents)</b>
+          <b data-testid="preview-title">
+            Preview (sample of {sampleDocuments.length} document
+            {sampleDocuments.length === 1 ? '' : 's'})
+          </b>
           {preview}
         </div>
       </ModalBody>
       <ModalFooter className={modalFooterSpacingStyles}>
-        <Button variant="danger" onClick={onConfirmDeletion}>
-          Delete {documentCount} documents
+        <Button
+          variant="danger"
+          onClick={onConfirmDeletion}
+          data-testid="delete-button"
+        >
+          Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
         </Button>
-        <Button variant="default" onClick={onCancel}>
+        <Button
+          variant="default"
+          onClick={onCancel}
+          data-testid="cancel-button"
+        >
           Cancel
         </Button>
       </ModalFooter>

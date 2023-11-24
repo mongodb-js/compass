@@ -3,7 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
@@ -15,7 +15,10 @@ import configureStore, {
 import configureActions from '../actions';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+import {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
 chai.use(chaiAsPromised);
 
@@ -23,10 +26,10 @@ const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
 
 const delay = util.promisify(setTimeout);
 
-const topologyDescription = new TopologyDescription({
+const topologyDescription = {
   type: 'Unknown',
   servers: [{ type: 'Unknown' }],
-});
+};
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',
@@ -37,7 +40,7 @@ const fakeInstance = new MongoDBInstance({
   dataLake: {
     isDataLake: false,
   },
-});
+} as any);
 
 const fakeAppInstanceStore = {
   getState: function () {
@@ -2625,6 +2628,48 @@ describe('store', function () {
 
       expect(saveQueryStub).to.have.been.calledWith({
         _name: 'my-query',
+        _ns: 'compass-crud.testview',
+        filter: {
+          field: 1,
+        },
+        update: {
+          $set: { anotherField: 2 },
+        },
+      });
+    });
+  });
+
+  describe('saveRecentQueryQuery', function () {
+    const recentQueriesStorage: RecentQueryStorage = new RecentQueryStorage();
+
+    let saveQueryStub;
+    let actions;
+    let store;
+
+    beforeEach(function () {
+      saveQueryStub = sinon.stub().resolves();
+      recentQueriesStorage.saveQuery = saveQueryStub;
+
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          dataProvider: dataService,
+        },
+        actions: actions,
+        namespace: 'compass-crud.testview',
+        noRefreshOnConfigure: true,
+        recentQueriesStorage: recentQueriesStorage,
+      });
+    });
+
+    it('should save the query once is run', async function () {
+      await store.onQueryChanged({ filter: { field: 1 } });
+      await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+      await store.runBulkUpdate();
+
+      expect(saveQueryStub).to.have.been.calledWith({
         _ns: 'compass-crud.testview',
         filter: {
           field: 1,

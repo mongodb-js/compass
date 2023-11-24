@@ -45,10 +45,14 @@ describe('BulkUpdateDialog Component', function () {
   it('renders if open', function () {
     renderBulkUpdateDialog({ count: 42 });
 
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update 42 documents'
+    );
+
     // filter
-    expect(
-      screen.getByTestId('readonly-filter').getAttribute('value')
-    ).to.equal('{\n a: 1\n}');
+    expect(screen.getByTestId('readonly-filter').textContent).to.equal(
+      '{\n a: 1\n}'
+    );
 
     // update
     expect(screen.getByTestId('bulk-update-update').textContent).to.match(
@@ -64,6 +68,25 @@ describe('BulkUpdateDialog Component', function () {
     expect(screen.getByRole('button', { name: 'Cancel' })).to.exist;
     expect(screen.getByRole('button', { name: 'Update 42 documents' })).to
       .exist;
+  });
+
+  it('hides document count if count is N/A', function () {
+    renderBulkUpdateDialog({ count: undefined });
+
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update documents'
+    );
+
+    expect(screen.getByRole('button', { name: 'Update documents' })).to.exist;
+  });
+
+  it('use singular if count is 1', function () {
+    renderBulkUpdateDialog({ count: 1 });
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update 1 document'
+    );
+
+    expect(screen.getByRole('button', { name: 'Update 1 document' })).to.exist;
   });
 
   it('resets if the modal is re-opened', async function () {

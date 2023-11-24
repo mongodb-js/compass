@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 
 import { Database } from './database';
+import { DatabaseTabsProvider } from './database-tabs-provider';
 
 class Collections extends React.Component {
   render() {
@@ -19,18 +19,11 @@ const ROLE = {
 describe('Database [Component]', function () {
   let globalBefore: any;
   beforeEach(function () {
-    const registry = new AppRegistry();
-
-    globalBefore = (global as any).hadronApp;
-    (global as any).hadronApp = {
-      appRegistry: registry,
-    };
-
-    ((global as any).hadronApp.appRegistry as AppRegistry).registerRole(
-      'Database.Tab',
-      ROLE
+    render(
+      <DatabaseTabsProvider tabs={[ROLE]}>
+        <Database />
+      </DatabaseTabsProvider>
     );
-    render(<Database />);
   });
 
   afterEach(function () {

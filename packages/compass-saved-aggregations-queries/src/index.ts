@@ -1,23 +1,53 @@
-import type AppRegistry from 'hadron-app-registry';
-import store from './stores/index';
-import Component from './components/index';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { DataService } from 'mongodb-data-service';
+import { activatePlugin } from './stores';
+import AggregationsQueriesList from './components/aggregations-queries-list';
+import type {
+  PipelineStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
-const role = {
-  component: Component,
-  name: 'My Queries',
-  order: 1,
+function activate(): void {
+  // noop
+}
+
+function deactivate(): void {
+  // noop
+}
+
+const serviceLocators = {
+  dataService: dataServiceLocator as typeof dataServiceLocator<
+    // Getting passed to the mongodb instance so hard to be more explicit
+    // about used methods
+    keyof DataService
+  >,
+  instance: mongoDBInstanceLocator,
+  logger: createLoggerAndTelemetryLocator('COMPASS-MY-QUERIES-UI'),
 };
 
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerStore('App.AggregationsQueriesListStore', store);
-  appRegistry.registerRole('Instance.Tab', role);
-}
+export const MyQueriesPlugin = registerHadronPlugin<
+  React.ComponentProps<typeof AggregationsQueriesList>,
+  typeof serviceLocators & {
+    queryStorage?: () => RecentQueryStorage;
+    pipelineStorage?: () => PipelineStorage;
+  }
+>(
+  {
+    name: 'MyQueries',
+    component: AggregationsQueriesList,
+    activate: activatePlugin,
+  },
+  serviceLocators
+);
 
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterStore('App.AggregationsQueriesListStore');
-  appRegistry.deregisterRole('Instance.Tab', role);
-}
+const InstanceTab = {
+  name: 'My Queries',
+  component: MyQueriesPlugin,
+};
 
+export default InstanceTab;
 export { activate, deactivate };
-
 export { default as metadata } from '../package.json';

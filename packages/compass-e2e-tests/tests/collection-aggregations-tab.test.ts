@@ -11,7 +11,10 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
+import {
+  createNestedDocumentsCollection,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
 
 const { expect } = chai;
@@ -1508,8 +1511,259 @@ describe('Collection aggregations tab', function () {
     });
   });
 
+  describe('expanding and collapsing of documents', function () {
+    beforeEach(async function () {
+      await createNestedDocumentsCollection('nestedDocs', 10);
+      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+      await browser.navigateToCollectionTab(
+        'test',
+        'nestedDocs',
+        'Aggregations'
+      );
+    });
+
+    context('when on stage builder mode', function () {
+      it('should expand/collapse all the docs for a stage when "Expand documents" / "Collapse documents" menu option is clicked', async function () {
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+
+        await browser.selectStageOperator(0, '$match');
+        await browser.setCodemirrorEditorValue(
+          Selectors.stageEditor(0),
+          '{ "names.firstName": "1-firstName" }'
+        );
+
+        const previewDocument = browser.$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument}`
+        );
+        await previewDocument.waitForDisplayed();
+
+        await browser.selectStageMenuOption(
+          0,
+          Selectors.StagePreviewDocsExpand
+        );
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
+            Selectors.HadronDocumentElement
+          }`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.selectStageMenuOption(
+          0,
+          Selectors.StagePreviewDocsCollapse
+        );
+        const collapsedHadronElements = await browser.$$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
+            Selectors.HadronDocumentElement
+          }`
+        );
+        expect(collapsedHadronElements).to.have.lengthOf(4);
+      });
+
+      it('should retain the docs expanded / collapsed state even after switching tabs', async function () {
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+
+        await browser.selectStageOperator(0, '$match');
+        await browser.setCodemirrorEditorValue(
+          Selectors.stageEditor(0),
+          '{ "names.firstName": "1-firstName" }'
+        );
+
+        const previewDocument = browser.$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument}`
+        );
+        await previewDocument.waitForDisplayed();
+
+        await browser.selectStageMenuOption(
+          0,
+          Selectors.StagePreviewDocsExpand
+        );
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
+            Selectors.HadronDocumentElement
+          }`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.navigateWithinCurrentCollectionTabs('Documents');
+        await browser.navigateWithinCurrentCollectionTabs('Aggregations');
+        const expandedHadronElementsPostSwitch = await browser.$$(
+          `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
+            Selectors.HadronDocumentElement
+          }`
+        );
+        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+      });
+    });
+
+    context('when on text mode', function () {
+      beforeEach(async function () {
+        await switchPipelineMode(browser, 'as-text');
+        await browser.setCodemirrorEditorValue(
+          Selectors.AggregationAsTextEditor,
+          '[{$match: { "names.firstName": "1-firstName" }}]'
+        );
+        const docsPreview = await browser.$(
+          Selectors.AggregationAsTextPreviewDocument
+        );
+        await docsPreview.waitForDisplayed();
+      });
+
+      it('should be able to expand / collapse all the preview documents for the pipeline', async function () {
+        await browser.selectTextPipelineOutputOption('expand');
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.selectTextPipelineOutputOption('collapse');
+        const collapsedHadronElements = await browser.$$(
+          `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
+        );
+        expect(collapsedHadronElements).to.have.lengthOf(4);
+      });
+
+      it('should be able to retain the expanded / collapsed state when switching between views', async function () {
+        await browser.selectTextPipelineOutputOption('expand');
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.navigateWithinCurrentCollectionTabs('Documents');
+        await browser.navigateWithinCurrentCollectionTabs('Aggregations');
+        const expandedHadronElementsPostSwitch = await browser.$$(
+          `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+      });
+    });
+
+    context('when in focus mode', function () {
+      beforeEach(async function () {
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+        await browser.selectStageOperator(0, '$match');
+        await browser.setCodemirrorEditorValue(
+          Selectors.stageEditor(0),
+          '{ "names.firstName": "1-firstName" }'
+        );
+
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(1)).waitForDisplayed();
+        await browser.selectStageOperator(1, '$limit');
+        await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '1');
+
+        await browser.clickVisible(Selectors.stageFocusModeButton(0));
+        const modal = await browser.$(Selectors.FocusModeModal);
+        await modal.waitForDisplayed();
+
+        await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
+        await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
+        await browser.$(Selectors.FocusModeStageOutput).waitForDisplayed();
+      });
+
+      it('should be able to expand/collapse input preview', async function () {
+        await browser.selectFocusModeStageOutputOption('stage-input', 'expand');
+        const expandedInputElements = await browser.$$(
+          `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedInputElements).to.have.lengthOf(140); // We insert 10 docs and each has 14 hadron elements
+
+        await browser.selectFocusModeStageOutputOption(
+          'stage-input',
+          'collapse'
+        );
+        const collapsedInputElements = await browser.$$(
+          `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(collapsedInputElements).to.have.lengthOf(40);
+
+        await browser.selectFocusModeStageOutputOption(
+          'stage-output',
+          'expand'
+        );
+        const expandedOutputElements = await browser.$$(
+          `${Selectors.FocusModeStageOutput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedOutputElements).to.have.lengthOf(14); // There's only doc as output from the stage
+
+        await browser.selectFocusModeStageOutputOption(
+          'stage-output',
+          'collapse'
+        );
+        const collapsedOutputElements = await browser.$$(
+          `${Selectors.FocusModeStageOutput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(collapsedOutputElements).to.have.lengthOf(4);
+      });
+
+      it('should be able to retain the expanded/collapsed even after stage switch', async function () {
+        await browser.selectFocusModeStageOutputOption('stage-input', 'expand');
+        const expandedInputElements = await browser.$$(
+          `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedInputElements).to.have.lengthOf(140);
+
+        await browser.clickVisible(Selectors.FocusModeNextStageButton);
+        await browser.clickVisible(Selectors.FocusModePreviousStageButton);
+
+        const expandedInputElementsPostSwitch = await browser.$$(
+          `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedInputElementsPostSwitch).to.have.lengthOf(140);
+      });
+    });
+
+    context('when on pipeline results', function () {
+      beforeEach(async function () {
+        await browser.clickVisible(Selectors.AddStageButton);
+        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+
+        await browser.selectStageOperator(0, '$match');
+        await browser.setCodemirrorEditorValue(
+          Selectors.stageEditor(0),
+          '{ "names.firstName": "1-firstName" }'
+        );
+
+        await goToRunAggregation(browser);
+      });
+
+      it('should be able to expand / collapse pipeline results', async function () {
+        await browser.selectPipelineResultsOutputOption('expand');
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.selectPipelineResultsOutputOption('collapse');
+        const collapsedHadronElements = await browser.$$(
+          `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
+        );
+        expect(collapsedHadronElements).to.have.lengthOf(4);
+      });
+
+      it('should retain the expanded / collapsed state even after switching tabs', async function () {
+        await browser.selectPipelineResultsOutputOption('expand');
+        const expandedHadronElements = await browser.$$(
+          `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElements).to.have.lengthOf(14);
+
+        await browser.navigateWithinCurrentCollectionTabs('Documents');
+        await browser.navigateWithinCurrentCollectionTabs('Aggregations');
+
+        const expandedHadronElementsPostSwitch = await browser.$$(
+          `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
+        );
+        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+      });
+    });
+  });
+
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
   // TODO: test auto-preview and limit
   // TODO: save a pipeline, close compass, re-open compass, load the pipeline
-  // TODO: test Collapse/Expand all stages button (currently broken)
 });

@@ -23,6 +23,7 @@ import {
   Icon,
   InteractivePopover,
   TextInput,
+  useId,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -293,9 +294,28 @@ export default function BulkUpdateDialog({
     }
   }, [isOpen, wasOpen, updateText]);
 
+  const modalTitleAndButtonText = useMemo(() => {
+    if (typeof count !== 'number') {
+      return 'Update documents';
+    }
+
+    if (count === 1) {
+      return `Update 1 document`;
+    }
+
+    return `Update ${count} documents`;
+  }, [count]);
+
+  const bulkUpdateUpdateId = useId();
   return (
-    <Modal open={isOpen} setOpen={closeBulkUpdateDialog} size="large">
-      <ModalHeader title={`Update ${count || 0} documents`} subtitle={ns} />
+    <Modal
+      open={isOpen}
+      setOpen={closeBulkUpdateDialog}
+      size="large"
+      data-testid="bulk-update-dialog"
+      initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
+    >
+      <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />
       <ModalBody>
         <div className={columnsStyles}>
           <div className={queryStyles}>
@@ -307,9 +327,12 @@ export default function BulkUpdateDialog({
             </div>
 
             <div className={cx(queryFieldStyles, updateFieldStyles)}>
-              <Label htmlFor="bulk-update-update">Update</Label>
+              <Label htmlFor={bulkUpdateUpdateId}>Update</Label>
               <Description className={descriptionStyles}>
-                <Link href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update">
+                <Link
+                  tabIndex={0}
+                  href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update"
+                >
                   Learn more about Update syntax
                 </Link>
               </Description>
@@ -323,7 +346,7 @@ export default function BulkUpdateDialog({
                 <CodemirrorMultilineEditor
                   text={text}
                   onChangeText={onChangeText}
-                  id="bulk-update-update"
+                  id={bulkUpdateUpdateId}
                   data-testid="bulk-update-update"
                   onBlur={() => ({})}
                   annotations={annotations}
@@ -355,7 +378,7 @@ export default function BulkUpdateDialog({
               Preview{' '}
               <Description className={previewDescriptionStyles}>
                 (sample of {preview.changes.length} document
-                {preview.changes.length !== 1 && 's'})
+                {preview.changes.length === 1 ? '' : 's'})
               </Description>
             </Label>
             <div className={updatePreviewStyles}>
@@ -377,15 +400,20 @@ export default function BulkUpdateDialog({
           <InlineSaveQueryModal onSave={saveUpdateQuery} />
         </div>
         <div className={modalFooterFormActionsStyles}>
-          <Button variant="default" onClick={closeBulkUpdateDialog}>
+          <Button
+            variant="default"
+            onClick={closeBulkUpdateDialog}
+            data-testid="cancel-button"
+          >
             Cancel
           </Button>
           <Button
             disabled={!!(syntaxError || serverError)}
             variant="primary"
             onClick={runBulkUpdate}
+            data-testid="update-button"
           >
-            Update {count} documents
+            {modalTitleAndButtonText}
           </Button>
         </div>
       </ModalFooter>

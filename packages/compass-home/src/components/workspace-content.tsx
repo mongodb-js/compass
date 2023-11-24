@@ -7,30 +7,51 @@ import {
 import InstanceWorkspacePlugin, {
   InstanceTabsProvider,
 } from '@mongodb-js/compass-instance';
+import {
+  CompassDatabasePlugin,
+  DatabaseTabsProvider,
+} from '@mongodb-js/compass-database';
+import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
+import CompassSavedAggregationsQueriesPlugin from '@mongodb-js/compass-saved-aggregations-queries';
+import { InstanceTab as DatabasesTabPlugin } from '@mongodb-js/compass-databases-collections';
+import { InstanceTab as PerformanceTabPlugin } from '@mongodb-js/compass-serverstats';
 import type Namespace from '../types/namespace';
+import { CollectionTabsProvider } from '@mongodb-js/compass-collection';
 
 const EmptyComponent: React.FunctionComponent = () => null;
 
 const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   namespace,
 }) => {
-  const instanceTabs = useAppRegistryRole('Instance.Tab');
+  const databaseTabs = useAppRegistryRole('Database.Tab');
 
   const Collection =
     useAppRegistryComponent('Collection.Workspace') ?? EmptyComponent;
-  const Database =
-    useAppRegistryComponent('Database.Workspace') ?? EmptyComponent;
 
   if (namespace.collection) {
-    return <Collection></Collection>;
+    return (
+      <CollectionTabsProvider tabs={[CompassSchemaValidationPlugin]}>
+        <Collection />
+      </CollectionTabsProvider>
+    );
   }
 
   if (namespace.database) {
-    return <Database></Database>;
+    return (
+      <DatabaseTabsProvider tabs={databaseTabs ?? []}>
+        <CompassDatabasePlugin />
+      </DatabaseTabsProvider>
+    );
   }
 
   return (
-    <InstanceTabsProvider tabs={instanceTabs ?? []}>
+    <InstanceTabsProvider
+      tabs={[
+        CompassSavedAggregationsQueriesPlugin,
+        DatabasesTabPlugin,
+        PerformanceTabPlugin,
+      ]}
+    >
       <InstanceWorkspacePlugin></InstanceWorkspacePlugin>
     </InstanceTabsProvider>
   );

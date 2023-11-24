@@ -234,7 +234,7 @@ export function registerHadronPlugin<
           ...mockServices
         } = mocks;
         const mockServiceLocators = Object.fromEntries(
-          Object.keys(services ?? {}).map((s) => {
+          Object.keys({ ...services, ...mockServices }).map((s) => {
             return [s, mockServices[s] ? () => mockServices[s] : services?.[s]];
           })
         ) as unknown as S;

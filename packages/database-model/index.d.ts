@@ -4,9 +4,9 @@ import type { DataService } from 'mongodb-data-service';
 interface Database {
   _id: string;
   name: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
-  collectionsStatus: string;
+  collectionsStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   collectionsStatusError: string | null;
   collection_count: number;
   document_count: number;
