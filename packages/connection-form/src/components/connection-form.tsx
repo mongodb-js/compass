@@ -382,7 +382,7 @@ const ConnectionFormWithPreferences = (
   const { preferences, ...rest } = props;
 
   return (
-    <ConnectionFormPreferencesContext.Provider value={{ ...preferences }}>
+    <ConnectionFormPreferencesContext.Provider value={preferences}>
       <ConnectionForm {...rest} />
     </ConnectionFormPreferencesContext.Provider>
   );
