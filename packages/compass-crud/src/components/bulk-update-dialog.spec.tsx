@@ -11,6 +11,7 @@ function renderBulkUpdateDialog(
   return render(
     <BulkUpdateDialog
       isOpen={true}
+      loading={false}
       ns="mydb.mycoll"
       filter={{ a: 1 }}
       count={0}
@@ -98,6 +99,7 @@ describe('BulkUpdateDialog Component', function () {
     rerender(
       <BulkUpdateDialog
         isOpen={false}
+        loading={false}
         ns="mydb.mycoll"
         filter={{ a: 1 }}
         count={0}
@@ -120,6 +122,7 @@ describe('BulkUpdateDialog Component', function () {
     // re-open
     rerender(
       <BulkUpdateDialog
+        loading={false}
         isOpen={true}
         ns="mydb.mycoll"
         filter={{ a: 1 }}

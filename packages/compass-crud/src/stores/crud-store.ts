@@ -365,6 +365,7 @@ type InsertState = {
 type BulkUpdateState = {
   isOpen: boolean;
   updateText: string;
+  loading: boolean;
   preview: UpdatePreview;
   syntaxError?: Error;
   serverError?: Error;
@@ -528,6 +529,7 @@ class CrudStoreImpl
     return {
       isOpen: false,
       updateText: '{\n  $set: {}\n}',
+      loading: false,
       preview: {
         changes: [],
       },
@@ -1190,6 +1192,20 @@ class CrudStoreImpl
     const { filter } = this.state.query;
 
     let preview;
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        loading: true,
+        preview: {
+          changes: [],
+        },
+        serverError: undefined,
+        syntaxError: undefined,
+        previewAbortController: undefined,
+      },
+    });
+
     try {
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
@@ -1204,6 +1220,7 @@ class CrudStoreImpl
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
+          loading: false,
           preview: {
             changes: [],
           },
@@ -1223,6 +1240,7 @@ class CrudStoreImpl
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
+        loading: false,
         preview,
         serverError: undefined,
         syntaxError: undefined,

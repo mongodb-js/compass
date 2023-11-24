@@ -24,6 +24,8 @@ import {
   InteractivePopover,
   TextInput,
   useId,
+  SpinLoader,
+  Body,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -234,6 +236,13 @@ const previewZeroStateIconStyles = css({
   alignItems: 'center',
 });
 
+const previewLoadingStyles = css({
+  marginTop: spacing[7],
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[2],
+});
+
 const previewNoResultsLabel = css({
   color: palette.green.dark2,
 });
@@ -252,6 +261,7 @@ export type BulkUpdatePreviewProps = {
 const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   count,
   preview,
+  loading,
 }) => {
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
@@ -259,25 +269,34 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
     );
   }, [preview]);
 
-  if (count === undefined || count === 0) {
-    return (
-      <div className={updatePreviewStyles}>
-        <Label htmlFor="bulk-update-preview">
-          Preview{' '}
-          <Description className={previewDescriptionStyles}>
-            (sample of {preview.changes.length} document
-            {preview.changes.length === 1 ? '' : 's'})
-          </Description>
-        </Label>
-        <div className={previewZeroStateIconStyles}>
-          <DocumentIcon size={spacing[4] * 2} />
-          <b className={previewNoResultsLabel}>No results</b>
-          <p className={previewZeroStateDescriptionStyles}>
-            Try modifying your query to get results.
-          </p>
-        </div>
+  let children;
+  if (loading) {
+    children = (
+      <div className={previewLoadingStyles}>
+        <SpinLoader />
+        <Body>Preview documents are being loaded.</Body>
       </div>
     );
+  } else if (!loading && (count === undefined || count === 0)) {
+    children = (
+      <div className={previewZeroStateIconStyles}>
+        <DocumentIcon size={spacing[4] * 2} />
+        <b className={previewNoResultsLabel}>No results</b>
+        <p className={previewZeroStateDescriptionStyles}>
+          Try modifying your query to get results.
+        </p>
+      </div>
+    );
+  } else if (!loading) {
+    children = previewDocuments.map((doc: HadronDocument, index: number) => {
+      return (
+        <UpdatePreviewDocument
+          key={`change=${index}`}
+          data-testid="bulk-update-preview-document"
+          doc={doc}
+        />
+      );
+    });
   }
 
   return (
@@ -289,17 +308,7 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
           {preview.changes.length === 1 ? '' : 's'})
         </Description>
       </Label>
-      <div className={updatePreviewStyles}>
-        {previewDocuments.map((doc: HadronDocument, index: number) => {
-          return (
-            <UpdatePreviewDocument
-              key={`change=${index}`}
-              data-testid="bulk-update-preview-document"
-              doc={doc}
-            />
-          );
-        })}
-      </div>
+      <div className={updatePreviewStyles}>{children}</div>
     </div>
   );
 };
@@ -310,6 +319,7 @@ export type BulkUpdateDialogProps = {
   filter: BSONObject;
   count?: number;
   updateText: string;
+  loading?: boolean;
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error;
@@ -326,6 +336,7 @@ export default function BulkUpdateDialog({
   filter,
   count,
   updateText,
+  loading,
   preview,
   syntaxError,
   serverError,
@@ -449,7 +460,11 @@ export default function BulkUpdateDialog({
             </div>
           </div>
           {enablePreview && (
-            <BulkUpdatePreview count={count} preview={preview} />
+            <BulkUpdatePreview
+              count={count}
+              preview={preview}
+              loading={!!loading}
+            />
           )}
         </div>
       </ModalBody>
