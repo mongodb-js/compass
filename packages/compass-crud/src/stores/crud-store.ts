@@ -336,6 +336,7 @@ type CrudStoreOptions = {
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
 };
@@ -428,6 +429,7 @@ type CrudState = {
   fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
 };
 
@@ -495,6 +497,7 @@ class CrudStoreImpl
       fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
+      isUpdatePreviewSupported: false,
       bulkDelete: {
         previews: [],
         status: 'closed',
@@ -1128,6 +1131,28 @@ class CrudStoreImpl
         updateText,
       },
     });
+
+    // Don't try and calculate the update preview if we know it won't work. Just
+    // see if the update will parse.
+    if (!this.state.isUpdatePreviewSupported) {
+      try {
+        parseShellBSON(updateText);
+      } catch (err: any) {
+        this.setState({
+          bulkUpdate: {
+            ...this.state.bulkUpdate,
+            preview: {
+              changes: [],
+            },
+            serverError: undefined,
+            syntaxError: err,
+            previewAbortController: undefined,
+          },
+        });
+      }
+
+      return;
+    }
 
     const abortController = new AbortController();
 
@@ -2009,6 +2034,7 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       isWritable: instance.isWritable,
       instanceDescription: instance.description,
       version: instance.build.version,
+      isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
     };
     if (instance.dataLake.isDataLake) {
       instanceState.isDataLake = true;
