@@ -45,7 +45,10 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkUpdateTitle).getText()).to.equal(
@@ -83,23 +86,28 @@ describe('Bulk Update', () => {
       .$(Selectors.BulkUpdateModal)
       .waitForDisplayed({ reverse: true });
 
-    // TODO(COMPASS-7457): The toast should eventually say that it is done and have a refresh
-    // button, but right now it has a timeout and goes away automatically, so
-    // that will just flake.
+    // The success toast is displayed
+    await browser.$(Selectors.BulkUpdateSuccessToast).waitForDisplayed();
+
+    const toastText = await browser
+      .$(Selectors.BulkUpdateSuccessToast)
+      .getText();
+
+    expect(toastText).to.contain('1 document has been updated.');
+    // We close the toast
+    await browser.$(Selectors.BulkUpdateSuccessToastDismissButton).click();
+
+    await browser
+      .$(Selectors.BulkUpdateSuccessToast)
+      .waitForDisplayed({ reverse: true });
 
     // TODO(COMPASS-7388): Check the telemetry once we add it
 
-    // Keep running a new find and make sure the doc eventually matches the
-    // expected query (once the update ran).
-    // TODO(COMPASS-7457): Once we can wait for a stable toast we don't have to
-    // do this in a loop - we can just run this once when the update finishes.
-    await browser.waitUntil(async () => {
-      await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
-      const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
-      await modifiedDocument.waitForDisplayed();
-      const doc = await getFormattedDocument(browser);
-      return /^_id: ObjectId\('[a-f0-9]{24}'\) i: 5 j: 0 foo: "bar"$/.test(doc);
-    });
+    await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
+    const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
+    await modifiedDocument.waitForDisplayed();
+    const doc = await getFormattedDocument(browser);
+    return /^_id: ObjectId\('[a-f0-9]{24}'\) i: 5 j: 0 foo: "bar"$/.test(doc);
   });
 
   it('can save an update query as a favourite and return to it', async function () {
@@ -166,7 +174,10 @@ describe('Bulk Update', () => {
     // The modal should open
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    // TODO(COMPASS-7448): Make sure the query is shown in the modal.
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.equal('{ i: { $gt: 5 } }');
 
     // Check that the modal starts with the expected update text
     expect(await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)).to

@@ -45,6 +45,11 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
+    // Make sure the query is shown in the modal.
+    expect(
+      await browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
+    ).to.equal('{ i: 5 }');
+
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
@@ -65,6 +70,21 @@ describe('Bulk Delete', () => {
     // Press delete in the confirmation modal
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
+
+    // The success toast is displayed
+    await browser.$(Selectors.BulkDeleteSuccessToast).waitForDisplayed();
+
+    const toastText = await browser
+      .$(Selectors.BulkDeleteSuccessToast)
+      .getText();
+
+    expect(toastText).to.contain('1 document has been deleted.');
+    // We close the toast
+    await browser.$(Selectors.BulkDeleteSuccessToastDismissButton).click();
+
+    await browser
+      .$(Selectors.BulkDeleteSuccessToast)
+      .waitForDisplayed({ reverse: true });
 
     // the document is deleted
     expect(
