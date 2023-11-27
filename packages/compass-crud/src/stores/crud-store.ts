@@ -34,12 +34,8 @@ import {
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
-import type { DataService, UpdatePreview } from 'mongodb-data-service';
-import type {
-  GridStore,
-  GridStoreOptions,
-  TableHeaderType,
-} from './grid-store';
+import type { UpdatePreview } from 'mongodb-data-service';
+import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
@@ -54,6 +50,9 @@ import {
   openBulkUpdateProgressToast,
   openBulkUpdateSuccessToast,
 } from '../components/bulk-actions-toasts';
+import type { DataService } from '../utils/data-service';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import configureActions from '../actions';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -132,7 +131,9 @@ export const fetchDocuments: (
     // ADF doesn't support $bsonSize
     !isDataLake &&
     // Accessing $$ROOT is not possible with CSFLE
-    ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
+    ['disabled', 'unavailable', undefined].includes(
+      dataService?.getCSFLEMode?.()
+    ) &&
     // User provided their own projection, we can handle this in some cases, but
     // it's hard to get right, so we will just skip this case
     isEmpty(options?.projection);
@@ -288,32 +289,6 @@ export const setNamespace = (store: CrudStoreImpl, ns: string) => {
 };
 
 /**
- * Set the global app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setGlobalAppRegistry = (
-  store: CrudStoreImpl,
-  appRegistry: AppRegistry
-) => {
-  store.globalAppRegistry = appRegistry;
-};
-
-/**
- * Set the local app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setLocalAppRegistry = (
-  store: CrudStoreImpl,
-  appRegistry: AppRegistry
-) => {
-  store.localAppRegistry = appRegistry;
-};
-
-/**
  * Determine if the document list is editable.
  *
  * @param {Object} opts - The options to determine if the list is editable.
@@ -333,19 +308,12 @@ export const isListEditable = ({
 };
 
 type CrudStoreOptions = {
-  actions: {
-    [key in keyof CrudActions]: Listenable;
-  };
-  query?: Partial<QueryState>;
-  localAppRegistry: AppRegistry;
-  globalAppRegistry: AppRegistry;
+  query?: unknown; // Partial<QueryState>;
   isReadonly: boolean;
   namespace: string;
   isTimeSeries: boolean;
-  dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
-  isUpdatePreviewSupported: boolean;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
 };
@@ -442,30 +410,49 @@ type CrudState = {
   bulkDelete: BulkDeleteState;
 };
 
+type CrudStoreActionsOptions = {
+  actions: {
+    [key in keyof CrudActions]: Listenable;
+  };
+};
+
 class CrudStoreImpl
-  extends BaseRefluxStore<CrudStoreOptions>
+  extends BaseRefluxStore<CrudStoreOptions & CrudStoreActionsOptions>
   implements CrudActions
 {
   mixins = [StateMixin.store];
-  listenables: unknown[];
 
   // Should this be readonly? The existence of setState would imply that...
   // readonly state!: Readonly<CrudState>
   state!: CrudState;
   setState!: (newState: Partial<CrudState>) => void;
-  dataService!: DataService;
-  localAppRegistry!: AppRegistry;
-  globalAppRegistry!: AppRegistry;
+  dataService: DataService;
+  localAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
+  >;
+  globalAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
   favoriteQueriesStorage: FavoriteQueryStorage;
   recentQueriesStorage: RecentQueryStorage;
 
-  constructor(options: CrudStoreOptions) {
+  constructor(
+    options: CrudStoreOptions & CrudStoreActionsOptions,
+    services: Pick<
+      DocumentsPluginServices,
+      'dataService' | 'localAppRegistry' | 'globalAppRegistry'
+    >
+  ) {
     super(options);
-    this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
     this.favoriteQueriesStorage =
       options.favoriteQueriesStorage || new FavoriteQueryStorage();
     this.recentQueriesStorage =
       options.recentQueriesStorage || new RecentQueryStorage();
+    this.dataService = services.dataService;
+    this.localAppRegistry = services.localAppRegistry;
+    this.globalAppRegistry = services.globalAppRegistry;
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -726,7 +713,7 @@ class CrudStoreImpl
       // doing so is disallowed might not be great UX, but
       // since we are mostly targeting typical FLE2 use cases,
       // it's probably not worth spending too much time on this.
-      const isAllowed = await this.dataService.isUpdateAllowed(
+      const isAllowed = await this.dataService.isUpdateAllowed?.(
         ns,
         doc.generateOriginalObject()
       );
@@ -839,10 +826,7 @@ class CrudStoreImpl
         ],
       };
 
-      if (
-        this.dataService.getCSFLEMode &&
-        this.dataService.getCSFLEMode() === 'enabled'
-      ) {
+      if (this.dataService.getCSFLEMode?.() === 'enabled') {
         const knownSchemaForCollection =
           await this.dataService.knownSchemaForCollection(this.state.ns);
 
@@ -1069,10 +1053,7 @@ class CrudStoreImpl
     }
 
     const csfleState: InsertState['csfleState'] = { state: 'none' };
-    const dataServiceCSFLEMode =
-      this.dataService &&
-      this.dataService.getCSFLEMode &&
-      this.dataService.getCSFLEMode();
+    const dataServiceCSFLEMode = this.dataService.getCSFLEMode?.();
     if (dataServiceCSFLEMode === 'enabled') {
       // Show a warning if this is a CSFLE-enabled connection but this
       // collection does not have a schema.
@@ -1092,7 +1073,7 @@ class CrudStoreImpl
       if (!hasSchema) {
         csfleState.state = 'no-known-schema';
       } else if (
-        !(await this.dataService.isUpdateAllowed(this.state.ns, doc))
+        !(await this.dataService.isUpdateAllowed?.(this.state.ns, doc))
       ) {
         csfleState.state = 'incomplete-schema-for-cloned-doc';
       } else {
@@ -1964,81 +1945,101 @@ class CrudStoreImpl
 }
 
 export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
-
-/**
- * Configure the main CRUD store.
- *
- * @param {Object} options - Options object to configure store. Defaults to {}.
- *
- * @returns {Object} Configured compass-crud store with initial states.
- */
-const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
-  const store = Reflux.createStore(new CrudStoreImpl(options)) as CrudStore;
-
-  // Set the app registry if preset. This must happen first.
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
-
-    localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
-
-    localAppRegistry.on('fields-changed', store.updateFields.bind(store));
-
-    localAppRegistry.on(
-      'favorites-open-bulk-update-favorite',
-      (query: QueryState & { update: BSONObject }) => {
-        void store.onQueryChanged(query);
-        void store.refreshDocuments();
-        void store.openBulkUpdateDialog();
-        void store.updateBulkUpdatePreview(
-          toJSString(query.update) || '{ $set: { } }'
-        );
-      }
-    );
-
-    setLocalAppRegistry(store, options.localAppRegistry);
+export type DocumentsPluginServices = {
+  dataService: DataService;
+  instance: MongoDBInstance;
+  localAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
+  >;
+  globalAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
+};
+export function activateDocumentsPlugin(
+  options: CrudStoreOptions,
+  {
+    dataService,
+    instance,
+    localAppRegistry,
+    globalAppRegistry,
+  }: DocumentsPluginServices
+) {
+  const cleanup: (() => void)[] = [];
+  function on(
+    eventEmitter: {
+      on(ev: string, l: (...args: any[]) => void): void;
+      removeListener(ev: string, l: (...args: any[]) => void): void;
+    },
+    ev: string,
+    listener: (...args: any[]) => void
+  ) {
+    eventEmitter.on(ev, listener);
+    cleanup.push(() => eventEmitter.removeListener(ev, listener));
   }
+
+  const actions = configureActions();
+  const store = Reflux.createStore(
+    new CrudStoreImpl(
+      { ...options, actions },
+      {
+        dataService,
+        localAppRegistry,
+        globalAppRegistry,
+      }
+    )
+  ) as CrudStore;
+
+  on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
+
+  on(localAppRegistry, 'fields-changed', store.updateFields.bind(store));
+
+  on(
+    localAppRegistry,
+    'favorites-open-bulk-update-favorite',
+    (query: QueryState & { update: BSONObject }) => {
+      void store.onQueryChanged(query);
+      void store.refreshDocuments();
+      void store.openBulkUpdateDialog();
+      void store.updateBulkUpdatePreview(
+        toJSString(query.update) || '{ $set: { } }'
+      );
+    }
+  );
 
   // Set global app registry to get status actions.
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-
-    const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
-    const instance = instanceStore.getState().instance;
-
-    const instanceState: Partial<CrudState> = {
-      isWritable: instance.isWritable,
-      instanceDescription: instance.description,
-      version: instance.build.version,
-      isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
-    };
-    if (instance.dataLake.isDataLake) {
-      instanceState.isDataLake = true;
-    }
-    store.setState(instanceState);
-
-    // these can change later
-    instance.on('change:isWritable', () => {
-      store.setState({ isWritable: instance.isWritable });
-    });
-
-    instance.on('change:description', () => {
-      store.setState({ instanceDescription: instance.description });
-    });
-
-    globalAppRegistry.on('refresh-data', () => {
-      void store.refreshDocuments();
-    });
-
-    globalAppRegistry.on('import-finished', ({ ns }) => {
-      if (ns === store.state.ns) {
-        void store.refreshDocuments();
-      }
-    });
-
-    setGlobalAppRegistry(store, globalAppRegistry);
+  const instanceState: Partial<CrudState> = {
+    isWritable: instance.isWritable,
+    instanceDescription: instance.description,
+    version: instance.build.version,
+    isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
+  };
+  if (instance.dataLake.isDataLake) {
+    instanceState.isDataLake = true;
   }
+  store.setState(instanceState);
+
+  // these can change later
+  on(instance, 'change:isWritable', () => {
+    store.setState({ isWritable: instance.isWritable });
+  });
+
+  on(instance, 'change:description', () => {
+    store.setState({ instanceDescription: instance.description });
+  });
+
+  on(globalAppRegistry, 'refresh-data', () => {
+    void store.refreshDocuments();
+  });
+
+  on(globalAppRegistry, 'import-finished', ({ ns }) => {
+    if (ns === store.state.ns) {
+      void store.refreshDocuments();
+    }
+  });
 
   if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
@@ -2052,27 +2053,23 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     setIsTimeSeries(store, options.isTimeSeries);
   }
 
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider as DataService
-    );
-
-    if (!options.noRefreshOnConfigure) {
-      void store.refreshDocuments();
-    }
+  if (!options.noRefreshOnConfigure) {
+    void store.refreshDocuments();
   }
 
   store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
 
-  const gridStore = configureGridStore(options);
+  const gridStore = configureGridStore({ actions });
   store.gridStore = gridStore;
 
-  return store;
-};
-
-export default configureStore;
+  return {
+    store,
+    actions,
+    deactivate() {
+      for (const cleaner of cleanup) cleaner();
+    },
+  };
+}
 
 function resultId() {
   return Math.floor(Math.random() * 2 ** 53);

@@ -1,7 +1,7 @@
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
+import type { DataService } from './data-service';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-CANCELLABLE-QUERIES'
