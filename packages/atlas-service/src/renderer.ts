@@ -101,6 +101,14 @@ export class AtlasService {
     this.emitter.off(evt, listener);
     return this;
   }
+  removeListener<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  removeListener(evt: string, listener: (...args: any[]) => void): this {
+    this.emitter.off(evt, listener);
+    return this;
+  }
 
   emit<T extends keyof AtlasServiceEvents>(
     evt: T,

@@ -1,7 +1,7 @@
 import { fetchExplainForPipeline } from './insights';
 import Sinon from 'sinon';
-import configureStore from '../stores/store';
 import { expect } from 'chai';
+import configureStore from '../../test/configure-store';
 
 const simpleExplain = {
   queryPlanner: {
@@ -40,16 +40,18 @@ const explainWithIndex = {
 
 describe('fetchExplainForPipeline', function () {
   it('should set isCollectionScan to true when explain returned no used indexes', async function () {
-    const dataService = {
+    const dataService: any = {
       explainAggregate: Sinon.stub().resolves(simpleExplain),
     };
 
-    const store = configureStore({
-      namespace: 'test.test',
-      dataProvider: { dataProvider: dataService as any },
-    });
+    const store = configureStore(
+      {
+        namespace: 'test.test',
+      },
+      dataService
+    );
 
-    await store.dispatch(fetchExplainForPipeline());
+    await store.dispatch(fetchExplainForPipeline() as any);
 
     expect(store.getState()).to.have.nested.property(
       'insights.isCollectionScan',
@@ -58,16 +60,18 @@ describe('fetchExplainForPipeline', function () {
   });
 
   it('should set isCollectionScan to false if index was used', async function () {
-    const dataService = {
+    const dataService: any = {
       explainAggregate: Sinon.stub().resolves(explainWithIndex),
     };
 
-    const store = configureStore({
-      namespace: 'test.test',
-      dataProvider: { dataProvider: dataService as any },
-    });
+    const store = configureStore(
+      {
+        namespace: 'test.test',
+      },
+      dataService
+    );
 
-    await store.dispatch(fetchExplainForPipeline());
+    await store.dispatch(fetchExplainForPipeline() as any);
 
     expect(store.getState()).to.have.nested.property(
       'insights.isCollectionScan',
@@ -76,37 +80,41 @@ describe('fetchExplainForPipeline', function () {
   });
 
   it('should debounce fetch calls', async function () {
-    const dataService = {
+    const dataService: any = {
       explainAggregate: Sinon.stub().resolves(explainWithIndex),
     };
 
-    const store = configureStore({
-      namespace: 'test.test',
-      dataProvider: { dataProvider: dataService as any },
-    });
+    const store = configureStore(
+      {
+        namespace: 'test.test',
+      },
+      dataService
+    );
 
-    void store.dispatch(fetchExplainForPipeline());
-    void store.dispatch(fetchExplainForPipeline());
-    void store.dispatch(fetchExplainForPipeline());
-    void store.dispatch(fetchExplainForPipeline());
-    await store.dispatch(fetchExplainForPipeline());
+    void store.dispatch(fetchExplainForPipeline() as any);
+    void store.dispatch(fetchExplainForPipeline() as any);
+    void store.dispatch(fetchExplainForPipeline() as any);
+    void store.dispatch(fetchExplainForPipeline() as any);
+    await store.dispatch(fetchExplainForPipeline() as any);
 
     expect(dataService.explainAggregate).to.be.calledOnce;
   });
 
   it('should remove $out stage before passing pipeline to explain', async function () {
-    const dataService = {
+    const dataService: any = {
       explainAggregate: Sinon.stub().resolves(simpleExplain),
       isCancelError: Sinon.stub().returns(false),
     };
 
-    const store = configureStore({
-      namespace: 'test.test',
-      dataProvider: { dataProvider: dataService as any },
-      pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }],
-    });
+    const store = configureStore(
+      {
+        namespace: 'test.test',
+        pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }],
+      },
+      dataService
+    );
 
-    await store.dispatch(fetchExplainForPipeline());
+    await store.dispatch(fetchExplainForPipeline() as any);
 
     expect(dataService.explainAggregate).to.be.calledWith('test.test', [
       { $match: { foo: 1 } },
@@ -114,18 +122,20 @@ describe('fetchExplainForPipeline', function () {
   });
 
   it('should remove $merge stage before passing pipeline to explain', async function () {
-    const dataService = {
+    const dataService: any = {
       explainAggregate: Sinon.stub().resolves(simpleExplain),
       isCancelError: Sinon.stub().returns(false),
     };
 
-    const store = configureStore({
-      namespace: 'test.test',
-      dataProvider: { dataProvider: dataService as any },
-      pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
-    });
+    const store = configureStore(
+      {
+        namespace: 'test.test',
+        pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
+      },
+      dataService
+    );
 
-    await store.dispatch(fetchExplainForPipeline());
+    await store.dispatch(fetchExplainForPipeline() as any);
 
     expect(dataService.explainAggregate).to.be.calledWith('test.test', [
       { $match: { bar: 2 } },

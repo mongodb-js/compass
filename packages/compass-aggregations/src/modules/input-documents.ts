@@ -1,7 +1,8 @@
 import HadronDocument from 'hadron-document';
-import type { AnyAction } from 'redux';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { PipelineBuilderThunkAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
@@ -24,7 +25,12 @@ type DocumentsFetchFinishedAction = {
   error: Error | null;
 };
 
-type State = {
+export type InputDocumentsAction =
+  | CollapseToggledAction
+  | DocumentsFetchFinishedAction
+  | DocumentsFetchStartedAction;
+
+export type InputDocumentsState = {
   count: number | null;
   documents: HadronDocument[];
   error: Error | null;
@@ -32,7 +38,7 @@ type State = {
   isLoading: boolean;
 };
 
-export const INITIAL_STATE: State = {
+export const INITIAL_STATE: InputDocumentsState = {
   count: null,
   documents: [],
   error: null,
@@ -40,20 +46,33 @@ export const INITIAL_STATE: State = {
   isLoading: false,
 };
 
-const reducer = (state = INITIAL_STATE, action: AnyAction) => {
-  if (action.type === ActionTypes.CollapseToggled) {
+const reducer = (
+  state: InputDocumentsState = INITIAL_STATE,
+  action: AnyAction
+): InputDocumentsState => {
+  if (isAction<CollapseToggledAction>(action, ActionTypes.CollapseToggled)) {
     return { ...state, isExpanded: !state.isExpanded };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchStarted) {
+  if (
+    isAction<DocumentsFetchStartedAction>(
+      action,
+      ActionTypes.DocumentsFetchStarted
+    )
+  ) {
     return { ...state, isLoading: true };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchFinished) {
+  if (
+    isAction<DocumentsFetchFinishedAction>(
+      action,
+      ActionTypes.DocumentsFetchFinished
+    )
+  ) {
     return {
       ...state,
       count: action.count,
-      documents: action.documents as HadronDocument[],
+      documents: action.documents,
       error: action.error,
       isLoading: false,
     };
@@ -113,7 +132,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;
       const docs = data[1].status === 'fulfilled' ? data[1].value : [];
-      const hadronDocs = docs.map((doc) => new HadronDocument(doc));
+      const hadronDocs = docs.map((doc: any) => new HadronDocument(doc));
 
       const error =
         data[0].status === 'rejected'

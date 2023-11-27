@@ -12,7 +12,9 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import { fetchExplainForPipeline } from '../insights';
@@ -55,6 +57,13 @@ type EditorPreviewFetchErrorAction = {
   serverError: MongoServerError;
 };
 
+export type TextEditorAction =
+  | EditorPreviewFetchAction
+  | EditorPreviewFetchErrorAction
+  | EditorPreviewFetchSuccessAction
+  | EditorPreviewFetchSkippedAction
+  | EditorValueChangeAction;
+
 export type TextEditorState = {
   pipelineText: string;
   pipeline: Document[];
@@ -92,8 +101,11 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     // On editor switch or reset, reset the parsed pipeline completely
     const pipeline = action.pipeline ?? [];
@@ -186,7 +198,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
 };
 
 export function canRunPipeline(
-  autoPreview: boolean,
+  autoPreview: boolean | undefined,
   syntaxErrors: PipelineParserError[]
 ) {
   return autoPreview && syntaxErrors.length === 0;
@@ -243,7 +255,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count,
+        totalDocumentCount: inputDocuments.count ?? undefined,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(

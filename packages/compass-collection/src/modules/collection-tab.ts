@@ -47,7 +47,7 @@ export type CollectionState = {
     | 'Validation';
   initialQuery?: unknown;
   initialAggregation?: unknown;
-  initialPipelineText?: unknown;
+  initialPipelineText?: string;
   editViewName?: string;
 };
 

@@ -1,4 +1,3 @@
-import type { DataService } from 'mongodb-data-service';
 import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
@@ -8,6 +7,7 @@ import Stage from './stage';
 import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
+import type { DataService } from '../data-service';
 
 export const DEFAULT_PIPELINE = `[]`;
 
@@ -85,7 +85,7 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      this.pipeline = parseShellBSON(this.source);
+      this.pipeline = parseShellBSON<Document[]>(this.source);
       // parseShellBSON will parse various values, not all of them are valid
       // aggregation pipelines
       if (!Array.isArray(this.pipeline)) {
@@ -238,7 +238,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.nonEmptyStages): Document[] {
-    return parseShellBSON(this.getPipelineStringFromStages(stages));
+    return parseShellBSON<Document[]>(this.getPipelineStringFromStages(stages));
   }
 
   /**

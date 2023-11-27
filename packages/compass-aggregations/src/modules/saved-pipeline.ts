@@ -1,7 +1,6 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { openToast } from '@mongodb-js/compass-components';
-import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
@@ -15,13 +14,24 @@ import {
   showConfirmation,
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
+import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import type { AnyAction } from 'redux';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
-export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
-export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
+export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD` as const;
+export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE` as const;
+
+export interface SavedPipelineAddAction {
+  type: typeof SAVED_PIPELINE_ADD;
+  pipelines: SavedPipeline[];
+}
+export type RestorePipelineAction = ReturnType<typeof restorePipeline>;
+export type SavedPipelineAction =
+  | SavedPipelineAddAction
+  | RestorePipelineAction;
 
 export type SavedPipelineState = {
   pipelines: SavedPipeline[];
@@ -33,7 +43,10 @@ export const INITIAL_STATE: SavedPipelineState = {
   isLoaded: false,
 };
 
-const addSavedPipeline = (state: SavedPipelineState, action: AnyAction) => {
+const addSavedPipeline = (
+  state: SavedPipelineState,
+  action: SavedPipelineAddAction
+) => {
   return { ...state, pipelines: action.pipelines, isLoaded: true };
 };
 
@@ -41,17 +54,27 @@ const doRestoreSavedPipeline = (state: SavedPipelineState) => {
   return { ...state, isListVisible: false };
 };
 
-const MAPPINGS = {
+const MAPPINGS: {
+  [Type in SavedPipelineAction['type']]: (
+    state: SavedPipelineState,
+    action: SavedPipelineAction & { type: Type }
+  ) => SavedPipelineState;
+} = {
   [SAVED_PIPELINE_ADD]: addSavedPipeline,
   [RESTORE_PIPELINE]: doRestoreSavedPipeline,
 };
 
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  const fn = MAPPINGS[action.type];
-  return fn ? fn(state, action) : state;
+export default function reducer(
+  state: SavedPipelineState = INITIAL_STATE,
+  action: AnyAction
+) {
+  const fn = MAPPINGS[action.type as SavedPipelineAction['type']];
+  return fn ? fn(state, action as any) : state;
 }
 
-export const savedPipelineAdd = (pipelines: SavedPipeline[]) => ({
+export const savedPipelineAdd = (
+  pipelines: SavedPipeline[]
+): SavedPipelineAddAction => ({
   type: SAVED_PIPELINE_ADD,
   pipelines,
 });
@@ -86,6 +109,26 @@ export const updatePipelineList =
       });
   };
 
+function restorePipeline(
+  pipelineData: SavedPipeline,
+  pipelineBuilder: PipelineBuilder
+) {
+  return {
+    type: RESTORE_PIPELINE,
+    stages: pipelineBuilder.stages,
+    pipelineText: pipelineBuilder.source,
+    pipeline: pipelineBuilder.pipeline,
+    syntaxErrors: pipelineBuilder.syntaxError,
+    storedOptions: {
+      id: pipelineData.id,
+      name: pipelineData.name,
+      collationString: pipelineData.collationString,
+      comments: pipelineData.comments,
+      autoPreview: pipelineData.autoPreview,
+    },
+  };
+}
+
 /**
  * Restore pipeline by an ID
  */
@@ -96,20 +139,7 @@ export const openStoredPipeline = (
   return (dispatch, getState, { pipelineBuilder }) => {
     try {
       pipelineBuilder.reset(pipelineData.pipelineText);
-      dispatch({
-        type: RESTORE_PIPELINE,
-        stages: pipelineBuilder.stages,
-        pipelineText: pipelineBuilder.source,
-        pipeline: pipelineBuilder.pipeline,
-        syntaxErrors: pipelineBuilder.syntaxError,
-        storedOptions: {
-          id: pipelineData.id,
-          name: pipelineData.name,
-          collationString: pipelineData.collationString,
-          comments: pipelineData.comments,
-          autoPreview: pipelineData.autoPreview,
-        },
-      });
+      dispatch(restorePipeline(pipelineData, pipelineBuilder));
       if (updatePreview) {
         dispatch(updatePipelinePreview());
       }

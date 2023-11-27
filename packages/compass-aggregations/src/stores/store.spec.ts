@@ -28,7 +28,7 @@ describe('Aggregation Store', function () {
           'App.InstanceStore',
           fakeAppInstanceStore
         );
-        store = configureStore({
+        store = configureStore(undefined, undefined, {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
         });
@@ -106,7 +106,7 @@ describe('Aggregation Store', function () {
             isTimeSeries: false,
             editViewName: null,
             sourceName: null,
-            appRegistry: INITIAL_STATE.appRegistry,
+            appRegistry: state.appRegistry,
             comments: INITIAL_STATE.comments,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
@@ -128,7 +128,6 @@ describe('Aggregation Store', function () {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             savingPipeline: INITIAL_STATE.savingPipeline,
-            projections: INITIAL_STATE.projections,
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,
@@ -154,7 +153,7 @@ describe('Aggregation Store', function () {
         'App.InstanceStore',
         fakeAppInstanceStore
       );
-      store = configureStore({
+      store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
       });
