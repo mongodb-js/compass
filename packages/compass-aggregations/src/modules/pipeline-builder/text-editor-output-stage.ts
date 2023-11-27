@@ -1,12 +1,14 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { PipelineBuilderThunkAction, RootAction } from '..';
+import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
@@ -55,10 +57,7 @@ const INITIAL_STATE: OutputStageState = {
   serverError: null,
 };
 
-const reducer: Reducer<OutputStageState, RootAction> = (
-  state = INITIAL_STATE,
-  action
-) => {
+const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
   if (
     isAction<EditorValueChangeAction>(
       action,
@@ -76,8 +75,11 @@ const reducer: Reducer<OutputStageState, RootAction> = (
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return { ...INITIAL_STATE };
   }

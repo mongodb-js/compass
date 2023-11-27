@@ -1,12 +1,15 @@
 import toNS from 'mongodb-ns';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
+import { isAction } from '../utils/is-action';
+import type { AnyAction } from 'redux';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -38,14 +41,17 @@ export type UpdateViewAction =
 
 export default function reducer(
   state: UpdateViewState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): UpdateViewState {
-  if (action.type === ERROR_UPDATING_VIEW) {
+  if (isAction<ErrorUpdatingViewAction>(action, ERROR_UPDATING_VIEW)) {
     return action.error;
   }
   if (
-    action.type === DISMISS_VIEW_UPDATE_ERROR ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<DismissViewUpdateErrorAction>(action, DISMISS_VIEW_UPDATE_ERROR) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return INITIAL_STATE;
   }

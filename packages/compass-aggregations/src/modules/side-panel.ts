@@ -1,8 +1,8 @@
 import { isAction } from '../utils/is-action';
-import type { RootAction } from '.';
 import { type PipelineBuilderThunkAction } from '.';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import type { AnyAction } from 'redux';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 enum ActionTypes {
@@ -23,7 +23,7 @@ export const INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY =
 
 export default function reducer(
   state: SidePanelState = { isPanelOpen: false },
-  action: RootAction
+  action: AnyAction
 ): SidePanelState {
   if (isAction<SidePanelToggledAction>(action, ActionTypes.SidePanelToggled)) {
     return {

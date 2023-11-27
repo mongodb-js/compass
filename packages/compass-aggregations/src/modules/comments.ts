@@ -1,8 +1,16 @@
-import type { RootAction } from '.';
+import type { AnyAction } from 'redux';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import type {
+  LoadGeneratedPipelineAction,
+  PipelineGeneratedFromQueryAction,
+} from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
+import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
+import { isAction } from '../utils/is-action';
 
 export type CommentsState = boolean;
 
@@ -21,19 +29,28 @@ export const INITIAL_STATE: CommentsState = true;
  */
 export default function reducer(
   state: CommentsState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): CommentsState {
-  if (action.type === APPLY_SETTINGS) {
+  if (isAction<ApplySettingsAction>(action, APPLY_SETTINGS)) {
     return action.settings.isCommentMode ?? state;
   }
   if (
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
-    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
+    isAction<LoadGeneratedPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadGeneratedPipeline
+    ) ||
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    )
   ) {
     return INITIAL_STATE;
   }
-  if (action.type === RESTORE_PIPELINE) {
+  if (isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)) {
     return action.storedOptions.comments ?? INITIAL_STATE;
   }
   return state;

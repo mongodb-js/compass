@@ -1,9 +1,17 @@
 import { ObjectId } from 'bson';
+import type { ClonePipelineAction } from './clone-pipeline';
 import { CLONE_PIPELINE } from './clone-pipeline';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import type {
+  LoadGeneratedPipelineAction,
+  PipelineGeneratedFromQueryAction,
+} from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
-import type { RootAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 /**
  * Id create action.
@@ -25,18 +33,27 @@ export const INITIAL_STATE: IdState = '';
  */
 export default function reducer(
   state: IdState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): IdState {
   if (
-    action.type === CREATE_ID ||
-    action.type === CLONE_PIPELINE ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
-    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<CreateIdAction>(action, CREATE_ID) ||
+    isAction<ClonePipelineAction>(action, CLONE_PIPELINE) ||
+    isAction<LoadGeneratedPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadGeneratedPipeline
+    ) ||
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    ) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return new ObjectId().toHexString();
   }
-  if (action.type === RESTORE_PIPELINE) {
+  if (isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)) {
     return action.storedOptions.id;
   }
   return state;

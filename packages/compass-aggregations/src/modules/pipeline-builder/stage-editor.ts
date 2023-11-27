@@ -3,10 +3,12 @@ import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import type { PipelineBuilderThunkAction, RootAction } from '../';
+import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -970,13 +972,16 @@ export function mapStoreStagesToStageIdAndType(
   return stages.map(({ id, type }) => ({ id, type }));
 }
 
-const reducer: Reducer<StageEditorState, RootAction> = (
+const reducer: Reducer<StageEditorState> = (
   state: StageEditorState = { stagesIdAndType: [], stages: [] },
   action
 ) => {
   if (
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled

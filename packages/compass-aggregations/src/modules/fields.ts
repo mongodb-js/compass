@@ -1,4 +1,5 @@
-import type { RootAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 /**
  * Fields changed action.
@@ -21,9 +22,9 @@ export const INITIAL_STATE: FieldsState = [];
  */
 export default function reducer(
   state: FieldsState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): FieldsState {
-  if (action.type === FIELDS_CHANGED) {
+  if (isAction<FieldsChangedAction>(action, FIELDS_CHANGED)) {
     return action.fields;
   }
   return state;

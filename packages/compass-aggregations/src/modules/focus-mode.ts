@@ -1,4 +1,5 @@
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { AnyAction } from 'redux';
+import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -43,16 +44,18 @@ export const INITIAL_STATE: FocusModeState = {
 
 export default function reducer(
   state: FocusModeState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): FocusModeState {
-  if (action.type === ActionTypes.FocusModeEnabled) {
+  if (isAction<FocusModeEnabledAction>(action, ActionTypes.FocusModeEnabled)) {
     return {
       isEnabled: true,
       stageIndex: action.stageIndex,
       openedAt: Date.now(),
     };
   }
-  if (action.type === ActionTypes.FocusModeDisabled) {
+  if (
+    isAction<FocusModeDisabledAction>(action, ActionTypes.FocusModeDisabled)
+  ) {
     return {
       isEnabled: false,
       stageIndex: -1,

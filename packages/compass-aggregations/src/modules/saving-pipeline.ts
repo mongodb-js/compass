@@ -1,31 +1,34 @@
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 export const SAVING_PIPELINE_NAME_CHANGED =
   'aggregations/saving-pipeline/NAME_CHANGED' as const;
-interface SavingPipelineNameChangedAction {
+export interface SavingPipelineNameChangedAction {
   type: typeof SAVING_PIPELINE_NAME_CHANGED;
   name: string;
 }
 
 export const SAVING_PIPELINE_APPLY =
   'aggregations/saving-pipeline/APPLY' as const;
-interface SavingPipelineApplyAction {
+export interface SavingPipelineApplyAction {
   type: typeof SAVING_PIPELINE_APPLY;
   name: string;
 }
 
 export const SAVING_PIPELINE_CANCEL =
   'aggregations/saving-pipeline/CANCEL' as const;
-interface SavingPipelineCancelAction {
+export interface SavingPipelineCancelAction {
   type: typeof SAVING_PIPELINE_CANCEL;
 }
 
 export const SAVING_PIPELINE_OPEN =
   'aggregations/saving-pipeline/OPEN' as const;
-interface SavingPipelineOpenAction {
+export interface SavingPipelineOpenAction {
   type: typeof SAVING_PIPELINE_OPEN;
   name: string;
   isSaveAs: boolean;
@@ -61,16 +64,21 @@ export const INITIAL_STATE: SavingPipelineState = {
  */
 export default function reducer(
   state: SavingPipelineState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): SavingPipelineState {
-  if (action.type === SAVING_PIPELINE_NAME_CHANGED) {
+  if (
+    isAction<SavingPipelineNameChangedAction>(
+      action,
+      SAVING_PIPELINE_NAME_CHANGED
+    )
+  ) {
     return {
       ...state,
       name: action.name,
     };
   }
 
-  if (action.type === SAVING_PIPELINE_OPEN) {
+  if (isAction<SavingPipelineOpenAction>(action, SAVING_PIPELINE_OPEN)) {
     return {
       ...state,
       isOpen: true,
@@ -79,7 +87,7 @@ export default function reducer(
     };
   }
 
-  if (action.type === SAVING_PIPELINE_CANCEL) {
+  if (isAction<SavingPipelineCancelAction>(action, SAVING_PIPELINE_CANCEL)) {
     return {
       ...state,
       name: '',
@@ -88,8 +96,11 @@ export default function reducer(
   }
 
   if (
-    action.type === SAVING_PIPELINE_APPLY ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<SavingPipelineApplyAction>(action, SAVING_PIPELINE_APPLY) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return { ...INITIAL_STATE };
   }
@@ -152,10 +163,7 @@ export const savingPipelineOpen = ({
  * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
  */
-export const openCreateView = (): PipelineBuilderThunkAction<
-  void,
-  RootAction
-> => {
+export const openCreateView = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const state = getState();
     const sourceNs = state.namespace;

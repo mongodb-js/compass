@@ -1,6 +1,8 @@
 import HadronDocument from 'hadron-document';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
@@ -46,17 +48,27 @@ export const INITIAL_STATE: InputDocumentsState = {
 
 const reducer = (
   state: InputDocumentsState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): InputDocumentsState => {
-  if (action.type === ActionTypes.CollapseToggled) {
+  if (isAction<CollapseToggledAction>(action, ActionTypes.CollapseToggled)) {
     return { ...state, isExpanded: !state.isExpanded };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchStarted) {
+  if (
+    isAction<DocumentsFetchStartedAction>(
+      action,
+      ActionTypes.DocumentsFetchStarted
+    )
+  ) {
     return { ...state, isLoading: true };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchFinished) {
+  if (
+    isAction<DocumentsFetchFinishedAction>(
+      action,
+      ActionTypes.DocumentsFetchFinished
+    )
+  ) {
     return {
       ...state,
       count: action.count,

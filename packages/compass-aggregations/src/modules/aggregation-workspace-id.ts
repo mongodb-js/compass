@@ -1,6 +1,5 @@
 import { UUID } from 'bson';
 import type { Reducer } from 'redux';
-import type { RootAction } from '.';
 
 /**
  * Workspace id that allows to distinguish between different instances of the
@@ -9,9 +8,7 @@ import type { RootAction } from '.';
  * requests for stages separately for different tabs that can be opened in
  * Compass simultaneously
  */
-const reducer: Reducer<string, RootAction> = (
-  state = new UUID().toHexString()
-) => {
+const reducer: Reducer<string> = (state = new UUID().toHexString()) => {
   return state;
 };
 

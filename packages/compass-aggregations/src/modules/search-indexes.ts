@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
@@ -49,7 +49,7 @@ export const INITIAL_STATE: State = {
   status: SearchIndexesStatuses.INITIAL,
 };
 
-const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {

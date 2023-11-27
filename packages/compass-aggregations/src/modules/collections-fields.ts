@@ -1,8 +1,9 @@
 import { isAction } from '../utils/is-action';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
+import type { AnyAction } from 'redux';
 
 const FETCH_SCHEMA_MAX_TIME_MS = 10000;
 
@@ -54,7 +55,7 @@ export const INITIAL_STATE: State = {};
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ): State {
   if (
     isAction<CollectionsFetchedAction>(action, ActionTypes.CollectionsFetch)

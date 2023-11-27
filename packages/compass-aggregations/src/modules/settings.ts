@@ -1,36 +1,38 @@
 import type { Reducer } from 'redux';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../constants';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { isAction } from '../utils/is-action';
 
 const PREFIX = 'aggregations/settings' as const;
 
 export const TOGGLE_IS_EXPANDED = `${PREFIX}/TOGGLE_IS_EXPANDED` as const;
-interface ToggleIsExpandedAction {
+export interface ToggleIsExpandedAction {
   type: typeof TOGGLE_IS_EXPANDED;
 }
 
 export const TOGGLE_COMMENT_MODE = `${PREFIX}/TOGGLE_COMMENT_MODE` as const;
-interface ToggleCommentModeAction {
+export interface ToggleCommentModeAction {
   type: typeof TOGGLE_COMMENT_MODE;
 }
 
 export const SET_SAMPLE_SIZE = `${PREFIX}/SET_SAMPLE_SIZE` as const;
-interface SetSampleSizeAction {
+export interface SetSampleSizeAction {
   type: typeof SET_SAMPLE_SIZE;
   value: number;
 }
 
 export const SET_LIMIT = `${PREFIX}/SET_LIMIT` as const;
-interface SetLimitAction {
+export interface SetLimitAction {
   type: typeof SET_LIMIT;
   value: number;
 }
 
 export const APPLY_SETTINGS = `${PREFIX}/APPLY_SETTINGS` as const;
-interface ApplySettingsAction {
+export interface ApplySettingsAction {
   type: typeof APPLY_SETTINGS;
   settings: SettingsState;
 }
@@ -57,11 +59,8 @@ export const INITIAL_STATE: SettingsState = {
   limit: DEFAULT_LARGE_LIMIT, // largeLimit
 };
 
-const reducer: Reducer<SettingsState, RootAction> = (
-  state = INITIAL_STATE,
-  action
-) => {
-  if (action.type === TOGGLE_IS_EXPANDED) {
+const reducer: Reducer<SettingsState> = (state = INITIAL_STATE, action) => {
+  if (isAction<ToggleIsExpandedAction>(action, TOGGLE_IS_EXPANDED)) {
     const isCollapsing = !state.isExpanded === false;
     if (isCollapsing && state.isDirty === true) {
       return { ...INITIAL_STATE };
@@ -72,7 +71,7 @@ const reducer: Reducer<SettingsState, RootAction> = (
     };
   }
 
-  if (action.type === TOGGLE_COMMENT_MODE) {
+  if (isAction<ToggleCommentModeAction>(action, TOGGLE_COMMENT_MODE)) {
     return {
       ...state,
       isCommentMode: !state.isCommentMode,
@@ -80,7 +79,7 @@ const reducer: Reducer<SettingsState, RootAction> = (
     };
   }
 
-  if (action.type === SET_SAMPLE_SIZE) {
+  if (isAction<SetSampleSizeAction>(action, SET_SAMPLE_SIZE)) {
     return {
       ...state,
       sampleSize: action.value,
@@ -88,7 +87,7 @@ const reducer: Reducer<SettingsState, RootAction> = (
     };
   }
 
-  if (action.type === SET_LIMIT) {
+  if (isAction<SetLimitAction>(action, SET_LIMIT)) {
     return {
       ...state,
       limit: action.value,
@@ -96,11 +95,16 @@ const reducer: Reducer<SettingsState, RootAction> = (
     };
   }
 
-  if (action.type === APPLY_SETTINGS) {
+  if (isAction<ApplySettingsAction>(action, APPLY_SETTINGS)) {
     return { ...state, isDirty: false };
   }
 
-  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
+  if (
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
+  ) {
     return { ...INITIAL_STATE };
   }
 

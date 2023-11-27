@@ -1,11 +1,14 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { isAction } from '../utils/is-action';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
@@ -42,32 +45,41 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, RootAction> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case WorkspaceActionTypes.WorkspaceChanged:
-    case ConfirmNewPipelineActions.NewPipelineConfirmed:
-      return INITIAL_STATE;
-    case ActionTypes.CountStarted:
-      return {
-        loading: true,
-        count: state.count,
-        abortController: action.abortController,
-      };
-    case ActionTypes.CountFinished:
-      return {
-        loading: false,
-        abortController: undefined,
-        count: action.count,
-      };
-    case ActionTypes.CountFailed:
-      return {
-        ...state,
-        loading: false,
-        abortController: undefined,
-      };
-    default:
-      return state;
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
+  if (
+    isAction<WorkspaceChangedAction>(
+      action,
+      WorkspaceActionTypes.WorkspaceChanged
+    ) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
+  ) {
+    return INITIAL_STATE;
   }
+  if (isAction<CountStartedAction>(action, ActionTypes.CountStarted)) {
+    return {
+      loading: true,
+      count: state.count,
+      abortController: action.abortController,
+    };
+  }
+  if (isAction<CountFinishedAction>(action, ActionTypes.CountFinished)) {
+    return {
+      loading: false,
+      abortController: undefined,
+      count: action.count,
+    };
+  }
+  if (isAction<CountFailedAction>(action, ActionTypes.CountFailed)) {
+    return {
+      ...state,
+      loading: false,
+      abortController: undefined,
+    };
+  }
+  return state;
 };
 
 export const cancelCount = (): PipelineBuilderThunkAction<void> => {

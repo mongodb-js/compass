@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
-import type { PipelineBuilderThunkAction, RootAction } from '..';
+import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
@@ -12,7 +12,9 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import { fetchExplainForPipeline } from '../insights';
@@ -82,10 +84,7 @@ const INITIAL_STATE: TextEditorState = {
   isPreviewStale: false,
 };
 
-const reducer: Reducer<TextEditorState, RootAction> = (
-  state = INITIAL_STATE,
-  action
-) => {
+const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   // NB: Anything that this action handling reacts to should probably be also
   // accounted for in text-editor-output-stage slice. If you are changing this
   // code, don't forget to change the other reducer
@@ -102,8 +101,11 @@ const reducer: Reducer<TextEditorState, RootAction> = (
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     // On editor switch or reset, reset the parsed pipeline completely
     const pipeline = action.pipeline ?? [];

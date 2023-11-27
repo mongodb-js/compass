@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { Document } from 'mongodb';
-import type { PipelineBuilderThunkAction, RootAction } from '..';
+import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
 import {
   getPipelineFromBuilderState,
@@ -10,6 +10,7 @@ import {
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
@@ -39,17 +40,14 @@ export type PipelineModeAction = PipelineModeToggledAction;
 
 export const INITIAL_STATE: PipelineModeState = 'builder-ui';
 
-const reducer: Reducer<PipelineModeState, RootAction> = (
-  state = INITIAL_STATE,
-  action
-) => {
+const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
   if (
     isAction<PipelineModeToggledAction>(action, ActionTypes.PipelineModeToggled)
   ) {
     return action.mode;
   }
   if (
-    action.type === RESTORE_PIPELINE ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
     isAction<LoadGeneratedPipelineAction>(
       action,
       AIPipelineActionTypes.LoadGeneratedPipeline

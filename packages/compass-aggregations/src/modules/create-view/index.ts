@@ -2,6 +2,7 @@ import type { Reducer } from 'redux';
 import parseNs from 'mongodb-ns';
 import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
+import { isAction } from '../../utils/is-action';
 
 export const TOGGLE_IS_RUNNING =
   'aggregations/create-view/is-running/TOGGLE_IS_RUNNING' as const;
@@ -123,10 +124,10 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (action.type === RESET) {
+  if (isAction<ResetAction>(action, RESET)) {
     return { ...INITIAL_STATE };
   }
-  if (action.type === OPEN) {
+  if (isAction<OpenAction>(action, OPEN)) {
     return {
       ...state,
       ...INITIAL_STATE,
@@ -136,31 +137,31 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
       pipeline: action.pipeline,
     };
   }
-  if (action.type === TOGGLE_IS_RUNNING) {
+  if (isAction<ToggleIsRunningAction>(action, TOGGLE_IS_RUNNING)) {
     return {
       ...state,
       isRunning: action.isRunning,
     };
   }
-  if (action.type === TOGGLE_IS_VISIBLE) {
+  if (isAction<ToggleIsVisibleAction>(action, TOGGLE_IS_VISIBLE)) {
     return {
       ...state,
       isVisible: action.isVisible,
     };
   }
-  if (action.type === CHANGE_VIEW_NAME) {
+  if (isAction<ChangeViewNameAction>(action, CHANGE_VIEW_NAME)) {
     return {
       ...state,
       name: action.name,
     };
   }
-  if (action.type === HANDLE_ERROR) {
+  if (isAction<HandleErrorAction>(action, HANDLE_ERROR)) {
     return {
       ...state,
       error: action.error,
     };
   }
-  if (action.type === CLEAR_ERROR) {
+  if (isAction<ClearErrorAction>(action, CLEAR_ERROR)) {
     return {
       ...state,
       error: null,

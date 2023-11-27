@@ -2,7 +2,7 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { openToast } from '@mongodb-js/compass-components';
 import { createId } from './id';
-import type { PipelineBuilderThunkAction, RootAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import {
   getPipelineFromBuilderState,
@@ -15,6 +15,7 @@ import {
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import type { AnyAction } from 'redux';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -23,11 +24,11 @@ const PREFIX = 'aggregations/saved-pipeline';
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD` as const;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE` as const;
 
-interface SavedPipelineAddAction {
+export interface SavedPipelineAddAction {
   type: typeof SAVED_PIPELINE_ADD;
   pipelines: SavedPipeline[];
 }
-type RestorePipelineAction = ReturnType<typeof restorePipeline>;
+export type RestorePipelineAction = ReturnType<typeof restorePipeline>;
 export type SavedPipelineAction =
   | SavedPipelineAddAction
   | RestorePipelineAction;
@@ -65,7 +66,7 @@ const MAPPINGS: {
 
 export default function reducer(
   state: SavedPipelineState = INITIAL_STATE,
-  action: RootAction
+  action: AnyAction
 ) {
   const fn = MAPPINGS[action.type as SavedPipelineAction['type']];
   return fn ? fn(state, action as any) : state;

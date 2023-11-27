@@ -4,11 +4,7 @@ import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
-import type {
-  PipelineBuilderThunkDispatch,
-  RootAction,
-  RootState,
-} from '../modules';
+import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -188,7 +184,7 @@ export function activateAggregationsPlugin(
 
   const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
-  const store: Store<RootState, RootAction> & {
+  const store: Store<RootState> & {
     dispatch: PipelineBuilderThunkDispatch;
   } = createStore(
     reducer,
@@ -338,7 +334,7 @@ type DbModel = {
 };
 
 const handleDatabaseCollections = (
-  store: Store<RootState, RootAction> & {
+  store: Store<RootState> & {
     dispatch: PipelineBuilderThunkDispatch;
   },
   options: Pick<ConfigureStoreOptions, 'namespace' | 'collections'>,
