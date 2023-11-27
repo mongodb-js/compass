@@ -3,6 +3,7 @@ import type { ThunkAction } from 'redux-thunk';
 
 import type { Reducer } from 'redux';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
+import { openToast } from '@mongodb-js/compass-components';
 
 /**
  * Open action name.
@@ -105,11 +106,7 @@ export const renameCollection = (
   RenameCollectionPluginServices,
   AnyAction
 > => {
-  return async (
-    dispatch,
-    getState,
-    { dataService, globalAppRegistry, toastService }
-  ) => {
+  return async (dispatch, getState, { dataService, globalAppRegistry }) => {
     const state = getState();
     const { databaseName, initialCollectionName } = state;
 
@@ -124,7 +121,7 @@ export const renameCollection = (
         from: oldNamespace,
       });
       dispatch(close());
-      toastService.openToast('collection-rename-success', {
+      openToast('collection-rename-success', {
         variant: 'success',
         title: `Collection renamed to ${newCollectionName}`,
         timeout: 5_000,

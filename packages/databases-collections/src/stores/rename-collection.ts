@@ -3,21 +3,15 @@ import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
-import type { ToastActions } from '@mongodb-js/compass-components';
 
 export type RenameCollectionPluginServices = {
   dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
-  toastService: ToastActions;
 };
 
 export function activateRenameCollectionPlugin(
   _: unknown,
-  {
-    globalAppRegistry,
-    dataService,
-    toastService,
-  }: RenameCollectionPluginServices
+  { globalAppRegistry, dataService }: RenameCollectionPluginServices
 ) {
   const store = legacy_createStore(
     reducer,
@@ -25,7 +19,6 @@ export function activateRenameCollectionPlugin(
       thunk.withExtraArgument({
         globalAppRegistry,
         dataService,
-        toastService,
       })
     )
   );

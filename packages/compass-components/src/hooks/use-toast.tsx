@@ -209,15 +209,3 @@ export function useToast(namespace: string): ToastActions {
     closeToast,
   };
 }
-
-export function toastProviderLocator(): ToastActions {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const toastService = useContext(ToastContext);
-  if (!toastService) {
-    throw new Error(
-      'The ToastContext is not available in the component context.'
-    );
-  }
-
-  return toastService;
-}
