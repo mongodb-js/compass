@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
-import preferences from 'compass-preferences-model';
 
 import {
   adjustOIDCConnectionOptionsBeforeConnect,
@@ -68,9 +66,9 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
   it('returns oidc options with notify device flow when supplied', function () {
     const notifyDeviceFlowMock = () => {};
 
-    const result = adjustOIDCConnectionOptionsBeforeConnect(
-      notifyDeviceFlowMock
-    )({
+    const result = adjustOIDCConnectionOptionsBeforeConnect({
+      notifyDeviceFlow: notifyDeviceFlowMock,
+    })({
       connectionString: 'http://localhost:27017',
       useSystemCA: true,
       oidc: {
@@ -89,7 +87,7 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
   });
 
   it('returns oidc options without notify device flow when not supplied', function () {
-    const result = adjustOIDCConnectionOptionsBeforeConnect()({
+    const result = adjustOIDCConnectionOptionsBeforeConnect({})({
       connectionString: 'http://localhost:27017',
       useSystemCA: true,
       oidc: {
@@ -107,27 +105,12 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
   });
 
   describe('with the `browserCommandForOIDCAuth` preference set', function () {
-    let sandbox: sinon.SinonSandbox;
-    let getPreferencesStub: sinon.SinonStub;
     const mockBrowserCommand = '/usr/bin/browser';
 
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      getPreferencesStub = sinon.stub();
-      getPreferencesStub.returns({
-        browserCommandForOIDCAuth: mockBrowserCommand,
-      });
-      sandbox
-        .stub(preferences, 'getPreferences')
-        .callsFake(() => getPreferencesStub());
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
-
     it('returns oidc options with the browser command from settings when set', function () {
-      const result = adjustOIDCConnectionOptionsBeforeConnect()({
+      const result = adjustOIDCConnectionOptionsBeforeConnect({
+        browserCommandForOIDCAuth: mockBrowserCommand,
+      })({
         connectionString: 'http://localhost:27017',
         useSystemCA: true,
         oidc: {

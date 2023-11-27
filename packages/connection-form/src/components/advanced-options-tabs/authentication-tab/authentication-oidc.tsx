@@ -9,13 +9,13 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import { usePreference } from 'compass-preferences-model';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
 import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 import type { OIDCOptions } from '../../../utils/oidc-handler';
+import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
@@ -47,9 +47,8 @@ function AuthenticationOIDC({
   const hasEnabledDeviceAuthFlow =
     !!connectionOptions.oidc?.allowedFlows?.includes?.('device-auth');
 
-  const showOIDCDeviceAuthFlow = !!usePreference(
-    'showOIDCDeviceAuthFlow',
-    React
+  const showOIDCDeviceAuthFlow = !!useConnectionFormPreference(
+    'showOIDCDeviceAuthFlow'
   );
 
   return (
