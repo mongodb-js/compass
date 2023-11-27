@@ -421,6 +421,7 @@ class CrudStoreImpl
   implements CrudActions
 {
   mixins = [StateMixin.store];
+  listenables: CrudStoreActionsOptions['actions'];
 
   // Should this be readonly? The existence of setState would imply that...
   // readonly state!: Readonly<CrudState>
@@ -446,6 +447,7 @@ class CrudStoreImpl
     >
   ) {
     super(options);
+    this.listenables = options.actions;
     this.favoriteQueriesStorage =
       options.favoriteQueriesStorage || new FavoriteQueryStorage();
     this.recentQueriesStorage =

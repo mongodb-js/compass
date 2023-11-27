@@ -5,7 +5,10 @@ import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
 import { ConnectedDocumentList } from './components/connected-document-list';
 import { activateDocumentsPlugin } from './stores/crud-store';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from 'mongodb-data-service/provider';
 import type {
   DataService,
   OptionalDataServiceProps,
@@ -34,7 +37,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin<
     activate: activateDocumentsPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
+    dataService: dataServiceLocator as DataServiceLocator<
       RequiredDataServiceProps,
       OptionalDataServiceProps
     >,
