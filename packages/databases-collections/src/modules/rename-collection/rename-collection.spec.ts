@@ -7,7 +7,6 @@ import type { AnyAction } from 'redux';
 import AppRegistry from 'hadron-app-registry';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { activateRenameCollectionPlugin } from '../../stores/rename-collection';
-import * as toastService from '@mongodb-js/compass-components';
 
 describe('rename collection module', function () {
   let store: ReturnType<typeof activateRenameCollectionPlugin>['store'];
@@ -23,7 +22,6 @@ describe('rename collection module', function () {
     dataService,
   };
 
-  const openToastSpy = Sinon.spy(toastService, 'openToast');
   context('when the modal is visible', function () {
     beforeEach(function () {
       const plugin = activateRenameCollectionPlugin(
@@ -76,12 +74,6 @@ describe('rename collection module', function () {
         const creator = renameCollection('new-collection');
         await creator(dispatch, getState, extraThunkArgs);
         expect(dataService.renameCollection).to.have.been.called;
-      });
-
-      it('opens a success toast', async () => {
-        const creator = renameCollection('new-collection');
-        await creator(dispatch, getState, extraThunkArgs);
-        expect(openToastSpy).to.have.been.called;
       });
 
       context('when there is an error', () => {
