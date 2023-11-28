@@ -6,7 +6,10 @@ import os from 'os';
 import { UUID } from 'bson';
 import { sortBy } from 'lodash';
 
-import { ConnectionStorage } from './connection-storage';
+import {
+  ConnectionStorage,
+  type ConnectionWithLegacyProps,
+} from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
 import Sinon from 'sinon';
 
@@ -33,12 +36,21 @@ function getConnectionInfo(props: Partial<ConnectionInfo> = {}) {
 
 async function writeFakeConnection(
   tmpDir: string,
-  connection: { connectionInfo: ConnectionInfo }
+  connection: ConnectionWithLegacyProps
 ) {
-  const filePath = getConnectionFilePath(tmpDir, connection.connectionInfo.id);
+  const _id = connection._id || connection.connectionInfo?.id;
+  if (!_id) {
+    throw new Error('Connection should have _id or connectionInfo.id');
+  }
+  const filePath = getConnectionFilePath(tmpDir, _id);
   const connectionsDir = path.dirname(filePath);
   await fs.mkdir(connectionsDir, { recursive: true });
   await fs.writeFile(filePath, JSON.stringify(connection));
+}
+
+async function readConnection(tmpDir: string, id: string) {
+  const content = await fs.readFile(getConnectionFilePath(tmpDir, id), 'utf-8');
+  return JSON.parse(content);
 }
 
 const maxAllowedConnections = 10;
@@ -73,6 +85,238 @@ describe('ConnectionStorage', function () {
     } else {
       delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
     }
+  });
+
+  describe('migrateToSafeStorage', function () {
+    let sandbox: Sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = Sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    context('does not migrate connections', function () {
+      it('when there are no connections', async function () {
+        await ConnectionStorage.migrateToSafeStorage();
+        const connections = await ConnectionStorage.loadAll();
+        expect(connections).to.deep.equal([]);
+      });
+
+      it('when there are only legacy connections', async function () {
+        await writeFakeConnection(tmpDir, connection1270);
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+      });
+
+      it('when there are only migrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
+
+    context('migrates connections', function () {
+      it('when there are connections and secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox.stub(ConnectionStorage, 'getKeytarCredentials' as any).returns({
+          [connectionInfo1.id]: {
+            password: 'password1',
+          },
+          [connectionInfo2.id]: {
+            password: 'password2',
+          },
+        });
+
+        // safeStorage.encryptString stub
+        sandbox
+          .stub(ConnectionStorage, 'encryptSecrets' as any)
+          .returns('encrypted-password');
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+      });
+      it('when there are connections and no secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar fake
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        // Since there're no secrets in keychain, we do not expect to call safeStorage.encryptString
+        // and connection.connectionSecrets should be undefined
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+
+      it('when there are any unmigrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
   });
 
   describe('loadAll', function () {
@@ -463,27 +707,12 @@ describe('ConnectionStorage', function () {
     });
 
     it('returns true if there are favorite legacy connections', async function () {
-      const _id = new UUID().toString();
-
-      // Save a legacy connection (connection without connectionInfo)
-      const filePath = getConnectionFilePath(tmpDir, _id);
-      // As we are saving a legacy connection here, we can not use Storage.save as
-      // it requries connectionInfo. And the internals of fs ensure the subdir exists,
-      // here we are creating it manually.
-      await fs.mkdir(path.join(tmpDir, 'Connections'), { recursive: true });
-      await fs.writeFile(
-        filePath,
-        JSON.stringify({
-          _id,
-          isFavorite: true,
-          name: 'Local 1',
-          hosts: [{ host: 'localhost', port: 27017 }],
-          readPreference: 'primary',
-          port: 27017,
-          hostname: 'localhost',
-        })
-      );
-
+      // Write a legacy connection (connection without connectionInfo, which is favorite and has a name)
+      await writeFakeConnection(tmpDir, {
+        _id: new UUID().toString(),
+        isFavorite: true,
+        name: 'Local 1',
+      });
       const getLegacyConnections =
         await ConnectionStorage.getLegacyConnections();
       expect(getLegacyConnections).to.deep.equal([{ name: 'Local 1' }]);
@@ -583,18 +812,8 @@ describe('ConnectionStorage', function () {
   });
 
   describe('supports connections from older version of compass', function () {
-    const storeConnection = async (connection: any) => {
-      const connectionFolder = path.join(tmpDir, 'Connections');
-      const connectionPath = path.join(
-        connectionFolder,
-        `${connection._id}.json`
-      );
-      await fs.mkdir(connectionFolder, { recursive: true });
-      await fs.writeFile(connectionPath, JSON.stringify(connection));
-    };
-
     it('correctly identifies connection as legacy connection', async function () {
-      await storeConnection(connection1270);
+      await writeFakeConnection(tmpDir, connection1270);
       const expectedConnection = await ConnectionStorage.load({
         id: connection1270._id,
       });
@@ -612,7 +831,7 @@ describe('ConnectionStorage', function () {
 
       for (const version in connections) {
         const connection = connections[version];
-        await storeConnection(connection);
+        await writeFakeConnection(tmpDir, connection);
         const expectedConnection = await ConnectionStorage.load({
           id: connection._id,
         });
