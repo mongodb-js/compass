@@ -4,7 +4,6 @@ import { AppRegistryProvider } from 'hadron-app-registry';
 import { WorkspaceTabs, css } from '@mongodb-js/compass-components';
 import type {
   OpenWorkspaceOptions,
-  WorkspaceByType,
   WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
@@ -99,7 +98,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           return {
             id: tab.id,
             title: tab.namespace,
-            subtitle: tab.type,
             iconGlyph: 'Database',
           };
         case 'Collection': {

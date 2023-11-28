@@ -41,7 +41,6 @@ const tabsContainerStyles = css({
   position: 'relative',
   overflow: 'overlay',
   whiteSpace: 'nowrap',
-  borderBottom: '1px solid',
   '::-webkit-scrollbar': {
     ':horizontal': {
       height: spacing[1],
@@ -50,27 +49,24 @@ const tabsContainerStyles = css({
 });
 
 const tabsContainerLightStyles = css({
-  background: palette.white,
-  borderBottomColor: palette.gray.light2,
+  background: palette.gray.light3,
+  boxShadow: `inset 0px -1px 0 0 ${palette.gray.light2}`,
   '::-webkit-scrollbar-thumb': {
     backgroundColor: scrollbarThumbLightTheme,
   },
 });
 
 const tabsContainerDarkStyles = css({
-  backgroundColor: palette.black,
-  borderBottomColor: palette.gray.dark2,
+  backgroundColor: palette.gray.dark3,
+  boxShadow: `inset 0px -1px 0 0 ${palette.gray.dark2}`,
   '::-webkit-scrollbar-thumb': {
     backgroundColor: scrollbarThumbDarkTheme,
   },
 });
 
 const tabsListContainerStyles = css({
-  padding: 0,
-  paddingRight: spacing[4],
   display: 'flex',
   flexDirection: 'row',
-  alignItems: 'center',
 });
 
 const tabsListStyles = css({
@@ -78,15 +74,13 @@ const tabsListStyles = css({
 });
 
 const newTabContainerStyles = css({
-  display: 'inline-flex',
-  flexDirection: 'row',
-  alignItems: 'center',
+  flex: 'none',
+  alignSelf: 'center',
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
 });
 
-const createNewTabButtonStyles = css({
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
-});
+const createNewTabButtonStyles = css({});
 
 const sortableItemContainerStyles = css({
   display: 'inline-flex',

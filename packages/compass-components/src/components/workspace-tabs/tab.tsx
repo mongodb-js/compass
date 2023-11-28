@@ -1,66 +1,94 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
-
 import { useDarkMode } from '../../hooks/use-theme';
-import {
-  FocusState,
-  useFocusState,
-  useHoverState,
-} from '../../hooks/use-focus-hover';
-import { Icon, IconButton, Body } from '../leafygreen';
+import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 
+function focusedChild(className: string) {
+  return `&:hover ${className}, &:focus ${className}, &:focus-within ${className}`;
+}
+
+const tabTransition = '.16s ease-in-out';
+
 const tabStyles = css({
-  border: '1px solid',
-  borderTopWidth: 0,
-  borderBottomWidth: 0,
-  transition: 'border-color .16s ease-out',
-  display: 'inline-flex',
-  flexDirection: 'row',
+  display: 'grid',
+  gridTemplateColumns: 'min-content 1fr min-content',
   alignItems: 'center',
-  margin: 0,
+  paddingLeft: 12,
   paddingRight: spacing[1],
-  paddingLeft: spacing[3],
-  maxWidth: spacing[6] * 3,
+  gap: spacing[2],
+
+  maxWidth: spacing[6] * 4,
   minWidth: spacing[6] * 2,
+  height: 36,
   position: 'relative',
-  color: palette.gray.base,
   outline: 'none',
+
+  backgroundColor: 'var(--workspace-tab-background-color)',
+  color: 'var(--workspace-tab-color)',
+  boxShadow: 'inset -1px -1px 0 0 var(--workspace-tab-border-color)',
 
   '&:hover': {
     cursor: 'pointer',
-    zIndex: 1, // Show the border over surrounding tabs.
-    transition: 'border-color .16s ease-in',
+    zIndex: 1,
   },
-  ':not(:first-child)': {
-    marginLeft: '-1px', // Keep the borders only 1px.
+
+  '&:focus-visible': {
+    boxShadow: 'inset 0 0 0 1px var(--workspace-tab-border-color)',
+  },
+
+  [focusedChild('.workspace-tab-close-button')]: {
+    visibility: 'visible',
+  },
+});
+
+const animatedSubtitleStyles = css({
+  [focusedChild('.workspace-tab-title')]: {
+    transform: 'translateY(6px)',
+  },
+
+  [focusedChild('.workspace-tab-subtitle')]: {
+    opacity: 1,
+    transform: 'translateY(-4px)',
+    pointerEvents: 'auto',
   },
 });
 
 const tabLightThemeStyles = css({
-  background: palette.white,
-  borderColor: palette.gray.light2,
-  '&:hover': {
-    borderColor: palette.gray.light1,
+  '--workspace-tab-background-color': palette.gray.light3,
+  '--workspace-tab-selected-background-color': palette.white,
+  '--workspace-tab-border-color': palette.gray.light2,
+  '--workspace-tab-color': palette.gray.base,
+  '--workspace-tab-selected-color': palette.green.dark2,
+  '&:focus-visible': {
+    '--workspace-tab-color': palette.blue.light1,
+    '--workspace-tab-border-color': palette.blue.light1,
   },
 });
 
 const tabDarkThemeStyles = css({
-  backgroundColor: palette.black,
-  borderColor: palette.gray.dark2,
-  '&:hover': {
-    borderColor: palette.gray.dark1,
+  '--workspace-tab-background-color': palette.gray.dark3,
+  '--workspace-tab-selected-background-color': palette.black,
+  '--workspace-tab-border-color': palette.gray.dark2,
+  '--workspace-tab-color': palette.gray.base,
+  '--workspace-tab-selected-color': palette.green.base,
+  '&:focus-visible': {
+    '--workspace-tab-selected-color': palette.blue.light1,
+    '--workspace-tab-border-color': palette.blue.light1,
   },
 });
 
 const selectedTabStyles = css({
+  color: 'var(--workspace-tab-selected-color)',
+  backgroundColor: 'var(--workspace-tab-selected-background-color)',
+  boxShadow: 'inset -1px 0 0 0 var(--workspace-tab-border-color)',
+
   '&:hover': {
     cursor: 'default',
   },
@@ -70,130 +98,55 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
-const focusedTabStyles = css({
-  zIndex: 3, // Show the border over surrounding tabs.
-  borderColor: palette.blue.light1,
-  '&::after': {
-    position: 'absolute',
-    content: '""',
-    top: 0,
-    right: 0,
-    left: 0,
-    height: '1px',
-    backgroundColor: palette.blue.light1,
-  },
-});
-
-const tabBottomBorderStyles = css({
-  position: 'absolute',
-  bottom: 0,
-  left: '-1px', // Cover border.
-  right: '-1px', // Cover border.
-  height: 0,
-  backgroundColor: palette.green.dark1,
-});
-
-const selectedTabBottomBorderStyles = css({
-  height: `${spacing[1]}px`,
-  backgroundColor: palette.green.dark1,
-  transition: 'height 150ms ease-out',
-});
-
-const focusedTabBottomBorderStyles = css({
-  height: `${spacing[1]}px`,
-  backgroundColor: palette.blue.light1,
-  transition: 'height 150ms ease-out',
-});
-
-const hiddenStyles = css({
-  visibility: 'hidden',
-});
-
 const tabIconStyles = css({
-  width: spacing[1] + spacing[2],
-  height: 'auto',
-  flexShrink: 0,
-  gridArea: 'icon',
-  alignSelf: 'center',
-});
-
-const tabIconSelectedLightThemeStyles = css({
-  color: palette.green.dark2,
-});
-
-const tabIconSelectedDarkThemeStyles = css({
-  color: palette.green.light2,
-});
-
-const tabIconFocusedStyles = css({
-  color: palette.blue.light1,
+  color: 'currentColor',
 });
 
 const tabTitleContainerStyles = css({
-  marginRight: spacing[1],
-  display: 'inline-grid',
-  paddingTop: spacing[3] - 2, // steal space for the border effect
-  paddingBottom: spacing[3],
-  gridTemplateAreas: `
-    'icon tabName'
-    'empty namespace'
-  `,
-  columnGap: spacing[2],
-  rowGap: 0,
+  position: 'relative',
+  minWidth: 0,
 });
 
 const tabTitleStyles = css({
+  fontSize: 12,
+  lineHeight: '16px',
+  fontWeight: 700,
+  color: 'currentColor',
+
   whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontWeight: 'bold',
-  fontSize: '13px',
-  gridArea: 'tabName',
-});
+  textOverflow: 'ellipsis',
 
-const tabTitleDarkThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const tabTitleLightThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const tabTitleSelectedDarkThemeStyles = css({
-  color: palette.green.base,
-});
-
-const tabTitleSelectedLightThemeStyles = css({
-  color: palette.green.dark2,
-});
-
-const tabTitleFocusedStyles = css({
-  color: palette.blue.light1,
+  transform: 'translateY(0)',
+  transition: tabTransition,
+  transitionProperty: 'opacity, transform',
 });
 
 const tabSubtitleStyles = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+
+  fontSize: 10,
+  lineHeight: '12px',
+  color: 'var(--workspace-tab-color)',
+
   whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontSize: '13px',
-  lineHeight: `${spacing[3]}px`,
-  gridArea: 'namespace',
+  textOverflow: 'ellipsis',
+
+  opacity: 0,
+  transform: 'translateY(0)',
+  transition: tabTransition,
+  transitionProperty: 'opacity, transform',
+
+  pointerEvents: 'none',
 });
 
-const tabSubtitleLightThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const tabSubtitleDarkThemeStyles = css({
-  color: palette.gray.light1,
-});
-
-const tabSubtitleSelectedLightThemeStyles = css({
-  color: palette.gray.dark1,
-});
-
-const tabSubtitleSelectedDarkThemeStyles = css({
-  color: palette.gray.light2,
+const closeButtonStyles = css({
+  visibility: 'hidden',
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
@@ -220,30 +173,16 @@ function Tab({
   subtitle,
 }: TabProps) {
   const darkMode = useDarkMode();
-
-  const [focusProps, focusState] = useFocusState();
-
-  const isFocused = useMemo(
-    () => focusState === FocusState.FocusVisible,
-    [focusState]
-  );
-  const isFocusedWithin = useMemo(
-    () => focusState === FocusState.FocusWithinVisible,
-    [focusState]
-  );
   const defaultActionProps = useDefaultAction(onSelect);
-
-  const [hoverProps, isHovered] = useHoverState();
-
-  const tabProps = mergeProps<HTMLDivElement>(
-    focusProps,
-    hoverProps,
-    defaultActionProps
-  );
-
   const { listeners, setNodeRef, transform, transition } = useSortable({
     id: tabContentId,
   });
+
+  const tabProps = mergeProps<HTMLDivElement>(
+    defaultActionProps,
+    listeners ?? {}
+  );
+
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -257,11 +196,9 @@ function Tab({
       className={cx(
         tabStyles,
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
-        {
-          [selectedTabStyles]: isSelected,
-          [focusedTabStyles]: isFocused,
-          [draggingTabStyles]: isDragging,
-        }
+        isSelected && selectedTabStyles,
+        isDragging && draggingTabStyles,
+        subtitle && animatedSubtitleStyles
       )}
       aria-selected={isSelected}
       role="tab"
@@ -269,60 +206,28 @@ function Tab({
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
-      title={subtitle ? `${subtitle} - ${title}` : title}
-      {...listeners}
+      title={subtitle ? subtitle : title}
       {...tabProps}
     >
+      <Icon
+        size="small"
+        role="presentation"
+        className={tabIconStyles}
+        glyph={iconGlyph}
+        data-testid={`workspace-tab-icon-${iconGlyph}`}
+      />
+
       <div className={tabTitleContainerStyles}>
-        <Icon
-          size="small"
-          role="presentation"
-          className={cx(tabIconStyles, {
-            [darkMode
-              ? tabIconSelectedDarkThemeStyles
-              : tabIconSelectedLightThemeStyles]: isSelected,
-            [tabIconFocusedStyles]: isFocused,
-          })}
-          glyph={iconGlyph}
-          data-testid={`workspace-tab-icon-${iconGlyph}`}
-        />
-        <div
-          className={cx(
-            tabTitleStyles,
-            darkMode ? tabTitleDarkThemeStyles : tabTitleLightThemeStyles,
-            {
-              [darkMode
-                ? tabTitleSelectedDarkThemeStyles
-                : tabTitleSelectedLightThemeStyles]: isSelected,
-              [tabTitleFocusedStyles]: isFocused,
-            }
-          )}
-        >
-          {title}
-        </div>
+        <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>
         {subtitle && (
-          <Body
-            className={cx(
-              tabSubtitleStyles,
-              darkMode
-                ? tabSubtitleDarkThemeStyles
-                : tabSubtitleLightThemeStyles,
-              {
-                [darkMode
-                  ? tabSubtitleSelectedDarkThemeStyles
-                  : tabSubtitleSelectedLightThemeStyles]: isSelected,
-              }
-            )}
-          >
+          <div className={cx(tabSubtitleStyles, 'workspace-tab-subtitle')}>
             {subtitle}
-          </Body>
+          </div>
         )}
       </div>
 
       <IconButton
-        className={
-          isFocusedWithin || isFocused || isHovered ? undefined : hiddenStyles
-        }
+        className={cx(closeButtonStyles, 'workspace-tab-close-button')}
         onClick={(e) => {
           e.stopPropagation();
           onClose();
@@ -332,12 +237,6 @@ function Tab({
       >
         <Icon glyph="X" role="presentation" />
       </IconButton>
-      <div
-        className={cx(tabBottomBorderStyles, {
-          [selectedTabBottomBorderStyles]: isSelected,
-          [focusedTabBottomBorderStyles]: isFocused,
-        })}
-      />
     </div>
   );
 }
