@@ -16,6 +16,7 @@ import Sinon from 'sinon';
 import connection1270 from './../test/fixtures/favorite_connection_1.27.0.json';
 import connection1310 from './../test/fixtures/favorite_connection_1.31.0.json';
 import connection1380 from './../test/fixtures/favorite_connection_1.38.0.json';
+import * as exportedConnectionFixtures from './../test/fixtures/compass-connections';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -56,7 +57,6 @@ async function readConnection(tmpDir: string, id: string) {
 const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
-  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
   const ipcMain = ConnectionStorage['ipcMain'];
 
   let tmpDir: string;
@@ -69,8 +69,6 @@ describe('ConnectionStorage', function () {
       createHandle: Sinon.stub(),
     };
     ConnectionStorage.init(tmpDir);
-
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(async function () {
@@ -79,12 +77,341 @@ describe('ConnectionStorage', function () {
 
     ConnectionStorage['calledOnce'] = false;
     ConnectionStorage['ipcMain'] = ipcMain;
+  });
 
-    if (initialKeytarEnvValue) {
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
-    } else {
-      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
+  it('reminds us to remove keytar in', function () {
+    const testDate = new Date('2023-11-17T00:00:00.000Z');
+
+    const endOfKeytarDate = new Date(testDate);
+    endOfKeytarDate.setMonth(endOfKeytarDate.getMonth() + 3);
+
+    // Based on milestone #2 of Move from keytar to Electron safeStorage,
+    // we should remove keytar in 3 months from now. And as such, we are
+    // intentionally failing this test to remind us to remove keytar.
+    // If we want to continue using keytar for now, check with the product and
+    // please update this test accordingly.
+    expect(
+      new Date(),
+      'Expected to have keytar removed completely by now. If we want to continue using it for now, please update this test.'
+    ).to.be.lessThan(endOfKeytarDate);
+  });
+
+  describe('migrateToSafeStorage', function () {
+    let sandbox: Sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = Sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    context('does not migrate connections', function () {
+      it('when there are no connections', async function () {
+        await ConnectionStorage.migrateToSafeStorage();
+        const connections = await ConnectionStorage.loadAll();
+        expect(connections).to.deep.equal([]);
+      });
+
+      it('when there are only legacy connections', async function () {
+        await writeFakeConnection(tmpDir, connection1270);
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+      });
+
+      it('when there are only migrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
+
+    context('migrates connections', function () {
+      it('when there are connections and secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox.stub(ConnectionStorage, 'getKeytarCredentials' as any).returns({
+          [connectionInfo1.id]: {
+            password: 'password1',
+          },
+          [connectionInfo2.id]: {
+            password: 'password2',
+          },
+        });
+
+        // safeStorage.encryptString stub
+        sandbox
+          .stub(ConnectionStorage, 'encryptSecrets' as any)
+          .returns('encrypted-password');
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+      });
+      it('when there are connections and no secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar fake
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        // Since there're no secrets in keychain, we do not expect to call safeStorage.encryptString
+        // and connection.connectionSecrets should be undefined
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+
+      it('when there are any unmigrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
+
+    context(
+      'imports already exported connections from compass using keytar',
+      function () {
+        const exportedConnections = [
+          {
+            label: 'connection with plain secrets',
+            data: exportedConnectionFixtures.connectionsWithPlainSecrets,
+          },
+          {
+            label: 'connection with encrypted secrets',
+            data: exportedConnectionFixtures.connectionsWithEncryptedSecrets,
+            importOptions: {
+              passphrase: 'password',
+            },
+          },
+        ];
+
+        for (const exportUseCase of exportedConnections) {
+          it(exportUseCase.label, async function () {
+            const countOfConnections = exportUseCase.data.connections.length;
+            // Import
+            {
+              // When importing connections, we will encrypt secrets using safeStorage.
+              // So, we mock the *encryptSecrets* implementation to not trigger keychain.
+              const encryptSecretsStub = sandbox
+                .stub(ConnectionStorage, 'encryptSecrets' as any)
+                .returns('encrypted-password');
+              // Import
+              await ConnectionStorage.importConnections({
+                content: JSON.stringify(exportUseCase.data),
+                options: exportUseCase.importOptions,
+              });
+              expect(
+                encryptSecretsStub.getCalls().map((x) => x.args),
+                `makes ${countOfConnections} calls with correct arguments when encrypting`
+              ).to.deep.equal(
+                Array.from({ length: countOfConnections }).map(() => [
+                  { password: 'password' },
+                ])
+              );
+            }
+
+            // Read imported connections using ConnectionStorage
+            {
+              // When reading, we will mock *decryptSecrets* implementation.
+              const decryptSecretsStub = sandbox
+                .stub(ConnectionStorage, 'decryptSecrets' as any)
+                .returns({ password: 'password' });
+
+              const connections = await ConnectionStorage.loadAll();
+
+              expect(connections).to.have.lengthOf(countOfConnections);
+
+              expect(
+                decryptSecretsStub.getCalls().map((x) => x.args),
+                `makes ${countOfConnections} calls with correct arguments when decrypting`
+              ).to.deep.equal(
+                Array.from({ length: countOfConnections }).map(() => [
+                  'encrypted-password',
+                ])
+              );
+            }
+
+            // Read imported connections using fs from disk
+            {
+              const connections = await Promise.all(
+                exportUseCase.data.connections.map(({ id }) =>
+                  readConnection(tmpDir, id)
+                )
+              );
+
+              expect(connections).to.have.lengthOf(countOfConnections);
+
+              for (const connection of connections) {
+                expect(connection).to.have.a.property('version', 1);
+                expect(connection).to.have.a.property(
+                  'connectionSecrets',
+                  'encrypted-password'
+                );
+              }
+            }
+          });
+        }
+      }
+    );
   });
 
   describe('migrateToSafeStorage', function () {
@@ -525,42 +852,112 @@ describe('ConnectionStorage', function () {
         });
         expect.fail('Expected connection string to be required.');
       } catch (e) {
-        expect(e).to.have.nested.property(
-          'errors[0].message',
-          'Connection string is required.'
+        expect(e).to.have.property(
+          'message',
+          'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
         );
       }
     });
 
-    // In tests we can not use keytar and have it disabled. When saving any data,
-    // its completely stored on disk without anything removed.
-    it('it stores all the fleOptions on disk', async function () {
-      const id = new UUID().toString();
-      const connectionInfo = {
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-          fleOptions: {
-            storeCredentials: false,
-            autoEncryption: {
-              keyVaultNamespace: 'db.coll',
-              kmsProviders: {
-                local: {
-                  key: 'my-key',
+    context('it stores all the fleOptions on disk', function () {
+      it('removes secrets when storeCredentials is false', async function () {
+        const id = new UUID().toString();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            fleOptions: {
+              storeCredentials: false,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
                 },
               },
             },
           },
-        },
-      };
-      await ConnectionStorage.save({ connectionInfo });
+        };
 
-      const content = await fs.readFile(
-        getConnectionFilePath(tmpDir, id),
-        'utf-8'
-      );
-      const { connectionInfo: expectedConnectionInfo } = JSON.parse(content);
-      expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
+        // // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+        // // and make assertions on that.
+        const encryptSecretsStub = Sinon.stub(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        ).returns(undefined);
+
+        await ConnectionStorage.save({ connectionInfo });
+
+        const expectedConnection = await readConnection(tmpDir, id);
+        connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
+          {} as any;
+        expect(expectedConnection).to.deep.equal({
+          _id: connectionInfo.id,
+          connectionInfo,
+          version: 1,
+        });
+
+        expect(encryptSecretsStub.calledOnce).to.be.true;
+        expect(
+          encryptSecretsStub.firstCall.firstArg,
+          'it should not store any secrets'
+        ).to.deep.equal({});
+      });
+
+      it('encrypt and store secrets when storeCredentials is true', async function () {
+        const id = new UUID().toString();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            fleOptions: {
+              storeCredentials: true,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+        // and make assertions on that.
+        const encryptSecretsStub = Sinon.stub(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        ).returns('encrypted-data');
+
+        await ConnectionStorage.save({ connectionInfo });
+
+        const expectedConnection = await readConnection(tmpDir, id);
+        connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
+          {} as any;
+        expect(expectedConnection).to.deep.equal({
+          _id: connectionInfo.id,
+          connectionInfo,
+          connectionSecrets: 'encrypted-data',
+          version: 1,
+        });
+
+        expect(encryptSecretsStub.calledOnce).to.be.true;
+        expect(
+          encryptSecretsStub.firstCall.firstArg,
+          'it should store secrets'
+        ).to.deep.equal({
+          autoEncryption: {
+            kmsProviders: {
+              local: {
+                key: 'my-key',
+              },
+            },
+          },
+        });
+      });
     });
 
     it('saves a connection with _id', async function () {
@@ -571,6 +968,13 @@ describe('ConnectionStorage', function () {
         expect(e).to.be.instanceOf(Error);
       }
 
+      // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+      // and make assertions on that.
+      const encryptSecretsStub = Sinon.stub(
+        ConnectionStorage,
+        'encryptSecrets' as any
+      ).returns('encrypted-password');
+
       await ConnectionStorage.save({
         connectionInfo: {
           id,
@@ -580,19 +984,24 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      const savedConnection = JSON.parse(
-        await fs.readFile(getConnectionFilePath(tmpDir, id), 'utf-8')
-      );
-
+      const savedConnection = await readConnection(tmpDir, id);
       expect(savedConnection).to.deep.equal({
         connectionInfo: {
           id,
           connectionOptions: {
-            connectionString: 'mongodb://root:password@localhost:27017',
+            connectionString: 'mongodb://root@localhost:27017/',
           },
         },
+        connectionSecrets: 'encrypted-password',
+        version: 1,
         _id: id,
       });
+
+      expect(encryptSecretsStub.calledOnce).to.be.true;
+      expect(
+        encryptSecretsStub.firstCall.firstArg,
+        'it encrypts the connection secrets correctly'
+      ).to.deep.equal({ password: 'password' });
     });
 
     context(`max allowed connections ${maxAllowedConnections}`, function () {
