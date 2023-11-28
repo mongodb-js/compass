@@ -6,6 +6,8 @@ import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
 import { useDarkMode } from '../hooks/use-theme';
 
+const workspacetoolbarContainerQueryName = 'compass-workspace-container';
+
 const workspaceContainerStyles = css({
   height: '100%',
   width: '100%',
@@ -16,6 +18,8 @@ const workspaceContainerStyles = css({
 
 const toolbarStyles = css({
   flex: 'none',
+  containerName: workspacetoolbarContainerQueryName,
+  containerType: 'inline-size',
 });
 
 const scrollBoxStyles = css({
@@ -150,5 +154,8 @@ function WorkspaceContainer({
     </div>
   );
 }
+
+WorkspaceContainer.toolbarContainerQueryName =
+  workspacetoolbarContainerQueryName;
 
 export { WorkspaceContainer };

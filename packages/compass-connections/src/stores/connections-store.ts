@@ -541,11 +541,15 @@ export function useConnections({
         };
       }
 
+      const { forceConnectionOptions = [], browserCommandForOIDCAuth } =
+        preferences.getPreferences();
+
       const newConnectionDataService = await newConnectionAttempt.connect(
         adjustConnectionOptionsBeforeConnect({
           connectionOptions: connectionInfo.connectionOptions,
           defaultAppName: appName,
           notifyDeviceFlow,
+          preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
         })
       );
       connectingConnectionAttempt.current = undefined;

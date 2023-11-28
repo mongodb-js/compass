@@ -11,9 +11,10 @@ import {
   Decimal128,
 } from 'bson';
 import { expect } from 'chai';
-import { Document, Element } from '../src/';
+import { Document, Element, ElementEvents } from '../src/';
 import { DATE_FORMAT } from '../src/element';
 import moment from 'moment';
+import Sinon from 'sinon';
 
 describe('Element', function () {
   describe('#get', function () {
@@ -2725,6 +2726,57 @@ describe('Element', function () {
           }
         }
       });
+    });
+  });
+
+  context('when attempting to expand a non-expandable element', function () {
+    it('should do nothing', function () {
+      const element = new Element('name', 'A');
+
+      const expandListener = Sinon.fake();
+      element.on(ElementEvents.Expanded, expandListener);
+      element.expand();
+      expect(expandListener).to.not.be.called;
+    });
+  });
+
+  context('when expanding just the element itself', function () {
+    it('should only expand the target element', function () {
+      const element = new Element('names', {
+        firstName: 'A',
+        addresses: [1, 2],
+      });
+      expect(element.expanded).to.be.false;
+
+      element.expand();
+      expect(element.expanded).to.be.true;
+      expect(element.elements?.every((el) => el.expanded)).to.false;
+    });
+
+    it('should emit an expanded event on the target element itself', function () {
+      const element = new Element('names', { firstName: 'A', lastName: 'B' });
+      const emitSpy = Sinon.spy(element, 'emit');
+      element.expand();
+      expect(emitSpy).to.be.calledWithExactly(ElementEvents.Expanded, element);
+    });
+  });
+
+  context('when expanding the element along with its children', function () {
+    it('should expand the target element and its children', function () {
+      const element = new Element('names', {
+        firstName: 'A',
+        addresses: [1, 2],
+      });
+      expect(element.expanded).to.be.false;
+
+      element.expand(true);
+      expect(element.expanded).to.be.true;
+
+      for (const el of element.elements ?? []) {
+        if (el._isExpandable(el.originalExpandableValue)) {
+          expect(el.expanded).to.be.true;
+        }
+      }
     });
   });
 });

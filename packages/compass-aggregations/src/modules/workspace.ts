@@ -1,11 +1,14 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
+import type { RunAggregation } from './aggregation';
 import {
   ActionTypes as AggregationActionTypes,
   cancelAggregation,
 } from './aggregation';
 import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { isAction } from '../utils/is-action';
 
 export type Workspace = 'builder' | 'results';
 
@@ -13,7 +16,7 @@ export enum ActionTypes {
   WorkspaceChanged = 'compass-aggregations/workspaceChanged',
 }
 
-type WorkspaceChangedAction = {
+export type WorkspaceChangedAction = {
   type: ActionTypes.WorkspaceChanged;
   view: Workspace;
 };
@@ -23,17 +26,22 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.WorkspaceChanged:
-      return action.view;
-    case AggregationActionTypes.RunAggregation:
-      return 'results';
-    case ConfirmNewPipelineActions.NewPipelineConfirmed:
-      return INITIAL_STATE;
-    default:
-      return state;
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+  if (isAction<WorkspaceChangedAction>(action, ActionTypes.WorkspaceChanged)) {
+    return action.view;
   }
+  if (isAction<RunAggregation>(action, AggregationActionTypes.RunAggregation)) {
+    return 'results';
+  }
+  if (
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
+  ) {
+    return INITIAL_STATE;
+  }
+  return state;
 };
 
 export const editPipeline = (): PipelineBuilderThunkAction<void> => {

@@ -37,7 +37,7 @@ const pipelineWorkspaceStyles = css({
 
 export type PipelineBuilderUIWorkspaceProps = {
   stagesIdAndType: StageIdAndType[];
-  editViewName?: string;
+  editViewName?: string | null;
   isSidePanelOpen: boolean;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;

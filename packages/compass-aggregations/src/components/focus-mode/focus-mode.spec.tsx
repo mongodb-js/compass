@@ -22,7 +22,7 @@ const renderFocusMode = () => {
 describe('FocusMode', function () {
   it('does not show modal when closed', function () {
     const store = renderFocusMode();
-    store.dispatch(disableFocusMode());
+    store.dispatch(disableFocusMode() as any);
     expect(() => {
       screen.getByTestId('focus-mode-modal');
     }).to.throw;
@@ -30,13 +30,13 @@ describe('FocusMode', function () {
 
   it('shows modal when open', function () {
     const store = renderFocusMode();
-    store.dispatch(enableFocusMode(0));
+    store.dispatch(enableFocusMode(0) as any);
     expect(screen.getByTestId('focus-mode-modal')).to.exist;
   });
 
   it('hides modal when close button is clicked', function () {
     const store = renderFocusMode();
-    store.dispatch(enableFocusMode(0));
+    store.dispatch(enableFocusMode(0) as any);
     screen.getByLabelText(/close modal/i).click();
 
     expect(() => {

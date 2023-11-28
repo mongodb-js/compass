@@ -71,7 +71,7 @@ const RESIZABLE_DIRECTIONS = {
 };
 
 type ResizableEditorProps = React.ComponentProps<typeof StageEditor> & {
-  isAutoPreviewing: boolean;
+  isAutoPreviewing?: boolean | undefined;
 };
 
 function ResizableEditor({
@@ -128,7 +128,7 @@ export type StageProps = SortableProps & {
   isExpanded: boolean;
   hasSyntaxError: boolean;
   hasServerError: boolean;
-  isAutoPreviewing: boolean;
+  isAutoPreviewing?: boolean | undefined;
 };
 
 function Stage({

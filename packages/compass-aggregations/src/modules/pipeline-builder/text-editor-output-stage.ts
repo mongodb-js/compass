@@ -6,7 +6,9 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
@@ -38,7 +40,12 @@ type OutputStageFetchFailedAction = {
   serverError: MongoServerError;
 };
 
-type OutputStageState = {
+export type OutputStageAction =
+  | OutputStageFetchStartedAction
+  | OutputStageFetchSuccededAction
+  | OutputStageFetchFailedAction;
+
+export type OutputStageState = {
   isLoading: boolean;
   serverError: MongoServerError | null;
   isComplete: boolean;
@@ -68,8 +75,11 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return { ...INITIAL_STATE };
   }
@@ -160,7 +170,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
         type: OutputStageActionTypes.FetchSucceded,
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
-    } catch (error) {
+    } catch (error: any) {
       dispatch({
         type: OutputStageActionTypes.FetchFailed,
         serverError: error,

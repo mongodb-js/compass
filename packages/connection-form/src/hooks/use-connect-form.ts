@@ -1,11 +1,9 @@
-import type { Dispatch } from 'react';
-import React, { useCallback, useEffect, useReducer } from 'react';
+import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import { usePreference } from 'compass-preferences-model';
 
 import type {
   ConnectionFormError,
@@ -62,6 +60,7 @@ import {
 import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
+import { useConnectionFormPreference } from './use-connect-form-preferences';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -577,8 +576,9 @@ export function useConnectForm(
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
-      !usePreference('protectConnectionStringsForNewConnections', React) &&
-      derivedFormState.enableEditingConnectionString,
+      !useConnectionFormPreference(
+        'protectConnectionStringsForNewConnections'
+      ) && derivedFormState.enableEditingConnectionString,
   };
 
   const [state, dispatch] = useReducer(connectFormReducer, initialFormState);
@@ -653,9 +653,8 @@ function setInitialState({
   setErrors: (errors: ConnectionFormError[]) => void;
   dispatch: Dispatch<Action>;
 }) {
-  const protectConnectionStringsForNewConnections = usePreference(
-    'protectConnectionStringsForNewConnections',
-    React
+  const protectConnectionStringsForNewConnections = useConnectionFormPreference(
+    'protectConnectionStringsForNewConnections'
   );
   useEffect(() => {
     // When the initial connection options change, like a different
@@ -696,6 +695,7 @@ export function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
   defaultAppName,
   notifyDeviceFlow,
+  preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
   defaultAppName?: string;
@@ -703,14 +703,21 @@ export function adjustConnectionOptionsBeforeConnect({
     verificationUrl: string;
     userCode: string;
   }) => void;
+  preferences: {
+    browserCommandForOIDCAuth?: string;
+    forceConnectionOptions: [string, string][];
+  };
 }): ConnectionOptions {
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
-    adjustOIDCConnectionOptionsBeforeConnect(notifyDeviceFlow),
-    applyForceConnectionOptions,
+    adjustOIDCConnectionOptionsBeforeConnect({
+      browserCommandForOIDCAuth: preferences.browserCommandForOIDCAuth,
+      notifyDeviceFlow,
+    }),
+    applyForceConnectionOptions(preferences.forceConnectionOptions),
   ];
   for (const transformer of transformers) {
     connectionOptions = transformer(connectionOptions);

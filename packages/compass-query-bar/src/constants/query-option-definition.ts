@@ -4,7 +4,7 @@ import React from 'react';
 import { usePreference } from 'compass-preferences-model';
 import type { QueryProperty } from './query-properties';
 
-export type QueryOption = QueryProperty;
+export type QueryOption = Exclude<QueryProperty, 'update'>;
 
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {

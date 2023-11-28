@@ -47,7 +47,7 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.11",
@@ -70,6 +70,6 @@
   "dependencies": {
     "@mongodb-js/compass-editor": "^0.18.0",
     "@mongodb-js/compass-user-data": "^0.1.9",
-    "bson": "^6.0.0"
+    "bson": "^6.2.0"
   }
 }

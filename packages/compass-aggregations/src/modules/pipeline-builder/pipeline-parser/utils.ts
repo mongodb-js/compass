@@ -1,7 +1,6 @@
 import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
-import type { Document } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
 
@@ -29,7 +28,7 @@ export function generate(ast: Node, formatOptions?: FormatOptions) {
  * @param source expression source (object or array expression with optional
  *               leading / trailing comments)
  */
-export function parseShellBSON(source: string): Document[] {
+export function parseShellBSON<T = unknown>(source: string): T {
   const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
   if (!parsed || typeof parsed !== 'object') {
     // XXX(COMPASS-5689): We've hit the condition in

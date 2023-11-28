@@ -1,11 +1,14 @@
 import type { Reducer } from 'redux';
-import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
+import HadronDocument from 'hadron-document';
+import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -66,7 +69,7 @@ export type StagePreviewFetchSkippedAction = {
 export type StagePreviewFetchSuccessAction = {
   type: StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 export type StagePreviewFetchErrorAction = {
@@ -83,7 +86,7 @@ export type StageRunAction = {
 export type StageRunSuccessAction = {
   type: StageEditorActionTypes.StageRunSuccess;
   id: number;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 export type StageRunErrorAction = {
@@ -156,6 +159,27 @@ type WizardToStageAction = {
   at: number;
   stage: StoreStage;
 };
+
+export type StageEditorAction =
+  | StagePreviewFetchAction
+  | StagePreviewFetchSkippedAction
+  | StagePreviewFetchSuccessAction
+  | StagePreviewFetchErrorAction
+  | StageRunAction
+  | StageRunSuccessAction
+  | StageRunErrorAction
+  | ChangeStageValueAction
+  | ChangeStageOperatorAction
+  | ChangeStageCollapsedAction
+  | ChangeStageOperatorAction
+  | ChangeStageDisabledAction
+  | StageAddAction
+  | StageRemoveAction
+  | StageMoveAction
+  | WizardAddAction
+  | WizardRemoveAction
+  | WizardChangeAction
+  | WizardToStageAction;
 
 export function storeIndexToPipelineIndex(
   stages: StageEditorState['stages'],
@@ -271,7 +295,7 @@ export const loadStagePreview = (
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count,
+        totalDocumentCount: inputDocuments.count ?? undefined,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForStage(
@@ -282,7 +306,7 @@ export const loadStagePreview = (
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
         id: idx,
-        previewDocs,
+        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -294,6 +318,56 @@ export const loadStagePreview = (
         error: err as MongoServerError,
       });
     }
+  };
+};
+
+export const expandPreviewDocsForStage = (
+  stageIdx: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      inputDocuments: { documents: inputDocuments },
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    if (stageIdx === -1) {
+      inputDocuments.forEach((doc) => doc.expand());
+      return;
+    }
+
+    const stage = stages[stageIdx];
+    if (!stage || stage.type !== 'stage') {
+      return;
+    }
+
+    stage.previewDocs?.forEach((doc) => doc.expand());
+  };
+};
+
+export const collapsePreviewDocsForStage = (
+  stageIdx: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      inputDocuments: { documents: inputDocuments },
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    if (stageIdx === -1) {
+      inputDocuments.forEach((doc) => doc.collapse());
+      return;
+    }
+
+    const stage = stages[stageIdx];
+    if (!stage || stage.type !== 'stage') {
+      return;
+    }
+
+    stage.previewDocs?.forEach((doc) => doc.collapse());
   };
 };
 
@@ -362,11 +436,15 @@ export const runStage = (
       dispatch({
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
-        previewDocs: result,
+        previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
-    } catch (error) {
-      dispatch({ type: StageEditorActionTypes.StageRunError, id, error });
+    } catch (error: any) {
+      dispatch({
+        type: StageEditorActionTypes.StageRunError,
+        id: Number(id),
+        error,
+      });
     }
   };
 };
@@ -846,7 +924,7 @@ export type StoreStage = {
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   loading: boolean;
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;
@@ -895,12 +973,15 @@ export function mapStoreStagesToStageIdAndType(
 }
 
 const reducer: Reducer<StageEditorState> = (
-  state = { stagesIdAndType: [], stages: [] },
+  state: StageEditorState = { stagesIdAndType: [], stages: [] },
   action
 ) => {
   if (
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled
@@ -1049,7 +1130,7 @@ const reducer: Reducer<StageEditorState> = (
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
-        },
+        } as StoreStage,
         ...state.stages.slice(action.id + 1),
       ],
     };

@@ -13,6 +13,10 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
 import {
   countDocuments,
@@ -42,6 +46,15 @@ import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
+import {
+  openBulkDeleteFailureToast,
+  openBulkDeleteProgressToast,
+  openBulkDeleteSuccessToast,
+  openBulkUpdateFailureToast,
+  openBulkUpdateProgressToast,
+  openBulkUpdateSuccessToast,
+} from '../components/bulk-actions-toasts';
+
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -65,6 +78,7 @@ export type CrudActions = {
   closeBulkDeleteDialog(): void;
   runBulkDelete(): void;
   openDeleteQueryExportToLanguageDialog(): void;
+  saveUpdateQuery(name: string): Promise<void>;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
@@ -331,6 +345,9 @@ type CrudStoreOptions = {
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
+  favoriteQueriesStorage?: FavoriteQueryStorage;
+  recentQueriesStorage?: RecentQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -421,6 +438,7 @@ type CrudState = {
   fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
 };
 
@@ -438,10 +456,16 @@ class CrudStoreImpl
   dataService!: DataService;
   localAppRegistry!: AppRegistry;
   globalAppRegistry!: AppRegistry;
+  favoriteQueriesStorage: FavoriteQueryStorage;
+  recentQueriesStorage: RecentQueryStorage;
 
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
+    this.favoriteQueriesStorage =
+      options.favoriteQueriesStorage || new FavoriteQueryStorage();
+    this.recentQueriesStorage =
+      options.recentQueriesStorage || new RecentQueryStorage();
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -482,6 +506,7 @@ class CrudStoreImpl
       fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
+      isUpdatePreviewSupported: false,
       bulkDelete: {
         previews: [],
         status: 'closed',
@@ -1094,7 +1119,7 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateDialog() {
-    await this.updateBulkUpdatePreview('{ $set: { }}');
+    await this.updateBulkUpdatePreview('{ $set: { } }');
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1115,6 +1140,28 @@ class CrudStoreImpl
         updateText,
       },
     });
+
+    // Don't try and calculate the update preview if we know it won't work. Just
+    // see if the update will parse.
+    if (!this.state.isUpdatePreviewSupported) {
+      try {
+        parseShellBSON(updateText);
+      } catch (err: any) {
+        this.setState({
+          bulkUpdate: {
+            ...this.state.bulkUpdate,
+            preview: {
+              changes: [],
+            },
+            serverError: undefined,
+            syntaxError: err,
+            previewAbortController: undefined,
+          },
+        });
+      }
+
+      return;
+    }
 
     const abortController = new AbortController();
 
@@ -1216,37 +1263,26 @@ class CrudStoreImpl
       return;
     }
 
-    openToast('bulk-update-toast', {
-      title: '',
-      variant: 'progress',
-      dismissible: true,
-      timeout: null,
-      description: `${
-        this.state.bulkUpdate.affected || 0
-      } documents are being updated.`,
+    await this.recentQueriesStorage.saveQuery({
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
+
+    openBulkUpdateProgressToast({
+      affectedDocuments: this.state.bulkUpdate.affected,
     });
 
     try {
       await this.dataService.updateMany(ns, filter, update);
 
-      openToast('bulk-update-toast', {
-        title: '',
-        variant: 'success',
-        dismissible: true,
-        timeout: 6_000,
-        description: `${
-          this.state.bulkUpdate.affected || 0
-        } documents have been updated.`,
+      openBulkUpdateSuccessToast({
+        affectedDocuments: this.state.bulkUpdate.affected,
+        onRefresh: () => void this.refreshDocuments(),
       });
     } catch (err: any) {
-      openToast('bulk-update-toast', {
-        title: '',
-        variant: 'warning',
-        dismissible: true,
-        timeout: 6_000,
-        description: `${
-          this.state.bulkUpdate.affected || 0
-        } documents could not be updated.`,
+      openBulkUpdateFailureToast({
+        affectedDocuments: this.state.bulkUpdate.affected,
       });
 
       log.error(
@@ -1813,7 +1849,7 @@ class CrudStoreImpl
       bulkDelete: {
         previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
         status: 'open',
-        affected: this.state.count || 0,
+        affected: this.state.count ?? undefined,
       },
     });
   }
@@ -1826,26 +1862,14 @@ class CrudStoreImpl
       },
     });
 
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'progress',
-      dismissible: true,
-      timeout: null,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents are being deleted.`,
+    openBulkDeleteProgressToast({
+      affectedDocuments: this.state.bulkDelete.affected,
     });
   }
 
   bulkDeleteFailed(ex: Error) {
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'warning',
-      dismissible: true,
-      timeout: 6_000,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents could not be deleted.`,
+    openBulkDeleteFailureToast({
+      affectedDocuments: this.state.bulkDelete.affected,
     });
 
     log.error(
@@ -1857,14 +1881,9 @@ class CrudStoreImpl
   }
 
   bulkDeleteSuccess() {
-    openToast('bulk-delete-toast', {
-      title: '',
-      variant: 'success',
-      dismissible: true,
-      timeout: 6_000,
-      description: `${
-        this.state.bulkDelete.affected || 0
-      } documents have been deleted. Please refresh to preview.`,
+    openBulkDeleteSuccessToast({
+      affectedDocuments: this.state.bulkDelete.affected,
+      onRefresh: () => void this.refreshDocuments(),
     });
   }
 
@@ -1883,10 +1902,12 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: `Delete ${affected || 0} documents`,
+      buttonText: `Delete ${affected || 0} document${
+        affected !== 1 ? 's' : ''
+      }`,
       description: `This action can not be undone. This will permanently delete ${
         affected || 0
-      } documents.`,
+      } document${affected !== 1 ? 's' : ''}.`,
       variant: 'danger',
     });
 
@@ -1913,6 +1934,33 @@ class CrudStoreImpl
       'Delete Query'
     );
   }
+
+  async saveUpdateQuery(name: string): Promise<void> {
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    await this.favoriteQueriesStorage.saveQuery({
+      _name: name,
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
+    openToast('saved-favorite-update-query', {
+      title: '',
+      variant: 'success',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${name} added to "My Queries".`,
+    });
+  }
 }
 
 export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
@@ -1937,6 +1985,18 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
 
     localAppRegistry.on('fields-changed', store.updateFields.bind(store));
 
+    localAppRegistry.on(
+      'favorites-open-bulk-update-favorite',
+      (query: QueryState & { update: BSONObject }) => {
+        void store.onQueryChanged(query);
+        void store.refreshDocuments();
+        void store.openBulkUpdateDialog();
+        void store.updateBulkUpdatePreview(
+          toJSString(query.update) || '{ $set: { } }'
+        );
+      }
+    );
+
     setLocalAppRegistry(store, options.localAppRegistry);
   }
 
@@ -1951,6 +2011,7 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
       isWritable: instance.isWritable,
       instanceDescription: instance.description,
       version: instance.build.version,
+      isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
     };
     if (instance.dataLake.isDataLake) {
       instanceState.isDataLake = true;

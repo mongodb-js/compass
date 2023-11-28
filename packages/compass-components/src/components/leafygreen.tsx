@@ -50,7 +50,8 @@ import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import TextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export { ToastProvider, useToast, ToastProps } from '@leafygreen-ui/toast';
+export type { ToastProps } from '@leafygreen-ui/toast';
+export { ToastProvider, useToast } from '@leafygreen-ui/toast';
 export { usePrevious } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import {
@@ -90,6 +91,9 @@ Icon.isGlyph = true;
 const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
 const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
 const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
+
+delete (MarketingModal as React.ComponentType<any>).propTypes;
+delete (Checkbox as React.ComponentType<any>).propTypes;
 
 // 3. Export the leafygreen components.
 export {

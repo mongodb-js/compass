@@ -38,6 +38,26 @@ describe('SavedItemCard', function () {
     expect(screen.getByText('Last modified: now')).to.exist;
   });
 
+  it('should render a card with an update query props', function () {
+    render(
+      <SavedItemCard
+        id="123"
+        name="My Awesome Update Query"
+        type="updatemany"
+        database="sample_airbnb"
+        collection="listingsAndReviews"
+        onAction={() => {}}
+        lastModified={now}
+      ></SavedItemCard>
+    );
+
+    expect(screen.getByText('My Awesome Update Query')).to.exist;
+    expect(screen.getByText('.updatemany')).to.exist;
+    expect(screen.getByText('sample_airbnb')).to.exist;
+    expect(screen.getByText('listingsAndReviews')).to.exist;
+    expect(screen.getByText('Last modified: now')).to.exist;
+  });
+
   it('should emit an "open" action on click / space / enter', function () {
     const onAction = Sinon.spy();
 

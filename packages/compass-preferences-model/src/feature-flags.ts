@@ -15,7 +15,6 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableGenAIExperience: boolean;
-  enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
@@ -37,19 +36,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Compass AI Features',
       long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
-    },
-  },
-
-  /**
-   * Currently Compass uses `darkreader` to globally change the views of
-   * Compass to a dark theme. Turning on this feature flag stops darkreader
-   * from being used and instead components which have darkMode
-   * support will listen to the theme to change their styles.
-   */
-  enableLgDarkmode: {
-    stage: 'released',
-    description: {
-      short: 'Modern Dark Mode',
     },
   },
 

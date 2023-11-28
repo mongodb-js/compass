@@ -23,9 +23,11 @@ function renderBulkUpdateDialog(
           },
         ],
       }}
+      enablePreview={true}
       closeBulkUpdateDialog={() => {}}
       updateBulkUpdatePreview={() => {}}
       runBulkUpdate={() => {}}
+      saveUpdateQuery={() => {}}
       {...props}
     />
   );
@@ -44,10 +46,14 @@ describe('BulkUpdateDialog Component', function () {
   it('renders if open', function () {
     renderBulkUpdateDialog({ count: 42 });
 
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update 42 documents'
+    );
+
     // filter
-    expect(
-      screen.getByTestId('readonly-filter').getAttribute('value')
-    ).to.equal('{\n a: 1\n}');
+    expect(screen.getByTestId('readonly-filter').textContent).to.equal(
+      '{\n a: 1\n}'
+    );
 
     // update
     expect(screen.getByTestId('bulk-update-update').textContent).to.match(
@@ -60,8 +66,28 @@ describe('BulkUpdateDialog Component', function () {
     ).to.have.lengthOf(1);
 
     // buttons
-    expect(screen.getByRole('button', { name: 'Close' })).to.exist;
+    expect(screen.getByRole('button', { name: 'Cancel' })).to.exist;
+    expect(screen.getByRole('button', { name: 'Update 42 documents' })).to
+      .exist;
+  });
+
+  it('hides document count if count is N/A', function () {
+    renderBulkUpdateDialog({ count: undefined });
+
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update documents'
+    );
+
     expect(screen.getByRole('button', { name: 'Update documents' })).to.exist;
+  });
+
+  it('use singular if count is 1', function () {
+    renderBulkUpdateDialog({ count: 1 });
+    expect(screen.getByTestId('modal-title').textContent).to.equal(
+      'Update 1 document'
+    );
+
+    expect(screen.getByRole('button', { name: 'Update 1 document' })).to.exist;
   });
 
   it('resets if the modal is re-opened', async function () {
@@ -87,6 +113,7 @@ describe('BulkUpdateDialog Component', function () {
         closeBulkUpdateDialog={() => {}}
         updateBulkUpdatePreview={() => {}}
         runBulkUpdate={() => {}}
+        saveUpdateQuery={() => {}}
       />
     );
 
@@ -109,6 +136,7 @@ describe('BulkUpdateDialog Component', function () {
         closeBulkUpdateDialog={() => {}}
         updateBulkUpdatePreview={() => {}}
         runBulkUpdate={() => {}}
+        saveUpdateQuery={() => {}}
       />
     );
 
@@ -125,15 +153,59 @@ describe('BulkUpdateDialog Component', function () {
     const onCloseSpy = sinon.spy();
     renderBulkUpdateDialog({ closeBulkUpdateDialog: onCloseSpy });
 
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onCloseSpy).to.have.been.calledOnce;
   });
 
-  it('runs the update when the update button is clicked', function () {
+  it('runs the update when the update button is clicked (preview supported)', function () {
     const onUpdateSpy = sinon.spy();
-    renderBulkUpdateDialog({ runBulkUpdate: onUpdateSpy });
+    renderBulkUpdateDialog({
+      enablePreview: true,
+      runBulkUpdate: onUpdateSpy,
+      count: 60,
+    });
 
-    userEvent.click(screen.getByRole('button', { name: 'Update documents' }));
+    // has a preview
+    expect(
+      screen.getAllByTestId('bulk-update-preview-document')
+    ).to.have.lengthOf(1);
+
+    userEvent.click(
+      screen.getByRole('button', { name: 'Update 60 documents' })
+    );
     expect(onUpdateSpy).to.have.been.calledOnce;
+  });
+
+  it('runs the update when the update button is clicked (preview unsupported)', function () {
+    const onUpdateSpy = sinon.spy();
+    renderBulkUpdateDialog({
+      enablePreview: false,
+      runBulkUpdate: onUpdateSpy,
+      count: 60,
+    });
+
+    // does not render a preview
+    expect(
+      screen.queryAllByTestId('bulk-update-preview-document')
+    ).to.have.lengthOf(0);
+
+    userEvent.click(
+      screen.getByRole('button', { name: 'Update 60 documents' })
+    );
+    expect(onUpdateSpy).to.have.been.calledOnce;
+  });
+
+  it('saves the query when a name is provided', function () {
+    const saveUpdateQuerySpy = sinon.spy();
+    renderBulkUpdateDialog({ saveUpdateQuery: saveUpdateQuerySpy });
+
+    userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
+    userEvent.type(
+      screen.getByTestId('inline-save-query-modal-input'),
+      'MySavedQuery'
+    );
+
+    userEvent.click(screen.getByTestId('inline-save-query-modal-submit'));
+    expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');
   });
 });

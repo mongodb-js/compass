@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ImportConnectionsModal,
   ExportConnectionsModal,
@@ -23,6 +23,7 @@ import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -123,6 +124,47 @@ function Connections({
     []
   );
 
+  const protectConnectionStrings = usePreference(
+    'protectConnectionStrings',
+    React
+  );
+  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
+  const showKerberosPasswordField = usePreference(
+    'showKerberosPasswordField',
+    React
+  );
+  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow', React);
+  const enableOidc = usePreference('enableOidc', React);
+  const enableDebugUseCsfleSchemaMap = usePreference(
+    'enableDebugUseCsfleSchemaMap',
+    React
+  );
+  const protectConnectionStringsForNewConnections = usePreference(
+    'protectConnectionStringsForNewConnections',
+    React
+  );
+
+  const preferences = useMemo(
+    () => ({
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    }),
+    [
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    ]
+  );
+
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
@@ -166,6 +208,7 @@ function Connections({
               onSaveConnectionClicked={saveConnection}
               initialConnectionInfo={activeConnectionInfo}
               connectionErrorMessage={connectionErrorMessage}
+              preferences={preferences}
             />
           </ErrorBoundary>
           <FormHelp />

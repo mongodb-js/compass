@@ -26,30 +26,36 @@ type SelectFocusModeStageAction = {
   index: number;
 };
 
-type State = {
+export type FocusModeAction =
+  | FocusModeEnabledAction
+  | FocusModeDisabledAction
+  | SelectFocusModeStageAction;
+export type FocusModeState = {
   isEnabled: boolean;
   stageIndex: number;
   openedAt: number | null;
 };
 
-export const INITIAL_STATE: State = {
+export const INITIAL_STATE: FocusModeState = {
   isEnabled: false,
   stageIndex: -1,
   openedAt: null,
 };
 
 export default function reducer(
-  state = INITIAL_STATE,
+  state: FocusModeState = INITIAL_STATE,
   action: AnyAction
-): State {
-  if (action.type === ActionTypes.FocusModeEnabled) {
+): FocusModeState {
+  if (isAction<FocusModeEnabledAction>(action, ActionTypes.FocusModeEnabled)) {
     return {
       isEnabled: true,
       stageIndex: action.stageIndex,
       openedAt: Date.now(),
     };
   }
-  if (action.type === ActionTypes.FocusModeDisabled) {
+  if (
+    isAction<FocusModeDisabledAction>(action, ActionTypes.FocusModeDisabled)
+  ) {
     return {
       isEnabled: false,
       stageIndex: -1,
@@ -103,7 +109,9 @@ export const disableFocusMode = (): PipelineBuilderThunkAction<
   };
 };
 
-export const selectFocusModeStage = (index: number) => {
+export const selectFocusModeStage = (
+  index: number
+): SelectFocusModeStageAction => {
   return {
     type: ActionTypes.SelectFocusModeStage,
     index,

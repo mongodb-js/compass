@@ -50,6 +50,8 @@ type InteractivePopoverProps = {
     ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
+  hideCloseButton?: boolean;
+  customFocusTrapFallback?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   /**
@@ -67,6 +69,8 @@ function InteractivePopover({
   className,
   children,
   trigger,
+  hideCloseButton = false,
+  customFocusTrapFallback = undefined,
   open,
   setOpen,
   containedElements = [],
@@ -91,14 +95,27 @@ function InteractivePopover({
     });
   }, [setOpen]);
 
-  const onClickTrigger = useCallback(() => {
-    if (open) {
-      onClose();
-      return;
-    }
+  const onClickTrigger = useCallback(
+    (event) => {
+      if (open) {
+        if (
+          containedElements.some((selector) => {
+            return document
+              .querySelector(selector)
+              ?.contains(event.target as Node);
+          })
+        ) {
+          return;
+        }
 
-    setOpen(!open);
-  }, [open, setOpen, onClose]);
+        onClose();
+        return;
+      }
+
+      setOpen(!open);
+    },
+    [open, setOpen, onClose, containedElements]
+  );
 
   // When the popover is open, close it when an item that isn't the popover
   // is clicked.
@@ -167,7 +184,7 @@ function InteractivePopover({
           focusTrapOptions={{
             clickOutsideDeactivates: true,
             // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
-            fallbackFocus: `#${closeButtonId}`,
+            fallbackFocus: customFocusTrapFallback || `#${closeButtonId}`,
           }}
         >
           <div
@@ -182,19 +199,21 @@ function InteractivePopover({
           >
             {children}
 
-            <IconButton
-              className={cx(closeButtonStyles, closeButtonClassName)}
-              data-testid="interactive-popover-close-button"
-              onClick={(evt) => {
-                evt.stopPropagation();
-                onClose();
-              }}
-              aria-label="Close"
-              id={closeButtonId}
-              ref={closeButtonRef}
-            >
-              <Icon glyph="X" />
-            </IconButton>
+            {!hideCloseButton && (
+              <IconButton
+                className={cx(closeButtonStyles, closeButtonClassName)}
+                data-testid="interactive-popover-close-button"
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  onClose();
+                }}
+                aria-label="Close"
+                id={closeButtonId}
+                ref={closeButtonRef}
+              >
+                <Icon glyph="X" />
+              </IconButton>
+            )}
           </div>
         </FocusTrap>
       </Popover>

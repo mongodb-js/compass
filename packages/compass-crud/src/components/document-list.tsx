@@ -77,6 +77,7 @@ export type DocumentListProps = {
   openBulkUpdateDialog: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
+  saveUpdateQuery: (name: string) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
@@ -106,6 +107,7 @@ export type DocumentListProps = {
   darkMode?: boolean;
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
@@ -264,6 +266,10 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
   }
 
+  onSaveUpdateQuery(name: string) {
+    void this.props.store.saveUpdateQuery(name);
+  }
+
   renderBulkUpdateModal() {
     if (!this.props.isEditable) {
       return;
@@ -274,10 +280,12 @@ class DocumentList extends React.Component<DocumentListProps> {
         ns={this.props.ns}
         filter={this.props.query.filter}
         count={this.props.count}
+        enablePreview={this.props.isUpdatePreviewSupported}
         {...this.props.bulkUpdate}
         closeBulkUpdateDialog={this.props.closeBulkUpdateDialog}
         updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
         runBulkUpdate={this.props.runBulkUpdate}
+        saveUpdateQuery={this.onSaveUpdateQuery.bind(this)}
       />
     );
   }
@@ -306,7 +314,7 @@ class DocumentList extends React.Component<DocumentListProps> {
       <BulkDeleteModal
         open={this.props.store.state.bulkDelete.status === 'open'}
         namespace={this.props.store.state.ns}
-        documentCount={this.props.store.state.bulkDelete.affected || 0}
+        documentCount={this.props.store.state.bulkDelete.affected}
         filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
@@ -533,6 +541,7 @@ DocumentList.propTypes = {
   openBulkUpdateDialog: PropTypes.func,
   updateBulkUpdatePreview: PropTypes.func,
   runBulkUpdate: PropTypes.func,
+  saveUpdateQuery: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
   refreshDocuments: PropTypes.func,
@@ -557,6 +566,7 @@ DocumentList.propTypes = {
   darkMode: PropTypes.bool,
   isCollectionScan: PropTypes.bool,
   isSearchIndexesSupported: PropTypes.bool,
+  isUpdatePreviewSupported: PropTypes.bool,
 };
 
 DocumentList.defaultProps = {

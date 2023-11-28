@@ -8,6 +8,7 @@ const queryProps = {
   sort: z.any().optional(),
   skip: z.number().optional(),
   limit: z.number().optional(),
+  update: z.any().optional(),
 };
 
 const commonMetadata = {
@@ -125,5 +126,21 @@ export class FavoriteQueryStorage extends QueryStorage<
 > {
   constructor(options: QueryStorageOptions = {}) {
     super(FavoriteQuerySchema, 'FavoriteQueries', options);
+  }
+
+  async saveQuery(
+    data: Omit<
+      z.input<typeof FavoriteQuerySchema>,
+      '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
+    >
+  ): Promise<void> {
+    const _id = new UUID().toString();
+    const favoriteQuery = {
+      ...data,
+      _id,
+      _lastExecuted: new Date(),
+      _dateSaved: new Date(),
+    };
+    await this.userData.write(_id, favoriteQuery);
   }
 }

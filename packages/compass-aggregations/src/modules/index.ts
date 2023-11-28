@@ -25,7 +25,6 @@ import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
-import projections from './projections';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
@@ -68,7 +67,6 @@ const rootReducer = combineReducers({
   largeLimit,
   maxTimeMS,
   savingPipeline,
-  projections,
   editViewName,
   sourceName,
   outResultsFn,
