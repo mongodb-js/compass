@@ -170,11 +170,15 @@ describe('Collection Rename Modal', () => {
       await renameCollectionSuccessFlow(browser, newName);
 
       await browser.$(Selectors.CollectionHeaderNamespace).waitForDisplayed();
-      const collectionTitle = await browser
-        .$(Selectors.CollectionHeaderNamespace)
-        .getText();
-      expect(collectionTitle).not.to.include(initialName);
-      expect(collectionTitle).to.include(newName);
+      await browser.waitUntil(async () => {
+        const collectionHeaderContent = await browser
+          .$(Selectors.CollectionHeaderNamespace)
+          .getText();
+        return (
+          collectionHeaderContent.includes(newName) &&
+          !collectionHeaderContent.includes(initialName)
+        );
+      });
     });
 
     it('collection rename can be retried after an error renaming the collection', async () => {
