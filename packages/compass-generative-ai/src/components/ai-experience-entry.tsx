@@ -6,7 +6,6 @@ import {
   palette,
   spacing,
   useDarkMode,
-  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -18,10 +17,9 @@ import {
 } from './ai-entry-svg';
 
 const hiddenOnNarrowStyles = css({
-  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
-    {
-      display: 'none',
-    },
+  ['@media (width < 1100px)']: {
+    display: 'none',
+  },
 });
 
 const aiEntryStyles = css(
