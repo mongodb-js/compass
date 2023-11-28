@@ -414,6 +414,238 @@ describe('ConnectionStorage', function () {
     );
   });
 
+  describe('migrateToSafeStorage', function () {
+    let sandbox: Sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = Sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    context('does not migrate connections', function () {
+      it('when there are no connections', async function () {
+        await ConnectionStorage.migrateToSafeStorage();
+        const connections = await ConnectionStorage.loadAll();
+        expect(connections).to.deep.equal([]);
+      });
+
+      it('when there are only legacy connections', async function () {
+        await writeFakeConnection(tmpDir, connection1270);
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+      });
+
+      it('when there are only migrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+
+        const encryptSecretsSpy = sandbox.spy(
+          ConnectionStorage,
+          'encryptSecrets' as any
+        );
+        const getKeytarCredentialsSpy = sandbox.spy(
+          ConnectionStorage,
+          'getKeytarCredentials' as any
+        );
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        expect(
+          encryptSecretsSpy.called,
+          'it does not try to encrypt'
+        ).to.be.false;
+        expect(
+          getKeytarCredentialsSpy.called,
+          'it does not try to get secrets from keychain'
+        ).to.be.false;
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
+
+    context('migrates connections', function () {
+      it('when there are connections and secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox.stub(ConnectionStorage, 'getKeytarCredentials' as any).returns({
+          [connectionInfo1.id]: {
+            password: 'password1',
+          },
+          [connectionInfo2.id]: {
+            password: 'password2',
+          },
+        });
+
+        // safeStorage.encryptString stub
+        sandbox
+          .stub(ConnectionStorage, 'encryptSecrets' as any)
+          .returns('encrypted-password');
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          connectionSecrets: 'encrypted-password',
+          version: 1,
+        });
+      });
+      it('when there are connections and no secrets in keychain', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar fake
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        // Since there're no secrets in keychain, we do not expect to call safeStorage.encryptString
+        // and connection.connectionSecrets should be undefined
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+
+      it('when there are any unmigrated connections', async function () {
+        const connectionInfo1 = getConnectionInfo();
+        const connectionInfo2 = getConnectionInfo();
+        await writeFakeConnection(tmpDir, {
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        await writeFakeConnection(tmpDir, {
+          connectionInfo: connectionInfo2,
+        });
+
+        // Keytar stub
+        sandbox
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
+          .returns({});
+
+        await ConnectionStorage.migrateToSafeStorage();
+
+        const expectedConnection1 = await readConnection(
+          tmpDir,
+          connectionInfo1.id
+        );
+        const expectedConnection2 = await readConnection(
+          tmpDir,
+          connectionInfo2.id
+        );
+
+        expect(expectedConnection1).to.deep.equal({
+          _id: connectionInfo1.id,
+          connectionInfo: connectionInfo1,
+          version: 1,
+        });
+        expect(expectedConnection2).to.deep.equal({
+          _id: connectionInfo2.id,
+          connectionInfo: connectionInfo2,
+          version: 1,
+        });
+      });
+    });
+  });
+
   describe('loadAll', function () {
     it('should load an empty array with no connections', async function () {
       const connections = await ConnectionStorage.loadAll();
