@@ -109,11 +109,11 @@ describe('ConnectionStorage', function () {
 
         const encryptSecretsSpy = sandbox.spy(
           ConnectionStorage,
-          <any>'encryptSecrets'
+          'encryptSecrets' as any
         );
         const getKeytarCredentialsSpy = sandbox.spy(
           ConnectionStorage,
-          <any>'getKeytarCredentials'
+          'getKeytarCredentials' as any
         );
 
         await ConnectionStorage.migrateToSafeStorage();
@@ -145,11 +145,11 @@ describe('ConnectionStorage', function () {
 
         const encryptSecretsSpy = sandbox.spy(
           ConnectionStorage,
-          <any>'encryptSecrets'
+          'encryptSecrets' as any
         );
         const getKeytarCredentialsSpy = sandbox.spy(
           ConnectionStorage,
-          <any>'getKeytarCredentials'
+          'getKeytarCredentials' as any
         );
 
         await ConnectionStorage.migrateToSafeStorage();
@@ -198,7 +198,7 @@ describe('ConnectionStorage', function () {
         });
 
         // Keytar stub
-        sandbox.stub(ConnectionStorage, <any>'getKeytarCredentials').returns({
+        sandbox.stub(ConnectionStorage, 'getKeytarCredentials' as any).returns({
           [connectionInfo1.id]: {
             password: 'password1',
           },
@@ -209,7 +209,7 @@ describe('ConnectionStorage', function () {
 
         // safeStorage.encryptString stub
         sandbox
-          .stub(ConnectionStorage, <any>'encryptSecrets')
+          .stub(ConnectionStorage, 'encryptSecrets' as any)
           .returns('encrypted-password');
 
         await ConnectionStorage.migrateToSafeStorage();
@@ -248,7 +248,7 @@ describe('ConnectionStorage', function () {
 
         // Keytar fake
         sandbox
-          .stub(ConnectionStorage, <any>'getKeytarCredentials')
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
           .returns({});
 
         // Since there're no secrets in keychain, we do not expect to call safeStorage.encryptString
@@ -291,7 +291,7 @@ describe('ConnectionStorage', function () {
 
         // Keytar stub
         sandbox
-          .stub(ConnectionStorage, <any>'getKeytarCredentials')
+          .stub(ConnectionStorage, 'getKeytarCredentials' as any)
           .returns({});
 
         await ConnectionStorage.migrateToSafeStorage();
