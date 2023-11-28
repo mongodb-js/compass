@@ -352,7 +352,7 @@ describe('ConnectionStorage', function () {
               // When importing connections, we will encrypt secrets using safeStorage.
               // So, we mock the *encryptSecrets* implementation to not trigger keychain.
               const encryptSecretsStub = sandbox
-                .stub(ConnectionStorage, <any>'encryptSecrets')
+                .stub(ConnectionStorage, 'encryptSecrets' as any)
                 .returns('encrypted-password');
               // Import
               await ConnectionStorage.importConnections({
@@ -373,7 +373,7 @@ describe('ConnectionStorage', function () {
             {
               // When reading, we will mock *decryptSecrets* implementation.
               const decryptSecretsStub = sandbox
-                .stub(ConnectionStorage, <any>'decryptSecrets')
+                .stub(ConnectionStorage, 'decryptSecrets' as any)
                 .returns({ password: 'password' });
 
               const connections = await ConnectionStorage.loadAll();
@@ -652,7 +652,7 @@ describe('ConnectionStorage', function () {
         // // and make assertions on that.
         const encryptSecretsStub = Sinon.stub(
           ConnectionStorage,
-          <any>'encryptSecrets'
+          'encryptSecrets' as any
         ).returns(undefined);
 
         await ConnectionStorage.save({ connectionInfo });
@@ -697,7 +697,7 @@ describe('ConnectionStorage', function () {
         // and make assertions on that.
         const encryptSecretsStub = Sinon.stub(
           ConnectionStorage,
-          <any>'encryptSecrets'
+          'encryptSecrets' as any
         ).returns('encrypted-data');
 
         await ConnectionStorage.save({ connectionInfo });
@@ -740,7 +740,7 @@ describe('ConnectionStorage', function () {
       // and make assertions on that.
       const encryptSecretsStub = Sinon.stub(
         ConnectionStorage,
-        <any>'encryptSecrets'
+        'encryptSecrets' as any
       ).returns('encrypted-password');
 
       await ConnectionStorage.save({
