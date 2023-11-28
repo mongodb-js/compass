@@ -1,6 +1,8 @@
 import React from 'react';
 import { useHotkeys as useGlobalHotkeys } from 'react-hotkeys-hook';
-import { InlineKeyCode, css, spacing } from '../';
+import { InlineKeyCode } from '../components/leafygreen';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css } from '@leafygreen-ui/emotion';
 
 const shortcutContainerStyles = css({
   display: 'flex',

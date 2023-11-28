@@ -29,6 +29,7 @@ import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { Tab } from './tab';
+import { useHotkeys } from '../../hooks/use-hotkeys';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
 export const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);
@@ -164,6 +165,8 @@ type WorkspaceTabsProps = {
   'aria-label': string;
   onCreateNewTab: () => void;
   onSelectTab: (tabIndex: number) => void;
+  onSelectNextTab: () => void;
+  onSelectPrevTab: () => void;
   onCloseTab: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabProps[];
@@ -171,9 +174,9 @@ type WorkspaceTabsProps = {
 };
 
 export type TabProps = {
-  subtitle: string;
-  tabContentId: string;
+  id: string;
   title: string;
+  subtitle?: string;
   iconGlyph: Extract<keyof typeof glyphs, string>;
 };
 
@@ -215,7 +218,7 @@ const SortableList = ({
   selectedTabIndex,
   onClose,
 }: SortableListProps) => {
-  const items = tabs.map((tab) => tab.tabContentId);
+  const items = tabs.map((tab) => tab.id);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -235,8 +238,8 @@ const SortableList = ({
 
   const onSortEnd = useCallback(
     ({ oldIndex, newIndex }) => {
-      const from = tabs.findIndex((tab) => tab.tabContentId === oldIndex);
-      const to = tabs.findIndex((tab) => tab.tabContentId === newIndex);
+      const from = tabs.findIndex((tab) => tab.id === oldIndex);
+      const to = tabs.findIndex((tab) => tab.id === newIndex);
       onMove(from, to);
     },
     [onMove, tabs]
@@ -265,7 +268,7 @@ const SortableList = ({
         <div className={sortableItemContainerStyles}>
           {tabs.map((tab: TabProps, index: number) => (
             <SortableItem
-              key={`tab-${tab.tabContentId}-${tab.subtitle}`}
+              key={tab.id}
               index={index}
               tab={tab}
               activeId={activeId}
@@ -281,7 +284,7 @@ const SortableList = ({
 };
 
 const SortableItem = ({
-  tab: { tabContentId, iconGlyph, subtitle, title },
+  tab: { id, iconGlyph, subtitle, title },
   index,
   selectedTabIndex,
   activeId,
@@ -301,10 +304,7 @@ const SortableItem = ({
     [selectedTabIndex, index]
   );
 
-  const isDragging = useMemo(
-    () => tabContentId === activeId,
-    [tabContentId, activeId]
-  );
+  const isDragging = useMemo(() => id === activeId, [id, activeId]);
 
   return (
     <Tab
@@ -312,7 +312,7 @@ const SortableItem = ({
       isSelected={isSelected}
       isDragging={isDragging}
       iconGlyph={iconGlyph}
-      tabContentId={tabContentId}
+      tabContentId={id}
       subtitle={subtitle}
       onSelect={onTabSelected}
       onClose={onTabClosed}
@@ -326,6 +326,8 @@ function WorkspaceTabs({
   onCloseTab,
   onMoveTab,
   onSelectTab,
+  onSelectNextTab,
+  onSelectPrevTab,
   tabs,
   selectedTabIndex,
 }: WorkspaceTabsProps) {
@@ -342,6 +344,61 @@ function WorkspaceTabs({
   const tabContainerProps = mergeProps<HTMLDivElement>(
     rovingFocusProps,
     navigationProps
+  );
+
+  useHotkeys(
+    'ctrl + tab',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelectNextTab();
+    },
+    [onSelectNextTab]
+  );
+  useHotkeys(
+    'ctrl + shift + tab',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelectPrevTab();
+    },
+    [onSelectPrevTab]
+  );
+  useHotkeys(
+    'mod + shift + ]',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelectNextTab();
+    },
+    [onSelectNextTab]
+  );
+  useHotkeys(
+    'mod + shift + [',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelectPrevTab();
+    },
+    [onSelectPrevTab]
+  );
+  useHotkeys(
+    'mod + w',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onCloseTab(selectedTabIndex);
+    },
+    [onCloseTab, selectedTabIndex]
+  );
+  useHotkeys(
+    'mod + t',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onCreateNewTab();
+    },
+    [onCreateNewTab]
   );
 
   return (

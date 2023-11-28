@@ -1,5 +1,5 @@
 import type { CollectionTabOptions } from './collection-tab';
-import { configureStore as _configureStore } from './collection-tab';
+import { activatePlugin } from './collection-tab';
 import {
   selectTab,
   selectDatabase,
@@ -51,21 +51,22 @@ describe('Collection Tab Content store', function () {
   };
 
   const configureStore = (options: Partial<CollectionTabOptions> = {}) => {
-    return _configureStore({
-      dataService,
-      globalAppRegistry,
-      localAppRegistry,
-      ...defaultMetadata,
-      ...options,
-    });
+    const { store } = activatePlugin(
+      {
+        ...defaultMetadata,
+        ...options,
+      },
+      {
+        dataService,
+        globalAppRegistry,
+        localAppRegistry,
+        instance,
+      }
+    );
+    return store;
   };
 
   beforeEach(function () {
-    globalAppRegistry.registerStore('App.InstanceStore', {
-      getState() {
-        return { instance };
-      },
-    } as any);
     globalAppRegistry.registerRole(
       'Collection.ScopedModal',
       scopedModalRole as any

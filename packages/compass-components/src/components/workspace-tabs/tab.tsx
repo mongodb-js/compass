@@ -206,7 +206,7 @@ type TabProps = {
   onClose: () => void;
   iconGlyph: IconGlyph;
   tabContentId: string;
-  subtitle: string;
+  subtitle?: string;
 };
 
 function Tab({
@@ -269,7 +269,7 @@ function Tab({
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
-      title={`${subtitle} - ${title}`}
+      title={subtitle ? `${subtitle} - ${title}` : title}
       {...listeners}
       {...tabProps}
     >
@@ -300,19 +300,23 @@ function Tab({
         >
           {title}
         </div>
-        <Body
-          className={cx(
-            tabSubtitleStyles,
-            darkMode ? tabSubtitleDarkThemeStyles : tabSubtitleLightThemeStyles,
-            {
-              [darkMode
-                ? tabSubtitleSelectedDarkThemeStyles
-                : tabSubtitleSelectedLightThemeStyles]: isSelected,
-            }
-          )}
-        >
-          {subtitle}
-        </Body>
+        {subtitle && (
+          <Body
+            className={cx(
+              tabSubtitleStyles,
+              darkMode
+                ? tabSubtitleDarkThemeStyles
+                : tabSubtitleLightThemeStyles,
+              {
+                [darkMode
+                  ? tabSubtitleSelectedDarkThemeStyles
+                  : tabSubtitleSelectedLightThemeStyles]: isSelected,
+              }
+            )}
+          >
+            {subtitle}
+          </Body>
+        )}
       </div>
 
       <IconButton

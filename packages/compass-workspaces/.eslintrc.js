@@ -5,8 +5,4 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
   },
-  env: {
-    node: true,
-    browser: true,
-  },
 };

@@ -13,20 +13,24 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 
 export type CollectionTabOptions = {
-  dataService: DataService;
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
   query?: unknown;
   aggregation?: unknown;
   pipelineText?: string;
   editViewName?: string;
-} & CollectionMetadata;
+} & CollectionMetadata; // TODO: make collection-tab resovle metadata on its own
 
-export function configureStore(options: CollectionTabOptions) {
+export type CollectionTabServices = {
+  dataService: DataService;
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+  instance: MongoDBInstance;
+};
+
+export function activatePlugin(
+  options: CollectionTabOptions,
+  services: CollectionTabServices
+) {
   const {
-    dataService,
-    globalAppRegistry,
-    localAppRegistry,
     query,
     aggregation,
     editViewName,
@@ -34,17 +38,8 @@ export function configureStore(options: CollectionTabOptions) {
     ...collectionMetadata
   } = options;
 
-  const instance = (
-    globalAppRegistry.getStore('App.InstanceStore') as
-      | {
-          getState(): { instance: MongoDBInstance };
-        }
-      | undefined
-  )?.getState().instance;
-
-  if (!instance) {
-    throw new Error('Expected to get instance from App.InstanceStore');
-  }
+  const { dataService, globalAppRegistry, localAppRegistry, instance } =
+    services;
 
   const configureFieldStore = globalAppRegistry.getStore(
     'Field.Store'
@@ -66,7 +61,9 @@ export function configureStore(options: CollectionTabOptions) {
   // If aggregation is passed or we opened view to edit source pipeline,
   // select aggregation tab right away
   const currentTab =
-    aggregation || editViewName || pipelineText ? 'Aggregations' : 'Documents';
+    aggregation || aggregation || editViewName || pipelineText
+      ? 'Aggregations'
+      : 'Documents';
 
   const store = createStore(
     reducer,
@@ -100,12 +97,6 @@ export function configureStore(options: CollectionTabOptions) {
     )
   );
 
-  collectionModel?.on('change:status', (model: Collection, status: string) => {
-    if (status === 'ready') {
-      store.dispatch(collectionStatsFetched(model));
-    }
-  });
-
   localAppRegistry.on('open-create-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
@@ -118,5 +109,21 @@ export function configureStore(options: CollectionTabOptions) {
     store.dispatch(selectTab('Aggregations'));
   });
 
-  return store;
+  const onCollectionModelStatusChange = (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  };
+
+  collectionModel?.on('change:status', onCollectionModelStatusChange);
+
+  return {
+    store,
+    deactivate() {
+      collectionModel?.removeListener(
+        'change:status',
+        onCollectionModelStatusChange
+      );
+    },
+  };
 }

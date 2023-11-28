@@ -127,22 +127,6 @@ store.onActivated = (appRegistry) => {
     store.dispatch(dataServiceConnected(error, dataService));
   });
 
-  appRegistry.on('collection-dropped', (namespace) => {
-    const { database } = toNS(namespace);
-
-    const currentDatabase = store.getState().databaseName;
-    if (database === currentDatabase) {
-      appRegistry.emit('active-collection-dropped', namespace);
-    }
-  });
-
-  appRegistry.on('database-dropped', (name) => {
-    const currentDatabase = store.getState().databaseName;
-    if (name === currentDatabase) {
-      appRegistry.emit('active-database-dropped', name);
-    }
-  });
-
   /**
    * Set the app registry to use later.
    */

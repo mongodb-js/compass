@@ -297,31 +297,6 @@ export function createInstanceStore({
   });
   onAppRegistryEvent('collection-created', onCollectionCreated);
 
-  const onActiveCollectionDropped = (ns: string) => {
-    // This callback will fire after drop collection happened, we force it into
-    // a microtask to allow drop collections event handler to force start
-    // databases and collections list update before we run our check here
-    queueMicrotask(
-      voidify(async () => {
-        const { database } = toNS(ns);
-        await instance.fetchDatabases({ dataService });
-        const db = instance.databases.get(database);
-        await db?.fetchCollections({ dataService });
-        if (db?.collectionsLength) {
-          appRegistry.emit('select-database', database);
-        } else {
-          appRegistry.emit('open-instance-workspace', 'Databases');
-        }
-      })
-    );
-  };
-  onAppRegistryEvent('active-collection-dropped', onActiveCollectionDropped);
-
-  const onActiveDatabaseDropped = () => {
-    appRegistry.emit('open-instance-workspace', 'Databases');
-  };
-  onAppRegistryEvent('active-database-dropped', onActiveDatabaseDropped);
-
   /**
    * Opens collection in the current active tab. No-op if currently open tab has
    * the same namespace. Additional `query` and `agrregation` props can be
