@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
-import { usePreference } from 'compass-preferences-model';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -21,6 +20,7 @@ import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
+import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 type AUTH_TABS =
   | 'DEFAULT' // Username/Password (SCRAM-SHA-1 + SCRAM-SHA-256 + DEFAULT)
@@ -108,7 +108,7 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const enableOIDC = !!usePreference('enableOidc', React);
+  const enableOIDC = !!useConnectionFormPreference('enableOidc');
   const enabledAuthOptions = useMemo(() => {
     if (enableOIDC) {
       return options;

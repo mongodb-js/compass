@@ -98,7 +98,7 @@ export default connect(
   (state: RootState) => {
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isEditingViewPipeline: state.editViewName,
+      isEditingViewPipeline: !!state.editViewName,
       isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },

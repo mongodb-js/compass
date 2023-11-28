@@ -45,7 +45,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.19.0",
@@ -62,7 +62,7 @@
     "compass-preferences-model": "^2.15.6",
     "hadron-ipc": "^3.2.4",
     "lodash": "^4.17.21",
-    "mongodb": "^6.0.0",
+    "mongodb": "^6.3.0",
     "uuid": "^8.2.0"
   },
   "devDependencies": {
@@ -75,6 +75,7 @@
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",

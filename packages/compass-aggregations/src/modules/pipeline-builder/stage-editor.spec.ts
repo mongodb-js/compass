@@ -98,7 +98,6 @@ function createStore({
     reducer,
     {
       dataService: {
-        error: null,
         dataService: mockDataService(),
       },
       pipelineBuilder: {

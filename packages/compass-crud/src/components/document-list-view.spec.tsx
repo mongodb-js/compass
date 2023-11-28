@@ -15,7 +15,6 @@ describe('<DocumentListView />', function () {
         <DocumentListView
           docs={hadronDocs}
           isEditable={false}
-          isExpanded={false}
           isTimeSeries={false}
           copyToClipboard={sinon.spy()}
           removeDocument={sinon.spy()}

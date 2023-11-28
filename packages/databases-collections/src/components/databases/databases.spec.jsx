@@ -9,7 +9,7 @@ describe('Databases [Component]', function () {
     beforeEach(function () {
       component = mount(
         <Databases
-          databasesStatus={{ status: 'ready' }}
+          databasesLoadingStatus="ready"
           databases={[{ name: 'db1' }]}
           isGenuineMongoDB
         />
@@ -31,7 +31,7 @@ describe('Databases [Component]', function () {
     beforeEach(function () {
       component = mount(
         <Databases
-          databasesStatus={{ status: 'ready' }}
+          databasesLoadingStatus="ready"
           databases={[]}
           isGenuineMongoDB
         />
@@ -54,7 +54,7 @@ describe('Databases [Component]', function () {
     beforeEach(function () {
       component = mount(
         <Databases
-          databasesStatus={{ status: 'ready' }}
+          databasesLoadingStatus="ready"
           databases={[{ name: 'db1' }]}
           isGenuineMongoDB={false}
         />
@@ -76,7 +76,7 @@ describe('Databases [Component]', function () {
     beforeEach(function () {
       component = mount(
         <Databases
-          databasesStatus={{ status: 'ready' }}
+          databasesLoadingStatus="ready"
           databases={[]}
           isGenuineMongoDB={false}
         />

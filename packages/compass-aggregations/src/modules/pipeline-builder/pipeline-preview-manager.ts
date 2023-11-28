@@ -1,4 +1,3 @@
-import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '@mongodb-js/compass-utils';
@@ -12,6 +11,7 @@ import {
   REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
+import type { DataService } from '../data-service';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 

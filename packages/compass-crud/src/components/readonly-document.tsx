@@ -27,7 +27,6 @@ export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
-  expandAll: boolean;
   showInsights?: boolean;
 };
 
@@ -55,12 +54,7 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
    * @returns {Array} The elements.
    */
   renderElements() {
-    return (
-      <DocumentList.Document
-        value={this.props.doc}
-        expanded={this.props.expandAll}
-      />
-    );
+    return <DocumentList.Document value={this.props.doc} />;
   }
 
   renderActions() {

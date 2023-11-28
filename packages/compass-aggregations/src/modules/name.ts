@@ -1,29 +1,46 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import type {
+  LoadGeneratedPipelineAction,
+  PipelineGeneratedFromQueryAction,
+} from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
+import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import type { SavingPipelineApplyAction } from './saving-pipeline';
 import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
+import { isAction } from '../utils/is-action';
 
-type State = string;
+export type NameState = string;
 
-export const INITIAL_STATE: State = '';
+export const INITIAL_STATE: NameState = '';
 
 /**
  * Reducer function for handle state changes to name.
  */
-const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
-  if (action.type === SAVING_PIPELINE_APPLY) {
+const reducer: Reducer<NameState> = (state = INITIAL_STATE, action) => {
+  if (isAction<SavingPipelineApplyAction>(action, SAVING_PIPELINE_APPLY)) {
     return action.name;
   }
   if (
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
-    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
+    isAction<LoadGeneratedPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadGeneratedPipeline
+    ) ||
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    )
   ) {
     return INITIAL_STATE;
   }
-  if (action.type === RESTORE_PIPELINE) {
+  if (isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)) {
     return action.storedOptions.name;
   }
   return state;

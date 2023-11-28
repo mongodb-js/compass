@@ -43,10 +43,10 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "bson": "^6.0.0",
+    "bson": "^6.2.0",
     "debug": "^4.2.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^7.1.0",
@@ -63,6 +63,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^10.2.0",
     "moment": "^2.29.4",
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+    "sinon": "^17.0.1"
   }
 }

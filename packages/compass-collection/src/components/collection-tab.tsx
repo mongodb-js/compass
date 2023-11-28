@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import type { Store } from 'redux';
 import { connect, Provider } from 'react-redux';
+import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import {
   returnToView,
   selectDatabase,
@@ -9,10 +9,13 @@ import {
   selectTab,
   renderScopedModals,
   renderTabs,
+  createCollectionStoreMetadata,
 } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { configureStore } from '../stores/collection-tab';
+import { useCollectionTabPlugins } from './collection-tab-provider';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'
@@ -58,11 +61,41 @@ const collectionModalContainerStyles = css({
 
 const CollectionTab: React.FunctionComponent<{
   currentTab: string;
+  collectionTabPluginMetadata: CollectionTabPluginMetadata;
   renderScopedModals(): React.ReactElement[];
   renderTabs(): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
-}> = ({ currentTab, renderScopedModals, renderTabs, onTabClick }) => {
-  const tabs = renderTabs();
+}> = ({
+  currentTab,
+  collectionTabPluginMetadata,
+  renderScopedModals,
+  renderTabs,
+  onTabClick,
+}) => {
+  const pluginTabs = useCollectionTabPlugins();
+  const legacyTabs = renderTabs();
+  const tabs = [
+    ...legacyTabs,
+    ...pluginTabs.map(({ name, component: Component }) => ({
+      name,
+      component: <Component {...collectionTabPluginMetadata} />,
+    })),
+  ];
+  // TODO(COMPASS-7404): While the legacy tabs and the provider-injected ones exist,
+  // we cannot just rely on the HadronRole ordering anymore
+  tabs.sort(
+    (
+      (order) =>
+      (a, b): number =>
+        order[a.name] - order[b.name]
+    )({
+      Documents: 0,
+      Aggregations: 1,
+      Schema: 2,
+      Indexes: 3,
+      Validation: 4,
+    } as Record<string, number>)
+  );
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   useEffect(() => {
@@ -121,6 +154,7 @@ const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
       currentTab: state.currentTab,
+      collectionTabPluginMetadata: createCollectionStoreMetadata(state),
     };
   },
   {
@@ -130,9 +164,9 @@ const ConnectedCollectionTab = connect(
   }
 )(CollectionTab);
 
-const CollectionTabPlugin: React.FunctionComponent<{ store: Store }> = ({
-  store,
-}) => {
+const CollectionTabPlugin: React.FunctionComponent<{
+  store: ReturnType<typeof configureStore>;
+}> = ({ store }) => {
   return (
     <Provider store={store}>
       <ConnectedCollectionTab></ConnectedCollectionTab>

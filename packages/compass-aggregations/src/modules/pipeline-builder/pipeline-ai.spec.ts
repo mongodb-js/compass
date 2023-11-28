@@ -8,7 +8,6 @@ import {
   runAIPipelineGeneration,
   generateAggregationFromQuery,
 } from './pipeline-ai';
-import type { ConfigureStoreOptions } from '../../stores/store';
 import { toggleAutoPreview } from '../auto-preview';
 
 describe('AIPipelineReducer', function () {
@@ -17,12 +16,6 @@ describe('AIPipelineReducer', function () {
   afterEach(function () {
     sandbox.reset();
   });
-
-  function createStore(opts: Partial<ConfigureStoreOptions> = {}) {
-    return configureStore({
-      ...opts,
-    });
-  }
 
   describe('runAIPipelineGeneration', function () {
     describe('with a successful server response', function () {
@@ -39,13 +32,13 @@ describe('AIPipelineReducer', function () {
           getConnectionString: sandbox.stub().returns({ hosts: [] }),
         };
 
-        const store = createStore({
-          namespace: 'database.collection',
-          dataProvider: {
-            dataProvider: mockDataService as any,
+        const store = configureStore(
+          {
+            namespace: 'database.collection',
+            atlasService: mockAtlasService as any,
           },
-          atlasService: mockAtlasService as any,
-        });
+          mockDataService as any
+        );
 
         // Set autoPreview false so that it doesn't start the
         // follow up async preview doc requests.
@@ -93,7 +86,7 @@ describe('AIPipelineReducer', function () {
             .rejects(new Error('500 Internal Server Error')),
         };
 
-        const store = createStore({ atlasService: mockAtlasService as any });
+        const store = configureStore({ atlasService: mockAtlasService as any });
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
@@ -116,7 +109,7 @@ describe('AIPipelineReducer', function () {
           on: sandbox.stub(),
           getAggregationFromUserInput: sandbox.stub().rejects(authError),
         };
-        const store = createStore({ atlasService: mockAtlasService as any });
+        const store = configureStore({ atlasService: mockAtlasService as any });
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(store.getState().pipelineBuilder.aiPipeline).to.deep.eq({
           status: 'ready',
@@ -133,7 +126,7 @@ describe('AIPipelineReducer', function () {
 
   describe('cancelAIPipelineGeneration', function () {
     it('should unset the fetching id and set the status on the store', function () {
-      const store = createStore();
+      const store = configureStore();
       expect(
         store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
       ).to.equal(-1);
@@ -177,13 +170,13 @@ describe('AIPipelineReducer', function () {
         getConnectionString: sandbox.stub().returns({ hosts: [] }),
       };
 
-      const store = createStore({
-        namespace: 'database.collection',
-        dataProvider: {
-          dataProvider: mockDataService as any,
+      const store = configureStore(
+        {
+          namespace: 'database.collection',
+          atlasService: mockAtlasService as any,
         },
-        atlasService: mockAtlasService as any,
-      });
+        mockDataService as any
+      );
 
       // Set autoPreview false so that it doesn't start the
       // follow up async preview doc requests.

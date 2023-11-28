@@ -12,3 +12,5 @@ export const mongoDBInstanceLocator = (): MongoDBInstance => {
   }
   return instance;
 };
+
+export type { MongoDBInstance };

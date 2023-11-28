@@ -106,7 +106,6 @@ const defaultNS: Namespace = toNS('');
 
 type ThemeState = {
   theme: Theme;
-  enabled: boolean;
 };
 
 type State = {
@@ -397,10 +396,7 @@ function Home({
 }
 
 function getCurrentTheme(): Theme {
-  return preferences.getPreferences().enableLgDarkmode &&
-    remote?.nativeTheme?.shouldUseDarkColors
-    ? Theme.Dark
-    : Theme.Light;
+  return remote?.nativeTheme?.shouldUseDarkColors ? Theme.Dark : Theme.Light;
 }
 
 function ThemedHome(
@@ -412,31 +408,21 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
-    enabled: !!preferences.getPreferences().enableLgDarkmode,
   });
 
-  const darkMode = useMemo(
-    () => theme.enabled && theme.theme === Theme.Dark,
-    [theme]
-  );
+  const darkMode = useMemo(() => theme.theme === Theme.Dark, [theme]);
 
   useEffect(() => {
     const listener = () => {
       setTheme({
         theme: getCurrentTheme(),
-        enabled: !!preferences.getPreferences().enableLgDarkmode,
       });
     };
 
-    const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
-      'enableLgDarkmode',
-      listener
-    );
     remote?.nativeTheme?.on('updated', listener);
 
     return () => {
       // Cleanup preference listeners.
-      unsubscribeLgDarkmodeListener();
       remote?.nativeTheme?.off('updated', listener);
     };
   }, [appRegistry]);

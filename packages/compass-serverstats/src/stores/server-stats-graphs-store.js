@@ -3,6 +3,9 @@ const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-store');
 
+/**
+ * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService)}}
+ */
 const ServerStatsStore = Reflux.createStore({
   init: function () {
     this.restart();
@@ -11,14 +14,10 @@ const ServerStatsStore = Reflux.createStore({
     this.listenTo(Actions.pause, this.pause);
   },
 
-  onActivated: function (appRegistry) {
-    appRegistry.on('data-service-connected', (err, ds) => {
-      if (!err) {
-        this.dataService = ds;
-        this.isMongos = ds.isMongos();
-        this.isWritable = ds.isWritable();
-      }
-    });
+  onActivated: function (ds) {
+    this.dataService = ds;
+    this.isMongos = ds.isMongos();
+    this.isWritable = ds.isWritable();
   },
 
   restart: function () {
