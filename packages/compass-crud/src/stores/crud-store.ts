@@ -421,7 +421,7 @@ class CrudStoreImpl
   implements CrudActions
 {
   mixins = [StateMixin.store];
-  listenables: CrudStoreActionsOptions['actions'];
+  listenables: unknown[];
 
   // Should this be readonly? The existence of setState would imply that...
   // readonly state!: Readonly<CrudState>
@@ -447,7 +447,7 @@ class CrudStoreImpl
     >
   ) {
     super(options);
-    this.listenables = options.actions;
+    this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
     this.favoriteQueriesStorage =
       options.favoriteQueriesStorage || new FavoriteQueryStorage();
     this.recentQueriesStorage =
