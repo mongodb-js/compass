@@ -1,5 +1,8 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from 'mongodb-data-service/provider';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
@@ -15,7 +18,7 @@ export const ImportPlugin = registerHadronPlugin(
     activate: activateImportPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
+    dataService: dataServiceLocator as DataServiceLocator<
       'isConnected' | 'bulkWrite' | 'insertOne'
     >,
   }
@@ -31,7 +34,7 @@ export const ExportPlugin = registerHadronPlugin(
     activate: activateExportPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
+    dataService: dataServiceLocator as DataServiceLocator<
       'findCursor' | 'aggregateCursor'
     >,
   }
