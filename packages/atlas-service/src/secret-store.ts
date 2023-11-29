@@ -1,28 +1,40 @@
-import keytar from 'keytar';
-import { app } from 'electron';
+import { UserData, z } from '@mongodb-js/compass-user-data';
+import { safeStorage } from 'electron';
 
-export const SECRET_STORE_KEY = 'AtlasLoginOIDCPluginState';
+const AtlasPluginStateSchema = z.string().optional();
 
 export class SecretStore {
-  async getItem(key: string): Promise<string | undefined> {
+  private readonly userData: UserData<typeof AtlasPluginStateSchema>;
+  private readonly fileName = 'AtlasPluginState';
+  constructor(basePath?: string) {
+    this.userData = new UserData(AtlasPluginStateSchema, {
+      subdir: '',
+      basePath,
+    });
+  }
+
+  async getItem(): Promise<string | undefined> {
     try {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         throw new Error('Unsupported environment');
       }
-      const appName = app.getName();
-      return (await keytar.getPassword(appName, key)) ?? undefined;
+      const data = await this.userData.readOne(this.fileName);
+      if (!data) {
+        return undefined;
+      }
+      return safeStorage.decryptString(Buffer.from(data, 'base64'));
     } catch {
       return undefined;
     }
   }
 
-  async setItem(key: string, value: string): Promise<void> {
+  async setItem(value: string): Promise<void> {
     try {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         throw new Error('Unsupported environment');
       }
-      const appName = app.getName();
-      return await keytar.setPassword(appName, key, value);
+      const data = safeStorage.encryptString(value).toString('base64');
+      await this.userData.write(this.fileName, data);
     } catch {
       return;
     }
