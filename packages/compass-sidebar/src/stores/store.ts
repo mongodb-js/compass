@@ -46,6 +46,7 @@ export function createSidebarStore({
   const onInstanceChangeNow = (instance: any /* MongoDBInstance */) => {
     store.dispatch(
       changeInstance({
+        status: instance.status,
         refreshingStatus: instance.refreshingStatus,
         databasesStatus: instance.databasesStatus,
         csfleMode: instance.csfleMode,
@@ -61,9 +62,17 @@ export function createSidebarStore({
     );
   };
 
-  const onInstanceChange = throttle((instance) => {
-    onInstanceChangeNow(instance);
-  }, 300);
+  const onInstanceChange = throttle(
+    (instance) => {
+      onInstanceChangeNow(instance);
+    },
+    300,
+    { leading: true, trailing: true }
+  );
+
+  cleanup.push(() => {
+    onInstanceChange.cancel();
+  });
 
   function getDatabaseInfo(db: Database) {
     return {
@@ -82,18 +91,26 @@ export function createSidebarStore({
     };
   }
 
-  const onDatabasesChange = throttle((databases: Database[]) => {
-    const dbs = databases.map((db) => {
-      return {
-        ...getDatabaseInfo(db),
-        collections: db.collections.map((coll) => {
-          return getCollectionInfo(coll);
-        }),
-      };
-    });
+  const onDatabasesChange = throttle(
+    (databases: Database[]) => {
+      const dbs = databases.map((db) => {
+        return {
+          ...getDatabaseInfo(db),
+          collections: db.collections.map((coll) => {
+            return getCollectionInfo(coll);
+          }),
+        };
+      });
 
-    store.dispatch(changeDatabases(dbs));
-  }, 300);
+      store.dispatch(changeDatabases(dbs));
+    },
+    300,
+    { leading: true, trailing: true }
+  );
+
+  cleanup.push(() => {
+    onDatabasesChange.cancel();
+  });
 
   store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
@@ -125,13 +142,12 @@ export function createSidebarStore({
     onInstanceChange(instance);
   });
 
+  onInstanceEvent('change:status', () => {
+    onInstanceChange(instance);
+  });
+
   onInstanceEvent('change:refreshingStatus', () => {
-    // This will always fire when we start fetching the instance details which
-    // will cause a 300ms throttle before any instance details can update if
-    // we send it though the throttled update. That's long enough for the
-    // sidebar to display that we're connected to a standalone instance when
-    // we're really connected to dataLake.
-    onInstanceChangeNow(instance);
+    onInstanceChange(instance);
   });
 
   onInstanceEvent('change:databasesStatus', () => {
@@ -147,31 +163,13 @@ export function createSidebarStore({
     onDatabasesChange(instance.databases);
   });
 
-  on(instance.build as any, 'change:isEnterprise', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.build as any, 'change:version', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.dataLake as any, 'change:isDataLake', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.dataLake as any, 'change:version', () => {
-    onInstanceChange(instance);
-  });
-
   store.dispatch(
     toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
   );
 
-  on(
-    instance.genuineMongoDB as any,
-    'change:isGenuine',
-    (model: unknown, isGenuine: boolean) => {
-      onInstanceChange(instance); // isGenuineMongoDB is part of instance state
+  onInstanceEvent(
+    'change:genuineMongoDB.isGenuine',
+    (_model: unknown, isGenuine: boolean) => {
       store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
   );
