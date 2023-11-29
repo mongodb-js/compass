@@ -13,7 +13,7 @@ export class SecretStore {
     });
   }
 
-  async getItem(): Promise<string | undefined> {
+  async getState(): Promise<string | undefined> {
     try {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         throw new Error('Unsupported environment');
@@ -28,7 +28,7 @@ export class SecretStore {
     }
   }
 
-  async setItem(value: string): Promise<void> {
+  async setState(value: string): Promise<void> {
     try {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         throw new Error('Unsupported environment');

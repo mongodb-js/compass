@@ -251,7 +251,7 @@ export class AtlasService {
         'Atlas service initialized',
         { config: this.config }
       );
-      const serializedState = await this.secretStore.getItem();
+      const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
       await this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
@@ -791,7 +791,7 @@ export class AtlasService {
       return;
     }
     try {
-      await this.secretStore.setItem(await this.plugin.serialize());
+      await this.secretStore.setState(await this.plugin.serialize());
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),
