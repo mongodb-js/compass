@@ -8,53 +8,29 @@ import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import configureStore, {
+import type { CrudStore } from './crud-store';
+import {
   findAndModifyWithFLEFallback,
   fetchDocuments,
+  activateDocumentsPlugin,
 } from './crud-store';
-import configureActions from '../actions';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
+import { satisfies } from 'semver';
 
 chai.use(chaiAsPromised);
 
-const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
-
 const delay = util.promisify(setTimeout);
-
-const topologyDescription = {
-  type: 'Unknown',
-  servers: [{ type: 'Unknown' }],
-};
-
-const fakeInstance = new MongoDBInstance({
-  _id: '123',
-  topologyDescription,
-  build: {
-    version: '6.0.0',
-  },
-  dataLake: {
-    isDataLake: false,
-  },
-} as any);
-
-const fakeAppInstanceStore = {
-  getState: function () {
-    return {
-      instance: fakeInstance,
-    };
-  },
-};
 
 function waitForStates(store, cbs, timeout = 2000) {
   let numMatches = 0;
-  const states = [];
-  const errors = [];
-  let unsubscribe;
+  const states: any[] = [];
+  const errors: Error[] = [];
+  let unsubscribe: () => void;
 
   const waiter = new Promise((resolve, reject) => {
     unsubscribe = store.listen((state) => {
@@ -95,7 +71,7 @@ function waitForStates(store, cbs, timeout = 2000) {
         message += '\n\nLast Error:\n';
         message += `\n${lastError.stack}`;
       }
-      const error = new Error(message);
+      const error: any = new Error(message);
 
       // keep these things to aid debugging
       error.states = states;
@@ -121,11 +97,11 @@ describe('store', function () {
     secondaries: 0,
   });
   let dataService: DataService;
+  let deactivate: (() => void) | null = null;
+  let instance: MongoDBInstance;
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
-
-  globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   before(async function () {
     dataService = await connect({
@@ -159,39 +135,56 @@ describe('store', function () {
   });
 
   after(async function () {
-    if (dataService) {
-      await dataService.disconnect();
-    }
+    await dataService?.disconnect();
   });
 
   beforeEach(function () {
+    const topologyDescription = {
+      type: 'Unknown',
+      servers: [{ type: 'Unknown' }],
+    };
+
+    instance = new MongoDBInstance({
+      _id: '123',
+      topologyDescription,
+      build: {
+        version: '6.0.0',
+      },
+      dataLake: {
+        isDataLake: false,
+      },
+    } as any);
+
     sinon.restore();
   });
 
   afterEach(function () {
+    deactivate?.();
+    deactivate = null;
     sinon.restore();
   });
 
   describe('#getInitialState', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        actions: actions,
-        isSearchIndexesSupported: true,
-        isReadonly: false,
-        isTimeSeries: false,
-        namespace: 'db.col',
-        noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
-        dataProvider: {
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'db.col',
+          noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
         },
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     it('sets the initial state', function () {
@@ -269,25 +262,26 @@ describe('store', function () {
   });
 
   describe('#copyToClipboard', function () {
-    let store;
-    let actions;
-    let mockCopyToClipboard;
+    let store: CrudStore;
+    let mockCopyToClipboard: any;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        actions: actions,
-        isSearchIndexesSupported: true,
-        isReadonly: false,
-        isTimeSeries: false,
-        namespace: 'db.col',
-        dataProvider: {
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'db.col',
         },
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
 
       mockCopyToClipboard = sinon.fake.resolves(null);
 
@@ -321,24 +315,26 @@ describe('store', function () {
   });
 
   describe('#toggleInsertDocument', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(async function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        actions: actions,
-        isSearchIndexesSupported: true,
-        isReadonly: false,
-        isTimeSeries: false,
-        namespace: 'db.col',
-        dataProvider: {
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'db.col',
         },
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+
       await store.openInsertDocumentDialog({ foo: 1 });
     });
 
@@ -364,25 +360,25 @@ describe('store', function () {
   });
 
   describe('#onCollectionChanged', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        namespace: 'compass-crud.another',
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.another',
         },
-        actions: actions,
-        isSearchIndexesSupported: true,
-        isReadonly: false,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when the collection is not readonly', function () {
@@ -412,21 +408,22 @@ describe('store', function () {
 
     context('when the collection is readonly', function () {
       beforeEach(function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: true,
+            isTimeSeries: false,
+            namespace: 'compass-crud.another',
           },
-          namespace: 'compass-crud.another',
-          actions: actions,
-          isReadonly: true,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
         store.state.table.path = ['test-path'];
         store.state.table.types = ['test-types'];
         store.state.table.doc = {};
@@ -452,25 +449,25 @@ describe('store', function () {
   });
 
   describe('#onQueryChanged', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     const query = {
@@ -495,26 +492,26 @@ describe('store', function () {
   });
 
   describe('#removeDocument', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true,
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when there is no error', function () {
@@ -534,7 +531,7 @@ describe('store', function () {
           expect(state.end).to.equal(0);
         });
 
-        store.removeDocument(hadronDoc);
+        void store.removeDocument(hadronDoc);
 
         await listener;
       });
@@ -557,7 +554,7 @@ describe('store', function () {
           expect(state.end).to.equal(0);
         });
 
-        store.removeDocument(hadronDoc);
+        void store.removeDocument(hadronDoc);
 
         await listener;
       });
@@ -580,7 +577,7 @@ describe('store', function () {
           expect(state.end).to.equal(0);
         });
 
-        store.removeDocument(hadronDoc);
+        void store.removeDocument(hadronDoc);
 
         await listener;
       });
@@ -602,31 +599,31 @@ describe('store', function () {
           done();
         });
 
-        store.removeDocument(hadronDoc);
+        void store.removeDocument(hadronDoc);
       });
     });
   });
 
   describe('#updateDocument', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(async function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
       await dataService.insertOne('compass-crud.test', {
         _id: 'testing',
         name: 'Depeche Mode',
@@ -666,7 +663,7 @@ describe('store', function () {
           );
         });
 
-        store.updateDocument(hadronDoc);
+        void store.updateDocument(hadronDoc);
       });
     });
 
@@ -705,7 +702,7 @@ describe('store', function () {
           );
         });
 
-        store.updateDocument(hadronDoc);
+        void store.updateDocument(hadronDoc);
       });
     });
 
@@ -727,7 +724,7 @@ describe('store', function () {
           done();
         });
 
-        store.updateDocument(hadronDoc);
+        void store.updateDocument(hadronDoc);
       });
     });
 
@@ -748,7 +745,7 @@ describe('store', function () {
           done();
         });
 
-        store.updateDocument(hadronDoc);
+        void store.updateDocument(hadronDoc);
       });
     });
 
@@ -766,7 +763,7 @@ describe('store', function () {
           done();
         });
 
-        store.updateDocument(hadronDoc);
+        void store.updateDocument(hadronDoc);
       });
     });
 
@@ -843,7 +840,7 @@ describe('store', function () {
           done();
         });
 
-        store.updateDocument(invalidHadronDoc);
+        void store.updateDocument(invalidHadronDoc);
       });
     });
 
@@ -889,26 +886,25 @@ describe('store', function () {
   });
 
   describe('#bulkUpdateDialog', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(async function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
-
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
       await dataService.insertOne('compass-crud.test', { name: 'testing' });
     });
 
@@ -917,7 +913,7 @@ describe('store', function () {
     });
 
     it('opens the bulk update dialog with a proper initialised state', async function () {
-      store.openBulkUpdateDialog();
+      void store.openBulkUpdateDialog();
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
@@ -950,8 +946,8 @@ describe('store', function () {
     });
 
     it('closes the bulk dialog keeping previous state', async function () {
-      store.openBulkUpdateDialog();
-      store.openBulkUpdateDialog();
+      void store.openBulkUpdateDialog();
+      void store.openBulkUpdateDialog();
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
@@ -987,25 +983,25 @@ describe('store', function () {
   });
 
   describe('#bulkDeleteDialog', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     it('opens the bulk dialog with a proper initialised state', function () {
@@ -1054,25 +1050,25 @@ describe('store', function () {
   });
 
   describe('#replaceDocument', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when there is no error', function () {
@@ -1088,7 +1084,7 @@ describe('store', function () {
           expect(state.docs[0]).to.not.equal(hadronDoc);
         });
 
-        store.replaceDocument(hadronDoc);
+        void store.replaceDocument(hadronDoc);
 
         await listener;
       });
@@ -1110,7 +1106,7 @@ describe('store', function () {
           done();
         });
 
-        store.replaceDocument(hadronDoc);
+        void store.replaceDocument(hadronDoc);
       });
     });
 
@@ -1209,26 +1205,26 @@ describe('store', function () {
   });
 
   describe('#insertOneDocument', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true,
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when there is no error', function () {
@@ -1252,7 +1248,7 @@ describe('store', function () {
           });
 
           store.state.insert.doc = doc;
-          store.insertDocument();
+          void store.insertDocument();
 
           await listener;
         });
@@ -1277,7 +1273,7 @@ describe('store', function () {
             expect(state.insert.message).to.equal('');
           });
 
-          store.insertDocument();
+          void store.insertDocument();
 
           await listener;
         });
@@ -1305,7 +1301,7 @@ describe('store', function () {
             expect(state.insert.mode).to.equal('error');
           });
 
-          store.insertDocument();
+          void store.insertDocument();
 
           await listener;
         });
@@ -1339,7 +1335,7 @@ describe('store', function () {
             expect(state.insert.message).to.not.equal('');
           });
 
-          store.insertDocument();
+          void store.insertDocument();
 
           await listener;
         });
@@ -1370,7 +1366,7 @@ describe('store', function () {
           });
 
           store.state.insert.doc = doc;
-          store.insertDocument();
+          void store.insertDocument();
 
           await listener;
         });
@@ -1379,26 +1375,26 @@ describe('store', function () {
   });
 
   describe('#insertManyDocuments', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true,
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when there is no error', function () {
@@ -1458,7 +1454,7 @@ describe('store', function () {
           ]);
 
           store.state.insert.jsonDoc = docs;
-          store.insertMany();
+          void store.insertMany();
 
           await listener;
         });
@@ -1485,7 +1481,7 @@ describe('store', function () {
           });
 
           store.state.insert.jsonDoc = docs;
-          store.insertMany();
+          void store.insertMany();
 
           await listener;
         });
@@ -1510,7 +1506,7 @@ describe('store', function () {
           });
 
           store.state.insert.jsonDoc = docs;
-          store.insertMany();
+          void store.insertMany();
 
           await listener;
         });
@@ -1541,7 +1537,7 @@ describe('store', function () {
         });
 
         store.state.insert.jsonDoc = docs;
-        store.insertMany();
+        void store.insertMany();
 
         await listener;
       });
@@ -1550,25 +1546,25 @@ describe('store', function () {
 
   describe('#openInsertDocumentDialog', function () {
     const doc = { _id: 1, name: 'test' };
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     context('when clone is true', function () {
@@ -1577,7 +1573,7 @@ describe('store', function () {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
         });
 
-        store.openInsertDocumentDialog(doc, true);
+        void store.openInsertDocumentDialog(doc, true);
 
         await listener;
       });
@@ -1589,7 +1585,7 @@ describe('store', function () {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
         });
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
       });
@@ -1621,7 +1617,7 @@ describe('store', function () {
 
         getCSFLEMode.returns('unavailable');
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
@@ -1643,7 +1639,7 @@ describe('store', function () {
           encryptedFields: { encryptedFields: [] },
         });
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
@@ -1669,7 +1665,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(false);
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
@@ -1695,7 +1691,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(true);
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
@@ -1720,7 +1716,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(true);
 
-        store.openInsertDocumentDialog(doc, false);
+        void store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
@@ -1732,25 +1728,25 @@ describe('store', function () {
   });
 
   describe('#drillDown', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     const doc = { field4: 'value' };
@@ -1772,25 +1768,25 @@ describe('store', function () {
   });
 
   describe('#pathChanged', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     const path = ['field1', 'field2'];
@@ -1809,25 +1805,25 @@ describe('store', function () {
   });
 
   describe('#viewChanged', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     it('sets the view', async function () {
@@ -1843,26 +1839,26 @@ describe('store', function () {
 
   describe('#refreshDocuments', function () {
     context('when there is no shard key', function () {
-      let store;
-      let actions;
+      let store: CrudStore;
 
       beforeEach(async function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.test',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
@@ -1888,7 +1884,7 @@ describe('store', function () {
             },
           ]);
 
-          store.refreshDocuments();
+          void store.refreshDocuments();
 
           await listener;
         });
@@ -1911,7 +1907,7 @@ describe('store', function () {
             expect(state.start).to.equal(0);
           });
 
-          store.refreshDocuments();
+          void store.refreshDocuments();
 
           await listener;
         });
@@ -1919,26 +1915,25 @@ describe('store', function () {
     });
 
     context('when there is a shard key', function () {
-      let store;
-      let actions;
-
+      let store: CrudStore;
       beforeEach(async function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.test',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
         await dataService.insertOne('config.collections', {
           _id: 'compass-crud.test',
           key: { a: 1 },
@@ -1957,34 +1952,32 @@ describe('store', function () {
           expect(state.shardKeys).to.deep.equal({ a: 1 });
         });
 
-        store.refreshDocuments();
+        void store.refreshDocuments();
 
         await listener;
       });
     });
 
     context('with a projection', function () {
-      let store;
-      let actions;
-
+      let store: CrudStore;
       beforeEach(async function () {
-        actions = configureActions();
-        store = configureStore({
-          query: { project: { _id: 0 } },
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.test',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
 
         store.setState({ query: { project: { _id: 0 } } });
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
@@ -1999,34 +1992,33 @@ describe('store', function () {
           expect(state.isEditable).to.equal(false);
         });
 
-        store.refreshDocuments();
+        void store.refreshDocuments();
 
         await listener;
       });
     });
 
     context('without a projection', function () {
-      let store;
-      let actions;
+      let store: CrudStore;
 
       beforeEach(async function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.test',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
-
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
         store.setState({ isEditable: false });
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
@@ -2040,39 +2032,36 @@ describe('store', function () {
           expect(state.isEditable).to.equal(true);
         });
 
-        store.refreshDocuments();
+        void store.refreshDocuments();
 
         await listener;
       });
     });
 
     context('when the collection is a timeseries', function () {
-      if (!TEST_TIMESERIES) {
-        return;
-      }
-
-      let store;
-      let actions;
+      let store: CrudStore;
 
       beforeEach(async function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        if (!satisfies(cluster().serverVersion, '>= 5.0.0')) {
+          return this.skip();
+        }
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: true,
+            namespace: 'compass-crud.timeseries',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.timeseries',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
-
-        store.setState({ isTimeSeries: true });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
 
         try {
           await dataService.dropCollection('compass-crud.timeseries');
@@ -2091,7 +2080,7 @@ describe('store', function () {
           expect(state.count).to.equal(0);
         });
 
-        store.refreshDocuments();
+        void store.refreshDocuments();
 
         await listener;
 
@@ -2103,26 +2092,26 @@ describe('store', function () {
     });
 
     context('when cancelling the operation', function () {
-      let store;
-      let actions;
+      let store: CrudStore;
 
       beforeEach(function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: undefined,
-            dataProvider: dataService,
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.test',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true,
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
       });
 
       it('aborts the queries', async function () {
@@ -2154,7 +2143,7 @@ describe('store', function () {
           },
         ]);
 
-        store.refreshDocuments();
+        void store.refreshDocuments();
 
         await listener;
 
@@ -2167,27 +2156,27 @@ describe('store', function () {
   });
 
   describe('#getPage', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
     let findSpy;
 
     beforeEach(async function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true,
         },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
 
       findSpy = sinon.spy(store.dataService, 'find');
 
@@ -2274,26 +2263,26 @@ describe('store', function () {
   });
 
   describe.skip('default query for view with own sort order', function () {
-    let store;
-    let actions;
+    let store: CrudStore;
 
     beforeEach(async function () {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: undefined,
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.testview',
+          noRefreshOnConfigure: true,
         },
-        actions: actions,
-        namespace: 'compass-crud.testview',
-        noRefreshOnConfigure: true,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
       await dataService.insertMany('compass-crud.test', [
         { _id: '001', cat: 'nori' },
         { _id: '002', cat: 'chashu' },
@@ -2324,7 +2313,7 @@ describe('store', function () {
         ]);
       });
 
-      store.refreshDocuments();
+      void store.refreshDocuments();
 
       await listener;
     });
@@ -2712,33 +2701,34 @@ describe('store', function () {
     const favoriteQueriesStorage = new FavoriteQueryStorage();
 
     let saveQueryStub;
-    let actions;
-    let store;
+    let store: CrudStore;
 
     beforeEach(function () {
       saveQueryStub = sinon.stub().resolves();
       favoriteQueriesStorage.saveQuery = saveQueryStub;
 
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.testview',
+          noRefreshOnConfigure: true,
+          favoriteQueriesStorage: favoriteQueriesStorage,
         },
-        actions: actions,
-        namespace: 'compass-crud.testview',
-        noRefreshOnConfigure: true,
-        favoriteQueriesStorage: favoriteQueriesStorage,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     it('should save the query once is submitted to save', async function () {
-      await store.onQueryChanged({ filter: { field: 1 } });
+      store.onQueryChanged({ filter: { field: 1 } });
       await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
       await store.saveUpdateQuery('my-query');
 
@@ -2758,8 +2748,7 @@ describe('store', function () {
   describe('updateBulkUpdatePreview', function () {
     context('with isUpdatePreviewSupported=false', function () {
       let previewUpdateStub;
-      let actions;
-      let store;
+      let store: CrudStore;
 
       beforeEach(function () {
         previewUpdateStub = sinon.stub().resolves({
@@ -2771,27 +2760,31 @@ describe('store', function () {
           ],
         });
         dataService.previewUpdate = previewUpdateStub;
-        fakeInstance.topologyDescription.type = 'Single';
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            dataProvider: dataService,
+        instance.topologyDescription.type = 'Single';
+      });
+      beforeEach(function () {
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.testview',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.testview',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: false, // taken from fakeInstance.topologyDescription.type anyway
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
       });
 
       it('never calls dataService.previewUpdate()', async function () {
-        store.openBulkUpdateDialog();
-        await store.onQueryChanged({ filter: { field: 1 } });
+        void store.openBulkUpdateDialog();
+        store.onQueryChanged({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
         expect(previewUpdateStub.called).to.be.false;
@@ -2810,8 +2803,7 @@ describe('store', function () {
 
     context('with isUpdatePreviewSupported=true', function () {
       let previewUpdateStub;
-      let actions;
-      let store;
+      let store: CrudStore;
 
       beforeEach(function () {
         previewUpdateStub = sinon.stub().resolves({
@@ -2823,27 +2815,29 @@ describe('store', function () {
           ],
         });
         dataService.previewUpdate = previewUpdateStub;
-        fakeInstance.topologyDescription.type = 'Unknown'; // anything not 'Single'
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            dataProvider: dataService,
+        instance.topologyDescription.type = 'Unknown'; // anything not 'Single'
+        const plugin = activateDocumentsPlugin(
+          {
+            isSearchIndexesSupported: true,
+            isReadonly: false,
+            isTimeSeries: false,
+            namespace: 'compass-crud.testview',
+            noRefreshOnConfigure: true,
           },
-          actions: actions,
-          namespace: 'compass-crud.testview',
-          noRefreshOnConfigure: true,
-          isReadonly: false,
-          isSearchIndexesSupported: true,
-          isTimeSeries: false,
-          isUpdatePreviewSupported: true, // taken from fakeInstance.topologyDescription.type anyway
-        });
+          {
+            dataService,
+            localAppRegistry,
+            globalAppRegistry,
+            instance,
+          }
+        );
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
       });
 
       it('calls dataService.previewUpdate()', async function () {
-        store.openBulkUpdateDialog();
-        await store.onQueryChanged({ filter: { field: 1 } });
+        void store.openBulkUpdateDialog();
+        store.onQueryChanged({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
         // why two? because it also gets called when the dialog opens
@@ -2872,33 +2866,34 @@ describe('store', function () {
     const recentQueriesStorage = new RecentQueryStorage();
 
     let saveQueryStub;
-    let actions;
-    let store;
+    let store: CrudStore;
 
     beforeEach(function () {
       saveQueryStub = sinon.stub().resolves();
       recentQueriesStorage.saveQuery = saveQueryStub;
 
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          dataProvider: dataService,
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.testview',
+          noRefreshOnConfigure: true,
+          recentQueriesStorage: recentQueriesStorage,
         },
-        actions: actions,
-        namespace: 'compass-crud.testview',
-        noRefreshOnConfigure: true,
-        recentQueriesStorage: recentQueriesStorage,
-        isReadonly: false,
-        isSearchIndexesSupported: true,
-        isTimeSeries: false,
-        isUpdatePreviewSupported: true,
-      });
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        }
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
     });
 
     it('should save the query once is run', async function () {
-      await store.onQueryChanged({ filter: { field: 1 } });
+      store.onQueryChanged({ filter: { field: 1 } });
       await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
       await store.runBulkUpdate();
 

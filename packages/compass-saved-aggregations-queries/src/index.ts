@@ -1,5 +1,8 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from 'mongodb-data-service';
@@ -19,7 +22,7 @@ function deactivate(): void {
 }
 
 const serviceLocators = {
-  dataService: dataServiceLocator as typeof dataServiceLocator<
+  dataService: dataServiceLocator as DataServiceLocator<
     // Getting passed to the mongodb instance so hard to be more explicit
     // about used methods
     keyof DataService

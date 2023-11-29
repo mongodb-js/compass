@@ -16,6 +16,7 @@ import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
+import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 
 const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   // TODO: clean-up, this state is not needed here anymore
@@ -34,7 +35,11 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
       ]}
     >
       <CollectionTabsProvider
-        tabs={[CompassSchemaValidationPlugin, CompassAggregationsPlugin]}
+        tabs={[
+          CompassSchemaValidationPlugin,
+          CompassAggregationsPlugin,
+          CompassDocumentsPlugin,
+        ]}
       >
         <WorkspacesPlugin
           initialTab={{ type: 'My Queries' }}

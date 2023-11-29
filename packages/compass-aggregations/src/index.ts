@@ -5,7 +5,10 @@ import { Aggregations } from './components/aggregations';
 import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from 'mongodb-data-service/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type {
   DataService,
@@ -32,7 +35,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin<
     activate: activateAggregationsPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
+    dataService: dataServiceLocator as DataServiceLocator<
       RequiredDataServiceProps,
       OptionalDataServiceProps
     >,
@@ -51,7 +54,7 @@ export const CreateViewPlugin = registerHadronPlugin(
     activate: activateCreateViewPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<'createView'>,
+    dataService: dataServiceLocator as DataServiceLocator<'createView'>,
     logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
   }
 );
