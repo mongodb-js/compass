@@ -22,6 +22,7 @@ export type FeatureFlags = {
   enableAtlasSearchIndexManagement: boolean;
   enableBulkUpdateOperations: boolean;
   enableBulkDeleteOperations: boolean;
+  enableRenameCollectionModal: boolean;
 };
 
 export const featureFlags: Required<{
@@ -109,6 +110,17 @@ export const featureFlags: Required<{
     description: {
       short: 'Enable bulk delete operations.',
       long: 'Allows deleting all documents given a query.',
+    },
+  },
+
+  /**
+   * Feature flag for the rename collection modal.
+   */
+  enableRenameCollectionModal: {
+    stage: 'development',
+    description: {
+      short: 'Enables renaming a collection',
+      long: 'Allows users to rename a collection from the sidebar',
     },
   },
 };

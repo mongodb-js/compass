@@ -351,6 +351,14 @@ export interface DataService {
   dropCollection(ns: string): Promise<boolean>;
 
   /**
+   *
+   */
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>>;
+
+  /**
    * Count the number of documents in the collection.
    *
    * @param ns - The namespace to search on.
@@ -1568,6 +1576,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       options.encryptedFields = encryptedFieldsInfo;
     }
     return await coll.drop(options);
+  }
+
+  @op(mongoLogId(1_001_000_276))
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>> {
+    const db = this._database(ns, 'META');
+    return db.renameCollection(this._collectionName(ns), newCollectionName);
   }
 
   @op(mongoLogId(1_001_000_040), ([db], result) => {

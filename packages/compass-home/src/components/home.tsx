@@ -45,6 +45,7 @@ import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import {
   CreateNamespacePlugin,
   DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
@@ -361,6 +362,7 @@ function Home({
               <CreateViewPlugin></CreateViewPlugin>
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
+              <RenameCollectionPlugin></RenameCollectionPlugin>
               <Workspace
                 namespace={namespace}
                 connectionInfo={connectionInfo}

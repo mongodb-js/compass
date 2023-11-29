@@ -15,6 +15,8 @@ import {
 import CreateNamespaceModal from './components/create-namespace-modal';
 import { activatePlugin as activateCreateNamespacePlugin } from './stores/create-namespace';
 import { DatabasesPlugin } from './databases-plugin';
+import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
+import { activateRenameCollectionPlugin } from './stores/rename-collection';
 
 export const CollectionsWorkspaceTab = {
   name: 'Collections' as const,
@@ -60,6 +62,18 @@ export const DropNamespacePlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<
       'dropDatabase' | 'dropCollection'
     >,
+  }
+);
+
+export const RenameCollectionPlugin = registerHadronPlugin(
+  {
+    name: 'RenameCollectionPlugin',
+    component: MappedRenameCollectionModal,
+    activate: activateRenameCollectionPlugin,
+  },
+  {
+    dataService:
+      dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
   }
 );
 
