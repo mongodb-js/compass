@@ -11,6 +11,7 @@ import type Collection from 'mongodb-collection-model';
 import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type CollectionTabOptions = {
   query?: unknown;
@@ -28,7 +29,8 @@ export type CollectionTabServices = {
 
 export function activatePlugin(
   options: CollectionTabOptions,
-  services: CollectionTabServices
+  services: CollectionTabServices,
+  { on, cleanup }: ActivateHelpers
 ) {
   const {
     query,
@@ -97,33 +99,32 @@ export function activatePlugin(
     )
   );
 
-  localAppRegistry.on('open-create-index-modal', () => {
+  on(localAppRegistry, 'open-create-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
 
-  localAppRegistry.on('open-create-search-index-modal', () => {
+  on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
 
-  localAppRegistry.on('generate-aggregation-from-query', () => {
+  on(localAppRegistry, 'generate-aggregation-from-query', () => {
     store.dispatch(selectTab('Aggregations'));
   });
 
-  const onCollectionModelStatusChange = (model: Collection, status: string) => {
-    if (status === 'ready') {
-      store.dispatch(collectionStatsFetched(model));
-    }
-  };
-
-  collectionModel?.on('change:status', onCollectionModelStatusChange);
+  if (collectionModel) {
+    on(
+      collectionModel,
+      'change:status',
+      (model: Collection, status: string) => {
+        if (status === 'ready') {
+          store.dispatch(collectionStatsFetched(model));
+        }
+      }
+    );
+  }
 
   return {
     store,
-    deactivate() {
-      collectionModel?.removeListener(
-        'change:status',
-        onCollectionModelStatusChange
-      );
-    },
+    deactivate: cleanup,
   };
 }

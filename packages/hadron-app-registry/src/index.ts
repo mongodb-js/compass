@@ -10,6 +10,7 @@ export {
 export type {
   HadronPluginComponent,
   HadronPluginConfig,
+  ActivateHelpers,
 } from './register-plugin';
 export { registerHadronPlugin } from './register-plugin';
 export default AppRegistry;

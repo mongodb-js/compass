@@ -30,7 +30,8 @@ const WorkspacesPlugin = registerHadronPlugin(
     component: Workspaces,
     activate(
       { initialTab }: { initialTab?: OpenWorkspaceOptions },
-      { globalAppRegistry, instance }: WorkspacesServices
+      { globalAppRegistry, instance }: WorkspacesServices,
+      { on, cleanup }
     ) {
       const initialTabs = initialTab ? [getInitialTabState(initialTab)] : [];
 
@@ -46,14 +47,15 @@ const WorkspacesPlugin = registerHadronPlugin(
       );
 
       // TODO: clean up unneccessary global events
-      globalAppRegistry.on(
+      on(
+        globalAppRegistry,
         'open-instance-workspace',
         (workspace?: 'My Queries' | 'Databases' | 'Performance') => {
           store.dispatch(openWorkspace({ type: workspace ?? 'My Queries' }));
         }
       );
 
-      globalAppRegistry.on('select-database', (namespace: string) => {
+      on(globalAppRegistry, 'select-database', (namespace: string) => {
         store.dispatch(openWorkspace({ type: 'Collections', namespace }));
       });
 
@@ -72,42 +74,45 @@ const WorkspacesPlugin = registerHadronPlugin(
         );
       };
 
-      globalAppRegistry.on(
+      on(
+        globalAppRegistry,
         'open-namespace-in-new-tab',
         (metadata: CollectionTabPluginMetadata) => {
           openCollection(metadata, true);
         }
       );
 
-      globalAppRegistry.on(
+      on(
+        globalAppRegistry,
         'select-namespace',
         (metadata: CollectionTabPluginMetadata) => {
           openCollection(metadata, false);
         }
       );
 
-      globalAppRegistry.on(
+      on(
+        globalAppRegistry,
         'collection-renamed',
         ({ from, to }: { from: string; to: string }) => {
           store.dispatch(collectionRenamed(from, to));
         }
       );
 
-      instance.on('remove:collections', (collection: Collection) => {
+      on(instance, 'remove:collections', (collection: Collection) => {
         store.dispatch(collectionRemoved(collection.ns));
       });
 
-      instance.on('remove:databases', (database: Database) => {
+      on(instance, 'remove:databases', (database: Database) => {
         store.dispatch(databaseRemoved(database.name));
       });
 
-      globalAppRegistry.on('menu-share-schema-json', () => {
+      on(globalAppRegistry, 'menu-share-schema-json', () => {
         const activeTab = getActiveTab(store.getState());
         if (!activeTab) return;
         getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
       });
 
-      globalAppRegistry.on('open-active-namespace-export', function () {
+      on(globalAppRegistry, 'open-active-namespace-export', function () {
         const activeTab = getActiveTab(store.getState());
         if (!activeTab) return;
         globalAppRegistry.emit('open-export', {
@@ -117,7 +122,7 @@ const WorkspacesPlugin = registerHadronPlugin(
         });
       });
 
-      globalAppRegistry.on('open-active-namespace-import', function () {
+      on(globalAppRegistry, 'open-active-namespace-import', function () {
         const activeTab = getActiveTab(store.getState());
         if (!activeTab) return;
         globalAppRegistry.emit('open-import', {
@@ -128,9 +133,7 @@ const WorkspacesPlugin = registerHadronPlugin(
 
       return {
         store,
-        deactivate() {
-          // TODO: unsub from globalAppRegistry
-        },
+        deactivate: cleanup,
       };
     },
   },

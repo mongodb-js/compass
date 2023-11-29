@@ -10,6 +10,39 @@ import {
   useLocalAppRegistry,
 } from './react-context';
 
+class ActivateHelpersImpl {
+  private cleanupFns = new Set<() => void>();
+
+  on = (
+    emitter: {
+      on(evt: string, fn: (...args: any) => any): any;
+      removeListener(evt: string, fn: (...args: any) => any): any;
+    },
+    evt: string,
+    fn: (...args: any) => any
+  ) => {
+    emitter.on(evt, fn);
+    this.addCleanup(() => {
+      emitter.removeListener(evt, fn);
+    });
+  };
+
+  addCleanup = (fn: () => void) => {
+    this.cleanupFns.add(fn);
+  };
+
+  cleanup = () => {
+    for (const fn of this.cleanupFns.values()) {
+      fn();
+    }
+  };
+}
+
+export type ActivateHelpers = Pick<
+  ActivateHelpersImpl,
+  'on' | 'addCleanup' | 'cleanup'
+>;
+
 function LegacyRefluxProvider({
   store,
   actions,
@@ -64,7 +97,8 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
    */
   activate: (
     initialProps: T,
-    services: Registries & Services<S>
+    services: Registries & Services<S>,
+    helpers: ActivateHelpers
   ) => {
     /**
      * Redux or reflux store that will be automatically passed to a
@@ -194,11 +228,15 @@ export function registerHadronPlugin<
         () =>
           localAppRegistry.getPlugin(registryName) ??
           (() => {
-            const plugin = config.activate(props, {
-              globalAppRegistry,
-              localAppRegistry,
-              ...serviceImpls,
-            });
+            const plugin = config.activate(
+              props,
+              {
+                globalAppRegistry,
+                localAppRegistry,
+                ...serviceImpls,
+              },
+              new ActivateHelpersImpl()
+            );
             localAppRegistry.registerPlugin(registryName, plugin);
             return plugin;
           })()
