@@ -1,7 +1,8 @@
-import type { AnyAction, Action } from 'redux';
+import type { Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
+import type { CreateViewAction } from '../modules/create-view';
 import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
@@ -26,7 +27,7 @@ export type CreateViewRootState = ReturnType<
 
 export type CreateViewThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = CreateViewAction
 > = ThunkAction<R, CreateViewRootState, CreateViewServices, A>;
 
 export function activateCreateViewPlugin(

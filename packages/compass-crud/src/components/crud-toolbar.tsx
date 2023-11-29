@@ -98,7 +98,7 @@ export type CrudToolbarProps = {
   isExportable: boolean;
   isWritable: boolean;
   loadingCount: boolean;
-  localAppRegistry: AppRegistry;
+  localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
   onApplyClicked: () => void;
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;

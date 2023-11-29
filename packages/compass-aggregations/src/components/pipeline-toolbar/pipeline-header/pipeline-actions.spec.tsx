@@ -292,7 +292,7 @@ describe('PipelineActions', function () {
         pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
-      store.dispatch(changeStageDisabled(1, true));
+      store.dispatch(changeStageDisabled(1, true) as any);
 
       rerender();
 

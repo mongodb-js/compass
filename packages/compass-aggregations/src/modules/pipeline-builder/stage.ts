@@ -13,6 +13,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { generate } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { getId } from './stage-ids';
+import type { Document } from 'bson';
 
 function createStageNode({
   key,
@@ -171,6 +172,6 @@ export default class Stage {
     if (this.disabled) {
       return null;
     }
-    return parseShellBSON(this.toString());
+    return parseShellBSON<Document>(this.toString());
   }
 }

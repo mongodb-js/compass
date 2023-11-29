@@ -11,7 +11,6 @@ import { expect } from 'chai';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
-import preferences from 'compass-preferences-model';
 import { defaultConnectionString } from '../constants/default-connection';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
@@ -82,14 +81,14 @@ describe('ConnectionForm Component', function () {
           'and preferences.protectConnectionStrings === false',
           function () {
             it('should render the toggle button in the off state for default connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                initialConnectionInfo: DEFAULT_CONNECTION,
+                preferences: {
                   protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: false,
-                } as any;
+                },
               });
 
-              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -100,14 +99,12 @@ describe('ConnectionForm Component', function () {
             });
 
             it('should render the toggle button in the off state for existing connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                preferences: {
                   protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: false,
-                } as any;
+                },
               });
-
-              renderForm();
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -123,14 +120,13 @@ describe('ConnectionForm Component', function () {
           'and preferences.protectConnectionStrings === true',
           function () {
             it('should render the toggle button in the off state for default connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                initialConnectionInfo: DEFAULT_CONNECTION,
+                preferences: {
                   protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: true,
-                } as any;
+                },
               });
-
-              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -141,14 +137,12 @@ describe('ConnectionForm Component', function () {
             });
 
             it('should not render the toggle button for existing connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                preferences: {
                   protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: true,
-                } as any;
+                },
               });
-
-              renderForm();
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .be.null;
             });
@@ -164,14 +158,13 @@ describe('ConnectionForm Component', function () {
           'and preferences.protectConnectionStrings === false',
           function () {
             it('should render the toggle button in the on state for default connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                initialConnectionInfo: DEFAULT_CONNECTION,
+                preferences: {
                   protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: false,
-                } as any;
+                },
               });
-
-              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -182,14 +175,12 @@ describe('ConnectionForm Component', function () {
             });
 
             it('should render the toggle button in the off state for existing connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                preferences: {
                   protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: false,
-                } as any;
+                },
               });
-
-              renderForm();
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -205,14 +196,13 @@ describe('ConnectionForm Component', function () {
           'and preferences.protectConnectionStrings === true',
           function () {
             it('should render the toggle button in the on state for default connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                initialConnectionInfo: DEFAULT_CONNECTION,
+                preferences: {
                   protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: true,
-                } as any;
+                },
               });
-
-              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
               expect(
@@ -223,14 +213,12 @@ describe('ConnectionForm Component', function () {
             });
 
             it('should not render the toggle button for existing connection', function () {
-              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
-                return {
+              renderForm({
+                preferences: {
                   protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: true,
-                } as any;
+                },
               });
-
-              renderForm();
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .be.null;
             });

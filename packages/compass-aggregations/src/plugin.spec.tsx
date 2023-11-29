@@ -2,11 +2,16 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import configureStore from '../test/configure-store';
-import Aggregations from './plugin';
+import { AggregationsPlugin } from './plugin';
+import { Provider } from 'react-redux';
 
 const renderPlugin = () => {
   const store = configureStore();
-  render(<Aggregations store={store} />);
+  render(
+    <Provider store={store}>
+      <AggregationsPlugin />
+    </Provider>
+  );
 };
 
 describe('Aggregations [Plugin]', function () {

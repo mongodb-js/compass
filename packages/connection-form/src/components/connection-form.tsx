@@ -28,7 +28,11 @@ import ConnectionFormActions from './connection-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
-import { usePreference } from 'compass-preferences-model';
+import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
+import {
+  ConnectionFormPreferencesContext,
+  useConnectionFormPreference,
+} from '../hooks/use-connect-form-preferences';
 
 const formContainerStyles = css({
   margin: 0,
@@ -116,12 +120,16 @@ const connectionStringErrorStyles = css({
   marginBottom: spacing[3],
 });
 
-export type ConnectionFormProps = {
+type ConnectionFormPropsWithoutPreferences = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+};
+
+export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
+  preferences?: Partial<ConnectionFormPreferences>;
 };
 
 function ConnectionForm({
@@ -131,7 +139,7 @@ function ConnectionForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
-}: ConnectionFormProps): React.ReactElement {
+}: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const darkMode = useDarkMode();
 
   const [
@@ -151,12 +159,14 @@ function ConnectionForm({
   const [saveConnectionModal, setSaveConnectionModal] =
     useState<SaveConnectionModalState>('hidden');
   const protectConnectionStrings =
-    !!usePreference('protectConnectionStrings', React) &&
+    !!useConnectionFormPreference('protectConnectionStrings') &&
     !allowEditingIfProtected;
   const enableEditingConnectionString =
     _enableEditingConnectionString && !protectConnectionStrings;
 
-  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
+  const forceConnectionOptions = useConnectionFormPreference(
+    'forceConnectionOptions'
+  );
   const warnings = useMemo(() => {
     if (!forceConnectionOptions?.length) return _warnings;
     const overriddenKeys = forceConnectionOptions.map(([key]) => key);
@@ -368,4 +378,18 @@ function ConnectionForm({
   );
 }
 
-export default ConnectionForm;
+const ConnectionFormWithPreferences = (
+  props: ConnectionFormPropsWithoutPreferences & {
+    preferences?: Partial<ConnectionFormPreferences>;
+  }
+) => {
+  const { preferences, ...rest } = props;
+
+  return (
+    <ConnectionFormPreferencesContext.Provider value={preferences ?? {}}>
+      <ConnectionForm {...rest} />
+    </ConnectionFormPreferencesContext.Provider>
+  );
+};
+
+export default ConnectionFormWithPreferences;

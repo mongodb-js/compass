@@ -1,6 +1,7 @@
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
+import { safeStorage } from 'electron';
 
 import type { ConnectionInfo } from './connection-info';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -25,7 +26,8 @@ import type {
 } from './import-export-connection';
 import { UserData, z } from '@mongodb-js/compass-user-data';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
+const { log, mongoLogId, track } =
+  createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 type ConnectionLegacyProps = {
   _id?: string;
@@ -33,9 +35,13 @@ type ConnectionLegacyProps = {
   name?: string;
 };
 
-type ConnectionWithLegacyProps = {
+type ConnectionProps = {
   connectionInfo?: ConnectionInfo;
-} & ConnectionLegacyProps;
+  version?: number;
+  connectionSecrets?: string;
+};
+
+export type ConnectionWithLegacyProps = ConnectionProps & ConnectionLegacyProps;
 
 const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .object({
@@ -61,6 +67,8 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
         }),
       })
       .optional(),
+    version: z.number().optional(),
+    connectionSecrets: z.string().optional(),
   })
   .passthrough();
 
@@ -71,6 +79,7 @@ export class ConnectionStorage {
     | undefined = ipcMain;
 
   private static readonly maxAllowedRecentConnections = 10;
+  private static readonly version = 1;
   private static userData: UserData<typeof ConnectionSchema>;
 
   private constructor() {
@@ -98,11 +107,129 @@ export class ConnectionStorage {
     this.calledOnce = true;
   }
 
-  private static mapStoredConnectionToConnectionInfo(
-    storedConnectionInfo: ConnectionInfo,
+  static async migrateToSafeStorage() {
+    // If user lands on this version of Compass with legacy connections (using storage mixin),
+    // we will ignore those and only migrate connections that have connectionInfo.
+    const connections = (await this.getConnections()).filter(
+      (
+        x
+      ): x is ConnectionWithLegacyProps &
+        Required<Pick<ConnectionProps, 'connectionInfo'>> => !!x.connectionInfo
+    );
+    if (connections.length === 0) {
+      log.info(
+        mongoLogId(1_001_000_270),
+        'Connection Storage',
+        'No connections to migrate'
+      );
+      return;
+    }
+
+    if (
+      connections.filter((x) => 'version' in x && x.version === this.version)
+        .length === connections.length
+    ) {
+      log.info(
+        mongoLogId(1_001_000_271),
+        'Connection Storage',
+        'Connections already migrated'
+      );
+      return;
+    }
+
+    // Get the secrets from keychain. If there're no secrets, we still want to
+    // migrate the connects to a new version.
+    const secrets = await this.getKeytarCredentials();
+
+    // Connections that are not migrated yet or that failed to migrate,
+    // are not expected to have a version property.
+    const unmigratedConnections = connections.filter((x) => !('version' in x));
+    log.info(
+      mongoLogId(1_001_000_272),
+      'Connection Storage',
+      'Migrating connections',
+      {
+        num_connections: unmigratedConnections.length,
+        num_secrets: Object.keys(secrets).length,
+      }
+    );
+
+    let numFailedToMigrate = 0;
+
+    for (const { connectionInfo } of unmigratedConnections) {
+      const _id = connectionInfo.id;
+      const connectionSecrets = secrets[_id];
+
+      try {
+        await this.userData.write(_id, {
+          _id,
+          connectionInfo, // connectionInfo is without secrets as its direclty read from storage
+          connectionSecrets: this.encryptSecrets(connectionSecrets),
+          version: this.version,
+        });
+      } catch (e) {
+        numFailedToMigrate++;
+        log.error(
+          mongoLogId(1_001_000_273),
+          'Connection Storage',
+          'Failed to migrate connection',
+          { message: (e as Error).message, connectionId: _id }
+        );
+      }
+    }
+
+    log.info(
+      mongoLogId(1_001_000_274),
+      'Connection Storage',
+      'Migration complete',
+      {
+        num_saved_connections:
+          unmigratedConnections.length - numFailedToMigrate,
+        num_failed_connections: numFailedToMigrate,
+      }
+    );
+
+    if (numFailedToMigrate > 0) {
+      track('Keytar Secrets Migration Failed', {
+        num_saved_connections:
+          unmigratedConnections.length - numFailedToMigrate,
+        num_failed_connections: numFailedToMigrate,
+      });
+    }
+  }
+
+  private static encryptSecrets(
     secrets?: ConnectionSecrets
-  ): ConnectionInfo {
-    const connectionInfo = mergeSecrets(storedConnectionInfo, secrets);
+  ): string | undefined {
+    return Object.keys(secrets ?? {}).length > 0
+      ? safeStorage.encryptString(JSON.stringify(secrets)).toString('base64')
+      : undefined;
+  }
+
+  private static decryptSecrets(
+    secrets?: string
+  ): ConnectionSecrets | undefined {
+    return secrets
+      ? JSON.parse(safeStorage.decryptString(Buffer.from(secrets, 'base64')))
+      : undefined;
+  }
+
+  private static mapStoredConnectionToConnectionInfo({
+    connectionInfo: storedConnectionInfo,
+    connectionSecrets: storedConnectionSecrets,
+  }: ConnectionProps): ConnectionInfo {
+    let secrets: ConnectionSecrets | undefined = undefined;
+    try {
+      secrets = this.decryptSecrets(storedConnectionSecrets);
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_208),
+        'Connection Storage',
+        'Failed to decrypt secrets',
+        { message: (e as Error).message }
+      );
+    }
+    const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
     return deleteCompassAppNameParam(connectionInfo);
   }
 
@@ -165,19 +292,13 @@ export class ConnectionStorage {
   } = {}): Promise<ConnectionInfo[]> {
     throwIfAborted(signal);
     try {
-      const [connections, secrets] = await Promise.all([
-        this.getConnections(),
-        this.getKeytarCredentials(),
-      ]);
+      const connections = await this.getConnections();
       return (
         connections
           // Ignore legacy connections and make sure connection has a connection string.
           .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
-          .map(({ connectionInfo }) =>
-            this.mapStoredConnectionToConnectionInfo(
-              connectionInfo!,
-              secrets[connectionInfo!.id]
-            )
+          .map((connection) =>
+            this.mapStoredConnectionToConnectionInfo(connection)
           )
       );
     } catch (err) {
@@ -214,25 +335,24 @@ export class ConnectionStorage {
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await this.userData.write(connectionInfo.id, {
-          connectionInfo: connectionInfoWithoutSecrets,
-          _id: connectionInfo.id,
-        });
 
+        let connectionSecrets: string | undefined = undefined;
         try {
-          await keytar.setPassword(
-            getKeytarServiceName(),
-            connectionInfo.id,
-            JSON.stringify({ secrets }, null, 2)
-          );
+          connectionSecrets = this.encryptSecrets(secrets);
         } catch (e) {
           log.error(
             mongoLogId(1_001_000_202),
             'Connection Storage',
-            'Failed to save secrets to keychain',
+            'Failed to encrypt secrets',
             { message: (e as Error).message }
           );
         }
+        await this.userData.write(connectionInfo.id, {
+          _id: connectionInfo.id,
+          connectionInfo: connectionInfoWithoutSecrets,
+          connectionSecrets,
+          version: this.version,
+        });
       }
       await this.afterConnectionHasBeenSaved(connectionInfo);
     } catch (err) {

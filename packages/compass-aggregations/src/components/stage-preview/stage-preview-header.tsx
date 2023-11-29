@@ -41,13 +41,13 @@ const OperatorLink: React.FunctionComponent<{
   );
 };
 
-type StagePreviewHeaderProps = {
+export type StagePreviewHeaderProps = {
   index: number;
   stageOperator?: string | null;
   previewSize?: number;
   description?: string;
-  link?: string;
-  destination?: string;
+  link?: string | null;
+  destination?: string | null;
 };
 
 function StagePreviewHeader({
@@ -71,7 +71,7 @@ function StagePreviewHeader({
             <OperatorLink
               stageOperator={stageOperator}
               description={description}
-              link={link}
+              link={link ?? undefined}
             ></OperatorLink>{' '}
             stage
           </span>{' '}

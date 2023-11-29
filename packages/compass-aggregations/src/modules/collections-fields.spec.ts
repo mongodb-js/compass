@@ -9,7 +9,6 @@ import reducer, {
   fetchCollectionFields,
 } from './collections-fields';
 import configureStore from '../../test/configure-store';
-import { DATA_SERVICE_CONNECTED } from './data-service';
 import sinon from 'sinon';
 
 describe('collections-fields module', function () {
@@ -72,8 +71,21 @@ describe('collections-fields module', function () {
   });
   describe('#actions', function () {
     let store: Store<RootState, AnyAction>;
+    let sampleStub: sinon.SinonStub;
+    let findStub: sinon.SinonStub;
+    let sandbox: sinon.SinonSandbox;
     beforeEach(function () {
-      store = configureStore({ pipeline: [] });
+      sandbox = sinon.createSandbox();
+      sampleStub = sandbox.stub();
+      findStub = sandbox.stub();
+      store = configureStore({ pipeline: [] }, {
+        sample: sampleStub,
+        find: findStub,
+      } as any);
+    });
+
+    afterEach(function () {
+      sandbox.restore();
     });
 
     context('setCollections', function () {
@@ -212,7 +224,7 @@ describe('collections-fields module', function () {
           ]) as any
         );
 
-        const spy = sinon.spy(
+        sampleStub.callsFake(
           (ns: string, stage: Document, options: Document) => {
             expect(ns).to.equal('test.listings');
             expect(stage).to.deep.equal({ size: 1 });
@@ -220,13 +232,6 @@ describe('collections-fields module', function () {
             return Promise.resolve([{ _id: 12, name: 'test' }]);
           }
         );
-
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            sample: spy,
-          },
-        });
 
         await store.dispatch(fetchCollectionFields('listings') as any);
 
@@ -236,7 +241,7 @@ describe('collections-fields module', function () {
           type: 'view',
         });
 
-        expect(spy.calledOnce).to.equal(true);
+        expect(sampleStub.calledOnce).to.equal(true);
       });
 
       it('uses find to fetch schema of a collection', async function () {
@@ -249,7 +254,7 @@ describe('collections-fields module', function () {
           ]) as any
         );
 
-        const spy = sinon.spy(
+        findStub.callsFake(
           (ns: string, filter: Document, options: Document) => {
             expect(ns).to.equal('test.listings');
             expect(filter).to.deep.equal({});
@@ -262,13 +267,6 @@ describe('collections-fields module', function () {
           }
         );
 
-        store.dispatch({
-          type: DATA_SERVICE_CONNECTED,
-          dataService: {
-            find: spy,
-          },
-        });
-
         await store.dispatch(fetchCollectionFields('listings') as any);
 
         expect(store.getState().collectionsFields['listings']).to.deep.equal({
@@ -277,7 +275,7 @@ describe('collections-fields module', function () {
           type: 'collection',
         });
 
-        expect(spy.calledOnce).to.equal(true);
+        expect(findStub.calledOnce).to.equal(true);
       });
     });
   });

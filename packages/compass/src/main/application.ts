@@ -21,7 +21,8 @@ import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
-const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
+const { debug, log, track, mongoLogId } =
+  createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -85,6 +86,17 @@ class CompassApplication {
 
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
+
+    try {
+      await ConnectionStorage.migrateToSafeStorage();
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_275),
+        'SafeStorage Migration',
+        'Failed to migrate connections',
+        { message: (e as Error).message }
+      );
+    }
 
     if (mode === 'CLI') {
       return;

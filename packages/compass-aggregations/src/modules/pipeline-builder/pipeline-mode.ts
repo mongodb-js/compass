@@ -10,6 +10,7 @@ import {
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
@@ -34,18 +35,19 @@ export type PipelineModeToggledAction = {
   stages: Stage[];
 };
 
-type State = PipelineMode;
+export type PipelineModeState = PipelineMode;
+export type PipelineModeAction = PipelineModeToggledAction;
 
-export const INITIAL_STATE: State = 'builder-ui';
+export const INITIAL_STATE: PipelineModeState = 'builder-ui';
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
   if (
     isAction<PipelineModeToggledAction>(action, ActionTypes.PipelineModeToggled)
   ) {
     return action.mode;
   }
   if (
-    action.type === RESTORE_PIPELINE ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
     isAction<LoadGeneratedPipelineAction>(
       action,
       AIPipelineActionTypes.LoadGeneratedPipeline

@@ -6,6 +6,7 @@ import {
   waitFor,
   cleanup,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
@@ -112,6 +113,68 @@ describe('ConnectionList Component', function () {
     it('renders the recent connections in a list', function () {
       const listItems = screen.getAllByTestId('recent-connection');
       expect(listItems.length).to.equal(mockRecents.length);
+    });
+
+    it('does not show the saved connections filter input', function () {
+      const filter = screen.queryByTestId(
+        'sidebar-filter-saved-connections-input'
+      );
+      expect(filter).to.not.exist;
+    });
+  });
+
+  describe('with more than 10 favorite connections', function () {
+    beforeEach(function () {
+      const favorites = [
+        ...mockFavorites,
+        ...mockFavorites.map((favorite) => ({
+          ...favorite,
+          id: favorite.id + '__1',
+        })),
+        ...mockFavorites.map((favorite) => ({
+          ...favorite,
+          id: favorite.id + '__2',
+        })),
+        ...mockFavorites.map((favorite) => ({
+          ...favorite,
+          id: favorite.id + '__3',
+        })),
+      ];
+      render(
+        <ConnectionList
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={favorites}
+          recentConnections={mockRecents}
+          createNewConnection={createNewConnectionSpy}
+          setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
+        />
+      );
+    });
+
+    it('shows the saved connections filter input', function () {
+      expect(screen.getByTestId('sidebar-filter-saved-connections-input')).to.be
+        .visible;
+      expect(
+        screen.getAllByTestId('favorite-connection-title').length
+      ).to.equal(12);
+    });
+
+    describe('when the saved connections filter input is updated', function () {
+      beforeEach(function () {
+        const textInput = screen.getByTestId(
+          'sidebar-filter-saved-connections-input'
+        );
+
+        userEvent.type(textInput, 'super');
+      });
+
+      it('only shows the partial favorite connections', function () {
+        expect(
+          screen.getAllByTestId('favorite-connection-title').length
+        ).to.equal(4);
+      });
     });
   });
 

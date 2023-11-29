@@ -3,10 +3,12 @@ import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -158,6 +160,27 @@ type WizardToStageAction = {
   stage: StoreStage;
 };
 
+export type StageEditorAction =
+  | StagePreviewFetchAction
+  | StagePreviewFetchSkippedAction
+  | StagePreviewFetchSuccessAction
+  | StagePreviewFetchErrorAction
+  | StageRunAction
+  | StageRunSuccessAction
+  | StageRunErrorAction
+  | ChangeStageValueAction
+  | ChangeStageOperatorAction
+  | ChangeStageCollapsedAction
+  | ChangeStageOperatorAction
+  | ChangeStageDisabledAction
+  | StageAddAction
+  | StageRemoveAction
+  | StageMoveAction
+  | WizardAddAction
+  | WizardRemoveAction
+  | WizardChangeAction
+  | WizardToStageAction;
+
 export function storeIndexToPipelineIndex(
   stages: StageEditorState['stages'],
   indexInStore: number,
@@ -272,7 +295,7 @@ export const loadStagePreview = (
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count,
+        totalDocumentCount: inputDocuments.count ?? undefined,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForStage(
@@ -416,8 +439,12 @@ export const runStage = (
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
-    } catch (error) {
-      dispatch({ type: StageEditorActionTypes.StageRunError, id, error });
+    } catch (error: any) {
+      dispatch({
+        type: StageEditorActionTypes.StageRunError,
+        id: Number(id),
+        error,
+      });
     }
   };
 };
@@ -946,12 +973,15 @@ export function mapStoreStagesToStageIdAndType(
 }
 
 const reducer: Reducer<StageEditorState> = (
-  state = { stagesIdAndType: [], stages: [] },
+  state: StageEditorState = { stagesIdAndType: [], stages: [] },
   action
 ) => {
   if (
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled
@@ -1100,7 +1130,7 @@ const reducer: Reducer<StageEditorState> = (
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
-        },
+        } as StoreStage,
         ...state.stages.slice(action.id + 1),
       ],
     };
