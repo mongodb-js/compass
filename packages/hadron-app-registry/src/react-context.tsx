@@ -6,8 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { globalAppRegistry, AppRegistry } from './app-registry';
-import createDebug from 'debug';
-const debug = createDebug('hadron-app-registry:react');
 
 /**
  * @internal exported for the mock plugin helper implementation

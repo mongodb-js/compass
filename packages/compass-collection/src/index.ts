@@ -1,10 +1,8 @@
 import CollectionTab from './components/collection-tab';
 import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import {
-  dataServiceLocator,
-  DataServiceLocator,
-} from 'mongodb-data-service/provider';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type { DataService } from 'mongodb-data-service';
 

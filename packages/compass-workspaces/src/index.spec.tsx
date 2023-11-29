@@ -5,20 +5,21 @@ import userEvent from '@testing-library/user-event';
 import WorkspacesPlugin, { WorkspacesProvider } from './index';
 import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
+import type { AnyWorkspaceComponent } from './components/workspaces-provider';
 
-function mockWorkspace(name) {
+function mockWorkspace(name: string) {
   return {
     name,
     component: function Component() {
       return <>{name}</>;
     },
-  };
+  } as unknown as AnyWorkspaceComponent;
 }
 
 describe('WorkspacesPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const globalAppRegistry = sandbox.spy(new AppRegistry());
-  const instance = { on() {} };
+  const instance = { on() {} } as any;
   const Plugin = WorkspacesPlugin.withMockServices({
     globalAppRegistry,
     instance,

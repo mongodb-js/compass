@@ -1,7 +1,6 @@
 import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import toNS from 'mongodb-ns';
 import { appRegistryActivated } from '../modules/app-registry';
 import { changeDatabaseName } from '../modules/database-name';
 import { dataServiceConnected } from '../modules/data-service';
