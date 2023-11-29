@@ -365,7 +365,6 @@ type InsertState = {
 type BulkUpdateState = {
   isOpen: boolean;
   updateText: string;
-  loading: boolean;
   preview: UpdatePreview;
   syntaxError?: Error;
   serverError?: Error;
@@ -529,7 +528,6 @@ class CrudStoreImpl
     return {
       isOpen: false,
       updateText: '{\n  $set: {}\n}',
-      loading: false,
       preview: {
         changes: [],
       },
@@ -1196,7 +1194,6 @@ class CrudStoreImpl
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
-        loading: true,
         preview: {
           changes: [],
         },
@@ -1220,7 +1217,6 @@ class CrudStoreImpl
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
-          loading: false,
           preview: {
             changes: [],
           },
@@ -1240,7 +1236,6 @@ class CrudStoreImpl
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
-        loading: false,
         preview,
         serverError: undefined,
         syntaxError: undefined,

@@ -11,7 +11,6 @@ function renderBulkUpdateDialog(
   return render(
     <BulkUpdateDialog
       isOpen={true}
-      loading={false}
       ns="mydb.mycoll"
       filter={{ a: 1 }}
       count={0}
@@ -91,6 +90,11 @@ describe('BulkUpdateDialog Component', function () {
     expect(screen.getByRole('button', { name: 'Update 1 document' })).to.exist;
   });
 
+  it('renders the empty state if the count is 0', function () {
+    renderBulkUpdateDialog({ count: 0 });
+    expect(screen.getByTestId('bulk-update-preview-empty-state')).to.exist;
+  });
+
   it('resets if the modal is re-opened', async function () {
     // initial open
     const { rerender } = renderBulkUpdateDialog({ isOpen: true });
@@ -99,7 +103,6 @@ describe('BulkUpdateDialog Component', function () {
     rerender(
       <BulkUpdateDialog
         isOpen={false}
-        loading={false}
         ns="mydb.mycoll"
         filter={{ a: 1 }}
         count={0}
@@ -122,7 +125,6 @@ describe('BulkUpdateDialog Component', function () {
     // re-open
     rerender(
       <BulkUpdateDialog
-        loading={false}
         isOpen={true}
         ns="mydb.mycoll"
         filter={{ a: 1 }}

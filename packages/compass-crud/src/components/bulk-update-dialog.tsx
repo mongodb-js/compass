@@ -24,8 +24,6 @@ import {
   InteractivePopover,
   TextInput,
   useId,
-  SpinLoader,
-  Body,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -236,14 +234,6 @@ const previewZeroStateIconStyles = css({
   alignItems: 'center',
 });
 
-const previewLoadingStyles = css({
-  margin: 'auto',
-  display: 'flex',
-  flexDirection: 'row',
-  gap: spacing[2],
-  alignItems: 'center',
-});
-
 const previewNoResultsLabel = css({
   color: palette.green.dark2,
 });
@@ -256,13 +246,11 @@ const previewZeroStateDescriptionStyles = css({
 export type BulkUpdatePreviewProps = {
   count?: number;
   preview: UpdatePreview;
-  loading: boolean;
 };
 
 const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   count,
   preview,
-  loading,
 }) => {
   const previewDocuments = useMemo(() => {
     return preview.changes.map(
@@ -270,18 +258,14 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
     );
   }, [preview]);
 
-  if (loading) {
+  // show a preview for the edge case where the count is undefined, not the
+  // empty state
+  if (count === 0) {
     return (
-      <div className={previewLoadingStyles}>
-        <SpinLoader />
-        <Body>Preview documents are being loaded.</Body>
-      </div>
-    );
-  }
-
-  if (count === undefined || count === 0) {
-    return (
-      <div className={updatePreviewStyles}>
+      <div
+        className={updatePreviewStyles}
+        data-testid="bulk-update-preview-empty-state"
+      >
         <Label htmlFor="bulk-update-preview">
           Preview{' '}
           <Description className={previewDescriptionStyles}>
@@ -290,7 +274,7 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
           </Description>
         </Label>
         <div className={previewZeroStateIconStyles}>
-          <DocumentIcon size={spacing[4] * 2} />
+          <DocumentIcon />
           <b className={previewNoResultsLabel}>No results</b>
           <p className={previewZeroStateDescriptionStyles}>
             Try modifying your query to get results.
@@ -330,7 +314,6 @@ export type BulkUpdateDialogProps = {
   filter: BSONObject;
   count?: number;
   updateText: string;
-  loading?: boolean;
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error;
@@ -347,7 +330,6 @@ export default function BulkUpdateDialog({
   filter,
   count,
   updateText,
-  loading,
   preview,
   syntaxError,
   serverError,
@@ -471,11 +453,7 @@ export default function BulkUpdateDialog({
             </div>
           </div>
           {enablePreview && (
-            <BulkUpdatePreview
-              count={count}
-              preview={preview}
-              loading={!!loading}
-            />
+            <BulkUpdatePreview count={count} preview={preview} />
           )}
         </div>
       </ModalBody>
