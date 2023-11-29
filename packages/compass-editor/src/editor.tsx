@@ -15,6 +15,7 @@ import {
   highlightActiveLine,
   lineNumbers,
   highlightActiveLineGutter,
+  tooltips,
   EditorView,
 } from '@codemirror/view';
 import {
@@ -184,6 +185,11 @@ export const editorPalette = {
   },
 } as const;
 
+const cmFontStyles = {
+  fontSize: '13px',
+  fontFamily: fontFamilies.code,
+};
+
 function getStylesForTheme(theme: CodemirrorThemeType) {
   return EditorView.theme(
     {
@@ -192,10 +198,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         backgroundColor: editorPalette[theme].backgroundColor,
         maxHeight: '100%',
       },
-      '& .cm-scroller': {
-        fontSize: '13px',
-        fontFamily: fontFamilies.code,
-      },
+      '& .cm-scroller': cmFontStyles,
       '&.cm-editor.cm-focused': {
         outline: 'none',
       },
@@ -289,6 +292,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         marginLeft: '-1px',
       },
       '& .cm-tooltip': {
+        ...cmFontStyles,
         color: editorPalette[theme].autocompleteColor,
         backgroundColor: editorPalette[theme].autocompleteBackgroundColor,
         border: `1px solid ${editorPalette[theme].autocompleteBorderColor}`,
@@ -886,6 +890,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           ...completionKeymap,
           ...tabKeymap,
         ]),
+        // Supply the document body as the tooltip parent
+        // because we are using containment contexts for container
+        // queries which offset things otherwise.
+        tooltips({
+          parent: document.body,
+        }),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
           updateEditorContentHeight();

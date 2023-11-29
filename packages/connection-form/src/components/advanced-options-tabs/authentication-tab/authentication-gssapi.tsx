@@ -7,7 +7,6 @@ import {
   RadioBox,
   Checkbox,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -18,6 +17,7 @@ import {
   getConnectionStringUsername,
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
+import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
   string,
@@ -56,9 +56,8 @@ function AuthenticationGSSAPI({
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const showKerberosPasswordField = !!usePreference(
-    'showKerberosPasswordField',
-    React
+  const showKerberosPasswordField = !!useConnectionFormPreference(
+    'showKerberosPasswordField'
   );
 
   useEffect(() => {

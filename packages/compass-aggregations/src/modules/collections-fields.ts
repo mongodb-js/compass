@@ -1,9 +1,9 @@
-import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import type { PipelineBuilderThunkAction } from '.';
 import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
+import type { AnyAction } from 'redux';
 
 const FETCH_SCHEMA_MAX_TIME_MS = 10000;
 
@@ -36,6 +36,11 @@ type CollectionDataUpdatedAction = {
   collection: string;
   data: CollectionData;
 };
+
+export type CollectionFieldsAction =
+  | CollectionsFetchedAction
+  | CollectionFieldsFetchedAction
+  | CollectionDataUpdatedAction;
 
 export type CollectionData = {
   isLoading: boolean;
@@ -157,6 +162,11 @@ export const fetchCollectionFields = (
     });
 
     try {
+      if (!dataService.find || !dataService.sample) {
+        throw new Error(
+          'Collection schema sampling not available in this context'
+        );
+      }
       const { database } = toNS(namespace);
       const namespaceToQuery = `${database}.${collection}`;
 

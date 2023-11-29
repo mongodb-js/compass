@@ -17,6 +17,8 @@ import { InstanceTab as DatabasesTabPlugin } from '@mongodb-js/compass-databases
 import { InstanceTab as PerformanceTabPlugin } from '@mongodb-js/compass-serverstats';
 import type Namespace from '../types/namespace';
 import { CollectionTabsProvider } from '@mongodb-js/compass-collection';
+import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
+import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 
 const EmptyComponent: React.FunctionComponent = () => null;
 
@@ -30,7 +32,13 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
 
   if (namespace.collection) {
     return (
-      <CollectionTabsProvider tabs={[CompassSchemaValidationPlugin]}>
+      <CollectionTabsProvider
+        tabs={[
+          CompassSchemaValidationPlugin,
+          CompassAggregationsPlugin,
+          CompassDocumentsPlugin,
+        ]}
+      >
         <Collection />
       </CollectionTabsProvider>
     );

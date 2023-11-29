@@ -40,7 +40,7 @@ const optionsStyles = css({
   marginTop: spacing[2],
 });
 
-type PipelineToolbarProps = {
+export type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
   isAggregationGeneratedFromQuery?: boolean;
   isBuilderView: boolean;

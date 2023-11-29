@@ -42,7 +42,7 @@ const toggleLabelStyles = css({
 const toggleStageWizardStyles = css({ margin: 'auto' });
 
 type PipelineExtraSettingsProps = {
-  isAutoPreview: boolean;
+  isAutoPreview?: boolean | undefined;
   isPipelineModeDisabled: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
