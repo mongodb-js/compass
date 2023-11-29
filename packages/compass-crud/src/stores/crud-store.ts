@@ -1183,18 +1183,6 @@ class CrudStoreImpl
 
     let preview;
 
-    this.setState({
-      bulkUpdate: {
-        ...this.state.bulkUpdate,
-        preview: {
-          changes: [],
-        },
-        serverError: undefined,
-        syntaxError: undefined,
-        previewAbortController: undefined,
-      },
-    });
-
     try {
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
