@@ -3,8 +3,11 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 import type { OpenWorkspaceOptions } from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
+  collectionRenamed,
   databaseRemoved,
+  getActiveTab,
   getInitialTabState,
+  getLocalAppRegistryForTab,
   openWorkspace,
 } from './stores/workspaces';
 import Workspaces from './components/workspaces';
@@ -83,12 +86,44 @@ const WorkspacesPlugin = registerHadronPlugin(
         }
       );
 
+      globalAppRegistry.on(
+        'collection-renamed',
+        ({ from, to }: { from: string; to: string }) => {
+          store.dispatch(collectionRenamed(from, to));
+        }
+      );
+
       instance.on('remove:collections', (collection: Collection) => {
         store.dispatch(collectionRemoved(collection.ns));
       });
 
       instance.on('remove:databases', (database: Database) => {
         store.dispatch(databaseRemoved(database.name));
+      });
+
+      globalAppRegistry.on('menu-share-schema-json', () => {
+        const activeTab = getActiveTab(store.getState());
+        if (!activeTab) return;
+        getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
+      });
+
+      globalAppRegistry.on('open-active-namespace-export', function () {
+        const activeTab = getActiveTab(store.getState());
+        if (!activeTab) return;
+        globalAppRegistry.emit('open-export', {
+          exportFullCollection: true,
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        });
+      });
+
+      globalAppRegistry.on('open-active-namespace-import', function () {
+        const activeTab = getActiveTab(store.getState());
+        if (!activeTab) return;
+        globalAppRegistry.emit('open-import', {
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        });
       });
 
       return {
@@ -99,9 +134,7 @@ const WorkspacesPlugin = registerHadronPlugin(
       };
     },
   },
-  {
-    instance: mongoDBInstanceLocator,
-  }
+  { instance: mongoDBInstanceLocator }
 );
 
 function activate(): void {

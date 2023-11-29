@@ -268,13 +268,6 @@ export function createInstanceStore({
 
   const onCollectionRenamed = voidify(
     async ({ from, to }: { from: string; to: string }) => {
-      // we must fetch the old collection's metadata before refreshing because refreshing the
-      // collection metadata will remove the old collection from the model.
-      const metadata = await fetchCollectionMetadata(from);
-      appRegistry.emit('refresh-collection-tabs', {
-        metadata,
-        newNamespace: to,
-      });
       const { database } = toNS(from);
       await refreshNamespace({
         ns: to,

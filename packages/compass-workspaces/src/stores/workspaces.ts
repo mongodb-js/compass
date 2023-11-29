@@ -57,6 +57,7 @@ export enum WorkspacesActions {
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
   CloseTab = 'compass-workspaces/CloseTab',
+  CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
 }
@@ -83,6 +84,8 @@ export const getInitialTabState = (
   workspace: OpenWorkspaceOptions
 ): WorkspaceTab => {
   const tabId = getTabId();
+  // tsc doesn't agree with eslint here, this is not unnecessary
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return { id: tabId, ...workspace } as WorkspaceTab;
 };
 
@@ -284,6 +287,38 @@ const reducer: Reducer<WorkspacesState> = (
     };
   }
 
+  if (
+    isAction<CollectionRenamedAction>(
+      action,
+      WorkspacesActions.CollectionRenamed
+    )
+  ) {
+    let tabsRenamed = 0;
+    let newActiveTabId = state.activeTabId;
+    const newTabs = state.tabs.map((tab) => {
+      if (tab.type === 'Collection' && tab.namespace === action.from) {
+        tabsRenamed++;
+        const { id, ...workspace } = tab;
+        const newTab = getInitialTabState({
+          ...workspace,
+          namespace: action.to,
+        });
+        if (id === state.activeTabId) {
+          newActiveTabId = newTab.id;
+        }
+        return newTab;
+      }
+      return tab;
+    });
+    if (tabsRenamed === 0) {
+      return state;
+    }
+    return {
+      tabs: newTabs,
+      activeTabId: newActiveTabId,
+    };
+  }
+
   return state;
 };
 
@@ -377,6 +412,27 @@ export const closeTab = (
     const tab = getState().tabs[atIndex];
     dispatch({ type: WorkspacesActions.CloseTab, atIndex });
     cleanupLocalAppRegistryForTab(tab?.id);
+  };
+};
+
+type CollectionRenamedAction = {
+  type: WorkspacesActions.CollectionRenamed;
+  from: string;
+  to: string;
+};
+
+export const collectionRenamed = (
+  from: string,
+  to: string
+): WorkspacesThunkAction<void, CollectionRenamedAction> => {
+  return (dispatch, getState) => {
+    const tabsToReplace = getState().tabs.filter(
+      (tab) => tab.type === 'Collection' && tab.namespace === from
+    );
+    dispatch({ type: WorkspacesActions.CollectionRenamed, from, to });
+    tabsToReplace.forEach((tab) => {
+      cleanupLocalAppRegistryForTab(tab.id);
+    });
   };
 };
 
