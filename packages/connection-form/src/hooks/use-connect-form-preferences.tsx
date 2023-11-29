@@ -8,6 +8,9 @@ export type ConnectionFormPreferences = {
   enableOidc: boolean;
   enableDebugUseCsfleSchemaMap: boolean;
   protectConnectionStringsForNewConnections: boolean;
+  showOIDCAuth: boolean;
+  showKerberosAuth: boolean;
+  showCSFLE: boolean;
 };
 
 const defaultPreferences = {
@@ -18,6 +21,9 @@ const defaultPreferences = {
   enableOidc: false,
   enableDebugUseCsfleSchemaMap: false,
   protectConnectionStringsForNewConnections: false,
+  showOIDCAuth: true,
+  showKerberosAuth: true,
+  showCSFLE: true,
 };
 
 export const ConnectionFormPreferencesContext = createContext<
