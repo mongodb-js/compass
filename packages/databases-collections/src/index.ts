@@ -13,17 +13,23 @@ import CreateNamespaceModal from './components/create-namespace-modal';
 import { activatePlugin as activateCreateNamespacePlugin } from './stores/create-namespace';
 import { DatabasesPlugin } from './databases-plugin';
 
-// View collections list plugin.
-const COLLECTIONS_PLUGIN_ROLE = {
-  name: 'Collections',
+export const CollectionsWorkspaceTab = {
+  name: 'Collections' as const,
   component: CollectionsPlugin,
-  order: 1,
 };
 
-export const InstanceTab = {
-  name: 'Databases',
+export type CollectionsWorkspace = {
+  type: typeof CollectionsWorkspaceTab['name'];
+} & React.ComponentProps<typeof CollectionsWorkspaceTab['component']>;
+
+export const DatabasesWorkspaceTab = {
+  name: 'Databases' as const,
   component: DatabasesPlugin,
 };
+
+export type DatabasesWorkspace = {
+  type: typeof DatabasesWorkspaceTab['name'];
+} & React.ComponentProps<typeof DatabasesWorkspaceTab['component']>;
 
 export const CreateNamespacePlugin = registerHadronPlugin(
   {
@@ -58,7 +64,6 @@ export const DropNamespacePlugin = registerHadronPlugin(
  * Activate all the components in the package.
  **/
 function activate(appRegistry: AppRegistry) {
-  appRegistry.registerRole('Database.Tab', COLLECTIONS_PLUGIN_ROLE);
   appRegistry.registerStore(
     'CollectionsPlugin.CollectionsStore',
     CollectionsStore
@@ -69,7 +74,6 @@ function activate(appRegistry: AppRegistry) {
  * Deactivate all the components in the package.
  **/
 function deactivate(appRegistry: AppRegistry) {
-  appRegistry.deregisterRole('Database.Tab', COLLECTIONS_PLUGIN_ROLE);
   appRegistry.deregisterStore('CollectionsPlugin.CollectionsStore');
 }
 

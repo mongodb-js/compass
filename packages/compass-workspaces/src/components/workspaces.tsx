@@ -61,7 +61,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onTabChange,
 }) => {
-  const Workspace = useWorkspacePlugin(activeTab?.type ?? '');
+  const getWorkspaceByName = useWorkspacePlugin();
 
   useEffect(() => {
     if (activeTab) {
@@ -81,62 +81,78 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             title: tab.type,
             iconGlyph: 'CurlyBraces',
-          };
+          } as const;
         case 'Databases':
           return {
             id: tab.id,
             title: tab.type,
             iconGlyph: 'Database',
-          };
+          } as const;
         case 'Performance':
           return {
             id: tab.id,
             title: tab.type,
             iconGlyph: 'Gauge',
-          };
+          } as const;
         case 'Collections':
           return {
             id: tab.id,
             title: tab.namespace,
             iconGlyph: 'Database',
-          };
+          } as const;
         case 'Collection': {
           const { database, collection } = toNS(tab.namespace);
+          // TODO: make sure metadata is resolved by collection-tab
+          const collectionType = tab.isTimeSeries
+            ? 'timeseries'
+            : tab.isReadonly
+            ? 'view'
+            : 'collection';
           return {
             id: tab.id,
             title: collection,
             subtitle: `${database} > ${collection}`,
             iconGlyph:
-              tab.collectionType === 'view'
+              collectionType === 'view'
                 ? 'Visibility'
-                : tab.collectionType === 'timeseries'
+                : collectionType === 'timeseries'
                 ? 'TimeSeries'
                 : 'Folder',
-          };
+          } as const;
         }
       }
     });
   }, [tabs]);
 
-  if (!activeTab) {
-    return null;
-  }
-
-  if (!Workspace) {
-    throw new Error(
-      `Trying to open a tab of type "${activeTab.type}", but the corresponding plugin is not provided in context. Did you forget to set up WorkspacesProvider?`
-    );
-  }
-
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
-  // TODO: make sure metadata is resolved by collection-tab
-  const activeTabProps =
-    activeTab.type === 'Collections'
-      ? { namespace: activeTab.namespace }
-      : activeTab.type === 'Collection'
-      ? activeTab.metadata
-      : {};
+  const activeWorkspaceElement = useMemo(() => {
+    switch (activeTab?.type) {
+      case 'My Queries':
+      case 'Performance':
+      case 'Databases': {
+        const Component = getWorkspaceByName(activeTab.type);
+        return <Component></Component>;
+      }
+      case 'Collections': {
+        const Component = getWorkspaceByName(activeTab.type);
+        return <Component namespace={activeTab.namespace}></Component>;
+      }
+      case 'Collection': {
+        const Component = getWorkspaceByName(activeTab.type);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, type, ...collectionMetadata } = activeTab;
+        // TODO: make sure metadata is resolved by collection-tab
+        return <Component {...collectionMetadata}></Component>;
+      }
+      default:
+        return null;
+    }
+  }, [activeTab, getWorkspaceByName]);
+
+  if (!activeTab || !activeWorkspaceElement) {
+    return null;
+  }
 
   return (
     <div className={workspacesContainerStyles}>
@@ -146,7 +162,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onSelectNextTab={onSelectNextTab}
         onSelectPrevTab={onSelectPrevTab}
         onMoveTab={onMoveTab}
-        onCreateTab={onCreateTab}
+        onCreateNewTab={onCreateTab}
         onCloseTab={onCloseTab}
         tabs={tabDescriptions}
         selectedTabIndex={activeTabIndex}
@@ -158,7 +174,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
           deactivateOnUnmount={false}
         >
-          <Workspace {...(activeTabProps as any)}></Workspace>
+          {activeWorkspaceElement}
         </AppRegistryProvider>
       </div>
     </div>

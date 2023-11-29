@@ -6,8 +6,6 @@ export {
   AppRegistryProvider,
   useGlobalAppRegistry,
   useLocalAppRegistry,
-  useAppRegistryComponent,
-  useAppRegistryRole,
 } from './react-context';
 export type {
   HadronPluginComponent,

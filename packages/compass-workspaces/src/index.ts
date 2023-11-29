@@ -58,25 +58,11 @@ const WorkspacesPlugin = registerHadronPlugin(
         metadata: CollectionTabPluginMetadata,
         newTab: boolean
       ) => {
-        const {
-          namespace,
-          query,
-          aggregation,
-          pipelineText,
-          sourcePipeline,
-          editViewName,
-        } = metadata;
-
         store.dispatch(
           openWorkspace(
             {
               type: 'Collection',
-              namespace,
-              initialQuery: query,
-              initialAggregation: sourcePipeline ?? aggregation,
-              initialPipelineText: pipelineText as string,
-              editingViewNamespace: editViewName,
-              metadata,
+              ...metadata,
             },
             { newTab }
           )

@@ -240,4 +240,7 @@ const mapDispatch = {
   onCopyToClipboard: copyToClipboard,
 };
 
-export default connect(mapState, mapDispatch)(AggregationsQueriesList);
+export default connect(
+  mapState,
+  mapDispatch
+)(AggregationsQueriesList) as React.FunctionComponent<Record<string, never>>;

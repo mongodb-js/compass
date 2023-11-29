@@ -2,9 +2,27 @@ import type { Reducer, AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import toNS from 'mongodb-ns';
 import type { WorkspacesServices } from '..';
+import type { MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
+import type { ServerStatsWorkspace } from '@mongodb-js/compass-serverstats';
+import type {
+  DatabasesWorkspace,
+  CollectionsWorkspace,
+} from '@mongodb-js/compass-databases-collections';
+import type { CollectionWorkspace } from '@mongodb-js/compass-collection';
+
+export type AnyWorkspace =
+  | MyQueriesWorkspace
+  | ServerStatsWorkspace
+  | DatabasesWorkspace
+  | CollectionsWorkspace
+  | CollectionWorkspace;
+
+export type Workspace<T extends AnyWorkspace['type']> = Extract<
+  AnyWorkspace,
+  { type: T }
+>;
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -50,37 +68,7 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type Workspace =
-  | { type: 'My Queries' }
-  | { type: 'Databases' }
-  | { type: 'Performance' }
-  | { type: 'Collections'; namespace: string }
-  | {
-      type: 'Collection';
-      namespace: string;
-      collectionType: 'collection' | 'view' | 'timeseries' | null;
-      activeSubTab:
-        | 'Documents'
-        | 'Aggregations'
-        | 'Schema'
-        | 'Indexes'
-        | 'Validation'
-        | null;
-      initialQuery?: unknown;
-      initialAggregation?: unknown;
-      initialPipelineText?: string;
-      editingViewNamespace?: string;
-
-      // TODO: make collection-tab plugin resolve metadata on its own
-      metadata: CollectionTabPluginMetadata;
-    };
-
-export type WorkspaceByType<T extends Workspace['type']> = Extract<
-  Workspace,
-  { type: T }
->;
-
-export type WorkspaceTab = { id: string } & Workspace;
+export type WorkspaceTab = { id: string } & AnyWorkspace;
 
 export type WorkspacesState = {
   tabs: WorkspaceTab[];
@@ -95,51 +83,7 @@ export const getInitialTabState = (
   workspace: OpenWorkspaceOptions
 ): WorkspaceTab => {
   const tabId = getTabId();
-  switch (workspace.type) {
-    case 'Databases':
-    case 'My Queries':
-    case 'Performance':
-      return {
-        id: tabId,
-        type: workspace.type,
-      };
-    case 'Collections':
-      return {
-        id: tabId,
-        type: workspace.type,
-        namespace: workspace.namespace,
-      };
-    case 'Collection': {
-      const activeSubTab =
-        workspace.initialAggregation || workspace.initialPipelineText
-          ? 'Aggregations'
-          : workspace.initialQuery
-          ? 'Documents'
-          : workspace.activeSubTab ?? 'Documents';
-
-      // TODO: make collection-tab plugin resolve metadata on its own
-      const collectionType = workspace.metadata.isTimeSeries
-        ? 'timeseries'
-        : workspace.metadata.isReadonly
-        ? 'view'
-        : 'collection';
-
-      return {
-        id: tabId,
-        type: workspace.type,
-        namespace: workspace.namespace,
-        collectionType,
-        activeSubTab,
-        initialQuery: workspace.initialQuery,
-        initialAggregation: workspace.initialAggregation,
-        initialPipelineText: workspace.initialPipelineText,
-        editingViewNamespace: workspace.editingViewNamespace,
-
-        // TODO: make collection-tab plugin resolve metadata on its own
-        metadata: workspace.metadata,
-      };
-    }
-  }
+  return { id: tabId, ...workspace } as WorkspaceTab;
 };
 
 const getInitialState = () => {
@@ -353,28 +297,23 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 };
 
 export type OpenWorkspaceOptions =
-  | Pick<WorkspaceByType<'My Queries'>, 'type'>
-  | Pick<WorkspaceByType<'Databases'>, 'type'>
-  | Pick<WorkspaceByType<'Performance'>, 'type'>
-  | Pick<WorkspaceByType<'Collections'>, 'type' | 'namespace'>
-  | (Pick<
-      WorkspaceByType<'Collection'>,
-      | 'type'
-      | 'namespace'
+  | Pick<Workspace<'My Queries'>, 'type'>
+  | Pick<Workspace<'Databases'>, 'type'>
+  | Pick<Workspace<'Performance'>, 'type'>
+  | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
 
-      // TODO: make collection-tab plugin resolve metadata on its own
-      | 'metadata'
-    > &
-      Partial<
-        Pick<
-          WorkspaceByType<'Collection'>,
-          | 'activeSubTab'
-          | 'initialQuery'
-          | 'initialAggregation'
-          | 'initialPipelineText'
-          | 'editingViewNamespace'
-        >
-      >);
+  // TODO: for now opening a collection workspace requires all metadata to be
+  // passed with it, this will change when collection tab is responsible for
+  // fetching its own metadata
+  //
+  // | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
+  //     Partial<
+  //       Pick<
+  //         Workspace<'Collection'>,
+  //         'query' | 'aggregation' | 'pipelineText' | 'editViewName'
+  //       >
+  //     >);
+  | Workspace<'Collection'>;
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
@@ -499,7 +438,7 @@ export const databaseRemoved = (
 export const emitOnTabChange = (
   activeTab: WorkspaceTab
 ): WorkspacesThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
     switch (activeTab.type) {
       case 'My Queries':
       case 'Databases':
@@ -510,7 +449,7 @@ export const emitOnTabChange = (
         globalAppRegistry.emit('select-database', activeTab.namespace);
         return;
       case 'Collection':
-        globalAppRegistry.emit('select-namespace', activeTab.metadata);
+        globalAppRegistry.emit('select-namespace', activeTab);
         return;
     }
   };

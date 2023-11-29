@@ -19,6 +19,15 @@ export const CollectionTabPlugin = registerHadronPlugin(
   }
 );
 
+export const WorkspaceTab = {
+  name: 'Collection' as const,
+  component: CollectionTabPlugin,
+};
+
+export type CollectionWorkspace = {
+  type: typeof WorkspaceTab['name'];
+} & React.ComponentProps<typeof WorkspaceTab['component']>;
+
 /**
  * Activate all the components in the Collection package.
  **/
