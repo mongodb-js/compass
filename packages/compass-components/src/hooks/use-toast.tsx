@@ -21,7 +21,7 @@ const defaultToastProperties: Partial<ToastProperties> = {
   dismissible: true,
 };
 
-interface ToastActions {
+export interface ToastActions {
   openToast: (id: string, toastProperties: ToastProperties) => void;
   closeToast: (id: string) => void;
 }

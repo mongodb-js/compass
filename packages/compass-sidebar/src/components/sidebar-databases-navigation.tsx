@@ -71,6 +71,9 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
       case 'drop-database':
         emit('open-drop-database', ns.database);
         return;
+      case 'rename-collection':
+        emit('open-rename-collection', ns);
+        return;
       case 'drop-collection':
         emit('open-drop-collection', ns);
         return;

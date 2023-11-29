@@ -13,8 +13,10 @@ import tabs, {
   getActiveTab,
   dataServiceDisconnected,
   dataServiceConnected,
+  collectionRenamed,
 } from '../modules/tabs';
 import { globalAppRegistry } from 'hadron-app-registry';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 type ThunkExtraArg = {
   globalAppRegistry: AppRegistry;
@@ -80,6 +82,24 @@ export function configureStore({
       globalAppRegistry.on('database-dropped', (namespace: string) => {
         store.dispatch(databaseDropped(namespace));
       });
+
+      globalAppRegistry.on(
+        'refresh-collection-tabs',
+        ({
+          metadata,
+          newNamespace,
+        }: {
+          metadata: CollectionMetadata;
+          newNamespace: string;
+        }) => {
+          store.dispatch(
+            collectionRenamed({
+              from: metadata,
+              newNamespace,
+            })
+          );
+        }
+      );
 
       /**
        * Set the data service in the store when connected.
