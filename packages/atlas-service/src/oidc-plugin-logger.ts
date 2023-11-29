@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import type { MongoDBOIDCPluginOptions } from '@mongodb-js/oidc-plugin';
-import type { AtlasUserConfig } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 
 type MongoDBOIDCPluginLogger = Required<MongoDBOIDCPluginOptions>['logger'];
 
