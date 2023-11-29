@@ -1182,7 +1182,6 @@ class CrudStoreImpl
     const { filter } = this.state.query;
 
     let preview;
-
     try {
       preview = await this.dataService.previewUpdate(ns, filter, update, {
         sample: 3,
