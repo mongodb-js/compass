@@ -35,7 +35,7 @@ const WorkspacesPlugin = registerHadronPlugin(
         workspacesReducer,
         {
           tabs: initialTabs,
-          activeTabId: initialTabs[0].id,
+          activeTabId: initialTabs[0]?.id ?? null,
         },
         applyMiddleware(
           thunk.withExtraArgument({ globalAppRegistry, instance })

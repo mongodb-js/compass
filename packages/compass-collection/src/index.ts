@@ -1,7 +1,10 @@
 import CollectionTab from './components/collection-tab';
 import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  DataServiceLocator,
+} from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type { DataService } from 'mongodb-data-service';
 
@@ -12,9 +15,7 @@ export const CollectionTabPlugin = registerHadronPlugin(
     activate: activateCollectionTabPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
-      keyof DataService
-    >,
+    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
     instance: mongoDBInstanceLocator,
   }
 );
