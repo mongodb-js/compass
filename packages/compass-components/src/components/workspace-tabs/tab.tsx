@@ -11,7 +11,7 @@ import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 
 function focusedChild(className: string) {
-  return `&:hover ${className}, &:focus ${className}, &:focus-within ${className}`;
+  return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
 }
 
 const tabTransition = '.16s ease-in-out';
@@ -67,8 +67,8 @@ const tabLightThemeStyles = css({
   '--workspace-tab-color': palette.gray.base,
   '--workspace-tab-selected-color': palette.green.dark2,
   '&:focus-visible': {
-    '--workspace-tab-color': palette.blue.light1,
-    '--workspace-tab-border-color': palette.blue.light1,
+    '--workspace-tab-selected-color': palette.blue.base,
+    '--workspace-tab-border-color': palette.blue.base,
   },
 });
 
@@ -149,6 +149,10 @@ const closeButtonStyles = css({
   visibility: 'hidden',
 });
 
+const selectedCloseButtonStyles = css({
+  visibility: 'visible',
+});
+
 type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 type TabProps = {
@@ -227,7 +231,11 @@ function Tab({
       </div>
 
       <IconButton
-        className={cx(closeButtonStyles, 'workspace-tab-close-button')}
+        className={cx(
+          closeButtonStyles,
+          isSelected && selectedCloseButtonStyles,
+          'workspace-tab-close-button'
+        )}
         onClick={(e) => {
           e.stopPropagation();
           onClose();
