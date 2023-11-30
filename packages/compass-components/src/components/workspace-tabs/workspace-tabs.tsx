@@ -46,6 +46,7 @@ const tabsContainerStyles = css({
       height: spacing[1],
     },
   },
+  minHeight: 36,
 });
 
 const tabsContainerLightStyles = css({
@@ -76,11 +77,11 @@ const tabsListStyles = css({
 const newTabContainerStyles = css({
   flex: 'none',
   alignSelf: 'center',
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
 });
 
-const createNewTabButtonStyles = css({});
+const createNewTabButtonStyles = css({
+  margin: spacing[1],
+});
 
 const sortableItemContainerStyles = css({
   display: 'inline-flex',

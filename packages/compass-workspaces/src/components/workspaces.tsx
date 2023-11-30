@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
+  MongoDBLogoMark,
   WorkspaceTabs,
   css,
+  spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
   OpenWorkspaceOptions,
@@ -25,6 +28,24 @@ import {
 import { useWorkspacePlugin } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+const emptyWorkspaceStyles = css({
+  margin: '0 auto',
+  alignSelf: 'center',
+  opacity: 0.05,
+});
+
+const EmptyWorkspaceContent = () => {
+  const darkMode = useDarkMode();
+  return (
+    <div className={emptyWorkspaceStyles}>
+      <MongoDBLogoMark
+        height={spacing[7] * 2}
+        color={darkMode ? 'white' : 'black'}
+      ></MongoDBLogoMark>
+    </div>
+  );
+};
 
 const workspacesContainerStyles = css({
   display: 'grid',
@@ -156,10 +177,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     }
   }, [activeTab, getWorkspaceByName]);
 
-  if (!activeTab || !activeWorkspaceElement) {
-    return null;
-  }
-
   return (
     <div className={workspacesContainerStyles}>
       <WorkspaceTabs
@@ -175,25 +192,29 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
-        <AppRegistryProvider
-          key={activeTab.id}
-          localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
-          deactivateOnUnmount={false}
-        >
-          <ErrorBoundary
-            displayName={activeTab.type}
-            onError={(error, errorInfo) => {
-              log.error(
-                mongoLogId(1_001_000_277),
-                'Workspace',
-                'Rendering workspace tab failed',
-                { name: activeTab.type, error: error.message, errorInfo }
-              );
-            }}
+        {activeTab && activeWorkspaceElement ? (
+          <AppRegistryProvider
+            key={activeTab.id}
+            localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
+            deactivateOnUnmount={false}
           >
-            {activeWorkspaceElement}
-          </ErrorBoundary>
-        </AppRegistryProvider>
+            <ErrorBoundary
+              displayName={activeTab.type}
+              onError={(error, errorInfo) => {
+                log.error(
+                  mongoLogId(1_001_000_277),
+                  'Workspace',
+                  'Rendering workspace tab failed',
+                  { name: activeTab.type, error: error.message, errorInfo }
+                );
+              }}
+            >
+              {activeWorkspaceElement}
+            </ErrorBoundary>
+          </AppRegistryProvider>
+        ) : (
+          <EmptyWorkspaceContent></EmptyWorkspaceContent>
+        )}
       </div>
     </div>
   );

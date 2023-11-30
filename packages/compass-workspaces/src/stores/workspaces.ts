@@ -85,8 +85,6 @@ export const getInitialTabState = (
   workspace: OpenWorkspaceOptions
 ): WorkspaceTab => {
   const tabId = getTabId();
-  // tsc doesn't agree with eslint here, this is not unnecessary
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return { id: tabId, ...workspace } as WorkspaceTab;
 };
 
@@ -135,6 +133,27 @@ const reducer: Reducer<WorkspacesState> = (
     newTabs.splice(activeTabIndex, 1, newTab);
     return {
       tabs: newTabs,
+      activeTabId: newTab.id,
+    };
+  }
+
+  if (
+    isAction<OpenTabFromCurrentActiveAction>(
+      action,
+      WorkspacesActions.OpenTabFromCurrentActive
+    )
+  ) {
+    const currentActiveTab = getActiveTab(state);
+    let newTab: WorkspaceTab;
+    if (!currentActiveTab) {
+      newTab = getInitialTabState({ type: 'My Queries' });
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, ...tabProps } = currentActiveTab;
+      newTab = getInitialTabState(tabProps);
+    }
+    return {
+      tabs: [...state.tabs, newTab],
       activeTabId: newTab.id,
     };
   }
