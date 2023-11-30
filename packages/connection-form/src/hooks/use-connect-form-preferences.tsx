@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 
+// Not all of these preference map to Compass preferences.
 export type ConnectionFormPreferences = {
   protectConnectionStrings: boolean;
   forceConnectionOptions: [key: string, value: string][];
