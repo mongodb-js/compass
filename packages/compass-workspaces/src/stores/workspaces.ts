@@ -159,6 +159,9 @@ const reducer: Reducer<WorkspacesState> = (
   }
 
   if (isAction<SelectTabAction>(action, WorkspacesActions.SelectTab)) {
+    if (state.tabs[action.atIndex].id === state.activeTabId) {
+      return state;
+    }
     return {
       ...state,
       activeTabId: state.tabs[action.atIndex].id,
@@ -169,6 +172,9 @@ const reducer: Reducer<WorkspacesState> = (
     const newActiveTabIndex =
       (getActiveTabIndex(state) + 1) % state.tabs.length;
     const newActiveTab = state.tabs[newActiveTabIndex];
+    if (newActiveTab.id === state.activeTabId) {
+      return state;
+    }
     return {
       ...state,
       activeTabId: newActiveTab.id ?? state.activeTabId,
@@ -187,6 +193,9 @@ const reducer: Reducer<WorkspacesState> = (
         ? state.tabs.length - 1
         : currentActiveTabIndex - 1;
     const newActiveTab = state.tabs[newActiveTabIndex];
+    if (newActiveTab.id === state.activeTabId) {
+      return state;
+    }
     return {
       ...state,
       activeTabId: newActiveTab.id ?? state.activeTabId,
@@ -194,6 +203,9 @@ const reducer: Reducer<WorkspacesState> = (
   }
 
   if (isAction<MoveTabAction>(action, WorkspacesActions.MoveTab)) {
+    if (action.fromIndex === action.toIndex) {
+      return state;
+    }
     const newTabs = [...state.tabs];
     newTabs.splice(action.toIndex, 0, newTabs.splice(action.fromIndex, 1)[0]);
     return {
@@ -396,7 +408,7 @@ type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };
 
 export const closeTab = (
   atIndex: number
-): ThunkAction<void, WorkspacesState, void, CloseTabAction> => {
+): WorkspacesThunkAction<void, CloseTabAction> => {
   return (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
     dispatch({ type: WorkspacesActions.CloseTab, atIndex });
