@@ -55,21 +55,14 @@ const loadAutoConnectWithConnection = async (
 
 describe('auto connection argument parsing', function () {
   let sandbox: sinon.SinonSandbox;
-  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     sandbox.stub(ipcRenderer!, 'call').resolves(true);
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(function () {
     sandbox.restore();
-    if (initialKeytarEnvValue) {
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
-    } else {
-      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {

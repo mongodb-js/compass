@@ -46,7 +46,6 @@ function getTestBrowserShellCommand() {
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  let originalDisableKeychainUsage: string | undefined;
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
@@ -63,16 +62,6 @@ describe('OIDC integration', function () {
   ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
-    {
-      originalDisableKeychainUsage =
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-      if (process.platform === 'linux' && process.env.CI) {
-        // keytar is not working on Linux in CI, see
-        // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
-      }
-    }
-
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
       return this.skip();
@@ -170,11 +159,6 @@ describe('OIDC integration', function () {
     await cluster?.close();
     await oidcMockProvider?.close();
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
-
-    if (originalDisableKeychainUsage)
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
-        originalDisableKeychainUsage;
-    else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
   });
 
   it('can successfully connect with a connection string', async function () {
