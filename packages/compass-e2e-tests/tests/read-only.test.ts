@@ -158,7 +158,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
 
-      await browser.navigateToDatabaseTab('test', 'Collections');
+      await browser.navigateToDatabaseCollectionsTab('test');
 
       let databaseCreateCollectionButton = await browser.$(
         Selectors.DatabaseCreateCollectionButton

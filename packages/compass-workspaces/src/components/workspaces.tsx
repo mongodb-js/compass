@@ -1,7 +1,11 @@
 import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { AppRegistryProvider } from 'hadron-app-registry';
-import { WorkspaceTabs, css } from '@mongodb-js/compass-components';
+import {
+  ErrorBoundary,
+  WorkspaceTabs,
+  css,
+} from '@mongodb-js/compass-components';
 import type {
   OpenWorkspaceOptions,
   WorkspaceTab,
@@ -20,6 +24,7 @@ import {
 } from '../stores/workspaces';
 import { useWorkspacePlugin } from './workspaces-provider';
 import toNS from 'mongodb-ns';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const workspacesContainerStyles = css({
   display: 'grid',
@@ -61,6 +66,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onTabChange,
 }) => {
+  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const getWorkspaceByName = useWorkspacePlugin();
 
   useEffect(() => {
@@ -174,7 +180,19 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
           deactivateOnUnmount={false}
         >
-          {activeWorkspaceElement}
+          <ErrorBoundary
+            displayName={activeTab.type}
+            onError={(error, errorInfo) => {
+              log.error(
+                mongoLogId(1_001_000_277),
+                'Workspace',
+                'Rendering workspace tab failed',
+                { name: activeTab.type, error: error.message, errorInfo }
+              );
+            }}
+          >
+            {activeWorkspaceElement}
+          </ErrorBoundary>
         </AppRegistryProvider>
       </div>
     </div>

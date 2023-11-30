@@ -11,6 +11,7 @@ import type {
   CollectionsWorkspace,
 } from '@mongodb-js/compass-databases-collections';
 import type { CollectionWorkspace } from '@mongodb-js/compass-collection';
+import { isEqual } from 'lodash';
 
 export type AnyWorkspace =
   | MyQueriesWorkspace
@@ -108,65 +109,34 @@ const reducer: Reducer<WorkspacesState> = (
         activeTabId: newTab.id,
       };
     }
-
-    if (
-      action.workspace.type === 'My Queries' ||
-      action.workspace.type === 'Databases' ||
-      action.workspace.type === 'Performance'
-    ) {
-      const existingTab = state.tabs.find(
-        (tab) => tab.type === action.workspace.type
-      );
-      if (existingTab) {
-        if (existingTab.id === state.activeTabId) {
-          return state;
-        }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const existingTab = state.tabs.find(({ id: _id, ...tab }) => {
+      return isEqual(tab, action.workspace);
+    });
+    if (existingTab) {
+      if (existingTab.id !== state.activeTabId) {
         return {
           ...state,
           activeTabId: existingTab.id,
         };
-      } else {
-        const tab = getInitialTabState(action.workspace);
-        return {
-          tabs: [...state.tabs, tab],
-          activeTabId: tab.id,
-        };
       }
+      return state;
     }
-
-    if (
-      action.workspace.type === 'Collections' ||
-      action.workspace.type === 'Collection'
-    ) {
-      const { namespace, type } = action.workspace;
-      const existingTab = state.tabs.find((tab) => {
-        return tab.type === type && tab.namespace === namespace;
-      });
-      if (existingTab) {
-        if (existingTab.id !== state.activeTabId) {
-          return {
-            ...state,
-            activeTabId: existingTab.id,
-          };
-        }
-        return state;
-      }
-      const activeTab = getActiveTab(state);
-      const newTab = getInitialTabState(action.workspace);
-      if (activeTab?.type !== action.workspace.type) {
-        return {
-          tabs: [...state.tabs, newTab],
-          activeTabId: newTab.id,
-        };
-      }
-      const activeTabIndex = getActiveTabIndex(state);
-      const newTabs = [...state.tabs];
-      newTabs.splice(activeTabIndex, 1, newTab);
+    const activeTab = getActiveTab(state);
+    const newTab = getInitialTabState(action.workspace);
+    if (activeTab?.type !== action.workspace.type) {
       return {
-        tabs: newTabs,
+        tabs: [...state.tabs, newTab],
         activeTabId: newTab.id,
       };
     }
+    const activeTabIndex = getActiveTabIndex(state);
+    const newTabs = [...state.tabs];
+    newTabs.splice(activeTabIndex, 1, newTab);
+    return {
+      tabs: newTabs,
+      activeTabId: newTab.id,
+    };
   }
 
   if (isAction<SelectTabAction>(action, WorkspacesActions.SelectTab)) {
@@ -492,20 +462,22 @@ export const databaseRemoved = (
 // Emitting these event will trigger store actions for opening a tab, but they
 // will be no-ops, will not result in any state update
 export const emitOnTabChange = (
-  activeTab: WorkspaceTab
+  newTab: WorkspaceTab
 ): WorkspacesThunkAction<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id, ...tabMeta } = newTab;
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    switch (activeTab.type) {
+    switch (tabMeta.type) {
       case 'My Queries':
       case 'Databases':
       case 'Performance':
-        globalAppRegistry.emit('open-instance-workspace', activeTab.type);
+        globalAppRegistry.emit('open-instance-workspace', tabMeta.type);
         return;
       case 'Collections':
-        globalAppRegistry.emit('select-database', activeTab.namespace);
+        globalAppRegistry.emit('select-database', tabMeta.namespace);
         return;
       case 'Collection':
-        globalAppRegistry.emit('select-namespace', activeTab);
+        globalAppRegistry.emit('select-namespace', tabMeta);
         return;
     }
   };

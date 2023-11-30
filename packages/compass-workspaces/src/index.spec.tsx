@@ -19,7 +19,7 @@ function mockWorkspace(name: string) {
 describe('WorkspacesPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const globalAppRegistry = sandbox.spy(new AppRegistry());
-  const instance = { on() {} } as any;
+  const instance = { on() {}, removeListener() {} } as any;
   const Plugin = WorkspacesPlugin.withMockServices({
     globalAppRegistry,
     instance,

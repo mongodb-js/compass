@@ -108,6 +108,14 @@ export const AggregationsQueriesList = ({
   useTrackOnChange(
     'COMPASS-MY-QUERIES-UI',
     (track) => {
+      track('Screen', { name: 'my_queries' });
+    },
+    []
+  );
+
+  useTrackOnChange(
+    'COMPASS-MY-QUERIES-UI',
+    (track) => {
       if (filters.database) {
         track('My Queries Filter', { type: 'database' });
       }

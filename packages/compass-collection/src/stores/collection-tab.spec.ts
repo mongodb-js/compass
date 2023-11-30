@@ -30,7 +30,10 @@ describe('Collection Tab Content store', function () {
     databases: { get() {} },
     dataLake: {},
     build: {},
+    removeListener() {},
   } as any;
+  let store: ReturnType<typeof activatePlugin>['store'];
+  let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
   const scopedModalRole = {
     name: 'ScopedModal',
@@ -51,7 +54,7 @@ describe('Collection Tab Content store', function () {
   };
 
   const configureStore = (options: Partial<CollectionTabOptions> = {}) => {
-    const { store } = activatePlugin(
+    ({ store, deactivate } = activatePlugin(
       {
         ...defaultMetadata,
         ...options,
@@ -61,8 +64,9 @@ describe('Collection Tab Content store', function () {
         globalAppRegistry,
         localAppRegistry,
         instance,
-      }
-    );
+      },
+      { on() {}, cleanup() {} } as any
+    ));
     return store;
   };
 
@@ -89,6 +93,7 @@ describe('Collection Tab Content store', function () {
     localAppRegistry.components = {};
 
     sandbox.resetHistory();
+    deactivate();
   });
 
   describe('selectTab', function () {
