@@ -266,6 +266,24 @@ export function createInstanceStore({
   });
   onAppRegistryEvent('refresh-databases', onRefreshDatabases);
 
+  const onCollectionRenamed = voidify(
+    async ({ from, to }: { from: string; to: string }) => {
+      // we must fetch the old collection's metadata before refreshing because refreshing the
+      // collection metadata will remove the old collection from the model.
+      const metadata = await fetchCollectionMetadata(from);
+      appRegistry.emit('refresh-collection-tabs', {
+        metadata,
+        newNamespace: to,
+      });
+      const { database } = toNS(from);
+      await refreshNamespace({
+        ns: to,
+        database,
+      });
+    }
+  );
+  appRegistry.on('collection-renamed', onCollectionRenamed);
+
   // Event emitted when the Collections grid needs to be refreshed
   // with new collections or collection stats for existing ones.
   const onRefreshCollections = voidify(async ({ ns }: { ns: string }) => {

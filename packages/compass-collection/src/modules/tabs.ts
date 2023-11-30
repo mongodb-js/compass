@@ -37,6 +37,7 @@ enum CollectionTabsActions {
   DatabaseDropped = 'compass-collection/DatabaseDropped',
   DataServiceConnected = 'compass-collection/DataServiceConnected',
   DataServiceDisconnected = 'compass-collection/DataServiceDisconnected',
+  CollectionRenamed = 'compass-collection/CollectionRenamed',
 }
 
 type CollectionTabsThunkAction<
@@ -180,6 +181,17 @@ const reducer: Reducer<CollectionTabsState> = (
     return {
       ...state,
       tabs: newTabs,
+    };
+  }
+  if (action.type === CollectionTabsActions.CollectionRenamed) {
+    const { tabs } = action;
+
+    const activeTabIndex = getActiveTabIndex(state);
+    const activeTabId = tabs[activeTabIndex]?.id ?? null;
+    return {
+      ...state,
+      tabs,
+      activeTabId,
     };
   }
   return state;
@@ -389,6 +401,32 @@ export const dataServiceConnected = () => {
 export const dataServiceDisconnected = () => {
   // TODO: get localAppRegistry for existing tabs and clean up
   return { type: CollectionTabsActions.DataServiceDisconnected };
+};
+
+export const collectionRenamed = ({
+  from,
+  newNamespace,
+}: {
+  from: CollectionMetadata;
+  newNamespace: string;
+}): CollectionTabsThunkAction<void> => {
+  return (dispatch, getState) => {
+    const tabs = getState().tabs.map((tab) =>
+      tab.namespace === from.namespace
+        ? dispatch(
+            createNewTab({
+              ...from,
+              namespace: newNamespace,
+            })
+          )
+        : tab
+    );
+
+    dispatch({
+      type: CollectionTabsActions.CollectionRenamed,
+      tabs,
+    });
+  };
 };
 
 export default reducer;

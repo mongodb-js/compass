@@ -20,6 +20,7 @@ import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
+import { useConnectionFormPreference } from '../../hooks/use-connect-form-preferences';
 
 const tabsStyles = css({
   marginTop: spacing[2],
@@ -60,6 +61,7 @@ function AdvancedOptionsTabs({
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
+  const showCSFLE = useConnectionFormPreference('showCSFLE');
 
   const tabs: TabObject[] = [
     { name: 'General', id: 'general', component: GeneralTab },
@@ -70,11 +72,15 @@ function AdvancedOptionsTabs({
     },
     { name: 'TLS/SSL', id: 'tls', component: TLSTab },
     { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
-    {
-      name: 'In-Use Encryption',
-      id: 'csfle',
-      component: CSFLETab,
-    },
+    ...(showCSFLE
+      ? [
+          {
+            name: 'In-Use Encryption',
+            id: 'csfle',
+            component: CSFLETab,
+          } as const,
+        ]
+      : []),
     { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
 

@@ -3,36 +3,84 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { AuthMechanism } from 'mongodb';
 
 import AuthenticationTab from './authentication-tab';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormPreferencesContext } from '../../../hooks/use-connect-form-preferences';
+import type { ConnectionFormPreferences } from '../../../hooks/use-connect-form-preferences';
 
 function renderComponent({
   errors = [],
   connectionStringUrl = new ConnectionStringUrl('mongodb://localhost:27017'),
+  connectionFormPreferences = {
+    enableOidc: true,
+  },
   updateConnectionFormField,
 }: {
   connectionStringUrl?: ConnectionStringUrl;
+  connectionFormPreferences?: Partial<ConnectionFormPreferences>;
   errors?: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <AuthenticationTab
-      errors={errors}
-      connectionStringUrl={connectionStringUrl}
-      updateConnectionFormField={updateConnectionFormField}
-      connectionOptions={{
-        connectionString: 'mongodb://localhost:27017',
-      }}
-    />
+    <ConnectionFormPreferencesContext.Provider
+      value={connectionFormPreferences}
+    >
+      <AuthenticationTab
+        errors={errors}
+        connectionStringUrl={connectionStringUrl}
+        updateConnectionFormField={updateConnectionFormField}
+        connectionOptions={{
+          connectionString: 'mongodb://localhost:27017',
+        }}
+      />
+    </ConnectionFormPreferencesContext.Provider>
   );
 }
+
+const authMechanisms = [
+  {
+    title: 'Username/Password',
+    id: AuthMechanism.MONGODB_DEFAULT,
+  },
+  {
+    title: 'OIDC (Preview)',
+    id: AuthMechanism.MONGODB_OIDC,
+  },
+  {
+    title: 'X.509',
+    id: AuthMechanism.MONGODB_X509,
+  },
+  {
+    title: 'Kerberos',
+    id: AuthMechanism.MONGODB_GSSAPI,
+  },
+  {
+    title: 'LDAP',
+    id: AuthMechanism.MONGODB_PLAIN,
+  },
+  {
+    title: 'AWS IAM',
+    id: AuthMechanism.MONGODB_AWS,
+  },
+];
 
 describe('AuthenticationTab Component', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
   beforeEach(function () {
     updateConnectionFormFieldSpy = sinon.spy();
+  });
+
+  it('renders all of the auth mechanisms', function () {
+    renderComponent({
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    authMechanisms.forEach((mechanism) => {
+      expect(screen.getByText(mechanism.title)).to.be.visible;
+    });
   });
 
   describe('when a new auth mechanism is clicked', function () {
@@ -66,7 +114,6 @@ describe('AuthenticationTab Component', function () {
 
   it('renders the username/password tab when auth is set', function () {
     renderComponent({
-      errors: [],
       connectionStringUrl: new ConnectionStringUrl(
         'mongodb://a123:b123@localhost'
       ),
@@ -79,7 +126,6 @@ describe('AuthenticationTab Component', function () {
 
   it('renders the username/password tab when only password is set', function () {
     renderComponent({
-      errors: [],
       connectionStringUrl: new ConnectionStringUrl(
         'mongodb://:b123@localhost',
         { looseValidation: true }
@@ -89,5 +135,31 @@ describe('AuthenticationTab Component', function () {
 
     expect(screen.getByLabelText('Username')).to.be.visible;
     expect(screen.getByLabelText('Password')).to.be.visible;
+  });
+
+  it('should not render OIDC auth when its set to false in the preferences', function () {
+    renderComponent({
+      connectionFormPreferences: { showOIDCAuth: false },
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    const oidcAuthName = authMechanisms.find(
+      (tab) => tab.id === 'MONGODB-OIDC'
+    )?.title;
+    expect(oidcAuthName).to.not.be.undefined;
+    expect(screen.queryByText(oidcAuthName as string)).to.not.exist;
+  });
+
+  it('should not render Kerberos auth when its set to false in the preferences', function () {
+    renderComponent({
+      connectionFormPreferences: { showKerberosAuth: false },
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    const kerberosAuthName = authMechanisms.find(
+      (tab) => tab.id === 'GSSAPI'
+    )?.title;
+    expect(kerberosAuthName).to.not.be.undefined;
+    expect(screen.queryByText(kerberosAuthName as string)).to.not.exist;
   });
 });

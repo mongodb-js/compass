@@ -324,6 +324,7 @@ describe('Collection Tabs Store', function () {
         'select-namespace',
         'collection-dropped',
         'database-dropped',
+        'refresh-collection-tabs',
         'data-service-connected',
         'data-service-disconnected',
         'menu-share-schema-json',

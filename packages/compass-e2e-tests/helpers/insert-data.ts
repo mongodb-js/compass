@@ -3,9 +3,10 @@ import type { Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://localhost:27091';
 
-async function dropDatabase(db: Db) {
+export async function dropDatabase(db: Db | string) {
+  const database = typeof db === 'string' ? client.db(db) : db;
   try {
-    await db.dropDatabase();
+    await database.dropDatabase();
   } catch (err) {
     const codeName = (err as MongoServerError).codeName;
     if (codeName !== 'NamespaceNotFound') {
@@ -14,13 +15,14 @@ async function dropDatabase(db: Db) {
   }
 }
 
-async function createBlankCollection(db: Db, name: string) {
+export async function createBlankCollection(db: Db | string, name: string) {
+  const database = typeof db === 'string' ? client.db(db) : db;
   try {
-    await db.createCollection(name);
+    await database.createCollection(name);
   } catch (err) {
     const codeName = (err as MongoServerError).codeName;
     if (codeName === 'NamespaceExists') {
-      await db.collection(name).deleteMany({});
+      await database.collection(name).deleteMany({});
     } else {
       throw err;
     }
