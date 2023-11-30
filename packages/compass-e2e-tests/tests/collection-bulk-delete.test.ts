@@ -7,7 +7,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
-describe.only('Bulk Delete', () => {
+describe('Bulk Delete', () => {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
