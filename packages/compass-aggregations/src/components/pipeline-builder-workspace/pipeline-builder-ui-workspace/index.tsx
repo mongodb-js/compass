@@ -10,7 +10,6 @@ import {
   addStage,
   moveStage,
 } from '../../../modules/pipeline-builder/stage-editor';
-import ModifySourceBanner from '../../modify-source-banner';
 import AggregationSidePanel from '../../aggregation-side-panel';
 import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
 import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
@@ -37,7 +36,6 @@ const pipelineWorkspaceStyles = css({
 
 export type PipelineBuilderUIWorkspaceProps = {
   stagesIdAndType: StageIdAndType[];
-  editViewName?: string | null;
   isSidePanelOpen: boolean;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
@@ -52,7 +50,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
 > = ({
   stagesIdAndType,
-  editViewName,
   isSidePanelOpen,
   onStageMoveEnd,
   onStageAddAfterEnd,
@@ -69,7 +66,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
         className={pipelineWorkspaceContainerStyles}
       >
         <div className={pipelineWorkspaceStyles}>
-          {editViewName && <ModifySourceBanner editViewName={editViewName} />}
           <PipelineBuilderInputDocuments />
           <SortableList
             stagesIdAndType={stagesIdAndType}
@@ -106,7 +102,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
 const mapState = (state: RootState) => {
   return {
     stagesIdAndType: state.pipelineBuilder.stageEditor.stagesIdAndType,
-    editViewName: state.editViewName,
     isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };
