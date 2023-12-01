@@ -259,6 +259,26 @@ export function NavigationItems({
   );
 }
 
+/**
+ * Returns either current instance value for a key or a specified default in
+ * case we haven't fetched instance info yet
+ */
+function getInstanceValue(
+  state: RootState,
+  key: 'isDataLake' | 'isWritable',
+  defaultValue = false
+) {
+  const instanceFetched = ['refreshing', 'ready'].includes(
+    state.instance?.status ?? ''
+  );
+  if (key === 'isDataLake') {
+    return instanceFetched ? state.instance?.dataLake.isDataLake : defaultValue;
+  }
+  if (key === 'isWritable') {
+    return instanceFetched ? state.instance?.isWritable : defaultValue;
+  }
+}
+
 const mapStateToProps = (
   state: RootState,
   { readOnly: preferencesReadOnly }: { readOnly: boolean }
@@ -269,18 +289,19 @@ const mapStateToProps = (
     },
     0
   );
-  const instanceFetched = ['refreshing', 'ready'].includes(
-    state.instance?.status ?? ''
-  );
-  const isDataLake = instanceFetched
-    ? state.instance?.dataLake.isDataLake
-    : true;
-  const isWritable = instanceFetched ? state.instance?.isWritable : false;
 
   return {
     currentLocation: state.location,
-    showPerformanceItem: !isDataLake,
-    showCreateDatabaseAction: isWritable && !isDataLake && !preferencesReadOnly,
+    showPerformanceItem:
+      // For default `isDataLake` value we're choosing the one that will hide
+      // the items that would otherwise not work for the ADF
+      !getInstanceValue(state, 'isDataLake', true),
+    showCreateDatabaseAction:
+      !getInstanceValue(state, 'isDataLake', true) &&
+      // ... same with `isWritable`, a safe default here is the one that allows
+      // to do less while we're getting the info
+      getInstanceValue(state, 'isWritable', false) &&
+      !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
   };
 };
