@@ -137,6 +137,10 @@ describe('Bulk Delete', () => {
   });
 
   it('can export a delete query', async function () {
+    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+      this.skip();
+    }
+
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.
