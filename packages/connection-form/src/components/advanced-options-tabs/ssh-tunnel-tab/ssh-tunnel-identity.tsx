@@ -119,6 +119,7 @@ function SshTunnelIdentity({
                   onChange={(files: string[]) => {
                     formFieldChanged(name, files[0]);
                   }}
+                  mode="open"
                   label={label}
                   error={Boolean(errorMessage)}
                   errorMessage={errorMessage}
