@@ -308,7 +308,9 @@ describe('OIDC integration', function () {
 
     afterReauth = true;
     await browser.clickVisible(`${modal} ${cancelButton}`);
-    const errorBanner = await browser.$('[role=alert]');
+    const errorBanner = await browser.$(
+      '[data-testid="toast-instance-refresh-failed"]'
+    );
     await errorBanner.waitForDisplayed();
     expect(await errorBanner.getText()).to.include(
       'Reauthentication declined by user'
