@@ -81,6 +81,16 @@ describe('tabs behavior', function () {
         currentState.tabs[0].id
       );
     });
+
+    it('should not change any state when opening a workspace for the active tab even if other similar workspaces are open', function () {
+      const store = configureStore();
+      openTabs(store, ['db.coll', 'db.coll', 'db.coll']);
+      const currentState = store.getState();
+      store.dispatch(
+        openWorkspace({ type: 'Collection', namespace: 'db.coll' } as any)
+      );
+      expect(store.getState()).to.eq(currentState);
+    });
   });
 
   describe('openTabFromCurrent', function () {

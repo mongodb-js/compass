@@ -107,10 +107,20 @@ const reducer: Reducer<WorkspacesState> = (
         activeTabId: newTab.id,
       };
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const existingTab = state.tabs.find(({ id: _id, ...tab }) => {
-      return isEqual(tab, action.workspace);
-    });
+    const activeTab = getActiveTab(state);
+    const existingTab =
+      // If there is an active tab, give it priority when looking for a tab to
+      // select when opening a tab, it might be that we don't need to update the
+      // state at all
+      (activeTab ? [activeTab, ...state.tabs] : state.tabs).find(
+        ({
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          id: _id,
+          ...tab
+        }) => {
+          return isEqual(tab, action.workspace);
+        }
+      );
     if (existingTab) {
       if (existingTab.id !== state.activeTabId) {
         return {
@@ -120,7 +130,9 @@ const reducer: Reducer<WorkspacesState> = (
       }
       return state;
     }
-    const activeTab = getActiveTab(state);
+    // If there is no existing tab matching the one we're trying to open, either
+    // replace the current tab if we're trying to open the same workspace that
+    // is currently active, or just open a new tab with the workspace
     const newTab = getInitialTabState(action.workspace);
     if (activeTab?.type !== action.workspace.type) {
       return {
