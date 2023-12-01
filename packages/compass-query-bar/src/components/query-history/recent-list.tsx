@@ -61,7 +61,9 @@ const RecentItem = ({
       onUpdateRecentChoosen();
     }
 
-    track('Query History Recent Used');
+    track('Query History Recent Used', {
+      isUpdateQuery,
+    });
     onApply(attributes);
   }, [isDisabled, isUpdateQuery, onApply, attributes, onUpdateRecentChoosen]);
 
@@ -79,10 +81,10 @@ const RecentItem = ({
 
   const onSaveQuery = useCallback(
     (name: string) => {
-      track('Query History Favorite Added');
+      track('Query History Favorite Added', { isUpdateQuery });
       void onFavorite(query, name);
     },
-    [query, onFavorite]
+    [query, onFavorite, isUpdateQuery]
   );
 
   return (
