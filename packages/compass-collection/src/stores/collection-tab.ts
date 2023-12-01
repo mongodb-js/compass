@@ -63,9 +63,7 @@ export function activatePlugin(
   // If aggregation is passed or we opened view to edit source pipeline,
   // select aggregation tab right away
   const currentTab =
-    aggregation || aggregation || editViewName || pipelineText
-      ? 'Aggregations'
-      : 'Documents';
+    aggregation || editViewName || pipelineText ? 'Aggregations' : 'Documents';
 
   const store = createStore(
     reducer,
