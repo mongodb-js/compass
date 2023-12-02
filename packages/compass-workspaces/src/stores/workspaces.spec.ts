@@ -262,5 +262,15 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('tabs').have.lengthOf(1);
       expect(state).to.have.property('tabs').deep.eq([myQueriesTab]);
     });
+
+    it('should remove all tabs completely if all of them match namespace', function () {
+      const store = configureStore();
+      openTabs(store);
+      store.dispatch(databaseRemoved('test'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(0);
+      expect(state).to.have.property('tabs').deep.eq([]);
+      expect(state).to.have.property('activeTabId', null);
+    });
   });
 });

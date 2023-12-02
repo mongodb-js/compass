@@ -171,12 +171,12 @@ const reducer: Reducer<WorkspacesState> = (
   }
 
   if (isAction<SelectTabAction>(action, WorkspacesActions.SelectTab)) {
-    if (state.tabs[action.atIndex].id === state.activeTabId) {
+    if (state.tabs[action.atIndex]?.id === state.activeTabId) {
       return state;
     }
     return {
       ...state,
-      activeTabId: state.tabs[action.atIndex].id,
+      activeTabId: state.tabs[action.atIndex]?.id ?? null,
     };
   }
 
@@ -184,12 +184,12 @@ const reducer: Reducer<WorkspacesState> = (
     const newActiveTabIndex =
       (getActiveTabIndex(state) + 1) % state.tabs.length;
     const newActiveTab = state.tabs[newActiveTabIndex];
-    if (newActiveTab.id === state.activeTabId) {
+    if (newActiveTab?.id === state.activeTabId) {
       return state;
     }
     return {
       ...state,
-      activeTabId: newActiveTab.id ?? state.activeTabId,
+      activeTabId: newActiveTab?.id ?? state.activeTabId,
     };
   }
 
@@ -205,12 +205,12 @@ const reducer: Reducer<WorkspacesState> = (
         ? state.tabs.length - 1
         : currentActiveTabIndex - 1;
     const newActiveTab = state.tabs[newActiveTabIndex];
-    if (newActiveTab.id === state.activeTabId) {
+    if (newActiveTab?.id === state.activeTabId) {
       return state;
     }
     return {
       ...state,
-      activeTabId: newActiveTab.id ?? state.activeTabId,
+      activeTabId: newActiveTab?.id ?? state.activeTabId,
     };
   }
 
@@ -228,7 +228,7 @@ const reducer: Reducer<WorkspacesState> = (
 
   if (isAction<CloseTabAction>(action, WorkspacesActions.CloseTab)) {
     const tabToClose = state.tabs[action.atIndex];
-    const tabIndex = state.tabs.findIndex((tab) => tab.id === tabToClose.id);
+    const tabIndex = state.tabs.findIndex((tab) => tab.id === tabToClose?.id);
     const newTabs = [...state.tabs];
     newTabs.splice(action.atIndex, 1);
     const newActiveTabId =
@@ -268,7 +268,7 @@ const reducer: Reducer<WorkspacesState> = (
     return {
       tabs,
       activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1].id
+        ? tabs[tabs.length - 1]?.id ?? null
         : state.activeTabId,
     };
   }
@@ -295,7 +295,7 @@ const reducer: Reducer<WorkspacesState> = (
     return {
       tabs,
       activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1].id
+        ? tabs[tabs.length - 1]?.id ?? null
         : state.activeTabId,
     };
   }
