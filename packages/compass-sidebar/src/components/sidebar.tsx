@@ -37,6 +37,7 @@ const badgesPlaceholderStyles = css({
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
+  activeWorkspace,
   isExpanded,
   connectionInfo,
   globalAppRegistryEmit,
@@ -48,6 +49,7 @@ export function Sidebar({
   isGenuine,
   csfleMode,
 }: {
+  activeWorkspace: { type: string; namespace?: string } | null;
   isExpanded: boolean;
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
   globalAppRegistryEmit: any;
@@ -176,7 +178,12 @@ export function Sidebar({
           )}
         </div>
 
-        <NavigationItems isExpanded={isExpanded} onAction={onAction} />
+        <NavigationItems
+          currentLocation={activeWorkspace?.type ?? null}
+          currentNamespace={activeWorkspace?.namespace ?? null}
+          isExpanded={isExpanded}
+          onAction={onAction}
+        />
 
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}

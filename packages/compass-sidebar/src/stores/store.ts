@@ -6,11 +6,8 @@ import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app
 import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
-import type { Location } from '../modules/location';
-import { changeLocation } from '../modules/location';
 import type { Database } from '../modules/databases';
-import { changeActiveNamespace, changeDatabases } from '../modules/databases';
-import { reset } from '../modules/reset';
+import { changeDatabases } from '../modules/databases';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
@@ -20,8 +17,6 @@ import type { AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import type toNS from 'mongodb-ns';
-type NS = ReturnType<typeof toNS>;
 
 export function createSidebarStore({
   globalAppRegistry,
@@ -184,39 +179,6 @@ export function createSidebarStore({
 
   onInstanceEvent('change:env', () => {
     onInstanceChange(instance);
-  });
-
-  onAppRegistryEvent(
-    'select-namespace',
-    ({ namespace }: { namespace: string | NS }) => {
-      store.dispatch(changeActiveNamespace(namespace));
-      store.dispatch(changeLocation('collection'));
-    }
-  );
-
-  onAppRegistryEvent(
-    'open-namespace-in-new-tab',
-    ({ namespace }: { namespace: string | NS }) => {
-      store.dispatch(changeActiveNamespace(namespace));
-      store.dispatch(changeLocation('collection'));
-    }
-  );
-
-  onAppRegistryEvent('select-database', (dbName: string) => {
-    store.dispatch(changeActiveNamespace(dbName));
-    store.dispatch(changeLocation('database'));
-  });
-
-  onAppRegistryEvent(
-    'open-instance-workspace',
-    (tabName: Location | null = null) => {
-      store.dispatch(changeActiveNamespace(''));
-      store.dispatch(changeLocation(tabName));
-    }
-  );
-
-  onAppRegistryEvent('data-service-disconnected', () => {
-    store.dispatch(reset());
   });
 
   onAppRegistryEvent('toggle-sidebar', () => {

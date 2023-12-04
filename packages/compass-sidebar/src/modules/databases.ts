@@ -1,9 +1,8 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import toNS from 'mongodb-ns';
 import type { RootAction, RootState } from '.';
 import type { Dispatch } from 'redux';
+import toNS from 'mongodb-ns';
 
-type NS = ReturnType<typeof toNS>;
 /**
  * Databases actions.
  */
@@ -20,14 +19,6 @@ interface ChangeDatabasesAction {
   databases: Database[];
 }
 
-export const CHANGE_ACTIVE_NAMESPACE =
-  'sidebar/databases/CHANGE_ACTIVE_NAMESPACE' as const;
-interface ChangeActiveNamespaceAction {
-  type: typeof CHANGE_ACTIVE_NAMESPACE;
-  activeNamespace: string | NS;
-  activeDatabase: string;
-}
-
 export const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE' as const;
 interface ToggleDatabaseAction {
   type: typeof TOGGLE_DATABASE;
@@ -38,7 +29,6 @@ interface ToggleDatabaseAction {
 export type DatabasesAction =
   | ChangeFilterRegexAction
   | ChangeDatabasesAction
-  | ChangeActiveNamespaceAction
   | ToggleDatabaseAction;
 
 const NO_REGEX = null;
@@ -59,7 +49,6 @@ export interface DatabaseState {
   databases: Database[];
   filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
-  activeNamespace: string | NS;
   filterRegex: null | RegExp;
 }
 
@@ -70,7 +59,6 @@ export const INITIAL_STATE: DatabaseState = {
   databases: [],
   filteredDatabases: [],
   expandedDbList: Object.create(null),
-  activeNamespace: NO_ACTIVE_NAMESPACE,
   filterRegex: NO_REGEX,
 };
 
@@ -123,19 +111,6 @@ export default function reducer(
     };
   }
 
-  if (action.type === CHANGE_ACTIVE_NAMESPACE) {
-    return {
-      ...state,
-      activeNamespace: action.activeNamespace,
-      ...(action.activeDatabase && {
-        expandedDbList: {
-          ...state.expandedDbList,
-          [action.activeDatabase]: true,
-        },
-      }),
-    };
-  }
-
   if (action.type === CHANGE_DATABASES) {
     return {
       ...state,
@@ -158,32 +133,18 @@ export const changeDatabases = (databases: Database[]) => ({
   databases,
 });
 
-/**
- * The change active namespace action creator.
- *
- * @param {String} activeNamespace
- *
- * @returns {Object} The action.
- */
-export const changeActiveNamespace = (
-  activeNamespace: string | NS
-): ChangeActiveNamespaceAction => ({
-  type: CHANGE_ACTIVE_NAMESPACE,
-  activeNamespace,
-  activeDatabase: toNS(activeNamespace).database,
-});
-
 export const toggleDatabaseExpanded =
   (id: string, forceExpand: boolean) =>
   (dispatch: Dispatch<DatabasesAction>, getState: () => RootState) => {
+    const { database } = toNS(id);
     const { appRegistry, databases } = getState();
-    const expanded = forceExpand ?? !databases.expandedDbList[id];
+    const expanded = forceExpand ?? !databases.expandedDbList[database];
     if (appRegistry.globalAppRegistry && expanded) {
       // Fetch collections list on expand if we haven't done it yet (this is
       // relevant only for the code path that has global overlay disabled)
-      appRegistry.globalAppRegistry.emit('sidebar-expand-database', id);
+      appRegistry.globalAppRegistry.emit('sidebar-expand-database', database);
     }
-    dispatch({ type: TOGGLE_DATABASE, id, expanded });
+    dispatch({ type: TOGGLE_DATABASE, id: database, expanded });
   };
 
 export const changeFilterRegex =

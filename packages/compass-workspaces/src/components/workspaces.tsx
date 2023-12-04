@@ -9,11 +9,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type {
-  OpenWorkspaceOptions,
-  WorkspaceTab,
-  WorkspacesState,
-} from '../stores/workspaces';
+import type { WorkspaceTab, WorkspacesState } from '../stores/workspaces';
 import {
   closeTab,
   getActiveTab,
@@ -64,7 +60,6 @@ const workspacesContentStyles = css({
 type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
   activeTab?: WorkspaceTab | null;
-  initialTab?: OpenWorkspaceOptions;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;

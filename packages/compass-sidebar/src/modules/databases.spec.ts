@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import databasesReducer, {
   INITIAL_STATE,
   changeDatabases,
-  changeActiveNamespace,
   changeFilterRegex,
 } from './databases';
 
@@ -81,23 +80,6 @@ describe('sidebar databases', function () {
         });
       }
     );
-
-    context('when active namespace changed', function () {
-      it('changes active namespace and "expands" the namespace in the list', function () {
-        expect(
-          databasesReducer(
-            undefined,
-            changeActiveNamespace('new_active.namespace')
-          )
-        ).to.deep.equal({
-          ...INITIAL_STATE,
-          activeNamespace: 'new_active.namespace',
-          expandedDbList: {
-            new_active: true,
-          },
-        });
-      });
-    });
 
     context('when filter changed', function () {
       it('filters and updates the databases and collections', function () {
