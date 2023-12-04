@@ -76,12 +76,14 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "hadron-app-registry": "^9.0.14",
     "mongodb-data-service": "^22.15.1",
     "mongodb-instance-model": "^12.15.1"
   },
   "peerDependencies": {
+    "@mongodb-js/compass-components": "^1.19.0",
     "@mongodb-js/compass-logging": "^1.2.6",
     "hadron-app-registry": "^9.0.14",
     "mongodb-data-service": "^22.15.1",

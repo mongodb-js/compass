@@ -67,6 +67,7 @@ describe('SidebarStore [Store]', function () {
           isLocalAtlas: false,
           isWritable: false,
           refreshingStatus: 'initial',
+          status: 'initial',
           topologyDescription: {
             servers: [],
             setName: 'foo',

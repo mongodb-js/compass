@@ -1,5 +1,5 @@
 import type { CollectionTabOptions } from './collection-tab';
-import { configureStore as _configureStore } from './collection-tab';
+import { activatePlugin } from './collection-tab';
 import {
   selectTab,
   selectDatabase,
@@ -30,7 +30,10 @@ describe('Collection Tab Content store', function () {
     databases: { get() {} },
     dataLake: {},
     build: {},
+    removeListener() {},
   } as any;
+  let store: ReturnType<typeof activatePlugin>['store'];
+  let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
   const scopedModalRole = {
     name: 'ScopedModal',
@@ -51,21 +54,23 @@ describe('Collection Tab Content store', function () {
   };
 
   const configureStore = (options: Partial<CollectionTabOptions> = {}) => {
-    return _configureStore({
-      dataService,
-      globalAppRegistry,
-      localAppRegistry,
-      ...defaultMetadata,
-      ...options,
-    });
+    ({ store, deactivate } = activatePlugin(
+      {
+        ...defaultMetadata,
+        ...options,
+      },
+      {
+        dataService,
+        globalAppRegistry,
+        localAppRegistry,
+        instance,
+      },
+      { on() {}, cleanup() {} } as any
+    ));
+    return store;
   };
 
   beforeEach(function () {
-    globalAppRegistry.registerStore('App.InstanceStore', {
-      getState() {
-        return { instance };
-      },
-    } as any);
     globalAppRegistry.registerRole(
       'Collection.ScopedModal',
       scopedModalRole as any
@@ -88,6 +93,7 @@ describe('Collection Tab Content store', function () {
     localAppRegistry.components = {};
 
     sandbox.resetHistory();
+    deactivate();
   });
 
   describe('selectTab', function () {

@@ -38,7 +38,7 @@ describe('Collection heading', function () {
       'Schema',
       'Indexes',
       'Validation',
-    ].map((selector) => Selectors.collectionTab(selector));
+    ].map((selector) => Selectors.collectionSubTab(selector));
 
     for (const tabSelector of tabSelectors) {
       const tabElement = await browser.$(tabSelector);

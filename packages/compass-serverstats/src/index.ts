@@ -14,7 +14,7 @@ const PerformancePlugin = registerHadronPlugin(
   {
     name: 'Performance',
     component: PerformanceComponent,
-    activate(_: unknown, { dataService, instance }) {
+    activate(_initialProps: Record<string, never>, { dataService, instance }) {
       CurrentOpStore.onActivated(dataService);
       ServerStatsStore.onActivated(dataService);
       TopStore.onActivated(dataService, instance);
@@ -35,10 +35,14 @@ const PerformancePlugin = registerHadronPlugin(
   }
 );
 
-const InstanceTab = {
-  name: 'Performance',
+const WorkspaceTab = {
+  name: 'Performance' as const,
   component: PerformancePlugin,
 };
+
+export type ServerStatsWorkspace = {
+  type: typeof WorkspaceTab['name'];
+} & React.ComponentProps<typeof WorkspaceTab['component']>;
 
 /**
  * Activate all the components in the RTSS package.
@@ -55,6 +59,6 @@ function deactivate() {
 }
 
 export default PerformancePlugin;
-export { activate, deactivate, InstanceTab };
+export { activate, deactivate, WorkspaceTab };
 export { default as d3 } from './d3';
 export { default as metadata } from '../package.json';
