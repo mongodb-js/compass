@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Dec 03 2023.
+This document was automatically generated on Mon Dec 04 2023.
 
 ## List of dependencies
 
@@ -513,7 +513,7 @@ This document was automatically generated on Sun Dec 03 2023.
 | **[react-is](#5746232ad830b635a6581ee7d3b826ee932c6877087c98cb46b94101eb5ce40b)**                                           | 18.2.0       | MIT                                 |
 | **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**                                 | 0.19.0       | ISC                                 |
 | **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**                                      | 2.4.0        | MIT                                 |
-| **[react-redux](#7e0baaf577850a112812e76f9643d35df0f800dadaebe9095eb0cfcb21df687b)**                                        | 8.0.5        | MIT                                 |
+| **[react-redux](#156f5c2e2cbbda376faae24e78cc75de697170101ff7e9d2955c0f891cffd6a8)**                                        | 8.1.3        | MIT                                 |
 | **[react-transition-group](#f8a526737bf3e6cc7928ce77b3fa8e6a880da418fd9363a0dae1122922f92b72)**                             | 4.4.5        | BSD-3-Clause                        |
 | **[react-virtualized-auto-sizer](#556ae2daaf1c576dcc4544e6bfe080cd68d0c6912265cf2ebe7bae81e75de55b)**                       | 1.0.6        | MIT                                 |
 | **[react-window](#fcf3bd62a73691dc82efaf23f7667fb5dfe4ce1cb5e8740f3d53a3a85086ead2)**                                       | 1.8.6        | MIT                                 |
@@ -521,7 +521,7 @@ This document was automatically generated on Sun Dec 03 2023.
 | **[readable-stream](#1a43c6d0d989d70bee45d514814640912b6da533d875c1c1cbfdf98138a9fbd7)**                                    | 1.0.34       | MIT                                 |
 | **[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**                                    | 2.3.7        | MIT                                 |
 | **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**                                    | 3.6.0        | MIT                                 |
-| **[redux-thunk](#ab4f6b36b54f8f5ac006ccc1592b924c9dfa527c68956a7f53f14ea65f3aaf8a)**                                        | 2.4.1        | MIT                                 |
+| **[redux-thunk](#7eabcce4f7274e0c876829cb939804a9704770a9a60419d514c11e3e97c01623)**                                        | 2.4.2        | MIT                                 |
 | **[redux](#98b5d53f97fab4eea98fb5f423cad33400855b69ac662f1fdf55f0fb9e33f2ab)**                                              | 4.2.1        | MIT                                 |
 | **[reflux-core](#7af6ea33b0ed18717d672b44743ae53dcef843ae464690bb9e10eb1df048e9ea)**                                        | 0.3.0        | BSD-3-Clause                        |
 | **[reflux-state-mixin](#b550b09e44c1263378a50688b4e60d7b4ea29394abcaf0c93aba1078ab93f973)**                                 | 0.7.0        | ISC                                 |
@@ -37981,9 +37981,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="7e0baaf577850a112812e76f9643d35df0f800dadaebe9095eb0cfcb21df687b"></a>
+<a id="156f5c2e2cbbda376faae24e78cc75de697170101ff7e9d2955c0f891cffd6a8"></a>
 
-### [react-redux](https://www.npmjs.com/package/react-redux) (version 8.0.5)
+### [react-redux](https://www.npmjs.com/package/react-redux) (version 8.1.3)
 
 License tags: MIT
 
@@ -38289,9 +38289,9 @@ License files:
       IN THE SOFTWARE.
       """
 
-<a id="ab4f6b36b54f8f5ac006ccc1592b924c9dfa527c68956a7f53f14ea65f3aaf8a"></a>
+<a id="7eabcce4f7274e0c876829cb939804a9704770a9a60419d514c11e3e97c01623"></a>
 
-### [redux-thunk](https://www.npmjs.com/package/redux-thunk) (version 2.4.1)
+### [redux-thunk](https://www.npmjs.com/package/redux-thunk) (version 2.4.2)
 
 License tags: MIT
 
