@@ -186,24 +186,21 @@ export function NavigationItem<Actions extends string>({
 
 export function NavigationItems({
   isExpanded,
-  isDataLake,
-  isWritable,
-  changeFilterRegex,
+  showCreateDatabaseAction = false,
+  showPerformanceItem = false,
+  onFilterChange,
   onAction,
   currentLocation,
-  readOnly,
   showTooManyCollectionsInsight = false,
 }: {
   isExpanded?: boolean;
-  isDataLake?: boolean;
-  isWritable?: boolean;
-  changeFilterRegex(regex: RegExp | null): void;
+  showCreateDatabaseAction?: boolean;
+  showPerformanceItem?: boolean;
+  onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
-  readOnly?: boolean;
   showTooManyCollectionsInsight?: boolean;
 }) {
-  const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
       {
@@ -213,7 +210,7 @@ export function NavigationItems({
       },
     ];
 
-    if (!isReadOnly) {
+    if (showCreateDatabaseAction) {
       actions.push({
         action: 'open-create-database',
         label: 'Create database',
@@ -222,7 +219,7 @@ export function NavigationItems({
     }
 
     return actions;
-  }, [isReadOnly]);
+  }, [showCreateDatabaseAction]);
 
   return (
     <>
@@ -234,6 +231,16 @@ export function NavigationItems({
         tabName="My Queries"
         isActive={currentLocation === 'My Queries'}
       />
+      {showPerformanceItem && (
+        <NavigationItem<''>
+          isExpanded={isExpanded}
+          onAction={onAction}
+          glyph="Gauge"
+          label="Performance"
+          tabName="Performance"
+          isActive={currentLocation === 'Performance'}
+        />
+      )}
       <NavigationItem<DatabasesActions>
         isExpanded={isExpanded}
         onAction={onAction}
@@ -245,14 +252,37 @@ export function NavigationItems({
         showTooManyCollectionsInsight={showTooManyCollectionsInsight}
       />
       {isExpanded && (
-        <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
+        <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       )}
       {isExpanded && <SidebarDatabasesNavigation />}
     </>
   );
 }
 
-const mapStateToProps = (state: RootState) => {
+/**
+ * Returns either current instance value for a key or a specified default in
+ * case we haven't fetched instance info yet
+ */
+function getInstanceValue(
+  state: RootState,
+  key: 'isDataLake' | 'isWritable',
+  defaultValue = false
+) {
+  const instanceFetched = ['refreshing', 'ready'].includes(
+    state.instance?.status ?? ''
+  );
+  if (key === 'isDataLake') {
+    return instanceFetched ? state.instance?.dataLake.isDataLake : defaultValue;
+  }
+  if (key === 'isWritable') {
+    return instanceFetched ? state.instance?.isWritable : defaultValue;
+  }
+}
+
+const mapStateToProps = (
+  state: RootState,
+  { readOnly: preferencesReadOnly }: { readOnly: boolean }
+) => {
   const totalCollectionsCount = state.databases.databases.reduce(
     (acc: number, db: { collectionsLength: number }) => {
       return acc + db.collectionsLength;
@@ -262,14 +292,26 @@ const mapStateToProps = (state: RootState) => {
 
   return {
     currentLocation: state.location,
-    isDataLake: state.instance?.dataLake.isDataLake,
-    isWritable: state.instance?.isWritable,
+    showPerformanceItem:
+      // For default `isDataLake` value we're choosing the one that will hide
+      // the items that would otherwise not work for the ADF
+      !getInstanceValue(state, 'isDataLake', true),
+    showCreateDatabaseAction:
+      !getInstanceValue(state, 'isDataLake', true) &&
+      // ... same with `isWritable`, a safe default here is the one that allows
+      // to do less while we're getting the info
+      getInstanceValue(state, 'isWritable', false) &&
+      !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
   };
 };
 
-const MappedNavigationItems = connect(mapStateToProps, {
-  changeFilterRegex,
-})(withPreferences(NavigationItems, ['readOnly'], React));
+const MappedNavigationItems = withPreferences(
+  connect(mapStateToProps, {
+    onFilterChange: changeFilterRegex,
+  })(NavigationItems),
+  ['readOnly'],
+  React
+);
 
 export default MappedNavigationItems;

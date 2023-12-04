@@ -185,7 +185,7 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
-        await browser.navigateToDatabaseTab(databaseName, 'Collections');
+        await browser.navigateToDatabaseCollectionsTab(databaseName);
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
@@ -204,7 +204,7 @@ describe('CSFLE / QE', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
-        await browser.navigateToDatabaseTab(databaseName, 'Collections');
+        await browser.navigateToDatabaseCollectionsTab(databaseName);
 
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
@@ -320,11 +320,11 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection without encryptedFields', async function () {
-        await browser.navigateToDatabaseTab(databaseName, 'Collections');
+        await browser.navigateToDatabaseCollectionsTab(databaseName);
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
 
-        await browser.navigateToDatabaseTab(databaseName, 'Collections');
+        await browser.navigateToDatabaseCollectionsTab(databaseName);
 
         const selector = Selectors.collectionCard(databaseName, collectionName);
         await browser.scrollToVirtualItem(

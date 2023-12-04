@@ -148,6 +148,7 @@ export function Sidebar({
       collapsable={true}
       expanded={isExpanded}
       setExpanded={setIsExpanded}
+      data-testid="navigation-sidebar"
     >
       <>
         <SidebarTitle

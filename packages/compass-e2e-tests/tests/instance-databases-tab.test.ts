@@ -130,8 +130,7 @@ describe('Instance databases tab', function () {
     await databaseCard.waitForExist({ reverse: true });
 
     // the app should stay on the instance Databases tab.
-    const tabSelectedSelector = Selectors.instanceTab('Databases', true);
-    await browser.$(tabSelectedSelector).waitForDisplayed();
+    await browser.waitUntilActiveInstanceTab('Databases');
   });
 
   it('can refresh the list of databases using refresh controls', async function () {

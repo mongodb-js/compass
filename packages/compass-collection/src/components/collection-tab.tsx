@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import {
   returnToView,
@@ -14,8 +14,8 @@ import {
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { configureStore } from '../stores/collection-tab';
 import { useCollectionTabPlugins } from './collection-tab-provider';
+import type { CollectionTabOptions } from '../stores/collection-tab';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'
@@ -59,13 +59,15 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-const CollectionTab: React.FunctionComponent<{
+type CollectionTabProps = {
   currentTab: string;
   collectionTabPluginMetadata: CollectionTabPluginMetadata;
   renderScopedModals(): React.ReactElement[];
   renderTabs(): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
-}> = ({
+};
+
+const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
   currentTab,
   collectionTabPluginMetadata,
   renderScopedModals,
@@ -162,16 +164,6 @@ const ConnectedCollectionTab = connect(
     renderTabs: renderTabs,
     onTabClick: selectTab,
   }
-)(CollectionTab);
+)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
 
-const CollectionTabPlugin: React.FunctionComponent<{
-  store: ReturnType<typeof configureStore>;
-}> = ({ store }) => {
-  return (
-    <Provider store={store}>
-      <ConnectedCollectionTab></ConnectedCollectionTab>
-    </Provider>
-  );
-};
-
-export default CollectionTabPlugin;
+export default ConnectedCollectionTab;

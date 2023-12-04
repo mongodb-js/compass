@@ -1,36 +1,47 @@
-import type AppRegistry from 'hadron-app-registry';
-import CollectionTabsPlugin from './plugin';
-import CollectionTabsStore from './stores/tabs';
 import CollectionTab from './components/collection-tab';
-import { configureStore } from './stores/collection-tab';
+import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { DataService } from 'mongodb-data-service';
 
-const COLLECTION_TAB_ROLE = {
-  name: 'CollectionTab',
-  component: CollectionTab,
-  configureStore,
+export const CollectionTabPlugin = registerHadronPlugin(
+  {
+    name: 'CollectionTab',
+    component: CollectionTab,
+    activate: activateCollectionTabPlugin,
+  },
+  {
+    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    instance: mongoDBInstanceLocator,
+  }
+);
+
+export const WorkspaceTab = {
+  name: 'Collection' as const,
+  component: CollectionTabPlugin,
 };
+
+export type CollectionWorkspace = {
+  type: typeof WorkspaceTab['name'];
+} & React.ComponentProps<typeof WorkspaceTab['component']>;
 
 /**
  * Activate all the components in the Collection package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerComponent('Collection.Workspace', CollectionTabsPlugin);
-  appRegistry.registerStore('Collection.Store', CollectionTabsStore);
-  appRegistry.registerRole('CollectionTab.Content', COLLECTION_TAB_ROLE);
+function activate(): void {
+  // noop
 }
 
 /**
  * Deactivate all the components in the Collection package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterComponent('Collection.Workspace');
-  appRegistry.deregisterStore('Collection.Store');
-  appRegistry.deregisterRole('CollectionTab.Content', COLLECTION_TAB_ROLE);
+function deactivate(): void {
+  // noop
 }
 
-export default CollectionTabsPlugin;
+export default CollectionTabPlugin;
 export { activate, deactivate };
 export { default as metadata } from '../package.json';
 export type { CollectionTabPluginMetadata } from './modules/collection-tab';

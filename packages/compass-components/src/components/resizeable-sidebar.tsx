@@ -67,6 +67,9 @@ const ResizableSidebar = ({
   minWidth = 210,
   collapsedWidth = 48,
   children,
+  className,
+  style,
+  ...props
 }: {
   collapsable?: boolean;
   expanded?: boolean;
@@ -75,7 +78,7 @@ const ResizableSidebar = ({
   minWidth?: number;
   collapsedWidth?: number;
   children: JSX.Element;
-}): JSX.Element => {
+} & React.HTMLProps<HTMLDivElement>): JSX.Element => {
   const darkMode = useDarkMode();
   const [width, setWidth] = useState(initialWidth);
   const [prevWidth, setPrevWidth] = useState(initialWidth);
@@ -126,13 +129,16 @@ const ResizableSidebar = ({
     <div
       className={cx(
         containerStyles,
-        darkMode ? containerStylesDark : containerStylesLight
+        darkMode ? containerStylesDark : containerStylesLight,
+        className
       )}
       style={{
+        ...style,
         minWidth: collapsable ? collapsedWidth : minWidth,
         width: renderedWidth,
         flex: 'none',
       }}
+      {...props}
     >
       {children}
       <ResizeHandle
