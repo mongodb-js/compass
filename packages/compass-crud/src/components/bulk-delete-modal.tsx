@@ -37,7 +37,7 @@ const documentContainerStyles = css({
 });
 
 const modalBodySpacingStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[3] - spacing[1], // see queryBarStyles below
   paddingLeft: spacing[5],
   display: 'flex',
   flexDirection: 'column',
@@ -49,6 +49,7 @@ const queryBarStyles = css({
   flexDirection: 'row',
   alignItems: 'center',
   gap: spacing[3],
+  marginTop: spacing[1], // don't cut off the focus/hover ring on the Export button
 });
 
 const exportToLanguageButtonStyles = css({
