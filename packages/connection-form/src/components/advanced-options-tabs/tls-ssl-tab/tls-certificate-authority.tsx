@@ -46,6 +46,7 @@ function TLSCertificateAuthority({
               ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
               : undefined
           }
+          mode="open"
           onChange={(files: string[] | null) => {
             handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);
           }}

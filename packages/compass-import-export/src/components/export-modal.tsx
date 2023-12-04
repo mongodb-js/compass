@@ -191,15 +191,7 @@ function ExportModal({
   const onClickExport = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
     const electron: typeof import('@electron/remote') = require('@electron/remote');
-    const fileBackend = createElectronFileInputBackend(electron, 'save', {
-      title: 'Target output file',
-      defaultPath: `${ns}.${fileType}`,
-      buttonLabel: 'Select',
-      filters: [
-        { name: fileType, extensions: [fileType] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
+    const fileBackend = createElectronFileInputBackend(electron)();
 
     fileBackend.onFilesChosen((files: string[]) => {
       if (files.length > 0) {
@@ -209,6 +201,14 @@ function ExportModal({
 
     fileBackend.openFileChooser({
       multi: false,
+      mode: 'save',
+      title: 'Target output file',
+      defaultPath: `${ns}.${fileType}`,
+      buttonLabel: 'Select',
+      filters: [
+        { name: fileType, extensions: [fileType] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
     });
   }, [fileType, ns, onSelectExportFilePath]);
 
