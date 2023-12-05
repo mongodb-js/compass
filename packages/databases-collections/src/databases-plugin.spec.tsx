@@ -1,6 +1,6 @@
 import React from 'react';
 import { MongoDBInstance } from 'mongodb-instance-model';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { DatabasesPlugin } from './databases-plugin';
@@ -8,6 +8,7 @@ import AppRegistry from 'hadron-app-registry';
 import Sinon from 'sinon';
 
 describe('Databasees [Plugin]', function () {
+  let dataService: any;
   let mongodbInstance: MongoDBInstance;
   let appRegistry: Sinon.SinonSpiedInstance<AppRegistry>;
 
@@ -21,25 +22,36 @@ describe('Databasees [Plugin]', function () {
   });
 
   describe('with loaded databases', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
       mongodbInstance = new MongoDBInstance({
-        databases: [
-          { _id: 'foo', name: 'foo' },
-          { _id: 'bar', name: 'bar' },
-        ],
+        databases: [],
         topologyDescription: { type: 'ReplicaSetWithPrimary' },
       } as any);
+
+      dataService = {
+        listDatabases() {
+          return Promise.resolve([
+            { _id: 'foo', name: 'foo' },
+            { _id: 'bar', name: 'bar' },
+          ]);
+        },
+      };
+
       const Plugin = DatabasesPlugin.withMockServices({
         instance: mongodbInstance,
         globalAppRegistry: appRegistry,
+        dataService,
       });
+
       render(<Plugin></Plugin>);
+
+      await waitFor(() => {
+        expect(screen.getByRole('gridcell', { name: /foo/ })).to.exist;
+        expect(screen.getByRole('gridcell', { name: /bar/ })).to.exist;
+      });
     });
 
     it('renders a list of databases', function () {
-      expect(screen.getByRole('gridcell', { name: /foo/ })).to.exist;
-      expect(screen.getByRole('gridcell', { name: /bar/ })).to.exist;
-
       userEvent.click(screen.getByRole('button', { name: /Create database/ }));
       expect(appRegistry.emit).to.have.been.calledWith('open-create-database');
 
@@ -51,16 +63,15 @@ describe('Databasees [Plugin]', function () {
       expect(appRegistry.emit).to.have.been.calledWith('refresh-databases');
     });
 
-    it('updates when instance model updates', function () {
-      expect(screen.getByRole('gridcell', { name: /foo/ })).to.exist;
-
+    it('updates when instance model updates', async function () {
       (mongodbInstance as any).set({
-        databasesStatus: 'ready',
         databases: [{ _id: 'testdb', name: 'testdb' }],
       });
 
-      expect(screen.queryByRole('gridcell', { name: /foo/ })).to.not.exist;
-      expect(screen.getByRole('gridcell', { name: /testdb/ })).to.exist;
+      await waitFor(() => {
+        expect(screen.queryByRole('gridcell', { name: /foo/ })).to.not.exist;
+        expect(screen.getByRole('gridcell', { name: /testdb/ })).to.exist;
+      });
 
       expect(screen.getByRole('button', { name: /Create database/ })).to.exist;
 
