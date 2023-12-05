@@ -15,6 +15,9 @@ export class SecretStore {
 
   async getState(): Promise<string | undefined> {
     try {
+      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+        throw new Error('Unsupported environment');
+      }
       const data = await this.userData.readOne(this.fileName);
       if (!data) {
         return undefined;
@@ -27,6 +30,9 @@ export class SecretStore {
 
   async setState(value: string): Promise<void> {
     try {
+      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+        throw new Error('Unsupported environment');
+      }
       const data = safeStorage.encryptString(value).toString('base64');
       await this.userData.write(this.fileName, data);
     } catch {
