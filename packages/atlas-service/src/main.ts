@@ -16,13 +16,13 @@ import nodeFetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type {
-  AtlasUserConfig,
   AIAggregation,
   AIFeatureEnablement,
   AIQuery,
   IntrospectInfo,
   AtlasUserInfo,
 } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 import {
   validateAIQueryResponse,
   validateAIAggregationResponse,
@@ -36,7 +36,7 @@ import {
   mongoLogId,
 } from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
-import { SecretStore, SECRET_STORE_KEY } from './secret-store';
+import { SecretStore } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
@@ -251,7 +251,7 @@ export class AtlasService {
         'Atlas service initialized',
         { config: this.config }
       );
-      const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
+      const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
       await this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
@@ -791,10 +791,7 @@ export class AtlasService {
       return;
     }
     try {
-      await this.secretStore.setItem(
-        SECRET_STORE_KEY,
-        await this.plugin.serialize()
-      );
+      await this.secretStore.setState(await this.plugin.serialize());
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),

@@ -1,44 +1,54 @@
 import Sinon from 'sinon';
+import os from 'os';
+import fs from 'fs/promises';
+import path from 'path';
 import { AtlasUserConfigStore } from './user-config-store';
 import { expect } from 'chai';
 
 describe('AtlasUserConfigStore', function () {
-  const sandbox = Sinon.createSandbox();
+  let tmpDir: string;
+  let userConfigStore: AtlasUserConfigStore;
 
-  beforeEach(function () {
-    sandbox.reset();
-    new AtlasUserConfigStore().clearCache();
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'atlas-user-config-tests')
+    );
+    await fs.mkdir(path.join(tmpDir, 'AtlasUserConfig'), { recursive: true });
+    userConfigStore = new AtlasUserConfigStore(tmpDir);
   });
+
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
+    userConfigStore.clearCache();
+  });
+
+  const createAtlasUserConfig = async (userId: string, data: any) => {
+    const filePath = path.join(tmpDir, 'AtlasUserConfig', `${userId}.json`);
+    await fs.writeFile(filePath, JSON.stringify(data));
+  };
 
   describe('getUserConfig', function () {
     it('should throw if config shape is unexpected', async function () {
-      const store = new AtlasUserConfigStore({
-        readFile: sandbox
-          .stub()
-          .onFirstCall()
-          .resolves('"meow"')
-          .onSecondCall()
-          .resolves('{"enabledAIFeature": "yes, totally"}'),
-      } as any);
-
-      store['getConfigDir'] = () => '/tmp';
-
       try {
-        await store.getUserConfig('1234');
+        await createAtlasUserConfig('1234', 'meow');
+        await userConfigStore.getUserConfig('1234');
         expect.fail('Expected getUserConfig to throw');
       } catch (err) {
-        expect(err)
-          .to.have.property('message')
-          .match(/Expected AtlasUserConfig to be an object/);
+        expect((err as Error).message).to.match(
+          /Expected object, received string/
+        );
       }
 
       try {
-        await store.getUserConfig('1234');
+        await createAtlasUserConfig('1234', {
+          enabledAIFeature: 'yes, totally',
+        });
+        await userConfigStore.getUserConfig('1234');
         expect.fail('Expected getUserConfig to throw');
       } catch (err) {
-        expect(err)
-          .to.have.property('message')
-          .match(/Unexpected values in AtlasUserConfig/);
+        expect((err as Error).message).to.match(
+          /Expected boolean, received string/
+        );
       }
     });
 
@@ -46,14 +56,14 @@ describe('AtlasUserConfigStore', function () {
       const err = new Error('EACCESS');
       (err as any).code = 'EACCESS';
 
-      const store = new AtlasUserConfigStore({
-        readFile: sandbox.stub().rejects(err),
-      } as any);
-
-      store['getConfigDir'] = () => '/tmp';
+      const readOneStub = Sinon.stub(
+        (userConfigStore as any).userData,
+        'readOne'
+      );
+      readOneStub.throws(err);
 
       try {
-        await store.getUserConfig('1234');
+        await userConfigStore.getUserConfig('1234');
         expect.fail('Expected getUserConfig to throw');
       } catch (err) {
         expect(err)
@@ -63,83 +73,57 @@ describe('AtlasUserConfigStore', function () {
     });
 
     it("should return default user config if config file doesn't exist", async function () {
-      const err = new Error('ENOENT');
-      (err as any).code = 'ENOENT';
-
-      const store = new AtlasUserConfigStore({
-        readFile: sandbox.stub().rejects(err),
-      } as any);
-
-      store['getConfigDir'] = () => '/tmp';
-
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: false,
       });
     });
 
     it('should return default user config if config file is missing required keys', async function () {
-      const store = new AtlasUserConfigStore({
-        readFile: sandbox.stub().resolves('{}'),
-      } as any);
-
-      store['getConfigDir'] = () => '/tmp';
-
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      await createAtlasUserConfig('1234', {});
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: false,
       });
     });
 
     it('should return config if it exists', async function () {
-      const store = new AtlasUserConfigStore({
-        readFile: sandbox.stub().resolves('{"enabledAIFeature": true}'),
-      } as any);
-
-      store['getConfigDir'] = () => '/tmp';
-
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      await createAtlasUserConfig('1234', { enabledAIFeature: true });
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: true,
       });
     });
 
     it('should return config from in-memory cache after first read', async function () {
-      const mockFs = {
-        readFile: sandbox.stub().resolves('{"enabledAIFeature": true}'),
-      };
-      const store = new AtlasUserConfigStore(mockFs as any);
+      const readSpy = Sinon.spy((userConfigStore as any).userData, 'readOne');
 
-      store['getConfigDir'] = () => '/tmp';
-
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      await createAtlasUserConfig('1234', { enabledAIFeature: true });
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: true,
       });
 
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: true,
       });
 
-      expect(mockFs.readFile).to.have.been.calledOnce;
+      expect(readSpy).to.have.been.calledOnce;
     });
   });
 
   describe('updateUserConfig', function () {
     it('should update user config value in in-memory cache', async function () {
-      const mockFs = {
-        readFile: sandbox.stub().resolves('{"enabledAIFeature": true}'),
-        writeFile: sandbox.stub().resolves(),
-        mkdir: sandbox.stub().resolves(),
-      };
+      const readSpy = Sinon.spy((userConfigStore as any).userData, 'readOne');
+      const updateSpy = Sinon.spy((userConfigStore as any).userData, 'write');
 
-      const store = new AtlasUserConfigStore(mockFs);
+      await createAtlasUserConfig('1234', { enabledAIFeature: false });
 
-      store['getConfigDir'] = () => '/tmp';
-
-      await store.updateUserConfig('1234', { enabledAIFeature: true });
-      expect(await store.getUserConfig('1234')).to.deep.eq({
+      await userConfigStore.updateUserConfig('1234', {
+        enabledAIFeature: true,
+      });
+      expect(await userConfigStore.getUserConfig('1234')).to.deep.eq({
         enabledAIFeature: true,
       });
 
-      expect(mockFs.readFile).to.have.been.calledOnce;
-      expect(mockFs.writeFile).to.have.been.calledOnce;
+      expect(readSpy).to.have.been.calledOnce;
+      expect(updateSpy).to.have.been.calledOnce;
     });
   });
 });
