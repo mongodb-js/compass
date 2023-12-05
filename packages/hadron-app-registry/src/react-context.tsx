@@ -6,8 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { globalAppRegistry, AppRegistry } from './app-registry';
-import createDebug from 'debug';
-const debug = createDebug('hadron-app-registry:react');
 
 /**
  * @internal exported for the mock plugin helper implementation
@@ -104,43 +102,4 @@ export function useLocalAppRegistry(): AppRegistry {
     throw new Error(`No local AppRegistry registered within this context`);
   }
   return appRegistry;
-}
-
-/** @deprecated prefer using plugins or direct references instead */
-export function useAppRegistryComponent(
-  componentName: string
-): React.JSXElementConstructor<unknown> | null {
-  const appRegistry = useGlobalAppRegistry();
-
-  const [component] = useState(() => {
-    const newComponent = appRegistry.getComponent(componentName);
-    if (!newComponent) {
-      debug(
-        `home plugin loading component, but ${String(componentName)} is NULL`
-      );
-    }
-    return newComponent;
-  });
-
-  return component ? component : null;
-}
-
-/** @deprecated prefer using plugins or direct references instead */
-export function useAppRegistryRole(roleName: string):
-  | {
-      component: React.JSXElementConstructor<unknown>;
-      name: string;
-    }[]
-  | null {
-  const appRegistry = useGlobalAppRegistry();
-
-  const [role] = useState(() => {
-    const newRole = appRegistry.getRole(roleName);
-    if (!newRole) {
-      debug(`home plugin loading role, but ${String(roleName)} is NULL`);
-    }
-    return newRole;
-  });
-
-  return role ? role : null;
 }

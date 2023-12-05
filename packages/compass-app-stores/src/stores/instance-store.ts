@@ -4,6 +4,7 @@ import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { openToast } from '@mongodb-js/compass-components';
 
 function serversArray(
   serversMap: NonNullable<
@@ -57,6 +58,8 @@ export function createInstanceStore({
       'dataService'
     > = {}
   ) {
+    const isFirstRun = instance.status === 'initial';
+
     try {
       await instance.refresh({ dataService, ...refreshOptions });
 
@@ -71,6 +74,26 @@ export function createInstanceStore({
         dataService,
         errorMessage: err.message,
       });
+
+      // The `instance.refresh` method is catching all expected errors: we treat
+      // a lot of metadata as optional so failing to fetch it shouldn't throw.
+      // In most cases if this failed on subsequent runs, user is probably
+      // already in a state that will show them a more specified error (like
+      // seeing some server error trying to refresh collection list in cases
+      // that something happened with the server after connection). However if
+      // we are fetching instance info for the first time (as indicated by the
+      // initial instance status) and we ended up here, there might be no other
+      // place for the user to see the error. This is a very rare case, but we
+      // don't want to leave the user without any indication that something went
+      // wrong and so we show an toast with the error message
+      if (isFirstRun) {
+        const { name, message } = err as Error;
+        openToast('instance-refresh-failed', {
+          title: 'Failed to retrieve server info',
+          description: `${name}: ${message}`,
+          variant: 'important',
+        });
+      }
     }
   }
 
@@ -266,6 +289,17 @@ export function createInstanceStore({
   });
   onAppRegistryEvent('refresh-databases', onRefreshDatabases);
 
+  const onCollectionRenamed = voidify(
+    async ({ from, to }: { from: string; to: string }) => {
+      const { database } = toNS(from);
+      await refreshNamespace({
+        ns: to,
+        database,
+      });
+    }
+  );
+  appRegistry.on('collection-renamed', onCollectionRenamed);
+
   // Event emitted when the Collections grid needs to be refreshed
   // with new collections or collection stats for existing ones.
   const onRefreshCollections = voidify(async ({ ns }: { ns: string }) => {
@@ -296,31 +330,6 @@ export function createInstanceStore({
     appRegistry.emit('select-namespace', metadata);
   });
   onAppRegistryEvent('collection-created', onCollectionCreated);
-
-  const onActiveCollectionDropped = (ns: string) => {
-    // This callback will fire after drop collection happened, we force it into
-    // a microtask to allow drop collections event handler to force start
-    // databases and collections list update before we run our check here
-    queueMicrotask(
-      voidify(async () => {
-        const { database } = toNS(ns);
-        await instance.fetchDatabases({ dataService });
-        const db = instance.databases.get(database);
-        await db?.fetchCollections({ dataService });
-        if (db?.collectionsLength) {
-          appRegistry.emit('select-database', database);
-        } else {
-          appRegistry.emit('open-instance-workspace', 'Databases');
-        }
-      })
-    );
-  };
-  onAppRegistryEvent('active-collection-dropped', onActiveCollectionDropped);
-
-  const onActiveDatabaseDropped = () => {
-    appRegistry.emit('open-instance-workspace', 'Databases');
-  };
-  onAppRegistryEvent('active-database-dropped', onActiveDatabaseDropped);
 
   /**
    * Opens collection in the current active tab. No-op if currently open tab has

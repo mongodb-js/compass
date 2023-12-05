@@ -18,6 +18,7 @@ import {
   refreshDatabases,
   selectDatabase,
 } from '../../modules/databases';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const errorContainerStyles = css({
   padding: spacing[3],
@@ -83,6 +84,14 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
 }) => {
   const isPreferencesReadOnly = usePreference('readOnly', React);
 
+  useTrackOnChange(
+    'COMPASS-DATABASES-UI',
+    (track) => {
+      track('Screen', { name: 'databases' });
+    },
+    []
+  );
+
   if (databasesLoadingStatus === 'error') {
     return (
       <div className={errorContainerStyles}>
@@ -137,7 +146,7 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(Databases) as React.FunctionComponent<Record<string, never>>;
 
 export default ConnectedDatabases;
 export { Databases };

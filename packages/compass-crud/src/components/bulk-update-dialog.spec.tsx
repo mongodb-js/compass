@@ -90,6 +90,11 @@ describe('BulkUpdateDialog Component', function () {
     expect(screen.getByRole('button', { name: 'Update 1 document' })).to.exist;
   });
 
+  it('renders the empty state if the count is 0', function () {
+    renderBulkUpdateDialog({ count: 0 });
+    expect(screen.getByTestId('bulk-update-preview-empty-state')).to.exist;
+  });
+
   it('resets if the modal is re-opened', async function () {
     // initial open
     const { rerender } = renderBulkUpdateDialog({ isOpen: true });

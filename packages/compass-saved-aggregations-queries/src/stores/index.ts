@@ -65,7 +65,7 @@ export type SavedQueryAggregationThunkAction<
 > = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
 export function activatePlugin(
-  _: unknown,
+  _: Record<string, never>,
   services: MyQueriesServices & Partial<Storages>
 ) {
   const store = configureStore(services);

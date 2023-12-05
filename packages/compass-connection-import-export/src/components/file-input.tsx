@@ -1,8 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import {
-  createElectronFileInputBackend,
-  FileInput as CompassFileInput,
-} from '@mongodb-js/compass-components';
+import React, { useCallback } from 'react';
+import { FileInput as CompassFileInput } from '@mongodb-js/compass-components';
 
 type FileInputProps = {
   label: string;
@@ -26,16 +23,6 @@ export function FileInput({
     [onChange]
   );
 
-  const backend = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-    const electron: typeof import('@electron/remote') = require('@electron/remote');
-    return createElectronFileInputBackend(electron, mode, {
-      title: 'Select connections file',
-      defaultPath: 'compass-connections.json',
-      buttonLabel: 'Select',
-    });
-  }, [mode]);
-
   return (
     <CompassFileInput
       disabled={disabled}
@@ -45,7 +32,10 @@ export function FileInput({
       accept=".json"
       variant="vertical"
       values={value ? [value] : []}
-      backend={backend}
+      title="Select connections file"
+      defaultPath="compass-connections.json"
+      mode={mode}
+      buttonLabel="Select"
     />
   );
 }

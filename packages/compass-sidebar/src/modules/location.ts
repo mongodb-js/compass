@@ -4,8 +4,10 @@ export const locations = {
   database: true,
   collection: true,
   'My Queries': true,
+  Performance: true,
   Databases: true,
 };
+
 export type Location = keyof typeof locations;
 
 export const CHANGE_LOCATION = 'sidebar/navigation/CHANGE_LOCATION' as const;

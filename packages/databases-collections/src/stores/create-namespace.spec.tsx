@@ -22,6 +22,7 @@ describe('CreateNamespacePlugin', function () {
   const instance = {
     on: sandbox.stub(),
     off: sandbox.stub(),
+    removeListener: sandbox.stub(),
     build: { version: '999.999.999' },
     topologyDescription: { type: 'Unknown' },
   };

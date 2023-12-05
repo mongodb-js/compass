@@ -1,8 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import {
-  FileInput,
-  createElectronFileInputBackend,
-} from '@mongodb-js/compass-components';
+import React, { useCallback } from 'react';
+import { FileInput } from '@mongodb-js/compass-components';
 
 type ImportFileInputProps = {
   autoOpen?: boolean;
@@ -28,15 +25,6 @@ function ImportFileInput({
     [onCancel, selectImportFileName]
   );
 
-  const backend = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
-    const electron: typeof import('@electron/remote') = require('@electron/remote');
-    return createElectronFileInputBackend(electron, 'open', {
-      title: 'Select JSON or CSV to import',
-      buttonLabel: 'Select',
-    });
-  }, []);
-
   const values = fileName ? [fileName] : undefined;
 
   return (
@@ -47,7 +35,9 @@ function ImportFileInput({
       onChange={handleChooseFile}
       values={values}
       variant="small"
-      backend={backend}
+      mode="open"
+      title="Select JSON or CSV to import"
+      buttonLabel="Select"
     />
   );
 }

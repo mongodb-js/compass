@@ -19,9 +19,9 @@ function renderNavigationItems(
         onAction={() => {
           /* noop */
         }}
-        isDataLake={false}
-        isWritable={true}
-        changeFilterRegex={() => {
+        showPerformanceItem={false}
+        showCreateDatabaseAction={true}
+        onFilterChange={() => {
           /* noop */
         }}
         currentLocation={null}
@@ -52,7 +52,7 @@ describe('NavigationItems [Component]', function () {
   describe('when rendered read only', function () {
     it('does not render the create database button', function () {
       renderNavigationItems({
-        readOnly: true,
+        showCreateDatabaseAction: false,
       });
       expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
     });

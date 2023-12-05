@@ -16,6 +16,7 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
+import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 
 const { expect } = chai;
 
@@ -132,49 +133,6 @@ async function switchPipelineMode(
 ) {
   await browser.clickVisible(Selectors.aggregationPipelineModeToggle(mode));
   await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
-}
-
-async function saveAggregation(
-  browser: CompassBrowser,
-  aggregationName: string,
-  pipeline: Record<string, any>[]
-) {
-  for (let index = 0; index < pipeline.length; index++) {
-    const stage = pipeline[index];
-    const stageOperator = Object.keys(stage)[0];
-    const stageValue = stage[stageOperator];
-
-    // add stage
-    await browser.clickVisible(Selectors.AddStageButton);
-    await browser.$(Selectors.stageEditor(index)).waitForDisplayed();
-
-    await browser.focusStageOperator(index);
-    await browser.selectStageOperator(index, stageOperator);
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(index),
-      stageValue
-    );
-  }
-
-  await browser.clickVisible(Selectors.SavePipelineMenuButton);
-  const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
-  await menuElement.waitForDisplayed();
-  await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
-
-  // wait for the modal to appear
-  const savePipelineModal = await browser.$(Selectors.SavePipelineModal);
-  await savePipelineModal.waitForDisplayed();
-
-  // set aggregation name
-  await browser.waitForAnimations(Selectors.SavePipelineNameInput);
-  const pipelineNameInput = await browser.$(Selectors.SavePipelineNameInput);
-  await pipelineNameInput.setValue(aggregationName);
-
-  const createButton = await browser
-    .$(Selectors.SavePipelineModal)
-    .$('button=Save');
-
-  await createButton.click();
 }
 
 async function deleteStage(
@@ -1139,7 +1097,7 @@ describe('Collection aggregations tab', function () {
   describe('saving pipelines', function () {
     const name = 'test agg 1';
     beforeEach(async function () {
-      await saveAggregation(browser, name, [
+      await saveAggregationPipeline(browser, name, [
         {
           $match: '{ i: 0 }',
         },

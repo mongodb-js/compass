@@ -19,7 +19,10 @@ import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mo
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
-import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
+import {
+  hiddenOnNarrowPipelineToolbarStyles,
+  smallPipelineToolbar,
+} from '../pipeline-toolbar-container';
 
 const containerStyles = css({
   display: 'flex',
@@ -37,6 +40,17 @@ const toggleLabelStyles = css({
   marginBottom: 0,
   padding: 0,
   textTransform: 'uppercase',
+});
+
+const segmentControlStyles = css({
+  [smallPipelineToolbar()]: {
+    // NB: leafygreen renders labels near icons, that's the most "stable" way of
+    // targeting it so we can hide it on smaller toolbar sizes. This can still
+    // break if they drastically change how segmented control is rendered
+    '& [data-segmented-control-icon] + span': {
+      display: 'none',
+    },
+  },
 });
 
 const toggleStageWizardStyles = css({ margin: 'auto' });
@@ -99,7 +113,8 @@ export const PipelineExtraSettings: React.FunctionComponent<
           disabled={isPipelineModeDisabled}
           data-testid="pipeline-builder-toggle-builder-ui"
           value="builder-ui"
-          glyph={<Icon glyph="CurlyBraces"></Icon>}
+          glyph={<Icon data-segmented-control-icon glyph="CurlyBraces"></Icon>}
+          className={segmentControlStyles}
         >
           Stages
         </SegmentedControlOption>
@@ -107,7 +122,8 @@ export const PipelineExtraSettings: React.FunctionComponent<
           disabled={isPipelineModeDisabled}
           data-testid="pipeline-builder-toggle-as-text"
           value="as-text"
-          glyph={<Icon glyph="Code"></Icon>}
+          glyph={<Icon data-segmented-control-icon glyph="Code"></Icon>}
+          className={segmentControlStyles}
         >
           Text
         </SegmentedControlOption>

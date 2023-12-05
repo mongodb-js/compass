@@ -3,23 +3,25 @@ import PropTypes from 'prop-types';
 import { Badge, BadgeVariant, css } from '@mongodb-js/compass-components';
 
 const modifySourceBannerStyles = css({
-  textAlign: 'center',
-  margin: '5px auto',
-  marginTop: '20px',
-  zIndex: 500,
+  display: 'inline-block',
+  minWidth: 0,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 /**
  * The blue banner displayed when modifying a source pipeline.
  */
-const ModifySourceBanner = (props: { editViewName: React.ReactNode }) => {
+const ModifySourceBanner = (props: { editViewName: string }) => {
+  const bannerText = `Modifying pipeline backing "${props.editViewName}"`;
   return (
     <Badge
       className={modifySourceBannerStyles}
       variant={BadgeVariant.Blue}
       data-testid="modify-source-banner"
+      title={bannerText}
     >
-      Modifying pipeline backing &quot;{props.editViewName}&quot;
+      {bannerText}
     </Badge>
   );
 };
