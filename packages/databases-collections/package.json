@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-databases-collections",
   "productName": "Compass Databases and Collections Plugin",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
-  "version": "1.20.0",
+  "version": "1.20.1",
   "license": "SSPL",
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
@@ -47,14 +47,14 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-app-stores": "^7.7.0",
+    "@mongodb-js/compass-app-stores": "^7.7.1",
     "@mongodb-js/compass-components": "^1.20.0",
     "@mongodb-js/compass-editor": "^0.19.0",
     "@mongodb-js/compass-logging": "^1.2.7",
     "@mongodb-js/databases-collections-list": "^1.20.0",
     "compass-preferences-model": "^2.16.0",
-    "hadron-app-registry": "^9.1.0",
-    "mongodb-data-service": "^22.16.0",
+    "hadron-app-registry": "^9.1.1",
+    "mongodb-data-service": "^22.16.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -70,12 +70,12 @@
     "depcheck": "^1.4.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.16.0",
+    "hadron-app": "^5.16.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.3.0",
-    "mongodb-collection-model": "^5.16.0",
-    "mongodb-instance-model": "^12.16.0",
+    "mongodb-collection-model": "^5.16.1",
+    "mongodb-instance-model": "^12.16.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^4.0.0",
     "nyc": "^15.1.0",
@@ -88,13 +88,13 @@
     "sinon": "^9.2.3"
   },
   "dependencies": {
-    "@mongodb-js/compass-app-stores": "^7.7.0",
+    "@mongodb-js/compass-app-stores": "^7.7.1",
     "@mongodb-js/compass-components": "^1.20.0",
     "@mongodb-js/compass-editor": "^0.19.0",
     "@mongodb-js/compass-logging": "^1.2.7",
     "@mongodb-js/databases-collections-list": "^1.20.0",
     "compass-preferences-model": "^2.16.0",
-    "hadron-app-registry": "^9.1.0",
-    "mongodb-data-service": "^22.16.0"
+    "hadron-app-registry": "^9.1.1",
+    "mongodb-data-service": "^22.16.1"
   }
 }
