@@ -443,11 +443,11 @@ functions:
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
 
-            echo "The macOS distro_id is $EVERGREEN_DISTRO_ID"
-            
             if [[ "$EVERGREEN_DISTRO_ID" =~ "gui" ]]; then
+              echo "Setting keychain password for $EVERGREEN_DISTRO_ID to an empty string"
               KEYCHAIN_PASSWORD=""
             else
+              echo "Setting keychain password for $EVERGREEN_DISTRO_ID from {macos-1100-gui_keychain_secret}"
               KEYCHAIN_PASSWORD="$MACOS_GUI_KEYCHAIN_SECRET"
             fi
             echo "Unlocking keychain on macOS"
