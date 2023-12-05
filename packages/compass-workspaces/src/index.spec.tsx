@@ -20,10 +20,14 @@ describe('WorkspacesPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const globalAppRegistry = sandbox.spy(new AppRegistry());
   const instance = { on() {}, removeListener() {} } as any;
-  const Plugin = WorkspacesPlugin.withMockServices({
-    globalAppRegistry,
-    instance,
-  });
+  const Plugin = WorkspacesPlugin.withMockServices(
+    {
+      globalAppRegistry,
+      instance,
+    },
+    { disableChildPluginRendering: true }
+  );
+  const onTabChangeSpy = sandbox.spy();
 
   function renderPlugin() {
     return render(
@@ -36,7 +40,7 @@ describe('WorkspacesPlugin', function () {
           mockWorkspace('Collection'),
         ]}
       >
-        <Plugin></Plugin>
+        <Plugin onActiveWorkspaceTabChange={onTabChangeSpy}></Plugin>
       </WorkspacesProvider>
     );
   }
@@ -66,6 +70,9 @@ describe('WorkspacesPlugin', function () {
 
   it('should switch tabs when tab is clicked', async function () {
     renderPlugin();
+
+    expect(onTabChangeSpy).to.have.been.calledWith(null);
+
     globalAppRegistry.emit('open-namespace-in-new-tab', {
       namespace: 'db.coll1',
     });
@@ -92,6 +99,11 @@ describe('WorkspacesPlugin', function () {
         'aria-selected',
         'true'
       );
+    });
+
+    expect(onTabChangeSpy).to.have.been.calledWithMatch({
+      type: 'Collection',
+      namespace: 'db.coll1',
     });
   });
 });

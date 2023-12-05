@@ -79,30 +79,9 @@ describe('SidebarStore [Store]', function () {
         .deep.equal({
           databases: getDatabases(instance),
           filteredDatabases: getDatabases(instance),
-          activeNamespace: '',
           expandedDbList: {},
           filterRegex: null,
         });
-    });
-  });
-
-  context('when collection changes', function () {
-    beforeEach(function () {
-      expect(store.getState().databases.activeNamespace).to.equal('');
-      globalAppRegistry.emit('select-namespace', { namespace: 'test.coll' });
-    });
-    it('updates databases.activeNamespace', function () {
-      expect(store.getState().databases.activeNamespace).to.equal('test.coll');
-    });
-  });
-
-  context('when db changes', function () {
-    beforeEach(function () {
-      expect(store.getState().databases.activeNamespace).to.equal('');
-      globalAppRegistry.emit('select-database', 'test');
-    });
-    it('updates databases.activeNamespace', function () {
-      expect(store.getState().databases.activeNamespace).to.equal('test');
     });
   });
 });

@@ -1,7 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { OpenWorkspaceOptions } from './stores/workspaces';
+import type { OpenWorkspaceOptions, WorkspaceTab } from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -11,7 +11,7 @@ import workspacesReducer, {
   getLocalAppRegistryForTab,
   openWorkspace,
 } from './stores/workspaces';
-import Workspaces from './components/workspaces';
+import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -26,11 +26,13 @@ export type WorkspacesServices = {
 };
 
 export function activateWorkspacePlugin(
-  { initialTab }: { initialTab?: OpenWorkspaceOptions },
+  { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
   { globalAppRegistry, instance }: WorkspacesServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const initialTabs = initialTab ? [getInitialTabState(initialTab)] : [];
+  const initialTabs = initialWorkspaceTab
+    ? [getInitialTabState(initialWorkspaceTab)]
+    : [];
 
   const store = createStore(
     workspacesReducer,
@@ -153,3 +155,4 @@ export default WorkspacesPlugin;
 export { activate, deactivate };
 export { default as metadata } from '../package.json';
 export { WorkspacesProvider } from './components/workspaces-provider';
+export type { OpenWorkspaceOptions, WorkspaceTab };

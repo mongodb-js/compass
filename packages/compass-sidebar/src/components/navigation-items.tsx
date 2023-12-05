@@ -191,6 +191,7 @@ export function NavigationItems({
   onFilterChange,
   onAction,
   currentLocation,
+  currentNamespace,
   showTooManyCollectionsInsight = false,
 }: {
   isExpanded?: boolean;
@@ -199,6 +200,7 @@ export function NavigationItems({
   onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
+  currentNamespace: string | null;
   showTooManyCollectionsInsight?: boolean;
 }) {
   const databasesActions = useMemo(() => {
@@ -254,7 +256,11 @@ export function NavigationItems({
       {isExpanded && (
         <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       )}
-      {isExpanded && <SidebarDatabasesNavigation />}
+      {isExpanded && (
+        <SidebarDatabasesNavigation
+          activeNamespace={currentNamespace ?? undefined}
+        />
+      )}
     </>
   );
 }
@@ -291,7 +297,6 @@ const mapStateToProps = (
   );
 
   return {
-    currentLocation: state.location,
     showPerformanceItem:
       // For default `isDataLake` value we're choosing the one that will hide
       // the items that would otherwise not work for the ADF

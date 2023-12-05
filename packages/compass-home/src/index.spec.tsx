@@ -2,25 +2,10 @@ import React from 'react';
 import { once } from 'events';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import AppRegistry from 'hadron-app-registry';
 import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
-import Home from '.';
-
-const getComponent = (name: string) => {
-  class TestComponent extends React.Component {
-    render() {
-      return React.createElement(
-        'div',
-        {
-          'data-testid': `test-${name}`,
-        },
-        name
-      );
-    }
-  }
-  return TestComponent;
-};
+import { CompassHomePlugin } from './index';
 
 const createDataService = () => ({
   getConnectionString() {
@@ -47,6 +32,13 @@ const createDataService = () => ({
 });
 
 describe('Home [Component]', function () {
+  const testAppRegistry = new AppRegistry();
+
+  const Home = CompassHomePlugin.withMockServices({
+    globalAppRegistry: testAppRegistry,
+    localAppRegistry: testAppRegistry,
+  });
+
   before(function () {
     // Skip these tests if we're not running in an electron runtime.
     if (!process.versions.electron) {
@@ -54,43 +46,15 @@ describe('Home [Component]', function () {
     }
   });
 
-  const testAppRegistry = globalAppRegistry;
-
-  beforeEach(function () {
-    ['Collection.Workspace'].forEach((name) =>
-      testAppRegistry.registerComponent(name, getComponent(name))
-    );
-
-    ['Application.Connect'].forEach((name) =>
-      testAppRegistry.registerRole(name, {
-        name,
-        component: getComponent(name),
-      })
-    );
-
-    testAppRegistry.onActivated();
-  });
-
-  afterEach(function () {
-    testAppRegistry.deactivate();
-    cleanup();
-  });
+  afterEach(cleanup);
 
   describe('is not connected', function () {
     beforeEach(function () {
-      render(
-        <AppRegistryProvider localAppRegistry={testAppRegistry}>
-          <Home appName="home-testing" />
-        </AppRegistryProvider>
-      );
+      render(<Home appName="home-testing" />);
     });
 
     it('renders the connect screen', function () {
-      expect(screen.getByTestId('connections-wrapper')).to.be.visible;
-    });
-
-    it('does not render the sidebar', function () {
-      expect(screen.queryByTestId('test-Sidebar.Component')).to.not.exist;
+      expect(screen.getByTestId('connections')).to.be.visible;
     });
   });
 
@@ -99,21 +63,11 @@ describe('Home [Component]', function () {
       dataService = createDataService(),
       connectionOptions = { connectionString: 'mongodb+srv://mongodb.net/' }
     ) {
-      render(
-        <AppRegistryProvider localAppRegistry={testAppRegistry}>
-          <Home appName="home-testing" />
-        </AppRegistryProvider>
-      );
+      render(<Home appName="home-testing" />);
       testAppRegistry.emit('data-service-connected', null, dataService, {
         connectionOptions,
       });
-      await waitFor(() =>
-        expect(
-          screen
-            .queryAllByTestId('home-view')
-            .map((el) => el.getAttribute('data-hidden'))
-        ).to.include('true')
-      );
+      await waitFor(() => screen.getByTestId('home'));
     }
 
     describe('when UI status is complete', function () {
@@ -176,22 +130,11 @@ describe('Home [Component]', function () {
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(
-        <AppRegistryProvider localAppRegistry={testAppRegistry}>
-          <Home appName="home-testing" />
-        </AppRegistryProvider>
-      );
+      render(<Home appName="home-testing" />);
     });
 
     it('adds all the listeners', function () {
-      const events = [
-        'data-service-connected',
-        'data-service-disconnected',
-        'select-database',
-        'select-namespace',
-        'open-instance-workspace',
-        'open-namespace-in-new-tab',
-      ];
+      const events = ['data-service-connected', 'data-service-disconnected'];
 
       events.forEach((name) => {
         expect(testAppRegistry.listeners(name)).to.have.lengthOf(1);
@@ -201,11 +144,7 @@ describe('Home [Component]', function () {
 
   describe('on dismount', function () {
     beforeEach(function () {
-      const { unmount } = render(
-        <AppRegistryProvider localAppRegistry={testAppRegistry}>
-          <Home appName="home-testing" />
-        </AppRegistryProvider>
-      );
+      const { unmount } = render(<Home appName="home-testing" />);
       unmount();
     });
 
@@ -213,10 +152,6 @@ describe('Home [Component]', function () {
       const events = [
         'data-service-connected',
         'data-service-disconnected',
-        'select-database',
-        'select-namespace',
-        'open-instance-workspace',
-        'open-namespace-in-new-tab',
         'darkmode-enable',
         'darkmode-disable',
       ];
