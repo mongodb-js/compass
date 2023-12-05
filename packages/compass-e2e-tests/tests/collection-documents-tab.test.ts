@@ -65,8 +65,8 @@ async function getRecentQueries(
 }
 
 async function navigateToTab(browser: CompassBrowser, tabName: string) {
-  const tabSelector = Selectors.collectionTab(tabName);
-  const tabSelectedSelector = Selectors.collectionTab(tabName, true);
+  const tabSelector = Selectors.collectionSubTab(tabName);
+  const tabSelectedSelector = Selectors.collectionSubTab(tabName, true);
 
   const tabSelectedSelectorElement = await browser.$(tabSelectedSelector);
   // if the correct tab is already visible, do nothing

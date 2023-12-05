@@ -46,7 +46,7 @@ describe('Create Search Index Modal', function () {
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
-      expect(inputText!.value).to.equal('default');
+      expect(inputText.value).to.equal('default');
     });
 
     it('shows default index definition', function () {

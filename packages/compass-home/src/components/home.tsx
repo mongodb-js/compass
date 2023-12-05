@@ -3,6 +3,8 @@ import {
   Theme,
   ToastArea,
   ConfirmationModalArea,
+  FileInputBackendProvider,
+  createElectronFileInputBackend,
   css,
   cx,
   getScrollbarStyles,
@@ -45,6 +47,7 @@ import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import {
   CreateNamespacePlugin,
   DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
@@ -361,6 +364,7 @@ function Home({
               <CreateViewPlugin></CreateViewPlugin>
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
+              <RenameCollectionPlugin></RenameCollectionPlugin>
               <Workspace
                 namespace={namespace}
                 connectionInfo={connectionInfo}
@@ -471,6 +475,10 @@ function ThemedHome(
     }
   }, []);
 
+  const electronFileInputBackendRef = useRef(
+    remote ? createElectronFileInputBackend(remote) : null
+  );
+
   return (
     <LeafyGreenProvider
       darkMode={darkMode}
@@ -478,33 +486,37 @@ function ThemedHome(
         portalContainer: scrollbarsContainerRef,
       }}
     >
-      <GuideCueProvider
-        onNext={onGuideCueNext}
-        onNextGroup={onGuideCueNextGroup}
+      <FileInputBackendProvider
+        createFileInputBackend={electronFileInputBackendRef.current}
       >
-        {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
-        <Body as="div">
-          <div
-            className={getScrollbarStyles(darkMode)}
-            ref={setScrollbarsContainerRef}
-          >
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            <ConfirmationModalArea>
-              <ToastArea>
-                <div
-                  className={cx(
-                    homeContainerStyles,
-                    darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-                  )}
-                  data-theme={theme.theme}
-                >
-                  <Home {...props}></Home>
-                </div>
-              </ToastArea>
-            </ConfirmationModalArea>
-          </div>
-        </Body>
-      </GuideCueProvider>
+        <GuideCueProvider
+          onNext={onGuideCueNext}
+          onNextGroup={onGuideCueNextGroup}
+        >
+          {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+          <Body as="div">
+            <div
+              className={getScrollbarStyles(darkMode)}
+              ref={setScrollbarsContainerRef}
+            >
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <ConfirmationModalArea>
+                <ToastArea>
+                  <div
+                    className={cx(
+                      homeContainerStyles,
+                      darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                    )}
+                    data-theme={theme.theme}
+                  >
+                    <Home {...props}></Home>
+                  </div>
+                </ToastArea>
+              </ConfirmationModalArea>
+            </div>
+          </Body>
+        </GuideCueProvider>
+      </FileInputBackendProvider>
     </LeafyGreenProvider>
   );
 }

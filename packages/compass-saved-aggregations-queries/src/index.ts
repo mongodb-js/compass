@@ -46,11 +46,15 @@ export const MyQueriesPlugin = registerHadronPlugin<
   serviceLocators
 );
 
-const InstanceTab = {
-  name: 'My Queries',
+export const WorkspaceTab = {
+  name: 'My Queries' as const,
   component: MyQueriesPlugin,
 };
 
-export default InstanceTab;
+export type MyQueriesWorkspace = {
+  type: typeof WorkspaceTab['name'];
+} & React.ComponentProps<typeof WorkspaceTab['component']>;
+
+export default MyQueriesPlugin;
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

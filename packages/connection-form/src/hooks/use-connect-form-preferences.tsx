@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 
+// Not all of these preference map to Compass preferences.
 export type ConnectionFormPreferences = {
   protectConnectionStrings: boolean;
   forceConnectionOptions: [key: string, value: string][];
@@ -8,6 +9,9 @@ export type ConnectionFormPreferences = {
   enableOidc: boolean;
   enableDebugUseCsfleSchemaMap: boolean;
   protectConnectionStringsForNewConnections: boolean;
+  showOIDCAuth: boolean;
+  showKerberosAuth: boolean;
+  showCSFLE: boolean;
 };
 
 const defaultPreferences = {
@@ -18,6 +22,9 @@ const defaultPreferences = {
   enableOidc: false,
   enableDebugUseCsfleSchemaMap: false,
   protectConnectionStringsForNewConnections: false,
+  showOIDCAuth: true,
+  showKerberosAuth: true,
+  showCSFLE: true,
 };
 
 export const ConnectionFormPreferencesContext = createContext<

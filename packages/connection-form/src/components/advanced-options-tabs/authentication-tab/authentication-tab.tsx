@@ -108,13 +108,22 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
+  // enableOIDC is the feature flag, showOIDC is the connection form preference.
   const enableOIDC = !!useConnectionFormPreference('enableOidc');
-  const enabledAuthOptions = useMemo(() => {
-    if (enableOIDC) {
-      return options;
-    }
-    return options.filter((option) => option.id !== 'MONGODB-OIDC');
-  }, [enableOIDC]);
+  const showOIDC = useConnectionFormPreference('showOIDCAuth');
+  const showKerberos = useConnectionFormPreference('showKerberosAuth');
+  const enabledAuthOptions = useMemo(
+    () =>
+      options.filter((option) => {
+        if (option.id === 'MONGODB-OIDC') {
+          return enableOIDC && showOIDC;
+        } else if (option.id === 'GSSAPI') {
+          return showKerberos;
+        }
+        return true;
+      }),
+    [enableOIDC, showKerberos, showOIDC]
+  );
 
   const selectedAuthTabId =
     getSelectedAuthTabForConnectionString(connectionStringUrl);

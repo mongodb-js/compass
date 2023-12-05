@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps like Compass",
-  "version": "25.4.3",
+  "version": "25.4.4",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -33,10 +33,10 @@
     "debug": "^4.2.0",
     "del": "^2.0.2",
     "download": "^8.0.0",
-    "electron": "^25.9.6",
+    "electron": "^25.9.7",
     "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
-    "@electron/rebuild": "^3.3.1",
+    "@electron/rebuild": "^3.4.0",
     "flatnest": "^1.0.0",
     "fs-extra": "^8.1.0",
     "getos": "^3.1.4",

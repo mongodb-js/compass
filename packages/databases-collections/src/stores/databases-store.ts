@@ -14,7 +14,7 @@ type DatabasesTabServices = {
 };
 
 export function activatePlugin(
-  _: unknown,
+  _initialProps: Record<string, never>,
   { globalAppRegistry, instance }: DatabasesTabServices
 ) {
   const store = createStore(

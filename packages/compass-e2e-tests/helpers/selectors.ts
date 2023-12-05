@@ -218,6 +218,20 @@ export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
 
+// Rename Collection Modal
+export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
+export const RenameCollectionModalInput =
+  '[data-testid="rename-collection-name-input"]';
+export const RenameCollectionModalConfirmationScreen =
+  '[data-testid="rename-collection-confirmation-screen"]';
+export const RenameCollectionModalSuccessToast =
+  '[data-testid="toast-collection-rename-success"]';
+export const RenameCollectionModalSubmitButton =
+  '[data-testid="submit-button"]';
+export const RenameCollectionModalErrorBanner =
+  '[data-testid="rename-collection-modal-error"]';
+export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-label="Close modal"]`;
+
 // Database-Collection Sidebar
 export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
@@ -236,6 +250,8 @@ export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
+export const RenameCollectionButton =
+  '[data-testid="sidebar-collection-item-actions-rename-collection-action"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
@@ -373,8 +389,6 @@ export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
-export const InstanceTabs = '[data-testid="instance-tabs"]';
-export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
@@ -386,19 +400,6 @@ export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
 export const ServerStats = '.serverstats';
 
-export const instanceTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${InstanceTab}[name="${tabName}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
 export const databaseCard = (dbName: string): string => {
   return `${DatabaseCard}[data-id="${dbName}"]`;
 };
@@ -410,8 +411,6 @@ export const databaseCardClickable = (dbName: string): string => {
 };
 
 // Database screen
-export const DatabaseTabs = '[data-testid="database-tabs"]';
-export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
@@ -421,20 +420,6 @@ export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
   '[data-testid="collection-grid"] [data-testid="namespace-card-actions"] button';
-
-export const databaseTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${DatabaseTab}[name="${tabName}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
 
 export const collectionCard = (
   dbName: string,
@@ -456,7 +441,7 @@ export const collectionCardClickable = (
 };
 
 // Collection screen
-export const CollectionTab = '.test-tab-nav-bar-tab';
+export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
@@ -475,8 +460,11 @@ export const TooltipIndexesTotalSize =
   '[data-testid="tooltip-indexes-total-size"]';
 export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
-export const collectionTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${CollectionTab}[name="${tabName}"]`;
+export const collectionSubTab = (
+  tabName: string,
+  selected?: boolean
+): string => {
+  const selector = `${CollectionTab} [name="${tabName}"]`;
 
   if (selected === true) {
     return `${selector}[aria-selected="true"]`;
@@ -701,8 +689,11 @@ export const FavouriteQueriesButton = `${QueryBarHistory} [data-testid="past-que
 export const FavouriteQueryListItem = `${QueryBarHistory} [data-testid="favorite-query-list-item"]`;
 export const FavouriteQueryTitle = `${QueryBarHistory} [data-testid="query-history-query-title"]`;
 
+export const QueryHistoryFavoritesButton = `[data-testid="past-queries-favorites"]`;
+export const QueryHistoryFavoriteItem = `[data-testid="favorite-query-list-item"]`;
+
 export const myQueriesItem = (title: string): string => {
-  return `[data-testid="my-queries-content"] [title="${title}"]`;
+  return `[data-testid="my-queries-list"] [title="${title}"]`;
 };
 
 export const MyQueriesList = '[data-testid="my-queries-list"]';
@@ -1112,10 +1103,40 @@ export const QueryBarAIGenerateQueryButton =
   '[data-testid="ai-generate-button"]';
 export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
-// Workspace tabs at the top
-export const SelectedWorkspaceTabButton =
-  '[data-testid=workspace-tab-button][aria-selected="true"]';
+// Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
+export const sidebarInstanceNavigationItem = (
+  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
+) => {
+  return `[data-testid="navigation-sidebar"] [aria-label="${tabName}"]`;
+};
+export const workspaceTab = (
+  title: string | null,
+  active: boolean | null = null
+) => {
+  const _active = active === null ? '' : `[aria-selected="${String(active)}"]`;
+  const _title = title === null ? '' : `[title="${title}"]`;
+  return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
+};
+export const instanceWorkspaceTab = (
+  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
+  active: boolean | null = null
+) => {
+  return workspaceTab(tabName, active);
+};
+export const databaseWorkspaceTab = (
+  dbName: string,
+  active: boolean | null = null
+) => {
+  return workspaceTab(dbName, active);
+};
+export const collectionWorkspaceTab = (
+  namespace: string,
+  active: boolean | null = null
+) => {
+  const [db, ...coll] = namespace.split('.');
+  return workspaceTab(`${db} > ${coll.join('.')}`, active);
+};
 
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';

@@ -11,22 +11,28 @@ import type Collection from 'mongodb-collection-model';
 import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type CollectionTabOptions = {
-  dataService: DataService;
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
   query?: unknown;
   aggregation?: unknown;
   pipelineText?: string;
   editViewName?: string;
-} & CollectionMetadata;
+} & CollectionMetadata; // TODO: make collection-tab resovle metadata on its own
 
-export function configureStore(options: CollectionTabOptions) {
+export type CollectionTabServices = {
+  dataService: DataService;
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+  instance: MongoDBInstance;
+};
+
+export function activatePlugin(
+  options: CollectionTabOptions,
+  services: CollectionTabServices,
+  { on, cleanup }: ActivateHelpers
+) {
   const {
-    dataService,
-    globalAppRegistry,
-    localAppRegistry,
     query,
     aggregation,
     editViewName,
@@ -34,17 +40,8 @@ export function configureStore(options: CollectionTabOptions) {
     ...collectionMetadata
   } = options;
 
-  const instance = (
-    globalAppRegistry.getStore('App.InstanceStore') as
-      | {
-          getState(): { instance: MongoDBInstance };
-        }
-      | undefined
-  )?.getState().instance;
-
-  if (!instance) {
-    throw new Error('Expected to get instance from App.InstanceStore');
-  }
+  const { dataService, globalAppRegistry, localAppRegistry, instance } =
+    services;
 
   const configureFieldStore = globalAppRegistry.getStore(
     'Field.Store'
@@ -100,23 +97,32 @@ export function configureStore(options: CollectionTabOptions) {
     )
   );
 
-  collectionModel?.on('change:status', (model: Collection, status: string) => {
-    if (status === 'ready') {
-      store.dispatch(collectionStatsFetched(model));
-    }
-  });
-
-  localAppRegistry.on('open-create-index-modal', () => {
+  on(localAppRegistry, 'open-create-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
 
-  localAppRegistry.on('open-create-search-index-modal', () => {
+  on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
 
-  localAppRegistry.on('generate-aggregation-from-query', () => {
+  on(localAppRegistry, 'generate-aggregation-from-query', () => {
     store.dispatch(selectTab('Aggregations'));
   });
 
-  return store;
+  if (collectionModel) {
+    on(
+      collectionModel,
+      'change:status',
+      (model: Collection, status: string) => {
+        if (status === 'ready') {
+          store.dispatch(collectionStatsFetched(model));
+        }
+      }
+    );
+  }
+
+  return {
+    store,
+    deactivate: cleanup,
+  };
 }

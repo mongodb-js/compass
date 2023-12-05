@@ -1102,6 +1102,10 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateDialog() {
+    track('Bulk Update Opened', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
     await this.updateBulkUpdatePreview('{ $set: { } }');
     this.setState({
       bulkUpdate: {
@@ -1224,6 +1228,10 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
+    track('Bulk Update Executed', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
     this.closeBulkUpdateDialog();
 
     // keep the filter count around for the duration of the toast
@@ -1826,6 +1834,8 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
+    track('Bulk Delete Opened');
+
     const PREVIEW_DOCS = 5;
 
     this.setState({
@@ -1880,6 +1890,8 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
+    track('Bulk Delete Executed');
+
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
 
@@ -1919,6 +1931,10 @@ class CrudStoreImpl
   }
 
   async saveUpdateQuery(name: string): Promise<void> {
+    track('Bulk Update Favorited', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
     const { filter } = this.state.query;
     let update;
     try {

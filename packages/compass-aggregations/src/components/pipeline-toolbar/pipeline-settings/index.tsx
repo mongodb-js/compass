@@ -10,13 +10,13 @@ import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { usePreference } from 'compass-preferences-model';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
+import ModifySourceBanner from '../../modify-source-banner';
 
 const containerStyles = css({
-  display: 'grid',
+  display: 'flex',
   gap: spacing[2],
-  gridTemplateAreas: '"settings extraSettings"',
-  gridTemplateColumns: '1fr auto',
   alignItems: 'center',
+  justifyContent: 'space-between',
   whiteSpace: 'nowrap',
 });
 
@@ -24,15 +24,16 @@ const settingsStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
+  flex: 'none',
 });
 
 const extraSettingsStyles = css({
-  gridArea: 'extraSettings',
   display: 'flex',
+  flex: 'none',
 });
 
 type PipelineSettingsProps = {
-  isEditingViewPipeline?: boolean;
+  editViewName?: string;
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
   onCreateNewPipeline: () => void;
@@ -41,7 +42,7 @@ type PipelineSettingsProps = {
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({
-  isEditingViewPipeline = false,
+  editViewName,
   isExportToLanguageEnabled,
   onExportToLanguage,
   onCreateNewPipeline,
@@ -51,8 +52,8 @@ export const PipelineSettings: React.FunctionComponent<
     React
   );
   const isSavePipelineDisplayed =
-    !isEditingViewPipeline && enableSavedAggregationsQueries;
-  const isCreatePipelineDisplayed = !isEditingViewPipeline;
+    !editViewName && enableSavedAggregationsQueries;
+  const isCreatePipelineDisplayed = !editViewName;
 
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
@@ -87,6 +88,9 @@ export const PipelineSettings: React.FunctionComponent<
           </span>
         </Button>
       </div>
+      {editViewName && (
+        <ModifySourceBanner editViewName={editViewName}></ModifySourceBanner>
+      )}
       <div className={extraSettingsStyles}>
         <PipelineExtraSettings />
       </div>
@@ -98,7 +102,7 @@ export default connect(
   (state: RootState) => {
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isEditingViewPipeline: !!state.editViewName,
+      editViewName: state.editViewName ?? undefined,
       isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },

@@ -11,7 +11,7 @@ function mockTab(tabId: number): TabProps {
   return {
     title: `mock-tab-${tabId}`,
     subtitle: `Documents - ${tabId}`,
-    tabContentId: `${tabId}-content`,
+    id: `${tabId}-content`,
     iconGlyph: 'Folder',
   };
 }
@@ -20,12 +20,16 @@ describe('WorkspaceTabs', function () {
   let onCreateNewTabSpy: sinon.SinonSpy;
   let onCloseTabSpy: sinon.SinonSpy;
   let onSelectSpy: sinon.SinonSpy;
+  let onSelectNextSpy: sinon.SinonSpy;
+  let onSelectPrevSpy: sinon.SinonSpy;
   let onMoveTabSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onCreateNewTabSpy = sinon.spy();
     onCloseTabSpy = sinon.spy();
     onSelectSpy = sinon.spy();
+    onSelectNextSpy = sinon.spy();
+    onSelectPrevSpy = sinon.spy();
     onMoveTabSpy = sinon.spy();
   });
 
@@ -39,6 +43,8 @@ describe('WorkspaceTabs', function () {
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
+          onSelectNextTab={onSelectNextSpy}
+          onSelectPrevTab={onSelectPrevSpy}
           onMoveTab={onMoveTabSpy}
           tabs={[]}
           selectedTabIndex={0}

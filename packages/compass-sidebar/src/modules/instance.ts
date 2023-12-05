@@ -16,6 +16,7 @@ export interface ChangeInstanceAction {
 export const INITIAL_STATE: InstanceState = null;
 export type InstanceState = null | Pick<
   MongoDBInstance,
+  | 'status'
   | 'refreshingStatus'
   | 'databasesStatus'
   | 'csfleMode'

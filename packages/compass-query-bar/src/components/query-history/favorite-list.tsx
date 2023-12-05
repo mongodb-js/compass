@@ -46,6 +46,7 @@ const FavoriteItem = ({
     track('Query History Favorite Used', {
       id: query._id,
       screen: 'documents',
+      isUpdateQuery,
     });
 
     if (isDisabled) {
@@ -70,9 +71,10 @@ const FavoriteItem = ({
     track('Query History Favorite Removed', {
       id: query._id,
       screen: 'documents',
+      isUpdateQuery,
     });
     onDelete(query._id);
-  }, [onDelete, query._id]);
+  }, [onDelete, query._id, isUpdateQuery]);
 
   return (
     <QueryItemCard
