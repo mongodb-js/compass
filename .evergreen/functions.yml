@@ -451,7 +451,7 @@ functions:
               KEYCHAIN_PASSWORD="$MACOS_GUI_KEYCHAIN_SECRET"
             fi
             echo "Unlocking keychain on macOS"
-            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $(security default-keychain)
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $(security default-keychain | xargs)
           fi
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
