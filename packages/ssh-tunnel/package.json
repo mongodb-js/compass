@@ -65,7 +65,7 @@
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
