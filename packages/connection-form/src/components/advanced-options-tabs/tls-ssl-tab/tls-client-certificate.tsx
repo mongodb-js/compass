@@ -47,6 +47,7 @@ function TLSClientCertificate({
             );
           }}
           showFileOnNewLine
+          mode="open"
           optional={optional}
           optionalMessage={
             optional && displayDatabaseConnectionUserHints

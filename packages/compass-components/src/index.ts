@@ -21,6 +21,7 @@ import type {
 } from './components/file-input';
 import FileInput, {
   createElectronFileInputBackend,
+  FileInputBackendProvider,
 } from './components/file-input';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
@@ -100,6 +101,7 @@ export {
   ConfirmationModal,
   ErrorSummary,
   FileInput,
+  FileInputBackendProvider,
   IndexIcon,
   MoreOptionsToggle,
   RadioBoxGroup,
