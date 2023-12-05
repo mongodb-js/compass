@@ -17,7 +17,6 @@ import {
   updateMongoDBServerInfo,
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
-import { tryUnlockKeychain } from './helpers/keychain';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -45,7 +44,6 @@ let metricsClient: MongoClient;
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
 function setup() {
-  tryUnlockKeychain();
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   // When working on the tests it is faster to just keep the server running.
