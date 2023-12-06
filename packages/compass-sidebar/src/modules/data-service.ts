@@ -1,5 +1,6 @@
 import type { DataService } from 'mongodb-data-service';
-import type { RootAction } from '.';
+import type { RootAction, RootState } from '.';
+import type { ThunkAction } from 'redux-thunk';
 
 export const SET_DATASERVICE = 'sidebar/SET_DATASERVICE' as const;
 interface SetDataServiceAction {
@@ -38,7 +39,10 @@ export const setDataService = (
 
 export const setConnectionIsCSFLEEnabled = (
   enable: boolean
-): SetCSFLEEnabledAction => ({
-  type: SET_CSFLE_ENABLED,
-  enable,
-});
+): ThunkAction<void, RootState, void, SetCSFLEEnabledAction> => {
+  return (dispatch, getState) => {
+    const { globalAppRegistry } = getState().appRegistry;
+    dispatch({ type: SET_CSFLE_ENABLED, enable });
+    queueMicrotask(() => globalAppRegistry?.emit('refresh-data'));
+  };
+};

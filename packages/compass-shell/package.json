@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.20.0",
+  "version": "3.20.1",
   "description": "Compass Shell Plugin",
   "author": {
     "name": "MongoDB Inc",
@@ -63,8 +63,8 @@
     "@mongodb-js/compass-utils": "^0.5.6",
     "@mongosh/node-runtime-worker-thread": "^2.1.0",
     "compass-preferences-model": "^2.16.0",
-    "hadron-app-registry": "^9.1.0",
-    "mongodb-data-service": "^22.16.0"
+    "hadron-app-registry": "^9.1.1",
+    "mongodb-data-service": "^22.16.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-user-data": "^0.1.10",
@@ -73,8 +73,8 @@
     "@mongodb-js/compass-utils": "^0.5.6",
     "@mongosh/node-runtime-worker-thread": "^2.1.0",
     "compass-preferences-model": "^2.16.0",
-    "hadron-app-registry": "^9.1.0",
-    "mongodb-data-service": "^22.16.0",
+    "hadron-app-registry": "^9.1.1",
+    "mongodb-data-service": "^22.16.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -94,7 +94,7 @@
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react-dom": "^17.0.2",
-    "react-redux": "^8.0.5",
+    "react-redux": "^8.1.3",
     "redux": "^4.2.1",
     "sinon": "^9.2.3"
   }

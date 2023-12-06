@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, useMemo, memo, useRef } from 'react';
+import React, { useCallback, useMemo, memo, useRef, useEffect } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
@@ -161,6 +161,12 @@ const DatabasesNavigationTree: React.FunctionComponent<{
 }) => {
   const listRef = useRef<List | null>(null);
   const id = useId();
+
+  useEffect(() => {
+    if (activeNamespace) {
+      onDatabaseExpand(activeNamespace, true);
+    }
+  }, [activeNamespace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
     return databases
