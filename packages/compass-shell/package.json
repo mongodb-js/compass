@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.20.1",
+  "version": "3.20.2",
   "description": "Compass Shell Plugin",
   "author": {
     "name": "MongoDB Inc",
