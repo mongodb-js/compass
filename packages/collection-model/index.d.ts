@@ -50,7 +50,7 @@ type CollectionMetadata = {
 interface Collection {
   _id: string;
   type: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
   ns: string;
   name: string;
@@ -78,7 +78,7 @@ interface Collection {
   isView: boolean;
   sourceId: string | null;
   source: Collection;
-  properties: { name: string; options?: unknown }[];
+  properties: { id: string; options?: unknown }[];
   fetch(opts: {
     dataService: DataService;
     fetchInfo?: boolean;

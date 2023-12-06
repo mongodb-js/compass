@@ -28,6 +28,8 @@ interface Database {
     force?: boolean;
   }): Promise<void>;
   on(evt: string, fn: (...args: any) => void);
+  off(evt: string, fn: (...args: any) => void);
+  removeListener(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived: boolean }): this;
 }
 

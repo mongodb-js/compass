@@ -1,26 +1,19 @@
-import React, { Component } from 'react';
-import { Provider } from 'react-redux';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import CollectionsList from './components/collections';
+import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import type { DataService } from 'mongodb-data-service';
 
-import CollectionsPlugin from './components/collections';
-import store from './stores/collections-store';
-
-class Plugin extends Component<{
-  // TODO: not currently used, but will be when the plugin is converted to the
-  // new interface
-  namespace: string;
-}> {
-  static displayName = 'CollectionsPlugin';
-
-  /**
-   * Connect the Plugin to the store and render.
-   */
-  render() {
-    return (
-      <Provider store={store}>
-        <CollectionsPlugin />
-      </Provider>
-    );
+export const CollectionsPlugin = registerHadronPlugin(
+  {
+    name: 'Collections',
+    component: CollectionsList,
+    activate: activateCollectionsTabPlugin,
+  },
+  {
+    instance: mongoDBInstanceLocator,
+    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
   }
-}
-
-export default Plugin;
+);

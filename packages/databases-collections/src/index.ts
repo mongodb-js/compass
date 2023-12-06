@@ -1,4 +1,3 @@
-import type AppRegistry from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import {
@@ -6,8 +5,7 @@ import {
   type DataServiceLocator,
 } from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import CollectionsPlugin from './collections-plugin';
-import CollectionsStore from './stores/collections-store';
+import { CollectionsPlugin } from './collections-plugin';
 import {
   DropNamespaceComponent,
   activatePlugin as activateDropNamespacePlugin,
@@ -77,21 +75,12 @@ export const RenameCollectionPlugin = registerHadronPlugin(
   }
 );
 
-/**
- * Activate all the components in the package.
- **/
-function activate(appRegistry: AppRegistry) {
-  appRegistry.registerStore(
-    'CollectionsPlugin.CollectionsStore',
-    CollectionsStore
-  );
+function activate() {
+  // noop
 }
 
-/**
- * Deactivate all the components in the package.
- **/
-function deactivate(appRegistry: AppRegistry) {
-  appRegistry.deregisterStore('CollectionsPlugin.CollectionsStore');
+function deactivate() {
+  // noop
 }
 
 export { activate, deactivate };
