@@ -8,7 +8,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import { AuthMechanism } from 'mongodb';
+import type { AuthMechanism } from 'mongodb';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -22,16 +22,8 @@ import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
-type AUTH_TABS =
-  | 'DEFAULT' // Username/Password (SCRAM-SHA-1 + SCRAM-SHA-256 + DEFAULT)
-  | 'MONGODB-X509'
-  | 'GSSAPI' // Kerberos
-  | 'PLAIN' // LDAP
-  | 'MONGODB-OIDC'
-  | 'MONGODB-AWS'; // AWS IAM
-
 interface TabOption {
-  id: AUTH_TABS;
+  id: AuthMechanism;
   title: string;
   component: React.FC<{
     errors: ConnectionFormError[];
@@ -44,32 +36,32 @@ interface TabOption {
 const options: TabOption[] = [
   {
     title: 'Username/Password',
-    id: AuthMechanism.MONGODB_DEFAULT,
+    id: 'DEFAULT',
     component: AuthenticationDefault,
   },
   {
     title: 'OIDC (Preview)',
-    id: AuthMechanism.MONGODB_OIDC,
+    id: 'MONGODB-OIDC',
     component: AuthenticationOidc,
   },
   {
     title: 'X.509',
-    id: AuthMechanism.MONGODB_X509,
+    id: 'MONGODB-X509',
     component: AuthenticationX509,
   },
   {
     title: 'Kerberos',
-    id: AuthMechanism.MONGODB_GSSAPI,
+    id: 'GSSAPI',
     component: AuthenticationGSSAPI,
   },
   {
     title: 'LDAP',
-    id: AuthMechanism.MONGODB_PLAIN,
+    id: 'PLAIN',
     component: AuthenticationPlain,
   },
   {
     title: 'AWS IAM',
-    id: AuthMechanism.MONGODB_AWS,
+    id: 'MONGODB-AWS',
     component: AuthenticationAWS,
   },
 ];
@@ -84,7 +76,7 @@ const contentStyles = css({
 
 function getSelectedAuthTabForConnectionString(
   connectionStringUrl: ConnectionStringUrl
-): AUTH_TABS {
+): AuthMechanism {
   const authMechanismString = (
     connectionStringUrl.searchParams.get('authMechanism') || ''
   ).toUpperCase();
@@ -94,7 +86,7 @@ function getSelectedAuthTabForConnectionString(
     return matchingTab.id;
   }
 
-  return AuthMechanism.MONGODB_DEFAULT;
+  return 'DEFAULT';
 }
 
 function AuthenticationTab({
@@ -138,7 +130,7 @@ function AuthenticationTab({
       return updateConnectionFormField({
         type: 'update-auth-mechanism',
         authMechanism:
-          event.target.value === AuthMechanism.MONGODB_DEFAULT
+          event.target.value === 'DEFAULT'
             ? null
             : (event.target.value as AuthMechanism),
       });

@@ -12,7 +12,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions, ReadPreferenceMode } from 'mongodb';
-import { ReadPreference as MongoReadPreference } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
@@ -29,23 +28,23 @@ interface ReadPreference {
 export const readPreferences: ReadPreference[] = [
   {
     title: 'Primary',
-    id: MongoReadPreference.PRIMARY,
+    id: 'primary',
   },
   {
     title: 'Primary Preferred',
-    id: MongoReadPreference.PRIMARY_PREFERRED,
+    id: 'primaryPreferred',
   },
   {
     title: 'Secondary',
-    id: MongoReadPreference.SECONDARY,
+    id: 'secondary',
   },
   {
     title: 'Secondary Preferred',
-    id: MongoReadPreference.SECONDARY_PREFERRED,
+    id: 'secondaryPreferred',
   },
   {
     title: 'Nearest',
-    id: MongoReadPreference.NEAREST,
+    id: 'nearest',
   },
 ];
 
