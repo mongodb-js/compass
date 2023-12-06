@@ -112,7 +112,10 @@ describe('Atlas Login', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
 
-    compass = await beforeTests();
+    compass = await beforeTests({
+      // With this flag enabled, we are not persisting the data between tests
+      firstRun: true,
+    });
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
