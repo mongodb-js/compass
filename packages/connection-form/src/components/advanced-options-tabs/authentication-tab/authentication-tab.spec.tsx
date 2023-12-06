@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { AuthMechanism } from 'mongodb';
+import type { AuthMechanism } from 'mongodb';
 
 import AuthenticationTab from './authentication-tab';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -40,30 +40,33 @@ function renderComponent({
   );
 }
 
-const authMechanisms = [
+const authMechanisms: {
+  title: string;
+  id: AuthMechanism;
+}[] = [
   {
     title: 'Username/Password',
-    id: AuthMechanism.MONGODB_DEFAULT,
+    id: 'DEFAULT',
   },
   {
     title: 'OIDC (Preview)',
-    id: AuthMechanism.MONGODB_OIDC,
+    id: 'MONGODB-OIDC',
   },
   {
     title: 'X.509',
-    id: AuthMechanism.MONGODB_X509,
+    id: 'MONGODB-X509',
   },
   {
     title: 'Kerberos',
-    id: AuthMechanism.MONGODB_GSSAPI,
+    id: 'GSSAPI',
   },
   {
     title: 'LDAP',
-    id: AuthMechanism.MONGODB_PLAIN,
+    id: 'PLAIN',
   },
   {
     title: 'AWS IAM',
-    id: AuthMechanism.MONGODB_AWS,
+    id: 'MONGODB-AWS',
   },
 ];
 
