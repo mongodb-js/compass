@@ -6,7 +6,6 @@ import type {
 import {
   Banner,
   BannerVariant,
-  Card,
   Description,
   FavoriteIcon,
   Icon,
@@ -15,9 +14,6 @@ import {
   H3,
   spacing,
   css,
-  cx,
-  palette,
-  useDarkMode,
   ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
@@ -33,33 +29,6 @@ import {
   ConnectionFormPreferencesContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
-
-const formContainerStyles = css({
-  margin: 0,
-  padding: 0,
-  height: 'fit-content',
-  width: spacing[6] * 12,
-  position: 'relative',
-  display: 'inline-block',
-});
-
-const formCardStyles = css({
-  margin: 0,
-  height: 'fit-content',
-  width: '100%',
-  position: 'relative',
-  display: 'flex',
-  flexFlow: 'column nowrap',
-  maxHeight: '95vh',
-});
-
-const formCardDarkThemeStyles = css({
-  background: palette.black,
-});
-
-const formCardLightThemeStyles = css({
-  background: palette.white,
-});
 
 const descriptionStyles = css({
   marginTop: spacing[2],
@@ -140,8 +109,6 @@ function ConnectionForm({
   // the connection info can be saved.
   onSaveConnectionClicked,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
-  const darkMode = useDarkMode();
-
   const [
     {
       enableEditingConnectionString: _enableEditingConnectionString,
@@ -227,123 +194,112 @@ function ConnectionForm({
 
   return (
     <ConfirmationModalArea>
-      <div className={formContainerStyles} data-testid="connection-form">
-        <Card
-          className={cx(
-            formCardStyles,
-            darkMode ? formCardDarkThemeStyles : formCardLightThemeStyles
-          )}
-        >
-          <form
-            className={formStyles}
-            onSubmit={(e) => {
-              // Prevent default html page refresh.
-              e.preventDefault();
-              onSubmitForm();
-            }}
-            // Prevent default html tooltip popups.
-            noValidate
-          >
-            <div className={formContentContainerStyles}>
-              <H3 className={formHeaderStyles}>
-                {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-                {!!onSaveConnectionClicked && (
-                  <IconButton
-                    type="button"
-                    aria-label="Save Connection"
-                    data-testid="edit-favorite-name-button"
-                    className={editFavoriteButtonStyles}
-                    onClick={() => {
-                      setSaveConnectionModal('save');
-                    }}
-                  >
-                    <Icon glyph="Edit" />
-                  </IconButton>
-                )}
-              </H3>
-              <Description className={descriptionStyles}>
-                Connect to a MongoDB deployment
-              </Description>
-              {!!onSaveConnectionClicked && (
-                <IconButton
-                  aria-label="Save Connection"
-                  data-testid="edit-favorite-icon-button"
-                  type="button"
-                  className={favoriteButtonStyles}
-                  size="large"
-                  onClick={() => {
-                    setSaveConnectionModal('save');
-                  }}
-                >
-                  <div className={favoriteButtonContentStyles}>
-                    <FavoriteIcon
-                      isFavorite={!!initialConnectionInfo.favorite}
-                      size={spacing[5]}
-                    />
-                    <Overline className={favoriteButtonLabelStyles}>
-                      FAVORITE
-                    </Overline>
-                  </div>
-                </IconButton>
-              )}
-              <ConnectionStringInput
-                connectionString={connectionOptions.connectionString}
-                enableEditingConnectionString={enableEditingConnectionString}
-                setEnableEditingConnectionString={
-                  setEnableEditingConnectionString
-                }
-                onSubmit={() => onSubmitForm()}
-                updateConnectionFormField={updateConnectionFormField}
-                protectConnectionStrings={protectConnectionStrings}
-              />
-              {connectionStringInvalidError && (
-                <Banner
-                  className={connectionStringErrorStyles}
-                  variant={BannerVariant.Danger}
-                >
-                  {connectionStringInvalidError.message}
-                </Banner>
-              )}
-              {!protectConnectionStrings && (
-                <AdvancedConnectionOptions
-                  errors={connectionStringInvalidError ? [] : errors}
-                  disabled={!!connectionStringInvalidError}
-                  updateConnectionFormField={updateConnectionFormField}
-                  connectionOptions={connectionOptions}
+      <form
+        className={formStyles}
+        onSubmit={(e) => {
+          // Prevent default html page refresh.
+          e.preventDefault();
+          onSubmitForm();
+        }}
+        // Prevent default html tooltip popups.
+        noValidate
+      >
+        <div className={formContentContainerStyles}>
+          <H3 className={formHeaderStyles}>
+            {initialConnectionInfo.favorite?.name ?? 'New Connection'}
+            {!!onSaveConnectionClicked && (
+              <IconButton
+                type="button"
+                aria-label="Save Connection"
+                data-testid="edit-favorite-name-button"
+                className={editFavoriteButtonStyles}
+                onClick={() => {
+                  setSaveConnectionModal('save');
+                }}
+              >
+                <Icon glyph="Edit" />
+              </IconButton>
+            )}
+          </H3>
+          <Description className={descriptionStyles}>
+            Connect to a MongoDB deployment
+          </Description>
+          {!!onSaveConnectionClicked && (
+            <IconButton
+              aria-label="Save Connection"
+              data-testid="edit-favorite-icon-button"
+              type="button"
+              className={favoriteButtonStyles}
+              size="large"
+              onClick={() => {
+                setSaveConnectionModal('save');
+              }}
+            >
+              <div className={favoriteButtonContentStyles}>
+                <FavoriteIcon
+                  isFavorite={!!initialConnectionInfo.favorite}
+                  size={spacing[5]}
                 />
-              )}
-            </div>
-            <div className={formFooterStyles}>
-              <ConnectionFormActions
-                errors={connectionStringInvalidError ? [] : errors}
-                warnings={connectionStringInvalidError ? [] : warnings}
-                saveButton={
-                  isDirty || !initialConnectionInfo.favorite
-                    ? 'enabled'
-                    : 'disabled'
-                }
-                saveAndConnectButton={
-                  initialConnectionInfo.favorite ? 'hidden' : 'enabled'
-                }
-                onSaveClicked={() => {
-                  if (initialConnectionInfo.favorite) {
-                    void callOnSaveConnectionClickedAndStoreErrors({
-                      ...cloneDeep(initialConnectionInfo),
-                      connectionOptions: cloneDeep(connectionOptions),
-                    });
-                  } else {
-                    setSaveConnectionModal('save');
-                  }
-                }}
-                onSaveAndConnectClicked={() => {
-                  setSaveConnectionModal('saveAndConnect');
-                }}
-                onConnectClicked={() => onSubmitForm()}
-              />
-            </div>
-          </form>
-        </Card>
-      </div>
+                <Overline className={favoriteButtonLabelStyles}>
+                  FAVORITE
+                </Overline>
+              </div>
+            </IconButton>
+          )}
+          <ConnectionStringInput
+            connectionString={connectionOptions.connectionString}
+            enableEditingConnectionString={enableEditingConnectionString}
+            setEnableEditingConnectionString={setEnableEditingConnectionString}
+            onSubmit={() => onSubmitForm()}
+            updateConnectionFormField={updateConnectionFormField}
+            protectConnectionStrings={protectConnectionStrings}
+          />
+          {connectionStringInvalidError && (
+            <Banner
+              className={connectionStringErrorStyles}
+              variant={BannerVariant.Danger}
+            >
+              {connectionStringInvalidError.message}
+            </Banner>
+          )}
+          {!protectConnectionStrings && (
+            <AdvancedConnectionOptions
+              errors={connectionStringInvalidError ? [] : errors}
+              disabled={!!connectionStringInvalidError}
+              updateConnectionFormField={updateConnectionFormField}
+              connectionOptions={connectionOptions}
+            />
+          )}
+        </div>
+        <div className={formFooterStyles}>
+          <ConnectionFormActions
+            errors={connectionStringInvalidError ? [] : errors}
+            warnings={connectionStringInvalidError ? [] : warnings}
+            saveButton={
+              isDirty || !initialConnectionInfo.favorite
+                ? 'enabled'
+                : 'disabled'
+            }
+            saveAndConnectButton={
+              initialConnectionInfo.favorite ? 'hidden' : 'enabled'
+            }
+            onSaveClicked={() => {
+              if (initialConnectionInfo.favorite) {
+                void callOnSaveConnectionClickedAndStoreErrors({
+                  ...cloneDeep(initialConnectionInfo),
+                  connectionOptions: cloneDeep(connectionOptions),
+                });
+              } else {
+                setSaveConnectionModal('save');
+              }
+            }}
+            onSaveAndConnectClicked={() => {
+              setSaveConnectionModal('saveAndConnect');
+            }}
+            onConnectClicked={() => onSubmitForm()}
+          />
+        </div>
+      </form>
       {!!onSaveConnectionClicked && (
         <SaveConnectionModal
           open={saveConnectionModal !== 'hidden'}
