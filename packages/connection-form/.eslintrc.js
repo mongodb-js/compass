@@ -9,6 +9,9 @@ module.exports = {
     {
       files: ['./src/**/*.ts', './src/**/*.tsx'],
       rules: {
+        // See -
+        // https://typescript-eslint.io/rules/no-restricted-imports/#how-to-use
+        'no-restricted-imports': 'off',
         // 'mongodb' package has been moved to devDependencies in this package, to
         // aid in the usage of this package inside the VSCode extension's webview.
         // Otherwise it would have been necessary to provide several polyfills for
@@ -23,6 +26,16 @@ module.exports = {
                 name: 'mongodb',
                 allowTypeImports: true,
                 message: "Only type imports allowed from 'mongodb'",
+              },
+            ],
+            // Additionally we would like to make sure that connection-storage
+            // is not directly used in this package since it is very compass
+            // specific
+            patterns: [
+              {
+                group: ['@mongodb-js/connection-storage'],
+                message: 'Only type imports allowed from this package',
+                allowTypeImports: true,
               },
             ],
           },
