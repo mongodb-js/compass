@@ -9,6 +9,7 @@ import {
   cx,
   getScrollbarStyles,
   palette,
+  resetGlobalCSS,
   Body,
   useConfirmationModal,
   GuideCueProvider,
@@ -53,6 +54,8 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
+
+resetGlobalCSS();
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;

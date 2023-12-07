@@ -1,3 +1,7 @@
+import { injectGlobal } from '@leafygreen-ui/emotion';
+
+export function resetGlobalCSS() {
+  injectGlobal(`
 /* Remove list styles (bullets/numbers) */
 ol,
 ul {
@@ -60,4 +64,6 @@ q:after {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+`);
 }
