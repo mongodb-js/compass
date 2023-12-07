@@ -27,7 +27,6 @@ variables:
     EVERGREEN_AUTHOR: ${author}
     EVERGREEN_BRANCH_NAME: ${branch_name}
     EVERGREEN_BUILD_ID: ${build_id}
-    EVERGREEN_DISTRO_ID: ${distro_id}
     EVERGREEN_BUILD_VARIANT: ${build_variant}
     EVERGREEN_EXECUTION: ${execution}
     EVERGREEN_IS_PATCH: ${is_patch}
@@ -72,7 +71,6 @@ variables:
     MACOS_NOTARY_SECRET: ${macos_notary_secret}
     MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
     MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
-    MACOS_GUI_KEYCHAIN_SECRET: ${macos-1100-gui_keychain_secret}
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
