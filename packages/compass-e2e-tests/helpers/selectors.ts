@@ -1115,7 +1115,12 @@ export const workspaceTab = (
   active: boolean | null = null
 ) => {
   const _active = active === null ? '' : `[aria-selected="${String(active)}"]`;
-  const _title = title === null ? '' : `[title="${title}"]`;
+  const _title =
+    title === null
+      ? ''
+      : ['My Queries', 'Performance', 'Databases'].includes(title)
+      ? `[title="${title}"]`
+      : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
 export const instanceWorkspaceTab = (
@@ -1134,8 +1139,7 @@ export const collectionWorkspaceTab = (
   namespace: string,
   active: boolean | null = null
 ) => {
-  const [db, ...coll] = namespace.split('.');
-  return workspaceTab(`${db} > ${coll.join('.')}`, active);
+  return workspaceTab(namespace, active);
 };
 
 // Export modal

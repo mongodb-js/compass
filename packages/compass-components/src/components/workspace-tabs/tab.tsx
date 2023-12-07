@@ -175,7 +175,8 @@ function Tab({
   tabContentId,
   iconGlyph,
   subtitle,
-}: TabProps) {
+  ...props
+}: TabProps & React.HTMLProps<HTMLDivElement>) {
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({
@@ -184,13 +185,17 @@ function Tab({
 
   const tabProps = mergeProps<HTMLDivElement>(
     defaultActionProps,
-    listeners ?? {}
+    listeners ?? {},
+    props
   );
 
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
     cursor: 'grabbing !important',
+    // For tabs with longer subtitles we want base width to be bigger so that
+    // the subtitle that shows up on hover has a bit more space for it
+    minWidth: (subtitle?.length ?? 0) > 16 ? spacing[6] * 3 : undefined,
   };
 
   return (

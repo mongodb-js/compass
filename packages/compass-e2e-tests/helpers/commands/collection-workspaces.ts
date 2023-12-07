@@ -101,20 +101,8 @@ export async function waitUntilActiveCollectionSubTab(
 }
 
 export async function getActiveTabNamespace(browser: CompassBrowser) {
-  const activeWorkspaceTitle = await browser
+  const activeWorkspaceNamespace = await browser
     .$(Selectors.workspaceTab(null, true))
-    .getAttribute('title');
-  switch (activeWorkspaceTitle) {
-    case 'My Queries':
-    case 'Performance':
-    case 'Databases':
-      return null;
-    default: {
-      const [db, coll] = activeWorkspaceTitle.split(' > ');
-      if (!coll) {
-        return db;
-      }
-      return `${db}.${coll}`;
-    }
-  }
+    .getAttribute('data-namespace');
+  return activeWorkspaceNamespace || null;
 }

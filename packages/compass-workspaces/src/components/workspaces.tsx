@@ -121,25 +121,33 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             title: tab.namespace,
             iconGlyph: 'Database',
+            'data-namespace': tab.namespace,
           } as const;
         case 'Collection': {
-          const { database, collection } = toNS(tab.namespace);
+          const { database, collection, ns } = toNS(tab.namespace);
+          const viewOnCollection = tab.sourceName
+            ? toNS(tab.sourceName).collection
+            : null;
           // TODO: make sure metadata is resolved by collection-tab
           const collectionType = tab.isTimeSeries
             ? 'timeseries'
             : tab.isReadonly
             ? 'view'
             : 'collection';
+          const subtitle = viewOnCollection
+            ? `${database} > ${viewOnCollection} > ${collection}`
+            : `${database} > ${collection}`;
           return {
             id: tab.id,
             title: collection,
-            subtitle: `${database} > ${collection}`,
+            subtitle,
             iconGlyph:
               collectionType === 'view'
                 ? 'Visibility'
                 : collectionType === 'timeseries'
                 ? 'TimeSeries'
                 : 'Folder',
+            'data-namespace': ns,
           } as const;
         }
       }
