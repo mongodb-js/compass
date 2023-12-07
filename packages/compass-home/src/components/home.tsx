@@ -55,6 +55,8 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
+resetGlobalCSS();
+
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;
 try {
@@ -393,8 +395,6 @@ function ThemedHome(
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
   useLayoutEffect(() => {
-    resetGlobalCSS();
-
     // If we haven't showed welcome modal that points users to network opt in
     // yet, show the modal and update preferences with default values to reflect
     // that
