@@ -9,6 +9,7 @@ import {
   cx,
   getScrollbarStyles,
   palette,
+  resetGlobalCSS,
   Body,
   useConfirmationModal,
   GuideCueProvider,
@@ -392,6 +393,8 @@ function ThemedHome(
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
   useLayoutEffect(() => {
+    resetGlobalCSS();
+
     // If we haven't showed welcome modal that points users to network opt in
     // yet, show the modal and update preferences with default values to reflect
     // that
