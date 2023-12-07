@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "8.22.0",
+  "version": "8.22.1",
   "description": "Renders a component for executing MongoDB queries through a GUI",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
@@ -56,13 +56,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/atlas-service": "^0.12.0",
-    "@mongodb-js/compass-components": "^1.20.0",
-    "@mongodb-js/compass-editor": "^0.19.0",
-    "@mongodb-js/compass-generative-ai": "^0.6.0",
+    "@mongodb-js/atlas-service": "^0.12.1",
+    "@mongodb-js/compass-components": "^1.20.1",
+    "@mongodb-js/compass-editor": "^0.19.1",
+    "@mongodb-js/compass-generative-ai": "^0.6.1",
     "@mongodb-js/compass-logging": "^1.2.7",
     "@mongodb-js/mongodb-constants": "^0.8.7",
-    "@mongodb-js/my-queries-storage": "^0.3.0",
+    "@mongodb-js/my-queries-storage": "^0.3.1",
     "bson": "^6.2.0",
     "compass-preferences-model": "^2.16.0",
     "mongodb-query-util": "^2.1.4",
@@ -98,13 +98,13 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/atlas-service": "^0.12.0",
-    "@mongodb-js/compass-components": "^1.20.0",
-    "@mongodb-js/compass-editor": "^0.19.0",
-    "@mongodb-js/compass-generative-ai": "^0.6.0",
+    "@mongodb-js/atlas-service": "^0.12.1",
+    "@mongodb-js/compass-components": "^1.20.1",
+    "@mongodb-js/compass-editor": "^0.19.1",
+    "@mongodb-js/compass-generative-ai": "^0.6.1",
     "@mongodb-js/compass-logging": "^1.2.7",
     "@mongodb-js/mongodb-constants": "^0.8.7",
-    "@mongodb-js/my-queries-storage": "^0.3.0",
+    "@mongodb-js/my-queries-storage": "^0.3.1",
     "bson": "^6.2.0",
     "compass-preferences-model": "^2.16.0",
     "mongodb-query-util": "^2.1.4"

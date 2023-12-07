@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.20.2",
+  "version": "1.20.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -47,13 +47,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.20.0",
-    "@mongodb-js/compass-editor": "^0.19.0",
+    "@mongodb-js/compass-components": "^1.20.1",
+    "@mongodb-js/compass-editor": "^0.19.1",
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.20.0",
-    "@mongodb-js/compass-editor": "^0.19.0",
+    "@mongodb-js/compass-components": "^1.20.1",
+    "@mongodb-js/compass-editor": "^0.19.1",
     "@testing-library/react-hooks": "^7.0.2",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.7.0",
