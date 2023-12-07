@@ -45,6 +45,7 @@ function ConnectFormActions({
   onSaveAndConnectClicked,
   saveButton,
   saveAndConnectButton,
+  showSaveActions,
 }: {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
@@ -53,6 +54,7 @@ function ConnectFormActions({
   onSaveAndConnectClicked: () => void;
   saveButton: 'enabled' | 'disabled' | 'hidden';
   saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
+  showSaveActions?: boolean;
 }): React.ReactElement {
   return (
     <div className={cx(formActionStyles)}>
@@ -73,28 +75,32 @@ function ConnectFormActions({
         </div>
       )}
       <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
-        {saveButton !== 'hidden' && (
-          <Button
-            data-testid="save-connection-button"
-            variant={ButtonVariant.Default}
-            disabled={saveButton === 'disabled'}
-            onClick={onSaveClicked}
-          >
-            Save
-          </Button>
-        )}
+        {showSaveActions && (
+          <>
+            {saveButton !== 'hidden' && (
+              <Button
+                data-testid="save-connection-button"
+                variant={ButtonVariant.Default}
+                disabled={saveButton === 'disabled'}
+                onClick={onSaveClicked}
+              >
+                Save
+              </Button>
+            )}
 
-        {saveAndConnectButton !== 'hidden' && (
-          <div className={saveAndConnectStyles}>
-            <Button
-              data-testid="save-and-connect-button"
-              variant={ButtonVariant.PrimaryOutline}
-              disabled={saveAndConnectButton === 'disabled'}
-              onClick={onSaveAndConnectClicked}
-            >
-              Save &amp; Connect
-            </Button>
-          </div>
+            {saveAndConnectButton !== 'hidden' && (
+              <div className={saveAndConnectStyles}>
+                <Button
+                  data-testid="save-and-connect-button"
+                  variant={ButtonVariant.PrimaryOutline}
+                  disabled={saveAndConnectButton === 'disabled'}
+                  onClick={onSaveAndConnectClicked}
+                >
+                  Save &amp; Connect
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         <Button
