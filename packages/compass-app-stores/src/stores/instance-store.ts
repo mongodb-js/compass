@@ -239,8 +239,6 @@ export function createInstanceStore({
     appRegistry.on(ev, listener);
     cleanup.push(() => appRegistry.removeListener(ev, listener));
   }
-  const onSelectDatabase = voidify(fetchDatabaseDetails);
-  onAppRegistryEvent('select-database', onSelectDatabase);
 
   const onSidebarExpandDatabase = (dbName: string) =>
     void fetchDatabaseDetails(dbName, { nameOnly: true });
@@ -299,20 +297,6 @@ export function createInstanceStore({
     }
   );
   appRegistry.on('collection-renamed', onCollectionRenamed);
-
-  // Event emitted when the Collections grid needs to be refreshed
-  // with new collections or collection stats for existing ones.
-  const onRefreshCollections = voidify(async ({ ns }: { ns: string }) => {
-    const { database } = toNS(ns);
-    if (!instance.databases.get(database)) {
-      await instance.fetchDatabases({ dataService, force: true });
-    }
-    const db = instance.databases.get(database);
-    if (db) {
-      await db.fetchCollectionsDetails({ dataService, force: true });
-    }
-  });
-  onAppRegistryEvent('refresh-collections', onRefreshCollections);
 
   const onAggPipelineOutExecuted = voidify(refreshInstance);
   onAppRegistryEvent('agg-pipeline-out-executed', onAggPipelineOutExecuted);

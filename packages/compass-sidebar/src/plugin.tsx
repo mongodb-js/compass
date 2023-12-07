@@ -5,7 +5,7 @@ import {
   css,
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
-
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import Sidebar from './components/sidebar';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
@@ -16,7 +16,14 @@ const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
 });
 
-function SidebarPlugin() {
+export interface SidebarPluginProps {
+  activeWorkspace: { type: string; namespace?: string } | null;
+  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
+  // away with refactoring compoass-conneciton to a plugin
+  initialConnectionInfo?: ConnectionInfo | null | undefined;
+}
+
+function SidebarPlugin({ activeWorkspace }: SidebarPluginProps) {
   return (
     <ErrorBoundary
       className={errorBoundaryStyles}
@@ -30,7 +37,7 @@ function SidebarPlugin() {
         );
       }}
     >
-      <Sidebar />
+      <Sidebar activeWorkspace={activeWorkspace} />
     </ErrorBoundary>
   );
 }

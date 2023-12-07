@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import type { Actions } from './actions';
@@ -117,6 +117,26 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
   };
 };
 
+type MockOptions = {
+  pluginName: string;
+  mockedEnvironment: boolean;
+  mockServices: Record<string, unknown>;
+  disableChildPluginRendering: boolean;
+};
+
+const defaultMockOptions = {
+  pluginName: '$$root',
+  mockedEnvironment: false,
+  mockServices: {},
+  disableChildPluginRendering: false,
+};
+
+const MockOptionsContext = React.createContext<MockOptions>(defaultMockOptions);
+
+const useMockOption = <T extends keyof MockOptions>(key: T): MockOptions[T] => {
+  return useContext(MockOptionsContext)[key];
+};
+
 export type HadronPluginComponent<
   T,
   S extends Record<string, () => unknown>
@@ -138,7 +158,8 @@ export type HadronPluginComponent<
    *              explicitly passed as a mock service.
    */
   withMockServices(
-    mocks: Partial<Registries & Services<S>>
+    mocks: Partial<Registries & Services<S>>,
+    options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
   ): React.FunctionComponent<T>;
 };
 
@@ -201,92 +222,124 @@ export function registerHadronPlugin<
 >(config: HadronPluginConfig<T, S>, services?: S): HadronPluginComponent<T, S> {
   const Component = config.component;
   const registryName = `${config.name}.Plugin`;
+  const Plugin = (props: React.PropsWithChildren<T>) => {
+    const isMockedEnvironment = useMockOption('mockedEnvironment');
+    const mockedPluginName = useMockOption('pluginName');
+    const disableRendering = useMockOption('disableChildPluginRendering');
+    const mockServices = useMockOption('mockServices');
 
-  return Object.assign(
-    (props: React.PropsWithChildren<T>) => {
-      const globalAppRegistry = useGlobalAppRegistry();
-      const localAppRegistry = useLocalAppRegistry();
+    const globalAppRegistry = useGlobalAppRegistry();
+    const localAppRegistry = useLocalAppRegistry();
 
-      const serviceImpls = Object.fromEntries(
-        Object.entries(services ?? {}).map(([key, service]) => {
-          try {
-            return [key, service()];
-          } catch (err) {
-            if (
-              err &&
-              typeof err === 'object' &&
-              'message' in err &&
-              typeof err.message === 'string'
-            )
-              err.message += ` [locating service '${key}' for '${registryName}']`;
-            throw err;
-          }
-        })
-      ) as Services<S>;
+    // This can only be true in test environment when parent plugin is setup
+    // with mock services. We allow parent to render, but any other plugin
+    // that would try to render afterwards will just return `null` avoiding
+    // the need for providing services for child plugins
+    if (
+      isMockedEnvironment &&
+      mockedPluginName !== config.name &&
+      disableRendering
+    ) {
+      return null;
+    }
 
-      const [{ store, actions }] = useState(
-        () =>
-          localAppRegistry.getPlugin(registryName) ??
-          (() => {
-            const plugin = config.activate(
-              props,
-              {
-                globalAppRegistry,
-                localAppRegistry,
-                ...serviceImpls,
-              },
-              new ActivateHelpersImpl()
-            );
-            localAppRegistry.registerPlugin(registryName, plugin);
-            return plugin;
-          })()
-      );
+    const serviceImpls = Object.fromEntries(
+      Object.keys({
+        ...(isMockedEnvironment ? mockServices : {}),
+        ...services,
+      }).map((key) => {
+        try {
+          return [
+            key,
+            isMockedEnvironment && mockServices?.[key]
+              ? mockServices[key]
+              : services?.[key](),
+          ];
+        } catch (err) {
+          if (
+            err &&
+            typeof err === 'object' &&
+            'message' in err &&
+            typeof err.message === 'string'
+          )
+            err.message += ` [locating service '${key}' for '${registryName}']`;
+          throw err;
+        }
+      })
+    ) as Services<S>;
 
-      if (isReduxStore(store)) {
-        return (
-          <ReduxStoreProvider store={store}>
-            <Component {...props}></Component>
-          </ReduxStoreProvider>
-        );
-      }
+    // We don't actually use this hook conditionally, even though eslint rule
+    // thinks so: values returned by `useMock*` hooks are constant in React
+    // runtime
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [{ store, actions }] = useState(
+      () =>
+        localAppRegistry.getPlugin(registryName) ??
+        (() => {
+          const plugin = config.activate(
+            props,
+            {
+              globalAppRegistry,
+              localAppRegistry,
+              ...serviceImpls,
+            },
+            new ActivateHelpersImpl()
+          );
+          localAppRegistry.registerPlugin(registryName, plugin);
+          return plugin;
+        })()
+    );
 
+    if (isReduxStore(store)) {
       return (
-        <LegacyRefluxProvider store={store} actions={actions}>
+        <ReduxStoreProvider store={store}>
           <Component {...props}></Component>
-        </LegacyRefluxProvider>
+        </ReduxStoreProvider>
       );
-    },
-    {
-      displayName: config.name,
-      withMockServices(
-        mocks: Partial<Registries & Services<S>>
-      ): React.FunctionComponent<T> {
-        const {
-          // In case globalAppRegistry mock is not provided, we use the one
-          // created in scope so that plugins don't leak their events and
-          // registered metadata on the globalAppRegistry
-          globalAppRegistry = new AppRegistry(),
-          // If localAppRegistry is not explicitly provided, use the passed mock
-          // for global app registry instead
-          localAppRegistry = globalAppRegistry,
-          ...mockServices
-        } = mocks;
-        const mockServiceLocators = Object.fromEntries(
-          Object.keys({ ...services, ...mockServices }).map((s) => {
-            return [s, mockServices[s] ? () => mockServices[s] : services?.[s]];
-          })
-        ) as unknown as S;
-        const MockPlugin = registerHadronPlugin(config, mockServiceLocators);
-        return function MockPluginWithContext(props: T) {
-          return (
+    }
+
+    return (
+      <LegacyRefluxProvider store={store} actions={actions}>
+        <Component {...props}></Component>
+      </LegacyRefluxProvider>
+    );
+  };
+  return Object.assign(Plugin, {
+    displayName: config.name,
+    withMockServices(
+      mocks: Partial<Registries & Services<S>>,
+      options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
+    ): React.FunctionComponent<T> {
+      const {
+        // In case globalAppRegistry mock is not provided, we use the one
+        // created in scope so that plugins don't leak their events and
+        // registered metadata on the globalAppRegistry
+        globalAppRegistry = new AppRegistry(),
+        // If localAppRegistry is not explicitly provided, use the passed mock
+        // for global app registry instead
+        localAppRegistry = globalAppRegistry,
+        ...mockServices
+      } = mocks;
+      // These services will be passed to the plugin `activate` method second
+      // argument
+      const mockOptions = {
+        ...defaultMockOptions,
+        mockedEnvironment: true,
+        pluginName: config.name,
+        mockServices,
+        ...options,
+      };
+      return function MockPluginWithContext(props: T) {
+        return (
+          <MockOptionsContext.Provider value={mockOptions}>
             <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
               <AppRegistryProvider localAppRegistry={localAppRegistry}>
-                <MockPlugin {...(props as any)}></MockPlugin>
+                <Plugin {...(props as any)}></Plugin>
               </AppRegistryProvider>
             </GlobalAppRegistryContext.Provider>
-          );
-        };
-      },
-    }
-  );
+          </MockOptionsContext.Provider>
+        );
+      };
+    },
+  });
 }

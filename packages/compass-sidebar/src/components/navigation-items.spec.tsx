@@ -25,6 +25,7 @@ function renderNavigationItems(
           /* noop */
         }}
         currentLocation={null}
+        currentNamespace={null}
         {...props}
       />
     </Provider>
