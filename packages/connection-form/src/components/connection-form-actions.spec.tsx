@@ -23,6 +23,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="hidden"
             saveAndConnectButton="hidden"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -45,6 +46,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="disabled"
             saveAndConnectButton="hidden"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -79,6 +81,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="enabled"
             saveAndConnectButton="hidden"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -114,6 +117,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="hidden"
             saveAndConnectButton="hidden"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -136,6 +140,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="disabled"
             saveAndConnectButton="disabled"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -170,6 +175,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={onSaveAndConnectClickedFn}
             saveButton="disabled"
             saveAndConnectButton="enabled"
+            showSaveActions
           ></ConnectFormActions>
         );
       });
@@ -203,6 +209,7 @@ describe('ConnectFormActions Component', function () {
             onSaveAndConnectClicked={() => true}
             saveButton="hidden"
             saveAndConnectButton="hidden"
+            showSaveActions
           ></ConnectFormActions>
         );
       });

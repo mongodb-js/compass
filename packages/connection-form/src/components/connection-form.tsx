@@ -191,6 +191,7 @@ function ConnectionForm({
     },
     [onSaveConnectionClicked, setErrors]
   );
+  const showSaveActions = !!onSaveConnectionClicked;
 
   return (
     <ConfirmationModalArea>
@@ -207,7 +208,7 @@ function ConnectionForm({
         <div className={formContentContainerStyles}>
           <H3 className={formHeaderStyles}>
             {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-            {!!onSaveConnectionClicked && (
+            {showSaveActions && (
               <IconButton
                 type="button"
                 aria-label="Save Connection"
@@ -224,7 +225,7 @@ function ConnectionForm({
           <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
-          {!!onSaveConnectionClicked && (
+          {showSaveActions && (
             <IconButton
               aria-label="Save Connection"
               data-testid="edit-favorite-icon-button"
@@ -275,6 +276,7 @@ function ConnectionForm({
           <ConnectionFormActions
             errors={connectionStringInvalidError ? [] : errors}
             warnings={connectionStringInvalidError ? [] : warnings}
+            showSaveActions={showSaveActions}
             saveButton={
               isDirty || !initialConnectionInfo.favorite
                 ? 'enabled'
@@ -300,7 +302,7 @@ function ConnectionForm({
           />
         </div>
       </form>
-      {!!onSaveConnectionClicked && (
+      {showSaveActions && (
         <SaveConnectionModal
           open={saveConnectionModal !== 'hidden'}
           saveText={
