@@ -328,7 +328,7 @@ const mapStateToProps = (
   return {
     isReady,
     showPerformanceItem: !isDataLake,
-    showCreateDatabaseAction: !isWritable && isWritable && !preferencesReadOnly,
+    showCreateDatabaseAction: !isDataLake && isWritable && !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
   };
 };
