@@ -1,5 +1,5 @@
 // Copied from https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/constants.ts
-export const DEFAULT_CHROMIUM_FLAGS = [
+export const DEFAULT_WEBDRIVER_FLAGS = [
   // suppresses Save Password prompt window
   '--enable-automation',
   // do not block popups

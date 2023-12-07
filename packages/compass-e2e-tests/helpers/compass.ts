@@ -23,7 +23,7 @@ import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
 import crossSpawn from 'cross-spawn';
-import { DEFAULT_CHROMIUM_FLAGS } from './default-chromium-flags';
+import { DEFAULT_WEBDRIVER_FLAGS } from './default-webdriver-flags';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -444,7 +444,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       COMPASS_PATH,
       // When running binary without webdriver, we need to pass the
       // default flags that webdriverio uses to have similar behaviour.
-      ...DEFAULT_CHROMIUM_FLAGS,
+      ...DEFAULT_WEBDRIVER_FLAGS,
       '--ignore-additional-command-line-flags',
       `--user-data-dir=${String(defaultUserDataDir)}`,
       '--no-sandbox', // See below
