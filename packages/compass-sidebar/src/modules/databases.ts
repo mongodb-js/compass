@@ -36,13 +36,14 @@ const NO_REGEX = null;
 export const NO_ACTIVE_NAMESPACE = '';
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
+
 export type Database = Pick<
   DatabaseRaw,
   '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
   collections: Pick<
     DatabaseRaw['collections'][number],
-    '_id' | 'name' | 'type'
+    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
 export interface DatabaseState {

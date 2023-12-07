@@ -7,6 +7,7 @@ import {
   renderScopedModals,
   renderTabs,
 } from '../modules/collection-tab';
+import { waitFor } from '@testing-library/react';
 import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
@@ -18,6 +19,21 @@ const defaultMetadata = {
   isClustered: false,
   isFLE: false,
   isSearchIndexesSupported: false,
+  sourceName: 'test.bar',
+};
+
+const defaultTabOptions = {
+  namespace: defaultMetadata.namespace,
+};
+
+const mockCollection = {
+  _id: defaultMetadata.namespace,
+  fetchMetadata() {
+    return Promise.resolve(defaultMetadata);
+  },
+  toJSON() {
+    return this;
+  },
 };
 
 describe('Collection Tab Content store', function () {
@@ -27,7 +43,17 @@ describe('Collection Tab Content store', function () {
   const localAppRegistry = sandbox.spy(new AppRegistry());
   const dataService = {} as any;
   const instance = {
-    databases: { get() {} },
+    databases: {
+      get() {
+        return {
+          collections: {
+            get() {
+              return mockCollection;
+            },
+          },
+        };
+      },
+    },
     dataLake: {},
     build: {},
     removeListener() {},
@@ -53,10 +79,12 @@ describe('Collection Tab Content store', function () {
     actionName: 'CollectionSubTabAction',
   };
 
-  const configureStore = (options: Partial<CollectionTabOptions> = {}) => {
+  const configureStore = async (
+    options: Partial<CollectionTabOptions> = {}
+  ) => {
     ({ store, deactivate } = activatePlugin(
       {
-        ...defaultMetadata,
+        ...defaultTabOptions,
         ...options,
       },
       {
@@ -65,8 +93,13 @@ describe('Collection Tab Content store', function () {
         localAppRegistry,
         instance,
       },
-      { on() {}, cleanup() {} } as any
+      { on() {}, cleanup() {}, addCleanup() {} }
     ));
+    await waitFor(() => {
+      expect(store.getState())
+        .to.have.property('metadata')
+        .deep.eq(defaultMetadata);
+    });
     return store;
   };
 
@@ -97,16 +130,16 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('selectTab', function () {
-    it('should set active tab', function () {
-      const store = configureStore();
+    it('should set active tab', async function () {
+      const store = await configureStore();
       store.dispatch(selectTab('Documents'));
       expect(store.getState()).to.have.property('currentTab', 'Documents');
     });
   });
 
   describe('selectDatabase', function () {
-    it("should emit 'select-database' event", function () {
-      const store = configureStore();
+    it("should emit 'select-database' event", async function () {
+      const store = await configureStore();
       store.dispatch(selectDatabase());
       expect(globalAppRegistry.emit).to.have.been.calledWith(
         'select-database',
@@ -116,20 +149,20 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('editView', function () {
-    it("should emit 'collection-tab-modify-view' event", function () {
-      const store = configureStore();
+    it("should emit 'collection-tab-select-collection' event", async function () {
+      const store = await configureStore();
       store.dispatch(editView());
-      expect(globalAppRegistry.emit).to.have.been.calledWith(
-        'collection-tab-modify-view',
-        { ns: 'test.foo' }
+      expect(globalAppRegistry.emit).to.have.been.calledWithMatch(
+        'collection-tab-select-collection',
+        { ns: 'test.bar' }
       );
     });
   });
 
   describe('renderScopedModals', function () {
-    it('should set up scoped modals state in local app registry', function () {
-      const store = configureStore();
-      const modals = store.dispatch(renderScopedModals());
+    it('should set up scoped modals state in local app registry', async function () {
+      const store = await configureStore();
+      const modals = store.dispatch(renderScopedModals(defaultTabOptions));
       expect(modals.map((el) => (el as any).type())).to.deep.eq([
         'ScopedModalComponent',
       ]);
@@ -137,20 +170,20 @@ describe('Collection Tab Content store', function () {
       expect(localAppRegistry.getAction('ScopedModalAction')).to.exist;
     });
 
-    it('should only configure scoped modals store and actions once', function () {
-      const store = configureStore();
-      store.dispatch(renderScopedModals());
-      store.dispatch(renderScopedModals());
-      store.dispatch(renderScopedModals());
+    it('should only configure scoped modals store and actions once', async function () {
+      const store = await configureStore();
+      store.dispatch(renderScopedModals(defaultTabOptions));
+      store.dispatch(renderScopedModals(defaultTabOptions));
+      store.dispatch(renderScopedModals(defaultTabOptions));
       expect(scopedModalRole.configureStore).to.have.been.called.calledOnce;
       expect(scopedModalRole.configureActions).to.have.been.called.calledOnce;
     });
   });
 
   describe('renderTabs', function () {
-    it('should set up tabs state in local app registry', function () {
-      const store = configureStore();
-      const tabs = store.dispatch(renderTabs());
+    it('should set up tabs state in local app registry', async function () {
+      const store = await configureStore();
+      const tabs = store.dispatch(renderTabs(defaultTabOptions));
       expect(
         tabs.map((tab) => {
           return {
@@ -165,11 +198,11 @@ describe('Collection Tab Content store', function () {
       expect(localAppRegistry.getAction('CollectionSubTabAction')).to.exist;
     });
 
-    it('should only configure tabs store and actions once', function () {
-      const store = configureStore();
-      store.dispatch(renderTabs());
-      store.dispatch(renderTabs());
-      store.dispatch(renderTabs());
+    it('should only configure tabs store and actions once', async function () {
+      const store = await configureStore();
+      store.dispatch(renderTabs(defaultTabOptions));
+      store.dispatch(renderTabs(defaultTabOptions));
+      store.dispatch(renderTabs(defaultTabOptions));
       expect(collectionSubTabRole.configureStore).to.have.been.called
         .calledOnce;
       expect(collectionSubTabRole.configureActions).to.have.been.called

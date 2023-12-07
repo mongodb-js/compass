@@ -61,6 +61,7 @@ export enum WorkspacesActions {
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
+  FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
 }
 
 function isAction<A extends AnyAction>(
@@ -72,9 +73,26 @@ function isAction<A extends AnyAction>(
 
 export type WorkspaceTab = { id: string } & AnyWorkspace;
 
+export type CollectionTabInfo = {
+  isTimeSeries: boolean;
+  isReadonly: boolean;
+  sourceName?: string | null;
+};
+
 export type WorkspacesState = {
+  /**
+   * All currently open tabs
+   */
   tabs: WorkspaceTab[];
+  /**
+   * Currrent active tab id
+   */
   activeTabId: string | null;
+  /**
+   * Extra info for the collection tab namespace (required for breadcrumb and
+   * icon)
+   */
+  collectionInfo: Record<string, CollectionTabInfo>;
 };
 
 const getTabId = () => {
@@ -92,6 +110,7 @@ const getInitialState = () => {
   return {
     tabs: [] as WorkspaceTab[],
     activeTabId: null,
+    collectionInfo: {},
   };
 };
 
@@ -103,6 +122,7 @@ const reducer: Reducer<WorkspacesState> = (
     if (action.newTab) {
       const newTab = getInitialTabState(action.workspace);
       return {
+        ...state,
         tabs: [...state.tabs, newTab],
         activeTabId: newTab.id,
       };
@@ -136,6 +156,7 @@ const reducer: Reducer<WorkspacesState> = (
     const newTab = getInitialTabState(action.workspace);
     if (activeTab?.type !== action.workspace.type) {
       return {
+        ...state,
         tabs: [...state.tabs, newTab],
         activeTabId: newTab.id,
       };
@@ -144,6 +165,7 @@ const reducer: Reducer<WorkspacesState> = (
     const newTabs = [...state.tabs];
     newTabs.splice(activeTabIndex, 1, newTab);
     return {
+      ...state,
       tabs: newTabs,
       activeTabId: newTab.id,
     };
@@ -165,6 +187,7 @@ const reducer: Reducer<WorkspacesState> = (
       newTab = getInitialTabState(tabProps);
     }
     return {
+      ...state,
       tabs: [...state.tabs, newTab],
       activeTabId: newTab.id,
     };
@@ -240,6 +263,7 @@ const reducer: Reducer<WorkspacesState> = (
           (state.tabs[tabIndex + 1] ?? newTabs[newTabs.length - 1])?.id ?? null
         : state.activeTabId;
     return {
+      ...state,
       activeTabId: newActiveTabId,
       tabs: newTabs,
     };
@@ -266,6 +290,7 @@ const reducer: Reducer<WorkspacesState> = (
       return tab.id === state.activeTabId;
     });
     return {
+      ...state,
       tabs,
       activeTabId: activeTabRemoved
         ? tabs[tabs.length - 1]?.id ?? null
@@ -293,6 +318,7 @@ const reducer: Reducer<WorkspacesState> = (
       return tab.id === state.activeTabId;
     });
     return {
+      ...state,
       tabs,
       activeTabId: activeTabRemoved
         ? tabs[tabs.length - 1]?.id ?? null
@@ -327,8 +353,24 @@ const reducer: Reducer<WorkspacesState> = (
       return state;
     }
     return {
+      ...state,
       tabs: newTabs,
       activeTabId: newActiveTabId,
+    };
+  }
+
+  if (
+    isAction<FetchCollectionInfoAction>(
+      action,
+      WorkspacesActions.FetchCollectionTabInfo
+    )
+  ) {
+    return {
+      ...state,
+      collectionInfo: {
+        ...state.collectionInfo,
+        [action.namespace]: action.info,
+      },
     };
   }
 
@@ -349,19 +391,17 @@ export type OpenWorkspaceOptions =
   | Pick<Workspace<'Databases'>, 'type'>
   | Pick<Workspace<'Performance'>, 'type'>
   | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
-
-  // TODO: for now opening a collection workspace requires all metadata to be
-  // passed with it, this will change when collection tab is responsible for
-  // fetching its own metadata
-  //
-  // | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
-  //     Partial<
-  //       Pick<
-  //         Workspace<'Collection'>,
-  //         'query' | 'aggregation' | 'pipelineText' | 'editViewName'
-  //       >
-  //     >);
-  | Workspace<'Collection'>;
+  | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
+      Partial<
+        Pick<
+          Workspace<'Collection'>,
+          | 'initialQuery'
+          | 'initialAggregation'
+          | 'initialPipeline'
+          | 'initialPipelineText'
+          | 'editViewName'
+        >
+      >);
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
@@ -369,14 +409,60 @@ type OpenWorkspaceAction = {
   newTab?: boolean;
 };
 
+type FetchCollectionInfoAction = {
+  type: WorkspacesActions.FetchCollectionTabInfo;
+  namespace: string;
+  info: CollectionTabInfo;
+};
+
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
   tabOptions?: { newTab?: boolean }
-): OpenWorkspaceAction => {
-  return {
-    type: WorkspacesActions.OpenWorkspace,
-    workspace: workspaceOptions,
-    newTab: !!tabOptions?.newTab,
+): WorkspacesThunkAction<
+  void,
+  OpenWorkspaceAction | FetchCollectionInfoAction
+> => {
+  return (dispatch, getState, { instance, dataService }) => {
+    if (
+      workspaceOptions.type === 'Collection' &&
+      !getState().collectionInfo[workspaceOptions.namespace]
+    ) {
+      // Fetching extra meta for collection should not block tab opening
+      void (async () => {
+        const { database, collection } = toNS(workspaceOptions.namespace);
+        try {
+          const coll = await instance.getNamespace({
+            dataService,
+            database,
+            collection,
+          });
+          if (coll) {
+            await coll.fetch({ dataService });
+            dispatch({
+              type: WorkspacesActions.FetchCollectionTabInfo,
+              namespace: workspaceOptions.namespace,
+              info: {
+                isTimeSeries: coll.isTimeSeries,
+                isReadonly: coll.readonly ?? coll.isView,
+                sourceName: coll.sourceName,
+              },
+            });
+          }
+        } catch (err) {
+          // It's okay if we failed to fetch this optional metadata, this error
+          // can be ignored
+          if ((err as Error).name === 'MongoServerError') {
+            return;
+          }
+          throw err;
+        }
+      })();
+    }
+    dispatch({
+      type: WorkspacesActions.OpenWorkspace,
+      workspace: workspaceOptions,
+      newTab: !!tabOptions?.newTab,
+    });
   };
 };
 
@@ -497,32 +583,6 @@ export const databaseRemoved = (
     tabsToRemove.forEach((tab) => {
       cleanupLocalAppRegistryForTab(tab.id);
     });
-  };
-};
-
-// TODO: events are re-emitted when tab is changed for compatibility reasons,
-// this will go away as soon as we finish the compass-workspaces refactor.
-// Emitting these event will trigger store actions for opening a tab, but they
-// will be no-ops, will not result in any state update
-export const emitOnTabChange = (
-  newTab: WorkspaceTab
-): WorkspacesThunkAction<void> => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id, ...tabMeta } = newTab;
-  return (_dispatch, _getState, { globalAppRegistry }) => {
-    switch (tabMeta.type) {
-      case 'My Queries':
-      case 'Databases':
-      case 'Performance':
-        globalAppRegistry.emit('open-instance-workspace', tabMeta.type);
-        return;
-      case 'Collections':
-        globalAppRegistry.emit('select-database', tabMeta.namespace);
-        return;
-      case 'Collection':
-        globalAppRegistry.emit('select-namespace', tabMeta);
-        return;
-    }
   };
 };
 

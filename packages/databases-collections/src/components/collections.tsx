@@ -26,7 +26,7 @@ const collectionsErrorStyles = css({
 
 type CollectionsListProps = {
   namespace: string;
-  collections: Collection[];
+  collections: ReturnType<Collection['toJSON']>[];
   collectionsLoadingStatus: string;
   collectionsLoadingError?: string | null;
   isEditable: boolean;
