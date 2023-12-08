@@ -33,8 +33,8 @@ module.exports = {
             // specific
             patterns: [
               {
-                group: ['@mongodb-js/connection-storage'],
-                message: 'Only type imports allowed from this package',
+                group: ['@mongodb-js/connection-storage', 'mongodb'],
+                message: '@mongodb-js/connection-form package is shared between Compass and VSCode and should use Compass-specific packages only for type definitions,
                 allowTypeImports: true,
               },
             ],
