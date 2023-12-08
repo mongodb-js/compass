@@ -34,7 +34,7 @@ type LeftRightContextType = {
   right: Document;
 };
 
-const expandButton = css({
+const expandButtonStyles = css({
   margin: 0,
   padding: 0,
   border: 'none',
@@ -45,6 +45,7 @@ const expandButton = css({
   display: 'flex',
   alignSelf: 'center',
   color: 'inherit',
+  paddingRight: spacing[1],
 });
 
 const addedStylesDark = css({
@@ -88,13 +89,13 @@ const changeArrayItemStyles = css({
 const changeKeyIndexStyles = css({
   fontWeight: 'bold',
   alignSelf: 'flex-start',
+  paddingRight: spacing[1],
 });
 
 const changeSummaryStyles = css({
   display: 'inline-flex',
   alignItems: 'flex-start',
   flexWrap: 'wrap',
-  columnGap: spacing[1],
   rowGap: '1px',
 });
 
@@ -132,7 +133,7 @@ function ChangeArrayItemArray({ item }: { item: ItemBranch }) {
           type="button"
           aria-pressed={isOpen}
           aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButton}
+          className={expandButtonStyles}
           onClick={toggleIsOpen}
         >
           <Icon
@@ -171,7 +172,7 @@ function ChangeArrayItemObject({ item }: { item: ObjectItemBranch }) {
           type="button"
           aria-pressed={isOpen}
           aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButton}
+          className={expandButtonStyles}
           onClick={toggleIsOpen}
         >
           <Icon
@@ -252,23 +253,19 @@ const changeArrayInlineStyles = css({
 
 function ChangeArray({ obj, isOpen }: { obj: ArrayBranch; isOpen: boolean }) {
   if (isOpen) {
-    // TODO: this would be even nicer in place of the "Array" text and then we
-    // don't even have to make the object key expandable or not
-
     const implicitChangeType = getImplicitChangeType(obj);
 
-    // TODO: we might want to go further and only do this for simple values like
-    // strings, numbers, booleans, nulls, etc. ie. not bson types because some
-    // of those might take up a lot of space?
     if (
-      obj.items.every(
-        (item) =>
-          getValueShape(
-            item.changeType === 'added' ? item.right.value : item.left.value
-          ) === 'leaf'
-      )
+      obj.items.every((item) => {
+        const value =
+          item.changeType === 'added' ? item.right.value : item.left.value;
+        return (
+          getValueShape(value) === 'leaf' && value?._bsontype === undefined
+        );
+      })
     ) {
-      // if it is an array containing just leaf values then we can special-case it and output it all on one line
+      // if it is an array containing just simple (ie. not bson) leaf values
+      // then we can special-case it and output it all on one line
       const classes = [changeArrayInlineStyles];
 
       if (implicitChangeType === 'added') {
@@ -336,7 +333,7 @@ function ChangeObjectPropertyObject({
           type="button"
           aria-pressed={isOpen}
           aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButton}
+          className={expandButtonStyles}
           onClick={toggleIsOpen}
         >
           <Icon
@@ -381,7 +378,7 @@ function ChangeObjectPropertyArray({ property }: { property: PropertyBranch }) {
           type="button"
           aria-pressed={isOpen}
           aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButton}
+          className={expandButtonStyles}
           onClick={toggleIsOpen}
         >
           <Icon
@@ -501,10 +498,6 @@ function getRightClassName(obj: UnifiedBranch, darkMode?: boolean) {
 }
 
 function getChangeType(obj: UnifiedBranch) {
-  // TODO: I can't remember why I made it possible for obj.changeType to be
-  // different from obj.implicitChangeType. Once a branch is added then
-  // everything below that is also added, right? Might have been some styling
-  // aid..
   if (['added', 'removed'].includes(obj.implicitChangeType)) {
     // these are "sticky" as we descend
     return obj.implicitChangeType;

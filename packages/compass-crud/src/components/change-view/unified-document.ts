@@ -246,7 +246,6 @@ function propertiesWithChanges({
 
   // Turn changes where the "shape" (ie. array, object or leaf) changed into
   // remove followed by add because we can't easily visualise it on one line
-  // TODO: we might be able to roll this in above and not need a separate pass
   let changed = true;
   while (changed) {
     changed = false;
@@ -441,7 +440,6 @@ function itemsWithChanges({
           index,
           // NOTE: no leftValue or leftPath
           right: {
-            //  TODO: make sure there's a unit test for both of these paths
             path: [...(right ?? left).path, index],
             value: change[0],
           },
