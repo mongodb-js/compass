@@ -23,6 +23,7 @@ import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
 import crossSpawn from 'cross-spawn';
+import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -441,9 +442,10 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     binary,
     [
       COMPASS_PATH,
-      '--ignore-additional-command-line-flags',
+      // When running binary without webdriver, we need to pass the same flags
+      // as we pass when running with webdriverio to have similar behaviour.
+      ...CHROME_STARTUP_FLAGS,
       `--user-data-dir=${String(defaultUserDataDir)}`,
-      '--no-sandbox', // See below
       ...args,
     ],
     { timeout }
@@ -508,19 +510,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
-    // Allow options such as --user-data-dir to pass through the command line
-    // flag validation code.
-    '--ignore-additional-command-line-flags',
+    ...CHROME_STARTUP_FLAGS,
     `--user-data-dir=${defaultUserDataDir}`,
-    // Chromecast feature that is enabled by default in some chrome versions
-    // and breaks the app on Ubuntu
-    '--media-router=0',
-    // Evergren RHEL ci runs everything as root, and chrome will not start as
-    // root without this flag
-    '--no-sandbox',
-
-    // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
-    '--atlasServiceBackendPreset=atlas-dev',
 
     // chomedriver options
     // TODO: cant get this to work
