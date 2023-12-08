@@ -1,0 +1,757 @@
+{
+  "left": {
+    "path": [],
+    "value": {
+      "_id": "ObjectId(\"642d766b7300158b1f22e972\")",
+      "double": "Double(1.2)",
+      "string": "Hello, world!",
+      "object": {
+        "key": "value"
+      },
+      "array": [1, 2, 3],
+      "binData": "Binary.createFromBase64(\"AQID\", 0)",
+      "objectId": "ObjectId(\"642d766c7300158b1f22e975\")",
+      "boolean": true,
+      "date": "2023-04-05T13:25:08.445Z",
+      "null": null,
+      "regex": "BSONRegExp(\"pattern\", \"i\")",
+      "javascript": "Code(\"function() {}\")",
+      "symbol": "BSONSymbol(\"symbol\")",
+      "javascriptWithScope": "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})",
+      "int": "Int32(12345)",
+      "timestamp": "Timestamp({ t: 1680701109, i: 1 })",
+      "long": "Long(\"123456789123456789\")",
+      "decimal": "Decimal128(\"5.477284286264328586719275128128001E-4088\")",
+      "minKey": "MinKey()",
+      "maxKey": "MaxKey()",
+      "binaries": {
+        "generic": "Binary.createFromBase64(\"AQID\", 0)",
+        "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+        "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+        "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+        "uuid": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+        "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+        "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+        "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+      },
+      "dbRef": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+    }
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "_id": "ObjectId(\"6564759d220c47fd4c97379c\")",
+      "double": "Double(1.3)",
+      "string": "oh no!",
+      "object": {
+        "foo": "bar"
+      },
+      "array": [1, 2, 3, 4],
+      "binData": "Binary.createFromBase64(\"AQIDBA==\", 0)",
+      "objectId": "ObjectId(\"656475ac220c47fd4c97379d\")",
+      "boolean": false,
+      "date": "2023-04-05T13:25:08.446Z",
+      "null": null,
+      "regex": "BSONRegExp(\"patterns\", \"i\")",
+      "javascript": "Code(\"function() { /* woop */ }\")",
+      "symbol": "BSONSymbol(\"symbols are deprecated\")",
+      "javascriptWithScope": "Code(\"function() {}\", {\"foo\":\"a\",\"bar\":\"1\"})",
+      "int": "Int32(123456)",
+      "timestamp": "Timestamp({ t: 1680701109, i: 2 })",
+      "long": "Long(\"1234567891234567890\")",
+      "decimal": "Decimal128(\"5.477284286264328586719275128128001E-3960\")",
+      "minKey": "MinKey()",
+      "maxKey": "MaxKey()",
+      "binaries": {
+        "generic": "Binary.createFromBase64(\"AQIDBA==\", 0)",
+        "functionData": "Binary.createFromBase64(\"Ly84PSA=\", 1)",
+        "binaryOld": "Binary.createFromBase64(\"Ly84PSA=\", 2)",
+        "uuidOld": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 3)",
+        "uuid": "UUID(\"0e1f691e-d3ed-45d8-a151-cb9c995c50ff\")",
+        "md5": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 5)",
+        "encrypted": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 6)",
+        "compressedTimeSeries": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 7)",
+        "custom": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 128)"
+      },
+      "dbRef": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a79\"))"
+    }
+  },
+  "delta": {
+    "_id": [
+      "ObjectId(\"642d766b7300158b1f22e972\")",
+      "ObjectId(\"6564759d220c47fd4c97379c\")"
+    ],
+    "double": ["Double(1.2)", "Double(1.3)"],
+    "string": ["Hello, world!", "oh no!"],
+    "object": {
+      "key": ["value", 0, 0],
+      "foo": ["bar"]
+    },
+    "array": {
+      "3": [4],
+      "_t": "a"
+    },
+    "binData": [
+      "Binary.createFromBase64(\"AQID\", 0)",
+      "Binary.createFromBase64(\"AQIDBA==\", 0)"
+    ],
+    "objectId": [
+      "ObjectId(\"642d766c7300158b1f22e975\")",
+      "ObjectId(\"656475ac220c47fd4c97379d\")"
+    ],
+    "boolean": [true, false],
+    "date": ["2023-04-05T13:25:08.445Z", "2023-04-05T13:25:08.446Z"],
+    "regex": [
+      "BSONRegExp(\"pattern\", \"i\")",
+      "BSONRegExp(\"patterns\", \"i\")"
+    ],
+    "javascript": [
+      "Code(\"function() {}\")",
+      "Code(\"function() { /* woop */ }\")"
+    ],
+    "symbol": [
+      "BSONSymbol(\"symbol\")",
+      "BSONSymbol(\"symbols are deprecated\")"
+    ],
+    "javascriptWithScope": [
+      "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})",
+      "Code(\"function() {}\", {\"foo\":\"a\",\"bar\":\"1\"})"
+    ],
+    "int": ["Int32(12345)", "Int32(123456)"],
+    "timestamp": [
+      "Timestamp({ t: 1680701109, i: 1 })",
+      "Timestamp({ t: 1680701109, i: 2 })"
+    ],
+    "long": ["Long(\"123456789123456789\")", "Long(\"1234567891234567890\")"],
+    "decimal": [
+      "Decimal128(\"5.477284286264328586719275128128001E-4088\")",
+      "Decimal128(\"5.477284286264328586719275128128001E-3960\")"
+    ],
+    "binaries": {
+      "generic": [
+        "Binary.createFromBase64(\"AQID\", 0)",
+        "Binary.createFromBase64(\"AQIDBA==\", 0)"
+      ],
+      "functionData": [
+        "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+        "Binary.createFromBase64(\"Ly84PSA=\", 1)"
+      ],
+      "binaryOld": [
+        "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+        "Binary.createFromBase64(\"Ly84PSA=\", 2)"
+      ],
+      "uuidOld": [
+        "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+        "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 3)"
+      ],
+      "uuid": [
+        "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "UUID(\"0e1f691e-d3ed-45d8-a151-cb9c995c50ff\")"
+      ],
+      "md5": [
+        "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+        "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 5)"
+      ],
+      "encrypted": [
+        "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+        "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 6)"
+      ],
+      "compressedTimeSeries": [
+        "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+        "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 7)"
+      ],
+      "custom": [
+        "Binary.createFromBase64(\"Ly84PQ==\", 128)",
+        "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 128)"
+      ]
+    },
+    "dbRef": [
+      "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))",
+      "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a79\"))"
+    ]
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "_id",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["_id"],
+        "value": "ObjectId(\"642d766b7300158b1f22e972\")"
+      },
+      "right": {
+        "path": ["_id"],
+        "value": "ObjectId(\"6564759d220c47fd4c97379c\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "double",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["double"],
+        "value": "Double(1.2)"
+      },
+      "right": {
+        "path": ["double"],
+        "value": "Double(1.3)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "string",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["string"],
+        "value": "Hello, world!"
+      },
+      "right": {
+        "path": ["string"],
+        "value": "oh no!"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "object",
+      "delta": {
+        "key": ["value", 0, 0],
+        "foo": ["bar"]
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["object"],
+        "value": {
+          "key": "value"
+        }
+      },
+      "right": {
+        "path": ["object"],
+        "value": {
+          "foo": "bar"
+        }
+      },
+      "properties": [
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "key",
+          "delta": null,
+          "changeType": "removed",
+          "left": {
+            "path": ["object", "key"],
+            "value": "value"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "changeType": "added",
+          "objectKey": "foo",
+          "right": {
+            "path": ["object", "foo"],
+            "value": "bar"
+          },
+          "delta": null
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "array",
+      "delta": {
+        "3": [4],
+        "_t": "a"
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["array"],
+        "value": [1, 2, 3]
+      },
+      "right": {
+        "path": ["array"],
+        "value": [1, 2, 3, 4]
+      },
+      "items": [
+        {
+          "implicitChangeType": "unchanged",
+          "index": 0,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["array", 0],
+            "value": 1
+          },
+          "right": {
+            "path": ["array", 0],
+            "value": 1
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 1,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["array", 1],
+            "value": 2
+          },
+          "right": {
+            "path": ["array", 1],
+            "value": 2
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 2,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["array", 2],
+            "value": 3
+          },
+          "right": {
+            "path": ["array", 2],
+            "value": 3
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "changeType": "added",
+          "index": "3",
+          "right": {
+            "path": ["array", "3"],
+            "value": 4
+          },
+          "delta": null
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "binData",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["binData"],
+        "value": "Binary.createFromBase64(\"AQID\", 0)"
+      },
+      "right": {
+        "path": ["binData"],
+        "value": "Binary.createFromBase64(\"AQIDBA==\", 0)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "objectId",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["objectId"],
+        "value": "ObjectId(\"642d766c7300158b1f22e975\")"
+      },
+      "right": {
+        "path": ["objectId"],
+        "value": "ObjectId(\"656475ac220c47fd4c97379d\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "boolean",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["boolean"],
+        "value": true
+      },
+      "right": {
+        "path": ["boolean"],
+        "value": false
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "date",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["date"],
+        "value": "2023-04-05T13:25:08.445Z"
+      },
+      "right": {
+        "path": ["date"],
+        "value": "2023-04-05T13:25:08.446Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "null",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["null"],
+        "value": null
+      },
+      "right": {
+        "path": ["null"],
+        "value": null
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "regex",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["regex"],
+        "value": "BSONRegExp(\"pattern\", \"i\")"
+      },
+      "right": {
+        "path": ["regex"],
+        "value": "BSONRegExp(\"patterns\", \"i\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "javascript",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["javascript"],
+        "value": "Code(\"function() {}\")"
+      },
+      "right": {
+        "path": ["javascript"],
+        "value": "Code(\"function() { /* woop */ }\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "symbol",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["symbol"],
+        "value": "BSONSymbol(\"symbol\")"
+      },
+      "right": {
+        "path": ["symbol"],
+        "value": "BSONSymbol(\"symbols are deprecated\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "javascriptWithScope",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["javascriptWithScope"],
+        "value": "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
+      },
+      "right": {
+        "path": ["javascriptWithScope"],
+        "value": "Code(\"function() {}\", {\"foo\":\"a\",\"bar\":\"1\"})"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "int",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["int"],
+        "value": "Int32(12345)"
+      },
+      "right": {
+        "path": ["int"],
+        "value": "Int32(123456)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "timestamp",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["timestamp"],
+        "value": "Timestamp({ t: 1680701109, i: 1 })"
+      },
+      "right": {
+        "path": ["timestamp"],
+        "value": "Timestamp({ t: 1680701109, i: 2 })"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "long",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["long"],
+        "value": "Long(\"123456789123456789\")"
+      },
+      "right": {
+        "path": ["long"],
+        "value": "Long(\"1234567891234567890\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "decimal",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["decimal"],
+        "value": "Decimal128(\"5.477284286264328586719275128128001E-4088\")"
+      },
+      "right": {
+        "path": ["decimal"],
+        "value": "Decimal128(\"5.477284286264328586719275128128001E-3960\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "minKey",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["minKey"],
+        "value": "MinKey()"
+      },
+      "right": {
+        "path": ["minKey"],
+        "value": "MinKey()"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "maxKey",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["maxKey"],
+        "value": "MaxKey()"
+      },
+      "right": {
+        "path": ["maxKey"],
+        "value": "MaxKey()"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "binaries",
+      "delta": {
+        "generic": [
+          "Binary.createFromBase64(\"AQID\", 0)",
+          "Binary.createFromBase64(\"AQIDBA==\", 0)"
+        ],
+        "functionData": [
+          "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+          "Binary.createFromBase64(\"Ly84PSA=\", 1)"
+        ],
+        "binaryOld": [
+          "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+          "Binary.createFromBase64(\"Ly84PSA=\", 2)"
+        ],
+        "uuidOld": [
+          "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+          "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 3)"
+        ],
+        "uuid": [
+          "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+          "UUID(\"0e1f691e-d3ed-45d8-a151-cb9c995c50ff\")"
+        ],
+        "md5": [
+          "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+          "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 5)"
+        ],
+        "encrypted": [
+          "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+          "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 6)"
+        ],
+        "compressedTimeSeries": [
+          "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+          "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 7)"
+        ],
+        "custom": [
+          "Binary.createFromBase64(\"Ly84PQ==\", 128)",
+          "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 128)"
+        ]
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["binaries"],
+        "value": {
+          "generic": "Binary.createFromBase64(\"AQID\", 0)",
+          "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+          "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+          "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+          "uuid": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+          "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+          "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+          "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+          "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+        }
+      },
+      "right": {
+        "path": ["binaries"],
+        "value": {
+          "generic": "Binary.createFromBase64(\"AQIDBA==\", 0)",
+          "functionData": "Binary.createFromBase64(\"Ly84PSA=\", 1)",
+          "binaryOld": "Binary.createFromBase64(\"Ly84PSA=\", 2)",
+          "uuidOld": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 3)",
+          "uuid": "UUID(\"0e1f691e-d3ed-45d8-a151-cb9c995c50ff\")",
+          "md5": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 5)",
+          "encrypted": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 6)",
+          "compressedTimeSeries": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 7)",
+          "custom": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 128)"
+        }
+      },
+      "properties": [
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "generic",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "generic"],
+            "value": "Binary.createFromBase64(\"AQID\", 0)"
+          },
+          "right": {
+            "path": ["binaries", "generic"],
+            "value": "Binary.createFromBase64(\"AQIDBA==\", 0)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "functionData",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "functionData"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 1)"
+          },
+          "right": {
+            "path": ["binaries", "functionData"],
+            "value": "Binary.createFromBase64(\"Ly84PSA=\", 1)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "binaryOld",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "binaryOld"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 2)"
+          },
+          "right": {
+            "path": ["binaries", "binaryOld"],
+            "value": "Binary.createFromBase64(\"Ly84PSA=\", 2)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "uuidOld",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "uuidOld"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)"
+          },
+          "right": {
+            "path": ["binaries", "uuidOld"],
+            "value": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 3)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "uuid",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "uuid"],
+            "value": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")"
+          },
+          "right": {
+            "path": ["binaries", "uuid"],
+            "value": "UUID(\"0e1f691e-d3ed-45d8-a151-cb9c995c50ff\")"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "md5",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "md5"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)"
+          },
+          "right": {
+            "path": ["binaries", "md5"],
+            "value": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 5)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "encrypted",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "encrypted"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)"
+          },
+          "right": {
+            "path": ["binaries", "encrypted"],
+            "value": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 6)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "compressedTimeSeries",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "compressedTimeSeries"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)"
+          },
+          "right": {
+            "path": ["binaries", "compressedTimeSeries"],
+            "value": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 7)"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "custom",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["binaries", "custom"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+          },
+          "right": {
+            "path": ["binaries", "custom"],
+            "value": "Binary.createFromBase64(\"MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=\", 128)"
+          }
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "dbRef",
+      "delta": null,
+      "changeType": "changed",
+      "left": {
+        "path": ["dbRef"],
+        "value": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+      },
+      "right": {
+        "path": ["dbRef"],
+        "value": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a79\"))"
+      }
+    }
+  ]
+}

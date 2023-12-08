@@ -351,7 +351,7 @@ function itemsWithChanges({
           path: [...right.path, index],
           // assume the value is unchanged, fix below if it was removed. Arrays
           // don't have changes.
-          value: left?.value,
+          value: leftValue,
         }
       : undefined;
 
@@ -496,14 +496,19 @@ export function unifyDocuments(
 
   const delta = differ.diff(left, right) ?? null;
 
+  // Use the un-bsoned left&right vs before&after so that we're consistent while
+  // building the result. Otherwise some parts come from the "un-bsoned" delta
+  // and some parts from before&after which still contains bson. As a nice
+  // side-effect it also means that the result is easily json serializable which
+  // is handy for tests.
   const obj: UnifiedBranch = {
     left: {
       path: [],
-      value: before,
+      value: left,
     },
     right: {
       path: [],
-      value: after,
+      value: right,
     },
     delta,
     implicitChangeType: 'unchanged',
