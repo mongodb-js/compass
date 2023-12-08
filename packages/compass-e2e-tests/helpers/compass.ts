@@ -512,6 +512,10 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
+    // These are the default flags that webdriverio passes to the chrome driver
+    // when starting the session. We are passing them here explicitly to have a
+    // similar behaviour when running compass without webdriverio (CLI mode).
+    ...DEFAULT_WEBDRIVER_FLAGS,
     // Allow options such as --user-data-dir to pass through the command line
     // flag validation code.
     '--ignore-additional-command-line-flags',
