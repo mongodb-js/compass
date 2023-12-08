@@ -122,6 +122,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
+export { resetGlobalCSS } from './utils/reset-global-css';
 export { getScrollbarStyles, useScrollbars } from './hooks/use-scrollbars';
 export {
   withDarkMode,
