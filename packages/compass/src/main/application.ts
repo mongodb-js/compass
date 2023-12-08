@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app } from 'electron';
+import { app, safeStorage } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -96,6 +96,17 @@ class CompassApplication {
         'Failed to migrate connections',
         { message: (e as Error).message }
       );
+    }
+
+    const IS_CI =
+      process.env.IS_CI ||
+      process.env.CI ||
+      process.env.EVERGREEN_BUILD_VARIANT;
+    if (IS_CI) {
+      // In CI we want to use plain text encryption to avoid having to deal with
+      // keychain popups or setting up keychain for the CI.
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
     }
 
     if (mode === 'CLI') {
