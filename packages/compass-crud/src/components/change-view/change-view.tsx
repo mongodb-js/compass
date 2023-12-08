@@ -112,6 +112,26 @@ function getChangeSummaryClass(obj: UnifiedBranch, darkMode?: boolean) {
   }
 }
 
+function ExpandButton({
+  isOpen,
+  toggleIsOpen,
+}: {
+  isOpen: boolean;
+  toggleIsOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={isOpen}
+      aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
+      className={expandButtonStyles}
+      onClick={toggleIsOpen}
+    >
+      <Icon size="xsmall" glyph={isOpen ? 'CaretDown' : 'CaretRight'}></Icon>
+    </button>
+  );
+}
+
 function ChangeArrayItemArray({ item }: { item: ItemBranch }) {
   const [isOpen, setIsOpen] = useState(
     !!item.delta || item.changeType !== 'unchanged'
@@ -129,18 +149,7 @@ function ChangeArrayItemArray({ item }: { item: ItemBranch }) {
   return (
     <div className={changeArrayItemStyles}>
       <div className={changeSummaryStyles}>
-        <button
-          type="button"
-          aria-pressed={isOpen}
-          aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButtonStyles}
-          onClick={toggleIsOpen}
-        >
-          <Icon
-            size="xsmall"
-            glyph={isOpen ? 'CaretDown' : 'CaretRight'}
-          ></Icon>
-        </button>
+        <ExpandButton isOpen={isOpen} toggleIsOpen={toggleIsOpen} />
         <div className={cx(changeKeyIndexStyles, summaryClass)}>
           {item.index}:
         </div>
@@ -168,18 +177,7 @@ function ChangeArrayItemObject({ item }: { item: ObjectItemBranch }) {
   return (
     <div className={changeArrayItemStyles}>
       <div className={changeSummaryStyles}>
-        <button
-          type="button"
-          aria-pressed={isOpen}
-          aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButtonStyles}
-          onClick={toggleIsOpen}
-        >
-          <Icon
-            size="xsmall"
-            glyph={isOpen ? 'CaretDown' : 'CaretRight'}
-          ></Icon>
-        </button>
+        <ExpandButton isOpen={isOpen} toggleIsOpen={toggleIsOpen} />
         <div className={cx(changeKeyIndexStyles, summaryClass)}>
           {item.index}:
         </div>
@@ -329,18 +327,7 @@ function ChangeObjectPropertyObject({
   return (
     <div className={changeObjectPropertyStyles}>
       <div className={changeSummaryStyles}>
-        <button
-          type="button"
-          aria-pressed={isOpen}
-          aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButtonStyles}
-          onClick={toggleIsOpen}
-        >
-          <Icon
-            size="xsmall"
-            glyph={isOpen ? 'CaretDown' : 'CaretRight'}
-          ></Icon>
-        </button>
+        <ExpandButton isOpen={isOpen} toggleIsOpen={toggleIsOpen} />
         <div className={cx(changeKeyIndexStyles, summaryClass)}>
           {property.objectKey}:
         </div>
@@ -374,18 +361,7 @@ function ChangeObjectPropertyArray({ property }: { property: PropertyBranch }) {
   return (
     <div className={changeObjectPropertyStyles}>
       <div className={changeSummaryStyles}>
-        <button
-          type="button"
-          aria-pressed={isOpen}
-          aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
-          className={expandButtonStyles}
-          onClick={toggleIsOpen}
-        >
-          <Icon
-            size="xsmall"
-            glyph={isOpen ? 'CaretDown' : 'CaretRight'}
-          ></Icon>
-        </button>
+        <ExpandButton isOpen={isOpen} toggleIsOpen={toggleIsOpen} />
         <div className={cx(changeKeyIndexStyles, summaryClass)}>
           {property.objectKey}:
         </div>
