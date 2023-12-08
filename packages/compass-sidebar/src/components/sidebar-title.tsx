@@ -11,9 +11,9 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 type Action =
-  | 'open-instance-workspace'
   | 'copy-connection-string'
   | 'edit-favorite'
   | 'open-connection-info'
@@ -102,6 +102,8 @@ function SidebarTitle({
   isExpanded?: boolean;
   onAction(actionName: Action, ...rest: any[]): void;
 }) {
+  const { openMyQueriesWorkspace } = useOpenWorkspace();
+
   const actions = useMemo(() => {
     const actions: ItemAction<Action>[] = [];
 
@@ -136,11 +138,11 @@ function SidebarTitle({
 
   const onClick = useCallback(() => {
     if (isExpanded) {
-      onAction('open-instance-workspace', 'My Queries');
+      openMyQueriesWorkspace();
     } else {
       onAction('expand-sidebar');
     }
-  }, [isExpanded, onAction]);
+  }, [isExpanded, onAction, openMyQueriesWorkspace]);
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions

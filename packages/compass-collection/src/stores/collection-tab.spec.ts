@@ -2,8 +2,6 @@ import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
 import {
   selectTab,
-  selectDatabase,
-  editView,
   renderScopedModals,
   renderTabs,
 } from '../modules/collection-tab';
@@ -134,28 +132,6 @@ describe('Collection Tab Content store', function () {
       const store = await configureStore();
       store.dispatch(selectTab('Documents'));
       expect(store.getState()).to.have.property('currentTab', 'Documents');
-    });
-  });
-
-  describe('selectDatabase', function () {
-    it("should emit 'select-database' event", async function () {
-      const store = await configureStore();
-      store.dispatch(selectDatabase());
-      expect(globalAppRegistry.emit).to.have.been.calledWith(
-        'select-database',
-        'test'
-      );
-    });
-  });
-
-  describe('editView', function () {
-    it("should emit 'collection-tab-select-collection' event", async function () {
-      const store = await configureStore();
-      store.dispatch(editView());
-      expect(globalAppRegistry.emit).to.have.been.calledWithMatch(
-        'collection-tab-select-collection',
-        { ns: 'test.bar' }
-      );
     });
   });
 

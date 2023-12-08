@@ -4,7 +4,6 @@ import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import toNs from 'mongodb-ns';
 import React from 'react';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 
@@ -117,35 +116,6 @@ export const selectTab = (
   return (dispatch, _getState, { localAppRegistry }) => {
     dispatch({ type: CollectionActions.ChangeTab, tabName });
     localAppRegistry.emit('subtab-changed', tabName);
-  };
-};
-export const selectDatabase = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { namespace } = getState();
-    const { database } = toNs(namespace);
-    globalAppRegistry.emit('select-database', database);
-  };
-};
-
-export const editView = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { namespace, metadata } = getState();
-    if (metadata?.sourceName) {
-      globalAppRegistry.emit('collection-tab-select-collection', {
-        ns: metadata.sourceName,
-        editViewName: namespace,
-        pipeline: metadata?.sourcePipeline ?? null,
-      });
-    }
-  };
-};
-
-export const returnToView = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { editViewName } = getState();
-    globalAppRegistry.emit('collection-tab-select-collection', {
-      ns: editViewName,
-    });
   };
 };
 

@@ -8,7 +8,7 @@ module.exports = (env, args) => {
   return [
     ...compassPluginConfig(env, args),
     createWebConfig({
-      entry: path.resolve(__dirname, 'src', 'provider.ts'),
+      entry: path.resolve(__dirname, 'src', 'provider.tsx'),
       library: 'CompassWorkspacesProvider',
     }),
   ];

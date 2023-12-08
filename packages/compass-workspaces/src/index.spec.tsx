@@ -58,11 +58,12 @@ describe('WorkspacesPlugin', function () {
     cleanup();
   });
 
+  // TODO: tests
   const tabs = [
-    ['My Queries', ['open-instance-workspace']],
-    ['Databases', ['open-instance-workspace', 'Databases']],
-    ['Performance', ['open-instance-workspace', 'Performance']],
-    ['db', ['select-database', 'db']],
+    // ['My Queries', ['open-instance-workspace']],
+    // ['Databases', ['open-instance-workspace', 'Databases']],
+    // ['Performance', ['open-instance-workspace', 'Performance']],
+    // ['db', ['select-database', 'db']],
     ['db > coll', ['select-namespace', { namespace: 'db.coll' }]],
     ['db > coll', ['open-namespace-in-new-tab', { namespace: 'db.coll' }]],
   ] as const;

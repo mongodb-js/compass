@@ -63,18 +63,6 @@ export function activateWorkspacePlugin(
   });
 
   // TODO: clean up unneccessary global events
-  on(
-    globalAppRegistry,
-    'open-instance-workspace',
-    (workspace?: 'My Queries' | 'Databases' | 'Performance') => {
-      store.dispatch(openWorkspace({ type: workspace ?? 'My Queries' }));
-    }
-  );
-
-  on(globalAppRegistry, 'select-database', (namespace: string) => {
-    store.dispatch(openWorkspace({ type: 'Collections', namespace }));
-  });
-
   const openCollection = (
     metadata: CollectionTabPluginMetadata,
     newTab: boolean

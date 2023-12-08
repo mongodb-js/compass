@@ -306,39 +306,6 @@ export function createInstanceStore({
   onAppRegistryEvent('collection-created', onCollectionCreated);
 
   /**
-   * Opens collection in the current active tab. No-op if currently open tab has
-   * the same namespace. Additional `query` and `agrregation` props can be
-   * passed with the namespace to open tab with initial query or aggregation
-   * pipeline
-   */
-  const openCollectionInSameTab = voidify(
-    async ({
-      ns,
-      ...extraMetadata
-    }: Record<string, unknown> & { ns: string }) => {
-      const metadata = await fetchCollectionMetadata(ns);
-      appRegistry.emit('select-namespace', {
-        ...metadata,
-        ...extraMetadata,
-      });
-    }
-  );
-
-  onAppRegistryEvent(
-    'collections-list-select-collection',
-    openCollectionInSameTab
-  );
-  onAppRegistryEvent('sidebar-select-collection', openCollectionInSameTab);
-  onAppRegistryEvent(
-    'collection-workspace-select-namespace',
-    openCollectionInSameTab
-  );
-  onAppRegistryEvent(
-    'collection-tab-select-collection',
-    openCollectionInSameTab
-  );
-
-  /**
    * Opens collection in a new tab. Additional `query` and `agrregation` props
    * can be passed with the namespace to open tab with initial query or
    * aggregation pipeline
@@ -360,15 +327,7 @@ export function createInstanceStore({
   );
 
   onAppRegistryEvent(
-    'sidebar-open-collection-in-new-tab',
-    openCollectionInNewTab
-  );
-  onAppRegistryEvent(
     'import-export-open-collection-in-new-tab',
-    openCollectionInNewTab
-  );
-  onAppRegistryEvent(
-    'collection-workspace-open-collection-in-new-tab',
     openCollectionInNewTab
   );
   onAppRegistryEvent('my-queries-open-saved-item', openCollectionInNewTab);

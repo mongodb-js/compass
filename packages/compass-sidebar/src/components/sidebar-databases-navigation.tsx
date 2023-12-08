@@ -1,27 +1,90 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
+import type { Database } from '../modules/databases';
 import { toggleDatabaseExpanded } from '../modules/databases';
-import { withPreferences } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model';
 import type { RootState } from '../modules';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+
+function findCollection(ns: string, databases: Database[]) {
+  const { database, collection } = toNS(ns);
+
+  return (
+    databases
+      .find((db) => db._id === database)
+      ?.collections.find((coll) => coll.name === collection) ?? null
+  );
+}
 
 function SidebarDatabasesNavigation({
-  readOnly,
   isDataLake,
   isWritable,
+  onNamespaceAction: _onNamespaceAction,
+  databases,
   ...dbNavigationProps
-}: Omit<React.ComponentProps<typeof DatabasesNavigationTree>, 'isReadOnly'> & {
-  readOnly?: boolean;
+}: Omit<
+  React.ComponentProps<typeof DatabasesNavigationTree>,
+  'isReadOnly' | 'databases'
+> & {
+  databases: Database[];
   isDataLake?: boolean;
   isWritable?: boolean;
 }) {
-  const isReadOnly = readOnly || isDataLake || !isWritable;
+  const { openCollectionsWorkspace, openCollectionWorkspace } =
+    useOpenWorkspace();
+  const preferencesReadOnly = usePreference('readOnly', React);
+  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+  const onNamespaceAction = useCallback(
+    (ns: string, action: Actions) => {
+      switch (action) {
+        case 'select-database':
+          openCollectionsWorkspace(ns);
+          return;
+        case 'select-collection':
+          openCollectionWorkspace(ns);
+          return;
+        case 'open-in-new-tab':
+          openCollectionWorkspace(ns, null, { newTab: true });
+          return;
+        case 'modify-view': {
+          const coll = findCollection(ns, databases);
+          if (coll && coll.sourceName) {
+            openCollectionWorkspace(
+              coll.sourceName,
+              {
+                editViewName: coll._id,
+                initialPipeline: coll.pipeline,
+              },
+              { newTab: true }
+            );
+          }
+          return;
+        }
+        default:
+          _onNamespaceAction(ns, action);
+          return;
+      }
+    },
+    [
+      _onNamespaceAction,
+      openCollectionsWorkspace,
+      databases,
+      openCollectionWorkspace,
+    ]
+  );
+
   return (
-    <DatabasesNavigationTree {...dbNavigationProps} isReadOnly={isReadOnly} />
+    <DatabasesNavigationTree
+      {...dbNavigationProps}
+      databases={databases}
+      onNamespaceAction={onNamespaceAction}
+      isReadOnly={isReadOnly}
+    />
   );
 }
 
@@ -52,16 +115,10 @@ function mapStateToProps(state: RootState) {
 }
 
 const onNamespaceAction = (namespace: string, action: Actions) => {
-  return (dispatch: Dispatch, getState: () => RootState) => {
+  return (dispatch: Dispatch) => {
     const emit = (...args: any[]) => dispatch(globalAppRegistryEmit(...args));
     const ns = toNS(namespace);
     switch (action) {
-      case 'select-database':
-        emit('select-database', ns.database);
-        return;
-      case 'select-collection':
-        emit('sidebar-select-collection', ns);
-        return;
       case 'drop-database':
         emit('open-drop-database', ns.database);
         return;
@@ -74,28 +131,6 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
       case 'create-collection':
         emit('open-create-collection', ns);
         return;
-      case 'open-in-new-tab':
-        emit('sidebar-open-collection-in-new-tab', ns);
-        return;
-      case 'modify-view': {
-        const coll = getState()
-          .databases.databases.find((db) => {
-            return db.name === ns.database;
-          })
-          ?.collections.find((coll) => {
-            return coll.name === ns.collection;
-          });
-
-        if (coll) {
-          emit('sidebar-open-collection-in-new-tab', {
-            ns: coll.sourceName,
-            editViewName: coll._id,
-            pipeline: coll.pipeline,
-          });
-        }
-
-        return;
-      }
       case 'duplicate-view':
         emit('sidebar-duplicate-view', ns);
         break;
@@ -108,4 +143,4 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
-})(withPreferences(SidebarDatabasesNavigation, ['readOnly'], React));
+})(SidebarDatabasesNavigation);
