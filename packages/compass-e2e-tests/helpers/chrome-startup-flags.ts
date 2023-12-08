@@ -1,5 +1,6 @@
 // Copied from https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/constants.ts
-export const DEFAULT_WEBDRIVER_FLAGS = [
+// These are the default flags that webdriverio uses to start Chrome driver.
+const DEFAULT_WEBDRIVER_FLAGS = [
   // suppresses Save Password prompt window
   '--enable-automation',
   // do not block popups
@@ -40,4 +41,31 @@ export const DEFAULT_WEBDRIVER_FLAGS = [
    * `TranslateUI` disables built-in Google Translate service
    */
   '--disable-features=site-per-process,TranslateUI,BlinkGenPropertyTrees',
+];
+
+// These flags are used to start Chrome driver based on the CI requirements.
+const CI_FLAGS = [
+  // Chromecast feature that is enabled by default in some chrome versions
+  // and breaks the app on Ubuntu
+  '--media-router=0',
+  // Evergren RHEL ci runs everything as root, and chrome will not start as
+  // root without this flag
+  '--no-sandbox',
+];
+
+// These flags are used to start Chrome driver based on the Compass requirements.
+const COMPASS_FLAGS = [
+  // Allow options such as --user-data-dir to pass through the command line
+  // flag validation code.
+  '--ignore-additional-command-line-flags',
+  // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
+  '--atlasServiceBackendPreset=atlas-dev',
+];
+
+// The shared set of flags that are used to start Chrome driver when running Compass
+// tests in CLI or GUI mode.
+export const CHROME_STARTUP_FLAGS = [
+  ...DEFAULT_WEBDRIVER_FLAGS,
+  ...CI_FLAGS,
+  ...COMPASS_FLAGS,
 ];
