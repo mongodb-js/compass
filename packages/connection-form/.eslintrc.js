@@ -21,20 +21,11 @@ module.exports = {
         '@typescript-eslint/no-restricted-imports': [
           'error',
           {
-            paths: [
-              {
-                name: 'mongodb',
-                allowTypeImports: true,
-                message: "Only type imports allowed from 'mongodb'",
-              },
-            ],
-            // Additionally we would like to make sure that connection-storage
-            // is not directly used in this package since it is very compass
-            // specific
             patterns: [
               {
                 group: ['@mongodb-js/connection-storage', 'mongodb'],
-                message: '@mongodb-js/connection-form package is shared between Compass and VSCode and should use Compass-specific packages only for type definitions,
+                message:
+                  '@mongodb-js/connection-form package is shared between Compass and VSCode and should use Compass-specific packages only for type definitions',
                 allowTypeImports: true,
               },
             ],
