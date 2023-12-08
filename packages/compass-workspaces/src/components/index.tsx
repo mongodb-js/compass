@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { css } from '@mongodb-js/compass-components';
 import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
   type OpenWorkspaceOptions,
@@ -12,8 +13,14 @@ import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { connect } from 'react-redux';
 
 type WorkspacesWithSidebarProps = {
-  activeWorkspace: WorkspaceTab | null;
-  onActiveWorkspaceTabChange(ws: WorkspaceTab | null): void;
+  activeTab: WorkspaceTab | null;
+  activeTabCollectionInfo: CollectionTabInfo | null;
+  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
+    ws: WS | null,
+    collectionInfo: WS extends { type: 'Collection' }
+      ? CollectionTabInfo | null
+      : never
+  ): void;
   initialWorkspaceTab?: OpenWorkspaceOptions;
   initialConnectionInfo?: ConnectionInfo;
 };
@@ -37,20 +44,21 @@ const sidebarStyles = css({
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
 > = ({
-  activeWorkspace,
+  activeTab,
+  activeTabCollectionInfo,
   onActiveWorkspaceTabChange,
   initialConnectionInfo,
 }) => {
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
   useEffect(() => {
-    onChange.current(activeWorkspace);
-  }, [activeWorkspace]);
+    onChange.current(activeTab, activeTabCollectionInfo);
+  }, [activeTab, activeTabCollectionInfo]);
   return (
     <div className={horizontalSplitStyles}>
       <div className={sidebarStyles}>
         <CompassSidebarPlugin
-          activeWorkspace={activeWorkspace}
+          activeWorkspace={activeTab}
           initialConnectionInfo={initialConnectionInfo}
         />
       </div>
@@ -62,7 +70,12 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 };
 
 export default connect((state: WorkspacesState) => {
+  const activeTab = getActiveTab(state);
   return {
-    activeWorkspace: getActiveTab(state),
+    activeTab,
+    activeTabCollectionInfo:
+      activeTab?.type === 'Collection'
+        ? state.collectionInfo[activeTab.namespace]
+        : null,
   };
 })(WorkspacesWithSidebar);

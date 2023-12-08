@@ -19,11 +19,19 @@ function mockWorkspace(name: string) {
 describe('WorkspacesPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const globalAppRegistry = sandbox.spy(new AppRegistry());
-  const instance = { on() {}, removeListener() {} } as any;
+  const instance = {
+    on() {},
+    removeListener() {},
+    getNamespace() {
+      return Promise.resolve(null);
+    },
+  } as any;
+  const dataService = {} as any;
   const Plugin = WorkspacesPlugin.withMockServices(
     {
       globalAppRegistry,
       instance,
+      dataService,
     },
     { disableChildPluginRendering: true }
   );

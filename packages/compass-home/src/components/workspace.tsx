@@ -11,7 +11,6 @@ import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { WorkspaceTab as PerformanceWorkspace } from '@mongodb-js/compass-serverstats';
 import {
@@ -38,7 +37,9 @@ export default function Workspace({
   onActiveWorkspaceTabChange,
 }: {
   connectionInfo: ConnectionInfo | null | undefined;
-  onActiveWorkspaceTabChange(ws: WorkspaceTab | null): void;
+  onActiveWorkspaceTabChange: React.ComponentProps<
+    typeof WorkspacesPlugin
+  >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
   return (
     <div data-testid="home" className={verticalSplitStyles}>

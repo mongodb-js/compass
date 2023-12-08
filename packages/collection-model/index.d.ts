@@ -33,21 +33,24 @@ type CollectionMetadata = {
    */
   sourceName?: string;
   /**
-   * Indicates if a source collection is read only
-   */
-  sourceReadonly?: boolean;
-  /**
-   * View source view namespace (this is the same as metadata namespace if
-   * present)
-   */
-  sourceViewon?: string;
-  /**
-   * Aggregation pipeline view definition
+   * View source pipeline definition
    */
   sourcePipeline?: unknown[];
+  /**
+   * Instance metadata: whether or not we are connected to the ADF
+   */
+  isDataLake: boolean;
+  /**
+   * Instance metadata: whether or not we are connected to Atlas Cloud
+   */
+  isAtlas: boolean;
+  /**
+   * Instance metadata: current connection server version
+   */
+  serverVersion: string;
 };
 
-interface Collection {
+interface CollectionProps {
   _id: string;
   type: string;
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
@@ -76,9 +79,12 @@ interface Collection {
   index_size: number;
   isTimeSeries: boolean;
   isView: boolean;
-  sourceId: string | null;
+  sourceName: string | null;
   source: Collection;
   properties: { id: string; options?: unknown }[];
+}
+
+interface Collection extends CollectionProps {
   fetch(opts: {
     dataService: DataService;
     fetchInfo?: boolean;
@@ -90,15 +96,17 @@ interface Collection {
   on(evt: string, fn: (...args: any) => void);
   off(evt: string, fn: (...args: any) => void);
   removeListener(evt: string, fn: (...args: any) => void);
-  toJSON(opts?: { derived: boolean }): this;
+  toJSON(opts?: { derived: boolean }): CollectionProps;
+  previousAttributes(): CollectionProps;
+  set(val: Partial<CollectionProps>): this;
 }
 
 interface CollectionCollection extends Array<Collection> {
   fetch(opts: { dataService: DataService; fetchInfo?: boolean }): Promise<void>;
-  toJSON(opts?: { derived: boolean }): this;
+  toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;
 }
 
 export default Collection;
-export { CollectionCollection, CollectionMetadata };
+export { CollectionCollection, CollectionMetadata, CollectionProps };

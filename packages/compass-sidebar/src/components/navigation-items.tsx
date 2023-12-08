@@ -12,6 +12,8 @@ import {
   useDefaultAction,
   SignalPopover,
   PerformanceSignals,
+  Placeholder,
+  ContentWithFallback,
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -70,6 +72,14 @@ const activeNavigationItem = css({
     width: '4px',
     borderRadius: '0px 6px 6px 0px',
   },
+});
+
+const itemPlaceholderStyles = css({
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  paddingLeft: spacing[3],
+  height: spacing[5],
 });
 
 const itemWrapper = css({
@@ -184,7 +194,16 @@ export function NavigationItem<Actions extends string>({
   );
 }
 
+const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
+  return (
+    <div className={itemPlaceholderStyles}>
+      <Placeholder width={`${forLabel.length}ch`}></Placeholder>
+    </div>
+  );
+};
+
 export function NavigationItems({
+  isReady,
   isExpanded,
   showCreateDatabaseAction = false,
   showPerformanceItem = false,
@@ -194,6 +213,7 @@ export function NavigationItems({
   currentNamespace,
   showTooManyCollectionsInsight = false,
 }: {
+  isReady?: boolean;
   isExpanded?: boolean;
   showCreateDatabaseAction?: boolean;
   showPerformanceItem?: boolean;
@@ -225,34 +245,57 @@ export function NavigationItems({
 
   return (
     <>
-      <NavigationItem<''>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="CurlyBraces"
-        label="My Queries"
-        tabName="My Queries"
-        isActive={currentLocation === 'My Queries'}
-      />
-      {showPerformanceItem && (
-        <NavigationItem<''>
-          isExpanded={isExpanded}
-          onAction={onAction}
-          glyph="Gauge"
-          label="Performance"
-          tabName="Performance"
-          isActive={currentLocation === 'Performance'}
-        />
-      )}
-      <NavigationItem<DatabasesActions>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="Database"
-        label="Databases"
-        tabName="Databases"
-        actions={databasesActions}
-        isActive={currentLocation === 'Databases'}
-        showTooManyCollectionsInsight={showTooManyCollectionsInsight}
-      />
+      <ContentWithFallback
+        isContentReady={!!isReady}
+        fallback={(shouldRender) => {
+          return (
+            shouldRender && (
+              <>
+                <PlaceholderItem forLabel="My Queries"></PlaceholderItem>
+                <PlaceholderItem forLabel="Performance"></PlaceholderItem>
+                <PlaceholderItem forLabel="Databases"></PlaceholderItem>
+              </>
+            )
+          );
+        }}
+        content={(shouldRender) => {
+          return (
+            shouldRender && (
+              <>
+                <NavigationItem<''>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  glyph="CurlyBraces"
+                  label="My Queries"
+                  tabName="My Queries"
+                  isActive={currentLocation === 'My Queries'}
+                />
+                {showPerformanceItem && (
+                  <NavigationItem<''>
+                    isExpanded={isExpanded}
+                    onAction={onAction}
+                    glyph="Gauge"
+                    label="Performance"
+                    tabName="Performance"
+                    isActive={currentLocation === 'Performance'}
+                  />
+                )}
+                <NavigationItem<DatabasesActions>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  glyph="Database"
+                  label="Databases"
+                  tabName="Databases"
+                  actions={databasesActions}
+                  isActive={currentLocation === 'Databases'}
+                  showTooManyCollectionsInsight={showTooManyCollectionsInsight}
+                />
+              </>
+            )
+          );
+        }}
+      ></ContentWithFallback>
+
       {isExpanded && (
         <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       )}
@@ -263,26 +306,6 @@ export function NavigationItems({
       )}
     </>
   );
-}
-
-/**
- * Returns either current instance value for a key or a specified default in
- * case we haven't fetched instance info yet
- */
-function getInstanceValue(
-  state: RootState,
-  key: 'isDataLake' | 'isWritable',
-  defaultValue = false
-) {
-  const instanceFetched = ['refreshing', 'ready'].includes(
-    state.instance?.status ?? ''
-  );
-  if (key === 'isDataLake') {
-    return instanceFetched ? state.instance?.dataLake.isDataLake : defaultValue;
-  }
-  if (key === 'isWritable') {
-    return instanceFetched ? state.instance?.isWritable : defaultValue;
-  }
 }
 
 const mapStateToProps = (
@@ -296,17 +319,16 @@ const mapStateToProps = (
     0
   );
 
+  const isReady = ['ready', 'refreshing'].includes(
+    state.instance?.status ?? ''
+  );
+  const isDataLake = state.instance?.dataLake.isDataLake ?? false;
+  const isWritable = state.instance?.isWritable ?? false;
+
   return {
-    showPerformanceItem:
-      // For default `isDataLake` value we're choosing the one that will hide
-      // the items that would otherwise not work for the ADF
-      !getInstanceValue(state, 'isDataLake', true),
-    showCreateDatabaseAction:
-      !getInstanceValue(state, 'isDataLake', true) &&
-      // ... same with `isWritable`, a safe default here is the one that allows
-      // to do less while we're getting the info
-      getInstanceValue(state, 'isWritable', false) &&
-      !preferencesReadOnly,
+    isReady,
+    showPerformanceItem: !isDataLake,
+    showCreateDatabaseAction: !isDataLake && isWritable && !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
   };
 };

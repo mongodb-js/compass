@@ -13,59 +13,70 @@ import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { setDataService } from '../modules/data-service';
 import { toggleSidebar } from '../modules/is-expanded';
-import type { AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
-export function createSidebarStore({
-  globalAppRegistry,
-  instance,
-  dataService,
-  connectionInfo,
-}: {
-  globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
-  dataService: DataService;
-  connectionInfo: ConnectionInfo | null | undefined;
-}): {
+export function createSidebarStore(
+  {
+    globalAppRegistry,
+    instance,
+    dataService,
+    connectionInfo,
+  }: {
+    globalAppRegistry: AppRegistry;
+    instance: MongoDBInstance;
+    dataService: DataService;
+    connectionInfo: ConnectionInfo | null | undefined;
+  },
+  { on, cleanup, addCleanup }: ActivateHelpers
+): {
   store: Store<RootState, RootAction>;
   deactivate: () => void;
 } {
-  const cleanup: (() => void)[] = [];
   const store: Store<RootState, RootAction> = createStore(
     reducer,
     applyMiddleware(thunk)
   );
 
-  const onInstanceChangeNow = (instance: any /* MongoDBInstance */) => {
-    store.dispatch(
-      changeInstance({
-        status: instance.status,
-        refreshingStatus: instance.refreshingStatus,
-        databasesStatus: instance.databasesStatus,
-        csfleMode: instance.csfleMode,
-        build: instance.build.toJSON(),
-        dataLake: instance.dataLake.toJSON(),
-        genuineMongoDB: instance.genuineMongoDB.toJSON(),
-        topologyDescription: instance.topologyDescription.toJSON(),
-        isWritable: instance.isWritable,
-        env: instance.env,
-        isAtlas: instance.isAtlas,
-        isLocalAtlas: instance.isLocalAtlas,
-      })
-    );
-  };
-
   const onInstanceChange = throttle(
-    (instance) => {
-      onInstanceChangeNow(instance);
+    () => {
+      store.dispatch(
+        changeInstance({
+          status: instance.status,
+          refreshingStatus: instance.refreshingStatus,
+          databasesStatus: instance.databasesStatus,
+          csfleMode: instance.csfleMode,
+          build: {
+            isEnterprise: instance.build.isEnterprise,
+            version: instance.build.version,
+          },
+          dataLake: {
+            isDataLake: instance.dataLake.isDataLake,
+            version: instance.dataLake.version,
+          },
+          genuineMongoDB: {
+            dbType: instance.genuineMongoDB.dbType,
+            isGenuine: instance.genuineMongoDB.isGenuine,
+          },
+          topologyDescription: {
+            servers: instance.topologyDescription.servers,
+            setName: instance.topologyDescription.setName,
+            type: instance.topologyDescription.type,
+          },
+          isWritable: instance.isWritable,
+          env: instance.env,
+          isAtlas: instance.isAtlas,
+          isLocalAtlas: instance.isLocalAtlas,
+        })
+      );
     },
     300,
     { leading: true, trailing: true }
   );
 
-  cleanup.push(() => {
+  addCleanup(() => {
     onInstanceChange.cancel();
   });
 
@@ -83,12 +94,14 @@ export function createSidebarStore({
       _id: coll._id,
       name: coll.name,
       type: coll.type,
+      sourceName: coll.sourceName,
+      pipeline: coll.pipeline,
     };
   }
 
   const onDatabasesChange = throttle(
-    (databases: Database[]) => {
-      const dbs = databases.map((db) => {
+    () => {
+      const dbs = instance.databases.map((db) => {
         return {
           ...getDatabaseInfo(db),
           collections: db.collections.map((coll) => {
@@ -103,92 +116,56 @@ export function createSidebarStore({
     { leading: true, trailing: true }
   );
 
-  cleanup.push(() => {
+  addCleanup(() => {
     onDatabasesChange.cancel();
   });
 
   store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-  const onAppRegistryEvent = (ev: string, listener: (...args: any[]) => void) =>
-    on(globalAppRegistry, ev, listener);
-  const onInstanceEvent = (ev: string, listener: (...args: any[]) => void) =>
-    on(instance, ev, listener);
 
   store.dispatch(setDataService(dataService));
   if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
   const connectionOptions = dataService.getConnectionOptions();
   store.dispatch(changeConnectionOptions(connectionOptions)); // stores ssh tunnel status
 
-  onInstanceChangeNow(instance);
-  onDatabasesChange(instance.databases);
+  onInstanceChange();
+  onDatabasesChange();
 
-  onInstanceEvent('change:csfleMode', () => {
-    onInstanceChange(instance);
-  });
+  on(instance, 'change:status', onInstanceChange);
+  on(instance, 'change:refreshingStatus', onInstanceChange);
+  on(instance, 'change:databasesStatus', onInstanceChange);
+  on(instance, 'change:csfleMode', onInstanceChange);
+  on(instance, 'change:topologyDescription', onInstanceChange);
+  on(instance, 'change:isWritable', onInstanceChange);
+  on(instance, 'change:env', onInstanceChange);
 
-  onInstanceEvent('change:status', () => {
-    onInstanceChange(instance);
-  });
+  on(instance, 'change:databasesStatus', onDatabasesChange);
+  on(instance, 'add:databases', onDatabasesChange);
+  on(instance, 'remove:databases', onDatabasesChange);
+  on(instance, 'change:databases', onDatabasesChange);
+  on(instance, 'change:databases.collectionsStatus', onDatabasesChange);
 
-  onInstanceEvent('change:refreshingStatus', () => {
-    onInstanceChange(instance);
-  });
-
-  onInstanceEvent('change:databasesStatus', () => {
-    onInstanceChange(instance);
-    onDatabasesChange(instance.databases);
-  });
-
-  onInstanceEvent('change:databases', () => {
-    onDatabasesChange(instance.databases);
-  });
-
-  onInstanceEvent('change:databases.collectionsStatus', () => {
-    onDatabasesChange(instance.databases);
-  });
+  on(instance, 'add:collections', onDatabasesChange);
+  on(instance, 'remove:collections', onDatabasesChange);
+  on(instance, 'change:collections._id', onDatabasesChange);
 
   store.dispatch(
     toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
   );
 
-  onInstanceEvent(
+  on(
+    instance,
     'change:genuineMongoDB.isGenuine',
     (_model: unknown, isGenuine: boolean) => {
       store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
   );
 
-  onInstanceEvent('change:topologyDescription', () => {
-    onInstanceChange(instance);
-  });
-
-  onInstanceEvent('change:isWritable', () => {
-    onInstanceChange(instance);
-  });
-
-  onInstanceEvent('change:env', () => {
-    onInstanceChange(instance);
-  });
-
-  onAppRegistryEvent('toggle-sidebar', () => {
+  on(globalAppRegistry, 'toggle-sidebar', () => {
     store.dispatch(toggleSidebar());
   });
 
   return {
     store,
-    deactivate() {
-      for (const cleaner of cleanup) cleaner();
-    },
+    deactivate: cleanup,
   };
 }

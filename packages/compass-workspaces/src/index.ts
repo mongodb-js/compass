@@ -19,15 +19,19 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
+import type { DataService } from 'mongodb-data-service';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
+  dataService: DataService;
 };
 
 export function activateWorkspacePlugin(
   { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
-  { globalAppRegistry, instance }: WorkspacesServices,
+  { globalAppRegistry, instance, dataService }: WorkspacesServices,
   { on, cleanup }: ActivateHelpers
 ) {
   const initialTabs = initialWorkspaceTab
@@ -39,8 +43,11 @@ export function activateWorkspacePlugin(
     {
       tabs: initialTabs,
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
+      collectionInfo: {},
     },
-    applyMiddleware(thunk.withExtraArgument({ globalAppRegistry, instance }))
+    applyMiddleware(
+      thunk.withExtraArgument({ globalAppRegistry, instance, dataService })
+    )
   );
 
   // TODO: clean up unneccessary global events
@@ -60,11 +67,24 @@ export function activateWorkspacePlugin(
     metadata: CollectionTabPluginMetadata,
     newTab: boolean
   ) => {
+    const {
+      namespace,
+      query,
+      pipeline,
+      pipelineText,
+      aggregation,
+      editViewName,
+    } = metadata;
     store.dispatch(
       openWorkspace(
         {
           type: 'Collection',
-          ...metadata,
+          namespace,
+          initialQuery: query,
+          initialAggregation: aggregation,
+          initialPipelineText: pipelineText,
+          initialPipeline: pipeline,
+          editViewName,
         },
         { newTab }
       )
@@ -87,13 +107,10 @@ export function activateWorkspacePlugin(
     }
   );
 
-  on(
-    globalAppRegistry,
-    'collection-renamed',
-    ({ from, to }: { from: string; to: string }) => {
-      store.dispatch(collectionRenamed(from, to));
-    }
-  );
+  on(instance, 'change:collections._id', (collection: Collection) => {
+    const { _id: from } = collection.previousAttributes();
+    store.dispatch(collectionRenamed(from, collection.ns));
+  });
 
   on(instance, 'remove:collections', (collection: Collection) => {
     store.dispatch(collectionRemoved(collection.ns));
@@ -140,7 +157,10 @@ const WorkspacesPlugin = registerHadronPlugin(
     component: Workspaces,
     activate: activateWorkspacePlugin,
   },
-  { instance: mongoDBInstanceLocator }
+  {
+    instance: mongoDBInstanceLocator,
+    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+  }
 );
 
 function activate(): void {

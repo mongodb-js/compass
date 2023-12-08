@@ -3,6 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, {
+  collectionMetadataFetched,
   collectionStatsFetched,
   pickCollectionStats,
   selectTab,
@@ -10,15 +11,35 @@ import reducer, {
 import type Collection from 'mongodb-collection-model';
 import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type CollectionTabOptions = {
-  query?: unknown;
-  aggregation?: unknown;
-  pipelineText?: string;
+  /**
+   * Collection namespace
+   */
+  namespace: string;
+  /**
+   * Initial query to be set in the query bar
+   */
+  initialQuery?: unknown;
+  /**
+   * Initial saved sggregation (stored on disk) to apply to the agg builder
+   */
+  initialAggregation?: unknown;
+  /**
+   * Initial aggregation pipeline to set in the agg builder
+   */
+  initialPipeline?: unknown[];
+  /**
+   * Initial stringified aggregation pipeline to set in the agg builder
+   */
+  initialPipelineText?: string;
+  /**
+   * View namespace that can be passed when editing view pipeline in the source
+   * collection
+   */
   editViewName?: string;
-} & CollectionMetadata; // TODO: make collection-tab resovle metadata on its own
+};
 
 export type CollectionTabServices = {
   dataService: DataService;
@@ -28,18 +49,16 @@ export type CollectionTabServices = {
 };
 
 export function activatePlugin(
-  options: CollectionTabOptions,
+  {
+    namespace,
+    initialAggregation,
+    initialPipeline,
+    initialPipelineText,
+    editViewName,
+  }: CollectionTabOptions,
   services: CollectionTabServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const {
-    query,
-    aggregation,
-    editViewName,
-    pipelineText,
-    ...collectionMetadata
-  } = options;
-
   const { dataService, globalAppRegistry, localAppRegistry, instance } =
     services;
 
@@ -48,45 +67,39 @@ export function activatePlugin(
   ) as unknown as (...args: any) => void | undefined; // Field.Store is odd because it registers a configure method, not the actual store
 
   configureFieldStore?.({
+    namespace: namespace,
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
-    namespace: collectionMetadata.namespace,
     serverVersion: instance.build.version,
   });
 
-  const { database, collection } = toNs(collectionMetadata.namespace);
+  const { database, collection } = toNs(namespace);
 
   const collectionModel = instance.databases
     .get(database)
     ?.collections.get(collection, 'name');
 
-  // If aggregation is passed or we opened view to edit source pipeline,
-  // select aggregation tab right away
+  if (!collectionModel) {
+    throw new Error(
+      "Can't activate collection tab plugin without collection model"
+    );
+  }
+
+  // If aggregation is passed or we opened souce of a view collection to edit
+  // pipeline, select aggregation tab right away
   const currentTab =
-    aggregation || editViewName || pipelineText ? 'Aggregations' : 'Documents';
+    initialAggregation || initialPipeline || initialPipelineText || editViewName
+      ? 'Aggregations'
+      : 'Documents';
 
   const store = createStore(
     reducer,
     {
-      metadata: {
-        ...collectionMetadata,
-        // NB: While it's technically possible for these values to change during
-        // MongoDB server lifecycle, we (mostly) never accounted for this in the
-        // scope of collection tab plugin and its children plugins. The cases
-        // where this can happen are rare, so we are okay with just ignoring
-        // this at the moment. If we ever decide to change that, don't forget to
-        // account for that change in all plugins that implement
-        // `Collection.Tab` and `Collection.ScopedModal` roles
-        isDataLake: instance.dataLake.isDataLake,
-        isAtlas: instance.env === 'atlas',
-        serverVersion: instance.build.version,
-      },
-      stats: collectionModel ? pickCollectionStats(collectionModel) : null,
-      initialQuery: query,
-      initialAggregation: aggregation,
-      initialPipelineText: pipelineText,
-      currentTab,
+      namespace,
+      metadata: null,
+      stats: pickCollectionStats(collectionModel),
       editViewName,
+      currentTab,
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -109,17 +122,15 @@ export function activatePlugin(
     store.dispatch(selectTab('Aggregations'));
   });
 
-  if (collectionModel) {
-    on(
-      collectionModel,
-      'change:status',
-      (model: Collection, status: string) => {
-        if (status === 'ready') {
-          store.dispatch(collectionStatsFetched(model));
-        }
-      }
-    );
-  }
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  });
+
+  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
+    store.dispatch(collectionMetadataFetched(metadata));
+  });
 
   return {
     store,

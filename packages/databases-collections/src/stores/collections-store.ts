@@ -64,6 +64,7 @@ export function activatePlugin(
 
   on(database, 'change:collectionsStatus', onCollectionsChanged);
   on(database, 'change:collections.status', onCollectionsChanged);
+  on(database, 'change:collections._id', onCollectionsChanged);
   on(database, 'add:collections', onCollectionsChanged);
   on(database, 'remove:collections', onCollectionsChanged);
 
