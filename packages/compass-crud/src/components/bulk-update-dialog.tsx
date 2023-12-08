@@ -478,7 +478,7 @@ export default function BulkUpdateDialog({
 }
 
 const previewCardStyles = css({
-  padding: `${spacing[3]}px 0`,
+  padding: spacing[3],
 });
 
 function UpdatePreviewDocument({
