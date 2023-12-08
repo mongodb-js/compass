@@ -263,7 +263,7 @@ function Home({
   }, [appRegistry, onDataServiceDisconnected]);
 
   const onWorkspaceChange = useCallback(
-    (ws: WorkspaceTab | null) => {
+    (ws: WorkspaceTab | null, collectionInfo) => {
       updateTitle(
         appName,
         connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
@@ -272,7 +272,7 @@ function Home({
       );
 
       if (ws?.type === 'Collection') {
-        showCollectionSubMenu({ isReadOnly: ws?.isReadonly });
+        showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
       } else {
         hideCollectionSubMenu();
       }

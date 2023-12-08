@@ -7,7 +7,7 @@ import type { CollectionsThunkExtraArg } from '../stores/collections-store';
 import toNS from 'mongodb-ns';
 
 export type CollectionsState = {
-  collections: Collection[];
+  collections: ReturnType<Collection['toJSON']>[];
   collectionsLoadingStatus: {
     status: Database['collectionsStatus'];
     error: string | null;

@@ -15,6 +15,7 @@ function renderNavigationItems(
   return render(
     <Provider store={store}>
       <NavigationItems
+        isReady
         isExpanded
         onAction={() => {
           /* noop */

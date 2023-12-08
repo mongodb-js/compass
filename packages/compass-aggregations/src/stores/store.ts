@@ -74,28 +74,21 @@ export type ConfigureStoreOptions = {
    * Stored pipeline metadata. Can be provided to preload stored pipeline
    * right when the plugin is initialized
    */
-  aggregation: unknown;
+  aggregation?: unknown;
   /**
-   * Namespace for the view that is being edited. Needs to be provided
-   * with the `sourcePipeline` options. Takes precedence over `pipeline`
-   * option
+   * Namespace for the view that is being edited. Needs to be provided with the
+   * `pipeline` options
    */
   editViewName: string;
-  /**
-   * Pipeline definition for the view that is being edited. Needs to be
-   * provided with the `editViewName` option. Takes precedence over
-   * `pipeline` option
-   */
-  sourcePipeline: unknown[];
   /**
    * Initial pipeline that will be converted to a string to be used by the
    * aggregation builder. Takes precedence over `pipelineText` option
    */
-  pipeline: unknown[];
+  pipeline?: unknown[];
   /**
    * Initial pipeline text to be used by the aggregation builder
    */
-  pipelineText: string;
+  pipelineText?: string;
   /**
    * List of all the collections in the current database. It is used inside
    * the stage wizard to populate the dropdown for $lookup use-case.
@@ -148,20 +141,17 @@ export function activateAggregationsPlugin(
     cleanup.push(() => eventEmitter.removeListener(ev, listener));
   }
 
-  if (options.editViewName && !options.sourcePipeline) {
+  if (options.editViewName && !options.pipeline) {
     throw new Error(
-      'Option `editViewName` can be used only if `sourcePipeline` is provided'
+      'Option `editViewName` can be used only if `pipeline` is provided'
     );
   }
 
-  const editingView = !!(options.editViewName && options.sourcePipeline);
+  const editingView = !!(options.editViewName && options.pipeline);
 
   const initialPipelineSource =
-    (editingView
-      ? toJSString(options.sourcePipeline, '  ')
-      : options.pipeline
-      ? toJSString(options.pipeline)
-      : options.pipelineText) ?? undefined;
+    (options.pipeline ? toJSString(options.pipeline) : options.pipelineText) ??
+    undefined;
 
   const { collection } = toNS(options.namespace);
 

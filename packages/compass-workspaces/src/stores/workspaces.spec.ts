@@ -3,13 +3,23 @@ import { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
 
 describe('tabs behavior', function () {
-  const instance = { on() {}, removeListener() {} } as any;
+  const instance = {
+    on() {},
+    removeListener() {},
+    getNamespace() {
+      return Promise.resolve(null);
+    },
+  } as any;
   const globalAppRegistry = { on() {}, removeListener() {} } as any;
   const helpers = { on() {}, cleanup() {} } as any;
+  const dataService = {} as any;
 
   function configureStore() {
-    return activateWorkspacePlugin({}, { globalAppRegistry, instance }, helpers)
-      .store;
+    return activateWorkspacePlugin(
+      {},
+      { globalAppRegistry, instance, dataService },
+      helpers
+    ).store;
   }
 
   function openTabs(

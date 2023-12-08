@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import {
   returnToView,
   selectDatabase,
@@ -9,13 +8,13 @@ import {
   selectTab,
   renderScopedModals,
   renderTabs,
-  createCollectionStoreMetadata,
 } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { useCollectionTabPlugins } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'
@@ -28,8 +27,6 @@ function trackingIdForTabName(name: string) {
 const ConnectedCollectionHeader = connect(
   (state: CollectionState) => {
     return {
-      ...state.metadata,
-      editViewName: state.editViewName,
       stats: state.stats,
     };
   },
@@ -59,28 +56,70 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-type CollectionTabProps = {
+type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
-  collectionTabPluginMetadata: CollectionTabPluginMetadata;
-  renderScopedModals(): React.ReactElement[];
-  renderTabs(): { name: string; component: React.ReactElement }[];
+  collectionMetadata: CollectionMetadata | null;
+  renderScopedModals(props: CollectionTabOptions): React.ReactElement[];
+  renderTabs(
+    props: CollectionTabOptions
+  ): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
 };
 
 const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
+  namespace,
   currentTab,
-  collectionTabPluginMetadata,
+  initialAggregation,
+  initialPipeline,
+  initialPipelineText,
+  initialQuery,
+  editViewName,
+  collectionMetadata,
   renderScopedModals,
   renderTabs,
   onTabClick,
 }) => {
+  useEffect(() => {
+    const activeSubTabName = currentTab
+      ? trackingIdForTabName(currentTab)
+      : null;
+
+    if (activeSubTabName) {
+      track('Screen', {
+        name: activeSubTabName,
+      });
+    }
+  }, [currentTab]);
   const pluginTabs = useCollectionTabPlugins();
-  const legacyTabs = renderTabs();
+
+  if (collectionMetadata === null) {
+    return null;
+  }
+
+  const tabsProps = {
+    namespace,
+    initialAggregation,
+    initialPipeline,
+    initialPipelineText,
+    initialQuery,
+    editViewName,
+  };
+  const legacyTabs = renderTabs(tabsProps);
   const tabs = [
     ...legacyTabs,
     ...pluginTabs.map(({ name, component: Component }) => ({
       name,
-      component: <Component {...collectionTabPluginMetadata} />,
+      component: (
+        <Component
+          {...collectionMetadata}
+          namespace={namespace}
+          aggregation={initialAggregation}
+          pipeline={initialPipeline}
+          pipelineText={initialPipelineText}
+          query={initialQuery}
+          editViewName={editViewName}
+        />
+      ),
     })),
   ];
   // TODO(COMPASS-7404): While the legacy tabs and the provider-injected ones exist,
@@ -100,22 +139,13 @@ const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
   );
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
-  useEffect(() => {
-    const activeSubTabName = currentTab
-      ? trackingIdForTabName(currentTab)
-      : null;
-
-    if (activeSubTabName) {
-      track('Screen', {
-        name: activeSubTabName,
-      });
-    }
-  }, [currentTab]);
-
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
-        <ConnectedCollectionHeader></ConnectedCollectionHeader>
+        <ConnectedCollectionHeader
+          editViewName={editViewName}
+          {...collectionMetadata}
+        ></ConnectedCollectionHeader>
         <TabNavBar
           data-testid="collection-tabs"
           aria-label="Collection Tabs"
@@ -146,7 +176,7 @@ const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
         />
       </div>
       <div className={collectionModalContainerStyles}>
-        {renderScopedModals()}
+        {renderScopedModals(tabsProps)}
       </div>
     </div>
   );
@@ -155,8 +185,9 @@ const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
+      namespace: state.namespace,
       currentTab: state.currentTab,
-      collectionTabPluginMetadata: createCollectionStoreMetadata(state),
+      collectionMetadata: state.metadata,
     };
   },
   {

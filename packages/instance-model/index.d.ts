@@ -101,7 +101,9 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   removeAllListeners(): void;
   on(evt: string, fn: (...args: any) => void);
   removeListener(evt: string, fn: (...args: any) => void);
-  toJSON(opts?: { derived?: boolean }): this;
+  toJSON(opts?: { derived?: boolean }): MongoDBInstanceProps;
+  previousAttributes(): MongoDBInstanceProps;
+  set(val: Partial<MongoDBInstanceProps>): this;
 }
 
 export { MongoDBInstance, MongoDBInstanceProps, ServerType, TopologyType };

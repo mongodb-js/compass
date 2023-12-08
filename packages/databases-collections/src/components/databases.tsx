@@ -58,7 +58,7 @@ function NonGenuineZeroState() {
 }
 
 type DatabasesProps = {
-  databases: Database[];
+  databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
   databasesLoadingError: string | null;
   isWritable: boolean;

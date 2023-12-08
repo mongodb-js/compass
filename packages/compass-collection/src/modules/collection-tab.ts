@@ -6,6 +6,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import toNs from 'mongodb-ns';
 import React from 'react';
+import type { CollectionTabOptions } from '../stores/collection-tab';
 
 type CollectionThunkAction<
   ReturnType,
@@ -21,13 +22,8 @@ type CollectionThunkAction<
   Action
 >;
 
-export type CollectionStateMetadata = CollectionMetadata & {
-  serverVersion: string;
-  isAtlas: boolean;
-  isDataLake: boolean;
-};
-
 export type CollectionState = {
+  namespace: string;
   stats: Pick<
     Collection,
     | 'document_count'
@@ -38,16 +34,13 @@ export type CollectionState = {
     | 'storage_size'
     | 'free_storage_size'
   > | null;
-  metadata: CollectionStateMetadata;
+  metadata: CollectionMetadata | null;
   currentTab:
     | 'Documents'
     | 'Aggregations'
     | 'Schema'
     | 'Indexes'
     | 'Validation';
-  initialQuery?: unknown;
-  initialAggregation?: unknown;
-  initialPipelineText?: string;
   editViewName?: string;
 };
 
@@ -74,18 +67,6 @@ export function pickCollectionStats(
   };
 }
 
-const initialMetadata: CollectionStateMetadata = {
-  namespace: '',
-  isReadonly: false,
-  isTimeSeries: false,
-  isClustered: false,
-  isFLE: false,
-  isSearchIndexesSupported: false,
-  isAtlas: false,
-  isDataLake: false,
-  serverVersion: '0.0.0',
-};
-
 enum CollectionActions {
   CollectionStatsFetched = 'compass-collection/CollectionStatsFetched',
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
@@ -94,8 +75,9 @@ enum CollectionActions {
 
 const reducer: Reducer<CollectionState> = (
   state = {
+    namespace: '',
     stats: null,
-    metadata: initialMetadata,
+    metadata: null,
     currentTab: 'Documents',
   },
   action
@@ -139,18 +121,22 @@ export const selectTab = (
 };
 export const selectDatabase = (): CollectionThunkAction<void> => {
   return (dispatch, getState, { globalAppRegistry }) => {
-    const { metadata } = getState();
-    const { database } = toNs(metadata.namespace);
+    const { namespace } = getState();
+    const { database } = toNs(namespace);
     globalAppRegistry.emit('select-database', database);
   };
 };
 
 export const editView = (): CollectionThunkAction<void> => {
   return (dispatch, getState, { globalAppRegistry }) => {
-    const { metadata } = getState();
-    globalAppRegistry.emit('collection-tab-modify-view', {
-      ns: metadata.namespace,
-    });
+    const { namespace, metadata } = getState();
+    if (metadata?.sourceName) {
+      globalAppRegistry.emit('collection-tab-select-collection', {
+        ns: metadata.sourceName,
+        editViewName: namespace,
+        pipeline: metadata?.sourcePipeline ?? null,
+      });
+    }
   };
 };
 
@@ -163,22 +149,24 @@ export const returnToView = (): CollectionThunkAction<void> => {
   };
 };
 
-export function createCollectionStoreMetadata(state: CollectionState) {
-  return {
-    ...state.metadata,
-    query: state.initialQuery,
-    aggregation: state.initialAggregation,
-    pipelineText: state.initialPipelineText,
-    editViewName: state.editViewName,
-  };
-}
-
-export type CollectionTabPluginMetadata = ReturnType<
-  typeof createCollectionStoreMetadata
->;
+export type CollectionTabPluginMetadata = CollectionMetadata & {
+  query?: unknown;
+  aggregation?: unknown;
+  pipeline?: unknown[];
+  pipelineText?: string;
+  editViewName?: string;
+};
 
 const setupRole = (
-  roleName: string
+  roleName: string,
+  {
+    namespace,
+    initialAggregation,
+    initialPipeline,
+    initialPipelineText,
+    initialQuery,
+    editViewName,
+  }: CollectionTabOptions
 ): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
   return (
     dispatch,
@@ -200,7 +188,13 @@ const setupRole = (
       } = role;
 
       const collectionStoreMetadata = {
-        ...createCollectionStoreMetadata(getState()),
+        namespace,
+        aggregation: initialAggregation,
+        pipeline: initialPipeline,
+        pipelineText: initialPipelineText,
+        query: initialQuery,
+        editViewName,
+        ...getState().metadata,
         localAppRegistry,
         globalAppRegistry,
         dataProvider: {
@@ -244,28 +238,30 @@ const setupRole = (
   };
 };
 
-export const renderScopedModals = (): CollectionThunkAction<
-  React.ReactElement[]
-> => {
+export const renderScopedModals = (
+  collectionOptions: CollectionTabOptions
+): CollectionThunkAction<React.ReactElement[]> => {
   return (dispatch) => {
-    return dispatch(setupRole('Collection.ScopedModal')).map((role) => {
-      return role.component;
-    });
+    return dispatch(setupRole('Collection.ScopedModal', collectionOptions)).map(
+      (role) => {
+        return role.component;
+      }
+    );
   };
 };
 
-export const renderTabs = (): CollectionThunkAction<
-  { name: string; component: React.ReactElement }[]
-> => {
+export const renderTabs = (
+  collectionOptions: CollectionTabOptions
+): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
   return (dispatch) => {
     // TODO(COMPASS-7020): we don't actually render query bar in the collection
     // tab, but compass-crud and compass-schema expect some additional roles and
     // stores to be already set up when they are rendered instead of handling
     // this on their own. We do this here and ignore the return value, this just
     // makes sure that other plugins can use query bar
-    dispatch(setupRole('Query.QueryBar'));
+    dispatch(setupRole('Query.QueryBar', collectionOptions));
 
-    return dispatch(setupRole('Collection.Tab'));
+    return dispatch(setupRole('Collection.Tab', collectionOptions));
   };
 };
 

@@ -19,6 +19,8 @@ function getDatabases(_instance: MongoDBInstance) {
           _id: coll._id,
           name: coll.name,
           type: coll.type,
+          pipeline: coll.pipeline,
+          sourceName: coll.sourceName,
         };
       }),
     };
@@ -31,15 +33,18 @@ describe('SidebarStore [Store]', function () {
   let deactivate: () => void;
 
   beforeEach(function () {
-    ({ store, deactivate } = createSidebarStore({
-      globalAppRegistry,
-      dataService: {
-        getConnectionOptions() {
-          return {};
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        dataService: {
+          getConnectionOptions() {
+            return {};
+          },
         },
-      },
-      instance,
-    } as any));
+        instance,
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} }
+    ));
   });
 
   afterEach(function () {
@@ -53,14 +58,19 @@ describe('SidebarStore [Store]', function () {
       expect(state)
         .to.have.property('instance')
         .deep.equal({
-          build: {},
+          build: {
+            isEnterprise: undefined,
+            version: undefined,
+          },
           csfleMode: 'unavailable',
           dataLake: {
             isDataLake: false,
+            version: undefined,
           },
           databasesStatus: 'initial',
           env: 'on-prem',
           genuineMongoDB: {
+            dbType: undefined,
             isGenuine: true,
           },
           isAtlas: false,
