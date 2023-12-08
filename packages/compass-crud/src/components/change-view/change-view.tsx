@@ -578,7 +578,7 @@ export function ChangeView({
           changeViewStyles,
           darkMode ? changeViewStylesDark : changeViewStylesLight
         )}
-        data-testid={`change-view-{${name}}`}
+        data-testid={`change-view-${name}`}
       >
         <ChangeObject obj={obj} isOpen={true} isRoot={true} />
       </div>
