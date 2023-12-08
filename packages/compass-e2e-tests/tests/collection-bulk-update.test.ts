@@ -81,7 +81,7 @@ describe('Bulk Update', () => {
         .$(Selectors.BulkUpdatePreviewDocument + ':first-child')
         .getText();
       console.log(text);
-      return /foo\s+:\s+"bar"/.test(text);
+      return /foo\s*:\s+"bar"/.test(text);
     });
 
     // Press update
