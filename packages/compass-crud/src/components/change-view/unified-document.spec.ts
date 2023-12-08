@@ -89,15 +89,27 @@ function checkAllPaths(obj: UnifiedBranch, before: Document, after: Document) {
 
 describe('unifyDocuments', function () {
   it('merges before and after documents into one structure', function () {
-    const before = { a: new ObjectId('642d766b7300158b1f22e972') };
-    const after = { b: new ObjectId('642d766c7300158b1f22e975') };
+    const before = {
+      a: new ObjectId('642d766b7300158b1f22e972'),
+      foo: /regex/i,
+    };
+    const after = {
+      b: new ObjectId('642d766c7300158b1f22e975'),
+      foo: /regex/i,
+    };
 
     const result = unifyDocuments(before, after);
 
     // this assertion checks the basic structure of the result
     expect(result).to.deep.equal({
-      left: { path: [], value: { a: 'ObjectId("642d766b7300158b1f22e972")' } },
-      right: { path: [], value: { b: 'ObjectId("642d766c7300158b1f22e975")' } },
+      left: {
+        path: [],
+        value: { a: 'ObjectId("642d766b7300158b1f22e972")', foo: '/regex/i' },
+      },
+      right: {
+        path: [],
+        value: { b: 'ObjectId("642d766c7300158b1f22e975")', foo: '/regex/i' },
+      },
       delta: {
         a: ['ObjectId("642d766b7300158b1f22e972")', 0, 0],
         b: ['ObjectId("642d766c7300158b1f22e975")'],
@@ -111,6 +123,14 @@ describe('unifyDocuments', function () {
           delta: null,
           changeType: 'removed',
           left: { path: ['a'], value: 'ObjectId("642d766b7300158b1f22e972")' },
+        },
+        {
+          implicitChangeType: 'unchanged',
+          objectKey: 'foo',
+          delta: null,
+          changeType: 'unchanged',
+          left: { path: ['foo'], value: '/regex/i' },
+          right: { path: ['foo'], value: '/regex/i' },
         },
         {
           implicitChangeType: 'unchanged',

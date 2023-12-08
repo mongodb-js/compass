@@ -31,6 +31,9 @@ export function unBSON(value: any | any[]): any | any[] {
     return mapped;
   } else if (value?._bsontype) {
     return stringifyBSON(value);
+  } else if (Object.prototype.toString.call(value) === '[object RegExp]') {
+    // make sure these match when diffing
+    return value.toString();
   } else {
     return value;
   }
