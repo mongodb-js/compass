@@ -87,13 +87,15 @@ const changeArrayItemStyles = css({
 
 const changeKeyIndexStyles = css({
   fontWeight: 'bold',
-  padding: `0 ${spacing[1]}px`,
   alignSelf: 'flex-start',
 });
 
 const changeSummaryStyles = css({
   display: 'inline-flex',
   alignItems: 'flex-start',
+  flexWrap: 'wrap',
+  columnGap: spacing[1],
+  rowGap: '1px',
 });
 
 function getChangeSummaryClass(obj: UnifiedBranch, darkMode?: boolean) {
@@ -188,7 +190,7 @@ function ChangeArrayItemObject({ item }: { item: ObjectItemBranch }) {
 }
 
 const changeLeafStyles = css({
-  paddingLeft: spacing[1] + spacing[2] /* line up with expand/collapse */,
+  paddingLeft: spacing[3],
 });
 
 function ChangeArrayItemLeaf({ item }: { item: ItemBranch }) {
@@ -244,8 +246,7 @@ const changeArrayInlineWrapStyles = css({
 
 const changeArrayInlineStyles = css({
   marginLeft: spacing[4] + spacing[1],
-  display:
-    'inline-flex' /* so the green/red background colour doesn't stretch all the way to the end */,
+  display: 'inline-flex', // so the green/red background colour doesn't stretch all the way to the end
   flexWrap: 'wrap',
 });
 
