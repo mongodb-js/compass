@@ -10,6 +10,8 @@ import type { Telemetry } from '../helpers/telemetry';
 import { startTelemetryServer } from '../helpers/telemetry';
 import { UUID } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser';
+import Debug from 'debug';
+const debug = Debug('import-export-connections');
 
 describe('Connection Import / Export', function () {
   let tmpdir: string;
@@ -122,6 +124,7 @@ describe('Connection Import / Export', function () {
           ? ['--protectConnectionStrings']
           : [];
 
+      debug('Favoriting connection');
       {
         // Open compass, create and save favorite
         const compass = await beforeTests();
@@ -135,6 +138,7 @@ describe('Connection Import / Export', function () {
         await afterTests(compass);
       }
 
+      debug('Exporting connection via CLI');
       {
         const existingEventsCount = getTrackedEvents().length;
         // Export favorite, roughly verify file contents
@@ -155,6 +159,7 @@ describe('Connection Import / Export', function () {
         expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
+      debug('Removing connection');
       {
         // Open compass, delete favorite
         const compass = await beforeTests();
@@ -167,6 +172,7 @@ describe('Connection Import / Export', function () {
         await afterTests(compass);
       }
 
+      debug('Importing connection via CLI');
       {
         const existingEventsCount = getTrackedEvents().length;
         // Import favorite
@@ -184,6 +190,7 @@ describe('Connection Import / Export', function () {
         expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
+      debug('Verifying imported connection');
       {
         // Open compass, verify favorite exists
         const compass = await beforeTests();
