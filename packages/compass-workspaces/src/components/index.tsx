@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { css } from '@mongodb-js/compass-components';
-import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -9,20 +8,46 @@ import {
   type WorkspacesState,
 } from '../stores/workspaces';
 import Workspaces from './workspaces';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 
 type WorkspacesWithSidebarProps = {
+  /**
+   * Current active workspace tab
+   */
   activeTab: WorkspaceTab | null;
+  /**
+   * Collection info for the current active tab namespace (`null` if not fetched
+   * yet or active tab is not of type Collection)
+   */
   activeTabCollectionInfo: CollectionTabInfo | null;
+  /**
+   * Callback prop called when current active tab changes or collectionInfo for
+   * the active tab changes (in case of Collection workspace)
+   * @param ws current active workspace
+   * @param collectionInfo active workspaces collection info
+   */
   onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
     ws: WS | null,
     collectionInfo: WS extends { type: 'Collection' }
       ? CollectionTabInfo | null
       : never
   ): void;
+  /**
+   * Initial workspace tab to show (by default no tabs will be shown initially)
+   */
   initialWorkspaceTab?: OpenWorkspaceOptions;
-  initialConnectionInfo?: ConnectionInfo;
+  /**
+   * Workspaces sidebar component slot Required so that plugin modals can be
+   * rendered inside workspace React tree and access workspace state and actions
+   * from service locator context
+   */
+  sidebar?: React.ReactElement;
+  /**
+   * Workspaces plugin modals components slot. Required so that plugin modals
+   * can be rendered inside workspace React tree and access workspace state and
+   * actions from service locator context
+   */
+  modals?: React.ReactElement;
 };
 
 const horizontalSplitStyles = css({
@@ -47,7 +72,8 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   activeTab,
   activeTabCollectionInfo,
   onActiveWorkspaceTabChange,
-  initialConnectionInfo,
+  sidebar,
+  modals,
 }) => {
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
@@ -55,17 +81,15 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
   return (
-    <div className={horizontalSplitStyles}>
-      <div className={sidebarStyles}>
-        <CompassSidebarPlugin
-          activeWorkspace={activeTab}
-          initialConnectionInfo={initialConnectionInfo}
-        />
+    <>
+      <div className={horizontalSplitStyles}>
+        <div className={sidebarStyles}>{sidebar}</div>
+        <div className={workspacesStyles}>
+          <Workspaces></Workspaces>
+        </div>
       </div>
-      <div className={workspacesStyles}>
-        <Workspaces></Workspaces>
-      </div>
-    </div>
+      {modals}
+    </>
   );
 };
 

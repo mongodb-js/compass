@@ -22,6 +22,7 @@ import type Database from 'mongodb-database-model';
 import type { DataService } from 'mongodb-data-service';
 import type { DataServiceLocator } from 'mongodb-data-service/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { WorkspacesStoreContext } from './stores/context';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -29,10 +30,9 @@ export type WorkspacesServices = {
   dataService: DataService;
 };
 
-export function activateWorkspacePlugin(
-  { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
-  { globalAppRegistry, instance, dataService }: WorkspacesServices,
-  { on, cleanup }: ActivateHelpers
+export function configureStore(
+  initialWorkspaceTab: OpenWorkspaceOptions | undefined | null,
+  services: WorkspacesServices
 ) {
   const initialTabs = initialWorkspaceTab
     ? [getInitialTabState(initialWorkspaceTab)]
@@ -45,10 +45,22 @@ export function activateWorkspacePlugin(
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
     },
-    applyMiddleware(
-      thunk.withExtraArgument({ globalAppRegistry, instance, dataService })
-    )
+    applyMiddleware(thunk.withExtraArgument(services))
   );
+
+  return store;
+}
+
+export function activateWorkspacePlugin(
+  { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
+  { globalAppRegistry, instance, dataService }: WorkspacesServices,
+  { on, cleanup }: ActivateHelpers
+) {
+  const store = configureStore(initialWorkspaceTab, {
+    globalAppRegistry,
+    instance,
+    dataService,
+  });
 
   // TODO: clean up unneccessary global events
   on(
@@ -147,6 +159,7 @@ export function activateWorkspacePlugin(
 
   return {
     store,
+    context: WorkspacesStoreContext,
     deactivate: cleanup,
   };
 }

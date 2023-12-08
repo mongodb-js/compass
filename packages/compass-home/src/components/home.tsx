@@ -319,15 +319,19 @@ function Home({
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
             <CompassInstanceStorePlugin>
-              <ImportPlugin></ImportPlugin>
-              <ExportPlugin></ExportPlugin>
-              <CreateViewPlugin></CreateViewPlugin>
-              <CreateNamespacePlugin></CreateNamespacePlugin>
-              <DropNamespacePlugin></DropNamespacePlugin>
-              <RenameCollectionPlugin></RenameCollectionPlugin>
               <Workspace
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
+                modals={
+                  <>
+                    <ImportPlugin></ImportPlugin>
+                    <ExportPlugin></ExportPlugin>
+                    <CreateViewPlugin></CreateViewPlugin>
+                    <CreateNamespacePlugin></CreateNamespacePlugin>
+                    <DropNamespacePlugin></DropNamespacePlugin>
+                    <RenameCollectionPlugin></RenameCollectionPlugin>
+                  </>
+                }
               />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>

@@ -18,6 +18,7 @@ import {
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -35,11 +36,13 @@ const shellContainerStyles = css({
 export default function Workspace({
   connectionInfo,
   onActiveWorkspaceTabChange,
+  modals,
 }: {
   connectionInfo: ConnectionInfo | null | undefined;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
+  modals?: React.ReactElement;
 }): React.ReactElement {
   return (
     <div data-testid="home" className={verticalSplitStyles}>
@@ -63,8 +66,12 @@ export default function Workspace({
           <WorkspacesPlugin
             initialWorkspaceTab={{ type: 'My Queries' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            // TODO(COMPASS-7397): pass through for sidebar
-            initialConnectionInfo={connectionInfo ?? undefined}
+            sidebar={
+              <CompassSidebarPlugin
+                initialConnectionInfo={connectionInfo ?? undefined}
+              />
+            }
+            modals={modals}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>

@@ -415,9 +415,11 @@ type FetchCollectionInfoAction = {
   info: CollectionTabInfo;
 };
 
+export type TabOptions = { newTab?: boolean };
+
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
-  tabOptions?: { newTab?: boolean }
+  tabOptions?: TabOptions
 ): WorkspacesThunkAction<
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction
