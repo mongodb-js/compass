@@ -43,6 +43,7 @@ interface DatabaseCollection extends Array<Database> {
   toJSON(opts?: { derived: boolean }): Array<DatabaseProps>;
   at(index: number): Database | undefined;
   get(id: string, key?: '_id' | 'name'): Database | undefined;
+  add(props: Partial<DatabaseProps>): Database;
 }
 
 export default Database;

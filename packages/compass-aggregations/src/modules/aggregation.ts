@@ -14,7 +14,10 @@ import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
-import { getStageOperator } from '../utils/stage';
+import {
+  getDestinationNamespaceFromStage,
+  getStageOperator,
+} from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
 
@@ -292,7 +295,6 @@ const fetchAggregationData = (
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
-      id,
       namespace,
       maxTimeMS,
       dataService: { dataService },
@@ -340,7 +342,15 @@ const fetchAggregationData = (
       });
 
       if (isMergeOrOut) {
-        dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id }));
+        dispatch(
+          globalAppRegistryEmit(
+            'agg-pipeline-out-executed',
+            getDestinationNamespaceFromStage(
+              namespace,
+              pipeline[pipeline.length - 1]
+            )
+          )
+        );
       }
 
       if (documents.length === 0) {

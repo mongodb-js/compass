@@ -15,6 +15,7 @@ function renderQueriesList(props: Partial<AggregationsQueriesListProps>) {
     logger: {} as any,
     pipelineStorage: {} as any,
     queryStorage: {} as any,
+    workspaces: {} as any,
   });
 
   return render(

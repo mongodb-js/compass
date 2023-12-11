@@ -95,4 +95,6 @@ function useWorkspacesService() {
   return service;
 }
 
+export type WorkspacesService = ReturnType<typeof useWorkspacesService>;
+
 export const workspacesServiceLocator = useWorkspacesService;

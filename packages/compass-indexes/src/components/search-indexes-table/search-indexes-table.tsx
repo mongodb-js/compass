@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
-
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { BadgeVariant } from '@mongodb-js/compass-components';
 import {
   EmptyContent,
@@ -13,12 +13,11 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-
 import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
-  runAggregateSearchIndex,
+  getInitialSearchIndexPipeline,
   pollSearchIndexes,
   showCreateModal,
   showUpdateModal,
@@ -26,7 +25,6 @@ import {
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
-
 import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
@@ -34,13 +32,13 @@ import { ZeroGraphic } from './zero-graphic';
 export const POLLING_INTERVAL = 5000;
 
 type SearchIndexesTableProps = {
+  namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
-  onRunAggregateIndex: (name: string) => void;
   openCreateModal: () => void;
   onPollIndexes: () => void;
   status: SearchIndexesStatus;
@@ -162,6 +160,7 @@ function SearchIndexDetails({
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
+  namespace,
   indexes,
   isWritable,
   readOnly,
@@ -170,9 +169,10 @@ export const SearchIndexesTable: React.FunctionComponent<
   onEditIndex,
   status,
   onDropIndex,
-  onRunAggregateIndex,
   onPollIndexes,
 }) => {
+  const { openCollectionWorkspace } = useOpenWorkspace();
+
   useEffect(() => {
     const id = setInterval(onPollIndexes, POLLING_INTERVAL);
     return () => {
@@ -225,7 +225,13 @@ export const SearchIndexesTable: React.FunctionComponent<
           index={index}
           onDropIndex={onDropIndex}
           onEditIndex={onEditIndex}
-          onRunAggregateIndex={onRunAggregateIndex}
+          onRunAggregateIndex={(name) => {
+            openCollectionWorkspace(
+              namespace,
+              { initialPipeline: getInitialSearchIndexPipeline(name) },
+              { newTab: true }
+            );
+          }}
         />
       ),
       // TODO(COMPASS-7206): details for the nested row
@@ -250,7 +256,8 @@ export const SearchIndexesTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes, isWritable }: RootState) => ({
+const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
+  namespace,
   isWritable,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,
@@ -259,7 +266,6 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
-  onRunAggregateIndex: runAggregateSearchIndex,
   openCreateModal: showCreateModal,
   onEditIndex: showUpdateModal,
   onPollIndexes: pollSearchIndexes,

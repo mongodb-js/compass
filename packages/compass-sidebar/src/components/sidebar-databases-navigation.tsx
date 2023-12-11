@@ -115,7 +115,7 @@ function mapStateToProps(state: RootState) {
 }
 
 const onNamespaceAction = (namespace: string, action: Actions) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const emit = (...args: any[]) => dispatch(globalAppRegistryEmit(...args));
     const ns = toNS(namespace);
     switch (action) {
@@ -131,9 +131,17 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
       case 'create-collection':
         emit('open-create-collection', ns);
         return;
-      case 'duplicate-view':
-        emit('sidebar-duplicate-view', ns);
-        break;
+      case 'duplicate-view': {
+        const coll = findCollection(namespace, getState().databases.databases);
+        if (coll && coll.sourceName) {
+          emit('open-create-view', {
+            source: coll.sourceName,
+            pipeline: coll.pipeline,
+            duplicate: true,
+          });
+        }
+        return;
+      }
       default:
       // no-op
     }

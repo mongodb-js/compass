@@ -23,7 +23,10 @@ import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { isOutputStage } from '../../utils/stage';
+import {
+  getDestinationNamespaceFromStage,
+  isOutputStage,
+} from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
 import { fetchExplainForPipeline } from '../insights';
@@ -388,7 +391,6 @@ export const runStage = (
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
-      id,
       dataService: { dataService },
       namespace,
       maxTimeMS,
@@ -438,11 +440,19 @@ export const runStage = (
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
-      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
+      dispatch(
+        globalAppRegistryEmit(
+          'agg-pipeline-out-executed',
+          getDestinationNamespaceFromStage(
+            namespace,
+            pipeline[pipeline.length - 1]
+          )
+        )
+      );
     } catch (error: any) {
       dispatch({
         type: StageEditorActionTypes.StageRunError,
-        id: Number(id),
+        id: idx,
         error,
       });
     }

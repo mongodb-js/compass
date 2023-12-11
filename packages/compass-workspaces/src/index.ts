@@ -9,7 +9,6 @@ import workspacesReducer, {
   getActiveTab,
   getInitialTabState,
   getLocalAppRegistryForTab,
-  openWorkspace,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -60,54 +59,6 @@ export function activateWorkspacePlugin(
     instance,
     dataService,
   });
-
-  // TODO: clean up unneccessary global events
-  const openCollection = (
-    // @ts-expect-error remove this type
-    metadata: CollectionTabPluginMetadata,
-    newTab: boolean
-  ) => {
-    const {
-      namespace,
-      query,
-      pipeline,
-      pipelineText,
-      aggregation,
-      editViewName,
-    } = metadata;
-    store.dispatch(
-      openWorkspace(
-        {
-          type: 'Collection',
-          namespace,
-          initialQuery: query,
-          initialAggregation: aggregation,
-          initialPipelineText: pipelineText,
-          initialPipeline: pipeline,
-          editViewName,
-        },
-        { newTab }
-      )
-    );
-  };
-
-  on(
-    globalAppRegistry,
-    'open-namespace-in-new-tab',
-    // @ts-expect-error remove this type
-    (metadata: CollectionTabPluginMetadata) => {
-      openCollection(metadata, true);
-    }
-  );
-
-  on(
-    globalAppRegistry,
-    'select-namespace',
-    // @ts-expect-error remove this type
-    (metadata: CollectionTabPluginMetadata) => {
-      openCollection(metadata, false);
-    }
-  );
 
   on(instance, 'change:collections._id', (collection: Collection) => {
     const { _id: from } = collection.previousAttributes();

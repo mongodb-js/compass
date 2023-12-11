@@ -180,6 +180,30 @@ export function createInstanceStore({
     ]);
   }
 
+  // A shared method that will try to add new namespace model to the instance
+  // model
+  async function addAndRefreshCollectionModel(namespace: string) {
+    const { database } = toNS(namespace);
+    const db =
+      instance.databases.get(database) ??
+      // We might be adding collection to a new db namespace
+      instance.databases.add({ _id: database });
+    // We might be refreshing an existing namespace (in case of out stage usage
+    // for example)
+    if (!db.collections.get(namespace, '_id')) {
+      db.collections.add({ _id: namespace });
+    }
+    // Update database stats and collection list
+    await Promise.allSettled([
+      db.fetch({ dataService, force: true }),
+      db.fetchCollections({ dataService, force: true }),
+    ]);
+    // When those are ready, update new collection stats
+    await db.collections
+      .get(namespace, '_id')
+      ?.fetch({ dataService, force: true });
+  }
+
   const connectionString = dataService.getConnectionString();
   const firstHost = connectionString.hosts[0] || '';
   const [hostname, port] = firstHost.split(':');
@@ -279,17 +303,16 @@ export function createInstanceStore({
   });
   onAppRegistryEvent('refresh-databases', onRefreshDatabases);
 
-  const onCollectionRenamed = ({ from, to }: { from: string; to: string }) => {
-    const { database, collection } = toNS(from);
-    instance.databases
-      .get(database)
-      ?.collections.get(collection, 'name')
-      ?.set({ _id: to });
-  };
-  appRegistry.on('collection-renamed', onCollectionRenamed);
-
-  const onAggPipelineOutExecuted = voidify(refreshInstance);
-  onAppRegistryEvent('agg-pipeline-out-executed', onAggPipelineOutExecuted);
+  onAppRegistryEvent(
+    'collection-renamed',
+    ({ from, to }: { from: string; to: string }) => {
+      const { database, collection } = toNS(from);
+      instance.databases
+        .get(database)
+        ?.collections.get(collection, 'name')
+        ?.set({ _id: to });
+    }
+  );
 
   const onRefreshNamespaceStats = ({ ns }: { ns: string }) => {
     void refreshNamespaceStats(ns);
@@ -298,80 +321,29 @@ export function createInstanceStore({
   onAppRegistryEvent('document-inserted', onRefreshNamespaceStats);
   onAppRegistryEvent('import-finished', onRefreshNamespaceStats);
 
-  const onCollectionCreated = voidify(async ({ ns, database }) => {
-    await refreshNamespace({ ns, database });
-    const metadata = await fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
+  onAppRegistryEvent('collection-created', (namespace: string) => {
+    void addAndRefreshCollectionModel(namespace);
   });
-  onAppRegistryEvent('collection-created', onCollectionCreated);
 
-  /**
-   * Opens collection in a new tab. Additional `query` and `agrregation` props
-   * can be passed with the namespace to open tab with initial query or
-   * aggregation pipeline
-   */
-  const openCollectionInNewTab = voidify(
-    async (
-      { ns, ...extraMetadata }: Record<string, unknown> & { ns: string },
-      forceRefreshNamespace = false
-    ) => {
-      if (forceRefreshNamespace) {
-        await refreshNamespace(toNS(ns));
+  onAppRegistryEvent('view-created', (namespace: string) => {
+    void addAndRefreshCollectionModel(namespace);
+  });
+
+  onAppRegistryEvent(
+    'agg-pipeline-out-executed',
+    // null means the out / merge stage destination wasn't a namespace in the
+    // same cluster
+    (namespace: string | null) => {
+      if (!namespace) {
+        return;
       }
-      const metadata = await fetchCollectionMetadata(ns);
-      appRegistry.emit('open-namespace-in-new-tab', {
-        ...metadata,
-        ...extraMetadata,
-      });
+      void addAndRefreshCollectionModel(namespace);
     }
   );
 
-  onAppRegistryEvent(
-    'import-export-open-collection-in-new-tab',
-    openCollectionInNewTab
-  );
-  onAppRegistryEvent('my-queries-open-saved-item', openCollectionInNewTab);
-  onAppRegistryEvent('search-indexes-run-aggregate', openCollectionInNewTab);
-
-  // In case of opening result collection we're always assuming the namespace
-  // wasn't yet updated, so opening a new tab always with refresh
-  const onOpenResultNamespace = (ns: string) => {
-    openCollectionInNewTab({ ns }, true);
-  };
-  onAppRegistryEvent(
-    'aggregations-open-result-namespace',
-    onOpenResultNamespace
-  );
-  onAppRegistryEvent(
-    'create-view-open-result-namespace',
-    onOpenResultNamespace
-  );
-
-  const onSidebarDuplicateView = voidify(async ({ ns }) => {
-    const coll = await fetchCollectionDetails(ns);
-    if (coll?.sourceName && coll?.pipeline) {
-      appRegistry.emit('open-create-view', {
-        source: coll.sourceName,
-        pipeline: coll.pipeline,
-        duplicate: true,
-      });
-    } else {
-      debug(
-        'Tried to duplicate the view for a collection with required metadata missing',
-        coll?.toJSON()
-      );
-    }
+  onAppRegistryEvent('view-edited', (namespace: string) => {
+    void refreshNamespace(toNS(namespace));
   });
-  onAppRegistryEvent('sidebar-duplicate-view', onSidebarDuplicateView);
-
-  const onAggregationsOpenViewAfterUpdate = voidify(async function (ns) {
-    const metadata = await fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
-  });
-  onAppRegistryEvent(
-    'aggregations-open-view-after-update',
-    onAggregationsOpenViewAfterUpdate
-  );
 
   return {
     state: { instance }, // Using LegacyRefluxProvider here to pass state to provider

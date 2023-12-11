@@ -52,7 +52,7 @@ type CollectionMetadata = {
 
 interface CollectionProps {
   _id: string;
-  type: string;
+  type: 'collection' | 'view' | 'timeseries';
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
   ns: string;
@@ -106,6 +106,7 @@ interface CollectionCollection extends Array<Collection> {
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;
+  add(props: Partial<CollectionProps>): CollectionProps;
 }
 
 export default Collection;

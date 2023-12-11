@@ -7,6 +7,7 @@ import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
 import { activatePlugin as activateExportPlugin } from './stores/export-store';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 /**
  * The import plugin.
@@ -21,6 +22,7 @@ export const ImportPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<
       'isConnected' | 'bulkWrite' | 'insertOne'
     >,
+    workspaces: workspacesServiceLocator,
   }
 );
 

@@ -198,7 +198,7 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { globalAppRegistry, logger: { track } }) => {
+  (_dispatch, _getState, { logger: { track }, workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -209,11 +209,15 @@ const openItem =
       }
     );
 
-    globalAppRegistry.emit('my-queries-open-saved-item', {
-      ns: `${database}.${collection}`,
-      aggregation: item.type === 'aggregation' ? item.aggregation : null,
-      query: item.type === 'query' ? item.query : null,
-    });
+    workspaces.openCollectionWorkspace(
+      `${database}.${collection}`,
+      {
+        initialAggregation:
+          item.type === 'aggregation' ? item.aggregation : undefined,
+        initialQuery: item.type === 'query' ? item.query : undefined,
+      },
+      { newTab: true }
+    );
   };
 
 export const openSavedItem =

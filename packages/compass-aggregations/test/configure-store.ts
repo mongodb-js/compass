@@ -18,11 +18,14 @@ export default function configureStore(
   return activateAggregationsPlugin(
     {
       namespace: 'test.test',
-      ...options,
+      ...(options as any),
     },
     {
       dataService,
+      instance: {} as any,
+      workspaces: {} as any,
       ...appRegistries,
-    }
+    },
+    {} as any
   ).store;
 }

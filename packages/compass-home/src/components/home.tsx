@@ -264,11 +264,16 @@ function Home({
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
+      const namespace =
+        ws?.type === 'Collection' || ws?.type === 'Collections'
+          ? ws.namespace
+          : undefined;
+
       updateTitle(
         appName,
         connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
         ws?.type,
-        ws?.namespace
+        namespace
       );
 
       if (ws?.type === 'Collection') {

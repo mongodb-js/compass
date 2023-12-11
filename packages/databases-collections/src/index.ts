@@ -16,6 +16,7 @@ import { DatabasesPlugin } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 export const CollectionsWorkspaceTab: WorkspaceComponent<'Collections'> = {
   name: 'Collections' as const,
@@ -39,6 +40,7 @@ export const CreateNamespacePlugin = registerHadronPlugin(
       'createCollection' | 'createDataKey' | 'configuredKMSProviders'
     >,
     instance: mongoDBInstanceLocator,
+    workspaces: workspacesServiceLocator,
   }
 );
 

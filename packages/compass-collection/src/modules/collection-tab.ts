@@ -120,10 +120,28 @@ export const selectTab = (
 };
 
 export type CollectionTabPluginMetadata = CollectionMetadata & {
+  /**
+   * Initial query for the query bar
+   */
   query?: unknown;
+  /**
+   * Stored pipeline metadata. Can be provided to preload stored pipeline
+   * right when the plugin is initialized
+   */
   aggregation?: unknown;
+  /**
+   * Initial pipeline that will be converted to a string to be used by the
+   * aggregation builder. Takes precedence over `pipelineText` option
+   */
   pipeline?: unknown[];
+  /**
+   * Initial pipeline text to be used by the aggregation builder
+   */
   pipelineText?: string;
+  /**
+   * Namespace for the view that is being edited. Needs to be provided with the
+   * `pipeline` options
+   */
   editViewName?: string;
 };
 

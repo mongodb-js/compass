@@ -648,34 +648,19 @@ export const dropSearchIndex = (
   };
 };
 
-export const runAggregateSearchIndex = (
-  name: string
-): IndexesThunkAction<void> => {
-  return function (_dispatch, getState, { globalAppRegistry }) {
-    const {
-      searchIndexes: { indexes },
-      namespace,
-    } = getState();
-    const searchIndex = indexes.find((x) => x.name === name);
-    if (!searchIndex) {
-      return;
-    }
-    globalAppRegistry?.emit('search-indexes-run-aggregate', {
-      ns: namespace,
-      pipelineText: JSON.stringify([
-        {
-          $search: {
-            index: name,
-            text: {
-              query: 'string',
-              path: 'string',
-            },
-          },
+export function getInitialSearchIndexPipeline(name: string) {
+  return [
+    {
+      $search: {
+        index: name,
+        text: {
+          query: 'string',
+          path: 'string',
         },
-      ]),
-    });
-  };
-};
+      },
+    },
+  ];
+}
 
 function _sortIndexes(
   indexes: SearchIndex[],
