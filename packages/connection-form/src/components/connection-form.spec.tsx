@@ -25,6 +25,8 @@ const noop = (): any => {
   /* no-op */
 };
 
+const saveAndConnectText = 'Save & Connect';
+
 function renderForm(props: Partial<ConnectionFormProps> = {}) {
   return render(
     <ConnectionForm
@@ -330,7 +332,7 @@ describe('ConnectionForm Component', function () {
       />
     );
 
-    const saveAndConnectButton = screen.getByText('Save & Connect');
+    const saveAndConnectButton = screen.getByText(saveAndConnectText);
     expect(saveAndConnectButton).to.be.visible;
 
     fireEvent.click(saveAndConnectButton);
@@ -340,7 +342,7 @@ describe('ConnectionForm Component', function () {
     const dialog = screen.getByRole('dialog');
     expect(dialog).to.be.visible;
 
-    expect(getByText(dialog, 'Save & Connect')).to.be.visible;
+    expect(getByText(dialog, saveAndConnectText)).to.be.visible;
     expect(() => getByText(dialog, 'Save')).to.throw;
   });
 
@@ -361,6 +363,27 @@ describe('ConnectionForm Component', function () {
       />
     );
 
-    expect(() => screen.getByText('Save & Connect')).to.throw;
+    expect(() => screen.getByText(saveAndConnectText)).to.throw;
+  });
+
+  it('should not show any save buttons when there is no save handler passed', function () {
+    render(
+      <ConnectionForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+        onSaveConnectionClicked={undefined}
+      />
+    );
+
+    const saveAndConnectButton = screen.queryByText(saveAndConnectText);
+    expect(saveAndConnectButton).to.not.exist;
+
+    const saveButton = screen.queryByText('Save');
+    expect(saveButton).to.not.exist;
   });
 });

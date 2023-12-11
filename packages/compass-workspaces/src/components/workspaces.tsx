@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
@@ -10,7 +10,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
-  OpenWorkspaceOptions,
+  CollectionTabInfo,
   WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
@@ -19,7 +19,6 @@ import {
   getActiveTab,
   getLocalAppRegistryForTab,
   moveTab,
-  emitOnTabChange,
   openTabFromCurrent,
   selectNextTab,
   selectPrevTab,
@@ -64,7 +63,7 @@ const workspacesContentStyles = css({
 type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
   activeTab?: WorkspaceTab | null;
-  initialTab?: OpenWorkspaceOptions;
+  collectionInfo: Record<string, CollectionTabInfo>;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -72,33 +71,21 @@ type CompassWorkspacesProps = {
   onMoveTab(from: number, to: number): void;
   onCreateTab(): void;
   onCloseTab(at: number): void;
-
-  onTabChange?: (tab: WorkspaceTab) => void;
 };
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   tabs,
   activeTab,
+  collectionInfo,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
   onMoveTab,
   onCreateTab,
   onCloseTab,
-  onTabChange,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const getWorkspaceByName = useWorkspacePlugin();
-
-  useEffect(() => {
-    if (activeTab) {
-      onTabChange?.(activeTab);
-    }
-  }, [
-    onTabChange,
-    activeTab?.type,
-    (activeTab as { namespace: string } | undefined)?.namespace,
-  ]);
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -126,30 +113,39 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             title: tab.namespace,
             iconGlyph: 'Database',
+            'data-namespace': tab.namespace,
           } as const;
         case 'Collection': {
-          const { database, collection } = toNS(tab.namespace);
-          // TODO: make sure metadata is resolved by collection-tab
-          const collectionType = tab.isTimeSeries
+          const { database, collection, ns } = toNS(tab.namespace);
+          const info = collectionInfo[ns] ?? {};
+          const { isTimeSeries, isReadonly, sourceName } = info;
+          const collectionType = isTimeSeries
             ? 'timeseries'
-            : tab.isReadonly
+            : isReadonly
             ? 'view'
             : 'collection';
+          const viewOnCollection = sourceName
+            ? toNS(sourceName).collection
+            : null;
+          const subtitle = viewOnCollection
+            ? `${database} > ${viewOnCollection} > ${collection}`
+            : `${database} > ${collection}`;
           return {
             id: tab.id,
             title: collection,
-            subtitle: `${database} > ${collection}`,
+            subtitle,
             iconGlyph:
               collectionType === 'view'
                 ? 'Visibility'
                 : collectionType === 'timeseries'
                 ? 'TimeSeries'
                 : 'Folder',
+            'data-namespace': ns,
           } as const;
         }
       }
     });
-  }, [tabs]);
+  }, [tabs, collectionInfo]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
@@ -169,7 +165,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         const Component = getWorkspaceByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
-        // TODO: make sure metadata is resolved by collection-tab
         return <Component {...collectionMetadata}></Component>;
       }
       default:
@@ -222,9 +217,11 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
 export default connect(
   (state: WorkspacesState) => {
+    const activeTab = getActiveTab(state);
     return {
       tabs: state.tabs,
-      activeTab: getActiveTab(state),
+      activeTab: activeTab,
+      collectionInfo: state.collectionInfo,
     };
   },
   {
@@ -234,6 +231,5 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
-    onTabChange: emitOnTabChange,
   }
 )(CompassWorkspaces);

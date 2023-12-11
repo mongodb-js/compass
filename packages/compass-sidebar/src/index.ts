@@ -1,9 +1,10 @@
+import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
+import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 
@@ -13,10 +14,6 @@ function activate() {
 
 function deactivate() {
   // noop
-}
-
-interface SidebarPluginProps {
-  connectionInfo: ConnectionInfo | null | undefined;
 }
 
 export const CompassSidebarPlugin = registerHadronPlugin<
@@ -30,7 +27,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     name: 'CompassSidebar',
     component: SidebarPlugin,
     activate(
-      { connectionInfo }: SidebarPluginProps,
+      { initialConnectionInfo }: SidebarPluginProps,
       {
         globalAppRegistry,
         instance,
@@ -39,14 +36,18 @@ export const CompassSidebarPlugin = registerHadronPlugin<
         globalAppRegistry: AppRegistry;
         instance: MongoDBInstance;
         dataService: DataService;
-      }
+      },
+      helpers: ActivateHelpers
     ) {
-      const { store, deactivate } = createSidebarStore({
-        globalAppRegistry,
-        instance,
-        dataService,
-        connectionInfo,
-      });
+      const { store, deactivate } = createSidebarStore(
+        {
+          globalAppRegistry,
+          instance,
+          dataService,
+          connectionInfo: initialConnectionInfo,
+        },
+        helpers
+      );
       return {
         store,
         deactivate,

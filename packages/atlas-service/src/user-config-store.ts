@@ -1,17 +1,20 @@
-import { app } from 'electron';
-import path from 'path';
-import fs from 'fs/promises';
-import { assertAtlasUserConfig, type AtlasUserConfig } from './util';
+import { UserData, z } from '@mongodb-js/compass-user-data';
+
+const AtlasUserConfigSchema = z.object({
+  enabledAIFeature: z.boolean().default(false),
+});
+
+export type AtlasUserConfig = z.infer<typeof AtlasUserConfigSchema>;
 
 const userConfig = new Map<string, AtlasUserConfig>();
 
 export class AtlasUserConfigStore {
-  constructor(
-    private _fs: Pick<typeof fs, 'readFile' | 'writeFile' | 'mkdir'> = fs
-  ) {}
-
-  private getConfigDir() {
-    return path.join(app.getPath('userData'), 'AtlasUserConfig');
+  private readonly userData: UserData<typeof AtlasUserConfigSchema>;
+  constructor(basePath?: string) {
+    this.userData = new UserData(AtlasUserConfigSchema, {
+      subdir: 'AtlasUserConfig',
+      basePath,
+    });
   }
 
   async getUserConfig(id: string): Promise<AtlasUserConfig> {
@@ -20,13 +23,10 @@ export class AtlasUserConfigStore {
       return cachedConfig;
     }
     try {
-      const config = JSON.parse(
-        await this._fs.readFile(
-          path.join(this.getConfigDir(), `${id}.json`),
-          'utf8'
-        )
-      );
-      assertAtlasUserConfig(config);
+      const config = await this.userData.readOne(id, {
+        ignoreErrors: false,
+      });
+
       userConfig.set(id, config);
       return config;
     } catch (err) {
@@ -43,14 +43,9 @@ export class AtlasUserConfigStore {
     id: string,
     config?: Partial<AtlasUserConfig>
   ): Promise<AtlasUserConfig> {
-    await this._fs.mkdir(this.getConfigDir(), { recursive: true });
     const currentConfig = await this.getUserConfig(id);
     const newConfig = { ...currentConfig, ...config };
-    await this._fs.writeFile(
-      path.join(this.getConfigDir(), `${id}.json`),
-      JSON.stringify(newConfig),
-      'utf8'
-    );
+    await this.userData.write(id, newConfig);
     userConfig.set(id, newConfig);
     return newConfig;
   }

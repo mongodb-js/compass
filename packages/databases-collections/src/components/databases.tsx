@@ -10,14 +10,14 @@ import {
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 import { usePreference } from 'compass-preferences-model';
-import { ZeroGraphic } from '../zero-graphic';
-import type { Database, DatabasesState } from '../../modules/databases';
+import { ZeroGraphic } from './zero-graphic';
+import type { Database, DatabasesState } from '../modules/databases';
 import {
   createDatabase,
   dropDatabase,
   refreshDatabases,
   selectDatabase,
-} from '../../modules/databases';
+} from '../modules/databases';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const errorContainerStyles = css({
@@ -58,7 +58,7 @@ function NonGenuineZeroState() {
 }
 
 type DatabasesProps = {
-  databases: Database[];
+  databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
   databasesLoadingError: string | null;
   isWritable: boolean;
@@ -116,9 +116,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
       : {}
   );
 
-  return (
-    <DatabasesList databases={databases} isEditable={editable} {...actions} />
-  );
+  return <DatabasesList databases={databases} {...actions} />;
 };
 
 const mapStateToProps = (state: DatabasesState) => {

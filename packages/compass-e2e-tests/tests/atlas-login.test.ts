@@ -100,8 +100,11 @@ describe('Atlas Login', function () {
     process.env.COMPASS_CLIENT_ID_OVERRIDE = 'testServer';
     process.env.COMPASS_OIDC_ISSUER_OVERRIDE = oidcMockProvider.issuer;
     process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE = `${oidcMockProvider.issuer}/auth-portal-redirect`;
-    // To prevent oidc-plugin state from persisting
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+    if (process.platform === 'linux' && process.env.CI) {
+      // Keychain is not working on Linux in CI, see
+      // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+    }
   });
 
   beforeEach(async function () {
@@ -109,7 +112,10 @@ describe('Atlas Login', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
 
-    compass = await beforeTests();
+    compass = await beforeTests({
+      // With this flag enabled, we are not persisting the data between tests
+      firstRun: true,
+    });
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -128,8 +134,10 @@ describe('Atlas Login', function () {
     delete process.env.COMPASS_CLIENT_ID_OVERRIDE;
     delete process.env.COMPASS_OIDC_ISSUER_OVERRIDE;
     delete process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE;
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
-      originalDisableKeychainUsage;
+    if (originalDisableKeychainUsage)
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
+        originalDisableKeychainUsage;
+    else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
     await stopMockAtlasServer();
     delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;

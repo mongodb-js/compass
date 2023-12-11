@@ -239,8 +239,6 @@ export function createInstanceStore({
     appRegistry.on(ev, listener);
     cleanup.push(() => appRegistry.removeListener(ev, listener));
   }
-  const onSelectDatabase = voidify(fetchDatabaseDetails);
-  onAppRegistryEvent('select-database', onSelectDatabase);
 
   const onSidebarExpandDatabase = (dbName: string) =>
     void fetchDatabaseDetails(dbName, { nameOnly: true });
@@ -251,14 +249,6 @@ export function createInstanceStore({
     'sidebar-filter-navigation-list',
     onSidebarFilterNavigationList
   );
-
-  const onSelectNamespace = ({ namespace }: { namespace: string }) =>
-    void fetchCollectionDetails(namespace);
-  onAppRegistryEvent('select-namespace', onSelectNamespace);
-
-  const onOpenNamespaceInNewTab = ({ namespace }: { namespace: string }) =>
-    void fetchCollectionDetails(namespace);
-  onAppRegistryEvent('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
 
   const onRefreshData = voidify(refreshInstance);
   onAppRegistryEvent('refresh-data', onRefreshData);
@@ -289,30 +279,14 @@ export function createInstanceStore({
   });
   onAppRegistryEvent('refresh-databases', onRefreshDatabases);
 
-  const onCollectionRenamed = voidify(
-    async ({ from, to }: { from: string; to: string }) => {
-      const { database } = toNS(from);
-      await refreshNamespace({
-        ns: to,
-        database,
-      });
-    }
-  );
+  const onCollectionRenamed = ({ from, to }: { from: string; to: string }) => {
+    const { database, collection } = toNS(from);
+    instance.databases
+      .get(database)
+      ?.collections.get(collection, 'name')
+      ?.set({ _id: to });
+  };
   appRegistry.on('collection-renamed', onCollectionRenamed);
-
-  // Event emitted when the Collections grid needs to be refreshed
-  // with new collections or collection stats for existing ones.
-  const onRefreshCollections = voidify(async ({ ns }: { ns: string }) => {
-    const { database } = toNS(ns);
-    if (!instance.databases.get(database)) {
-      await instance.fetchDatabases({ dataService, force: true });
-    }
-    const db = instance.databases.get(database);
-    if (db) {
-      await db.fetchCollectionsDetails({ dataService, force: true });
-    }
-  });
-  onAppRegistryEvent('refresh-collections', onRefreshCollections);
 
   const onAggPipelineOutExecuted = voidify(refreshInstance);
   onAppRegistryEvent('agg-pipeline-out-executed', onAggPipelineOutExecuted);
@@ -414,45 +388,11 @@ export function createInstanceStore({
     onOpenResultNamespace
   );
 
-  const openModifyView = voidify(
-    async ({ ns, sameTab }: { ns: string; sameTab: boolean }) => {
-      const coll = await fetchCollectionDetails(ns);
-      if (coll?.sourceId && coll?.pipeline) {
-        // `modify-view` is currently implemented in a way where we are basically
-        // just opening a new tab but for a source collection instead of a view
-        // and with source pipeline of this new tab set to the view pipeline
-        // instead of the actual source pipeline of the view source. This
-        // definitely feels like putting too much logic on the same property, but
-        // refactoring this away would require us to change way too many things in
-        // the collection / aggregation plugins, so we're just keeping it as it is
-        const metadata: Record<string, unknown> =
-          (await fetchCollectionMetadata(coll.sourceId)) ?? {};
-        metadata.sourcePipeline = coll.pipeline;
-        metadata.editViewName = coll.ns;
-        appRegistry.emit(
-          sameTab ? 'select-namespace' : 'open-namespace-in-new-tab',
-          metadata
-        );
-      } else {
-        debug(
-          'Tried to modify the view on a collection with required metadata missing',
-          coll?.toJSON()
-        );
-      }
-    }
-  );
-
-  onAppRegistryEvent('sidebar-modify-view', openModifyView);
-  const onCollectionTabModifyView = ({ ns }: { ns: string }) => {
-    openModifyView({ ns, sameTab: true });
-  };
-  onAppRegistryEvent('collection-tab-modify-view', onCollectionTabModifyView);
-
   const onSidebarDuplicateView = voidify(async ({ ns }) => {
     const coll = await fetchCollectionDetails(ns);
-    if (coll?.sourceId && coll?.pipeline) {
+    if (coll?.sourceName && coll?.pipeline) {
       appRegistry.emit('open-create-view', {
-        source: coll.sourceId,
+        source: coll.sourceName,
         pipeline: coll.pipeline,
         duplicate: true,
       });

@@ -3,10 +3,13 @@ import {
   Theme,
   ToastArea,
   ConfirmationModalArea,
+  FileInputBackendProvider,
+  createElectronFileInputBackend,
   css,
   cx,
   getScrollbarStyles,
   palette,
+  resetGlobalCSS,
   Body,
   useConfirmationModal,
   GuideCueProvider,
@@ -21,7 +24,6 @@ import type {
 } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
-import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
@@ -38,7 +40,6 @@ import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
-import type { CollectionMetadata } from 'mongodb-collection-model';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
@@ -50,10 +51,11 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
-type Namespace = ReturnType<typeof toNS>;
+resetGlobalCSS();
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;
@@ -103,47 +105,36 @@ const globalDarkThemeStyles = css({
   color: palette.white,
 });
 
-const defaultNS: Namespace = toNS('');
-
 type ThemeState = {
   theme: Theme;
 };
 
 type State = {
-  connectionTitle: string;
+  connectionInfo: ConnectionInfo | null;
   isConnected: boolean;
-  namespace: Namespace;
   hasDisconnectedAtLeastOnce: boolean;
 };
 
 const initialState: State = {
-  connectionTitle: '',
+  connectionInfo: null,
   isConnected: false,
-  namespace: defaultNS,
   hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
   | {
       type: 'connected';
-      connectionTitle: string;
+      connectionInfo: ConnectionInfo;
     }
-  | { type: 'disconnected' }
-  | { type: 'update-namespace'; namespace: Namespace };
+  | { type: 'disconnected' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'connected':
       return {
         ...state,
-        namespace: { ...defaultNS },
         isConnected: true,
-        connectionTitle: action.connectionTitle,
-      };
-    case 'update-namespace':
-      return {
-        ...state,
-        namespace: action.namespace,
+        connectionInfo: action.connectionInfo,
       };
     case 'disconnected':
       return {
@@ -156,8 +147,8 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function showCollectionSubMenu({ isReadonly }: { isReadonly: boolean }) {
-  void ipcRenderer?.call('window:show-collection-submenu', { isReadonly });
+function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
+  void ipcRenderer?.call('window:show-collection-submenu', { isReadOnly });
 }
 
 function hideCollectionSubMenu() {
@@ -179,7 +170,7 @@ function Home({
   const connectedDataService = useRef<DataService>();
 
   const [
-    { connectionTitle, isConnected, namespace, hasDisconnectedAtLeastOnce },
+    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
     dispatch,
   ] = useReducer(reducer, {
     ...initialState,
@@ -206,14 +197,12 @@ function Home({
     ds.addReauthenticationHandler(reauthenticationHandler.current);
     dispatch({
       type: 'connected',
-      connectionTitle: getConnectionTitle(connectionInfo) || '',
+      connectionInfo: connectionInfo,
     });
   }
 
-  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>();
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      setConnectionInfo(connectionInfo);
       appRegistry.emit(
         'data-service-connected',
         null, // No error connecting.
@@ -224,52 +213,11 @@ function Home({
     [appRegistry]
   );
 
-  function onSelectDatabase(ns: string) {
-    hideCollectionSubMenu();
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(ns),
-    });
-  }
-
-  function onSelectNamespace(meta: CollectionMetadata) {
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(meta.namespace),
-    });
-    showCollectionSubMenu({ isReadonly: meta.isReadonly });
-  }
-
-  function onInstanceWorkspaceOpenTap() {
-    hideCollectionSubMenu();
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(''),
-    });
-  }
-
-  function onOpenNamespaceInNewTab(meta: CollectionMetadata) {
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(meta.namespace),
-    });
-    showCollectionSubMenu({ isReadonly: meta.isReadonly });
-  }
-
   const onDataServiceDisconnected = useCallback(() => {
     dispatch({
       type: 'disconnected',
     });
-    hideCollectionSubMenu();
-    notifyMainProcessOfDisconnect();
-    updateTitle(appName);
-  }, [appName]);
-
-  useEffect(() => {
-    if (isConnected) {
-      updateTitle(appName, connectionTitle, namespace);
-    }
-  }, [isConnected, appName, connectionTitle, namespace]);
+  }, []);
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -300,10 +248,6 @@ function Home({
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
-    appRegistry.on('select-database', onSelectDatabase);
-    appRegistry.on('select-namespace', onSelectNamespace);
-    appRegistry.on('open-instance-workspace', onInstanceWorkspaceOpenTap);
-    appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
 
     return () => {
       // Clean up the app registry listeners.
@@ -315,18 +259,36 @@ function Home({
         'data-service-disconnected',
         onDataServiceDisconnected
       );
-      appRegistry.removeListener('select-database', onSelectDatabase);
-      appRegistry.removeListener('select-namespace', onSelectNamespace);
-      appRegistry.removeListener(
-        'open-instance-workspace',
-        onInstanceWorkspaceOpenTap
-      );
-      appRegistry.removeListener(
-        'open-namespace-in-new-tab',
-        onOpenNamespaceInNewTab
-      );
     };
   }, [appRegistry, onDataServiceDisconnected]);
+
+  const onWorkspaceChange = useCallback(
+    (ws: WorkspaceTab | null, collectionInfo) => {
+      updateTitle(
+        appName,
+        connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
+        ws?.type,
+        ws?.namespace
+      );
+
+      if (ws?.type === 'Collection') {
+        showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
+      } else {
+        hideCollectionSubMenu();
+      }
+    },
+    [appName, connectionInfo]
+  );
+
+  const onDataSeviceDisconnected = useCallback(() => {
+    if (!isConnected) {
+      updateTitle(appName);
+      hideCollectionSubMenu();
+      notifyMainProcessOfDisconnect();
+    }
+  }, [appName, isConnected]);
+
+  useLayoutEffect(onDataSeviceDisconnected);
 
   if (isConnected && !connectedDataService.current) {
     throw new Error(
@@ -364,19 +326,20 @@ function Home({
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
               <Workspace
-                namespace={namespace}
                 connectionInfo={connectionInfo}
+                onActiveWorkspaceTabChange={onWorkspaceChange}
               />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
       )}
-      {/* Hide <Connections> but keep it in scope if connected so that the connection
-          import/export functionality can still be used through the application menu */}
+      {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
+          connected so that the connection import/export functionality can still
+          be used through the application menu */}
       <div
         className={isConnected ? hiddenStyles : homeViewStyles}
         data-hidden={isConnected}
-        data-testid="home-view"
+        data-testid="connections"
       >
         <div className={homePageStyles}>
           <Connections
@@ -473,6 +436,10 @@ function ThemedHome(
     }
   }, []);
 
+  const electronFileInputBackendRef = useRef(
+    remote ? createElectronFileInputBackend(remote) : null
+  );
+
   return (
     <LeafyGreenProvider
       darkMode={darkMode}
@@ -480,33 +447,37 @@ function ThemedHome(
         portalContainer: scrollbarsContainerRef,
       }}
     >
-      <GuideCueProvider
-        onNext={onGuideCueNext}
-        onNextGroup={onGuideCueNextGroup}
+      <FileInputBackendProvider
+        createFileInputBackend={electronFileInputBackendRef.current}
       >
-        {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
-        <Body as="div">
-          <div
-            className={getScrollbarStyles(darkMode)}
-            ref={setScrollbarsContainerRef}
-          >
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            <ConfirmationModalArea>
-              <ToastArea>
-                <div
-                  className={cx(
-                    homeContainerStyles,
-                    darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-                  )}
-                  data-theme={theme.theme}
-                >
-                  <Home {...props}></Home>
-                </div>
-              </ToastArea>
-            </ConfirmationModalArea>
-          </div>
-        </Body>
-      </GuideCueProvider>
+        <GuideCueProvider
+          onNext={onGuideCueNext}
+          onNextGroup={onGuideCueNextGroup}
+        >
+          {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+          <Body as="div">
+            <div
+              className={getScrollbarStyles(darkMode)}
+              ref={setScrollbarsContainerRef}
+            >
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <ConfirmationModalArea>
+                <ToastArea>
+                  <div
+                    className={cx(
+                      homeContainerStyles,
+                      darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                    )}
+                    data-theme={theme.theme}
+                  >
+                    <Home {...props}></Home>
+                  </div>
+                </ToastArea>
+              </ConfirmationModalArea>
+            </div>
+          </Body>
+        </GuideCueProvider>
+      </FileInputBackendProvider>
     </LeafyGreenProvider>
   );
 }

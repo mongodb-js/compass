@@ -1,7 +1,8 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
-import type { AtlasUserConfig, AtlasUserInfo } from '../util';
+import type { AtlasUserInfo } from '../util';
+import type { AtlasUserConfig } from '../user-config-store';
 import type { AtlasService } from '../renderer';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import { showOptInConfirmation } from '../components/ai-opt-in-confirmation';

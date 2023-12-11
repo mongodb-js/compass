@@ -1,7 +1,6 @@
-import type { AuthMechanism } from 'mongodb';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { MongoClientOptions } from 'mongodb';
+import type { AuthMechanism, MongoClientOptions } from 'mongodb';
 
 import type { ConnectionFormError } from './validation';
 import {

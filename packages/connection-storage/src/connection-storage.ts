@@ -381,19 +381,6 @@ export class ConnectionStorage {
 
     try {
       await this.userData.delete(id);
-      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        return;
-      }
-      try {
-        await keytar.deletePassword(getKeytarServiceName(), id);
-      } catch (e) {
-        log.error(
-          mongoLogId(1_001_000_203),
-          'Connection Storage',
-          'Failed to delete secrets from keychain',
-          { message: (e as Error).message }
-        );
-      }
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),

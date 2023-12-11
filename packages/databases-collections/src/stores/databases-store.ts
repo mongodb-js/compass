@@ -7,15 +7,19 @@ import databasesReducer, {
 } from '../modules/databases';
 import type AppRegistry from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { DataService } from 'mongodb-data-service';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 type DatabasesTabServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
+  dataService: DataService;
 };
 
 export function activatePlugin(
   _initialProps: Record<string, never>,
-  { globalAppRegistry, instance }: DatabasesTabServices
+  { globalAppRegistry, instance, dataService }: DatabasesTabServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = createStore(
     databasesReducer,
@@ -34,35 +38,35 @@ export function activatePlugin(
     applyMiddleware(thunk.withExtraArgument({ globalAppRegistry }))
   );
 
-  const onDatabasesChanged = throttle(() => {
-    store.dispatch(databasesChanged(instance));
-  }, 300);
+  const onDatabasesChanged = throttle(
+    () => {
+      store.dispatch(databasesChanged(instance));
+    },
+    300,
+    { leading: true, trailing: true }
+  );
 
-  instance.on('change:databasesStatus', onDatabasesChanged);
-  instance.on('change:databases.status', onDatabasesChanged);
+  addCleanup(() => {
+    onDatabasesChanged.cancel();
+  });
+
+  on(instance, 'change:databasesStatus', onDatabasesChanged);
+  on(instance, 'change:databases.status', onDatabasesChanged);
+  on(instance, 'add:databases', onDatabasesChanged);
+  on(instance, 'remove:databases', onDatabasesChanged);
 
   const onInstanceChanged = () => {
     store.dispatch(instanceChanged(instance));
   };
 
-  instance.on('change:isWritable', onInstanceChanged);
-  instance.on('change:dataLake.isDataLake', onInstanceChanged);
-  instance.on('change:genuineMongoDB.isGenuine', onInstanceChanged);
+  on(instance, 'change:isWritable', onInstanceChanged);
+  on(instance, 'change:dataLake.isDataLake', onInstanceChanged);
+  on(instance, 'change:genuineMongoDB.isGenuine', onInstanceChanged);
+
+  void instance.fetchDatabases({ dataService });
 
   return {
     store,
-    deactivate() {
-      onDatabasesChanged.cancel();
-
-      instance.removeListener('change:databasesStatus', onDatabasesChanged);
-      instance.removeListener('change:databases.status', onDatabasesChanged);
-
-      instance.removeListener('change:isWritable', onInstanceChanged);
-      instance.removeListener('change:dataLake.isDataLake', onInstanceChanged);
-      instance.removeListener(
-        'change:genuineMongoDB.isGenuine',
-        onInstanceChanged
-      );
-    },
+    deactivate: cleanup,
   };
 }

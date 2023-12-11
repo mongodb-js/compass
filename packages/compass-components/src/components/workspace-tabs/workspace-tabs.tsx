@@ -173,7 +173,7 @@ export type TabProps = {
   title: string;
   subtitle?: string;
   iconGlyph: Extract<keyof typeof glyphs, string>;
-};
+} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,
@@ -279,13 +279,15 @@ const SortableList = ({
 };
 
 const SortableItem = ({
-  tab: { id, iconGlyph, subtitle, title },
+  tab: tabProps,
   index,
   selectedTabIndex,
   activeId,
   onSelect,
   onClose,
 }: SortableItemProps) => {
+  const { id: tabId } = tabProps;
+
   const onTabSelected = useCallback(() => {
     onSelect(index);
   }, [onSelect, index]);
@@ -299,16 +301,14 @@ const SortableItem = ({
     [selectedTabIndex, index]
   );
 
-  const isDragging = useMemo(() => id === activeId, [id, activeId]);
+  const isDragging = useMemo(() => tabId === activeId, [tabId, activeId]);
 
   return (
     <Tab
-      title={title}
+      {...tabProps}
       isSelected={isSelected}
       isDragging={isDragging}
-      iconGlyph={iconGlyph}
-      tabContentId={id}
-      subtitle={subtitle}
+      tabContentId={tabId}
       onSelect={onTabSelected}
       onClose={onTabClosed}
     />

@@ -21,6 +21,7 @@ import type {
 } from './components/file-input';
 import FileInput, {
   createElectronFileInputBackend,
+  FileInputBackendProvider,
 } from './components/file-input';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
@@ -100,6 +101,7 @@ export {
   ConfirmationModal,
   ErrorSummary,
   FileInput,
+  FileInputBackendProvider,
   IndexIcon,
   MoreOptionsToggle,
   RadioBoxGroup,
@@ -120,6 +122,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
+export { resetGlobalCSS } from './utils/reset-global-css';
 export { getScrollbarStyles, useScrollbars } from './hooks/use-scrollbars';
 export {
   withDarkMode,

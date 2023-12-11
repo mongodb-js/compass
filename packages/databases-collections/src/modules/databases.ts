@@ -8,7 +8,7 @@ export type Database = MongoDBInstance['databases'] extends Array<infer Db>
   : never;
 
 export type DatabasesState = {
-  databases: Database[];
+  databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: {
     status: string;
     error: string | null;

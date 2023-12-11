@@ -9,17 +9,17 @@ import { toggleDatabaseExpanded } from '../modules/databases';
 import { withPreferences } from 'compass-preferences-model';
 import type { RootState } from '../modules';
 
-function SidebarDatabasesNavigation(
-  dbNavigationProps: React.ComponentProps<typeof DatabasesNavigationTree> & {
-    readOnly?: boolean;
-    isDataLake?: boolean;
-    isWritable?: boolean;
-  }
-) {
-  const isReadOnly =
-    dbNavigationProps.readOnly ||
-    dbNavigationProps.isDataLake ||
-    !dbNavigationProps.isWritable;
+function SidebarDatabasesNavigation({
+  readOnly,
+  isDataLake,
+  isWritable,
+  ...dbNavigationProps
+}: Omit<React.ComponentProps<typeof DatabasesNavigationTree>, 'isReadOnly'> & {
+  readOnly?: boolean;
+  isDataLake?: boolean;
+  isWritable?: boolean;
+}) {
+  const isReadOnly = readOnly || isDataLake || !isWritable;
   return (
     <DatabasesNavigationTree {...dbNavigationProps} isReadOnly={isReadOnly} />
   );
@@ -27,12 +27,7 @@ function SidebarDatabasesNavigation(
 
 function mapStateToProps(state: RootState) {
   const {
-    databases: {
-      filterRegex,
-      filteredDatabases,
-      expandedDbList,
-      activeNamespace,
-    },
+    databases: { filterRegex, filteredDatabases, expandedDbList },
     instance,
   } = state;
   const status = instance?.databasesStatus;
@@ -51,14 +46,13 @@ function mapStateToProps(state: RootState) {
     isReady,
     isDataLake,
     isWritable,
-    activeNamespace: toNS(activeNamespace).ns,
     databases: filteredDatabases,
     expanded,
   };
 }
 
 const onNamespaceAction = (namespace: string, action: Actions) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const emit = (...args: any[]) => dispatch(globalAppRegistryEmit(...args));
     const ns = toNS(namespace);
     switch (action) {
@@ -83,9 +77,25 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
       case 'open-in-new-tab':
         emit('sidebar-open-collection-in-new-tab', ns);
         return;
-      case 'modify-view':
-        emit('sidebar-modify-view', ns);
+      case 'modify-view': {
+        const coll = getState()
+          .databases.databases.find((db) => {
+            return db.name === ns.database;
+          })
+          ?.collections.find((coll) => {
+            return coll.name === ns.collection;
+          });
+
+        if (coll) {
+          emit('sidebar-open-collection-in-new-tab', {
+            ns: coll.sourceName,
+            editViewName: coll._id,
+            pipeline: coll.pipeline,
+          });
+        }
+
         return;
+      }
       case 'duplicate-view':
         emit('sidebar-duplicate-view', ns);
         break;
