@@ -56,7 +56,7 @@ const openAuthOIDC = async () => {
 const openOptionsAccordion = () =>
   fireEvent.click(screen.getByText('OIDC Options'));
 
-describe('AuthenticationOIDC Connection Form', function () {
+describe('Authentication OIDC Connection Form', function () {
   let expectToConnectWith;
   let connectSpy: sinon.SinonSpy;
 
@@ -100,7 +100,7 @@ describe('AuthenticationOIDC Connection Form', function () {
 
       await expectToConnectWith({
         connectionString:
-          'mongodb://goodSandwich@localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://goodSandwich@localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
       });
     });
 
@@ -111,7 +111,7 @@ describe('AuthenticationOIDC Connection Form', function () {
 
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           redirectURI: 'goodSandwiches',
         },
@@ -122,7 +122,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           enableUntrustedEndpoints: true,
         },
@@ -134,7 +134,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {},
       });
     });
@@ -153,7 +153,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText(deviceAuthFlowText));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           allowedFlows: ['auth-code', 'device-auth'],
         },
@@ -165,7 +165,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText(deviceAuthFlowText));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           allowedFlows: ['auth-code'],
         },

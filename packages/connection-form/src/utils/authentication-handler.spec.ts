@@ -225,6 +225,7 @@ describe('Authentication Handler', function () {
         'GSSAPI',
         'PLAIN',
         'MONGODB-X509',
+        'MONGODB-OIDC',
       ];
 
       for (const authMechanism of externalAuthMechanisms) {
