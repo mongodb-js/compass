@@ -2,17 +2,17 @@
   "left": {
     "path": [],
     "value": {
-      "_id": "ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
-      "id": "Int32(13913)",
+      "_id": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
+      "id": "new Int32(13913)",
       "listing_url": "https://www.airbnb.com/rooms/13913",
-      "scrape_id": "Long(\"20220910194334\")",
+      "scrape_id": "new Long(\"20220910194334\")",
       "last_scraped": "2022-09-11T00:00:00.000Z",
       "source": "city scrape",
       "name": "Holiday London DB Room Let-on going",
       "description": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue",
       "neighborhood_overview": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s",
       "picture_url": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg",
-      "host_id": "Int32(54730)",
+      "host_id": "new Int32(54730)",
       "host_url": "https://www.airbnb.com/users/show/54730",
       "host_name": "Alina",
       "host_since": "2009-11-16T00:00:00.000Z",
@@ -25,21 +25,21 @@
       "host_thumbnail_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small",
       "host_picture_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium",
       "host_neighbourhood": "LB of Islington",
-      "host_listings_count": "Int32(3)",
-      "host_total_listings_count": "Int32(4)",
+      "host_listings_count": "new Int32(3)",
+      "host_total_listings_count": "new Int32(4)",
       "host_verifications": "['email', 'phone']",
       "host_has_profile_pic": true,
       "host_identity_verified": true,
       "neighbourhood": "Islington, Greater London, United Kingdom",
       "neighbourhood_cleansed": "Islington",
-      "latitude": "Double(51.56861)",
-      "longitude": "Double(-0.1127)",
+      "latitude": "new Double(51.56861)",
+      "longitude": "new Double(-0.1127)",
       "property_type": "Private room in rental unit",
       "room_type": "Private room",
-      "accommodates": "Int32(1)",
+      "accommodates": "new Int32(1)",
       "bathrooms_text": "1 shared bath",
-      "bedrooms": "Int32(1)",
-      "beds": "Int32(1)",
+      "bedrooms": "new Int32(1)",
+      "beds": "new Int32(1)",
       "amenities": [
         "Extra pillows and blankets",
         "Oven",
@@ -84,54 +84,54 @@
         "Cable TV"
       ],
       "price": "$50.00",
-      "minimum_nights": "Int32(1)",
-      "maximum_nights": "Int32(29)",
-      "minimum_minimum_nights": "Int32(1)",
-      "maximum_minimum_nights": "Int32(1)",
-      "minimum_maximum_nights": "Int32(29)",
-      "maximum_maximum_nights": "Int32(29)",
-      "minimum_nights_avg_ntm": "Int32(1)",
-      "maximum_nights_avg_ntm": "Int32(29)",
+      "minimum_nights": "new Int32(1)",
+      "maximum_nights": "new Int32(29)",
+      "minimum_minimum_nights": "new Int32(1)",
+      "maximum_minimum_nights": "new Int32(1)",
+      "minimum_maximum_nights": "new Int32(29)",
+      "maximum_maximum_nights": "new Int32(29)",
+      "minimum_nights_avg_ntm": "new Int32(1)",
+      "maximum_nights_avg_ntm": "new Int32(29)",
       "has_availability": true,
-      "availability_30": "Int32(17)",
-      "availability_60": "Int32(38)",
-      "availability_90": "Int32(68)",
-      "availability_365": "Int32(343)",
+      "availability_30": "new Int32(17)",
+      "availability_60": "new Int32(38)",
+      "availability_90": "new Int32(68)",
+      "availability_365": "new Int32(343)",
       "calendar_last_scraped": "2022-09-11T00:00:00.000Z",
-      "number_of_reviews": "Int32(30)",
-      "number_of_reviews_ltm": "Int32(9)",
-      "number_of_reviews_l30d": "Int32(0)",
+      "number_of_reviews": "new Int32(30)",
+      "number_of_reviews_ltm": "new Int32(9)",
+      "number_of_reviews_l30d": "new Int32(0)",
       "first_review": "2010-08-18T00:00:00.000Z",
       "last_review": "2022-07-15T00:00:00.000Z",
-      "review_scores_rating": "Double(4.9)",
-      "review_scores_accuracy": "Double(4.82)",
-      "review_scores_cleanliness": "Double(4.89)",
-      "review_scores_checkin": "Double(4.86)",
-      "review_scores_communication": "Double(4.93)",
-      "review_scores_location": "Double(4.75)",
-      "review_scores_value": "Double(4.82)",
+      "review_scores_rating": "new Double(4.9)",
+      "review_scores_accuracy": "new Double(4.82)",
+      "review_scores_cleanliness": "new Double(4.89)",
+      "review_scores_checkin": "new Double(4.86)",
+      "review_scores_communication": "new Double(4.93)",
+      "review_scores_location": "new Double(4.75)",
+      "review_scores_value": "new Double(4.82)",
       "instant_bookable": false,
-      "calculated_host_listings_count": "Int32(2)",
-      "calculated_host_listings_count_entire_homes": "Int32(1)",
-      "calculated_host_listings_count_private_rooms": "Int32(1)",
-      "calculated_host_listings_count_shared_rooms": "Int32(0)",
-      "reviews_per_month": "Double(0.2)"
+      "calculated_host_listings_count": "new Int32(2)",
+      "calculated_host_listings_count_entire_homes": "new Int32(1)",
+      "calculated_host_listings_count_private_rooms": "new Int32(1)",
+      "calculated_host_listings_count_shared_rooms": "new Int32(0)",
+      "reviews_per_month": "new Double(0.2)"
     }
   },
   "right": {
     "path": [],
     "value": {
-      "_id": "ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
-      "id": "Int32(13913)",
+      "_id": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
+      "id": "new Int32(13913)",
       "listing_url": "https://www.airbnb.com/rooms/13913",
-      "scrape_id": "Long(\"20220910194334\")",
+      "scrape_id": "new Long(\"20220910194334\")",
       "last_scraped": "2022-09-11T00:00:00.000Z",
       "source": "city scrape",
       "name": "Holiday London DB Room Let-on going",
       "description": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue",
       "neighborhood_overview": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s",
       "picture_url": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg",
-      "host_id": "Int32(54730)",
+      "host_id": "new Int32(54730)",
       "host_url": "https://www.airbnb.com/users/show/54730",
       "host_name": "Alina",
       "host_since": "2009-11-16T00:00:00.000Z",
@@ -144,21 +144,21 @@
       "host_thumbnail_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small",
       "host_picture_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium",
       "host_neighbourhood": "LB of Islington",
-      "host_listings_count": "Int32(3)",
-      "host_total_listings_count": "Int32(4)",
+      "host_listings_count": "new Int32(3)",
+      "host_total_listings_count": "new Int32(4)",
       "host_verifications": "['email', 'phone']",
       "host_has_profile_pic": true,
       "host_identity_verified": true,
       "neighbourhood": "Islington, Greater London, United Kingdom",
       "neighbourhood_cleansed": "Islington",
-      "latitude": "Double(51.56861)",
-      "longitude": "Double(-0.1127)",
+      "latitude": "new Double(51.56861)",
+      "longitude": "new Double(-0.1127)",
       "property_type": "Private room in rental unit",
       "room_type": "Private room",
-      "accommodates": "Int32(1)",
+      "accommodates": "new Int32(1)",
       "bathrooms_text": "1 shared bath",
-      "bedrooms": "Int32(1)",
-      "beds": "Int32(1)",
+      "bedrooms": "new Int32(1)",
+      "beds": "new Int32(1)",
       "amenities": [
         "Extra pillows and blankets",
         "Oven",
@@ -203,38 +203,38 @@
         "Cable TV"
       ],
       "price": "$50.00",
-      "minimum_nights": "Int32(1)",
-      "maximum_nights": "Int32(29)",
-      "minimum_minimum_nights": "Int32(1)",
-      "maximum_minimum_nights": "Int32(1)",
-      "minimum_maximum_nights": "Int32(29)",
-      "maximum_maximum_nights": "Int32(29)",
-      "minimum_nights_avg_ntm": "Int32(1)",
-      "maximum_nights_avg_ntm": "Int32(29)",
+      "minimum_nights": "new Int32(1)",
+      "maximum_nights": "new Int32(29)",
+      "minimum_minimum_nights": "new Int32(1)",
+      "maximum_minimum_nights": "new Int32(1)",
+      "minimum_maximum_nights": "new Int32(29)",
+      "maximum_maximum_nights": "new Int32(29)",
+      "minimum_nights_avg_ntm": "new Int32(1)",
+      "maximum_nights_avg_ntm": "new Int32(29)",
       "has_availability": true,
-      "availability_30": "Int32(17)",
-      "availability_60": "Int32(38)",
-      "availability_90": "Int32(68)",
-      "availability_365": "Int32(343)",
+      "availability_30": "new Int32(17)",
+      "availability_60": "new Int32(38)",
+      "availability_90": "new Int32(68)",
+      "availability_365": "new Int32(343)",
       "calendar_last_scraped": "2022-09-11T00:00:00.000Z",
-      "number_of_reviews": "Int32(30)",
-      "number_of_reviews_ltm": "Int32(9)",
-      "number_of_reviews_l30d": "Int32(0)",
+      "number_of_reviews": "new Int32(30)",
+      "number_of_reviews_ltm": "new Int32(9)",
+      "number_of_reviews_l30d": "new Int32(0)",
       "first_review": "2010-08-18T00:00:00.000Z",
       "last_review": "2022-07-15T00:00:00.000Z",
-      "review_scores_rating": "Double(4.9)",
-      "review_scores_accuracy": "Double(4.82)",
-      "review_scores_cleanliness": "Double(4.89)",
-      "review_scores_checkin": "Double(4.86)",
-      "review_scores_communication": "Double(4.93)",
-      "review_scores_location": "Double(4.75)",
-      "review_scores_value": "Double(4.82)",
+      "review_scores_rating": "new Double(4.9)",
+      "review_scores_accuracy": "new Double(4.82)",
+      "review_scores_cleanliness": "new Double(4.89)",
+      "review_scores_checkin": "new Double(4.86)",
+      "review_scores_communication": "new Double(4.93)",
+      "review_scores_location": "new Double(4.75)",
+      "review_scores_value": "new Double(4.82)",
       "instant_bookable": false,
-      "calculated_host_listings_count": "Int32(2)",
-      "calculated_host_listings_count_entire_homes": "Int32(1)",
-      "calculated_host_listings_count_private_rooms": "Int32(1)",
-      "calculated_host_listings_count_shared_rooms": "Int32(0)",
-      "reviews_per_month": "Double(0.2)"
+      "calculated_host_listings_count": "new Int32(2)",
+      "calculated_host_listings_count_entire_homes": "new Int32(1)",
+      "calculated_host_listings_count_private_rooms": "new Int32(1)",
+      "calculated_host_listings_count_shared_rooms": "new Int32(0)",
+      "reviews_per_month": "new Double(0.2)"
     }
   },
   "delta": null,
@@ -248,11 +248,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["_id"],
-        "value": "ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
+        "value": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
       },
       "right": {
         "path": ["_id"],
-        "value": "ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
+        "value": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
       }
     },
     {
@@ -262,11 +262,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["id"],
-        "value": "Int32(13913)"
+        "value": "new Int32(13913)"
       },
       "right": {
         "path": ["id"],
-        "value": "Int32(13913)"
+        "value": "new Int32(13913)"
       }
     },
     {
@@ -290,11 +290,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["scrape_id"],
-        "value": "Long(\"20220910194334\")"
+        "value": "new Long(\"20220910194334\")"
       },
       "right": {
         "path": ["scrape_id"],
-        "value": "Long(\"20220910194334\")"
+        "value": "new Long(\"20220910194334\")"
       }
     },
     {
@@ -388,11 +388,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["host_id"],
-        "value": "Int32(54730)"
+        "value": "new Int32(54730)"
       },
       "right": {
         "path": ["host_id"],
-        "value": "Int32(54730)"
+        "value": "new Int32(54730)"
       }
     },
     {
@@ -570,11 +570,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["host_listings_count"],
-        "value": "Int32(3)"
+        "value": "new Int32(3)"
       },
       "right": {
         "path": ["host_listings_count"],
-        "value": "Int32(3)"
+        "value": "new Int32(3)"
       }
     },
     {
@@ -584,11 +584,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["host_total_listings_count"],
-        "value": "Int32(4)"
+        "value": "new Int32(4)"
       },
       "right": {
         "path": ["host_total_listings_count"],
-        "value": "Int32(4)"
+        "value": "new Int32(4)"
       }
     },
     {
@@ -668,11 +668,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["latitude"],
-        "value": "Double(51.56861)"
+        "value": "new Double(51.56861)"
       },
       "right": {
         "path": ["latitude"],
-        "value": "Double(51.56861)"
+        "value": "new Double(51.56861)"
       }
     },
     {
@@ -682,11 +682,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["longitude"],
-        "value": "Double(-0.1127)"
+        "value": "new Double(-0.1127)"
       },
       "right": {
         "path": ["longitude"],
-        "value": "Double(-0.1127)"
+        "value": "new Double(-0.1127)"
       }
     },
     {
@@ -724,11 +724,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["accommodates"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["accommodates"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -752,11 +752,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["bedrooms"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["bedrooms"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -766,11 +766,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["beds"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["beds"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1468,11 +1468,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1482,11 +1482,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       },
       "right": {
         "path": ["maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       }
     },
     {
@@ -1496,11 +1496,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["minimum_minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["minimum_minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1510,11 +1510,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["maximum_minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["maximum_minimum_nights"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1524,11 +1524,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["minimum_maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       },
       "right": {
         "path": ["minimum_maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       }
     },
     {
@@ -1538,11 +1538,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["maximum_maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       },
       "right": {
         "path": ["maximum_maximum_nights"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       }
     },
     {
@@ -1552,11 +1552,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["minimum_nights_avg_ntm"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["minimum_nights_avg_ntm"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1566,11 +1566,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["maximum_nights_avg_ntm"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       },
       "right": {
         "path": ["maximum_nights_avg_ntm"],
-        "value": "Int32(29)"
+        "value": "new Int32(29)"
       }
     },
     {
@@ -1594,11 +1594,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["availability_30"],
-        "value": "Int32(17)"
+        "value": "new Int32(17)"
       },
       "right": {
         "path": ["availability_30"],
-        "value": "Int32(17)"
+        "value": "new Int32(17)"
       }
     },
     {
@@ -1608,11 +1608,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["availability_60"],
-        "value": "Int32(38)"
+        "value": "new Int32(38)"
       },
       "right": {
         "path": ["availability_60"],
-        "value": "Int32(38)"
+        "value": "new Int32(38)"
       }
     },
     {
@@ -1622,11 +1622,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["availability_90"],
-        "value": "Int32(68)"
+        "value": "new Int32(68)"
       },
       "right": {
         "path": ["availability_90"],
-        "value": "Int32(68)"
+        "value": "new Int32(68)"
       }
     },
     {
@@ -1636,11 +1636,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["availability_365"],
-        "value": "Int32(343)"
+        "value": "new Int32(343)"
       },
       "right": {
         "path": ["availability_365"],
-        "value": "Int32(343)"
+        "value": "new Int32(343)"
       }
     },
     {
@@ -1664,11 +1664,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["number_of_reviews"],
-        "value": "Int32(30)"
+        "value": "new Int32(30)"
       },
       "right": {
         "path": ["number_of_reviews"],
-        "value": "Int32(30)"
+        "value": "new Int32(30)"
       }
     },
     {
@@ -1678,11 +1678,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["number_of_reviews_ltm"],
-        "value": "Int32(9)"
+        "value": "new Int32(9)"
       },
       "right": {
         "path": ["number_of_reviews_ltm"],
-        "value": "Int32(9)"
+        "value": "new Int32(9)"
       }
     },
     {
@@ -1692,11 +1692,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["number_of_reviews_l30d"],
-        "value": "Int32(0)"
+        "value": "new Int32(0)"
       },
       "right": {
         "path": ["number_of_reviews_l30d"],
-        "value": "Int32(0)"
+        "value": "new Int32(0)"
       }
     },
     {
@@ -1734,11 +1734,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_rating"],
-        "value": "Double(4.9)"
+        "value": "new Double(4.9)"
       },
       "right": {
         "path": ["review_scores_rating"],
-        "value": "Double(4.9)"
+        "value": "new Double(4.9)"
       }
     },
     {
@@ -1748,11 +1748,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_accuracy"],
-        "value": "Double(4.82)"
+        "value": "new Double(4.82)"
       },
       "right": {
         "path": ["review_scores_accuracy"],
-        "value": "Double(4.82)"
+        "value": "new Double(4.82)"
       }
     },
     {
@@ -1762,11 +1762,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_cleanliness"],
-        "value": "Double(4.89)"
+        "value": "new Double(4.89)"
       },
       "right": {
         "path": ["review_scores_cleanliness"],
-        "value": "Double(4.89)"
+        "value": "new Double(4.89)"
       }
     },
     {
@@ -1776,11 +1776,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_checkin"],
-        "value": "Double(4.86)"
+        "value": "new Double(4.86)"
       },
       "right": {
         "path": ["review_scores_checkin"],
-        "value": "Double(4.86)"
+        "value": "new Double(4.86)"
       }
     },
     {
@@ -1790,11 +1790,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_communication"],
-        "value": "Double(4.93)"
+        "value": "new Double(4.93)"
       },
       "right": {
         "path": ["review_scores_communication"],
-        "value": "Double(4.93)"
+        "value": "new Double(4.93)"
       }
     },
     {
@@ -1804,11 +1804,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_location"],
-        "value": "Double(4.75)"
+        "value": "new Double(4.75)"
       },
       "right": {
         "path": ["review_scores_location"],
-        "value": "Double(4.75)"
+        "value": "new Double(4.75)"
       }
     },
     {
@@ -1818,11 +1818,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["review_scores_value"],
-        "value": "Double(4.82)"
+        "value": "new Double(4.82)"
       },
       "right": {
         "path": ["review_scores_value"],
-        "value": "Double(4.82)"
+        "value": "new Double(4.82)"
       }
     },
     {
@@ -1846,11 +1846,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["calculated_host_listings_count"],
-        "value": "Int32(2)"
+        "value": "new Int32(2)"
       },
       "right": {
         "path": ["calculated_host_listings_count"],
-        "value": "Int32(2)"
+        "value": "new Int32(2)"
       }
     },
     {
@@ -1860,11 +1860,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["calculated_host_listings_count_entire_homes"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["calculated_host_listings_count_entire_homes"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1874,11 +1874,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["calculated_host_listings_count_private_rooms"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       },
       "right": {
         "path": ["calculated_host_listings_count_private_rooms"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     },
     {
@@ -1888,11 +1888,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["calculated_host_listings_count_shared_rooms"],
-        "value": "Int32(0)"
+        "value": "new Int32(0)"
       },
       "right": {
         "path": ["calculated_host_listings_count_shared_rooms"],
-        "value": "Int32(0)"
+        "value": "new Int32(0)"
       }
     },
     {
@@ -1902,11 +1902,11 @@
       "changeType": "unchanged",
       "left": {
         "path": ["reviews_per_month"],
-        "value": "Double(0.2)"
+        "value": "new Double(0.2)"
       },
       "right": {
         "path": ["reviews_per_month"],
-        "value": "Double(0.2)"
+        "value": "new Double(0.2)"
       }
     }
   ]

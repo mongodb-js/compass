@@ -4,15 +4,7 @@ import { isSimpleObject } from './shape-utils';
 
 export function stringifyBSON(value: any) {
   if (value?.inspect) {
-    // TODO: This is a temporary hack - we'd use our existing formatters to
-    // output colourful/rich previews of values, not just plain text and we
-    // don't need this behaviour in unBSON() anyway - it doesn't matter that
-    // jsondiffpatch sees `new ` when diffing.
-    const s = value.inspect();
-    if (s.startsWith('new ')) {
-      return s.slice(4);
-    }
-    return s;
+    return value.inspect();
   }
   if (value?.toISOString) {
     return value.toISOString();

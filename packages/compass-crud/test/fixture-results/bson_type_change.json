@@ -2,17 +2,17 @@
   "left": {
     "path": [],
     "value": {
-      "foo": "Double(1.2)"
+      "foo": "new Double(1.2)"
     }
   },
   "right": {
     "path": [],
     "value": {
-      "foo": "Int32(1)"
+      "foo": "new Int32(1)"
     }
   },
   "delta": {
-    "foo": ["Double(1.2)", "Int32(1)"]
+    "foo": ["new Double(1.2)", "new Int32(1)"]
   },
   "implicitChangeType": "unchanged",
   "changeType": "unchanged",
@@ -24,11 +24,11 @@
       "changeType": "changed",
       "left": {
         "path": ["foo"],
-        "value": "Double(1.2)"
+        "value": "new Double(1.2)"
       },
       "right": {
         "path": ["foo"],
-        "value": "Int32(1)"
+        "value": "new Int32(1)"
       }
     }
   ]

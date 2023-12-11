@@ -6,45 +6,45 @@
   "right": {
     "path": [],
     "value": {
-      "_id": "ObjectId(\"642d766b7300158b1f22e972\")",
-      "double": "Double(1.2)",
+      "_id": "new ObjectId(\"642d766b7300158b1f22e972\")",
+      "double": "new Double(1.2)",
       "string": "Hello, world!",
       "object": {
         "key": "value"
       },
       "array": [1, 2, 3],
       "binData": "Binary.createFromBase64(\"AQID\", 0)",
-      "objectId": "ObjectId(\"642d766c7300158b1f22e975\")",
+      "objectId": "new ObjectId(\"642d766c7300158b1f22e975\")",
       "boolean": true,
       "date": "2023-04-05T13:25:08.445Z",
       "null": null,
-      "regex": "BSONRegExp(\"pattern\", \"i\")",
-      "javascript": "Code(\"function() {}\")",
-      "symbol": "BSONSymbol(\"symbol\")",
-      "javascriptWithScope": "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})",
-      "int": "Int32(12345)",
-      "timestamp": "Timestamp({ t: 1680701109, i: 1 })",
-      "long": "Long(\"123456789123456789\")",
-      "decimal": "Decimal128(\"5.477284286264328586719275128128001E-4088\")",
-      "minKey": "MinKey()",
-      "maxKey": "MaxKey()",
+      "regex": "new BSONRegExp(\"pattern\", \"i\")",
+      "javascript": "new Code(\"function() {}\")",
+      "symbol": "new BSONSymbol(\"symbol\")",
+      "javascriptWithScope": "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})",
+      "int": "new Int32(12345)",
+      "timestamp": "new Timestamp({ t: 1680701109, i: 1 })",
+      "long": "new Long(\"123456789123456789\")",
+      "decimal": "new Decimal128(\"5.477284286264328586719275128128001E-4088\")",
+      "minKey": "new MinKey()",
+      "maxKey": "new MaxKey()",
       "binaries": {
         "generic": "Binary.createFromBase64(\"AQID\", 0)",
         "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
         "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
         "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
-        "uuid": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
         "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
         "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
         "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
         "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
       },
-      "dbRef": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+      "dbRef": "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
     }
   },
   "delta": {
-    "_id": ["ObjectId(\"642d766b7300158b1f22e972\")"],
-    "double": ["Double(1.2)"],
+    "_id": ["new ObjectId(\"642d766b7300158b1f22e972\")"],
+    "double": ["new Double(1.2)"],
     "string": ["Hello, world!"],
     "object": [
       {
@@ -53,29 +53,31 @@
     ],
     "array": [[1, 2, 3]],
     "binData": ["Binary.createFromBase64(\"AQID\", 0)"],
-    "objectId": ["ObjectId(\"642d766c7300158b1f22e975\")"],
+    "objectId": ["new ObjectId(\"642d766c7300158b1f22e975\")"],
     "boolean": [true],
     "date": ["2023-04-05T13:25:08.445Z"],
     "null": [null],
-    "regex": ["BSONRegExp(\"pattern\", \"i\")"],
-    "javascript": ["Code(\"function() {}\")"],
-    "symbol": ["BSONSymbol(\"symbol\")"],
+    "regex": ["new BSONRegExp(\"pattern\", \"i\")"],
+    "javascript": ["new Code(\"function() {}\")"],
+    "symbol": ["new BSONSymbol(\"symbol\")"],
     "javascriptWithScope": [
-      "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
+      "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
     ],
-    "int": ["Int32(12345)"],
-    "timestamp": ["Timestamp({ t: 1680701109, i: 1 })"],
-    "long": ["Long(\"123456789123456789\")"],
-    "decimal": ["Decimal128(\"5.477284286264328586719275128128001E-4088\")"],
-    "minKey": ["MinKey()"],
-    "maxKey": ["MaxKey()"],
+    "int": ["new Int32(12345)"],
+    "timestamp": ["new Timestamp({ t: 1680701109, i: 1 })"],
+    "long": ["new Long(\"123456789123456789\")"],
+    "decimal": [
+      "new Decimal128(\"5.477284286264328586719275128128001E-4088\")"
+    ],
+    "minKey": ["new MinKey()"],
+    "maxKey": ["new MaxKey()"],
     "binaries": [
       {
         "generic": "Binary.createFromBase64(\"AQID\", 0)",
         "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
         "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
         "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
-        "uuid": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
         "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
         "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
         "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
@@ -83,7 +85,7 @@
       }
     ],
     "dbRef": [
-      "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+      "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
     ]
   },
   "implicitChangeType": "unchanged",
@@ -95,7 +97,7 @@
       "objectKey": "_id",
       "right": {
         "path": ["_id"],
-        "value": "ObjectId(\"642d766b7300158b1f22e972\")"
+        "value": "new ObjectId(\"642d766b7300158b1f22e972\")"
       },
       "delta": null
     },
@@ -105,7 +107,7 @@
       "objectKey": "double",
       "right": {
         "path": ["double"],
-        "value": "Double(1.2)"
+        "value": "new Double(1.2)"
       },
       "delta": null
     },
@@ -201,7 +203,7 @@
       "objectKey": "objectId",
       "right": {
         "path": ["objectId"],
-        "value": "ObjectId(\"642d766c7300158b1f22e975\")"
+        "value": "new ObjectId(\"642d766c7300158b1f22e975\")"
       },
       "delta": null
     },
@@ -241,7 +243,7 @@
       "objectKey": "regex",
       "right": {
         "path": ["regex"],
-        "value": "BSONRegExp(\"pattern\", \"i\")"
+        "value": "new BSONRegExp(\"pattern\", \"i\")"
       },
       "delta": null
     },
@@ -251,7 +253,7 @@
       "objectKey": "javascript",
       "right": {
         "path": ["javascript"],
-        "value": "Code(\"function() {}\")"
+        "value": "new Code(\"function() {}\")"
       },
       "delta": null
     },
@@ -261,7 +263,7 @@
       "objectKey": "symbol",
       "right": {
         "path": ["symbol"],
-        "value": "BSONSymbol(\"symbol\")"
+        "value": "new BSONSymbol(\"symbol\")"
       },
       "delta": null
     },
@@ -271,7 +273,7 @@
       "objectKey": "javascriptWithScope",
       "right": {
         "path": ["javascriptWithScope"],
-        "value": "Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
+        "value": "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
       },
       "delta": null
     },
@@ -281,7 +283,7 @@
       "objectKey": "int",
       "right": {
         "path": ["int"],
-        "value": "Int32(12345)"
+        "value": "new Int32(12345)"
       },
       "delta": null
     },
@@ -291,7 +293,7 @@
       "objectKey": "timestamp",
       "right": {
         "path": ["timestamp"],
-        "value": "Timestamp({ t: 1680701109, i: 1 })"
+        "value": "new Timestamp({ t: 1680701109, i: 1 })"
       },
       "delta": null
     },
@@ -301,7 +303,7 @@
       "objectKey": "long",
       "right": {
         "path": ["long"],
-        "value": "Long(\"123456789123456789\")"
+        "value": "new Long(\"123456789123456789\")"
       },
       "delta": null
     },
@@ -311,7 +313,7 @@
       "objectKey": "decimal",
       "right": {
         "path": ["decimal"],
-        "value": "Decimal128(\"5.477284286264328586719275128128001E-4088\")"
+        "value": "new Decimal128(\"5.477284286264328586719275128128001E-4088\")"
       },
       "delta": null
     },
@@ -321,7 +323,7 @@
       "objectKey": "minKey",
       "right": {
         "path": ["minKey"],
-        "value": "MinKey()"
+        "value": "new MinKey()"
       },
       "delta": null
     },
@@ -331,7 +333,7 @@
       "objectKey": "maxKey",
       "right": {
         "path": ["maxKey"],
-        "value": "MaxKey()"
+        "value": "new MaxKey()"
       },
       "delta": null
     },
@@ -346,7 +348,7 @@
           "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
           "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
           "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
-          "uuid": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+          "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
           "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
           "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
           "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
@@ -402,7 +404,7 @@
           "changeType": "added",
           "right": {
             "path": ["binaries", "uuid"],
-            "value": "UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")"
+            "value": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")"
           }
         },
         {
@@ -453,7 +455,7 @@
       "objectKey": "dbRef",
       "right": {
         "path": ["dbRef"],
-        "value": "DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+        "value": "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
       },
       "delta": null
     }

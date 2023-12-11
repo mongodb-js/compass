@@ -104,15 +104,21 @@ describe('unifyDocuments', function () {
     expect(result).to.deep.equal({
       left: {
         path: [],
-        value: { a: 'ObjectId("642d766b7300158b1f22e972")', foo: '/regex/i' },
+        value: {
+          a: 'new ObjectId("642d766b7300158b1f22e972")',
+          foo: '/regex/i',
+        },
       },
       right: {
         path: [],
-        value: { b: 'ObjectId("642d766c7300158b1f22e975")', foo: '/regex/i' },
+        value: {
+          b: 'new ObjectId("642d766c7300158b1f22e975")',
+          foo: '/regex/i',
+        },
       },
       delta: {
-        a: ['ObjectId("642d766b7300158b1f22e972")', 0, 0],
-        b: ['ObjectId("642d766c7300158b1f22e975")'],
+        a: ['new ObjectId("642d766b7300158b1f22e972")', 0, 0],
+        b: ['new ObjectId("642d766c7300158b1f22e975")'],
       },
       implicitChangeType: 'unchanged',
       changeType: 'unchanged',
@@ -122,7 +128,10 @@ describe('unifyDocuments', function () {
           objectKey: 'a',
           delta: null,
           changeType: 'removed',
-          left: { path: ['a'], value: 'ObjectId("642d766b7300158b1f22e972")' },
+          left: {
+            path: ['a'],
+            value: 'new ObjectId("642d766b7300158b1f22e972")',
+          },
         },
         {
           implicitChangeType: 'unchanged',
@@ -136,7 +145,10 @@ describe('unifyDocuments', function () {
           implicitChangeType: 'unchanged',
           changeType: 'added',
           objectKey: 'b',
-          right: { path: ['b'], value: 'ObjectId("642d766c7300158b1f22e975")' },
+          right: {
+            path: ['b'],
+            value: 'new ObjectId("642d766c7300158b1f22e975")',
+          },
           delta: null,
         },
       ],
@@ -165,8 +177,6 @@ describe('unifyDocuments', function () {
             'fixture-results',
             filename
           );
-
-          await fs.writeFile(expectedPath, json, 'utf8');
 
           let expectedText: string;
           try {
