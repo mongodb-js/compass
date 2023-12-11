@@ -95,8 +95,12 @@ const changeKeyIndexStyles = css({
 const changeSummaryStyles = css({
   display: 'inline-flex',
   alignItems: 'flex-start',
-  flexWrap: 'wrap',
-  rowGap: '1px',
+
+  // Not sure if it is better with/without this. There's very little horizontal
+  // space so even ellipsized strings tend to cause wrapping without this, but
+  // then with it the wrapping ends up being a bit aggressive.
+  //flexWrap: 'wrap',
+  //rowGap: '1px',
 });
 
 function getChangeSummaryClass(obj: UnifiedBranch, darkMode?: boolean) {
