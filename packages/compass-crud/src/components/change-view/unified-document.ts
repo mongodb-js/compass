@@ -290,14 +290,15 @@ function propertiesWithChanges({
       property.changeType === 'added'
         ? property.right.value
         : property.left.value;
-    if (Array.isArray(value)) {
+    const shape = getValueShape(value);
+    if (shape === 'array') {
       (property as ArrayPropertyBranch).items = itemsWithChanges({
         left: property.left ?? undefined,
         right: property.right ?? undefined,
         delta: property.delta,
         implicitChangeType: getImplicitChangeType(property),
       } as BranchesWithChanges);
-    } else if (isSimpleObject(value)) {
+    } else if (shape === 'object') {
       (property as ObjectPropertyBranch).properties = propertiesWithChanges({
         left: property.left ?? undefined,
         right: property.right ?? undefined,
@@ -452,14 +453,15 @@ function itemsWithChanges({
   for (const item of items) {
     const value =
       item.changeType === 'added' ? item.right.value : item.left.value;
-    if (Array.isArray(value)) {
+    const shape = getValueShape(value);
+    if (shape === 'array') {
       (item as ArrayItemBranch).items = itemsWithChanges({
         left: item.left ?? undefined,
         right: item.right ?? undefined,
         delta: item.delta,
         implicitChangeType: getImplicitChangeType(item),
       } as BranchesWithChanges);
-    } else if (isSimpleObject(value)) {
+    } else if (shape === 'object') {
       (item as ObjectItemBranch).properties = propertiesWithChanges({
         left: item.left ?? undefined,
         right: item.right ?? undefined,

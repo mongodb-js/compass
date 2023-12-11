@@ -27,7 +27,7 @@ import type {
   ArrayItemBranch,
   Branch,
 } from './unified-document';
-import { isSimpleObject, getValueShape } from './shape-utils';
+import { getValueShape } from './shape-utils';
 
 type LeftRightContextType = {
   left: Document;
@@ -213,10 +213,11 @@ function ChangeArrayItemLeaf({ item }: { item: ItemBranch }) {
 function ChangeArrayItem({ item }: { item: ItemBranch }) {
   const value =
     item.changeType === 'added' ? item.right.value : item.left.value;
-  if (Array.isArray(value)) {
+  const shape = getValueShape(value);
+  if (shape === 'array') {
     // array summary followed by array items if expanded
     return <ChangeArrayItemArray item={item as ArrayItemBranch} />;
-  } else if (isSimpleObject(value)) {
+  } else if (shape === 'object') {
     // object summary followed by object properties if expanded
     return <ChangeArrayItemObject item={item as ObjectItemBranch} />;
   }
@@ -395,12 +396,13 @@ function ChangeObjectProperty({ property }: { property: PropertyBranch }) {
     property.changeType === 'added'
       ? property.right.value
       : property.left.value;
-  if (Array.isArray(value)) {
+  const shape = getValueShape(value);
+  if (shape === 'array') {
     // array summary followed by array items if expanded
     return (
       <ChangeObjectPropertyArray property={property as ArrayPropertyBranch} />
     );
-  } else if (isSimpleObject(value)) {
+  } else if (shape === 'object') {
     // object summary followed by object properties if expanded
     return (
       <ChangeObjectPropertyObject property={property as ObjectPropertyBranch} />

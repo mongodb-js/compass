@@ -5,7 +5,7 @@ export function isSimpleObject(value: any) {
   );
 }
 
-export function getValueShape(value: any) {
+export function getValueShape(value: any): 'array' | 'object' | 'leaf' {
   if (Array.isArray(value)) {
     return 'array';
   }

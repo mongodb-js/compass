@@ -1,6 +1,6 @@
 import { EJSON } from 'bson';
 
-import { isSimpleObject } from './shape-utils';
+import { getValueShape } from './shape-utils';
 
 export function stringifyBSON(value: any) {
   if (value?.inspect) {
@@ -13,9 +13,10 @@ export function stringifyBSON(value: any) {
 }
 
 export function unBSON(value: any | any[]): any | any[] {
-  if (Array.isArray(value)) {
+  const shape = getValueShape(value);
+  if (shape === 'array') {
     return value.map(unBSON);
-  } else if (isSimpleObject(value)) {
+  } else if (shape === 'object') {
     const mapped: Record<string, any | any[]> = {};
     for (const [k, v] of Object.entries(value)) {
       mapped[k] = unBSON(v);

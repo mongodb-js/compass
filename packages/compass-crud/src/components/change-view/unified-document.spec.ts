@@ -165,7 +165,7 @@ describe('unifyDocuments', function () {
       for (const { name, before, after } of group.fixtures) {
         it(name, async function () {
           const result = unifyDocuments(before, after);
-          const json = JSON.stringify(result, null, 4);
+          const json = JSON.stringify(result, null, 2);
 
           const filename = `${group.name} ${name}.json`.replace(/ /g, '_');
           const expectedPath = path.join(
