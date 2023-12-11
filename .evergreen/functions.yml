@@ -438,8 +438,6 @@ functions:
           echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
 
           if [[ "$IS_OSX" == "true" ]]; then
-            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/COMPASS-7102)"
-            export COMPASS_E2E_DISABLE_KEYCHAIN_USAGE="true"
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi

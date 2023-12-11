@@ -16,11 +16,9 @@ import {
   MONGODB_TEST_SERVER_PORT,
   updateMongoDBServerInfo,
 } from './helpers/compass';
-import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
 
 const debug = Debug('compass-e2e-tests');
-const keychain = createUnlockedKeychain();
 
 const allowedArgs = [
   '--no-compile',
@@ -45,11 +43,7 @@ let metricsClient: MongoClient;
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
-async function setup() {
-  if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE !== 'true') {
-    await keychain.activate();
-  }
-
+function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   // When working on the tests it is faster to just keep the server running.
@@ -72,8 +66,6 @@ async function setup() {
 
 function cleanup() {
   removeUserDataDir();
-
-  keychain.reset();
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
@@ -109,22 +101,7 @@ function cleanup() {
 }
 
 async function main() {
-  if (
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE !== 'true' &&
-    process.env.EVERGREEN &&
-    process.platform === 'darwin'
-  ) {
-    // TODO: https://jira.mongodb.org/browse/COMPASS-5214
-    console.warn(
-      '⚠️ Compass e2e tests are skipped in Evergreen environment on macOS ' +
-        'machines as running tests requires temporary changes to the default ' +
-        'machine keychain and the machines are statefull which might cause issues ' +
-        'for some processes.'
-    );
-    return;
-  }
-
-  await setup();
+  setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
   // Skip this step if you are running tests consecutively and don't need to
