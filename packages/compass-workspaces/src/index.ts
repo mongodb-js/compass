@@ -14,7 +14,6 @@ import workspacesReducer, {
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
@@ -64,6 +63,7 @@ export function activateWorkspacePlugin(
 
   // TODO: clean up unneccessary global events
   const openCollection = (
+    // @ts-expect-error remove this type
     metadata: CollectionTabPluginMetadata,
     newTab: boolean
   ) => {
@@ -94,6 +94,7 @@ export function activateWorkspacePlugin(
   on(
     globalAppRegistry,
     'open-namespace-in-new-tab',
+    // @ts-expect-error remove this type
     (metadata: CollectionTabPluginMetadata) => {
       openCollection(metadata, true);
     }
@@ -102,6 +103,7 @@ export function activateWorkspacePlugin(
   on(
     globalAppRegistry,
     'select-namespace',
+    // @ts-expect-error remove this type
     (metadata: CollectionTabPluginMetadata) => {
       openCollection(metadata, false);
     }
@@ -122,27 +124,30 @@ export function activateWorkspacePlugin(
 
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
-    if (!activeTab) return;
-    getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
+    if (activeTab && activeTab.type === 'Collection') {
+      getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
+    }
   });
 
   on(globalAppRegistry, 'open-active-namespace-export', function () {
     const activeTab = getActiveTab(store.getState());
-    if (!activeTab) return;
-    globalAppRegistry.emit('open-export', {
-      exportFullCollection: true,
-      namespace: activeTab.namespace,
-      origin: 'menu',
-    });
+    if (activeTab && activeTab.type === 'Collection') {
+      globalAppRegistry.emit('open-export', {
+        exportFullCollection: true,
+        namespace: activeTab.namespace,
+        origin: 'menu',
+      });
+    }
   });
 
   on(globalAppRegistry, 'open-active-namespace-import', function () {
     const activeTab = getActiveTab(store.getState());
-    if (!activeTab) return;
-    globalAppRegistry.emit('open-import', {
-      namespace: activeTab.namespace,
-      origin: 'menu',
-    });
+    if (activeTab && activeTab.type === 'Collection') {
+      globalAppRegistry.emit('open-import', {
+        namespace: activeTab.namespace,
+        origin: 'menu',
+      });
+    }
   });
 
   return {
@@ -177,3 +182,14 @@ export { activate, deactivate };
 export { default as metadata } from '../package.json';
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
+export type {
+  MyQueriesWorkspace,
+  ServerStatsWorkspace,
+  DatabasesWorkspace,
+  CollectionsWorkspace,
+  CollectionWorkspace,
+  AnyWorkspace,
+  Workspace,
+  WorkspacePluginProps,
+  WorkspaceComponent,
+} from './types';

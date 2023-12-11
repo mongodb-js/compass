@@ -12,6 +12,7 @@ import type {
   PipelineStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
+import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
 function activate(): void {
   // noop
@@ -46,14 +47,10 @@ export const MyQueriesPlugin = registerHadronPlugin<
   serviceLocators
 );
 
-export const WorkspaceTab = {
+export const WorkspaceTab: WorkspaceComponent<'My Queries'> = {
   name: 'My Queries' as const,
   component: MyQueriesPlugin,
 };
-
-export type MyQueriesWorkspace = {
-  type: typeof WorkspaceTab['name'];
-} & React.ComponentProps<typeof WorkspaceTab['component']>;
 
 export default MyQueriesPlugin;
 export { activate, deactivate };

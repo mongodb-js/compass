@@ -15,24 +15,17 @@ import { activatePlugin as activateCreateNamespacePlugin } from './stores/create
 import { DatabasesPlugin } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
+import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
-export const CollectionsWorkspaceTab = {
+export const CollectionsWorkspaceTab: WorkspaceComponent<'Collections'> = {
   name: 'Collections' as const,
   component: CollectionsPlugin,
 };
 
-export type CollectionsWorkspace = {
-  type: typeof CollectionsWorkspaceTab['name'];
-} & React.ComponentProps<typeof CollectionsWorkspaceTab['component']>;
-
-export const DatabasesWorkspaceTab = {
+export const DatabasesWorkspaceTab: WorkspaceComponent<'Databases'> = {
   name: 'Databases' as const,
   component: DatabasesPlugin,
 };
-
-export type DatabasesWorkspace = {
-  type: typeof DatabasesWorkspaceTab['name'];
-} & React.ComponentProps<typeof DatabasesWorkspaceTab['component']>;
 
 export const CreateNamespacePlugin = registerHadronPlugin(
   {

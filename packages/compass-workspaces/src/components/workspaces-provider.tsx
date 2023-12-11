@@ -1,12 +1,5 @@
 import React, { useContext, useRef, useCallback } from 'react';
-import type { AnyWorkspace } from '../stores/workspaces';
-
-export type WorkspaceComponent<T extends AnyWorkspace['type']> = {
-  name: T;
-  component: React.FunctionComponent<
-    Omit<Extract<AnyWorkspace, { type: T }>, 'type'>
-  >;
-};
+import type { AnyWorkspace, WorkspaceComponent } from '../';
 
 export type AnyWorkspaceComponent =
   | WorkspaceComponent<'My Queries'>
