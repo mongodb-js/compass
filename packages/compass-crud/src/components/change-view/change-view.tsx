@@ -519,7 +519,6 @@ function ChangeLeaf({ obj }: { obj: UnifiedBranch }) {
     ? lookupValue((obj.right as Branch).path, right)
     : undefined;
 
-  // TODO: BSONValue does not always show the bson type, so you can't spot bson type changes
   return (
     <div className={changeValueStyles}>
       {includeLeft && (
