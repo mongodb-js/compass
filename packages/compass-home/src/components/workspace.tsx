@@ -46,8 +46,8 @@ export default function Workspace({
   let CompassSchemaPlugin: // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   typeof import('@mongodb-js/compass-schema').CompassSchemaPlugin | undefined;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     CompassSchemaPlugin =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@mongodb-js/compass-schema').CompassSchemaPlugin;
   } catch (err) {
     if (globalThis?.window) throw err;
