@@ -362,7 +362,7 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     removeAllListeners() {
-      removeListenersRec(this);
+      InstanceModel.removeAllListeners(this)
     },
 
     toJSON(opts = { derived: true }) {
@@ -371,4 +371,8 @@ const InstanceModel = AmpersandModel.extend(
   }
 );
 
-module.exports = InstanceModel;
+module.exports = Object.assign(InstanceModel, {
+  removeAllListeners(model) {
+    removeListenersRec(model);
+  },
+});

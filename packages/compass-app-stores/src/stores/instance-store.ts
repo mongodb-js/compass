@@ -2,7 +2,7 @@ import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import type { AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 
@@ -35,23 +35,18 @@ function getTopologyDescription(
   };
 }
 
-function voidify<T extends (...args: any[]) => Promise<void>>(
-  fn: T
-): (...args: Parameters<T>) => void {
-  return (...args) => void fn(...args);
-}
-
-export function createInstanceStore({
-  globalAppRegistry: appRegistry,
-  dataService,
-  logger: { debug },
-}: {
-  dataService: DataService;
-  logger: LoggerAndTelemetry;
-  globalAppRegistry: AppRegistry;
-}) {
-  const cleanup: (() => void)[] = [];
-
+export function createInstanceStore(
+  {
+    globalAppRegistry: appRegistry,
+    dataService,
+    logger: { debug },
+  }: {
+    dataService: DataService;
+    logger: LoggerAndTelemetry;
+    globalAppRegistry: AppRegistry;
+  },
+  { on, cleanup, addCleanup }: ActivateHelpers
+) {
   async function refreshInstance(
     refreshOptions: Omit<
       Parameters<MongoDBInstance['refresh']>[0],
@@ -97,76 +92,28 @@ export function createInstanceStore({
     }
   }
 
-  async function fetchDatabaseDetails(
-    dbName: string,
-    { nameOnly = false } = {}
-  ) {
-    const db = instance.databases.get(dbName);
-
-    if (nameOnly) {
-      await db?.fetchCollections({ dataService });
-    } else {
-      await db?.fetchCollectionsDetails({ dataService });
-    }
-  }
-
-  async function fetchCollectionDetails(ns: string) {
-    const { database } = toNS(ns);
-    const coll = instance.databases.get(database)?.collections.get(ns);
-    await coll?.fetch({ dataService }).catch((err) => {
-      // Ignoring this error means that we might open a tab without enough
-      // collection metadata to correctly display it and even though maybe it's
-      // not how we might want to handle this, this just preserves current
-      // Compass behavior
-      debug('failed to fetch collection details', err);
-    });
-    return coll;
+  // Event emitted when the Databases grid needs to be refreshed
+  // We additionally refresh the list of collections as well
+  // since there is the side navigation which could be in expanded mode
+  async function refreshDatabases() {
+    await instance.fetchDatabases({ dataService, force: true });
+    await Promise.allSettled(
+      instance.databases.map((db) =>
+        db.fetchCollections({ dataService, force: true })
+      )
+    );
   }
 
   async function fetchAllCollections() {
     // It is possible to get here before the databases finished loading. We have
-    // to wait for the databases, otherwise it will load all the collections for 0
-    // databases.
+    // to wait for the databases, otherwise it will load all the collections for
+    // 0 databases.
     await instance.fetchDatabases({ dataService });
-
     await Promise.all(
       instance.databases.map((db) => {
         return db.fetchCollections({ dataService });
       })
     );
-  }
-
-  /**
-   * Fetches collection info and returns a special format of collection metadata
-   * that events like open-in-new-tab, select-namespace, edit-view require
-   */
-  async function fetchCollectionMetadata(ns: string) {
-    const { database, collection } = toNS(ns);
-
-    const coll = await instance.getNamespace({
-      database,
-      collection,
-      dataService,
-    });
-
-    return await coll?.fetchMetadata({ dataService });
-  }
-
-  async function refreshNamespace({
-    ns,
-    database,
-  }: {
-    ns: string;
-    database: string;
-  }) {
-    if (!instance.databases.get(database)) {
-      await instance.fetchDatabases({ dataService, force: true });
-    }
-    const db = instance.databases.get(database);
-    if (!db?.collections.get(ns)) {
-      await db?.fetchCollections({ dataService, force: true });
-    }
-    await refreshNamespaceStats(ns);
   }
 
   async function refreshNamespaceStats(ns: string) {
@@ -180,28 +127,33 @@ export function createInstanceStore({
     ]);
   }
 
-  // A shared method that will try to add new namespace model to the instance
-  // model
-  async function addAndRefreshCollectionModel(namespace: string) {
+  // A shared method that will add new namespace model to the instance model if
+  // it doesn't exist yet and will call refresh methods on the database and
+  // collection models
+  async function maybeAddAndRefreshCollectionModel(namespace: string) {
     const { database } = toNS(namespace);
     const db =
       instance.databases.get(database) ??
       // We might be adding collection to a new db namespace
       instance.databases.add({ _id: database });
-    // We might be refreshing an existing namespace (in case of out stage usage
+    // We might be refreshing an existing namespace (in case of out stages usage
     // for example)
-    if (!db.collections.get(namespace, '_id')) {
-      db.collections.add({ _id: namespace });
+    let newCollection = false;
+    let coll = db.collections.get(namespace, '_id');
+    if (!coll) {
+      newCollection = true;
+      coll = db.collections.add({ _id: namespace });
     }
-    // Update database stats and collection list
+    // We don't care if this fails
     await Promise.allSettled([
       db.fetch({ dataService, force: true }),
-      db.fetchCollections({ dataService, force: true }),
+      coll.fetch({
+        dataService,
+        force: true,
+        // We only need to fetch info in case of new collection being created
+        fetchInfo: newCollection,
+      }),
     ]);
-    // When those are ready, update new collection stats
-    await db.collections
-      .get(namespace, '_id')
-      ?.fetch({ dataService, force: true });
   }
 
   const connectionString = dataService.getConnectionString();
@@ -224,6 +176,15 @@ export function createInstanceStore({
     (globalThis as any).hadronApp.instance = instance;
   }
 
+  addCleanup(() => {
+    instance.removeAllListeners();
+    const hadronApp = (globalThis as any).hadronApp;
+    if (hadronApp?.instance === instance) {
+      hadronApp.instance = null;
+    }
+    appRegistry.emit('instance-destroyed', { instance: null });
+  });
+
   debug('instance-created');
   appRegistry.emit('instance-created', { instance });
 
@@ -237,73 +198,56 @@ export function createInstanceStore({
   }: {
     newDescription: ReturnType<DataService['getLastSeenTopology']>;
   }) {
-    (instance as any).set({
+    instance.set({
       topologyDescription: getTopologyDescription(newDescription),
     });
   }
 
-  dataService.on('topologyDescriptionChanged', onTopologyDescriptionChanged);
-  cleanup.push(() =>
-    dataService.off?.(
-      'topologyDescriptionChanged',
-      onTopologyDescriptionChanged
-    )
-  );
+  on(dataService, 'topologyDescriptionChanged', onTopologyDescriptionChanged);
 
-  cleanup.push(() => {
-    instance.removeAllListeners();
-    const hadronApp = (globalThis as any).hadronApp;
-    if (hadronApp?.instance === instance) {
-      hadronApp.instance = null;
+  on(appRegistry, 'sidebar-expand-database', (dbName: string) => {
+    void instance.databases.get(dbName)?.fetchCollections({ dataService });
+  });
+
+  on(appRegistry, 'sidebar-filter-navigation-list', fetchAllCollections);
+
+  on(appRegistry, 'refresh-data', refreshInstance);
+
+  on(appRegistry, 'database-dropped', (dbName: string) => {
+    const db = instance.databases.remove(dbName);
+    if (db) {
+      MongoDBInstance.removeAllListeners(db);
     }
-    appRegistry.emit('instance-destroyed', { instance: null });
   });
 
-  function onAppRegistryEvent(ev: string, listener: (...args: any[]) => void) {
-    appRegistry.on(ev, listener);
-    cleanup.push(() => appRegistry.removeListener(ev, listener));
-  }
-
-  const onSidebarExpandDatabase = (dbName: string) =>
-    void fetchDatabaseDetails(dbName, { nameOnly: true });
-  onAppRegistryEvent('sidebar-expand-database', onSidebarExpandDatabase);
-
-  const onSidebarFilterNavigationList = voidify(fetchAllCollections);
-  onAppRegistryEvent(
-    'sidebar-filter-navigation-list',
-    onSidebarFilterNavigationList
-  );
-
-  const onRefreshData = voidify(refreshInstance);
-  onAppRegistryEvent('refresh-data', onRefreshData);
-
-  const onDatabaseDropped = () =>
-    void instance.fetchDatabases({ dataService, force: true });
-  onAppRegistryEvent('database-dropped', onDatabaseDropped);
-
-  const onCollectionDropped = voidify(async (namespace: string) => {
+  on(appRegistry, 'collection-dropped', (namespace: string) => {
     const { database } = toNS(namespace);
-    await instance.fetchDatabases({ dataService, force: true });
     const db = instance.databases.get(database);
-    // If it was last collection, there will be no db returned
-    await db?.fetchCollections({ dataService, force: true });
-  });
-  onAppRegistryEvent('collection-dropped', onCollectionDropped);
+    const coll = db?.collections.get(namespace, '_id');
 
-  // Event emitted when the Databases grid needs to be refreshed
-  // We additionally refresh the list of collections as well
-  // since there is the side navigation which could be in expanded mode
-  const onRefreshDatabases = voidify(async () => {
-    await instance.fetchDatabases({ dataService, force: true });
-    await Promise.allSettled(
-      instance.databases.map((db) =>
-        db.fetchCollections({ dataService, force: true })
-      )
-    );
-  });
-  onAppRegistryEvent('refresh-databases', onRefreshDatabases);
+    if (!db || !coll) {
+      return;
+    }
 
-  onAppRegistryEvent(
+    const isLastCollection = db.collections.length === 1;
+
+    if (isLastCollection) {
+      instance.databases.remove(db);
+      MongoDBInstance.removeAllListeners(db);
+    } else {
+      db.collections.remove(coll);
+      MongoDBInstance.removeAllListeners(coll);
+      // Update db stats to account for db stats affected by collection stats
+      void db?.fetch({ dataService, force: true }).catch(() => {
+        // noop, we ignore stats fetching failures
+      });
+    }
+  });
+
+  on(appRegistry, 'refresh-databases', refreshDatabases);
+
+  on(
+    appRegistry,
     'collection-renamed',
     ({ from, to }: { from: string; to: string }) => {
       const { database, collection } = toNS(from);
@@ -314,22 +258,16 @@ export function createInstanceStore({
     }
   );
 
-  const onRefreshNamespaceStats = ({ ns }: { ns: string }) => {
-    void refreshNamespaceStats(ns);
-  };
-  onAppRegistryEvent('document-deleted', onRefreshNamespaceStats);
-  onAppRegistryEvent('document-inserted', onRefreshNamespaceStats);
-  onAppRegistryEvent('import-finished', onRefreshNamespaceStats);
+  on(appRegistry, 'document-deleted', refreshNamespaceStats);
+  on(appRegistry, 'document-inserted', refreshNamespaceStats);
+  on(appRegistry, 'import-finished', refreshNamespaceStats);
 
-  onAppRegistryEvent('collection-created', (namespace: string) => {
-    void addAndRefreshCollectionModel(namespace);
-  });
+  on(appRegistry, 'collection-created', maybeAddAndRefreshCollectionModel);
 
-  onAppRegistryEvent('view-created', (namespace: string) => {
-    void addAndRefreshCollectionModel(namespace);
-  });
+  on(appRegistry, 'view-created', maybeAddAndRefreshCollectionModel);
 
-  onAppRegistryEvent(
+  on(
+    appRegistry,
     'agg-pipeline-out-executed',
     // null means the out / merge stage destination wasn't a namespace in the
     // same cluster
@@ -337,28 +275,23 @@ export function createInstanceStore({
       if (!namespace) {
         return;
       }
-      void addAndRefreshCollectionModel(namespace);
+      void maybeAddAndRefreshCollectionModel(namespace);
     }
   );
 
-  onAppRegistryEvent('view-edited', (namespace: string) => {
-    void refreshNamespace(toNS(namespace));
+  on(appRegistry, 'view-edited', (namespace: string) => {
+    const { database } = toNS(namespace);
+    void instance.databases
+      .get(database)
+      ?.collections.get(namespace, '_id')
+      ?.fetch({ dataService, force: true });
   });
 
   return {
     state: { instance }, // Using LegacyRefluxProvider here to pass state to provider
     getState() {
       return { instance };
-    }, // Legacy, for getStore('App.InstanceStore').getState() compat
-    refreshInstance,
-    fetchDatabaseDetails,
-    fetchCollectionDetails,
-    fetchAllCollections,
-    fetchCollectionMetadata,
-    refreshNamespace,
-    refreshNamespaceStats,
-    deactivate() {
-      for (const cleaner of cleanup) cleaner();
     },
+    deactivate: cleanup,
   };
 }

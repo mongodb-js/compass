@@ -106,7 +106,11 @@ interface CollectionCollection extends Array<Collection> {
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;
-  add(props: Partial<CollectionProps>): CollectionProps;
+  add(props: Partial<CollectionProps>): Collection;
+  remove(
+    models: string | [string] | Collection | [Collection]
+  ): Collection | undefined;
+  remove(models: string[] | Collection[]): (Collection | undefined)[];
 }
 
 export default Collection;

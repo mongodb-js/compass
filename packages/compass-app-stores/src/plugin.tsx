@@ -2,6 +2,7 @@ import React from 'react';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
+import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { InstanceContext } from './provider';
@@ -44,20 +45,24 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
         dataService: DataService;
         logger: LoggerAndTelemetry;
         globalAppRegistry: AppRegistry;
-      }
+      },
+      helpers: ActivateHelpers
     ) {
-      const store = createInstanceStore({
-        dataService,
-        logger,
-        globalAppRegistry,
-      });
+      const store = createInstanceStore(
+        {
+          dataService,
+          logger,
+          globalAppRegistry,
+        },
+        helpers
+      );
       // TODO(COMPASS-7442): Remove the store register/register calls
       globalAppRegistry.registerStore('App.InstanceStore', store);
       return {
         store,
         deactivate: () => {
           globalAppRegistry.deregisterStore('App.InstanceStore');
-          store.deactivate();
+          helpers.cleanup();
         },
       };
     },

@@ -44,6 +44,10 @@ interface DatabaseCollection extends Array<Database> {
   at(index: number): Database | undefined;
   get(id: string, key?: '_id' | 'name'): Database | undefined;
   add(props: Partial<DatabaseProps>): Database;
+  remove(
+    models: string | [string] | Database | [Database]
+  ): Database | undefined;
+  remove(models: string[] | Database[]): (Database | undefined)[];
 }
 
 export default Database;
