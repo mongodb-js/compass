@@ -1,0 +1,16 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-name: "mongodb"
+    commit-message:
+      prefix: "chore(deps): "
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "release notes"
