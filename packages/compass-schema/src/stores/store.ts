@@ -139,7 +139,9 @@ export function activateSchemaPlugin(
      * Initialize the document list store.
      */
     init: function (this: SchemaStore) {
-      this.query = {
+      this.query = (
+        localAppRegistry.getStore('Query.Store') as any
+      )?.getCurrentQuery() ?? {
         filter: {},
         project: null,
         limit: DEFAULT_SAMPLE_SIZE,
