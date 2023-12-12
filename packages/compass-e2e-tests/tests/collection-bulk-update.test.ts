@@ -67,7 +67,7 @@ describe('Bulk Update', () => {
     // Check that the modal starts with the default update text
     expect(
       await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
-    ).to.equal('{ $set: { } }');
+    ).to.equal('{\n  $set: {\n\n  },\n}');
 
     // Change the update text
     await browser.setCodemirrorEditorValue(
