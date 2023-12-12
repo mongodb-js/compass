@@ -53,6 +53,7 @@ import {
 import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -1982,21 +1983,9 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
-  }: DocumentsPluginServices
+  }: DocumentsPluginServices,
+  { on, cleanup }: ActivateHelpers
 ) {
-  const cleanup: (() => void)[] = [];
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-
   const actions = configureActions();
   const store = Reflux.createStore(
     new CrudStoreImpl(
@@ -2084,7 +2073,7 @@ export function activateDocumentsPlugin(
     store,
     actions,
     deactivate() {
-      for (const cleaner of cleanup) cleaner();
+      cleanup();
     },
   };
 }

@@ -18,6 +18,7 @@ import {
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -58,6 +59,7 @@ export default function Workspace({
             CompassSchemaValidationPlugin,
             CompassAggregationsPlugin,
             CompassDocumentsPlugin,
+            CompassSchemaPlugin,
           ]}
         >
           <WorkspacesPlugin

@@ -43,6 +43,10 @@ export type ActivateHelpers = Pick<
   'on' | 'addCleanup' | 'cleanup'
 >;
 
+export function createActivateHelpers(): ActivateHelpers {
+  return new ActivateHelpersImpl();
+}
+
 function LegacyRefluxProvider({
   store,
   actions,
@@ -283,7 +287,7 @@ export function registerHadronPlugin<
               localAppRegistry,
               ...serviceImpls,
             },
-            new ActivateHelpersImpl()
+            createActivateHelpers()
           );
           localAppRegistry.registerPlugin(registryName, plugin);
           return plugin;
