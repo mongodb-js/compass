@@ -27,6 +27,9 @@ export function unBSON(value: any | any[]): any | any[] {
   } else if (Object.prototype.toString.call(value) === '[object RegExp]') {
     // make sure these match when diffing
     return value.toString();
+  } else if (Object.prototype.toString.call(value) === '[object Date]') {
+    // make sure dates are consistently strings when diffing
+    return value.toISOString();
   } else {
     return value;
   }

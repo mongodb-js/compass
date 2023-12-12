@@ -165,7 +165,6 @@ describe('unifyDocuments', function () {
       for (const { name, before, after } of group.fixtures) {
         it(name, async function () {
           const result = unifyDocuments(before, after);
-          const json = JSON.stringify(result, null, 2);
 
           const filename = `${group.name} ${name}.json`.replace(/ /g, '_');
           const expectedPath = path.join(
@@ -188,19 +187,21 @@ describe('unifyDocuments', function () {
             // just remove the result files and temporarily write them from in
             // here.
             console.log(expectedPath);
-            console.log(json);
+            console.log(JSON.stringify(result, null, 2));
             throw err;
           }
 
+          const expectedResult = JSON.parse(expectedText);
+
           try {
-            expect(json).to.deep.equal(expectedText);
+            expect(result).to.deep.equal(expectedResult);
           } catch (err) {
             // NOTE: If this fails it is probably because we changed the
             // structure. Check that the expected result makes sense and just
             // replace the file. Tip: Focusing these tests and using --bail
             // should really help.
             console.log(expectedPath);
-            console.log(json);
+            console.log(JSON.stringify(result, null, 2));
             throw err;
           }
 
