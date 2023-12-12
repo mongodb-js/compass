@@ -12,13 +12,13 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import preferencesAccess from 'compass-preferences-model';
 import type { RegularIndex } from '../../modules/regular-indexes';
-import type Store from '../../stores';
 import type { IndexesDataService } from '../../stores/store';
 import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
+import type { RootState } from '../../modules';
 
-const DEFAULT_PROPS = {
+const DEFAULT_PROPS: Partial<RootState> = {
   regularIndexes: { indexes: [], error: null, isRefreshing: false },
   searchIndexes: {
     indexes: [],
@@ -31,12 +31,12 @@ const DEFAULT_PROPS = {
       isModalOpen: false,
     },
   },
-};
+} as any;
 
-const renderIndexes = (props: Partial<typeof Store> = {}) => {
+const renderIndexes = (props: Partial<RootState> = {}) => {
   const store = setupStore();
 
-  const allProps: Partial<typeof Store> = {
+  const allProps: Partial<RootState> = {
     ...DEFAULT_PROPS,
     ...props,
   };
@@ -85,7 +85,7 @@ describe('Indexes Component', function () {
         indexes: [],
         error: 'Some random error',
         isRefreshing: false,
-      },
+      } as any,
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
     // TODO: actually check for the error
@@ -117,7 +117,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       regularIndexes: {
         indexes: [],
-      },
+      } as any,
       isReadonlyView: true,
     });
 
@@ -151,7 +151,7 @@ describe('Indexes Component', function () {
           ] as RegularIndex[],
           error: null,
           isRefreshing: false,
-        },
+        } as any,
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -202,7 +202,7 @@ describe('Indexes Component', function () {
           ] as RegularIndex[],
           error: null,
           isRefreshing: false,
-        },
+        } as any,
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -264,7 +264,7 @@ describe('Indexes Component', function () {
           ] as RegularIndex[],
           error: null,
           isRefreshing: false,
-        },
+        } as any,
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -331,10 +331,10 @@ describe('Indexes Component', function () {
         searchIndexes: {
           ...DEFAULT_PROPS.searchIndexes,
           createIndex: {
-            ...DEFAULT_PROPS.searchIndexes.createIndex,
+            ...DEFAULT_PROPS.searchIndexes!.createIndex,
             isModalOpen: true,
           },
-        },
+        } as any,
       });
 
       // check that the search indexes table is not visible

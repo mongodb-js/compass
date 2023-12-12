@@ -259,9 +259,7 @@ export const renderTabs = (
     // stores to be already set up when they are rendered instead of handling
     // this on their own. We do this here and ignore the return value, this just
     // makes sure that other plugins can use query bar
-    dispatch(setupRole('Query.QueryBar', collectionOptions));
-
-    return dispatch(setupRole('Collection.Tab', collectionOptions));
+    return dispatch(setupRole('Query.QueryBar', collectionOptions));
   };
 };
 

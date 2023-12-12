@@ -60,6 +60,7 @@ type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
   collectionMetadata: CollectionMetadata | null;
   renderScopedModals(props: CollectionTabOptions): React.ReactElement[];
+  // TODO(COMPASS-7405): Remove usage of `renderTabs` for Query.QueryBar role
   renderTabs(
     props: CollectionTabOptions
   ): { name: string; component: React.ReactElement }[];
@@ -104,39 +105,21 @@ const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
     initialQuery,
     editViewName,
   };
-  const legacyTabs = renderTabs(tabsProps);
-  const tabs = [
-    ...legacyTabs,
-    ...pluginTabs.map(({ name, component: Component }) => ({
-      name,
-      component: (
-        <Component
-          {...collectionMetadata}
-          namespace={namespace}
-          aggregation={initialAggregation}
-          pipeline={initialPipeline}
-          pipelineText={initialPipelineText}
-          query={initialQuery}
-          editViewName={editViewName}
-        />
-      ),
-    })),
-  ];
-  // TODO(COMPASS-7404): While the legacy tabs and the provider-injected ones exist,
-  // we cannot just rely on the HadronRole ordering anymore
-  tabs.sort(
-    (
-      (order) =>
-      (a, b): number =>
-        order[a.name] - order[b.name]
-    )({
-      Documents: 0,
-      Aggregations: 1,
-      Schema: 2,
-      Indexes: 3,
-      Validation: 4,
-    } as Record<string, number>)
-  );
+  renderTabs(tabsProps); // TODO(COMPASS-7405): Remove usage for Query.QueryBar role
+  const tabs = pluginTabs.map(({ name, component: Component }) => ({
+    name,
+    component: (
+      <Component
+        {...collectionMetadata}
+        namespace={namespace}
+        aggregation={initialAggregation}
+        pipeline={initialPipeline}
+        pipelineText={initialPipelineText}
+        query={initialQuery}
+        editViewName={editViewName}
+      />
+    ),
+  }));
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (

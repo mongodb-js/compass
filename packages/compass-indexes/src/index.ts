@@ -1,23 +1,48 @@
 import type AppRegistry from 'hadron-app-registry';
 
-import IndexesPlugin from './plugin';
 import CreateIndexPlugin from './create-index-plugin';
 import DropIndexPlugin from './drop-index-plugin';
-import configureStore from './stores';
 import configureCreateIndexStore from './stores/create-index';
 import configureDropIndexStore from './stores/drop-index';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { IndexesDataService } from './stores/store';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+} from './stores/store';
+import Indexes from './components/indexes/indexes';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
-// Compass Plugin role definition.
-const ROLE = {
-  name: 'Indexes',
-  component: IndexesPlugin,
-  order: 6,
-  configureStore: configureStore,
-  configureActions: () => {
-    /* noop */
+export const CompassIndexesHadronPlugin = registerHadronPlugin<
+  CollectionTabPluginMetadata,
+  {
+    dataService: () => IndexesDataService;
+    instance: () => MongoDBInstance;
+    logger: () => LoggerAndTelemetry;
+  }
+>(
+  {
+    name: 'CompassIndexes',
+    component: Indexes as React.FunctionComponent,
+    activate: activateIndexesPlugin,
   },
-  storeName: 'Indexes.Store',
-  actionName: 'Indexes.Actions',
+  {
+    dataService:
+      dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
+    instance: mongoDBInstanceLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
+  }
+);
+
+export const CompassIndexesPlugin = {
+  name: 'Indexes',
+  component: CompassIndexesHadronPlugin,
 };
 
 const CREATE_INDEX_ROLE = {
@@ -47,7 +72,6 @@ const DROP_INDEX_ROLE = {
  * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
  **/
 function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
   appRegistry.registerRole('Collection.ScopedModal', DROP_INDEX_ROLE);
 }
@@ -57,11 +81,9 @@ function activate(appRegistry: AppRegistry): void {
  * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
  **/
 function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', DROP_INDEX_ROLE);
 }
 
-export default IndexesPlugin;
-export { activate, deactivate, configureStore };
+export { activate, deactivate };
 export { default as metadata } from '../package.json';

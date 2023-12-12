@@ -18,7 +18,7 @@ import {
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
-import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -42,6 +42,16 @@ export default function Workspace({
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
+  // CompassSchemaPlugin requires leaflet which does not render outside of Electron
+  let CompassSchemaPlugin: // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  typeof import('@mongodb-js/compass-schema').CompassSchemaPlugin | undefined;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    CompassSchemaPlugin =
+      require('@mongodb-js/compass-schema').CompassSchemaPlugin;
+  } catch (err) {
+    if (globalThis?.window) throw err;
+  }
   return (
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
@@ -56,10 +66,11 @@ export default function Workspace({
       >
         <CollectionTabsProvider
           tabs={[
-            CompassSchemaValidationPlugin,
-            CompassAggregationsPlugin,
             CompassDocumentsPlugin,
-            CompassSchemaPlugin,
+            CompassAggregationsPlugin,
+            ...(CompassSchemaPlugin ? [CompassSchemaPlugin] : []),
+            CompassIndexesPlugin,
+            CompassSchemaValidationPlugin,
           ]}
         >
           <WorkspacesPlugin
