@@ -226,11 +226,10 @@ export const SearchIndexesTable: React.FunctionComponent<
           onDropIndex={onDropIndex}
           onEditIndex={onEditIndex}
           onRunAggregateIndex={(name) => {
-            openCollectionWorkspace(
-              namespace,
-              { initialPipeline: getInitialSearchIndexPipeline(name) },
-              { newTab: true }
-            );
+            openCollectionWorkspace(namespace, {
+              initialPipeline: getInitialSearchIndexPipeline(name),
+              newTab: true,
+            });
           }}
         />
       ),

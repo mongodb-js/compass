@@ -244,7 +244,7 @@ export const createNamespace = (
       track(`${kind} Created`, trackEvent);
 
       globalAppRegistry.emit('collection-created', namespace);
-      workspaces.openCollectionWorkspace(namespace, null, { newTab: true });
+      workspaces.openCollectionWorkspace(namespace, { newTab: true });
       dispatch(reset());
     } catch (e) {
       debug('create collection failed', e);

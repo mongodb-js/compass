@@ -209,15 +209,12 @@ const openItem =
       }
     );
 
-    workspaces.openCollectionWorkspace(
-      `${database}.${collection}`,
-      {
-        initialAggregation:
-          item.type === 'aggregation' ? item.aggregation : undefined,
-        initialQuery: item.type === 'query' ? item.query : undefined,
-      },
-      { newTab: true }
-    );
+    workspaces.openCollectionWorkspace(`${database}.${collection}`, {
+      initialAggregation:
+        item.type === 'aggregation' ? item.aggregation : undefined,
+      initialQuery: item.type === 'query' ? item.query : undefined,
+      newTab: true,
+    });
   };
 
 export const openSavedItem =

@@ -49,19 +49,16 @@ function SidebarDatabasesNavigation({
           openCollectionWorkspace(ns);
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, null, { newTab: true });
+          openCollectionWorkspace(ns, { newTab: true });
           return;
         case 'modify-view': {
           const coll = findCollection(ns, databases);
           if (coll && coll.sourceName) {
-            openCollectionWorkspace(
-              coll.sourceName,
-              {
-                editViewName: coll._id,
-                initialPipeline: coll.pipeline,
-              },
-              { newTab: true }
-            );
+            openCollectionWorkspace(coll.sourceName, {
+              editViewName: coll._id,
+              initialPipeline: coll.pipeline,
+              newTab: true,
+            });
           }
           return;
         }

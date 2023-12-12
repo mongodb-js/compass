@@ -398,7 +398,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     } else {
       const onReviewDocumentsClick = appRegistry
         ? () => {
-            workspaces.openCollectionWorkspace(ns, null, { newTab: true });
+            workspaces.openCollectionWorkspace(ns, { newTab: true });
           }
         : undefined;
 

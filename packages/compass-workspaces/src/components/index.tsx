@@ -9,6 +9,7 @@ import {
 } from '../stores/workspaces';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
+import { WorkspacesServiceProvider } from '../provider';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -81,7 +82,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
   return (
-    <>
+    <WorkspacesServiceProvider>
       <div className={horizontalSplitStyles}>
         <div className={sidebarStyles}>{sidebar}</div>
         <div className={workspacesStyles}>
@@ -89,7 +90,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         </div>
       </div>
       {modals}
-    </>
+    </WorkspacesServiceProvider>
   );
 };
 

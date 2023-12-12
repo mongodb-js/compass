@@ -30,7 +30,7 @@ export const gotoOutResults = (
     if (outResultsFn) {
       outResultsFn(namespace);
     } else {
-      workspaces.openCollectionWorkspace(namespace, null, { newTab: true });
+      workspaces.openCollectionWorkspace(namespace, { newTab: true });
     }
   };
 };
