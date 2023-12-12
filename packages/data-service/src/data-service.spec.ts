@@ -1235,7 +1235,7 @@ describe('DataService', function () {
       });
     });
 
-    describe.only('#previewUpdate', function () {
+    describe('#previewUpdate', function () {
       const namespace = 'test.previewUpdate';
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
       const replsetCluster = mochaTestServer({
