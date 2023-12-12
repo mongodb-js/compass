@@ -38,7 +38,7 @@ const columnsStyles = css({
   display: 'grid',
   width: '100%',
   gap: spacing[4],
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gridTemplateColumns: '2fr 3fr',
 });
 
 const queryStyles = css({
@@ -59,7 +59,7 @@ const descriptionStyles = css({
 
 const previewStyles = css({
   contain: 'size',
-  overflow: 'scroll',
+  overflow: 'auto',
 });
 
 const previewDescriptionStyles = css({

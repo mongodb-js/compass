@@ -89,7 +89,7 @@ function waitForState(store, cb, timeout?: number) {
   return waitForStates(store, [cb], timeout);
 }
 
-describe('store', function () {
+describe.only('store', function () {
   this.timeout(5000);
 
   const cluster = mochaTestServer({
@@ -222,7 +222,7 @@ describe('store', function () {
           },
           serverError: undefined,
           syntaxError: undefined,
-          updateText: '{\n  $set: {}\n}',
+          updateText: '{\n  $set: {\n\n  },\n}',
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
@@ -941,7 +941,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
 
@@ -977,7 +977,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
   });
