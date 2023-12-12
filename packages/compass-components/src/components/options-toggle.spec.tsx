@@ -4,13 +4,13 @@ import sinon from 'sinon';
 
 import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
-import { MoreOptionsToggle } from './more-options-toggle';
+import { OptionsToggle } from './options-toggle';
 
-function renderMoreOptionsToggle(
-  props?: Partial<React.ComponentProps<typeof MoreOptionsToggle>>
+function renderOptionsToggle(
+  props?: Partial<React.ComponentProps<typeof OptionsToggle>>
 ) {
   return render(
-    <MoreOptionsToggle
+    <OptionsToggle
       isExpanded={false}
       aria-controls="test"
       onToggleOptions={() => {}}
@@ -19,39 +19,39 @@ function renderMoreOptionsToggle(
   );
 }
 
-describe('MoreOptionsToggle Component', function () {
+describe('OptionsToggle Component', function () {
   afterEach(function () {
     cleanup();
   });
 
   it('should call to open the options dropdown on click', function () {
     const onToggleOptionsSpy = sinon.spy();
-    renderMoreOptionsToggle({
+    renderOptionsToggle({
       isExpanded: false,
       onToggleOptions: onToggleOptionsSpy,
     });
 
     expect(onToggleOptionsSpy.calledOnce).to.be.false;
-    const button = screen.getByText('More Options');
+    const button = screen.getByText('Options');
     fireEvent.click(button);
     expect(onToggleOptionsSpy.calledOnce).to.be.true;
   });
 
   it('should call to close the options dropdown on click', function () {
     const onToggleOptionsSpy = sinon.spy();
-    renderMoreOptionsToggle({
+    renderOptionsToggle({
       isExpanded: true,
       onToggleOptions: onToggleOptionsSpy,
     });
 
     expect(onToggleOptionsSpy.calledOnce).to.be.false;
-    const button = screen.getByText('Fewer Options');
+    const button = screen.getByText('Options');
     fireEvent.click(button);
     expect(onToggleOptionsSpy.calledOnce).to.be.true;
   });
 
   it('should the test id', function () {
-    renderMoreOptionsToggle({
+    renderOptionsToggle({
       'data-testid': 'pineapple',
     });
 

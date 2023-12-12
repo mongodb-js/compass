@@ -23,7 +23,7 @@ import FileInput, {
   createElectronFileInputBackend,
   FileInputBackendProvider,
 } from './components/file-input';
-import { MoreOptionsToggle } from './components/more-options-toggle';
+import { OptionsToggle } from './components/options-toggle';
 import {
   ErrorSummary,
   WarningSummary,
@@ -103,7 +103,7 @@ export {
   FileInput,
   FileInputBackendProvider,
   IndexIcon,
-  MoreOptionsToggle,
+  OptionsToggle,
   RadioBoxGroup,
   ResizeHandle,
   ResizeDirection,
