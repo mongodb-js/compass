@@ -87,7 +87,7 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "moment": "^2.29.4",
-    "mongodb": "^6.3.0",
+    "mongodb": "6.0.0",
     "mongodb-data-service": "^22.16.2",
     "mongodb-ns": "^2.4.0",
     "mongodb-schema": "^12.1.0",

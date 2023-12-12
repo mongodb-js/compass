@@ -83,7 +83,7 @@
     "hadron-app-registry": "^9.1.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "6.0.0",
     "mongodb-data-service": "^22.16.2",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^4.0.0",

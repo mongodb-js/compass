@@ -80,7 +80,7 @@
     "ejson-shell-parser": "^2.0.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "6.0.0",
     "mongodb-data-service": "^22.16.2",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",

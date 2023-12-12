@@ -107,7 +107,7 @@
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "6.0.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^4.0.0",
     "mongodb-schema": "^12.1.0",

@@ -62,7 +62,7 @@
     "compass-preferences-model": "^2.16.1",
     "hadron-ipc": "^3.2.6",
     "lodash": "^4.17.21",
-    "mongodb": "^6.3.0",
+    "mongodb": "6.0.0",
     "uuid": "^8.2.0"
   },
   "devDependencies": {
