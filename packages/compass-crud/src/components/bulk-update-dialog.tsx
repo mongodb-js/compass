@@ -33,6 +33,11 @@ import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
+const modalContentStyles = css({
+  width: '100%',
+  maxWidth: '1280px',
+});
+
 const columnsStyles = css({
   marginTop: spacing[4],
   display: 'grid',
@@ -78,7 +83,7 @@ const codeLightContainerStyles = css({
 });
 
 const multilineContainerStyles = css({
-  maxHeight: spacing[4] * 20,
+  maxHeight: spacing[5] * 7, // fit at our default window size
 });
 
 const bannerContainerStyles = css({
@@ -384,8 +389,8 @@ export default function BulkUpdateDialog({
     <Modal
       open={isOpen}
       setOpen={closeBulkUpdateDialog}
-      size={enablePreview ? 'large' : 'default'}
       data-testid="bulk-update-dialog"
+      contentClassName={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />
