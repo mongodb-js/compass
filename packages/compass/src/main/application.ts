@@ -98,13 +98,9 @@ class CompassApplication {
       );
     }
 
-    const IS_CI =
-      process.env.IS_CI ||
-      process.env.CI ||
-      process.env.EVERGREEN_BUILD_VARIANT;
-    if (IS_CI) {
-      // In CI we want to use plain text encryption to avoid having to deal with
-      // keychain popups or setting up keychain for the CI.
+    if (process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true') {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
       // This method is only available on Linux and is no-op on other platforms.
       safeStorage.setUsePlainTextEncryption(true);
     }

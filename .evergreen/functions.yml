@@ -23,6 +23,7 @@ variables:
   - &compass-env
     WORKDIR: ${workdir}
     CI: '1'
+    MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE: 'true'
     EVERGREEN: '1'
     EVERGREEN_AUTHOR: ${author}
     EVERGREEN_BRANCH_NAME: ${branch_name}
