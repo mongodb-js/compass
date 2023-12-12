@@ -85,6 +85,12 @@ export type DocumentView = 'List' | 'JSON' | 'Table';
 const { debug, log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
+const INITIAL_BULK_UPDATE_TEXT = `{
+  $set: {
+
+  },
+}`;
+
 function pickQueryProps({
   filter,
   sort,
@@ -525,7 +531,7 @@ class CrudStoreImpl
   getInitialBulkUpdateState(): BulkUpdateState {
     return {
       isOpen: false,
-      updateText: '{\n  $set: {}\n}',
+      updateText: INITIAL_BULK_UPDATE_TEXT,
       preview: {
         changes: [],
       },
@@ -1106,7 +1112,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    await this.updateBulkUpdatePreview('{ $set: { } }');
+    await this.updateBulkUpdatePreview(INITIAL_BULK_UPDATE_TEXT);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -2023,7 +2029,7 @@ export function activateDocumentsPlugin(
       void store.refreshDocuments();
       void store.openBulkUpdateDialog();
       void store.updateBulkUpdatePreview(
-        toJSString(query.update) || '{ $set: { } }'
+        toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
       );
     }
   );

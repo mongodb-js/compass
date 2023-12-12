@@ -222,7 +222,7 @@ describe('store', function () {
           },
           serverError: undefined,
           syntaxError: undefined,
-          updateText: '{\n  $set: {}\n}',
+          updateText: '{\n  $set: {\n\n  },\n}',
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
@@ -941,7 +941,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
 
@@ -977,7 +977,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
   });

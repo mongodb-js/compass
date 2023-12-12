@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import type { UpdatePreview } from 'mongodb-data-service';
-import HadronDocument from 'hadron-document';
+import type { Document } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
 import {
   css,
@@ -24,22 +24,26 @@ import {
   InteractivePopover,
   TextInput,
   useId,
+  DocumentIcon,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
-import Document from './document';
 import type { BSONObject } from '../stores/crud-store';
-
+import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
-import { DocumentIcon } from '@mongodb-js/compass-components';
+
+const modalContentStyles = css({
+  width: '100%',
+  maxWidth: '1280px',
+});
 
 const columnsStyles = css({
   marginTop: spacing[4],
   display: 'grid',
   width: '100%',
   gap: spacing[4],
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gridTemplateColumns: '2fr 3fr',
 });
 
 const queryStyles = css({
@@ -60,7 +64,7 @@ const descriptionStyles = css({
 
 const previewStyles = css({
   contain: 'size',
-  overflow: 'scroll',
+  overflow: 'auto',
 });
 
 const previewDescriptionStyles = css({
@@ -79,7 +83,7 @@ const codeLightContainerStyles = css({
 });
 
 const multilineContainerStyles = css({
-  maxHeight: spacing[4] * 20,
+  maxHeight: spacing[5] * 7, // fit at our default window size
 });
 
 const bannerContainerStyles = css({
@@ -252,12 +256,6 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   count,
   preview,
 }) => {
-  const previewDocuments = useMemo(() => {
-    return preview.changes.map(
-      (change) => new HadronDocument(change.after as Record<string, unknown>)
-    );
-  }, [preview]);
-
   // show a preview for the edge case where the count is undefined, not the
   // empty state
   if (count === 0) {
@@ -294,12 +292,13 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
         </Description>
       </Label>
       <div className={updatePreviewStyles}>
-        {previewDocuments.map((doc: HadronDocument, index: number) => {
+        {preview.changes.map(({ before, after }, index: number) => {
           return (
             <UpdatePreviewDocument
               key={`change=${index}`}
               data-testid="bulk-update-preview-document"
-              doc={doc}
+              before={before}
+              after={after}
             />
           );
         })}
@@ -390,8 +389,8 @@ export default function BulkUpdateDialog({
     <Modal
       open={isOpen}
       setOpen={closeBulkUpdateDialog}
-      size={enablePreview ? 'large' : 'default'}
       data-testid="bulk-update-dialog"
+      contentClassName={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />
@@ -483,16 +482,25 @@ export default function BulkUpdateDialog({
   );
 }
 
+const previewCardStyles = css({
+  padding: spacing[3],
+});
+
 function UpdatePreviewDocument({
-  doc,
+  before,
+  after,
   ...props
 }: {
   'data-testid': string;
-  doc: HadronDocument;
+  before: Document;
+  after: Document;
 }) {
   return (
-    <KeylineCard data-testid={props['data-testid']}>
-      <Document doc={doc} editable={false} />
+    <KeylineCard
+      data-testid={props['data-testid']}
+      className={previewCardStyles}
+    >
+      <ChangeView before={before} after={after} name={props['data-testid']} />
     </KeylineCard>
   );
 }
