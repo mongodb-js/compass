@@ -150,8 +150,11 @@ export const CollectionHeader: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights', React);
-  const { openCollectionsWorkspace, openCollectionWorkspace } =
-    useOpenWorkspace();
+  const {
+    openCollectionsWorkspace,
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+  } = useOpenWorkspace();
 
   const ns = toNS(namespace);
   const database = ns.database;
@@ -221,10 +224,10 @@ export const CollectionHeader: React.FunctionComponent<
           editViewName={editViewName}
           isReadonly={isReadonly}
           onEditViewClicked={() => {
-            if (sourceName) {
-              openCollectionWorkspace(sourceName, {
-                initialPipeline: sourcePipeline,
-                editViewName: namespace,
+            if (sourceName && sourcePipeline) {
+              openEditViewWorkspace(namespace, {
+                sourceName,
+                sourcePipeline,
               });
             }
           }}

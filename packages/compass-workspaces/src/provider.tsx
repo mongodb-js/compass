@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
 import type {
   OpenWorkspaceOptions,
@@ -64,8 +64,17 @@ export type WorkspacesService = {
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace'
+        'type' | 'namespace' | 'editViewName'
       >
+  ): void;
+  /**
+   * Open "Collection" workspace for a view namespace in a specially handled
+   * "Editing view" state
+   */
+  openEditViewWorkspace(
+    this: void,
+    viewNamespace: string,
+    options: { sourceName: string; sourcePipeline: unknown[] } & TabOptions
   ): void;
   /**
    * useActiveWorkspace hook, exposed through the service interface so that it
@@ -93,6 +102,7 @@ const noopWorkspacesService = {
   openPerformanceWorkspace: throwIfNotTestEnv,
   openCollectionsWorkspace: throwIfNotTestEnv,
   openCollectionWorkspace: throwIfNotTestEnv,
+  openEditViewWorkspace: throwIfNotTestEnv,
   [kSelector]() {
     throwIfNotTestEnv();
     return null;
@@ -114,76 +124,56 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
   /* eslint-disable react-hooks/rules-of-hooks */
   value ??= (() => {
     const store = useWorkspacesStore();
-    const getActiveWorkspace = useCallback(() => {
-      return getActiveTab(store.getState());
-    }, [store]);
-    const openMyQueriesWorkspace: WorkspacesService['openMyQueriesWorkspace'] =
-      useCallback(
-        (tabOptions) => {
-          return store.dispatch(
-            openWorkspaceAction({ type: 'My Queries' }, tabOptions)
-          );
-        },
-        [store]
-      );
-    const openDatabasesWorkspace: WorkspacesService['openDatabasesWorkspace'] =
-      useCallback(
-        (tabOptions) => {
-          return store.dispatch(
-            openWorkspaceAction({ type: 'Databases' }, tabOptions)
-          );
-        },
-        [store]
-      );
-    const openPerformanceWorkspace: WorkspacesService['openPerformanceWorkspace'] =
-      useCallback(
-        (tabOptions) => {
-          return store.dispatch(
-            openWorkspaceAction({ type: 'Performance' }, tabOptions)
-          );
-        },
-        [store]
-      );
-    const openCollectionsWorkspace: WorkspacesService['openCollectionsWorkspace'] =
-      useCallback(
-        (namespace, tabOptions) => {
-          return store.dispatch(
-            openWorkspaceAction({ type: 'Collections', namespace }, tabOptions)
-          );
-        },
-        [store]
-      );
-    const openCollectionWorkspace: WorkspacesService['openCollectionWorkspace'] =
-      useCallback(
-        (namespace, options) => {
-          const { newTab, ...collectionOptions } = options ?? {};
-          return store.dispatch(
-            openWorkspaceAction(
-              { type: 'Collection', namespace, ...collectionOptions },
-              { newTab }
-            )
-          );
-        },
-        [store]
-      );
-    return useMemo(() => {
-      return {
-        getActiveWorkspace,
-        openMyQueriesWorkspace,
-        openDatabasesWorkspace,
-        openPerformanceWorkspace,
-        openCollectionsWorkspace,
-        openCollectionWorkspace,
-        [kSelector]: useActiveWorkspaceSelector,
-      };
-    }, [
-      getActiveWorkspace,
-      openMyQueriesWorkspace,
-      openDatabasesWorkspace,
-      openPerformanceWorkspace,
-      openCollectionsWorkspace,
-      openCollectionWorkspace,
-    ]);
+    const service = useRef<WorkspacesService>({
+      getActiveWorkspace: () => {
+        return getActiveTab(store.getState());
+      },
+      openMyQueriesWorkspace: (tabOptions) => {
+        return store.dispatch(
+          openWorkspaceAction({ type: 'My Queries' }, tabOptions)
+        );
+      },
+      openDatabasesWorkspace: (tabOptions) => {
+        return store.dispatch(
+          openWorkspaceAction({ type: 'Databases' }, tabOptions)
+        );
+      },
+      openPerformanceWorkspace: (tabOptions) => {
+        return store.dispatch(
+          openWorkspaceAction({ type: 'Performance' }, tabOptions)
+        );
+      },
+      openCollectionsWorkspace: (namespace, tabOptions) => {
+        return store.dispatch(
+          openWorkspaceAction({ type: 'Collections', namespace }, tabOptions)
+        );
+      },
+      openCollectionWorkspace: (namespace, options) => {
+        const { newTab, ...collectionOptions } = options ?? {};
+        return store.dispatch(
+          openWorkspaceAction(
+            { type: 'Collection', namespace, ...collectionOptions },
+            { newTab }
+          )
+        );
+      },
+      openEditViewWorkspace: (viewNamespace, options) => {
+        const { newTab, sourceName, sourcePipeline } = options ?? {};
+        return store.dispatch(
+          openWorkspaceAction(
+            {
+              type: 'Collection',
+              namespace: sourceName,
+              initialPipeline: sourcePipeline,
+              editViewName: viewNamespace,
+            },
+            { newTab }
+          )
+        );
+      },
+      [kSelector]: useActiveWorkspaceSelector,
+    });
+    return service.current;
   })();
   /* eslint-enable react-hooks/rules-of-hooks */
 
@@ -211,23 +201,19 @@ export function useOpenWorkspace() {
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openPerformanceWorkspace,
+    openEditViewWorkspace,
   } = useWorkspacesService();
 
-  return useMemo(() => {
-    return {
-      openCollectionWorkspace,
-      openCollectionsWorkspace,
-      openDatabasesWorkspace,
-      openMyQueriesWorkspace,
-      openPerformanceWorkspace,
-    };
-  }, [
+  const openFns = useRef({
     openCollectionWorkspace,
     openCollectionsWorkspace,
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openPerformanceWorkspace,
-  ]);
+    openEditViewWorkspace,
+  });
+
+  return openFns.current;
 }
 
 export function useActiveWorkspace() {

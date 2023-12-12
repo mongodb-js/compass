@@ -35,8 +35,11 @@ function SidebarDatabasesNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
 }) {
-  const { openCollectionsWorkspace, openCollectionWorkspace } =
-    useOpenWorkspace();
+  const {
+    openCollectionsWorkspace,
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+  } = useOpenWorkspace();
   const preferencesReadOnly = usePreference('readOnly', React);
   const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
   const onNamespaceAction = useCallback(
@@ -53,10 +56,10 @@ function SidebarDatabasesNavigation({
           return;
         case 'modify-view': {
           const coll = findCollection(ns, databases);
-          if (coll && coll.sourceName) {
-            openCollectionWorkspace(coll.sourceName, {
-              editViewName: coll._id,
-              initialPipeline: coll.pipeline,
+          if (coll && coll.sourceName && coll.pipeline) {
+            openEditViewWorkspace(coll._id, {
+              sourceName: coll.sourceName,
+              sourcePipeline: coll.pipeline,
               newTab: true,
             });
           }
@@ -68,10 +71,11 @@ function SidebarDatabasesNavigation({
       }
     },
     [
-      _onNamespaceAction,
-      openCollectionsWorkspace,
       databases,
+      openCollectionsWorkspace,
       openCollectionWorkspace,
+      openEditViewWorkspace,
+      _onNamespaceAction,
     ]
   );
 
