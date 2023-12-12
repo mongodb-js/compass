@@ -1,4 +1,4 @@
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import type { ConfigureStoreOptions } from '../src/stores/store';
 import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
@@ -18,14 +18,21 @@ export default function configureStore(
   return activateAggregationsPlugin(
     {
       namespace: 'test.test',
-      ...(options as any),
+      isReadonly: false,
+      isTimeSeries: false,
+      isClustered: false,
+      isFLE: false,
+      isSearchIndexesSupported: false,
+      isDataLake: false,
+      isAtlas: false,
+      serverVersion: '4.0.0',
+      ...options,
     },
     {
       dataService,
-      instance: {} as any,
-      workspaces: {} as any,
+      instance: {},
       ...appRegistries,
-    },
-    {} as any
+    } as any,
+    createActivateHelpers()
   ).store;
 }

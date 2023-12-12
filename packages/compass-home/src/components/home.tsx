@@ -327,16 +327,18 @@ function Home({
               <Workspace
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
-                modals={
-                  <>
-                    <ImportPlugin></ImportPlugin>
-                    <ExportPlugin></ExportPlugin>
-                    <CreateViewPlugin></CreateViewPlugin>
-                    <CreateNamespacePlugin></CreateNamespacePlugin>
-                    <DropNamespacePlugin></DropNamespacePlugin>
-                    <RenameCollectionPlugin></RenameCollectionPlugin>
-                  </>
-                }
+                renderModals={() => {
+                  return (
+                    <>
+                      <ImportPlugin></ImportPlugin>
+                      <ExportPlugin></ExportPlugin>
+                      <CreateViewPlugin></CreateViewPlugin>
+                      <CreateNamespacePlugin></CreateNamespacePlugin>
+                      <DropNamespacePlugin></DropNamespacePlugin>
+                      <RenameCollectionPlugin></RenameCollectionPlugin>
+                    </>
+                  );
+                }}
               />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>

@@ -36,13 +36,13 @@ const shellContainerStyles = css({
 export default function Workspace({
   connectionInfo,
   onActiveWorkspaceTabChange,
-  modals,
+  renderModals,
 }: {
   connectionInfo: ConnectionInfo | null | undefined;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
-  modals?: React.ReactElement;
+  renderModals?: () => React.ReactElement;
 }): React.ReactElement {
   return (
     <div data-testid="home" className={verticalSplitStyles}>
@@ -66,12 +66,14 @@ export default function Workspace({
           <WorkspacesPlugin
             initialWorkspaceTab={{ type: 'My Queries' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            sidebar={
-              <CompassSidebarPlugin
-                initialConnectionInfo={connectionInfo ?? undefined}
-              />
-            }
-            modals={modals}
+            renderSidebar={() => {
+              return (
+                <CompassSidebarPlugin
+                  initialConnectionInfo={connectionInfo ?? undefined}
+                />
+              );
+            }}
+            renderModals={renderModals}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>

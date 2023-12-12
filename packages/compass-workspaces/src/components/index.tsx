@@ -42,13 +42,13 @@ type WorkspacesWithSidebarProps = {
    * rendered inside workspace React tree and access workspace state and actions
    * from service locator context
    */
-  sidebar?: React.ReactElement;
+  renderSidebar?: () => React.ReactElement | null;
   /**
    * Workspaces plugin modals components slot. Required so that plugin modals
    * can be rendered inside workspace React tree and access workspace state and
    * actions from service locator context
    */
-  modals?: React.ReactElement;
+  renderModals?: () => React.ReactElement | null;
 };
 
 const horizontalSplitStyles = css({
@@ -73,8 +73,8 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   activeTab,
   activeTabCollectionInfo,
   onActiveWorkspaceTabChange,
-  sidebar,
-  modals,
+  renderSidebar,
+  renderModals,
 }) => {
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
@@ -84,12 +84,14 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   return (
     <WorkspacesServiceProvider>
       <div className={horizontalSplitStyles}>
-        <div className={sidebarStyles}>{sidebar}</div>
+        <div className={sidebarStyles}>
+          {renderSidebar && React.createElement(renderSidebar)}
+        </div>
         <div className={workspacesStyles}>
           <Workspaces></Workspaces>
         </div>
       </div>
-      {modals}
+      {renderModals && React.createElement(renderModals)}
     </WorkspacesServiceProvider>
   );
 };

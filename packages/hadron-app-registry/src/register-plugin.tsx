@@ -44,6 +44,10 @@ export type ActivateHelpers = Pick<
   'on' | 'addCleanup' | 'cleanup'
 >;
 
+export function createActivateHelpers(): ActivateHelpers {
+  return new ActivateHelpersImpl();
+}
+
 function LegacyRefluxProvider({
   store,
   actions,

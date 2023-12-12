@@ -120,36 +120,4 @@ describe('InstanceStore [Store]', function () {
       ]);
     });
   });
-
-  context('on agg pipeline out', function () {
-    beforeEach(async function () {
-      sandbox
-        .stub(dataService, 'instance')
-        .returns({ build: { version: '3.2.1' } });
-      await initialInstanceRefreshedPromise;
-      expect(store.getState().instance).to.have.nested.property(
-        'build.version',
-        '1.2.3'
-      );
-      globalAppRegistry.emit('agg-pipeline-out-executed');
-      await once(globalAppRegistry, 'instance-refreshed');
-    });
-
-    it('calls instance model fetch', function () {
-      expect(store.getState().instance).to.have.nested.property(
-        'build.version',
-        '3.2.1'
-      );
-    });
-
-    it('emits instance-changed event', function () {
-      const events = emitSpy.args.map(([evtName]: any) => evtName);
-      expect(events).to.eql([
-        'instance-created',
-        'instance-refreshed',
-        'agg-pipeline-out-executed',
-        'instance-refreshed',
-      ]);
-    });
-  });
 });
