@@ -2,7 +2,7 @@ import type { DataServiceLocator } from 'mongodb-data-service/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
-import { ConnectedSchema } from './plugin';
+import CompassSchema from './components/compass-schema';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import type { DataService } from './stores/store';
 import { activateSchemaPlugin } from './stores/store';
@@ -26,7 +26,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
 >(
   {
     name: 'CompassSchemaPlugin',
-    component: ConnectedSchema as any /* reflux store */,
+    component: CompassSchema as React.FunctionComponent /* reflux store */,
     activate: activateSchemaPlugin,
   },
   {
