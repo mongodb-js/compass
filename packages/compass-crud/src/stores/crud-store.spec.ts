@@ -1021,8 +1021,14 @@ describe('store', function () {
 
       store.openBulkDeleteDialog();
 
+      const previews = store.state.bulkDelete.previews;
+
+      // because we make a copy of the previews what comes out will not be the
+      // same as what goes in so just check the previews separately
+      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+
       expect(store.state.bulkDelete).to.deep.equal({
-        previews: [hadronDoc],
+        previews,
         status: 'open',
         affected: 1,
       });
@@ -1036,8 +1042,13 @@ describe('store', function () {
       store.openBulkDeleteDialog();
       store.closeBulkDeleteDialog();
 
+      const previews = store.state.bulkDelete.previews;
+
+      // same comment as above
+      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+
       expect(store.state.bulkDelete).to.deep.equal({
-        previews: [hadronDoc],
+        previews,
         status: 'closed',
         affected: 1,
       });
