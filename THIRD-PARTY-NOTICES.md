@@ -85,7 +85,7 @@ This document was automatically generated on Wed Dec 13 2023.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#8d1f4c0466a0244db9ac9b68898ae7ad9a8b305c9e9c8830c2f3d479eecafa67)**                                   | 2.1.0        | MIT                                 |
+| **[@electron/remote](#7171b6f206528f7cb96421173db392770ce3e83b4c9db1c52d2b3c32fd20a35f)**                                   | 2.1.1        | MIT                                 |
 | **[@emotion/cache](#c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521)**                                     | 11.11.0      | MIT                                 |
 | **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
 | **[@emotion/hash](#b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206)**                                      | 0.9.1        | MIT                                 |
@@ -7661,9 +7661,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="8d1f4c0466a0244db9ac9b68898ae7ad9a8b305c9e9c8830c2f3d479eecafa67"></a>
+<a id="7171b6f206528f7cb96421173db392770ce3e83b4c9db1c52d2b3c32fd20a35f"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.0)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.1)
 
 License tags: MIT
 
