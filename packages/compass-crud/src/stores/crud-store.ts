@@ -1152,7 +1152,21 @@ class CrudStoreImpl
             previewAbortController: undefined,
           },
         });
+        return;
       }
+
+      // if there's no syntax error, then just clear it
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
 
       return;
     }

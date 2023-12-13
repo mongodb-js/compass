@@ -2787,8 +2787,7 @@ describe('store', function () {
         });
         dataService.previewUpdate = previewUpdateStub;
         instance.topologyDescription.type = 'Single';
-      });
-      beforeEach(function () {
+
         const plugin = activateDocumentsPlugin(
           {
             isSearchIndexesSupported: true,
@@ -2821,6 +2820,37 @@ describe('store', function () {
           preview: {
             changes: [],
           },
+          previewAbortController: undefined,
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{ $set: { anotherField: 2 } }',
+        });
+      });
+
+      it('resets syntaxError when there is no syntax error', async function () {
+        void store.openBulkUpdateDialog();
+        store.onQueryChanged({ filter: { field: 1 } });
+        await store.updateBulkUpdatePreview('{ $set: { anotherField:  } }'); // syntax error
+
+        expect(previewUpdateStub.called).to.be.false;
+
+        expect(store.state.bulkUpdate.syntaxError?.name).to.equal(
+          'SyntaxError'
+        );
+        expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
+          'Unexpected token (2:25)'
+        );
+
+        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+
+        expect(previewUpdateStub.called).to.be.false;
+
+        expect(store.state.bulkUpdate).to.deep.equal({
+          isOpen: true,
+          preview: {
+            changes: [],
+          },
+          previewAbortController: undefined,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
