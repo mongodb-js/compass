@@ -1,0 +1,105 @@
+{
+  "left": {
+    "path": [],
+    "value": {
+      "foo": [
+        0,
+        {
+          "bar": "baz"
+        }
+      ]
+    }
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "foo": [
+        {
+          "bar": "baz"
+        }
+      ]
+    }
+  },
+  "delta": {
+    "foo": {
+      "_t": "a",
+      "_0": [0, 0, 0]
+    }
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "foo",
+      "delta": {
+        "_t": "a",
+        "_0": [0, 0, 0]
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["foo"],
+        "value": [
+          0,
+          {
+            "bar": "baz"
+          }
+        ]
+      },
+      "right": {
+        "path": ["foo"],
+        "value": [
+          {
+            "bar": "baz"
+          }
+        ]
+      },
+      "items": [
+        {
+          "implicitChangeType": "unchanged",
+          "index": 0,
+          "delta": null,
+          "changeType": "removed",
+          "left": {
+            "path": ["foo", 0],
+            "value": 0
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 0,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["foo", 1],
+            "value": {
+              "bar": "baz"
+            }
+          },
+          "right": {
+            "path": ["foo", 1],
+            "value": {
+              "bar": "baz"
+            }
+          },
+          "properties": [
+            {
+              "implicitChangeType": "unchanged",
+              "objectKey": "bar",
+              "delta": null,
+              "changeType": "unchanged",
+              "left": {
+                "path": ["foo", 1, "bar"],
+                "value": "baz"
+              },
+              "right": {
+                "path": ["foo", 1, "bar"],
+                "value": "baz"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

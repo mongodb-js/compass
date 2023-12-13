@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 
+import type { InternalLayer } from './geo';
 import { addLayer, generateGeoQuery } from './geo';
 
 describe('geo module', function () {
   describe('#addLayer', function () {
     context('when the layer is a circle', function () {
-      const layer = {
+      const layer: any = {
         _latlng: {
           lat: 1,
           lng: 1,
@@ -28,7 +29,7 @@ describe('geo module', function () {
     });
 
     context('when the layer is a polygon', function () {
-      const layer = {
+      const layer: any = {
         _latlngs: [
           [
             { lat: 1, lng: 1 },
@@ -58,7 +59,7 @@ describe('geo module', function () {
 
   describe('#generateGeoQuery', function () {
     context('when there is one circle layer', function () {
-      const layers = {
+      const layers: Record<string, InternalLayer> = {
         1: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
       };
 
@@ -72,7 +73,7 @@ describe('geo module', function () {
     });
 
     context('when there are multiple circle layers', function () {
-      const layers = {
+      const layers: Record<string, InternalLayer> = {
         1: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
         2: { field: 'field', lat: 11, lng: 6, radius: 21, type: 'circle' },
       };
@@ -100,7 +101,7 @@ describe('geo module', function () {
     });
 
     context('when there is one polygon layer', function () {
-      const coordinates = [
+      const coordinates: [number, number][][] = [
         [
           [0, 0],
           [1, 1],
@@ -108,7 +109,7 @@ describe('geo module', function () {
           [0, 0],
         ],
       ];
-      const layers = {
+      const layers: Record<string, InternalLayer> = {
         1: {
           field: 'field',
           coordinates: coordinates,
@@ -131,7 +132,7 @@ describe('geo module', function () {
     });
 
     context('when there are multiple polygon layers', function () {
-      const coordinates1 = [
+      const coordinates1: [number, number][][] = [
         [
           [0, 0],
           [1, 1],
@@ -139,7 +140,7 @@ describe('geo module', function () {
           [0, 0],
         ],
       ];
-      const coordinates2 = [
+      const coordinates2: [number, number][][] = [
         [
           [0, 0],
           [1, 1],
@@ -147,7 +148,7 @@ describe('geo module', function () {
           [0, 0],
         ],
       ];
-      const layers = {
+      const layers: Record<string, InternalLayer> = {
         1: { field: 'field', coordinates: coordinates1, type: 'polygon' },
         2: { field: 'field', coordinates: coordinates2, type: 'polygon' },
       };
@@ -181,7 +182,7 @@ describe('geo module', function () {
     });
 
     context('when there is a circle/polygon mix', function () {
-      const coordinates = [
+      const coordinates: [number, number][][] = [
         [
           [0, 0],
           [1, 1],
@@ -189,7 +190,7 @@ describe('geo module', function () {
           [0, 0],
         ],
       ];
-      const layers = {
+      const layers: Record<string, InternalLayer> = {
         1: { field: 'field', coordinates: coordinates, type: 'polygon' },
         2: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
       };

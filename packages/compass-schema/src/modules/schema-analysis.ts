@@ -1,7 +1,5 @@
 import { isInternalFieldPath } from 'hadron-document';
 import type { AggregateOptions, Filter, Document } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { DataService } from 'mongodb-data-service';
 import mongodbSchema from 'mongodb-schema';
 import type {
   Schema,
@@ -11,8 +9,8 @@ import type {
   SchemaType,
   PrimitiveSchemaType,
 } from 'mongodb-schema';
-
-const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
+import type { DataService } from '../stores/store';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const MONGODB_GEO_TYPES = [
   'Point',
@@ -39,7 +37,7 @@ function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
 }
 
 export const analyzeSchema = async (
-  dataService: Pick<DataService, 'sample' | 'isCancelError'>,
+  dataService: DataService,
   abortSignal: AbortSignal,
   ns: string,
   query:
@@ -49,8 +47,9 @@ export const analyzeSchema = async (
         fields?: Document;
       }
     | undefined,
-  aggregateOptions: AggregateOptions
-) => {
+  aggregateOptions: AggregateOptions,
+  { log, mongoLogId, debug }: LoggerAndTelemetry
+): Promise<Schema | null> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
       ns,

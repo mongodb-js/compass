@@ -23,7 +23,7 @@ import type {
 import { FieldType, sortTypes } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
-import type configureActions from '../actions';
+import type { configureActions } from '../actions';
 
 const toggleCollapseButtonIconStyles = css({
   color: palette.gray.dark2,

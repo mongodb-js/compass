@@ -5,6 +5,7 @@ import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
 import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
+import { Int32 } from 'bson';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 import type { DataService } from './data-service';
@@ -1318,9 +1319,10 @@ describe('DataService', function () {
 
         expect(changeset.changes).to.have.length(1);
         expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after.counter._bsontype).to.equal('Int32');
         expect(changeset.changes[0].after).to.deep.equal({
           _id: sampleDocument._id,
-          counter: 1,
+          counter: new Int32(1),
         });
       });
 

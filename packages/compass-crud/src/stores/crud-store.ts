@@ -53,6 +53,7 @@ import {
 import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -84,6 +85,12 @@ export type DocumentView = 'List' | 'JSON' | 'Table';
 
 const { debug, log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-CRUD-UI');
+
+const INITIAL_BULK_UPDATE_TEXT = `{
+  $set: {
+
+  },
+}`;
 
 function pickQueryProps({
   filter,
@@ -525,7 +532,7 @@ class CrudStoreImpl
   getInitialBulkUpdateState(): BulkUpdateState {
     return {
       isOpen: false,
-      updateText: '{\n  $set: {}\n}',
+      updateText: INITIAL_BULK_UPDATE_TEXT,
       preview: {
         changes: [],
       },
@@ -1106,7 +1113,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    await this.updateBulkUpdatePreview('{ $set: { } }');
+    await this.updateBulkUpdatePreview(INITIAL_BULK_UPDATE_TEXT);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1982,21 +1989,9 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
-  }: DocumentsPluginServices
+  }: DocumentsPluginServices,
+  { on, cleanup }: ActivateHelpers
 ) {
-  const cleanup: (() => void)[] = [];
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-
   const actions = configureActions();
   const store = Reflux.createStore(
     new CrudStoreImpl(
@@ -2023,7 +2018,7 @@ export function activateDocumentsPlugin(
       void store.refreshDocuments();
       void store.openBulkUpdateDialog();
       void store.updateBulkUpdatePreview(
-        toJSString(query.update) || '{ $set: { } }'
+        toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
       );
     }
   );
@@ -2084,7 +2079,7 @@ export function activateDocumentsPlugin(
     store,
     actions,
     deactivate() {
-      for (const cleaner of cleanup) cleaner();
+      cleanup();
     },
   };
 }

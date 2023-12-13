@@ -1,7 +1,7 @@
 import util from 'util';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import { once } from 'events';
@@ -181,7 +181,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -222,7 +223,7 @@ describe('store', function () {
           },
           serverError: undefined,
           syntaxError: undefined,
-          updateText: '{\n  $set: {}\n}',
+          updateText: '{\n  $set: {\n\n  },\n}',
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
@@ -278,7 +279,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -330,7 +332,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -375,7 +378,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -420,7 +424,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -464,7 +469,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -508,7 +514,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -620,7 +627,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -901,7 +909,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -941,7 +950,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
 
@@ -977,7 +986,7 @@ describe('store', function () {
         previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
-        updateText: '{ $set: { } }',
+        updateText: '{\n  $set: {\n\n  },\n}',
       });
     });
   });
@@ -998,7 +1007,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1065,7 +1075,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1221,7 +1232,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1391,7 +1403,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1561,7 +1574,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1743,7 +1757,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1783,7 +1798,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1820,7 +1836,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -1855,7 +1872,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -1930,7 +1948,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -1974,7 +1993,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2015,7 +2035,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2058,7 +2079,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2108,7 +2130,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2173,7 +2196,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -2279,7 +2303,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -2721,7 +2746,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
@@ -2776,7 +2802,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2829,7 +2856,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
-          }
+          },
+          createActivateHelpers()
         );
         store = plugin.store;
         deactivate = () => plugin.deactivate();
@@ -2886,7 +2914,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();

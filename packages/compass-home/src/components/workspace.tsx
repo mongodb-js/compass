@@ -19,6 +19,8 @@ import {
 } from '@mongodb-js/compass-databases-collections';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -51,16 +53,17 @@ export default function Workspace({
           MyQueriesWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
-          // TODO: issue because of the recursive dep?
-          CollectionsWorkspaceTab as any,
+          CollectionsWorkspaceTab,
           CollectionWorkspace,
         ]}
       >
         <CollectionTabsProvider
           tabs={[
-            CompassSchemaValidationPlugin,
-            CompassAggregationsPlugin,
             CompassDocumentsPlugin,
+            CompassAggregationsPlugin,
+            CompassSchemaPlugin,
+            CompassIndexesPlugin,
+            CompassSchemaValidationPlugin,
           ]}
         >
           <WorkspacesPlugin

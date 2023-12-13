@@ -2399,7 +2399,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
             async () => {
               const coll = this._collection(ns, 'CRUD');
               const docsToPreview = await coll
-                .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
+                .find(filter, {
+                  session,
+                  maxTimeMS: remainingTimeoutMS(),
+                  // by using promoteValues: false we can spot BSON type changes
+                  // when diffing. ie. new Double(1) -> new Int32(1)
+                  promoteValues: false,
+                })
                 .sort({ _id: 1 })
                 .limit(sample)
                 .toArray();
@@ -2412,7 +2418,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
               const changedDocs = await coll
                 .find(
                   { _id: { $in: idsToPreview } },
-                  { session, maxTimeMS: remainingTimeoutMS() }
+                  {
+                    session,
+                    maxTimeMS: remainingTimeoutMS(),
+                    promoteValues: false,
+                  }
                 )
                 .sort({ _id: 1 })
                 .toArray();
