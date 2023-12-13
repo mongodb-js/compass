@@ -233,10 +233,10 @@ export class ConnectionStorage {
     return deleteCompassAppNameParam(connectionInfo);
   }
 
+  // This method is only called when compass tries to migrate connections to a new version.
+  // In e2e-tests we do not migrate any connections as all the connections are created
+  // in the new format, so keychain is not triggered (using keytar) and hence test is not blocked.
   private static async getKeytarCredentials() {
-    if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-      return {};
-    }
     try {
       const credentials = await keytar.findCredentials(getKeytarServiceName());
       return Object.fromEntries(
@@ -326,34 +326,26 @@ export class ConnectionStorage {
       // where we use storage-mixin. storage-mixin uses this prop
       // to map keytar credentials to the stored connection.
 
-      // While testing, we don't use keychain to store secrets
-      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await this.userData.write(connectionInfo.id, {
-          connectionInfo,
-          _id: connectionInfo.id,
-        });
-      } else {
-        const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
-          extractSecrets(connectionInfo);
+      const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
+        extractSecrets(connectionInfo);
 
-        let connectionSecrets: string | undefined = undefined;
-        try {
-          connectionSecrets = this.encryptSecrets(secrets);
-        } catch (e) {
-          log.error(
-            mongoLogId(1_001_000_202),
-            'Connection Storage',
-            'Failed to encrypt secrets',
-            { message: (e as Error).message }
-          );
-        }
-        await this.userData.write(connectionInfo.id, {
-          _id: connectionInfo.id,
-          connectionInfo: connectionInfoWithoutSecrets,
-          connectionSecrets,
-          version: this.version,
-        });
+      let connectionSecrets: string | undefined = undefined;
+      try {
+        connectionSecrets = this.encryptSecrets(secrets);
+      } catch (e) {
+        log.error(
+          mongoLogId(1_001_000_202),
+          'Connection Storage',
+          'Failed to encrypt secrets',
+          { message: (e as Error).message }
+        );
       }
+      await this.userData.write(connectionInfo.id, {
+        _id: connectionInfo.id,
+        connectionInfo: connectionInfoWithoutSecrets,
+        connectionSecrets,
+        version: this.version,
+      });
       await this.afterConnectionHasBeenSaved(connectionInfo);
     } catch (err) {
       log.error(
