@@ -90,16 +90,12 @@ describe('regular-indexes module', function () {
   describe('#fetchIndexes action', function () {
     it('sets indexes to empty array for views', async function () {
       const indexesSpy = Sinon.spy();
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: indexesSpy,
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
+        indexes: indexesSpy,
+      } as any);
 
       // Add indexes in the store
       store.dispatch(setRegularIndexes(defaultSortedIndexes as any));
@@ -112,15 +108,11 @@ describe('regular-indexes module', function () {
     });
 
     it('when dataService is not connected, sets refreshing to false', async function () {
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return false;
-            },
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return false;
         },
-      });
+      } as any);
       store.dispatch({
         type: ActionTypes.IndexesAdded,
         indexes: defaultSortedIndexes,
@@ -134,16 +126,12 @@ describe('regular-indexes module', function () {
 
     it('sets indexes to empty array when there is an error', async function () {
       const error = new Error('failed to connect to server');
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: () => Promise.reject(error),
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
+        indexes: () => Promise.reject(error),
+      } as any);
       // Set some data to validate the empty array condition
       store.dispatch({
         type: ActionTypes.IndexesAdded,
@@ -159,16 +147,12 @@ describe('regular-indexes module', function () {
     });
 
     it('sets indexes when fetched successfully with default sort', async function () {
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: () => Promise.resolve(defaultSortedDesc),
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
+        indexes: () => Promise.resolve(defaultSortedDesc),
+      } as any);
       // Set indexes to empty
       store.dispatch(setRegularIndexes([]));
       await store.dispatch(fetchIndexes());
@@ -180,16 +164,12 @@ describe('regular-indexes module', function () {
     });
 
     it('sets indexes when fetched successfully with custom sort', async function () {
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: () => Promise.resolve(usageSortedIndexes),
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
+        indexes: () => Promise.resolve(usageSortedIndexes),
+      } as any);
       // Set indexes to empty
       store.dispatch(setRegularIndexes([]));
       store.dispatch(sortRegularIndexes('Usage', 'desc'));
@@ -203,17 +183,12 @@ describe('regular-indexes module', function () {
     });
 
     it('merges with in progress indexes', async function () {
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: () => Promise.resolve(indexesList),
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
-
+        indexes: () => Promise.resolve(indexesList),
+      } as any);
       // Set indexes to empty
       store.dispatch(setRegularIndexes([]));
       store.dispatch(
@@ -262,19 +237,15 @@ describe('regular-indexes module', function () {
 
   describe('#refreshRegularIndexes action', function () {
     it('sets isRefreshing when indexes are refreshed', async function () {
-      const store = setupStore({
-        dataProvider: {
-          dataProvider: {
-            isConnected() {
-              return true;
-            },
-            indexes: async () => {
-              await wait(100);
-              return defaultSortedIndexes;
-            },
-          } as any,
+      const store = setupStore({}, {
+        isConnected() {
+          return true;
         },
-      });
+        indexes: async () => {
+          await wait(100);
+          return defaultSortedIndexes;
+        },
+      } as any);
 
       store.dispatch(refreshRegularIndexes() as any);
       expect(store.getState().regularIndexes.isRefreshing).to.be.true;

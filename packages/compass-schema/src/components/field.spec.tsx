@@ -10,7 +10,7 @@ import {
 } from 'mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
 
-import configureActions from '../actions';
+import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 
 describe('Field', function () {

@@ -1,11 +1,11 @@
-const Reflux = require('reflux');
+import Reflux from 'reflux';
 
 /**
  * Need to create an instance of actions for each store.
  *
  * @returns {Actions} - The actions.
  */
-const configureActions = () => {
+export const configureActions = () => {
   return Reflux.createActions({
     /**
      * starts schema analysis with the current query
@@ -36,5 +36,3 @@ const configureActions = () => {
     geoLayersDeleted: { sync: true },
   });
 };
-
-export default configureActions;

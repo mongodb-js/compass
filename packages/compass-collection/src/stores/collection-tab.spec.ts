@@ -5,7 +5,6 @@ import {
   selectDatabase,
   editView,
   renderScopedModals,
-  renderTabs,
 } from '../modules/collection-tab';
 import { waitFor } from '@testing-library/react';
 import Sinon from 'sinon';
@@ -70,15 +69,6 @@ describe('Collection Tab Content store', function () {
     actionName: 'ScopedModalAction',
   };
 
-  const collectionSubTabRole = {
-    name: 'CollectionSubTab',
-    component: () => 'CollectionSubTabComponent',
-    configureStore: sandbox.stub().returns({}),
-    storeName: 'CollectionSubTabStore',
-    configureActions: sandbox.stub().returns({}),
-    actionName: 'CollectionSubTabAction',
-  };
-
   const configureStore = async (
     options: Partial<CollectionTabOptions> = {}
   ) => {
@@ -107,10 +97,6 @@ describe('Collection Tab Content store', function () {
     globalAppRegistry.registerRole(
       'Collection.ScopedModal',
       scopedModalRole as any
-    );
-    globalAppRegistry.registerRole(
-      'Collection.Tab',
-      collectionSubTabRole as any
     );
   });
 
@@ -177,36 +163,6 @@ describe('Collection Tab Content store', function () {
       store.dispatch(renderScopedModals(defaultTabOptions));
       expect(scopedModalRole.configureStore).to.have.been.called.calledOnce;
       expect(scopedModalRole.configureActions).to.have.been.called.calledOnce;
-    });
-  });
-
-  describe('renderTabs', function () {
-    it('should set up tabs state in local app registry', async function () {
-      const store = await configureStore();
-      const tabs = store.dispatch(renderTabs(defaultTabOptions));
-      expect(
-        tabs.map((tab) => {
-          return {
-            name: tab.name,
-            component: (tab.component as any).type(),
-          };
-        })
-      ).to.deep.eq([
-        { name: 'CollectionSubTab', component: 'CollectionSubTabComponent' },
-      ]);
-      expect(localAppRegistry.getStore('CollectionSubTabStore')).to.exist;
-      expect(localAppRegistry.getAction('CollectionSubTabAction')).to.exist;
-    });
-
-    it('should only configure tabs store and actions once', async function () {
-      const store = await configureStore();
-      store.dispatch(renderTabs(defaultTabOptions));
-      store.dispatch(renderTabs(defaultTabOptions));
-      store.dispatch(renderTabs(defaultTabOptions));
-      expect(collectionSubTabRole.configureStore).to.have.been.called
-        .calledOnce;
-      expect(collectionSubTabRole.configureActions).to.have.been.called
-        .calledOnce;
     });
   });
 });

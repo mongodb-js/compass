@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import configureActions from './';
+import { configureActions } from '.';
 
 describe('#configureActions', function () {
   it('returns a new instance of the reflux actions', function () {

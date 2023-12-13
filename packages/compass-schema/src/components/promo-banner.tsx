@@ -8,9 +8,7 @@ import {
   useDarkMode,
   Body,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const iconSize = spacing[5];
 
@@ -56,6 +54,7 @@ const bannerLinkStyles = css({
 });
 
 export const HackoladePromoBanner: React.FunctionComponent = () => {
+  const { track } = useLoggerAndTelemetry('COMPASS-SCHEMA-UI');
   const darkMode = useDarkMode();
   return (
     <Body

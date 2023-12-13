@@ -43,6 +43,10 @@ export type ActivateHelpers = Pick<
   'on' | 'addCleanup' | 'cleanup'
 >;
 
+export function createActivateHelpers(): ActivateHelpers {
+  return new ActivateHelpersImpl();
+}
+
 function LegacyRefluxProvider({
   store,
   actions,
@@ -53,12 +57,15 @@ function LegacyRefluxProvider({
   children: React.ReactElement;
 }) {
   const storeRef = useRef(store);
-  const [state, setState] = React.useState(() => {
+  const [state, setState] = useState(() => {
     return storeRef.current.state;
   });
 
   React.useEffect(() => {
-    const unsubscribe = storeRef.current.listen?.(setState, null);
+    const unsubscribe = storeRef.current.listen?.(
+      (updatedState: Readonly<any>) => setState({ ...updatedState }),
+      null
+    );
     return () => unsubscribe?.();
   }, []);
 
@@ -283,7 +290,7 @@ export function registerHadronPlugin<
               localAppRegistry,
               ...serviceImpls,
             },
-            new ActivateHelpersImpl()
+            createActivateHelpers()
           );
           localAppRegistry.registerPlugin(registryName, plugin);
           return plugin;

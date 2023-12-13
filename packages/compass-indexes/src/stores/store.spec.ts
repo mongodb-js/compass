@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
-
-import configureStore from './';
+import type { IndexesDataService } from './store';
+import { activateIndexesPlugin, type IndexesStore } from './store';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 class FakeInstance extends EventEmitter {
   isWritable = true;
@@ -10,41 +11,50 @@ class FakeInstance extends EventEmitter {
 }
 
 const fakeInstance = new FakeInstance();
-
-const fakeAppInstanceStore = {
-  getState: function () {
-    return {
-      instance: fakeInstance,
-    };
-  },
-};
+const dummyLogger = createLoggerAndTelemetry('TEST');
 
 describe('IndexesStore [Store]', function () {
-  let appRegistry;
-  let localAppRegistry;
+  let globalAppRegistry: AppRegistry;
+  let localAppRegistry: AppRegistry;
 
-  let store;
+  let store: IndexesStore;
+  let deactivate: () => void;
 
   beforeEach(function () {
-    appRegistry = new AppRegistry();
+    globalAppRegistry = new AppRegistry();
     localAppRegistry = new AppRegistry();
-    appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-    store = configureStore({
-      globalAppRegistry: appRegistry,
-      localAppRegistry: localAppRegistry,
-      namespace: 'test.coll',
-      dataProvider: {
-        error: null,
-        dataProvider: {
-          indexes: (ns, options, callback) => {
+    const plugin = activateIndexesPlugin(
+      {
+        namespace: 'test.coll',
+        isReadonly: true,
+        serverVersion: '6.0.0',
+        isSearchIndexesSupported: true,
+      },
+      {
+        globalAppRegistry: globalAppRegistry,
+        localAppRegistry: localAppRegistry,
+        instance: fakeInstance as any,
+        dataService: {
+          indexes: (
+            ns: string,
+            options: unknown,
+            callback: (...args: any[]) => void
+          ) => {
             callback('err', []);
           },
           isConnected: () => true,
-        },
+        } as IndexesDataService,
+        logger: dummyLogger,
       },
-      isReadonly: true,
-    });
+      createActivateHelpers()
+    );
+    store = plugin.store;
+    deactivate = () => plugin.deactivate();
+  });
+
+  afterEach(function () {
+    deactivate();
   });
 
   it('sets the namespace', function () {

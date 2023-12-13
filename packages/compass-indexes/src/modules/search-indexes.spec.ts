@@ -321,15 +321,17 @@ describe('search-indexes module', function () {
     const store = setupStore(
       {
         isSearchIndexesSupported: true,
+      },
+      {
+        isConnected: () => true,
+        getSearchIndexes: () => Promise.resolve(searchIndexes),
+      },
+      {
         globalAppRegistry: {
           on: sinon.spy(),
           getStore: sinon.spy(),
           emit: emitSpy,
         } as any,
-      },
-      {
-        isConnected: () => true,
-        getSearchIndexes: () => Promise.resolve(searchIndexes),
       }
     );
 

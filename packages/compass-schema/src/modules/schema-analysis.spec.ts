@@ -9,6 +9,7 @@ import {
   calculateSchemaDepth,
   schemaContainsGeoData,
 } from './schema-analysis';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const testDocs = [
   {
@@ -65,6 +66,8 @@ const testDocs = [
   },
 ];
 
+const dummyLogger = createLoggerAndTelemetry('TEST');
+
 describe('schema-analysis', function () {
   afterEach(function () {
     sinon.restore();
@@ -88,7 +91,8 @@ describe('schema-analysis', function () {
         abortSignal,
         'db.coll',
         {},
-        {}
+        {},
+        dummyLogger
       );
 
       const expectedSchema = {
@@ -167,7 +171,14 @@ describe('schema-analysis', function () {
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
-      await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
+      await analyzeSchema(
+        dataService,
+        abortSignal,
+        'db.coll',
+        {},
+        {},
+        dummyLogger
+      );
 
       expect(sampleSpy).to.have.been.calledWith(
         'db.coll',
@@ -190,7 +201,8 @@ describe('schema-analysis', function () {
         abortSignal,
         'db.coll',
         {},
-        {}
+        {},
+        dummyLogger
       );
 
       expect(result).to.equal(null);
@@ -212,7 +224,14 @@ describe('schema-analysis', function () {
       const abortSignal = abortController.signal;
 
       try {
-        await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
+        await analyzeSchema(
+          dataService,
+          abortSignal,
+          'db.coll',
+          {},
+          {},
+          dummyLogger
+        );
       } catch (err: any) {
         expect(err.message).to.equal('should have been thrown');
         expect(err.code).to.equal(1000);
