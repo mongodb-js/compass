@@ -55,26 +55,13 @@ const loadAutoConnectWithConnection = async (
 
 describe('auto connection argument parsing', function () {
   let sandbox: sinon.SinonSandbox;
-  const initialKeychainEnvValue =
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     sandbox.stub(ipcRenderer!, 'call').resolves(true);
-    if (process.platform === 'linux' && process.env.CI) {
-      // Keychain is not working on Linux in CI, see
-      // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
-    }
   });
 
   afterEach(function () {
     sandbox.restore();
-    if (initialKeychainEnvValue) {
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeychainEnvValue;
-    } else {
-      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {

@@ -1,0 +1,63 @@
+{
+  "left": {
+    "path": [],
+    "value": {
+      "foo": {
+        "bar": 1
+      }
+    }
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "foo": {
+        "bar": "a"
+      }
+    }
+  },
+  "delta": {
+    "foo": {
+      "bar": [1, "a"]
+    }
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "foo",
+      "delta": {
+        "bar": [1, "a"]
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["foo"],
+        "value": {
+          "bar": 1
+        }
+      },
+      "right": {
+        "path": ["foo"],
+        "value": {
+          "bar": "a"
+        }
+      },
+      "properties": [
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "bar",
+          "delta": null,
+          "changeType": "changed",
+          "left": {
+            "path": ["foo", "bar"],
+            "value": 1
+          },
+          "right": {
+            "path": ["foo", "bar"],
+            "value": "a"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1913 @@
+{
+  "left": {
+    "path": [],
+    "value": {
+      "_id": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
+      "id": "new Int32(13913)",
+      "listing_url": "https://www.airbnb.com/rooms/13913",
+      "scrape_id": "new Long(\"20220910194334\")",
+      "last_scraped": "2022-09-11T00:00:00.000Z",
+      "source": "city scrape",
+      "name": "Holiday London DB Room Let-on going",
+      "description": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue",
+      "neighborhood_overview": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s",
+      "picture_url": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg",
+      "host_id": "new Int32(54730)",
+      "host_url": "https://www.airbnb.com/users/show/54730",
+      "host_name": "Alina",
+      "host_since": "2009-11-16T00:00:00.000Z",
+      "host_location": "London, United Kingdom",
+      "host_about": "I am a Multi-Media Visual Artist and Creative Practitioner in Education. I live in  London England with a Greek/Canadian origins and work internationally. \r\n\r\nI love everything there is to be enjoyed in life and travel is on top of my list!",
+      "host_response_time": "within a day",
+      "host_response_rate": "80%",
+      "host_acceptance_rate": "70%",
+      "host_is_superhost": false,
+      "host_thumbnail_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small",
+      "host_picture_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium",
+      "host_neighbourhood": "LB of Islington",
+      "host_listings_count": "new Int32(3)",
+      "host_total_listings_count": "new Int32(4)",
+      "host_verifications": "['email', 'phone']",
+      "host_has_profile_pic": true,
+      "host_identity_verified": true,
+      "neighbourhood": "Islington, Greater London, United Kingdom",
+      "neighbourhood_cleansed": "Islington",
+      "latitude": "new Double(51.56861)",
+      "longitude": "new Double(-0.1127)",
+      "property_type": "Private room in rental unit",
+      "room_type": "Private room",
+      "accommodates": "new Int32(1)",
+      "bathrooms_text": "1 shared bath",
+      "bedrooms": "new Int32(1)",
+      "beds": "new Int32(1)",
+      "amenities": [
+        "Extra pillows and blankets",
+        "Oven",
+        "Fire extinguisher",
+        "Hair dryer",
+        "Hangers",
+        "Crib",
+        "Dishes and silverware",
+        "Luggage dropoff allowed",
+        "Essentials",
+        "Outlet covers",
+        "Patio or balcony",
+        "Shampoo",
+        "Free parking on premises",
+        "TV with standard cable",
+        "Free street parking",
+        "Cooking basics",
+        "Bed linens",
+        "Babysitter recommendations",
+        "Carbon monoxide alarm",
+        "Bathtub",
+        "Heating",
+        "Wifi",
+        "Building staff",
+        "Children’s books and toys",
+        "Coffee maker",
+        "Long term stays allowed",
+        "Pack ’n play/Travel crib",
+        "Refrigerator",
+        "Room-darkening shades",
+        "Iron",
+        "Kitchen",
+        "Stove",
+        "Lock on bedroom door",
+        "Hot water",
+        "Washer",
+        "Paid parking off premises",
+        "Children’s dinnerware",
+        "Smoke alarm",
+        "Ethernet connection",
+        "Dryer",
+        "Cable TV"
+      ],
+      "price": "$50.00",
+      "minimum_nights": "new Int32(1)",
+      "maximum_nights": "new Int32(29)",
+      "minimum_minimum_nights": "new Int32(1)",
+      "maximum_minimum_nights": "new Int32(1)",
+      "minimum_maximum_nights": "new Int32(29)",
+      "maximum_maximum_nights": "new Int32(29)",
+      "minimum_nights_avg_ntm": "new Int32(1)",
+      "maximum_nights_avg_ntm": "new Int32(29)",
+      "has_availability": true,
+      "availability_30": "new Int32(17)",
+      "availability_60": "new Int32(38)",
+      "availability_90": "new Int32(68)",
+      "availability_365": "new Int32(343)",
+      "calendar_last_scraped": "2022-09-11T00:00:00.000Z",
+      "number_of_reviews": "new Int32(30)",
+      "number_of_reviews_ltm": "new Int32(9)",
+      "number_of_reviews_l30d": "new Int32(0)",
+      "first_review": "2010-08-18T00:00:00.000Z",
+      "last_review": "2022-07-15T00:00:00.000Z",
+      "review_scores_rating": "new Double(4.9)",
+      "review_scores_accuracy": "new Double(4.82)",
+      "review_scores_cleanliness": "new Double(4.89)",
+      "review_scores_checkin": "new Double(4.86)",
+      "review_scores_communication": "new Double(4.93)",
+      "review_scores_location": "new Double(4.75)",
+      "review_scores_value": "new Double(4.82)",
+      "instant_bookable": false,
+      "calculated_host_listings_count": "new Int32(2)",
+      "calculated_host_listings_count_entire_homes": "new Int32(1)",
+      "calculated_host_listings_count_private_rooms": "new Int32(1)",
+      "calculated_host_listings_count_shared_rooms": "new Int32(0)",
+      "reviews_per_month": "new Double(0.2)"
+    }
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "_id": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")",
+      "id": "new Int32(13913)",
+      "listing_url": "https://www.airbnb.com/rooms/13913",
+      "scrape_id": "new Long(\"20220910194334\")",
+      "last_scraped": "2022-09-11T00:00:00.000Z",
+      "source": "city scrape",
+      "name": "Holiday London DB Room Let-on going",
+      "description": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue",
+      "neighborhood_overview": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s",
+      "picture_url": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg",
+      "host_id": "new Int32(54730)",
+      "host_url": "https://www.airbnb.com/users/show/54730",
+      "host_name": "Alina",
+      "host_since": "2009-11-16T00:00:00.000Z",
+      "host_location": "London, United Kingdom",
+      "host_about": "I am a Multi-Media Visual Artist and Creative Practitioner in Education. I live in  London England with a Greek/Canadian origins and work internationally. \r\n\r\nI love everything there is to be enjoyed in life and travel is on top of my list!",
+      "host_response_time": "within a day",
+      "host_response_rate": "80%",
+      "host_acceptance_rate": "70%",
+      "host_is_superhost": false,
+      "host_thumbnail_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small",
+      "host_picture_url": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium",
+      "host_neighbourhood": "LB of Islington",
+      "host_listings_count": "new Int32(3)",
+      "host_total_listings_count": "new Int32(4)",
+      "host_verifications": "['email', 'phone']",
+      "host_has_profile_pic": true,
+      "host_identity_verified": true,
+      "neighbourhood": "Islington, Greater London, United Kingdom",
+      "neighbourhood_cleansed": "Islington",
+      "latitude": "new Double(51.56861)",
+      "longitude": "new Double(-0.1127)",
+      "property_type": "Private room in rental unit",
+      "room_type": "Private room",
+      "accommodates": "new Int32(1)",
+      "bathrooms_text": "1 shared bath",
+      "bedrooms": "new Int32(1)",
+      "beds": "new Int32(1)",
+      "amenities": [
+        "Extra pillows and blankets",
+        "Oven",
+        "Fire extinguisher",
+        "Hair dryer",
+        "Hangers",
+        "Crib",
+        "Dishes and silverware",
+        "Luggage dropoff allowed",
+        "Essentials",
+        "Outlet covers",
+        "Patio or balcony",
+        "Shampoo",
+        "Free parking on premises",
+        "TV with standard cable",
+        "Free street parking",
+        "Cooking basics",
+        "Bed linens",
+        "Babysitter recommendations",
+        "Carbon monoxide alarm",
+        "Bathtub",
+        "Heating",
+        "Wifi",
+        "Building staff",
+        "Children’s books and toys",
+        "Coffee maker",
+        "Long term stays allowed",
+        "Pack ’n play/Travel crib",
+        "Refrigerator",
+        "Room-darkening shades",
+        "Iron",
+        "Kitchen",
+        "Stove",
+        "Lock on bedroom door",
+        "Hot water",
+        "Washer",
+        "Paid parking off premises",
+        "Children’s dinnerware",
+        "Smoke alarm",
+        "Ethernet connection",
+        "Dryer",
+        "Cable TV"
+      ],
+      "price": "$50.00",
+      "minimum_nights": "new Int32(1)",
+      "maximum_nights": "new Int32(29)",
+      "minimum_minimum_nights": "new Int32(1)",
+      "maximum_minimum_nights": "new Int32(1)",
+      "minimum_maximum_nights": "new Int32(29)",
+      "maximum_maximum_nights": "new Int32(29)",
+      "minimum_nights_avg_ntm": "new Int32(1)",
+      "maximum_nights_avg_ntm": "new Int32(29)",
+      "has_availability": true,
+      "availability_30": "new Int32(17)",
+      "availability_60": "new Int32(38)",
+      "availability_90": "new Int32(68)",
+      "availability_365": "new Int32(343)",
+      "calendar_last_scraped": "2022-09-11T00:00:00.000Z",
+      "number_of_reviews": "new Int32(30)",
+      "number_of_reviews_ltm": "new Int32(9)",
+      "number_of_reviews_l30d": "new Int32(0)",
+      "first_review": "2010-08-18T00:00:00.000Z",
+      "last_review": "2022-07-15T00:00:00.000Z",
+      "review_scores_rating": "new Double(4.9)",
+      "review_scores_accuracy": "new Double(4.82)",
+      "review_scores_cleanliness": "new Double(4.89)",
+      "review_scores_checkin": "new Double(4.86)",
+      "review_scores_communication": "new Double(4.93)",
+      "review_scores_location": "new Double(4.75)",
+      "review_scores_value": "new Double(4.82)",
+      "instant_bookable": false,
+      "calculated_host_listings_count": "new Int32(2)",
+      "calculated_host_listings_count_entire_homes": "new Int32(1)",
+      "calculated_host_listings_count_private_rooms": "new Int32(1)",
+      "calculated_host_listings_count_shared_rooms": "new Int32(0)",
+      "reviews_per_month": "new Double(0.2)"
+    }
+  },
+  "delta": null,
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "_id",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["_id"],
+        "value": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
+      },
+      "right": {
+        "path": ["_id"],
+        "value": "new ObjectId(\"65648c68cf3ba12a2fcb9c1e\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "id",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["id"],
+        "value": "new Int32(13913)"
+      },
+      "right": {
+        "path": ["id"],
+        "value": "new Int32(13913)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "listing_url",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["listing_url"],
+        "value": "https://www.airbnb.com/rooms/13913"
+      },
+      "right": {
+        "path": ["listing_url"],
+        "value": "https://www.airbnb.com/rooms/13913"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "scrape_id",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["scrape_id"],
+        "value": "new Long(\"20220910194334\")"
+      },
+      "right": {
+        "path": ["scrape_id"],
+        "value": "new Long(\"20220910194334\")"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "last_scraped",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["last_scraped"],
+        "value": "2022-09-11T00:00:00.000Z"
+      },
+      "right": {
+        "path": ["last_scraped"],
+        "value": "2022-09-11T00:00:00.000Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "source",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["source"],
+        "value": "city scrape"
+      },
+      "right": {
+        "path": ["source"],
+        "value": "city scrape"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "name",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["name"],
+        "value": "Holiday London DB Room Let-on going"
+      },
+      "right": {
+        "path": ["name"],
+        "value": "Holiday London DB Room Let-on going"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "description",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["description"],
+        "value": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue"
+      },
+      "right": {
+        "path": ["description"],
+        "value": "My bright double bedroom with a large window has a relaxed feeling! It comfortably fits one or two and is centrally located just two blocks from Finsbury Park. Enjoy great restaurants in the area and easy access to easy transport tubes, trains and buses. Babies and children of all ages are welcome.<br /><br /><b>The space</b><br />Hello Everyone,<br /><br />I'm offering my lovely double bedroom in Finsbury Park area (zone 2) for let in a shared apartment. <br />You will share the apartment with me and it is fully furnished with a self catering kitchen. Two people can easily sleep well as the room has a queen size bed. I also have a travel cot for a baby for guest with small children. <br /><br />I will require a deposit up front as a security gesture on both our parts and will be given back to you when you return the keys. <br /><br />I trust anyone who will be responding to this add would treat my home with care and respect . <br /><br />Best Wishes <br /><br />Alina<br /><br /><b>Gue"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "neighborhood_overview",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["neighborhood_overview"],
+        "value": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s"
+      },
+      "right": {
+        "path": ["neighborhood_overview"],
+        "value": "Finsbury Park is a friendly melting pot community composed of Turkish, French, Spanish, Middle Eastern, Irish and English families. <br />We have a wonderful variety of international restaurants directly under us on Stroud Green Road. And there are many shops and large Tescos supermarket right next door. <br /><br />But you can also venture up to Crouch End and along Greens Lanes where there will endless choice of Turkish and Middle Eastern cuisines.s"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "picture_url",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["picture_url"],
+        "value": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg"
+      },
+      "right": {
+        "path": ["picture_url"],
+        "value": "https://a0.muscache.com/pictures/miso/Hosting-13913/original/d755aa6d-cebb-4464-80be-2722c921e8d5.jpeg"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_id",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_id"],
+        "value": "new Int32(54730)"
+      },
+      "right": {
+        "path": ["host_id"],
+        "value": "new Int32(54730)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_url",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_url"],
+        "value": "https://www.airbnb.com/users/show/54730"
+      },
+      "right": {
+        "path": ["host_url"],
+        "value": "https://www.airbnb.com/users/show/54730"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_name",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_name"],
+        "value": "Alina"
+      },
+      "right": {
+        "path": ["host_name"],
+        "value": "Alina"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_since",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_since"],
+        "value": "2009-11-16T00:00:00.000Z"
+      },
+      "right": {
+        "path": ["host_since"],
+        "value": "2009-11-16T00:00:00.000Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_location",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_location"],
+        "value": "London, United Kingdom"
+      },
+      "right": {
+        "path": ["host_location"],
+        "value": "London, United Kingdom"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_about",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_about"],
+        "value": "I am a Multi-Media Visual Artist and Creative Practitioner in Education. I live in  London England with a Greek/Canadian origins and work internationally. \r\n\r\nI love everything there is to be enjoyed in life and travel is on top of my list!"
+      },
+      "right": {
+        "path": ["host_about"],
+        "value": "I am a Multi-Media Visual Artist and Creative Practitioner in Education. I live in  London England with a Greek/Canadian origins and work internationally. \r\n\r\nI love everything there is to be enjoyed in life and travel is on top of my list!"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_response_time",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_response_time"],
+        "value": "within a day"
+      },
+      "right": {
+        "path": ["host_response_time"],
+        "value": "within a day"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_response_rate",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_response_rate"],
+        "value": "80%"
+      },
+      "right": {
+        "path": ["host_response_rate"],
+        "value": "80%"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_acceptance_rate",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_acceptance_rate"],
+        "value": "70%"
+      },
+      "right": {
+        "path": ["host_acceptance_rate"],
+        "value": "70%"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_is_superhost",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_is_superhost"],
+        "value": false
+      },
+      "right": {
+        "path": ["host_is_superhost"],
+        "value": false
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_thumbnail_url",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_thumbnail_url"],
+        "value": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small"
+      },
+      "right": {
+        "path": ["host_thumbnail_url"],
+        "value": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_small"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_picture_url",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_picture_url"],
+        "value": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium"
+      },
+      "right": {
+        "path": ["host_picture_url"],
+        "value": "https://a0.muscache.com/im/users/54730/profile_pic/1327774386/original.jpg?aki_policy=profile_x_medium"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_neighbourhood",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_neighbourhood"],
+        "value": "LB of Islington"
+      },
+      "right": {
+        "path": ["host_neighbourhood"],
+        "value": "LB of Islington"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_listings_count",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_listings_count"],
+        "value": "new Int32(3)"
+      },
+      "right": {
+        "path": ["host_listings_count"],
+        "value": "new Int32(3)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_total_listings_count",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_total_listings_count"],
+        "value": "new Int32(4)"
+      },
+      "right": {
+        "path": ["host_total_listings_count"],
+        "value": "new Int32(4)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_verifications",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_verifications"],
+        "value": "['email', 'phone']"
+      },
+      "right": {
+        "path": ["host_verifications"],
+        "value": "['email', 'phone']"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_has_profile_pic",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_has_profile_pic"],
+        "value": true
+      },
+      "right": {
+        "path": ["host_has_profile_pic"],
+        "value": true
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "host_identity_verified",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["host_identity_verified"],
+        "value": true
+      },
+      "right": {
+        "path": ["host_identity_verified"],
+        "value": true
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "neighbourhood",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["neighbourhood"],
+        "value": "Islington, Greater London, United Kingdom"
+      },
+      "right": {
+        "path": ["neighbourhood"],
+        "value": "Islington, Greater London, United Kingdom"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "neighbourhood_cleansed",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["neighbourhood_cleansed"],
+        "value": "Islington"
+      },
+      "right": {
+        "path": ["neighbourhood_cleansed"],
+        "value": "Islington"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "latitude",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["latitude"],
+        "value": "new Double(51.56861)"
+      },
+      "right": {
+        "path": ["latitude"],
+        "value": "new Double(51.56861)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "longitude",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["longitude"],
+        "value": "new Double(-0.1127)"
+      },
+      "right": {
+        "path": ["longitude"],
+        "value": "new Double(-0.1127)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "property_type",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["property_type"],
+        "value": "Private room in rental unit"
+      },
+      "right": {
+        "path": ["property_type"],
+        "value": "Private room in rental unit"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "room_type",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["room_type"],
+        "value": "Private room"
+      },
+      "right": {
+        "path": ["room_type"],
+        "value": "Private room"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "accommodates",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["accommodates"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["accommodates"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "bathrooms_text",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["bathrooms_text"],
+        "value": "1 shared bath"
+      },
+      "right": {
+        "path": ["bathrooms_text"],
+        "value": "1 shared bath"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "bedrooms",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["bedrooms"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["bedrooms"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "beds",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["beds"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["beds"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "amenities",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["amenities"],
+        "value": [
+          "Extra pillows and blankets",
+          "Oven",
+          "Fire extinguisher",
+          "Hair dryer",
+          "Hangers",
+          "Crib",
+          "Dishes and silverware",
+          "Luggage dropoff allowed",
+          "Essentials",
+          "Outlet covers",
+          "Patio or balcony",
+          "Shampoo",
+          "Free parking on premises",
+          "TV with standard cable",
+          "Free street parking",
+          "Cooking basics",
+          "Bed linens",
+          "Babysitter recommendations",
+          "Carbon monoxide alarm",
+          "Bathtub",
+          "Heating",
+          "Wifi",
+          "Building staff",
+          "Children’s books and toys",
+          "Coffee maker",
+          "Long term stays allowed",
+          "Pack ’n play/Travel crib",
+          "Refrigerator",
+          "Room-darkening shades",
+          "Iron",
+          "Kitchen",
+          "Stove",
+          "Lock on bedroom door",
+          "Hot water",
+          "Washer",
+          "Paid parking off premises",
+          "Children’s dinnerware",
+          "Smoke alarm",
+          "Ethernet connection",
+          "Dryer",
+          "Cable TV"
+        ]
+      },
+      "right": {
+        "path": ["amenities"],
+        "value": [
+          "Extra pillows and blankets",
+          "Oven",
+          "Fire extinguisher",
+          "Hair dryer",
+          "Hangers",
+          "Crib",
+          "Dishes and silverware",
+          "Luggage dropoff allowed",
+          "Essentials",
+          "Outlet covers",
+          "Patio or balcony",
+          "Shampoo",
+          "Free parking on premises",
+          "TV with standard cable",
+          "Free street parking",
+          "Cooking basics",
+          "Bed linens",
+          "Babysitter recommendations",
+          "Carbon monoxide alarm",
+          "Bathtub",
+          "Heating",
+          "Wifi",
+          "Building staff",
+          "Children’s books and toys",
+          "Coffee maker",
+          "Long term stays allowed",
+          "Pack ’n play/Travel crib",
+          "Refrigerator",
+          "Room-darkening shades",
+          "Iron",
+          "Kitchen",
+          "Stove",
+          "Lock on bedroom door",
+          "Hot water",
+          "Washer",
+          "Paid parking off premises",
+          "Children’s dinnerware",
+          "Smoke alarm",
+          "Ethernet connection",
+          "Dryer",
+          "Cable TV"
+        ]
+      },
+      "items": [
+        {
+          "implicitChangeType": "unchanged",
+          "index": 0,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 0],
+            "value": "Extra pillows and blankets"
+          },
+          "right": {
+            "path": ["amenities", 0],
+            "value": "Extra pillows and blankets"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 1,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 1],
+            "value": "Oven"
+          },
+          "right": {
+            "path": ["amenities", 1],
+            "value": "Oven"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 2,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 2],
+            "value": "Fire extinguisher"
+          },
+          "right": {
+            "path": ["amenities", 2],
+            "value": "Fire extinguisher"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 3,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 3],
+            "value": "Hair dryer"
+          },
+          "right": {
+            "path": ["amenities", 3],
+            "value": "Hair dryer"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 4,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 4],
+            "value": "Hangers"
+          },
+          "right": {
+            "path": ["amenities", 4],
+            "value": "Hangers"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 5,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 5],
+            "value": "Crib"
+          },
+          "right": {
+            "path": ["amenities", 5],
+            "value": "Crib"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 6,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 6],
+            "value": "Dishes and silverware"
+          },
+          "right": {
+            "path": ["amenities", 6],
+            "value": "Dishes and silverware"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 7,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 7],
+            "value": "Luggage dropoff allowed"
+          },
+          "right": {
+            "path": ["amenities", 7],
+            "value": "Luggage dropoff allowed"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 8,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 8],
+            "value": "Essentials"
+          },
+          "right": {
+            "path": ["amenities", 8],
+            "value": "Essentials"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 9,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 9],
+            "value": "Outlet covers"
+          },
+          "right": {
+            "path": ["amenities", 9],
+            "value": "Outlet covers"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 10,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 10],
+            "value": "Patio or balcony"
+          },
+          "right": {
+            "path": ["amenities", 10],
+            "value": "Patio or balcony"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 11,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 11],
+            "value": "Shampoo"
+          },
+          "right": {
+            "path": ["amenities", 11],
+            "value": "Shampoo"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 12,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 12],
+            "value": "Free parking on premises"
+          },
+          "right": {
+            "path": ["amenities", 12],
+            "value": "Free parking on premises"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 13,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 13],
+            "value": "TV with standard cable"
+          },
+          "right": {
+            "path": ["amenities", 13],
+            "value": "TV with standard cable"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 14,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 14],
+            "value": "Free street parking"
+          },
+          "right": {
+            "path": ["amenities", 14],
+            "value": "Free street parking"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 15,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 15],
+            "value": "Cooking basics"
+          },
+          "right": {
+            "path": ["amenities", 15],
+            "value": "Cooking basics"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 16,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 16],
+            "value": "Bed linens"
+          },
+          "right": {
+            "path": ["amenities", 16],
+            "value": "Bed linens"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 17,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 17],
+            "value": "Babysitter recommendations"
+          },
+          "right": {
+            "path": ["amenities", 17],
+            "value": "Babysitter recommendations"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 18,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 18],
+            "value": "Carbon monoxide alarm"
+          },
+          "right": {
+            "path": ["amenities", 18],
+            "value": "Carbon monoxide alarm"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 19,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 19],
+            "value": "Bathtub"
+          },
+          "right": {
+            "path": ["amenities", 19],
+            "value": "Bathtub"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 20,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 20],
+            "value": "Heating"
+          },
+          "right": {
+            "path": ["amenities", 20],
+            "value": "Heating"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 21,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 21],
+            "value": "Wifi"
+          },
+          "right": {
+            "path": ["amenities", 21],
+            "value": "Wifi"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 22,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 22],
+            "value": "Building staff"
+          },
+          "right": {
+            "path": ["amenities", 22],
+            "value": "Building staff"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 23,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 23],
+            "value": "Children’s books and toys"
+          },
+          "right": {
+            "path": ["amenities", 23],
+            "value": "Children’s books and toys"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 24,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 24],
+            "value": "Coffee maker"
+          },
+          "right": {
+            "path": ["amenities", 24],
+            "value": "Coffee maker"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 25,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 25],
+            "value": "Long term stays allowed"
+          },
+          "right": {
+            "path": ["amenities", 25],
+            "value": "Long term stays allowed"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 26,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 26],
+            "value": "Pack ’n play/Travel crib"
+          },
+          "right": {
+            "path": ["amenities", 26],
+            "value": "Pack ’n play/Travel crib"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 27,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 27],
+            "value": "Refrigerator"
+          },
+          "right": {
+            "path": ["amenities", 27],
+            "value": "Refrigerator"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 28,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 28],
+            "value": "Room-darkening shades"
+          },
+          "right": {
+            "path": ["amenities", 28],
+            "value": "Room-darkening shades"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 29,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 29],
+            "value": "Iron"
+          },
+          "right": {
+            "path": ["amenities", 29],
+            "value": "Iron"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 30,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 30],
+            "value": "Kitchen"
+          },
+          "right": {
+            "path": ["amenities", 30],
+            "value": "Kitchen"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 31,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 31],
+            "value": "Stove"
+          },
+          "right": {
+            "path": ["amenities", 31],
+            "value": "Stove"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 32,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 32],
+            "value": "Lock on bedroom door"
+          },
+          "right": {
+            "path": ["amenities", 32],
+            "value": "Lock on bedroom door"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 33,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 33],
+            "value": "Hot water"
+          },
+          "right": {
+            "path": ["amenities", 33],
+            "value": "Hot water"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 34,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 34],
+            "value": "Washer"
+          },
+          "right": {
+            "path": ["amenities", 34],
+            "value": "Washer"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 35,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 35],
+            "value": "Paid parking off premises"
+          },
+          "right": {
+            "path": ["amenities", 35],
+            "value": "Paid parking off premises"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 36,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 36],
+            "value": "Children’s dinnerware"
+          },
+          "right": {
+            "path": ["amenities", 36],
+            "value": "Children’s dinnerware"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 37,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 37],
+            "value": "Smoke alarm"
+          },
+          "right": {
+            "path": ["amenities", 37],
+            "value": "Smoke alarm"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 38,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 38],
+            "value": "Ethernet connection"
+          },
+          "right": {
+            "path": ["amenities", 38],
+            "value": "Ethernet connection"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 39,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 39],
+            "value": "Dryer"
+          },
+          "right": {
+            "path": ["amenities", 39],
+            "value": "Dryer"
+          }
+        },
+        {
+          "implicitChangeType": "unchanged",
+          "index": 40,
+          "delta": null,
+          "changeType": "unchanged",
+          "left": {
+            "path": ["amenities", 40],
+            "value": "Cable TV"
+          },
+          "right": {
+            "path": ["amenities", 40],
+            "value": "Cable TV"
+          }
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "price",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["price"],
+        "value": "$50.00"
+      },
+      "right": {
+        "path": ["price"],
+        "value": "$50.00"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "minimum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["minimum_nights"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["minimum_nights"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "maximum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["maximum_nights"],
+        "value": "new Int32(29)"
+      },
+      "right": {
+        "path": ["maximum_nights"],
+        "value": "new Int32(29)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "minimum_minimum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["minimum_minimum_nights"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["minimum_minimum_nights"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "maximum_minimum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["maximum_minimum_nights"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["maximum_minimum_nights"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "minimum_maximum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["minimum_maximum_nights"],
+        "value": "new Int32(29)"
+      },
+      "right": {
+        "path": ["minimum_maximum_nights"],
+        "value": "new Int32(29)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "maximum_maximum_nights",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["maximum_maximum_nights"],
+        "value": "new Int32(29)"
+      },
+      "right": {
+        "path": ["maximum_maximum_nights"],
+        "value": "new Int32(29)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "minimum_nights_avg_ntm",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["minimum_nights_avg_ntm"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["minimum_nights_avg_ntm"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "maximum_nights_avg_ntm",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["maximum_nights_avg_ntm"],
+        "value": "new Int32(29)"
+      },
+      "right": {
+        "path": ["maximum_nights_avg_ntm"],
+        "value": "new Int32(29)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "has_availability",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["has_availability"],
+        "value": true
+      },
+      "right": {
+        "path": ["has_availability"],
+        "value": true
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "availability_30",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["availability_30"],
+        "value": "new Int32(17)"
+      },
+      "right": {
+        "path": ["availability_30"],
+        "value": "new Int32(17)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "availability_60",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["availability_60"],
+        "value": "new Int32(38)"
+      },
+      "right": {
+        "path": ["availability_60"],
+        "value": "new Int32(38)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "availability_90",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["availability_90"],
+        "value": "new Int32(68)"
+      },
+      "right": {
+        "path": ["availability_90"],
+        "value": "new Int32(68)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "availability_365",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["availability_365"],
+        "value": "new Int32(343)"
+      },
+      "right": {
+        "path": ["availability_365"],
+        "value": "new Int32(343)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "calendar_last_scraped",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["calendar_last_scraped"],
+        "value": "2022-09-11T00:00:00.000Z"
+      },
+      "right": {
+        "path": ["calendar_last_scraped"],
+        "value": "2022-09-11T00:00:00.000Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "number_of_reviews",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["number_of_reviews"],
+        "value": "new Int32(30)"
+      },
+      "right": {
+        "path": ["number_of_reviews"],
+        "value": "new Int32(30)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "number_of_reviews_ltm",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["number_of_reviews_ltm"],
+        "value": "new Int32(9)"
+      },
+      "right": {
+        "path": ["number_of_reviews_ltm"],
+        "value": "new Int32(9)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "number_of_reviews_l30d",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["number_of_reviews_l30d"],
+        "value": "new Int32(0)"
+      },
+      "right": {
+        "path": ["number_of_reviews_l30d"],
+        "value": "new Int32(0)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "first_review",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["first_review"],
+        "value": "2010-08-18T00:00:00.000Z"
+      },
+      "right": {
+        "path": ["first_review"],
+        "value": "2010-08-18T00:00:00.000Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "last_review",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["last_review"],
+        "value": "2022-07-15T00:00:00.000Z"
+      },
+      "right": {
+        "path": ["last_review"],
+        "value": "2022-07-15T00:00:00.000Z"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_rating",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_rating"],
+        "value": "new Double(4.9)"
+      },
+      "right": {
+        "path": ["review_scores_rating"],
+        "value": "new Double(4.9)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_accuracy",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_accuracy"],
+        "value": "new Double(4.82)"
+      },
+      "right": {
+        "path": ["review_scores_accuracy"],
+        "value": "new Double(4.82)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_cleanliness",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_cleanliness"],
+        "value": "new Double(4.89)"
+      },
+      "right": {
+        "path": ["review_scores_cleanliness"],
+        "value": "new Double(4.89)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_checkin",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_checkin"],
+        "value": "new Double(4.86)"
+      },
+      "right": {
+        "path": ["review_scores_checkin"],
+        "value": "new Double(4.86)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_communication",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_communication"],
+        "value": "new Double(4.93)"
+      },
+      "right": {
+        "path": ["review_scores_communication"],
+        "value": "new Double(4.93)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_location",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_location"],
+        "value": "new Double(4.75)"
+      },
+      "right": {
+        "path": ["review_scores_location"],
+        "value": "new Double(4.75)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "review_scores_value",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["review_scores_value"],
+        "value": "new Double(4.82)"
+      },
+      "right": {
+        "path": ["review_scores_value"],
+        "value": "new Double(4.82)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "instant_bookable",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["instant_bookable"],
+        "value": false
+      },
+      "right": {
+        "path": ["instant_bookable"],
+        "value": false
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "calculated_host_listings_count",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["calculated_host_listings_count"],
+        "value": "new Int32(2)"
+      },
+      "right": {
+        "path": ["calculated_host_listings_count"],
+        "value": "new Int32(2)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "calculated_host_listings_count_entire_homes",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["calculated_host_listings_count_entire_homes"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["calculated_host_listings_count_entire_homes"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "calculated_host_listings_count_private_rooms",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["calculated_host_listings_count_private_rooms"],
+        "value": "new Int32(1)"
+      },
+      "right": {
+        "path": ["calculated_host_listings_count_private_rooms"],
+        "value": "new Int32(1)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "calculated_host_listings_count_shared_rooms",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["calculated_host_listings_count_shared_rooms"],
+        "value": "new Int32(0)"
+      },
+      "right": {
+        "path": ["calculated_host_listings_count_shared_rooms"],
+        "value": "new Int32(0)"
+      }
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "reviews_per_month",
+      "delta": null,
+      "changeType": "unchanged",
+      "left": {
+        "path": ["reviews_per_month"],
+        "value": "new Double(0.2)"
+      },
+      "right": {
+        "path": ["reviews_per_month"],
+        "value": "new Double(0.2)"
+      }
+    }
+  ]
+}
