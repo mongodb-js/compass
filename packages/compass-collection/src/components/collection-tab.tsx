@@ -102,7 +102,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
     // `pluginTabs` never change in runtime so it's safe to call the hook here
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    Component.useActivate?.(pluginProps);
+    Component.useActivate(pluginProps);
 
     return {
       name,
