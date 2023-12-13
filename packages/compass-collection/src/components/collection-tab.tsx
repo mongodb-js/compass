@@ -117,9 +117,11 @@ const CollectionTab: React.FunctionComponent<CollectionTabProps> = ({
         pipelineText={initialPipelineText}
         query={initialQuery}
         editViewName={editViewName}
+        isActive={name === currentTab}
       />
     ),
   }));
+
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (

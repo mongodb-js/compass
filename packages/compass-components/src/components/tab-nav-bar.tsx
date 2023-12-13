@@ -27,16 +27,6 @@ const tabsContainerLightStyles = css({
   background: palette.white,
 });
 
-const tabStyles = css({
-  display: 'flex',
-  flex: 1,
-  minHeight: 0,
-});
-
-const hiddenStyles = css({
-  display: 'none',
-});
-
 type TabNavBarProps = {
   'data-testid'?: string;
   'aria-label': string;
@@ -72,40 +62,15 @@ function TabNavBar({
         <Tabs
           data-testid={dataTestId}
           aria-label={ariaLabel}
-          className="test-tab-nav-bar-tabs"
-          // Note: we cast the (tabIndex: number) => void to React.Dispatch<React.SetStateAction<number>>
-          // here as a result of leafygreen's type strictness.
-          setSelected={
-            onTabClicked as React.Dispatch<React.SetStateAction<number>>
-          }
+          setSelected={onTabClicked}
           selected={activeTabIndex}
         >
-          {tabs.map((tab, idx) => (
-            <Tab
-              className="test-tab-nav-bar-tab"
-              key={`tab-${idx}`}
-              name={tab}
-            />
+          {tabs.map((tab) => (
+            <Tab key={tab} name={tab} />
           ))}
         </Tabs>
       </div>
-      {views.map(
-        (view, idx) =>
-          idx === activeTabIndex && (
-            <div
-              className={cx({
-                [tabStyles]: true,
-                [hiddenStyles]: idx !== activeTabIndex,
-              })}
-              key={`tab-content-${tabs[idx]}`}
-              data-testid={`${tabs[idx]
-                .toLowerCase()
-                .replace(/ /g, '-')}-content`}
-            >
-              {view}
-            </div>
-          )
-      )}
+      {views}
     </div>
   );
 }

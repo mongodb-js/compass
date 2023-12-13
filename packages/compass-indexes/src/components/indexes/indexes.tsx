@@ -17,20 +17,29 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
 const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
+
+const contentStyles = css({
+  display: 'flex',
+  flex: 1,
+  minHeight: 0,
+});
 
 const containerStyles = css({
   margin: spacing[3],
   marginTop: 0,
   display: 'flex',
   flexDirection: 'column',
+  flex: 1,
+  minHeight: 0,
   width: '100%',
 });
 
-type IndexesProps = {
+type IndexesProps = Pick<CollectionTabPluginMetadata, 'isActive'> & {
   isReadonlyView?: boolean;
   regularIndexes: Pick<
     RegularIndexesState,
@@ -50,6 +59,7 @@ function isRefreshingStatus(status: SearchIndexesStatus) {
 }
 
 export function Indexes({
+  isActive,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
@@ -85,25 +95,33 @@ export function Indexes({
   }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
 
   useEffect(() => {
-    loadIndexes();
-  }, [loadIndexes]);
+    if (isActive) {
+      loadIndexes();
+    }
+  }, [isActive, loadIndexes]);
+
+  if (!isActive) {
+    return null;
+  }
 
   return (
-    <div className={containerStyles}>
-      <IndexesToolbar
-        errorMessage={errorMessage || null}
-        hasTooManyIndexes={hasTooManyIndexes}
-        isRefreshing={isRefreshing}
-        onRefreshIndexes={onRefreshIndexes}
-      />
-      {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
-        <RegularIndexesTable />
-      )}
-      {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-        <SearchIndexesTable />
-      )}
-      <CreateSearchIndexModal />
-      <UpdateSearchIndexModal />
+    <div className={contentStyles} data-testid="indexes-content">
+      <div className={containerStyles}>
+        <IndexesToolbar
+          errorMessage={errorMessage || null}
+          hasTooManyIndexes={hasTooManyIndexes}
+          isRefreshing={isRefreshing}
+          onRefreshIndexes={onRefreshIndexes}
+        />
+        {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+          <RegularIndexesTable />
+        )}
+        {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+          <SearchIndexesTable />
+        )}
+        <CreateSearchIndexModal />
+        <UpdateSearchIndexModal />
+      </div>
     </div>
   );
 }

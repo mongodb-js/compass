@@ -28,14 +28,18 @@ import {
 import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
 
+const containerStyles = css`
+  display: flex;
+  flex: 1;
+  min-height: 0;
+`;
+
 const rootStyles = css`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  flex-grow: 1;
-  flex-shrink: 1;
 `;
 
 const loaderStyles = css`
@@ -325,27 +329,27 @@ const Schema: React.FunctionComponent<{
   store: Record<string, any>;
   analysisState: AnalysisState;
   outdated?: boolean;
-  isActiveTab?: boolean;
   errorMessage?: string;
   maxTimeMS?: number;
   schema?: any;
   count?: number;
   resultId?: string;
+  isActive?: boolean;
 }> = ({
   actions,
   store,
   analysisState,
   outdated,
-  isActiveTab,
   errorMessage,
   schema,
   resultId,
+  isActive,
 }) => {
   useEffect(() => {
-    if (isActiveTab) {
+    if (isActive) {
       actions.resizeMiniCharts();
     }
-  }, [isActiveTab, actions]);
+  }, [isActive, actions]);
 
   const onApplyClicked = useCallback(() => {
     actions.startAnalysis();
@@ -359,38 +363,44 @@ const Schema: React.FunctionComponent<{
     actions.startAnalysis();
   }, [actions]);
 
+  if (!isActive) {
+    return null;
+  }
+
   return (
-    <div className={rootStyles}>
-      <WorkspaceContainer
-        toolbar={
-          <SchemaToolbar
-            localAppRegistry={store.localAppRegistry}
-            onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
-            analysisState={analysisState}
-            errorMessage={errorMessage || ''}
-            isOutdated={!!outdated}
-            sampleSize={schema ? schema.count : 0}
-            schemaResultId={resultId || ''}
-          />
-        }
-      >
-        <HackoladePromoBanner></HackoladePromoBanner>
-        {analysisState === ANALYSIS_STATE_INITIAL && (
-          <InitialScreen onApplyClicked={onApplyClicked} />
-        )}
-        {analysisState === ANALYSIS_STATE_ANALYZING && (
-          <AnalyzingScreen onCancelClicked={onCancelClicked} />
-        )}
-        {analysisState === ANALYSIS_STATE_COMPLETE && (
-          <FieldList
-            schema={schema}
-            analysisState={analysisState}
-            actions={actions}
-            store={store}
-          />
-        )}
-      </WorkspaceContainer>
+    <div className={containerStyles} data-testid="schema-content">
+      <div className={rootStyles}>
+        <WorkspaceContainer
+          toolbar={
+            <SchemaToolbar
+              localAppRegistry={store.localAppRegistry}
+              onAnalyzeSchemaClicked={onApplyClicked}
+              onResetClicked={onResetClicked}
+              analysisState={analysisState}
+              errorMessage={errorMessage || ''}
+              isOutdated={!!outdated}
+              sampleSize={schema ? schema.count : 0}
+              schemaResultId={resultId || ''}
+            />
+          }
+        >
+          <HackoladePromoBanner></HackoladePromoBanner>
+          {analysisState === ANALYSIS_STATE_INITIAL && (
+            <InitialScreen onApplyClicked={onApplyClicked} />
+          )}
+          {analysisState === ANALYSIS_STATE_ANALYZING && (
+            <AnalyzingScreen onCancelClicked={onCancelClicked} />
+          )}
+          {analysisState === ANALYSIS_STATE_COMPLETE && (
+            <FieldList
+              schema={schema}
+              analysisState={analysisState}
+              actions={actions}
+              store={store}
+            />
+          )}
+        </WorkspaceContainer>
+      </div>
     </div>
   );
 };

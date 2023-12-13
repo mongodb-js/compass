@@ -15,6 +15,13 @@ import { withPreferences } from 'compass-preferences-model';
 import { css } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import type { ValidationStatesProps } from '../validation-states/validation-states';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+
+const containerStyles = css({
+  display: 'flex',
+  flex: 1,
+  minHeight: 0,
+});
 
 const styles = css({
   display: 'flex',
@@ -26,16 +33,26 @@ const styles = css({
 /**
  * The core schema validation component.
  */
-class CompassSchemaValidation extends Component<ValidationStatesProps> {
+class CompassSchemaValidation extends Component<
+  Pick<CollectionTabPluginMetadata, 'isActive'> & ValidationStatesProps
+> {
   static displayName = 'CompassSchemaValidation';
 
   /**
    * Renders the CompassSchemaValidation component.
    */
   render() {
+    const { isActive, ...props } = this.props;
+
+    if (!isActive) {
+      return null;
+    }
+
     return (
-      <div className={styles} data-testid="compass-schema-validation">
-        <ValidationStates {...this.props} />
+      <div className={containerStyles} data-testid="validation-content">
+        <div className={styles} data-testid="compass-schema-validation">
+          <ValidationStates {...props} />
+        </div>
       </div>
     );
   }
@@ -61,19 +78,16 @@ const mapStateToProps = (state: RootState) => ({
 /**
  * Connect the redux store to the component (dispatch).
  */
-const MappedCompassSchemaValidation: React.FunctionComponent<unknown> = connect(
-  mapStateToProps,
-  {
-    clearSampleDocuments,
-    validatorChanged,
-    cancelValidation,
-    saveValidation,
-    namespaceChanged,
-    validationActionChanged,
-    validationLevelChanged,
-    changeZeroState,
-  }
-)(withPreferences(CompassSchemaValidation, ['readOnly'], React));
+const MappedCompassSchemaValidation = connect(mapStateToProps, {
+  clearSampleDocuments,
+  validatorChanged,
+  cancelValidation,
+  saveValidation,
+  namespaceChanged,
+  validationActionChanged,
+  validationLevelChanged,
+  changeZeroState,
+})(withPreferences(CompassSchemaValidation, ['readOnly'], React));
 
 export default MappedCompassSchemaValidation;
 export { CompassSchemaValidation };

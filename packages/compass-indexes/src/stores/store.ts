@@ -30,6 +30,7 @@ import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -57,12 +58,14 @@ export type IndexesPluginServices = {
   logger: LoggerAndTelemetry;
 };
 
-export type IndexesPluginOptions = {
-  namespace: string;
-  serverVersion: string;
-  isReadonly: boolean;
-  isSearchIndexesSupported: boolean;
-};
+export type IndexesPluginOptions = Pick<
+  CollectionTabPluginMetadata,
+  | 'namespace'
+  | 'serverVersion'
+  | 'isReadonly'
+  | 'isSearchIndexesSupported'
+  | 'isActive'
+>;
 
 export type IndexesStore = Store<RootState> & {
   dispatch: IndexesThunkDispatch;

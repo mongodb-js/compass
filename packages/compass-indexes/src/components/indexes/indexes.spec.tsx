@@ -45,7 +45,7 @@ const renderIndexes = (props: Partial<RootState> = {}) => {
 
   render(
     <Provider store={store}>
-      <Indexes />
+      <Indexes isActive />
     </Provider>
   );
 

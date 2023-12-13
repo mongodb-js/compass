@@ -29,7 +29,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
 >(
   {
     name: 'CompassIndexes',
-    component: Indexes as React.FunctionComponent,
+    component: Indexes,
     activate: activateIndexesPlugin,
   },
   {

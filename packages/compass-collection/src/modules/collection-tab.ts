@@ -155,6 +155,15 @@ export type CollectionTabPluginMetadata = CollectionMetadata & {
   pipeline?: unknown[];
   pipelineText?: string;
   editViewName?: string;
+
+  /**
+   * TODO(COMPASS-7517): We mount all the collection sub tabs simultaneously to
+   * give `localAppRegistry` a chance to subscribe to all required events even
+   * before the sub tab is shown for the first time. Right now this still relies
+   * on events, we want to change that in a way that will also remove the need
+   * for us to pass active tab info with collection tab plugin props
+   */
+  isActive: boolean;
 };
 
 const setupRole = (

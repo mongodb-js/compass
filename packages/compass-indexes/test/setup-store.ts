@@ -72,6 +72,7 @@ export const setupStore = (
 
   return activateIndexesPlugin(
     {
+      isActive: true,
       namespace: 'citibike.trips',
       serverVersion: '6.0.0',
       isReadonly: false,

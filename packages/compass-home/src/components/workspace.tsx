@@ -50,8 +50,7 @@ export default function Workspace({
           MyQueriesWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
-          // TODO: issue because of the recursive dep?
-          CollectionsWorkspaceTab as any,
+          CollectionsWorkspaceTab,
           CollectionWorkspace,
         ]}
       >

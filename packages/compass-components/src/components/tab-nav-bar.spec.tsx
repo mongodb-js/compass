@@ -39,11 +39,6 @@ describe('TabNavBar Component', function () {
       expect(screen.getByText('three')).to.be.visible;
     });
 
-    it('should not render the non-selected tab contents', function () {
-      expect(screen.queryByText('test-element-1')).to.not.exist;
-      expect(screen.queryByText('test-element-2')).to.not.exist;
-    });
-
     it('should render the selected tab contents', function () {
       expect(screen.getByText('test-element-3')).to.be.visible;
     });

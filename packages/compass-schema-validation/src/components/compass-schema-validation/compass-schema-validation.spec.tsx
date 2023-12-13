@@ -14,7 +14,7 @@ describe('CompassSchemaValidation [Component]', function () {
     store = configureStore();
     component = mount(
       <Provider store={store}>
-        <CompassSchemaValidation />
+        <CompassSchemaValidation isActive />
       </Provider>
     );
   });

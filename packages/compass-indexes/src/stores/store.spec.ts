@@ -26,6 +26,7 @@ describe('IndexesStore [Store]', function () {
 
     const plugin = activateIndexesPlugin(
       {
+        isActive: true,
         namespace: 'test.coll',
         isReadonly: true,
         serverVersion: '6.0.0',

@@ -9,7 +9,7 @@ const renderPlugin = () => {
   const store = configureStore();
   render(
     <Provider store={store}>
-      <AggregationsPlugin />
+      <AggregationsPlugin isActive />
     </Provider>
   );
 };
