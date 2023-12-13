@@ -75,14 +75,14 @@ export function activateWorkspacePlugin(
 
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
-    if (activeTab && activeTab.type === 'Collection') {
+    if (activeTab?.type === 'Collection') {
       getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
     }
   });
 
   on(globalAppRegistry, 'open-active-namespace-export', function () {
     const activeTab = getActiveTab(store.getState());
-    if (activeTab && activeTab.type === 'Collection') {
+    if (activeTab?.type === 'Collection') {
       globalAppRegistry.emit('open-export', {
         exportFullCollection: true,
         namespace: activeTab.namespace,
@@ -93,7 +93,7 @@ export function activateWorkspacePlugin(
 
   on(globalAppRegistry, 'open-active-namespace-import', function () {
     const activeTab = getActiveTab(store.getState());
-    if (activeTab && activeTab.type === 'Collection') {
+    if (activeTab?.type === 'Collection') {
       globalAppRegistry.emit('open-import', {
         namespace: activeTab.namespace,
         origin: 'menu',
