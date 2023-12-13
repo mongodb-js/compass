@@ -1,5 +1,9 @@
 import React from 'react';
-import { openToast, ToastBody } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  closeToast,
+  ToastBody,
+} from '@mongodb-js/compass-components';
 
 type BulkDeleteSuccessToastProps = {
   affectedDocuments?: number;
@@ -22,6 +26,11 @@ export function openBulkDeleteSuccessToast({
       text = `${affectedDocuments} documents have been deleted.`;
   }
 
+  const closeAndThenRefresh = () => {
+    closeToast('bulk-delete-toast');
+    onRefresh();
+  };
+
   openToast('bulk-delete-toast', {
     title: '',
     variant: 'success',
@@ -29,7 +38,7 @@ export function openBulkDeleteSuccessToast({
     description: (
       <ToastBody
         statusMessage={text}
-        actionHandler={onRefresh}
+        actionHandler={closeAndThenRefresh}
         actionText="refresh"
       />
     ),
@@ -112,6 +121,11 @@ export function openBulkUpdateSuccessToast({
       text = `${affectedDocuments} documents have been updated.`;
   }
 
+  const closeAndThenRefresh = () => {
+    closeToast('bulk-update-toast');
+    onRefresh();
+  };
+
   openToast('bulk-update-toast', {
     title: '',
     variant: 'success',
@@ -119,7 +133,7 @@ export function openBulkUpdateSuccessToast({
     description: (
       <ToastBody
         statusMessage={text}
-        actionHandler={onRefresh}
+        actionHandler={closeAndThenRefresh}
         actionText="refresh"
       />
     ),
