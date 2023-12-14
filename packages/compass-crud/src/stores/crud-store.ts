@@ -430,7 +430,6 @@ class CrudStoreImpl
   mixins = [StateMixin.store];
   listenables: unknown[];
 
-  bulkUpdatePreviewNumber: number;
   // Should this be readonly? The existence of setState would imply that...
   // readonly state!: Readonly<CrudState>
   state!: CrudState;
@@ -455,7 +454,6 @@ class CrudStoreImpl
     >
   ) {
     super(options);
-    this.bulkUpdatePreviewNumber = 0;
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
     this.favoriteQueriesStorage =
       options.favoriteQueriesStorage || new FavoriteQueryStorage();
@@ -1125,18 +1123,8 @@ class CrudStoreImpl
   }
 
   async updateBulkUpdatePreview(updateText: string) {
-    let lastTime = Date.now();
-    const previewNumber = this.bulkUpdatePreviewNumber++;
-    function took(note: string, data?: any) {
-      const now = Date.now();
-      const elapsed = now - lastTime;
-      debug(previewNumber, note, elapsed, data);
-      lastTime = now;
-    }
-
     if (this.state.bulkUpdate.previewAbortController) {
       this.state.bulkUpdate.previewAbortController.abort();
-      took('aborting in-flight preview');
     }
 
     // Don't try and calculate the update preview if we know it won't work. Just
@@ -1145,7 +1133,6 @@ class CrudStoreImpl
       try {
         parseShellBSON(updateText);
       } catch (err: any) {
-        took('!isUpdatePreviewSupported parseShellBSON error');
         this.setState({
           bulkUpdate: {
             ...this.state.bulkUpdate,
@@ -1158,11 +1145,8 @@ class CrudStoreImpl
             previewAbortController: undefined,
           },
         });
-        took('!isUpdatePreviewSupported error set state');
         return;
       }
-
-      took('!isUpdatePreviewSupported parseShellBSON success');
 
       // if there's no syntax error, then just clear it
       this.setState({
@@ -1178,8 +1162,6 @@ class CrudStoreImpl
         },
       });
 
-      took('!isUpdatePreviewSupported success set state');
-
       return;
     }
 
@@ -1194,13 +1176,10 @@ class CrudStoreImpl
       },
     });
 
-    took('start set state');
-
     let update: BSONObject | BSONObject[];
     try {
       update = parseShellBSON(updateText);
     } catch (err: any) {
-      took('parse error');
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
         return;
@@ -1219,11 +1198,8 @@ class CrudStoreImpl
         },
       });
 
-      took('parse error setState');
       return;
     }
-
-    took('parse success', { aborted: abortController.signal.aborted });
 
     if (abortController.signal.aborted) {
       // don't kick off an expensive query if we're already aborted anyway
@@ -1240,8 +1216,6 @@ class CrudStoreImpl
         abortSignal: abortController.signal,
       });
     } catch (err: any) {
-      took('dataService error', { aborted: abortController.signal.aborted });
-
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
         return;
@@ -1260,11 +1234,8 @@ class CrudStoreImpl
         },
       });
 
-      took('dataService error setState');
       return;
     }
-
-    took('dataService success', { aborted: abortController.signal.aborted });
 
     if (abortController.signal.aborted) {
       // ignore this result because it is stale
@@ -1281,8 +1252,6 @@ class CrudStoreImpl
         previewAbortController: undefined,
       },
     });
-
-    took('dataService success setState');
   }
 
   async runBulkUpdate() {
