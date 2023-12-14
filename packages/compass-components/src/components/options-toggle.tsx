@@ -25,7 +25,7 @@ const optionStyles = css({
   alignItems: 'center',
 });
 
-type MoreOptionsToggleProps = {
+type OptionsToggleProps = {
   label?: (expanded: boolean) => string;
   'aria-label'?: (expanded: boolean) => string;
   'aria-controls': string;
@@ -35,18 +35,16 @@ type MoreOptionsToggleProps = {
   id?: string;
 };
 
-export const MoreOptionsToggle: React.FunctionComponent<
-  MoreOptionsToggleProps
-> = ({
+export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
   'aria-controls': ariaControls,
   isExpanded,
   id,
   'data-testid': dataTestId,
   onToggleOptions,
-  label = (expanded) => {
+  label = () => 'Options',
+  'aria-label': ariaLabel = (expanded) => {
     return expanded ? 'Fewer Options' : 'More Options';
   },
-  'aria-label': ariaLabel,
 }) => {
   const optionsIcon = useMemo(
     () => (isExpanded ? 'CaretDown' : 'CaretRight'),
@@ -60,7 +58,7 @@ export const MoreOptionsToggle: React.FunctionComponent<
       width: `calc(${maxLabelLength}ch + ${spacing[3]}px + ${spacing[2]}px)`,
     };
   }, [label]);
-  const optionsAriaLabel = ariaLabel?.(isExpanded) ?? optionsLabel;
+  const optionsAriaLabel = ariaLabel(isExpanded);
   const focusRingProps = useFocusRing();
   const buttonProps = mergeProps(
     { className: optionsButtonStyles },

@@ -54,7 +54,7 @@ describe('PipelineToolbar', function () {
       ).to.exist;
       expect(
         within(header).getByTestId('pipeline-toolbar-options-button'),
-        'shows more options button'
+        'shows options button'
       ).to.exist;
     });
 

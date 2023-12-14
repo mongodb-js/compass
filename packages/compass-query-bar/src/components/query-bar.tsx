@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Icon,
-  MoreOptionsToggle,
+  OptionsToggle,
   css,
   cx,
   spacing,
@@ -114,20 +114,14 @@ const queryAIContainerStyles = css({
 const queryBarDocumentationLink =
   'https://docs.mongodb.com/compass/current/query/filter/';
 
-const QueryMoreOptionsToggle = connect(
+const QueryOptionsToggle = connect(
   (state: RootState) => {
     return {
       isExpanded: state.queryBar.expanded,
-      label() {
-        return 'Options';
-      },
-      'aria-label'(expanded: boolean) {
-        return expanded ? 'Fewer Options' : 'More Options';
-      },
     };
   },
   { onToggleOptions: toggleQueryOptions }
-)(MoreOptionsToggle);
+)(OptionsToggle);
 
 type QueryBarProps = {
   buttonLabel?: string;
@@ -314,7 +308,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div className={moreOptionsContainerStyles}>
-            <QueryMoreOptionsToggle
+            <QueryOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
             />
