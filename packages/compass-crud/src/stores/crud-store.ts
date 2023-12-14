@@ -1139,18 +1139,6 @@ class CrudStoreImpl
       took('aborting in-flight preview');
     }
 
-    // immediately persist the state before any other state changes
-    /*
-    this.setState({
-      bulkUpdate: {
-        ...this.state.bulkUpdate,
-        updateText,
-      },
-    });
-
-    took('initial setState');
-    */
-
     // Don't try and calculate the update preview if we know it won't work. Just
     // see if the update will parse.
     if (!this.state.isUpdatePreviewSupported) {
