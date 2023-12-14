@@ -59,4 +59,18 @@ describe('NavigationItems [Component]', function () {
       expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
     });
   });
+
+  describe('when performance tab is not supported', function () {
+    it('renders disabled "Performance" navigation item', function () {
+      renderNavigationItems({
+        showPerformanceItem: true,
+        isPerformanceTabSupported: false,
+      });
+
+      expect(screen.getByRole('button', { name: 'Performance' })).to.exist;
+      expect(
+        screen.getByRole('button', { name: 'Performance' })
+      ).to.have.attribute('aria-disabled', 'true');
+    });
+  });
 });

@@ -30,6 +30,11 @@ import isExpanded from './is-expanded';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { DataServiceAction, DataServiceState } from './data-service';
 import dataService from './data-service';
+import type {
+  IsPerformanceTabSupportedState,
+  SetIsPerformanceTabSupportedAction,
+} from './is-performance-tab-supported';
+import isPerformanceTabSupported from './is-performance-tab-supported';
 
 export interface RootState {
   appRegistry: {
@@ -44,6 +49,7 @@ export interface RootState {
   isDetailsExpanded: IsDetailsExpandedState;
   isGenuineMongoDBVisible: IsGenuineMongoDBVisibleState;
   isExpanded: IsExpandedState;
+  isPerformanceTabSupported: IsPerformanceTabSupportedState;
 }
 
 export type RootAction =
@@ -54,7 +60,8 @@ export type RootAction =
   | ToggleIsDetailsExpandedAction
   | IsGenuineMongoDBVisibleAction
   | IsExpandedAction
-  | DataServiceAction;
+  | DataServiceAction
+  | SetIsPerformanceTabSupportedAction;
 
 /**
  * The reducer.
@@ -69,6 +76,7 @@ const reducer = combineReducers<RootState, RootAction>({
   isDetailsExpanded,
   isGenuineMongoDBVisible,
   isExpanded,
+  isPerformanceTabSupported,
 });
 
 export default reducer;

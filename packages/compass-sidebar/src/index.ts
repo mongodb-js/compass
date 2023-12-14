@@ -7,6 +7,8 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
 function activate() {
   // noop
@@ -21,6 +23,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
   {
     instance: () => MongoDBInstance;
     dataService: () => DataService;
+    logger: () => LoggerAndTelemetry;
   }
 >(
   {
@@ -32,10 +35,12 @@ export const CompassSidebarPlugin = registerHadronPlugin<
         globalAppRegistry,
         instance,
         dataService,
+        logger,
       }: {
         globalAppRegistry: AppRegistry;
         instance: MongoDBInstance;
         dataService: DataService;
+        logger: LoggerAndTelemetry;
       },
       helpers: ActivateHelpers
     ) {
@@ -45,6 +50,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
           instance,
           dataService,
           connectionInfo: initialConnectionInfo,
+          logger,
         },
         helpers
       );
@@ -57,6 +63,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
   {
     instance: mongoDBInstanceLocator,
     dataService: dataServiceLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-SIDEBAR-UI'),
   }
 );
 
