@@ -569,12 +569,7 @@ export function ChangeView({
   before: Document;
   after: Document;
 }) {
-  const obj = useMemo(() => {
-    const start = Date.now();
-    const result = unifyDocuments(before, after);
-    console.log('unifyDocuments', Date.now() - start);
-    return result;
-  }, [before, after]);
+  const obj = useMemo(() => unifyDocuments(before, after), [before, after]);
 
   const darkMode = useDarkMode();
 
