@@ -578,7 +578,7 @@ export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
 };
 
 // Bulk Update Modal
-export const BulkUpdateModal = '[data-testid="bulk-update-dialog"]';
+export const BulkUpdateModal = '[data-testid="bulk-update-modal"]';
 export const BulkUpdateReadonlyFilter = `${BulkUpdateModal} [data-testid="readonly-filter"]`;
 export const BulkUpdateUpdate = `${BulkUpdateModal} [data-testid="bulk-update-update"]`;
 export const BulkUpdateTitle = `${BulkUpdateModal} [data-testid="modal-title"]`;

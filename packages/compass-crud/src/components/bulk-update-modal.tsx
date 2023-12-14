@@ -389,7 +389,7 @@ export default function BulkUpdateModal({
     <Modal
       open={isOpen}
       setOpen={closeBulkUpdateModal}
-      data-testid="bulk-update-dialog"
+      data-testid="bulk-update-modal"
       contentClassName={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
