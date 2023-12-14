@@ -5,5 +5,7 @@ ignores:
   - '@types/react'
   - '@types/react-dom'
   - '@types/chai'
+  # leaflet-draw extends the types for leaflet
+  - '@types/leaflet-draw'
 ignore-patterns:
   - 'dist'

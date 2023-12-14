@@ -30,83 +30,43 @@ import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import preferencesAccess from 'compass-preferences-model';
 import type { DataService } from '../modules/data-service';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
+import type { MongoDBInstance } from 'mongodb-instance-model';
+import type Database from 'mongodb-database-model';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
-export type ConfigureStoreOptions = {
-  /**
-   * Namespace to be used when running aggregations (required, only collection namespaces are supported)
-   */
-  namespace: string;
-} & Partial<{
-  /**
-   * Should be provided if namespace is a view. Affects available stages
-   */
-  sourceName: string;
-  /**
-   * Current server version. Affects available stages
-   */
-  serverVersion: string;
-  /**
-   * Whether or not collection is a timeseries collection. Affects available
-   * stages
-   */
-  isTimeSeries: boolean;
-  /**
-   * Whether or not collection is part of ADF (ex ADL). Used only to provide
-   * correct explain plan verbosity
-   */
-  isDataLake: boolean;
-  /**
-   * Current connection env type. Affects available stages. Accepted values:
-   * "atlas" | "on-prem" | "adl"
-   */
-  env: typeof ENVS[number] | null;
-  /**
-   * Namespace field values that will be used in autocomplete
-   */
-  fields: { name: string }[];
-  /**
-   * Function that overrides default handling of opening resulting namespace
-   * of out stages ($out, $merge). When provided, will be called when user
-   * clicks
-   */
-  outResultsFn: (namespace: string) => void;
-  /**
-   * Stored pipeline metadata. Can be provided to preload stored pipeline
-   * right when the plugin is initialized
-   */
-  aggregation?: unknown;
-  /**
-   * Namespace for the view that is being edited. Needs to be provided with the
-   * `pipeline` options
-   */
-  editViewName: string;
-  /**
-   * Initial pipeline that will be converted to a string to be used by the
-   * aggregation builder. Takes precedence over `pipelineText` option
-   */
-  pipeline?: unknown[];
-  /**
-   * Initial pipeline text to be used by the aggregation builder
-   */
-  pipelineText?: string;
-  /**
-   * List of all the collections in the current database. It is used inside
-   * the stage wizard to populate the dropdown for $lookup use-case.
-   */
-  collections: CollectionInfo[];
-  /**
-   * Storage service for saved aggregations
-   */
-  pipelineStorage: PipelineStorage;
-  /**
-   * Service for interacting with Atlas-only features
-   */
-  atlasService: AtlasService;
-  /**
-   * Whether or not search indexes are supported in the current environment
-   */
-  isSearchIndexesSupported: boolean;
-}>;
+export type ConfigureStoreOptions = CollectionTabPluginMetadata &
+  Partial<{
+    /**
+     * Current connection env type. Affects available stages. Accepted values:
+     * "atlas" | "on-prem" | "adl"
+     */
+    env: typeof ENVS[number] | null;
+    /**
+     * Namespace field values that will be used in autocomplete
+     */
+    fields: { name: string }[];
+    /**
+     * Function that overrides default handling of opening resulting namespace
+     * of out stages ($out, $merge). When provided, will be called when user
+     * clicks
+     */
+    outResultsFn: (namespace: string) => void;
+    /**
+     * List of all the collections in the current database. It is used inside
+     * the stage wizard to populate the dropdown for $lookup use-case.
+     */
+    collections: CollectionInfo[];
+    /**
+     * Storage service for saved aggregations
+     */
+    pipelineStorage: PipelineStorage;
+    /**
+     * Service for interacting with Atlas-only features
+     */
+    atlasService: AtlasService;
+  }>;
 
 export type AggregationsPluginServices = {
   dataService: DataService;
@@ -118,6 +78,8 @@ export type AggregationsPluginServices = {
     AppRegistry,
     'on' | 'emit' | 'removeListener' | 'getStore'
   >;
+  workspaces: WorkspacesService;
+  instance: MongoDBInstance;
 };
 
 export function activateAggregationsPlugin(
@@ -126,21 +88,11 @@ export function activateAggregationsPlugin(
     dataService,
     localAppRegistry,
     globalAppRegistry,
-  }: AggregationsPluginServices
+    workspaces,
+    instance,
+  }: AggregationsPluginServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const cleanup: (() => void)[] = [];
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-
   if (options.editViewName && !options.pipeline) {
     throw new Error(
       'Option `editViewName` can be used only if `pipeline` is provided'
@@ -194,15 +146,7 @@ export function activateAggregationsPlugin(
         // mms specifies options.env whereas we don't currently get this variable when
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
-        options.env ??
-        // TODO: for now this is how we get to the env in compass as opposed to in
-        // mms where it comes from options.env. Ideally options.env would be
-        // required so we can always get it from there, but that's something for a
-        // future task. In theory we already know the env by the time this code
-        // executes, so it should be doable.
-        (
-          globalAppRegistry.getStore('App.InstanceStore') as Store | undefined
-        )?.getState().instance.env,
+        options.env ?? (instance.env as typeof ENVS[number]),
       // options.fields is only used by mms, but always set to [] which is the initial value anyway
       fields: options.fields ?? [],
       // options.outResultsFn is only used by mms
@@ -236,6 +180,8 @@ export function activateAggregationsPlugin(
         pipelineBuilder,
         pipelineStorage,
         atlasService,
+        workspaces,
+        instance,
       })
     )
   );
@@ -293,7 +239,8 @@ export function activateAggregationsPlugin(
     );
   }
 
-  cleanup.push(handleDatabaseCollections(store, options, globalAppRegistry));
+  addCleanup(handleDatabaseCollections(store, options, instance));
+
   if (options.fields) {
     store.dispatch(
       setCollectionFields(
@@ -310,28 +257,16 @@ export function activateAggregationsPlugin(
 
   return {
     store,
-    deactivate() {
-      for (const cleaner of cleanup) cleaner();
-    },
+    deactivate: cleanup,
   };
 }
-
-type DbModel = {
-  collections: Array<{
-    _id: string;
-    type: 'collection' | 'view';
-  }>;
-};
 
 const handleDatabaseCollections = (
   store: Store<RootState> & {
     dispatch: PipelineBuilderThunkDispatch;
   },
   options: Pick<ConfigureStoreOptions, 'namespace' | 'collections'>,
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >
+  instance: MongoDBInstance
 ): (() => void) => {
   const { namespace, collections } = options;
 
@@ -340,18 +275,16 @@ const handleDatabaseCollections = (
     store.dispatch(setCollections(collections));
   }
 
-  const instance = (
-    globalAppRegistry.getStore('App.InstanceStore') as Store | undefined
-  )?.getState().instance;
   const ns = toNS(namespace);
   const db = instance?.databases?.get(ns.database);
+
   if (!db) {
     return () => {
       /* nothing */
     };
   }
 
-  const onDatabaseCollectionStatusChange = (dbModel: DbModel) => {
+  const onDatabaseCollectionStatusChange = (dbModel: Database) => {
     const collections = dbModel.collections.map((x) => ({
       name: toNS(x._id).collection,
       type: x.type,

@@ -264,11 +264,16 @@ function Home({
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
+      const namespace =
+        ws?.type === 'Collection' || ws?.type === 'Collections'
+          ? ws.namespace
+          : undefined;
+
       updateTitle(
         appName,
         connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
         ws?.type,
-        ws?.namespace
+        namespace
       );
 
       if (ws?.type === 'Collection') {
@@ -319,15 +324,21 @@ function Home({
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
             <CompassInstanceStorePlugin>
-              <ImportPlugin></ImportPlugin>
-              <ExportPlugin></ExportPlugin>
-              <CreateViewPlugin></CreateViewPlugin>
-              <CreateNamespacePlugin></CreateNamespacePlugin>
-              <DropNamespacePlugin></DropNamespacePlugin>
-              <RenameCollectionPlugin></RenameCollectionPlugin>
               <Workspace
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
+                renderModals={() => {
+                  return (
+                    <>
+                      <ImportPlugin></ImportPlugin>
+                      <ExportPlugin></ExportPlugin>
+                      <CreateViewPlugin></CreateViewPlugin>
+                      <CreateNamespacePlugin></CreateNamespacePlugin>
+                      <DropNamespacePlugin></DropNamespacePlugin>
+                      <RenameCollectionPlugin></RenameCollectionPlugin>
+                    </>
+                  );
+                }}
               />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>

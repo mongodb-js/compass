@@ -11,12 +11,14 @@ import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 type MyQueriesServices = {
   dataService: DataService;
   instance: MongoDBInstance;
   globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
+  workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 
 // TODO(COMPASS-7411): should also be service injected, this type will merge
@@ -31,6 +33,7 @@ export function configureStore({
   dataService,
   instance,
   logger,
+  workspaces,
   pipelineStorage = new PipelineStorage(),
   queryStorage = new FavoriteQueryStorage(),
 }: MyQueriesServices & Partial<Storages>) {
@@ -48,6 +51,7 @@ export function configureStore({
         logger,
         pipelineStorage,
         queryStorage,
+        workspaces,
       })
     )
   );

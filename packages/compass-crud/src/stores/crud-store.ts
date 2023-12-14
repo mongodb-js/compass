@@ -53,6 +53,7 @@ import {
 import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -1151,7 +1152,21 @@ class CrudStoreImpl
             previewAbortController: undefined,
           },
         });
+        return;
       }
+
+      // if there's no syntax error, then just clear it
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
 
       return;
     }
@@ -1844,9 +1859,18 @@ class CrudStoreImpl
 
     const PREVIEW_DOCS = 5;
 
+    const previews = (this.state.docs?.slice(0, PREVIEW_DOCS) || []).map(
+      (doc) => {
+        // The idea is just to break the link with the docs in the list so that
+        // expanding/collapsing docs in the modal doesn't modify the ones in the
+        // list.
+        return Document.FromEJSON(doc.toEJSON());
+      }
+    );
+
     this.setState({
       bulkDelete: {
-        previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
+        previews,
         status: 'open',
         affected: this.state.count ?? undefined,
       },
@@ -1988,21 +2012,9 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
-  }: DocumentsPluginServices
+  }: DocumentsPluginServices,
+  { on, cleanup }: ActivateHelpers
 ) {
-  const cleanup: (() => void)[] = [];
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-
   const actions = configureActions();
   const store = Reflux.createStore(
     new CrudStoreImpl(
@@ -2090,7 +2102,7 @@ export function activateDocumentsPlugin(
     store,
     actions,
     deactivate() {
-      for (const cleaner of cleanup) cleaner();
+      cleanup();
     },
   };
 }

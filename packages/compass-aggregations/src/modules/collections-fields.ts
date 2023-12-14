@@ -4,14 +4,13 @@ import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
 import type { AnyAction } from 'redux';
+import type Collection from 'mongodb-collection-model';
 
 const FETCH_SCHEMA_MAX_TIME_MS = 10000;
 
-type CollectionType = 'collection' | 'view';
-export type CollectionInfo = {
-  name: string;
-  type: CollectionType;
-};
+export type CollectionInfo = Pick<Collection, 'name' | 'type'>;
+
+type CollectionType = CollectionInfo['type'];
 
 export enum ActionTypes {
   CollectionsFetch = 'compass-aggregations/collectionsFetched',

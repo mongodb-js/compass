@@ -1,4 +1,3 @@
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
 import { getDestinationNamespaceFromStage } from '../utils/stage';
 import { disableFocusMode } from './focus-mode';
@@ -24,18 +23,14 @@ export default function reducer(
  * Go to the $out / $merge results collection
  */
 export const gotoOutResults = (
-  index: number
+  namespace: string
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
-    const state = getState();
-    const stage = getStagesFromBuilderState(state, pipelineBuilder)[index];
-    const namespace = getDestinationNamespaceFromStage(state.namespace, stage);
-    if (state.outResultsFn) {
-      state.outResultsFn(namespace!);
+  return (_dispatch, getState, { workspaces }) => {
+    const { outResultsFn } = getState();
+    if (outResultsFn) {
+      outResultsFn(namespace);
     } else {
-      dispatch(
-        globalAppRegistryEmit('aggregations-open-result-namespace', namespace)
-      );
+      workspaces.openCollectionWorkspace(namespace, { newTab: true });
     }
   };
 };
@@ -43,10 +38,15 @@ export const gotoOutResults = (
 export const viewOutResults = (
   index: number
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     if (getState().focusMode.isEnabled) {
       dispatch(disableFocusMode());
     }
-    dispatch(gotoOutResults(index));
+    const state = getState();
+    const stage = getStagesFromBuilderState(state, pipelineBuilder)[index];
+    const namespace = getDestinationNamespaceFromStage(state.namespace, stage);
+    if (namespace) {
+      dispatch(gotoOutResults(namespace));
+    }
   };
 };

@@ -83,7 +83,7 @@ const codeLightContainerStyles = css({
 });
 
 const multilineContainerStyles = css({
-  maxHeight: spacing[5] * 7, // fit at our default window size
+  height: `calc(100% - ${spacing[6]})`,
 });
 
 const bannerContainerStyles = css({
@@ -428,6 +428,7 @@ export default function BulkUpdateDialog({
                   data-testid="bulk-update-update"
                   onBlur={() => ({})}
                   annotations={annotations}
+                  minLines={12}
                 />
 
                 <div className={bannerContainerStyles}>

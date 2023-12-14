@@ -109,6 +109,11 @@ describe('Bulk Action Toasts', function () {
           userEvent.click(node);
         });
 
+        await waitFor(function () {
+          const node = screen.queryByText('42 documents have been deleted.');
+          expect(node).to.not.exist;
+        });
+
         expect(onRefreshSpy).to.have.been.called;
       });
     });
@@ -195,6 +200,11 @@ describe('Bulk Action Toasts', function () {
         await waitFor(async function () {
           const node = await screen.findByText(/REFRESH/i);
           userEvent.click(node);
+        });
+
+        await waitFor(function () {
+          const node = screen.queryByText('42 documents have been updated.');
+          expect(node).to.not.exist;
         });
 
         expect(onRefreshSpy).to.have.been.called;

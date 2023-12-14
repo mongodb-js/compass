@@ -18,6 +18,9 @@ import {
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -35,11 +38,13 @@ const shellContainerStyles = css({
 export default function Workspace({
   connectionInfo,
   onActiveWorkspaceTabChange,
+  renderModals,
 }: {
   connectionInfo: ConnectionInfo | null | undefined;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
+  renderModals?: () => React.ReactElement;
 }): React.ReactElement {
   return (
     <div data-testid="home" className={verticalSplitStyles}>
@@ -48,23 +53,30 @@ export default function Workspace({
           MyQueriesWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
-          // TODO: issue because of the recursive dep?
-          CollectionsWorkspaceTab as any,
+          CollectionsWorkspaceTab,
           CollectionWorkspace,
         ]}
       >
         <CollectionTabsProvider
           tabs={[
-            CompassSchemaValidationPlugin,
-            CompassAggregationsPlugin,
             CompassDocumentsPlugin,
+            CompassAggregationsPlugin,
+            CompassSchemaPlugin,
+            CompassIndexesPlugin,
+            CompassSchemaValidationPlugin,
           ]}
         >
           <WorkspacesPlugin
             initialWorkspaceTab={{ type: 'My Queries' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            // TODO(COMPASS-7397): pass through for sidebar
-            initialConnectionInfo={connectionInfo ?? undefined}
+            renderSidebar={() => {
+              return (
+                <CompassSidebarPlugin
+                  initialConnectionInfo={connectionInfo ?? undefined}
+                />
+              );
+            }}
+            renderModals={renderModals}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>

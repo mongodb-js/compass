@@ -26,6 +26,7 @@ import {
   lighten,
 } from '@mongodb-js/compass-components';
 import { HackoladePromoBanner } from './promo-banner';
+import type { configureActions } from '../actions';
 
 const rootStyles = css`
   width: 100%;
@@ -320,7 +321,7 @@ const FieldList: React.FunctionComponent<{
 };
 
 const Schema: React.FunctionComponent<{
-  actions: Record<string, any>;
+  actions: ReturnType<typeof configureActions>;
   store: Record<string, any>;
   analysisState: AnalysisState;
   outdated?: boolean;

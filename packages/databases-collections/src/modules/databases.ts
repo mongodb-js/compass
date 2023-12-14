@@ -103,10 +103,4 @@ export const dropDatabase = (ns: string): DatabasesThunkAction<void> => {
   };
 };
 
-export const selectDatabase = (ns: string): DatabasesThunkAction<void> => {
-  return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('select-database', ns);
-  };
-};
-
 export default reducer;

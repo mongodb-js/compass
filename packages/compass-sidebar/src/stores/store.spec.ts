@@ -40,8 +40,11 @@ describe('SidebarStore [Store]', function () {
           getConnectionOptions() {
             return {};
           },
+          currentOp() {},
+          top() {},
         },
         instance,
+        logger: { log: { warn() {} }, mongoLogId() {} },
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} }
     ));

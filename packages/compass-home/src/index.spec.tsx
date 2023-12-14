@@ -27,8 +27,11 @@ const createDataService = () => ({
   configuredKMSProviders() {
     return [];
   },
+  currentOp() {},
+  top() {},
   on() {},
   off() {},
+  removeListener() {},
 });
 
 describe('Home [Component]', function () {

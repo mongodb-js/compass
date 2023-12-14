@@ -1,3 +1,5 @@
+import type { Circle, Polygon } from 'leaflet';
+
 const METERS_IN_MILE = 1609.344;
 const RADIANS = 3963.2;
 
@@ -8,8 +10,22 @@ const RADIANS = 3963.2;
  *
  * @returns {Number} radians.
  */
-const radians = (meters) => {
+const radians = (meters: number): number => {
   return meters / METERS_IN_MILE / RADIANS;
+};
+
+export type InternalLayer = InternalCircle | InternalPolygon;
+type InternalCircle = {
+  field: string;
+  lat: number;
+  lng: number;
+  radius: number;
+  type: 'circle';
+};
+type InternalPolygon = {
+  field: string;
+  coordinates: [number, number][][];
+  type: 'polygon';
 };
 
 /**
@@ -19,7 +35,7 @@ const radians = (meters) => {
  *
  * @returns {Object} The query.
  */
-const polygon = (layer) => ({
+const polygon = (layer: InternalPolygon) => ({
   [layer.field]: {
     $geoWithin: {
       $geometry: {
@@ -37,7 +53,7 @@ const polygon = (layer) => ({
  *
  * @returns {Object} The $centerSphere query.
  */
-const centerSphere = (layer) => ({
+const centerSphere = (layer: InternalCircle) => ({
   [layer.field]: {
     $geoWithin: {
       $centerSphere: [[layer.lng, layer.lat], radians(layer.radius)],
@@ -52,9 +68,13 @@ const centerSphere = (layer) => ({
  *
  * @returns {Array} The coordinates array.
  */
-const coordinates = (ring) => {
+const coordinates = (
+  ring: { lng: number; lat: number }[][]
+): [number, number][][] => {
   return ring.map((latlngs) => {
-    const coords = latlngs.map((latlng) => [latlng.lng, latlng.lat]);
+    const coords = latlngs.map(
+      (latlng) => [latlng.lng, latlng.lat] as [number, number]
+    );
     // Leaflet doesn't close the ring for us.
     coords.push(coords[0]);
     return coords;
@@ -68,7 +88,7 @@ const coordinates = (ring) => {
  *
  * @returns {Object} The query.
  */
-const generateSingle = (layer) => {
+const generateSingle = (layer: InternalLayer) => {
   if (layer.type === 'circle') {
     return centerSphere(layer);
   } else if (layer.type === 'polygon') {
@@ -83,7 +103,7 @@ const generateSingle = (layer) => {
  *
  * @returns {Object} The query.
  */
-const generateMulti = (layers) => ({
+const generateMulti = (layers: InternalLayer[]) => ({
   $or: layers.map((layer) => generateSingle(layer)),
 });
 
@@ -94,7 +114,7 @@ const generateMulti = (layers) => ({
  *
  * @returns {Object} The query.
  */
-export const generateGeoQuery = (allLayers) => {
+export const generateGeoQuery = (allLayers: Record<string, InternalLayer>) => {
   const layers = Object.values(allLayers);
   if (layers.length === 1) {
     return generateSingle(layers[0]);
@@ -111,13 +131,17 @@ export const generateGeoQuery = (allLayers) => {
  *
  * @returns {Object} All the layers with the new layer added.
  */
-const addCircleLayer = (field, layer, allLayers) => {
+const addCircleLayer = (
+  field: string,
+  layer: Circle,
+  allLayers: Record<string, InternalLayer>
+) => {
   const layers = { ...allLayers };
-  layers[layer._leaflet_id] = {
+  layers[(layer as any)._leaflet_id] = {
     field: field,
-    lat: layer._latlng.lat,
-    lng: layer._latlng.lng,
-    radius: layer._mRadius,
+    lat: (layer as any)._latlng.lat,
+    lng: (layer as any)._latlng.lng,
+    radius: (layer as any)._mRadius,
     type: 'circle',
   };
   return layers;
@@ -132,11 +156,15 @@ const addCircleLayer = (field, layer, allLayers) => {
  *
  * @returns {Object} All the layers with the new layer added.
  */
-const addPolygonLayer = (field, layer, allLayers) => {
+const addPolygonLayer = (
+  field: string,
+  layer: Polygon,
+  allLayers: Record<string, InternalLayer>
+) => {
   const layers = { ...allLayers };
-  layers[layer._leaflet_id] = {
+  layers[(layer as any)._leaflet_id] = {
     field: field,
-    coordinates: coordinates(layer._latlngs),
+    coordinates: coordinates((layer as any)._latlngs),
     type: 'polygon',
   };
   return layers;
@@ -151,11 +179,15 @@ const addPolygonLayer = (field, layer, allLayers) => {
  *
  * @returns {Object} The new layers.
  */
-export const addLayer = (field, layer, layers) => {
-  if (layer._latlngs) {
-    return addPolygonLayer(field, layer, layers);
-  } else if (layer._latlng) {
-    return addCircleLayer(field, layer, layers);
+export const addLayer = (
+  field: string,
+  layer: Circle | Polygon,
+  layers: Record<string, InternalLayer>
+) => {
+  if ((layer as any)._latlngs) {
+    return addPolygonLayer(field, layer as Polygon, layers);
+  } else if ((layer as any)._latlng) {
+    return addCircleLayer(field, layer as Circle, layers);
   }
   return layers;
 };

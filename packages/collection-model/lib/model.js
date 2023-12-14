@@ -93,6 +93,7 @@ function getParentByType(model, type) {
 }
 
 function pickCollectionInfo({
+  type,
   readonly,
   view_on,
   collation,
@@ -101,7 +102,7 @@ function pickCollectionInfo({
   clustered,
   fle2,
 }) {
-  return { readonly, view_on, collation, pipeline, validation, clustered, fle2 };
+  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2 };
 }
 
 /**
@@ -368,10 +369,9 @@ const CollectionCollection = AmpersandCollection.extend(
             // refactor significantly. We can address this in COMPASS-5211
             return getNamespaceInfo(coll._id).system === false;
           })
-          .map(({ _id, type, ...rest }) => {
+          .map(({ _id, ...rest }) => {
             return {
               _id,
-              type,
               ...pickCollectionInfo(rest),
             };
           })

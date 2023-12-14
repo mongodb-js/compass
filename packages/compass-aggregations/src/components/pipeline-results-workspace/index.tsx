@@ -11,7 +11,6 @@ import {
   Button,
   palette,
 } from '@mongodb-js/compass-components';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
@@ -21,6 +20,7 @@ import {
   isOutputStage,
 } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
+import { gotoOutResults } from '../../modules/out-results-fn';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -212,12 +212,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onCancel: cancelAggregation,
   onRetry: retryAggregation,
-  onOutClick: (namespace: string) => {
-    return globalAppRegistryEmit(
-      'aggregations-open-result-namespace',
-      namespace
-    );
-  },
+  onOutClick: gotoOutResults,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);

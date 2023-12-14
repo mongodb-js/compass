@@ -1,4 +1,6 @@
+import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
+import type { IndexesThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
 import {
@@ -25,9 +27,11 @@ import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 import { setFields } from '../modules/fields';
 import { switchToRegularIndexes } from '../modules/index-view';
+import type { ActivateHelpers } from 'hadron-app-registry';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-export type IndexesDataService = Pick<
-  DataService,
+export type IndexesDataServiceProps =
   | 'indexes'
   | 'isConnected'
   | 'updateCollection'
@@ -36,31 +40,49 @@ export type IndexesDataService = Pick<
   | 'getSearchIndexes'
   | 'createSearchIndex'
   | 'updateSearchIndex'
-  | 'dropSearchIndex'
->;
+  | 'dropSearchIndex';
+export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 
-export type ConfigureStoreOptions = {
-  dataProvider: {
-    dataProvider?: IndexesDataService;
-  };
+export type IndexesPluginServices = {
+  dataService: IndexesDataService;
+  instance: MongoDBInstance;
+  localAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
+  globalAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
+  logger: LoggerAndTelemetry;
+};
+
+export type IndexesPluginOptions = {
   namespace: string;
-  localAppRegistry: AppRegistry;
-  globalAppRegistry: AppRegistry;
   serverVersion: string;
   isReadonly: boolean;
   isSearchIndexesSupported: boolean;
 };
 
-const configureStore = (options: ConfigureStoreOptions) => {
-  if (!options.dataProvider?.dataProvider) {
-    throw new Error(
-      "Can't configure store for indexes plugin without data serivce"
-    );
-  }
-  const store = createStore(
+export type IndexesStore = Store<RootState> & {
+  dispatch: IndexesThunkDispatch;
+};
+
+export function activateIndexesPlugin(
+  options: IndexesPluginOptions,
+  {
+    dataService,
+    instance,
+    localAppRegistry,
+    globalAppRegistry,
+    logger,
+  }: IndexesPluginServices,
+  { on, cleanup }: ActivateHelpers
+) {
+  const store: IndexesStore = createStore(
     reducer,
     {
-      dataService: options.dataProvider.dataProvider,
+      dataService,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
@@ -75,77 +97,67 @@ const configureStore = (options: ConfigureStoreOptions) => {
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        localAppRegistry: options.localAppRegistry,
-        globalAppRegistry: options.globalAppRegistry,
+        localAppRegistry,
+        globalAppRegistry,
+        logger,
       })
     )
   );
 
   // Set the app registry if preset. This must happen first.
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
-    store.dispatch(localAppRegistryActivated(localAppRegistry));
+  store.dispatch(localAppRegistryActivated(localAppRegistry));
 
-    localAppRegistry.on('refresh-regular-indexes', () => {
-      void store.dispatch(fetchIndexes());
-    });
+  on(localAppRegistry, 'refresh-regular-indexes', () => {
+    void store.dispatch(fetchIndexes());
+  });
 
-    localAppRegistry.on(
-      'in-progress-indexes-added',
-      (index: InProgressIndex) => {
-        store.dispatch(inProgressIndexAdded(index));
-        store.dispatch(switchToRegularIndexes());
-      }
-    );
-
-    localAppRegistry.on('in-progress-indexes-removed', (id: string) => {
-      store.dispatch(inProgressIndexRemoved(id));
-    });
-
-    localAppRegistry.on(
-      'in-progress-indexes-failed',
-      (data: { inProgressIndexId: string; error: string }) => {
-        store.dispatch(inProgressIndexFailed(data));
-      }
-    );
-
-    localAppRegistry.on('fields-changed', (fields) => {
-      store.dispatch(setFields(fields.autocompleteFields));
-    });
-
-    localAppRegistry.on('open-create-search-index-modal', () => {
-      store.dispatch(showCreateModal());
-    });
-  }
-
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-    globalAppRegistry.on('refresh-data', () => {
-      void store.dispatch(fetchIndexes());
-      void store.dispatch(refreshSearchIndexes());
-    });
-
-    const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
-    if (instanceStore) {
-      const instance = instanceStore.getState().instance;
-
-      // set the initial values
-      store.dispatch(writeStateChanged(instance.isWritable));
-      store.dispatch(getDescription(instance.description));
-
-      // these can change later
-      instance.on('change:isWritable', () => {
-        store.dispatch(writeStateChanged(instance.isWritable));
-      });
-      instance.on('change:description', () => {
-        store.dispatch(getDescription(instance.description));
-      });
+  on(
+    localAppRegistry,
+    'in-progress-indexes-added',
+    (index: InProgressIndex) => {
+      store.dispatch(inProgressIndexAdded(index));
+      store.dispatch(switchToRegularIndexes());
     }
-  }
+  );
 
-  return store;
-};
+  on(localAppRegistry, 'in-progress-indexes-removed', (id: string) => {
+    store.dispatch(inProgressIndexRemoved(id));
+  });
 
-export default configureStore;
+  on(
+    localAppRegistry,
+    'in-progress-indexes-failed',
+    (data: { inProgressIndexId: string; error: string }) => {
+      store.dispatch(inProgressIndexFailed(data));
+    }
+  );
+
+  on(localAppRegistry, 'fields-changed', (fields) => {
+    store.dispatch(setFields(fields.autocompleteFields));
+  });
+
+  on(localAppRegistry, 'open-create-search-index-modal', () => {
+    store.dispatch(showCreateModal());
+  });
+
+  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+
+  on(globalAppRegistry, 'refresh-data', () => {
+    void store.dispatch(fetchIndexes());
+    void store.dispatch(refreshSearchIndexes());
+  });
+
+  // set the initial values
+  store.dispatch(writeStateChanged(instance.isWritable));
+  store.dispatch(getDescription(instance.description));
+
+  // these can change later
+  on(instance, 'change:isWritable', () => {
+    store.dispatch(writeStateChanged(instance.isWritable));
+  });
+  on(instance, 'change:description', () => {
+    store.dispatch(getDescription(instance.description));
+  });
+
+  return { store, deactivate: () => cleanup() };
+}

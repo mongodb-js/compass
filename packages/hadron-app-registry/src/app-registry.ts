@@ -2,6 +2,7 @@ import type { Store as RefluxStore } from 'reflux';
 import type { Store as ReduxStore } from 'redux';
 import EventEmitter from 'eventemitter3';
 import { Actions } from './actions';
+import type { ReactReduxContext } from 'react-redux';
 
 /**
  * A non-magic number that is still small and higher than
@@ -33,9 +34,26 @@ export function isReduxStore(store: Store): store is ReduxStore {
 }
 
 export interface Plugin {
+  /**
+   * Redux or reflux store that will be automatically passed to a
+   * corresponding provider
+   */
   store: Store;
-  actions?: Record<string, unknown>;
-  deactivate?: () => void;
+  /**
+   * Optional, only relevant for plugins using redux stores in cases where
+   * exposed plugin methods need access to plugin store in react tree where
+   * another redux store is mounted
+   */
+  context?: typeof ReactReduxContext;
+  /**
+   * Optional, only relevant for plugins still using reflux
+   */
+  actions?: typeof Actions;
+  /**
+   * Will be called to clean up plugin subscriptions when it is deactivated by
+   * app registry scope
+   */
+  deactivate: () => void;
 }
 
 /**

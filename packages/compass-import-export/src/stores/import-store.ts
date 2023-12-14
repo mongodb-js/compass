@@ -5,10 +5,12 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import { cancelImport, importReducer, openImport } from '../modules/import';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'isConnected' | 'bulkWrite' | 'insertOne'>;
+  workspaces: WorkspacesService;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -33,11 +35,12 @@ export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService }: ImportPluginServices
+  { globalAppRegistry, dataService, workspaces }: ImportPluginServices
 ) {
   const store = configureStore({
     globalAppRegistry,
     dataService,
+    workspaces,
   });
 
   const onOpenImport = ({

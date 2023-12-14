@@ -5,6 +5,7 @@ import type { DataServiceLocator } from 'mongodb-data-service/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type { DataService } from 'mongodb-data-service';
+import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
 export const CollectionTabPlugin = registerHadronPlugin(
   {
@@ -18,14 +19,10 @@ export const CollectionTabPlugin = registerHadronPlugin(
   }
 );
 
-export const WorkspaceTab = {
+export const WorkspaceTab: WorkspaceComponent<'Collection'> = {
   name: 'Collection' as const,
   component: CollectionTabPlugin,
 };
-
-export type CollectionWorkspace = {
-  type: typeof WorkspaceTab['name'];
-} & React.ComponentProps<typeof WorkspaceTab['component']>;
 
 /**
  * Activate all the components in the Collection package.

@@ -17,6 +17,9 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { setIsPerformanceTabSupported } from '../modules/is-performance-tab-supported';
+import type { MongoServerError } from 'mongodb';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export function createSidebarStore(
   {
@@ -24,11 +27,13 @@ export function createSidebarStore(
     instance,
     dataService,
     connectionInfo,
+    logger: { log, mongoLogId },
   }: {
     globalAppRegistry: AppRegistry;
     instance: MongoDBInstance;
     dataService: DataService;
     connectionInfo: ConnectionInfo | null | undefined;
+    logger: LoggerAndTelemetry;
   },
   { on, cleanup, addCleanup }: ActivateHelpers
 ): {
@@ -147,6 +152,7 @@ export function createSidebarStore(
   on(instance, 'add:collections', onDatabasesChange);
   on(instance, 'remove:collections', onDatabasesChange);
   on(instance, 'change:collections._id', onDatabasesChange);
+  on(instance, 'change:collections.status', onDatabasesChange);
 
   store.dispatch(
     toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
@@ -163,6 +169,26 @@ export function createSidebarStore(
   on(globalAppRegistry, 'toggle-sidebar', () => {
     store.dispatch(toggleSidebar());
   });
+
+  // Checking if "Performance" tab is supported by running commands required for
+  // the "Performance" tab to function
+  void Promise.all([dataService.currentOp(), dataService.top()]).then(
+    () => {
+      store.dispatch(setIsPerformanceTabSupported(true));
+    },
+    (err) => {
+      log.info(
+        mongoLogId(1_001_000_278),
+        'Sidebar',
+        'Performance tab requied commands failed',
+        { error: (err as Error).message }
+      );
+      // Only disable performance tab if encountered Atlas error
+      const isSupported =
+        (err as MongoServerError).codeName === 'AtlasError' ? false : true;
+      store.dispatch(setIsPerformanceTabSupported(isSupported));
+    }
+  );
 
   return {
     store,

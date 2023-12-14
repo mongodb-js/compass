@@ -7,11 +7,13 @@ import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'createView'>;
   logger: LoggerAndTelemetry;
+  workspaces: WorkspacesService;
 };
 
 export function configureStore(services: CreateViewServices) {
@@ -32,9 +34,14 @@ export type CreateViewThunkAction<
 
 export function activateCreateViewPlugin(
   _: unknown,
-  { globalAppRegistry, dataService, logger }: CreateViewServices
+  { globalAppRegistry, dataService, logger, workspaces }: CreateViewServices
 ) {
-  const store = configureStore({ globalAppRegistry, dataService, logger });
+  const store = configureStore({
+    globalAppRegistry,
+    dataService,
+    logger,
+    workspaces,
+  });
 
   const onOpenCreateView = (meta: {
     source: string;

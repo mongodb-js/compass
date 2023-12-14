@@ -22,6 +22,7 @@ const renderIndexList = (
   const noop = () => {};
   render(
     <SearchIndexesTable
+      namespace="foo.bar"
       indexes={indexes}
       status="READY"
       isWritable={true}
@@ -31,7 +32,6 @@ const renderIndexList = (
       onEditIndex={noop}
       onPollIndexes={noop}
       openCreateModal={noop}
-      onRunAggregateIndex={noop}
       {...props}
     />
   );
