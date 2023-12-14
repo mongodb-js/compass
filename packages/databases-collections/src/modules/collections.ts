@@ -93,17 +93,6 @@ export const createNewCollection = (
   };
 };
 
-export const openCollection = (
-  namespace: string
-): CollectionsThunkAction<void> => {
-  return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit(
-      'collections-list-select-collection',
-      toNS(namespace)
-    );
-  };
-};
-
 export const deleteCollection = (
   namespace: string
 ): CollectionsThunkAction<void> => {

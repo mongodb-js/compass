@@ -20,6 +20,7 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 import preferencesAccess from 'compass-preferences-model';
+import { getDestinationNamespaceFromStage } from '../../utils/stage';
 
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
@@ -169,7 +170,15 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
       });
-      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
+      dispatch(
+        globalAppRegistryEmit(
+          'agg-pipeline-out-executed',
+          getDestinationNamespaceFromStage(
+            namespace,
+            pipeline[pipeline.length - 1]
+          )
+        )
+      );
     } catch (error: any) {
       dispatch({
         type: OutputStageActionTypes.FetchFailed,
@@ -183,15 +192,21 @@ export const gotoOutputStageCollection =
   (): PipelineBuilderThunkAction<void> => {
     return (dispatch, getState) => {
       const {
+        namespace,
         pipelineBuilder: {
           textEditor: {
             pipeline: { pipeline },
           },
         },
       } = getState();
-      // $out or $merge is always last stage
-      const lastStageIndex = pipeline.length - 1;
-      dispatch(gotoOutResults(lastStageIndex));
+      const outNamespace = getDestinationNamespaceFromStage(
+        namespace,
+        // $out or $merge is always last stage
+        pipeline[pipeline.length - 1]
+      );
+      if (outNamespace) {
+        dispatch(gotoOutResults(outNamespace));
+      }
     };
   };
 

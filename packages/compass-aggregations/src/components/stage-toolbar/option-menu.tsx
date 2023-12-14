@@ -50,8 +50,8 @@ export const OptionMenu = ({
             <IconButton
               data-testid="stage-option-menu-button"
               onClick={onClick}
-              aria-label="More options"
-              title="More options"
+              aria-label="Options"
+              title="Options"
             >
               <Icon glyph="Ellipsis" size="small"></Icon>
             </IconButton>

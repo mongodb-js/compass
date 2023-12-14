@@ -152,6 +152,7 @@ export function createSidebarStore(
   on(instance, 'add:collections', onDatabasesChange);
   on(instance, 'remove:collections', onDatabasesChange);
   on(instance, 'change:collections._id', onDatabasesChange);
+  on(instance, 'change:collections.status', onDatabasesChange);
 
   store.dispatch(
     toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)

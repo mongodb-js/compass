@@ -6,6 +6,7 @@ import {
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/sidebar';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
@@ -17,13 +18,13 @@ const errorBoundaryStyles = css({
 });
 
 export interface SidebarPluginProps {
-  activeWorkspace: { type: string; namespace?: string } | null;
   // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
   // away with refactoring compoass-conneciton to a plugin
   initialConnectionInfo?: ConnectionInfo | null | undefined;
 }
 
-function SidebarPlugin({ activeWorkspace }: SidebarPluginProps) {
+const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = () => {
+  const activeWorkspace = useActiveWorkspace();
   return (
     <ErrorBoundary
       className={errorBoundaryStyles}
@@ -40,8 +41,6 @@ function SidebarPlugin({ activeWorkspace }: SidebarPluginProps) {
       <Sidebar activeWorkspace={activeWorkspace} />
     </ErrorBoundary>
   );
-}
-
-SidebarPlugin.displayName = 'SidebarPlugin';
+};
 
 export default SidebarPlugin;

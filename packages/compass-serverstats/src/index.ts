@@ -9,6 +9,7 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
 import TopStore from './stores/top-store';
+import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
 const PerformancePlugin = registerHadronPlugin(
   {
@@ -35,14 +36,10 @@ const PerformancePlugin = registerHadronPlugin(
   }
 );
 
-const WorkspaceTab = {
+const WorkspaceTab: WorkspaceComponent<'Performance'> = {
   name: 'Performance' as const,
   component: PerformancePlugin,
 };
-
-export type ServerStatsWorkspace = {
-  type: typeof WorkspaceTab['name'];
-} & React.ComponentProps<typeof WorkspaceTab['component']>;
 
 /**
  * Activate all the components in the RTSS package.

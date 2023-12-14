@@ -1021,8 +1021,14 @@ describe('store', function () {
 
       store.openBulkDeleteDialog();
 
+      const previews = store.state.bulkDelete.previews;
+
+      // because we make a copy of the previews what comes out will not be the
+      // same as what goes in so just check the previews separately
+      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+
       expect(store.state.bulkDelete).to.deep.equal({
-        previews: [hadronDoc],
+        previews,
         status: 'open',
         affected: 1,
       });
@@ -1036,8 +1042,13 @@ describe('store', function () {
       store.openBulkDeleteDialog();
       store.closeBulkDeleteDialog();
 
+      const previews = store.state.bulkDelete.previews;
+
+      // same comment as above
+      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+
       expect(store.state.bulkDelete).to.deep.equal({
-        previews: [hadronDoc],
+        previews,
         status: 'closed',
         affected: 1,
       });
@@ -2787,8 +2798,7 @@ describe('store', function () {
         });
         dataService.previewUpdate = previewUpdateStub;
         instance.topologyDescription.type = 'Single';
-      });
-      beforeEach(function () {
+
         const plugin = activateDocumentsPlugin(
           {
             isSearchIndexesSupported: true,
@@ -2821,6 +2831,37 @@ describe('store', function () {
           preview: {
             changes: [],
           },
+          previewAbortController: undefined,
+          serverError: undefined,
+          syntaxError: undefined,
+          updateText: '{ $set: { anotherField: 2 } }',
+        });
+      });
+
+      it('resets syntaxError when there is no syntax error', async function () {
+        void store.openBulkUpdateDialog();
+        store.onQueryChanged({ filter: { field: 1 } });
+        await store.updateBulkUpdatePreview('{ $set: { anotherField:  } }'); // syntax error
+
+        expect(previewUpdateStub.called).to.be.false;
+
+        expect(store.state.bulkUpdate.syntaxError?.name).to.equal(
+          'SyntaxError'
+        );
+        expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
+          'Unexpected token (2:25)'
+        );
+
+        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+
+        expect(previewUpdateStub.called).to.be.false;
+
+        expect(store.state.bulkUpdate).to.deep.equal({
+          isOpen: true,
+          preview: {
+            changes: [],
+          },
+          previewAbortController: undefined,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',

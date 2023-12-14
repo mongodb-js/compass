@@ -7,9 +7,10 @@ import { Provider } from 'react-redux';
 
 const renderPlugin = () => {
   const store = configureStore();
+  const metadata = {} as any;
   render(
     <Provider store={store}>
-      <AggregationsPlugin />
+      <AggregationsPlugin {...metadata} />
     </Provider>
   );
 };

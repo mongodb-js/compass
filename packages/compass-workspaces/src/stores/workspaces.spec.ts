@@ -115,7 +115,7 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('tabs').have.lengthOf(4);
       expect(state).to.have.nested.property(
         'tabs[3].namespace',
-        currentActiveTab?.namespace
+        (currentActiveTab as any)?.namespace
       );
       expect(state).to.have.property('activeTabId', newActiveTab?.id);
     });
@@ -219,13 +219,18 @@ describe('tabs behavior', function () {
       openTabs(store);
       const tabToRename = store
         .getState()
-        .tabs.find((tab) => tab.namespace === 'test.foo');
+        .tabs.find(
+          (tab) => tab.type === 'Collection' && tab.namespace === 'test.foo'
+        );
       store.dispatch(collectionRenamed('test.foo', 'test.new-foo'));
       const state = store.getState();
-      expect(state.tabs.find((tab) => tab.namespace === 'test.foo')).to.not
-        .exist;
+      expect(
+        state.tabs.find(
+          (tab) => tab.type === 'Collection' && tab.namespace === 'test.foo'
+        )
+      ).to.not.exist;
       const renamed = state.tabs.find(
-        (tab) => tab.namespace === 'test.new-foo'
+        (tab) => tab.type === 'Collection' && tab.namespace === 'test.new-foo'
       );
       expect(renamed).to.exist;
       expect(renamed).to.not.eq(tabToRename);
@@ -247,8 +252,11 @@ describe('tabs behavior', function () {
       store.dispatch(collectionRemoved('test.foo'));
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(2);
-      expect(state.tabs.find((tab) => tab.namespace === 'test.foo')).to.not
-        .exist;
+      expect(
+        state.tabs.find(
+          (tab) => tab.type === 'Collection' && tab.namespace === 'test.foo'
+        )
+      ).to.not.exist;
     });
   });
 

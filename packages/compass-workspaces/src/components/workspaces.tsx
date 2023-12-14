@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { connect } from 'react-redux';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
@@ -27,6 +26,7 @@ import {
 import { useWorkspacePlugin } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { connect } from '../stores/context';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',

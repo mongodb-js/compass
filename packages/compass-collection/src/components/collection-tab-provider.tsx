@@ -1,9 +1,10 @@
 import React, { useContext, useRef } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
+import type { HadronPluginComponent } from 'hadron-app-registry';
 
 export interface CollectionTabPlugin {
   name: string;
-  component: React.ComponentType<CollectionTabPluginMetadata>;
+  component: HadronPluginComponent<CollectionTabPluginMetadata, any>;
 }
 
 const CollectionTabsContext = React.createContext<CollectionTabPlugin[]>([]);

@@ -29,6 +29,7 @@ const createDataService = () => ({
   },
   on() {},
   off() {},
+  removeListener() {},
 });
 
 describe('Home [Component]', function () {

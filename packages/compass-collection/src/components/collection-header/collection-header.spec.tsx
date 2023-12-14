@@ -2,9 +2,8 @@ import { expect } from 'chai';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
-import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
-import CollectionHeader from '../collection-header';
+import { CollectionHeader } from './collection-header';
 
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {}
@@ -18,15 +17,6 @@ function renderCollectionHeader(
       isFLE={false}
       namespace="test.test"
       stats={null}
-      onSelectDatabaseClick={() => {
-        /** noop */
-      }}
-      onEditViewClick={() => {
-        /** noop */
-      }}
-      onReturnToViewClick={() => {
-        /** noop */
-      }}
       {...props}
     />
   );
@@ -171,23 +161,9 @@ describe('CollectionHeader [Component]', function () {
     });
   });
 
-  context('when the db name is clicked', function () {
-    it('emits the open event to the app registry', function () {
-      const onSelectDatabaseClick = spy();
-
-      renderCollectionHeader({ onSelectDatabaseClick });
-
-      const link = screen.getByTestId('collection-header-title-db');
-      expect(link).to.exist;
-      userEvent.click(link);
-      expect(onSelectDatabaseClick).to.have.been.calledOnce;
-    });
-  });
-
   describe('insights', function () {
     it('should show an insight when $text is used in the pipeline source', function () {
       renderCollectionHeader({
-        showInsights: true,
         sourcePipeline: [{ $match: { $text: {} } }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -198,7 +174,6 @@ describe('CollectionHeader [Component]', function () {
 
     it('should show an insight when $regex is used in the pipeline source', function () {
       renderCollectionHeader({
-        showInsights: true,
         sourcePipeline: [{ $match: { $regex: {} } }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -209,7 +184,6 @@ describe('CollectionHeader [Component]', function () {
 
     it('should show an insight when $lookup is used in the pipeline source', function () {
       renderCollectionHeader({
-        showInsights: true,
         sourcePipeline: [{ $lookup: {} }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;

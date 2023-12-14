@@ -36,6 +36,8 @@ function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
         atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
+        instance: {} as any,
+        workspaces: {} as any,
       })
     )
   );

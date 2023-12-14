@@ -20,12 +20,11 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
 import type { ItemAction } from '@mongodb-js/compass-components';
-
 import DatabaseCollectionFilter from './database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-
 import { changeFilterRegex } from '../modules/databases';
 import type { RootState } from '../modules';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -138,21 +137,21 @@ const navigationItemActionIcons = css({ color: 'inherit' });
 export function NavigationItem<Actions extends string>({
   isExpanded,
   onAction,
+  onClick: onButtonClick,
   glyph,
   label,
   actions,
-  tabName,
   isActive,
   showTooManyCollectionsInsight,
   disabled: isButtonDisabled = false,
   disabledMessage: buttonDisabledMessage,
 }: {
   isExpanded?: boolean;
-  onAction(actionName: string, ...rest: any[]): void;
+  onAction(actionName: Actions, ...rest: any[]): void;
+  onClick(): void;
   glyph: string;
   label: string;
   actions?: ItemAction<Actions>[];
-  tabName: string;
   isActive: boolean;
   showTooManyCollectionsInsight?: boolean;
   disabled?: boolean;
@@ -164,8 +163,8 @@ export function NavigationItem<Actions extends string>({
     if (isButtonDisabled) {
       return;
     }
-    onAction('open-instance-workspace', tabName);
-  }, [isButtonDisabled, onAction, tabName]);
+    onButtonClick();
+  }, [isButtonDisabled, onButtonClick]);
   const [hoverProps] = useHoverState();
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onClick);
@@ -272,6 +271,12 @@ export function NavigationItems({
   currentNamespace: string | null;
   showTooManyCollectionsInsight?: boolean;
 }) {
+  const {
+    openMyQueriesWorkspace,
+    openPerformanceWorkspace,
+    openDatabasesWorkspace,
+  } = useOpenWorkspace();
+
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
       {
@@ -314,18 +319,18 @@ export function NavigationItems({
                 <NavigationItem<''>
                   isExpanded={isExpanded}
                   onAction={onAction}
+                  onClick={openMyQueriesWorkspace}
                   glyph="CurlyBraces"
                   label="My Queries"
-                  tabName="My Queries"
                   isActive={currentLocation === 'My Queries'}
                 />
                 {showPerformanceItem && (
                   <NavigationItem<''>
                     isExpanded={isExpanded}
                     onAction={onAction}
+                    onClick={openPerformanceWorkspace}
                     glyph="Gauge"
                     label="Performance"
-                    tabName="Performance"
                     isActive={currentLocation === 'Performance'}
                     disabled={!isPerformanceTabSupported}
                     disabledMessage={
@@ -336,9 +341,9 @@ export function NavigationItems({
                 <NavigationItem<DatabasesActions>
                   isExpanded={isExpanded}
                   onAction={onAction}
+                  onClick={openDatabasesWorkspace}
                   glyph="Database"
                   label="Databases"
-                  tabName="Databases"
                   actions={databasesActions}
                   isActive={currentLocation === 'Databases'}
                   showTooManyCollectionsInsight={showTooManyCollectionsInsight}

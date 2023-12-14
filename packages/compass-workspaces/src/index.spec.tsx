@@ -6,6 +6,7 @@ import WorkspacesPlugin, { WorkspacesProvider } from './index';
 import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
 import type { AnyWorkspaceComponent } from './components/workspaces-provider';
+import { useOpenWorkspace } from './provider';
 
 function mockWorkspace(name: string) {
   return {
@@ -17,6 +18,7 @@ function mockWorkspace(name: string) {
 }
 
 describe('WorkspacesPlugin', function () {
+  let openFns: ReturnType<typeof useOpenWorkspace>;
   const sandbox = Sinon.createSandbox();
   const globalAppRegistry = sandbox.spy(new AppRegistry());
   const instance = {
@@ -48,30 +50,36 @@ describe('WorkspacesPlugin', function () {
           mockWorkspace('Collection'),
         ]}
       >
-        <Plugin onActiveWorkspaceTabChange={onTabChangeSpy}></Plugin>
+        <Plugin
+          onActiveWorkspaceTabChange={onTabChangeSpy}
+          renderModals={() => {
+            openFns = useOpenWorkspace();
+            return null;
+          }}
+        ></Plugin>
       </WorkspacesProvider>
     );
   }
 
   afterEach(function () {
+    (openFns as any) = null;
     sandbox.resetHistory();
     cleanup();
   });
 
   const tabs = [
-    ['My Queries', ['open-instance-workspace']],
-    ['Databases', ['open-instance-workspace', 'Databases']],
-    ['Performance', ['open-instance-workspace', 'Performance']],
-    ['db', ['select-database', 'db']],
-    ['db > coll', ['select-namespace', { namespace: 'db.coll' }]],
-    ['db > coll', ['open-namespace-in-new-tab', { namespace: 'db.coll' }]],
+    ['My Queries', () => openFns.openMyQueriesWorkspace()],
+    ['Databases', () => openFns.openDatabasesWorkspace()],
+    ['Performance', () => openFns.openPerformanceWorkspace()],
+    ['db', () => openFns.openCollectionsWorkspace('db')],
+    ['db > coll', () => openFns.openCollectionWorkspace('db.coll')],
   ] as const;
 
   for (const suite of tabs) {
-    const [tabName, event] = suite;
-    it(`should open "${tabName}" tab on ${event[0]} event`, function () {
+    const [tabName, fn] = suite;
+    it(`should open "${tabName}" tab when corresponding open method is called`, function () {
       renderPlugin();
-      globalAppRegistry.emit(event[0], event[1]);
+      fn();
       expect(screen.getByRole('tab', { name: tabName })).to.exist;
     });
   }
@@ -81,15 +89,9 @@ describe('WorkspacesPlugin', function () {
 
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
-    globalAppRegistry.emit('open-namespace-in-new-tab', {
-      namespace: 'db.coll1',
-    });
-    globalAppRegistry.emit('open-namespace-in-new-tab', {
-      namespace: 'db.coll2',
-    });
-    globalAppRegistry.emit('open-namespace-in-new-tab', {
-      namespace: 'db.coll3',
-    });
+    openFns.openCollectionWorkspace('db.coll1', { newTab: true });
+    openFns.openCollectionWorkspace('db.coll2', { newTab: true });
+    openFns.openCollectionWorkspace('db.coll3', { newTab: true });
 
     expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
       'aria-selected',

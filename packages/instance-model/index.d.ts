@@ -4,6 +4,8 @@ import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 
 import { ServerType } from './server-type';
 import { TopologyType } from './topology-type';
+import Database from 'mongodb-database-model';
+import { CollectionCollection } from 'mongodb-collection-model';
 
 interface AuthInfo {
   user: unknown | null;
@@ -104,6 +106,14 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   toJSON(opts?: { derived?: boolean }): MongoDBInstanceProps;
   previousAttributes(): MongoDBInstanceProps;
   set(val: Partial<MongoDBInstanceProps>): this;
+  static removeAllListeners(
+    model:
+      | MongoDBInstance
+      | DatabaseCollection
+      | Database
+      | CollectionCollection
+      | Collection
+  ): void;
 }
 
 export { MongoDBInstance, MongoDBInstanceProps, ServerType, TopologyType };

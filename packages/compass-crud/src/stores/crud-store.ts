@@ -1152,7 +1152,21 @@ class CrudStoreImpl
             previewAbortController: undefined,
           },
         });
+        return;
       }
+
+      // if there's no syntax error, then just clear it
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
 
       return;
     }
@@ -1845,9 +1859,18 @@ class CrudStoreImpl
 
     const PREVIEW_DOCS = 5;
 
+    const previews = (this.state.docs?.slice(0, PREVIEW_DOCS) || []).map(
+      (doc) => {
+        // The idea is just to break the link with the docs in the list so that
+        // expanding/collapsing docs in the modal doesn't modify the ones in the
+        // list.
+        return Document.FromEJSON(doc.toEJSON());
+      }
+    );
+
     this.setState({
       bulkDelete: {
-        previews: this.state.docs?.slice(0, PREVIEW_DOCS) || [],
+        previews,
         status: 'open',
         affected: this.state.count ?? undefined,
       },

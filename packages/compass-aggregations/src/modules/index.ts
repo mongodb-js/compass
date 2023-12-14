@@ -39,6 +39,7 @@ import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 /**
  * The main application reducer.
@@ -89,6 +90,7 @@ export type PipelineBuilderExtraArgs = {
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
+  workspaces: WorkspacesService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

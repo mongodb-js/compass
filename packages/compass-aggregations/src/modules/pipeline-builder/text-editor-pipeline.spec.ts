@@ -47,6 +47,8 @@ function createStore(
         atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
+        instance: {} as any,
+        workspaces: {} as any,
       })
     )
   );

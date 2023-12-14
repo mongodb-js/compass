@@ -12,6 +12,7 @@ import reducer, {
   topologyChanged,
 } from '../modules/create-namespace';
 import type toNS from 'mongodb-ns';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -23,6 +24,7 @@ export type CreateNamespaceServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
   logger: LoggerAndTelemetry;
+  workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 
 function configureStore(services: CreateNamespaceServices) {
