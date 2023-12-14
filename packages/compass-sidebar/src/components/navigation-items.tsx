@@ -251,9 +251,8 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 export function NavigationItems({
   isReady,
   isExpanded,
-  showCreateDatabaseAction = false,
-  showPerformanceItem = false,
-  isPerformanceTabSupported = false,
+  showCreateDatabaseAction,
+  isPerformanceTabSupported,
   onFilterChange,
   onAction,
   currentLocation,
@@ -262,9 +261,8 @@ export function NavigationItems({
 }: {
   isReady?: boolean;
   isExpanded?: boolean;
-  showCreateDatabaseAction?: boolean;
-  showPerformanceItem?: boolean;
-  isPerformanceTabSupported?: boolean;
+  showCreateDatabaseAction: boolean;
+  isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
@@ -324,20 +322,16 @@ export function NavigationItems({
                   label="My Queries"
                   isActive={currentLocation === 'My Queries'}
                 />
-                {showPerformanceItem && (
-                  <NavigationItem<''>
-                    isExpanded={isExpanded}
-                    onAction={onAction}
-                    onClick={openPerformanceWorkspace}
-                    glyph="Gauge"
-                    label="Performance"
-                    isActive={currentLocation === 'Performance'}
-                    disabled={!isPerformanceTabSupported}
-                    disabledMessage={
-                      'Your Atlas cluster does not support commands required for "Performance" tab to function properly'
-                    }
-                  />
-                )}
+                <NavigationItem<''>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  onClick={openPerformanceWorkspace}
+                  glyph="Gauge"
+                  label="Performance"
+                  isActive={currentLocation === 'Performance'}
+                  disabled={!isPerformanceTabSupported}
+                  disabledMessage="Performance metrics are not available for your deployment or to your database user"
+                />
                 <NavigationItem<DatabasesActions>
                   isExpanded={isExpanded}
                   onAction={onAction}
@@ -389,7 +383,7 @@ const mapStateToProps = (
     showPerformanceItem: !isDataLake,
     showCreateDatabaseAction: !isDataLake && isWritable && !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
-    isPerformanceTabSupported: !!state.isPerformanceTabSupported,
+    isPerformanceTabSupported: !isDataLake && !!state.isPerformanceTabSupported,
   };
 };
 

@@ -27,6 +27,8 @@ const createDataService = () => ({
   configuredKMSProviders() {
     return [];
   },
+  currentOp() {},
+  top() {},
   on() {},
   off() {},
   removeListener() {},
