@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import configureStore from '../../../../test/configure-store';
@@ -25,6 +25,8 @@ const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
 };
 
 describe('PipelineBuilderUIWorkspace [Component]', function () {
+  afterEach(cleanup);
+
   it('renders', function () {
     expect(() => renderPipelineBuilderUIWorkspace()).to.not.throw;
   });

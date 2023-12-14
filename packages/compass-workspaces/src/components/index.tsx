@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { css } from '@mongodb-js/compass-components';
-import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -9,20 +8,47 @@ import {
   type WorkspacesState,
 } from '../stores/workspaces';
 import Workspaces from './workspaces';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
+import { WorkspacesServiceProvider } from '../provider';
 
 type WorkspacesWithSidebarProps = {
+  /**
+   * Current active workspace tab
+   */
   activeTab: WorkspaceTab | null;
+  /**
+   * Collection info for the current active tab namespace (`null` if not fetched
+   * yet or active tab is not of type Collection)
+   */
   activeTabCollectionInfo: CollectionTabInfo | null;
+  /**
+   * Callback prop called when current active tab changes or collectionInfo for
+   * the active tab changes (in case of Collection workspace)
+   * @param ws current active workspace
+   * @param collectionInfo active workspaces collection info
+   */
   onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
     ws: WS | null,
     collectionInfo: WS extends { type: 'Collection' }
       ? CollectionTabInfo | null
       : never
   ): void;
+  /**
+   * Initial workspace tab to show (by default no tabs will be shown initially)
+   */
   initialWorkspaceTab?: OpenWorkspaceOptions;
-  initialConnectionInfo?: ConnectionInfo;
+  /**
+   * Workspaces sidebar component slot Required so that plugin modals can be
+   * rendered inside workspace React tree and access workspace state and actions
+   * from service locator context
+   */
+  renderSidebar?: () => React.ReactElement | null;
+  /**
+   * Workspaces plugin modals components slot. Required so that plugin modals
+   * can be rendered inside workspace React tree and access workspace state and
+   * actions from service locator context
+   */
+  renderModals?: () => React.ReactElement | null;
 };
 
 const horizontalSplitStyles = css({
@@ -47,7 +73,8 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   activeTab,
   activeTabCollectionInfo,
   onActiveWorkspaceTabChange,
-  initialConnectionInfo,
+  renderSidebar,
+  renderModals,
 }) => {
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
@@ -55,17 +82,17 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
   return (
-    <div className={horizontalSplitStyles}>
-      <div className={sidebarStyles}>
-        <CompassSidebarPlugin
-          activeWorkspace={activeTab}
-          initialConnectionInfo={initialConnectionInfo}
-        />
+    <WorkspacesServiceProvider>
+      <div className={horizontalSplitStyles}>
+        <div className={sidebarStyles}>
+          {renderSidebar && React.createElement(renderSidebar)}
+        </div>
+        <div className={workspacesStyles}>
+          <Workspaces></Workspaces>
+        </div>
       </div>
-      <div className={workspacesStyles}>
-        <Workspaces></Workspaces>
-      </div>
-    </div>
+      {renderModals && React.createElement(renderModals)}
+    </WorkspacesServiceProvider>
   );
 };
 

@@ -4,13 +4,7 @@ import type { HadronPluginComponent } from 'hadron-app-registry';
 
 export interface CollectionTabPlugin {
   name: string;
-  component: React.ComponentType<CollectionTabPluginMetadata> &
-    Partial<
-      Pick<
-        HadronPluginComponent<CollectionTabPluginMetadata, any>,
-        'useActivate'
-      >
-    >;
+  component: HadronPluginComponent<CollectionTabPluginMetadata, any>;
 }
 
 const CollectionTabsContext = React.createContext<CollectionTabPlugin[]>([]);

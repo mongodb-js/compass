@@ -26,12 +26,16 @@ describe('CreateNamespacePlugin', function () {
     build: { version: '999.999.999' },
     topologyDescription: { type: 'Unknown' },
   };
+  const workspaces = {
+    openCollectionWorkspace: sandbox.stub(),
+  };
 
   beforeEach(function () {
     const Plugin = CreateNamespacePlugin.withMockServices({
       globalAppRegistry: appRegistry,
       dataService,
       instance: instance as any,
+      workspaces: workspaces as any,
     });
     render(<Plugin></Plugin>);
   });
@@ -91,5 +95,9 @@ describe('CreateNamespacePlugin', function () {
       'db.coll2',
       {}
     );
+
+    expect(
+      workspaces.openCollectionWorkspace
+    ).to.have.been.called.calledOnceWith('db.coll2');
   });
 });

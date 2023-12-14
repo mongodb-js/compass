@@ -13,6 +13,9 @@ describe('large-limit module', function () {
         return [{ $project: { _id: 0, avg_price: { $avg: '$price' } } }];
       },
     },
+    workspaces: {
+      openCollectionWorkspace() {},
+    },
   };
 
   describe('#updateView', function () {

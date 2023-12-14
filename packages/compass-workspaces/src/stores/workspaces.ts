@@ -3,27 +3,8 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
-import type { WorkspacesServices } from '..';
-import type { MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
-import type { ServerStatsWorkspace } from '@mongodb-js/compass-serverstats';
-import type {
-  DatabasesWorkspace,
-  CollectionsWorkspace,
-} from '@mongodb-js/compass-databases-collections';
-import type { CollectionWorkspace } from '@mongodb-js/compass-collection';
+import type { AnyWorkspace, Workspace, WorkspacesServices } from '..';
 import { isEqual } from 'lodash';
-
-export type AnyWorkspace =
-  | MyQueriesWorkspace
-  | ServerStatsWorkspace
-  | DatabasesWorkspace
-  | CollectionsWorkspace
-  | CollectionWorkspace;
-
-export type Workspace<T extends AnyWorkspace['type']> = Extract<
-  AnyWorkspace,
-  { type: T }
->;
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -415,9 +396,11 @@ type FetchCollectionInfoAction = {
   info: CollectionTabInfo;
 };
 
+export type TabOptions = { newTab?: boolean };
+
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
-  tabOptions?: { newTab?: boolean }
+  tabOptions?: TabOptions
 ): WorkspacesThunkAction<
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction

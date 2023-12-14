@@ -196,7 +196,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, globalAppRegistry: appRegistry }
+    { dataService, globalAppRegistry: appRegistry, workspaces }
   ) => {
     const startTime = Date.now();
 
@@ -398,9 +398,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     } else {
       const onReviewDocumentsClick = appRegistry
         ? () => {
-            appRegistry.emit('import-export-open-collection-in-new-tab', {
-              ns,
-            });
+            workspaces.openCollectionWorkspace(ns, { newTab: true });
           }
         : undefined;
 

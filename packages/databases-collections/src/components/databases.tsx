@@ -16,9 +16,9 @@ import {
   createDatabase,
   dropDatabase,
   refreshDatabases,
-  selectDatabase,
 } from '../modules/databases';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 const errorContainerStyles = css({
   padding: spacing[3],
@@ -64,7 +64,6 @@ type DatabasesProps = {
   isWritable: boolean;
   isGenuineMongoDB: boolean;
   isDataLake: boolean;
-  onDatabaseClick(ns: string): void;
   onDeleteDatabaseClick(ns: string): void;
   onCreateDatabaseClick(): void;
   onRefreshClick(): void;
@@ -77,12 +76,12 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   isWritable,
   isDataLake,
   isGenuineMongoDB,
-  onDatabaseClick,
   onDeleteDatabaseClick,
   onCreateDatabaseClick,
   onRefreshClick,
 }) => {
   const isPreferencesReadOnly = usePreference('readOnly', React);
+  const { openCollectionsWorkspace } = useOpenWorkspace();
 
   useTrackOnChange(
     'COMPASS-DATABASES-UI',
@@ -110,7 +109,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
 
   const editable = isWritable && !isPreferencesReadOnly;
   const actions = Object.assign(
-    { onDatabaseClick, onRefreshClick },
+    { onDatabaseClick: openCollectionsWorkspace, onRefreshClick },
     editable && !isDataLake
       ? { onDeleteDatabaseClick, onCreateDatabaseClick }
       : {}
@@ -132,7 +131,6 @@ const mapStateToProps = (state: DatabasesState) => {
 
 const mapDispatchToProps = {
   onRefreshClick: refreshDatabases,
-  onDatabaseClick: selectDatabase,
   onDeleteDatabaseClick: dropDatabase,
   onCreateDatabaseClick: createDatabase,
 };

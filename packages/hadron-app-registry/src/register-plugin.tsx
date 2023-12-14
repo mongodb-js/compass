@@ -2,7 +2,8 @@ import React, { useContext, useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import type { Actions } from './actions';
-import { type Store, AppRegistry, isReduxStore } from './app-registry';
+import type { Plugin } from './app-registry';
+import { AppRegistry, isReduxStore } from './app-registry';
 import {
   GlobalAppRegistryContext,
   AppRegistryProvider,
@@ -106,22 +107,7 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
     initialProps: T,
     services: Registries & Services<S>,
     helpers: ActivateHelpers
-  ) => {
-    /**
-     * Redux or reflux store that will be automatically passed to a
-     * corresponding provider
-     */
-    store: Store;
-    /**
-     * Optional, only relevant for plugins still using reflux
-     */
-    actions?: typeof Actions;
-    /**
-     * Will be called to clean up plugin subscriptions when it is deactivated by
-     * app registry scope
-     */
-    deactivate: () => void;
-  };
+  ) => Plugin;
 };
 
 type MockOptions = {
@@ -181,7 +167,7 @@ function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
     })
   ) as Services<S>;
 
-  const [{ store, actions }] = useState(
+  const [{ store, actions, context }] = useState(
     () =>
       localAppRegistry.getPlugin(registryName) ??
       (() => {
@@ -199,7 +185,7 @@ function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
       })()
   );
 
-  return { store, actions };
+  return { store, actions, context };
 }
 
 export type HadronPluginComponent<
@@ -328,11 +314,15 @@ export function registerHadronPlugin<
     // thinks so: values returned by `useMock*` hooks are constant in React
     // runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { store, actions } = useHadronPluginActivate(config, services, props);
+    const { store, actions, context } = useHadronPluginActivate(
+      config,
+      services,
+      props
+    );
 
     if (isReduxStore(store)) {
       return (
-        <ReduxStoreProvider store={store}>
+        <ReduxStoreProvider context={context} store={store}>
           <Component {...props}></Component>
         </ReduxStoreProvider>
       );

@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
-  returnToView,
-  selectDatabase,
   type CollectionState,
-  editView,
   selectTab,
   renderScopedModals,
   renderTabs,
@@ -23,19 +20,6 @@ const { log, mongoLogId, track } = createLoggerAndTelemetry(
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
-
-const ConnectedCollectionHeader = connect(
-  (state: CollectionState) => {
-    return {
-      stats: state.stats,
-    };
-  },
-  {
-    onSelectDatabaseClick: selectDatabase,
-    onEditViewClick: editView,
-    onReturnToViewClick: returnToView,
-  }
-)(CollectionHeader);
 
 const collectionStyles = css({
   display: 'flex',
@@ -118,7 +102,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
     // `pluginTabs` never change in runtime so it's safe to call the hook here
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    Component.useActivate?.(pluginProps);
+    Component.useActivate(pluginProps);
 
     return {
       name,
@@ -130,10 +114,10 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
-        <ConnectedCollectionHeader
+        <CollectionHeader
           editViewName={editViewName}
           {...collectionMetadata}
-        ></ConnectedCollectionHeader>
+        ></CollectionHeader>
         <TabNavBar
           data-testid="collection-tabs"
           aria-label="Collection Tabs"

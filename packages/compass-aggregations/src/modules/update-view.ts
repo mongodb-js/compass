@@ -83,12 +83,17 @@ export const dismissViewError = (): DismissViewUpdateErrorAction => ({
  * @returns {Function} The function.
  */
 export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, workspaces }) => {
     dispatch(dismissViewError());
 
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
+
+    if (!viewNamespace) {
+      return;
+    }
+
     const viewPipeline = getPipelineFromBuilderState(
       getState(),
       pipelineBuilder
@@ -99,20 +104,14 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     };
 
     try {
-      debug('calling data-service.updateCollection', viewNamespace);
-      await ds!.updateCollection(viewNamespace!, options);
-      dispatch(globalAppRegistryEmit('refresh-data'));
+      await ds!.updateCollection(viewNamespace, options);
       track('View Updated', {
         num_stages: viewPipeline.length,
         editor_view_type: mapPipelineModeToEditorViewType(state),
       });
       debug('selecting namespace', viewNamespace);
-      dispatch(
-        globalAppRegistryEmit(
-          'aggregations-open-view-after-update',
-          viewNamespace
-        )
-      );
+      dispatch(globalAppRegistryEmit('view-edited', viewNamespace));
+      workspaces.openCollectionWorkspace(viewNamespace);
     } catch (e: any) {
       debug('Unexpected error updating view', e);
       dispatch(updateViewErrorOccured(e));

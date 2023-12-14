@@ -26,11 +26,15 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": {
+      "browser": "./dist/browser.js",
+      "require": "./dist/index.js"
+    },
+    "./provider": "./provider.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.tsx"
   },
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -60,7 +64,6 @@
     "@mongodb-js/compass-app-stores": "^7.7.5",
     "@mongodb-js/compass-components": "^1.20.2",
     "@mongodb-js/compass-logging": "^1.2.8",
-    "@mongodb-js/compass-sidebar": "^5.20.5",
     "bson": "^6.2.0",
     "hadron-app-registry": "^9.1.1",
     "mongodb-data-service": "^22.16.1",
@@ -70,17 +73,11 @@
     "@mongodb-js/compass-app-stores": "^7.7.5",
     "@mongodb-js/compass-components": "^1.20.2",
     "@mongodb-js/compass-logging": "^1.2.8",
-    "@mongodb-js/compass-sidebar": "^5.20.5",
     "bson": "^6.2.0",
     "hadron-app-registry": "^9.1.1",
     "mongodb-data-service": "^22.16.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-collection": "^4.20.5",
-    "@mongodb-js/compass-databases-collections": "^1.20.5",
-    "@mongodb-js/compass-saved-aggregations-queries": "^1.21.5",
-    "@mongodb-js/compass-serverstats": "^16.20.5",
-    "@mongodb-js/connection-storage": "^0.7.3",
     "@mongodb-js/eslint-config-compass": "^1.0.12",
     "@mongodb-js/mocha-config-compass": "^1.3.3",
     "@mongodb-js/prettier-config-compass": "^1.0.1",

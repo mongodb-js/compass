@@ -11,12 +11,12 @@ import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   refreshCollections,
   type CollectionsState,
-  openCollection,
   deleteCollection,
   createNewCollection,
 } from '../modules/collections';
 import type Collection from 'mongodb-collection-model';
 import toNS from 'mongodb-ns';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -30,7 +30,6 @@ type CollectionsListProps = {
   collectionsLoadingStatus: string;
   collectionsLoadingError?: string | null;
   isEditable: boolean;
-  onCollectionClick(ns: string): void;
   onDeleteCollectionClick(ns: string): void;
   onCreateCollectionClick(dbName: string): void;
   onRefreshClick(): void;
@@ -42,11 +41,12 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   collectionsLoadingStatus,
   collectionsLoadingError,
   isEditable,
-  onCollectionClick,
   onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
   onRefreshClick,
 }) => {
+  const { openCollectionWorkspace } = useOpenWorkspace();
+
   useTrackOnChange(
     'COMPASS-COLLECTIONS-UI',
     (track) => {
@@ -72,7 +72,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    { onCollectionClick, onRefreshClick },
+    { onCollectionClick: openCollectionWorkspace, onRefreshClick },
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 
@@ -92,7 +92,6 @@ const ConnectedCollections = connect(
   },
   {
     onRefreshClick: refreshCollections,
-    onCollectionClick: openCollection,
     onDeleteCollectionClick: deleteCollection,
     onCreateCollectionClick: createNewCollection,
   }

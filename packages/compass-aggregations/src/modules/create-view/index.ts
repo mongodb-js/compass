@@ -203,9 +203,8 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, dataService, logger: { debug, track } }
+    { globalAppRegistry, dataService, logger: { track }, workspaces }
   ) => {
-    debug('creating view!');
     const state = getState();
 
     const viewName = state.name;
@@ -218,28 +217,18 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
 
     try {
       dispatch(toggleIsRunning(true));
-      debug(
-        'calling data-service.createView',
-        viewName,
-        viewSource,
-        viewPipeline,
-        options
-      );
       await dataService.createView(
         viewName,
         viewSource,
         viewPipeline as Document[],
         options
       );
-      debug('View created!');
+      const ns = `${database}.${viewName}`;
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-      globalAppRegistry.emit(
-        'create-view-open-result-namespace',
-        `${database}.${viewName}`
-      );
+      globalAppRegistry.emit('view-created', ns);
+      workspaces.openCollectionWorkspace(ns, { newTab: true });
       dispatch(reset());
     } catch (e) {
-      debug('error creating view', e);
       dispatch(stopWithError(e as Error));
     }
   };

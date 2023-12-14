@@ -11,11 +11,11 @@ import {
 } from 'mongodb-data-service/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type {
-  DataService,
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './modules/data-service';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 
 const activate = () => {
   // noop
@@ -25,10 +25,7 @@ const deactivate = () => {
   // noop
 };
 
-export const CompassAggregationsHadronPlugin = registerHadronPlugin<
-  CollectionTabPluginMetadata,
-  { dataService: () => DataService }
->(
+export const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassAggregations',
     component: AggregationsPlugin,
@@ -39,6 +36,8 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin<
       RequiredDataServiceProps,
       OptionalDataServiceProps
     >,
+    workspaces: workspacesServiceLocator,
+    instance: mongoDBInstanceLocator,
   }
 );
 
@@ -56,6 +55,7 @@ export const CreateViewPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'createView'>,
     logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
+    workspaces: workspacesServiceLocator,
   }
 );
 
