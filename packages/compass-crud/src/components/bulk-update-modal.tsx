@@ -398,10 +398,7 @@ export default function BulkUpdateModal({
         <div className={enablePreview ? columnsStyles : undefined}>
           <div className={queryStyles}>
             <div className={queryFieldStyles}>
-              <ReadonlyFilter
-                queryLabel="Filter"
-                filterQuery={toJSString(filter) ?? ''}
-              />
+              <ReadonlyFilter filterQuery={toJSString(filter) ?? ''} />
             </div>
 
             <div className={cx(queryFieldStyles, updateFieldStyles)}>

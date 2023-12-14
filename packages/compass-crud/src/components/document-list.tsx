@@ -23,7 +23,6 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
-import { toJSString } from 'mongodb-query-parser';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -315,7 +314,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         open={this.props.store.state.bulkDelete.status === 'open'}
         namespace={this.props.store.state.ns}
         documentCount={this.props.store.state.bulkDelete.affected}
-        filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
+        filter={this.props.store.state.query.filter}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
         sampleDocuments={
