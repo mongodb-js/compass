@@ -307,7 +307,7 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   );
 };
 
-export type BulkUpdateDialogProps = {
+export type BulkUpdateModalProps = {
   isOpen: boolean;
   ns: string;
   filter: BSONObject;
@@ -317,13 +317,13 @@ export type BulkUpdateDialogProps = {
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error;
   enablePreview?: boolean;
-  closeBulkUpdateDialog: () => void;
+  closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
   saveUpdateQuery: (name: string) => void;
 };
 
-export default function BulkUpdateDialog({
+export default function BulkUpdateModal({
   isOpen,
   ns,
   filter,
@@ -333,11 +333,11 @@ export default function BulkUpdateDialog({
   syntaxError,
   serverError,
   enablePreview = false,
-  closeBulkUpdateDialog,
+  closeBulkUpdateModal,
   updateBulkUpdatePreview,
   runBulkUpdate,
   saveUpdateQuery,
-}: BulkUpdateDialogProps) {
+}: BulkUpdateModalProps) {
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
@@ -388,7 +388,7 @@ export default function BulkUpdateDialog({
   return (
     <Modal
       open={isOpen}
-      setOpen={closeBulkUpdateDialog}
+      setOpen={closeBulkUpdateModal}
       data-testid="bulk-update-dialog"
       contentClassName={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
@@ -464,7 +464,7 @@ export default function BulkUpdateDialog({
         <div className={modalFooterFormActionsStyles}>
           <Button
             variant="default"
-            onClick={closeBulkUpdateDialog}
+            onClick={closeBulkUpdateModal}
             data-testid="cancel-button"
           >
             Cancel

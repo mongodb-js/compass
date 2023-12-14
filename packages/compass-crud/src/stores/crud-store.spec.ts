@@ -893,7 +893,7 @@ describe('store', function () {
     );
   });
 
-  describe('#bulkUpdateDialog', function () {
+  describe('#bulkUpdateModal', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
@@ -922,7 +922,7 @@ describe('store', function () {
     });
 
     it('opens the bulk update dialog with a proper initialised state', async function () {
-      void store.openBulkUpdateDialog();
+      void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
@@ -955,14 +955,14 @@ describe('store', function () {
     });
 
     it('closes the bulk dialog keeping previous state', async function () {
-      void store.openBulkUpdateDialog();
-      void store.openBulkUpdateDialog();
+      void store.openBulkUpdateModal();
+      void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
       });
 
-      store.closeBulkUpdateDialog();
+      store.closeBulkUpdateModal();
 
       const bulkUpdate = store.state.bulkUpdate;
 
@@ -2820,7 +2820,7 @@ describe('store', function () {
       });
 
       it('never calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateDialog();
+        void store.openBulkUpdateModal();
         store.onQueryChanged({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
@@ -2839,7 +2839,7 @@ describe('store', function () {
       });
 
       it('resets syntaxError when there is no syntax error', async function () {
-        void store.openBulkUpdateDialog();
+        void store.openBulkUpdateModal();
         store.onQueryChanged({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField:  } }'); // syntax error
 
@@ -2905,7 +2905,7 @@ describe('store', function () {
       });
 
       it('calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateDialog();
+        void store.openBulkUpdateModal();
         store.onQueryChanged({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
