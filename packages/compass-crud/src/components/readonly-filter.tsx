@@ -35,12 +35,12 @@ const codeStyles = css({
 });
 
 type ReadonlyFilterProps = {
-  queryLabel: string;
+  queryLabel?: string;
   filterQuery: string;
 };
 
 export function ReadonlyFilter({
-  queryLabel,
+  queryLabel = 'Filter',
   filterQuery,
 }: ReadonlyFilterProps) {
   const readOnlyFilterId = useId();

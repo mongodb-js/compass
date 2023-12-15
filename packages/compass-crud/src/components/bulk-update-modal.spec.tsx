@@ -3,13 +3,13 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import BulkUpdateDialog from './bulk-update-dialog';
+import BulkUpdateModal from './bulk-update-modal';
 
-function renderBulkUpdateDialog(
-  props?: Partial<React.ComponentProps<typeof BulkUpdateDialog>>
+function renderBulkUpdateModal(
+  props?: Partial<React.ComponentProps<typeof BulkUpdateModal>>
 ) {
   return render(
-    <BulkUpdateDialog
+    <BulkUpdateModal
       isOpen={true}
       ns="mydb.mycoll"
       filter={{ a: 1 }}
@@ -24,7 +24,7 @@ function renderBulkUpdateDialog(
         ],
       }}
       enablePreview={true}
-      closeBulkUpdateDialog={() => {}}
+      closeBulkUpdateModal={() => {}}
       updateBulkUpdatePreview={() => {}}
       runBulkUpdate={() => {}}
       saveUpdateQuery={() => {}}
@@ -33,18 +33,18 @@ function renderBulkUpdateDialog(
   );
 }
 
-describe('BulkUpdateDialog Component', function () {
+describe('BulkUpdateModal Component', function () {
   afterEach(function () {
     cleanup();
   });
 
   it('does not render if closed', function () {
-    renderBulkUpdateDialog({ isOpen: false });
+    renderBulkUpdateModal({ isOpen: false });
     expect(screen.queryByText(/Update/)).to.not.exist;
   });
 
   it('renders if open', function () {
-    renderBulkUpdateDialog({ count: 42 });
+    renderBulkUpdateModal({ count: 42 });
 
     expect(screen.getByTestId('modal-title').textContent).to.equal(
       'Update 42 documents'
@@ -72,7 +72,7 @@ describe('BulkUpdateDialog Component', function () {
   });
 
   it('hides document count if count is N/A', function () {
-    renderBulkUpdateDialog({ count: undefined });
+    renderBulkUpdateModal({ count: undefined });
 
     expect(screen.getByTestId('modal-title').textContent).to.equal(
       'Update documents'
@@ -82,7 +82,7 @@ describe('BulkUpdateDialog Component', function () {
   });
 
   it('use singular if count is 1', function () {
-    renderBulkUpdateDialog({ count: 1 });
+    renderBulkUpdateModal({ count: 1 });
     expect(screen.getByTestId('modal-title').textContent).to.equal(
       'Update 1 document'
     );
@@ -91,17 +91,17 @@ describe('BulkUpdateDialog Component', function () {
   });
 
   it('renders the empty state if the count is 0', function () {
-    renderBulkUpdateDialog({ count: 0 });
+    renderBulkUpdateModal({ count: 0 });
     expect(screen.getByTestId('bulk-update-preview-empty-state')).to.exist;
   });
 
   it('resets if the modal is re-opened', async function () {
     // initial open
-    const { rerender } = renderBulkUpdateDialog({ isOpen: true });
+    const { rerender } = renderBulkUpdateModal({ isOpen: true });
 
     // close
     rerender(
-      <BulkUpdateDialog
+      <BulkUpdateModal
         isOpen={false}
         ns="mydb.mycoll"
         filter={{ a: 1 }}
@@ -115,7 +115,7 @@ describe('BulkUpdateDialog Component', function () {
             },
           ],
         }}
-        closeBulkUpdateDialog={() => {}}
+        closeBulkUpdateModal={() => {}}
         updateBulkUpdatePreview={() => {}}
         runBulkUpdate={() => {}}
         saveUpdateQuery={() => {}}
@@ -124,7 +124,7 @@ describe('BulkUpdateDialog Component', function () {
 
     // re-open
     rerender(
-      <BulkUpdateDialog
+      <BulkUpdateModal
         isOpen={true}
         ns="mydb.mycoll"
         filter={{ a: 1 }}
@@ -138,7 +138,7 @@ describe('BulkUpdateDialog Component', function () {
             },
           ],
         }}
-        closeBulkUpdateDialog={() => {}}
+        closeBulkUpdateModal={() => {}}
         updateBulkUpdatePreview={() => {}}
         runBulkUpdate={() => {}}
         saveUpdateQuery={() => {}}
@@ -156,7 +156,7 @@ describe('BulkUpdateDialog Component', function () {
 
   it('closes the modal when the close button is clicked', function () {
     const onCloseSpy = sinon.spy();
-    renderBulkUpdateDialog({ closeBulkUpdateDialog: onCloseSpy });
+    renderBulkUpdateModal({ closeBulkUpdateModal: onCloseSpy });
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onCloseSpy).to.have.been.calledOnce;
@@ -164,7 +164,7 @@ describe('BulkUpdateDialog Component', function () {
 
   it('runs the update when the update button is clicked (preview supported)', function () {
     const onUpdateSpy = sinon.spy();
-    renderBulkUpdateDialog({
+    renderBulkUpdateModal({
       enablePreview: true,
       runBulkUpdate: onUpdateSpy,
       count: 60,
@@ -183,7 +183,7 @@ describe('BulkUpdateDialog Component', function () {
 
   it('runs the update when the update button is clicked (preview unsupported)', function () {
     const onUpdateSpy = sinon.spy();
-    renderBulkUpdateDialog({
+    renderBulkUpdateModal({
       enablePreview: false,
       runBulkUpdate: onUpdateSpy,
       count: 60,
@@ -202,7 +202,7 @@ describe('BulkUpdateDialog Component', function () {
 
   it('saves the query when a name is provided', function () {
     const saveUpdateQuerySpy = sinon.spy();
-    renderBulkUpdateDialog({ saveUpdateQuery: saveUpdateQuerySpy });
+    renderBulkUpdateModal({ saveUpdateQuery: saveUpdateQuerySpy });
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
     userEvent.type(

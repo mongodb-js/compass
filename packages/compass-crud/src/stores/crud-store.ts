@@ -1031,7 +1031,7 @@ class CrudStoreImpl
   /**
    * Closing the bulk update dialog just resets the state to the default.
    */
-  closeBulkUpdateDialog() {
+  closeBulkUpdateModal() {
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1108,7 +1108,7 @@ class CrudStoreImpl
     });
   }
 
-  async openBulkUpdateDialog() {
+  async openBulkUpdateModal() {
     track('Bulk Update Opened', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
@@ -1253,7 +1253,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    this.closeBulkUpdateDialog();
+    this.closeBulkUpdateModal();
 
     // keep the filter count around for the duration of the toast
     this.setState({
@@ -2039,7 +2039,7 @@ export function activateDocumentsPlugin(
     (query: QueryState & { update: BSONObject }) => {
       void store.onQueryChanged(query);
       void store.refreshDocuments();
-      void store.openBulkUpdateDialog();
+      void store.openBulkUpdateModal();
       void store.updateBulkUpdatePreview(
         toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
       );
