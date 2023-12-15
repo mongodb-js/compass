@@ -289,7 +289,9 @@ export default connect(
       return { name, type };
     });
     const previousStageFieldsWithSchema = getSchema(
-      previousStage?.previewDocs ?? []
+      previousStage?.previewDocs?.map((doc) => {
+        return doc.generateObject();
+      }) ?? []
     );
 
     const fields =
