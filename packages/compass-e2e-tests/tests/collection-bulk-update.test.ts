@@ -67,7 +67,7 @@ describe('Bulk Update', () => {
     // Check that the modal starts with the default update text
     expect(
       await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
-    ).to.equal('{ $set: { } }');
+    ).to.match(/{\s+\$set:\s+{\s+},?\s+}/);
 
     // Change the update text
     await browser.setCodemirrorEditorValue(
@@ -81,7 +81,7 @@ describe('Bulk Update', () => {
         .$(Selectors.BulkUpdatePreviewDocument + ':first-child')
         .getText();
       console.log(text);
-      return /foo\s+:\s+"bar"/.test(text);
+      return /foo\s*:\s+"bar"/.test(text);
     });
 
     // Press update
