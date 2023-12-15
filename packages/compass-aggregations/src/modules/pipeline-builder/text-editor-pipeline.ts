@@ -211,11 +211,11 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       autoPreview,
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       collationString,
       limit,
       largeLimit,
@@ -250,6 +250,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
       const options: PreviewOptions = {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+          preferences,
           maxTimeMS ?? DEFAULT_MAX_TIME_MS
         ),
         collation: collationString.value ?? undefined,

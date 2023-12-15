@@ -1,7 +1,7 @@
-import preferences from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { checkValidator } from './validation';
 import type { DataService } from 'mongodb-data-service';
-import type { RootAction, RootState } from '.';
+import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -217,9 +217,11 @@ const getSampleDocuments = async ({
   pipeline,
   namespace,
   dataService,
+  preferences,
 }: {
   namespace: string;
   dataService: DataService;
+  preferences: PreferencesAccess;
   pipeline: Record<string, unknown>[];
 }) => {
   const aggOptions = {
@@ -231,10 +233,13 @@ const getSampleDocuments = async ({
   return await dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
-export const fetchValidDocument = () => {
+export const fetchValidDocument = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
   return async (
     dispatch: (action: RootAction) => void,
-    getState: () => RootState
+    getState: () => RootState,
+    { preferences }
   ) => {
     dispatch(fetchingValidDocument());
 
@@ -257,6 +262,7 @@ export const fetchValidDocument = () => {
         await getSampleDocuments({
           namespace,
           dataService,
+          preferences,
           pipeline: [{ $match: query }, { $limit: 1 }],
         })
       )[0];
@@ -268,10 +274,13 @@ export const fetchValidDocument = () => {
   };
 };
 
-export const fetchInvalidDocument = () => {
+export const fetchInvalidDocument = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
   return async (
     dispatch: (action: RootAction) => void,
-    getState: () => RootState
+    getState: () => RootState,
+    { preferences }
   ) => {
     dispatch(fetchingInvalidDocument());
 
@@ -295,6 +304,7 @@ export const fetchInvalidDocument = () => {
         await getSampleDocuments({
           namespace,
           dataService,
+          preferences,
           pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
         })
       )[0];

@@ -121,7 +121,16 @@ const UserSchema = z.object({
 
 export type User = z.output<typeof UserSchema>;
 
-export class UserStorage {
+export interface UserStorage {
+  getOrCreate(id?: string): Promise<User>;
+  getUser(id: string): Promise<User>;
+  updateUser(
+    id: string,
+    attributes: Partial<z.input<typeof UserSchema>>
+  ): Promise<User>;
+}
+
+export class UserStorageImpl implements UserStorage {
   private readonly userData: UserData<typeof UserSchema>;
   constructor(basePath?: string) {
     this.userData = new UserData(UserSchema, {

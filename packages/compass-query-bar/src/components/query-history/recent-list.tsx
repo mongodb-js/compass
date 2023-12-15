@@ -43,7 +43,7 @@ const RecentItem = ({
   query: RecentQuery;
   isReadonly: boolean;
 }) => {
-  const readOnlyCompass = usePreference('readOnly', React);
+  const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
 

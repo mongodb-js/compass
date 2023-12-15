@@ -189,7 +189,11 @@ export const runAIPipelineGeneration = (
   Promise<void>,
   AIPipelineStartedAction | AIPipelineFailedAction | LoadGeneratedPipelineAction
 > => {
-  return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasService, pipelineBuilder, preferences }
+  ) => {
     const {
       pipelineBuilder: {
         aiPipeline: { aiPipelineFetchId: existingFetchId },

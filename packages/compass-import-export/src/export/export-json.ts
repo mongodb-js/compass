@@ -4,6 +4,7 @@ import { EJSON } from 'bson';
 import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 import { objectToIdiomaticEJSON } from 'hadron-document';
@@ -115,16 +116,19 @@ export async function exportJSONFromAggregation({
   ns,
   aggregation,
   dataService,
+  preferences,
   ...exportOptions
 }: Omit<ExportJSONOptions, 'input'> & {
   ns: string;
   dataService: Pick<DataService, 'aggregateCursor'>;
+  preferences: PreferencesAccess;
   aggregation: ExportAggregation;
 }) {
   debug('exportJSONFromAggregation()', { ns: toNS(ns), aggregation });
 
   const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
+    preferences,
     aggregationOptions.maxTimeMS
   );
   const aggregationCursor = dataService.aggregateCursor(

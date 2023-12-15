@@ -15,11 +15,18 @@ function emit(
   }
 }
 
-export function createLoggerAndTelemetry(component: string) {
+export function createLoggerAndTelemetry(
+  component: string,
+  preferencesService?: Parameters<typeof createGenericLoggerAndTelemetry>[2]
+) {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
     ? // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('hadron-ipc').ipcRenderer
     : null;
-  return createGenericLoggerAndTelemetry(component, emit.bind(null, ipc));
+  return createGenericLoggerAndTelemetry(
+    component,
+    emit.bind(null, ipc),
+    preferencesService
+  );
 }

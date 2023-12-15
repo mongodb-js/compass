@@ -40,6 +40,7 @@ import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 /**
  * The main application reducer.
@@ -91,6 +92,7 @@ export type PipelineBuilderExtraArgs = {
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
   workspaces: WorkspacesService;
+  preferences: PreferencesAccess;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

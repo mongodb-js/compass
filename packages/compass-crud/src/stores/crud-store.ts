@@ -10,7 +10,10 @@ import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import {
+  PreferencesAccess,
+  capMaxTimeMSAtPreferenceLimit,
+} from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import {
@@ -435,6 +438,7 @@ class CrudStoreImpl
   state!: CrudState;
   setState!: (newState: Partial<CrudState>) => void;
   dataService: DataService;
+  preferences: PreferencesAccess;
   localAppRegistry: Pick<
     AppRegistry,
     'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
@@ -450,7 +454,7 @@ class CrudStoreImpl
     options: CrudStoreOptions & CrudStoreActionsOptions,
     services: Pick<
       DocumentsPluginServices,
-      'dataService' | 'localAppRegistry' | 'globalAppRegistry'
+      'dataService' | 'localAppRegistry' | 'globalAppRegistry' | 'preferences'
     >
   ) {
     super(options);
@@ -462,6 +466,7 @@ class CrudStoreImpl
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
+    this.preferences = services.preferences;
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -964,7 +969,7 @@ class CrudStoreImpl
       sort,
       projection,
       collation,
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(this.preferences, maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
     };
@@ -1656,13 +1661,17 @@ class CrudStoreImpl
     const signal = abortController.signal;
 
     const fetchShardingKeysOptions = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
+        query.maxTimeMS
+      ),
       signal,
     };
 
-    const countOptions: Parameters<typeof countDocuments>[3] = {
+    const countOptions: Parameters<typeof countDocuments>[4] = {
       skip: query.skip,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
         query.maxTimeMS > COUNT_MAX_TIME_MS_CAP
           ? COUNT_MAX_TIME_MS_CAP
           : query.maxTimeMS
@@ -1680,7 +1689,10 @@ class CrudStoreImpl
       skip: query.skip,
       limit: NUM_PAGE_DOCS,
       collation: query.collation,
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
+        query.maxTimeMS
+      ),
       promoteValues: false,
       bsonRegExp: true,
     };
@@ -1721,7 +1733,13 @@ class CrudStoreImpl
     }
 
     // Don't wait for the count to finish. Set the result asynchronously.
-    countDocuments(this.dataService, ns, query.filter, countOptions)
+    countDocuments(
+      this.dataService,
+      this.preferences,
+      ns,
+      query.filter,
+      countOptions
+    )
       .then((count) => this.setState({ count, loadingCount: false }))
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
@@ -2010,6 +2028,7 @@ export type DocumentsPluginServices = {
     AppRegistry,
     'on' | 'emit' | 'removeListener' | 'getStore'
   >;
+  preferences: PreferencesAccess;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -2018,6 +2037,7 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
+    preferences,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -2029,6 +2049,7 @@ export function activateDocumentsPlugin(
         dataService,
         localAppRegistry,
         globalAppRegistry,
+        preferences,
       }
     )
   ) as CrudStore;

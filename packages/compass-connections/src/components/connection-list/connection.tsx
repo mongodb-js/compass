@@ -18,7 +18,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 
 import ConnectionIcon from './connection-icon';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -223,6 +223,7 @@ function Connection({
     : normalConnectionMenuColor;
 
   const { openToast } = useToast('compass-connections');
+  const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const onAction = useCallback(
     (action: Action) => {

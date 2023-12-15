@@ -63,7 +63,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
-  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
+  const aiFeatureEnabled = useIsAIFeatureEnabled();
   const onMountRef = useRef(onMount);
 
   useEffect(() => {

@@ -18,6 +18,7 @@ import {
   changeSchemaFields,
   applyFilterChange,
   QueryBarActions,
+  updatePreferencesMaxTimeMS,
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -26,6 +27,8 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -40,6 +43,7 @@ export type QueryBarStoreOptions = {
     dataProvider?: QueryBarDataService;
   };
   atlasService: AtlasService;
+  preferences: PreferencesAccess;
 
   // For testing.
   basepath?: string;
@@ -61,6 +65,7 @@ export type QueryBarExtraArgs = {
   recentQueryStorage: RecentQueryStorage;
   dataService: Pick<QueryBarDataService, 'sample'>;
   atlasService: AtlasService;
+  preferences: PreferencesAccess;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -79,6 +84,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
     query,
     namespace,
     dataProvider,
+    preferences = defaultPreferencesInstance, // TODO(COMPASS-7405): Proper service injection
     atlasService = new AtlasService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
@@ -96,6 +102,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
           ...DEFAULT_FIELD_VALUES,
           ...getQueryAttributes(query ?? {}),
         }),
+        preferencesMaxTimeMS: preferences.getPreferences().maxTimeMS ?? null,
       },
     },
     applyMiddleware(
@@ -111,8 +118,13 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
         recentQueryStorage,
         favoriteQueryStorage,
         atlasService,
+        preferences,
       })
     )
+  );
+  // TODO(COMPASS-7405): unsubscribe on deactivate
+  preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+    store.dispatch(updatePreferencesMaxTimeMS(newValue))
   );
 
   if (options.globalAppRegistry) {

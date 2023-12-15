@@ -59,7 +59,7 @@ export const OPTION_DEFINITION: {
     placeholder: '60000',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
     extraTextInputProps() {
-      const preferenceMaxTimeMS = usePreference('maxTimeMS', React);
+      const preferenceMaxTimeMS = usePreference('maxTimeMS');
       const props: { max?: number; placeholder?: string } = {
         max: preferenceMaxTimeMS,
       };

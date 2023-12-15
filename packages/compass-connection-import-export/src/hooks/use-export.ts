@@ -80,10 +80,7 @@ export function useExportConnections(
     }
   }, [favoriteConnections, state.connectionList]);
 
-  const protectConnectionStrings = !!usePreference(
-    'protectConnectionStrings',
-    React
-  );
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   useEffect(() => {
     if (protectConnectionStrings) {
       setState((prevState) => ({ ...prevState, removeSecrets: true }));

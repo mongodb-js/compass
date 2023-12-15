@@ -26,6 +26,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import type { Schema } from 'mongodb-schema';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
@@ -63,6 +64,7 @@ export type SchemaPluginServices = {
     'on' | 'emit' | 'removeListener' | 'getStore'
   >;
   loggerAndTelemetry: LoggerAndTelemetry;
+  preferences: PreferencesAccess;
 };
 
 type SchemaState = {
@@ -122,6 +124,7 @@ export function activateSchemaPlugin(
     localAppRegistry,
     globalAppRegistry,
     loggerAndTelemetry,
+    preferences,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -285,7 +288,7 @@ export function activateSchemaPlugin(
       };
 
       const driverOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
       };
 
       try {

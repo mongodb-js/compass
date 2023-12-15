@@ -1,4 +1,5 @@
 import type { AggregateOptions, Document } from 'mongodb';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { DataService } from '../modules/data-service';
 
@@ -10,6 +11,7 @@ const defaultOptions = {
 
 export async function aggregatePipeline({
   dataService,
+  preferences,
   signal,
   namespace,
   pipeline,
@@ -18,6 +20,7 @@ export async function aggregatePipeline({
   limit,
 }: {
   dataService: DataService;
+  preferences: PreferencesAccess;
   signal: AbortSignal;
   namespace: string;
   pipeline: Document[];
@@ -28,7 +31,7 @@ export async function aggregatePipeline({
   const allOptions = {
     ...defaultOptions,
     ...options,
-    maxTimeMS: capMaxTimeMSAtPreferenceLimit(options.maxTimeMS),
+    maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, options.maxTimeMS),
   };
   return dataService.aggregate(
     namespace,

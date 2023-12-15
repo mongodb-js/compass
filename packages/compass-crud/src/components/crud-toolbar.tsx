@@ -177,7 +177,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     [count, page]
   );
 
-  const enableExplainPlan = usePreference('enableExplainPlan', React);
+  const enableExplainPlan = usePreference('enableExplainPlan');
   const shouldDisableBulkOp = useMemo(
     () => querySkip || queryLimit,
     [querySkip, queryLimit]

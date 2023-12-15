@@ -330,4 +330,4 @@ function Field({
   );
 }
 
-export default withPreferences(Field, ['enableMaps'], React);
+export default withPreferences(Field, ['enableMaps']);

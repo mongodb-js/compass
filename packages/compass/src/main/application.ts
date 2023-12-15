@@ -10,10 +10,12 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
-import preferences, {
-  setupPreferencesAndUser,
+import type {
+  ParsedGlobalPreferencesResult,
+  PreferencesAccess,
+  UserStorage,
 } from 'compass-preferences-model';
+import { setupPreferencesAndUser } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
 import { defaultsDeep } from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -58,6 +60,8 @@ class CompassApplication {
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
+  private static preferences: PreferencesAccess;
+  private static userStorage: UserStorage;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -70,7 +74,11 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    await setupPreferencesAndUser(globalPreferences);
+    const { preferences, userStorage } = await setupPreferencesAndUser(
+      globalPreferences
+    );
+    this.preferences = preferences;
+    this.userStorage = userStorage;
     await this.setupLogging();
     // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
@@ -185,7 +193,7 @@ class CompassApplication {
       },
     } as const;
 
-    const { atlasServiceBackendPreset } = preferences.getPreferences();
+    const { atlasServiceBackendPreset } = this.preferences.getPreferences();
 
     const atlasServiceConfig = defaultsDeep(
       {
@@ -201,7 +209,7 @@ class CompassApplication {
       config[atlasServiceBackendPreset]
     );
 
-    await AtlasService.init(atlasServiceConfig);
+    await AtlasService.init(atlasServiceConfig, this);
 
     this.addExitHandler(() => {
       return AtlasService.onExit();
@@ -235,7 +243,7 @@ class CompassApplication {
       file,
       positionalArguments,
       maxTimeMS,
-    } = preferences.getPreferences();
+    } = this.preferences.getPreferences();
 
     debug('application launched');
     track('Application Launched', async () => {

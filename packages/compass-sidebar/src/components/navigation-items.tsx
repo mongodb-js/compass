@@ -158,7 +158,7 @@ export function NavigationItem<Actions extends string>({
   disabledMessage?: string;
 }) {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const onClick = useCallback(() => {
     if (isButtonDisabled) {
       return;
@@ -391,8 +391,7 @@ const MappedNavigationItems = withPreferences(
   connect(mapStateToProps, {
     onFilterChange: changeFilterRegex,
   })(NavigationItems),
-  ['readOnly'],
-  React
+  ['readOnly']
 );
 
 export default MappedNavigationItems;

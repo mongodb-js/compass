@@ -44,11 +44,10 @@ describe('React integration', function () {
         };
       });
 
-    const WrappedComponent = withPreferences(
-      TestComponent,
-      ['enableMaps', 'trackUsageStatistics'],
-      React
-    );
+    const WrappedComponent = withPreferences(TestComponent, [
+      'enableMaps',
+      'trackUsageStatistics',
+    ]);
 
     render(<WrappedComponent outerProp={42} />);
     const contents = screen.getByTestId('props-as-json');
@@ -78,11 +77,10 @@ describe('React integration', function () {
       enableFeedbackPanel: true,
     } as Partial<AllPreferences> as any);
 
-    const WrappedComponent = withPreferences(
-      TestComponentClass,
-      ['enableMaps', 'trackUsageStatistics'],
-      React
-    );
+    const WrappedComponent = withPreferences(TestComponentClass, [
+      'enableMaps',
+      'trackUsageStatistics',
+    ]);
 
     render(<WrappedComponent outerProp={42} />);
     const contents = screen.getByTestId('props-as-json');

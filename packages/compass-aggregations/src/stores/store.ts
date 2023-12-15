@@ -28,13 +28,14 @@ import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
-import preferencesAccess from 'compass-preferences-model';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -80,6 +81,7 @@ export type AggregationsPluginServices = {
   >;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
+  preferences: PreferencesAccess;
 };
 
 export function activateAggregationsPlugin(
@@ -90,6 +92,7 @@ export function activateAggregationsPlugin(
     globalAppRegistry,
     workspaces,
     instance,
+    preferences
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -113,6 +116,7 @@ export function activateAggregationsPlugin(
 
   const pipelineBuilder = new PipelineBuilder(
     dataService,
+    preferences,
     initialPipelineSource
   );
 
@@ -171,7 +175,7 @@ export function activateAggregationsPlugin(
           // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferencesAccess.getPreferences().enableStageWizard &&
+          preferences.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
@@ -182,7 +186,17 @@ export function activateAggregationsPlugin(
         atlasService,
         workspaces,
         instance,
+        preferences,
       })
+    )
+  );
+
+  store.dispatch(
+    preferencesMaxTimeMSChanged(preferences.getPreferences().maxTimeMS)
+  );
+  addCleanup(
+    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+      store.dispatch(preferencesMaxTimeMSChanged(newValue))
     )
   );
 

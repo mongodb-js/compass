@@ -15,7 +15,7 @@ let preferencesSingleton: Preferences | undefined;
 
 export async function setupPreferences(
   globalPreferences: ParsedGlobalPreferencesResult
-): Promise<void> {
+): Promise<PreferencesAccess> {
   if (preferencesSingleton) {
     throw new Error('Preferences setup already been called!');
   }
@@ -32,7 +32,7 @@ export async function setupPreferences(
     // Ignore missing ipc if COMPASS_TEST_ env is set, this means that we are in
     // a test environment where it's expected not to have ipc
     if (process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true') {
-      return;
+      return preferencesMain;
     }
     throw new Error('Trying to setup preferences in unsupported environments');
   }
@@ -72,6 +72,7 @@ export async function setupPreferences(
   ipcMain.handle('compass:get-preference-sandbox-properties', () => {
     return preferences.getPreferenceSandboxProperties();
   });
+  return preferencesMain;
 }
 
 const makePreferenceMain = (preferences: () => Preferences | undefined) => ({

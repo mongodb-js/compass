@@ -307,4 +307,4 @@ export default connect((state: RootState) => ({
     state.runtime.appRegistry?.emit('compass:compass-shell:opened');
   },
   runtime: state.runtime ? state.runtime.runtime : null,
-}))(withPreferences(CompassShell, ['enableShell'], React));
+}))(withPreferences(CompassShell, ['enableShell']));

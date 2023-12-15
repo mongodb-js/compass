@@ -39,7 +39,7 @@ type QueryAIProps = Omit<
 
 function QueryAI(props: QueryAIProps) {
   // Don't show the feedback options if telemetry is disabled.
-  const enableTelemetry = usePreference('trackUsageStatistics', React);
+  const enableTelemetry = usePreference('trackUsageStatistics');
 
   return (
     <GenerativeAIInput

@@ -1,4 +1,5 @@
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { BSONObject } from '../stores/crud-store';
 import type { DataService } from './data-service';
@@ -9,6 +10,7 @@ const { log, mongoLogId, debug } = createLoggerAndTelemetry(
 
 export async function countDocuments(
   dataService: DataService,
+  preferences: PreferencesAccess,
   ns: string,
   filter: BSONObject,
   {
@@ -22,7 +24,7 @@ export async function countDocuments(
   >[2]
 ): Promise<number | null> {
   const opts = {
-    maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
+    maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, maxTimeMS),
     hint,
   };
 
