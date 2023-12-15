@@ -34,6 +34,12 @@ type WorkspacesWithSidebarProps = {
       : never
   ): void;
   /**
+   * A unique current connection identifier. Used to persist workspace tabs
+   * state between Compass sessions. If not provided, tab state will not be
+   * persisted between sessions
+   */
+  currentConnectionId?: string;
+  /**
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
   initialWorkspaceTab?: OpenWorkspaceOptions;

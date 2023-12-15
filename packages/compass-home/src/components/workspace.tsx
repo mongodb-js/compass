@@ -67,6 +67,7 @@ export default function Workspace({
           ]}
         >
           <WorkspacesPlugin
+            currentConnectionId={connectionInfo?.id}
             initialWorkspaceTab={{ type: 'My Queries' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => {

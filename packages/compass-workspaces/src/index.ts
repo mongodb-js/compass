@@ -1,7 +1,11 @@
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { OpenWorkspaceOptions, WorkspaceTab } from './stores/workspaces';
+import type {
+  OpenWorkspaceOptions,
+  WorkspaceTab,
+  WorkspacesState,
+} from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -21,6 +25,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { DataServiceLocator } from 'mongodb-data-service/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import { WorkspacesStoreContext } from './stores/context';
+import toNS from 'mongodb-ns';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -29,16 +34,44 @@ export type WorkspacesServices = {
 };
 
 export function configureStore(
+  currentConnectionId: string | undefined | null,
   initialWorkspaceTab: OpenWorkspaceOptions | undefined | null,
   services: WorkspacesServices
 ) {
+  const storedStateKey = currentConnectionId
+    ? `workspaces:${currentConnectionId}`
+    : null;
+
+  const storedStateStr = storedStateKey
+    ? localStorage.getItem(storedStateKey)
+    : null;
+
+  const storedState = storedStateStr
+    ? (JSON.parse(storedStateStr) as WorkspacesState)
+    : null;
+
+  // Tabs expect db / coll models to be already present in collections
+  for (const tab of storedState?.tabs ?? []) {
+    if (tab.type === 'Collections') {
+      services.instance.databases.add({ _id: tab.namespace });
+    }
+    if (tab.type === 'Collection') {
+      const { database } = toNS(tab.namespace);
+      const db =
+        services.instance.databases.get(database) ??
+        services.instance.databases.add({ _id: database });
+
+      db.collections.add({ _id: tab.namespace });
+    }
+  }
+
   const initialTabs = initialWorkspaceTab
     ? [getInitialTabState(initialWorkspaceTab)]
     : [];
 
   const store = createStore(
     workspacesReducer,
-    {
+    storedState ?? {
       tabs: initialTabs,
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
@@ -46,15 +79,27 @@ export function configureStore(
     applyMiddleware(thunk.withExtraArgument(services))
   );
 
+  store.subscribe(() => {
+    if (storedStateKey) {
+      localStorage.setItem(storedStateKey, JSON.stringify(store.getState()));
+    }
+  });
+
   return store;
 }
 
 export function activateWorkspacePlugin(
-  { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
+  {
+    initialWorkspaceTab,
+    currentConnectionId,
+  }: {
+    initialWorkspaceTab?: OpenWorkspaceOptions;
+    currentConnectionId?: string;
+  },
   { globalAppRegistry, instance, dataService }: WorkspacesServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const store = configureStore(initialWorkspaceTab, {
+  const store = configureStore(currentConnectionId, initialWorkspaceTab, {
     globalAppRegistry,
     instance,
     dataService,
