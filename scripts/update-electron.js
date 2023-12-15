@@ -11,9 +11,13 @@ async function cleanAndBootstrap(electronVersion) {
     await runInDir('rm -Rf node_modules');
     const packageJsonBkp = fs.readFileSync('./package.json');
     await runInDir('npm i');
-    await runInDir(`npm i electron@${electronVersion}`); // make sure electron is hoisted on the root
+    // Make sure electron is hoisted on the root
+    await runInDir(`npm i electron@${electronVersion}`);
     await runInDir('npm run bootstrap');
     fs.writeFileSync('./package.json', packageJsonBkp);
+    // Run install again to make sure root level electron is removed from
+    // package-lock
+    await runInDir('npm i');
   } catch (error) {
     console.error(`Error running command: ${error}`);
   }

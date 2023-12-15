@@ -12,6 +12,8 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
+import type { BSONObject } from '../stores/crud-store';
+import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 
@@ -59,7 +61,7 @@ const exportToLanguageButtonStyles = css({
 type BulkDeleteModalProps = {
   open: boolean;
   documentCount?: number;
-  filterQuery: string;
+  filter: BSONObject;
   namespace: string;
   sampleDocuments: Document[];
   onCancel: () => void;
@@ -70,7 +72,7 @@ type BulkDeleteModalProps = {
 const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   open,
   documentCount,
-  filterQuery,
+  filter,
   namespace,
   sampleDocuments,
   onCancel,
@@ -106,7 +108,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       />
       <ModalBody variant={'danger'} className={modalBodySpacingStyles}>
         <div className={queryBarStyles}>
-          <ReadonlyFilter queryLabel="Filter" filterQuery={filterQuery} />
+          <ReadonlyFilter filterQuery={toJSString(filter) ?? ''} />
           <Button
             className={exportToLanguageButtonStyles}
             variant="primaryOutline"
