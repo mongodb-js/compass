@@ -61,4 +61,4 @@ Document.propTypes = {
   isExpanded: PropTypes.bool,
 };
 
-export default Document;
+export default React.memo(Document);

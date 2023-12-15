@@ -1127,14 +1127,6 @@ class CrudStoreImpl
       this.state.bulkUpdate.previewAbortController.abort();
     }
 
-    // immediately persist the state before any other state changes
-    this.setState({
-      bulkUpdate: {
-        ...this.state.bulkUpdate,
-        updateText,
-      },
-    });
-
     // Don't try and calculate the update preview if we know it won't work. Just
     // see if the update will parse.
     if (!this.state.isUpdatePreviewSupported) {
@@ -1144,6 +1136,7 @@ class CrudStoreImpl
         this.setState({
           bulkUpdate: {
             ...this.state.bulkUpdate,
+            updateText,
             preview: {
               changes: [],
             },
@@ -1159,6 +1152,7 @@ class CrudStoreImpl
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
+          updateText,
           preview: {
             changes: [],
           },
@@ -1173,6 +1167,8 @@ class CrudStoreImpl
 
     const abortController = new AbortController();
 
+    // set the abort controller in the state before we start doing anything so
+    // that other calls can see it
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1192,6 +1188,7 @@ class CrudStoreImpl
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
+          updateText,
           preview: {
             changes: [],
           },
@@ -1200,6 +1197,12 @@ class CrudStoreImpl
           previewAbortController: undefined,
         },
       });
+
+      return;
+    }
+
+    if (abortController.signal.aborted) {
+      // don't kick off an expensive query if we're already aborted anyway
       return;
     }
 
@@ -1221,6 +1224,7 @@ class CrudStoreImpl
       this.setState({
         bulkUpdate: {
           ...this.state.bulkUpdate,
+          updateText,
           preview: {
             changes: [],
           },
@@ -1229,6 +1233,7 @@ class CrudStoreImpl
           previewAbortController: undefined,
         },
       });
+
       return;
     }
 
@@ -1240,6 +1245,7 @@ class CrudStoreImpl
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
+        updateText,
         preview,
         serverError: undefined,
         syntaxError: undefined,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import DocumentPreview from '.';
@@ -21,10 +21,10 @@ describe('DocumentPreview [Component]', function () {
 
   context('when document loading state is success', function () {
     it('renders a document if there is one present', function () {
-      const component = shallow(
+      const component = mount(
         <DocumentPreview loadingState="success" document={{}} />
       );
-      expect(component.find('Document')).to.exist;
+      expect(component.find('HadronDocument')).to.exist;
     });
 
     it('renders a no preview text when there is no document', function () {
