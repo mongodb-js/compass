@@ -14,8 +14,8 @@ updates:
       - dependency-name: "@mongosh/node-runtime-worker-thread"
       - dependency-name: "@mongosh/browser-repl"
       - dependency-name: "@mongosh/logging"
-      - dependency-name: "@mongodb-js/oidc-plugin" # we bump mongosh when we this updates
-      - dependency-name: "@mongodb-js/devtools-connect" # we bump mongosh when we this updates
+      - dependency-name: "@mongodb-js/oidc-plugin" # we bump mongosh when this updates
+      - dependency-name: "@mongodb-js/devtools-connect" # we bump mongosh when this updates
       # All the electron and its related deps
       - dependency-name: "electron"
       - dependency-name: "@electron/remote"
