@@ -9,7 +9,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type AppRegistry from 'hadron-app-registry';
+import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
 import constants from '../constants/schema';
 
@@ -56,32 +56,24 @@ function extractStringValue(value: any): string {
 }
 
 type ValueBubbleProps = {
-  localAppRegistry: AppRegistry;
   fieldName: string;
   queryValue: any;
   value: any;
 };
 
-function ValueBubble({
-  localAppRegistry,
-  fieldName,
-  queryValue,
-  value,
-}: ValueBubbleProps) {
+function ValueBubble({ fieldName, queryValue, value }: ValueBubbleProps) {
   const darkMode = useDarkMode();
+  const changeQuery = useChangeQueryBarQuery();
 
   const onBubbleClicked = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      localAppRegistry.emit('query-bar-change-filter', {
-        type: e.shiftKey ? 'toggleDistinctValue' : 'setValue',
-        payload: {
-          field: fieldName,
-          value,
-          unsetIfSet: true,
-        },
+      changeQuery(e.shiftKey ? 'toggleDistinctValue' : 'setValue', {
+        field: fieldName,
+        value,
+        unsetIfSet: true,
       });
     },
-    [fieldName, localAppRegistry, value]
+    [changeQuery, fieldName, value]
   );
 
   const extractedStringValue = useMemo(

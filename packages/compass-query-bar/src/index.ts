@@ -39,10 +39,10 @@ function deactivate(): void {
 
 export function useQueryBarQuery() {
   const fields = useSelector((state) => {
-    return mapFormFieldsToQuery(state.queryBar.fields);
+    return state.queryBar.fields;
   });
   return useMemo(() => {
-    return fields;
+    return mapFormFieldsToQuery(fields);
   }, [fields]);
 }
 
