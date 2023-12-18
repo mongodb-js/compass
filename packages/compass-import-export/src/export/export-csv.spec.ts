@@ -29,6 +29,7 @@ import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -273,6 +274,7 @@ describe('exportCSV', function () {
         options: {},
       },
       output,
+      preferences: await createSandboxFromDefaultPreferences(),
     });
 
     expect(result).to.deep.equal({
@@ -352,6 +354,7 @@ describe('exportCSV', function () {
         ],
         options: {},
       },
+      preferences: await createSandboxFromDefaultPreferences(),
     });
 
     expect(result).to.deep.equal({
@@ -388,6 +391,7 @@ describe('exportCSV', function () {
         options: {},
       },
       progressCallback,
+      preferences: await createSandboxFromDefaultPreferences(),
     });
 
     expect(result).to.deep.equal({

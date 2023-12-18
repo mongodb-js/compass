@@ -2,8 +2,9 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import type { AllPreferences } from './';
-import preferences, { withPreferences } from './index';
+import { createSandboxFromDefaultPreferences, withPreferences } from './index';
 import sinon from 'sinon';
+import { PreferencesProvider } from './provider';
 
 function TestComponent(props: { outerProp: number; enableMaps: boolean }) {
   return <div data-testid="props-as-json">{JSON.stringify(props)}</div>;
@@ -26,7 +27,9 @@ describe('React integration', function () {
     return sandbox.restore();
   });
 
-  it('allows reading preference values and accounts for updates', function () {
+  it('allows reading preference values and accounts for updates', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    (preferences as any).SANDBOX = 1;
     const callbacks: any = {};
     sandbox.stub(preferences, 'getPreferences').returns({
       enableMaps: true,
@@ -49,7 +52,11 @@ describe('React integration', function () {
       'trackUsageStatistics',
     ]);
 
-    render(<WrappedComponent outerProp={42} />);
+    render(
+      <PreferencesProvider value={preferences}>
+        <WrappedComponent outerProp={42} />
+      </PreferencesProvider>
+    );
     const contents = screen.getByTestId('props-as-json');
     expect(JSON.parse(String(contents.textContent))).to.deep.equal({
       outerProp: 42,
@@ -70,7 +77,8 @@ describe('React integration', function () {
     expect(callbacks.trackUsageStatistics).to.have.lengthOf(0);
   });
 
-  it('works with class components', function () {
+  it('works with class components', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
     sandbox.stub(preferences, 'getPreferences').returns({
       enableMaps: true,
       trackUsageStatistics: true,
@@ -82,7 +90,11 @@ describe('React integration', function () {
       'trackUsageStatistics',
     ]);
 
-    render(<WrappedComponent outerProp={42} />);
+    render(
+      <PreferencesProvider value={preferences}>
+        <WrappedComponent outerProp={42} />
+      </PreferencesProvider>
+    );
     const contents = screen.getByTestId('props-as-json');
     expect(JSON.parse(String(contents.textContent))).to.deep.equal({
       outerProp: 42,

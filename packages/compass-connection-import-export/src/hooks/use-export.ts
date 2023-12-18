@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import {
   COMMON_INITIAL_STATE,

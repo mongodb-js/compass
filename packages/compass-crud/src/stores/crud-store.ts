@@ -10,10 +10,8 @@ import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  PreferencesAccess,
-  capMaxTimeMSAtPreferenceLimit,
-} from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import {

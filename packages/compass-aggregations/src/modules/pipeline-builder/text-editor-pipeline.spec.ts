@@ -49,6 +49,11 @@ function createStore(
         pipelineStorage: new PipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
+        preferences: {
+          getPreferences() {
+            return { maxTimeMS: 10000 };
+          },
+        },
       })
     )
   );

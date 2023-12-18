@@ -10,7 +10,6 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import preferencesAccess from 'compass-preferences-model';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import type { IndexesDataService } from '../../stores/store';
 import Indexes from './indexes';
@@ -55,19 +54,6 @@ const renderIndexes = (props: Partial<RootState> = {}) => {
 describe('Indexes Component', function () {
   before(cleanup);
   afterEach(cleanup);
-
-  let sandbox: sinon.SinonSandbox;
-
-  afterEach(function () {
-    return sandbox.restore();
-  });
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-    sandbox.stub(preferencesAccess, 'getPreferences').returns({
-      enableAtlasSearchIndexManagement: true,
-    } as any);
-  });
 
   it('renders indexes card', function () {
     renderIndexes();

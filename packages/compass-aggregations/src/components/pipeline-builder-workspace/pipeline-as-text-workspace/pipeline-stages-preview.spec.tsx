@@ -9,26 +9,35 @@ import userEvent from '@testing-library/user-event';
 import configureStore from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
-import preferencesAccess from 'compass-preferences-model';
-
-const renderStageBanner = (
-  props: Partial<ComponentProps<typeof OutputStagePreview>> = {}
-) => {
-  render(
-    <Provider store={configureStore()}>
-      <OutputStagePreview
-        stageOperator="$out"
-        isComplete={false}
-        isLoading={false}
-        onOpenCollection={() => {}}
-        onSaveCollection={() => {}}
-        {...props}
-      />
-    </Provider>
-  );
-};
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('OutputStagePreview', function () {
+  let preferences: PreferencesAccess;
+  const renderStageBanner = (
+    props: Partial<ComponentProps<typeof OutputStagePreview>> = {}
+  ) => {
+    render(
+      <PreferencesProvider value={preferences}>
+        <Provider store={configureStore()}>
+          <OutputStagePreview
+            stageOperator="$out"
+            isComplete={false}
+            isLoading={false}
+            onOpenCollection={() => {}}
+            onSaveCollection={() => {}}
+            {...props}
+          />
+        </Provider>
+      </PreferencesProvider>
+    );
+  };
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   (['$out', '$merge'] as const).forEach((stageOperator) => {
     describe(`${stageOperator} with run aggregation enabled`, function () {
       it('renders stage banner', function () {
@@ -43,21 +52,9 @@ describe('OutputStagePreview', function () {
     });
 
     describe(`${stageOperator} with run aggregation disabled`, function () {
-      let enableAggregationBuilderRunPipeline: boolean;
-
       before(async function () {
-        enableAggregationBuilderRunPipeline =
-          preferencesAccess.getPreferences()
-            .enableAggregationBuilderRunPipeline;
-
-        await preferencesAccess.savePreferences({
+        await preferences.savePreferences({
           enableAggregationBuilderRunPipeline: false,
-        });
-      });
-
-      after(async function () {
-        await preferencesAccess.savePreferences({
-          enableAggregationBuilderRunPipeline,
         });
       });
 

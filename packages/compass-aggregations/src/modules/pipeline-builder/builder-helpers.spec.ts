@@ -14,10 +14,13 @@ import {
 } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 
 function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
+  const preferences = defaultPreferencesInstance;
   const pipelineBuilder = new PipelineBuilder(
     {} as DataService,
+    preferences,
     pipelineSource
   );
   const stages = pipelineBuilder.stages.map(mapBuilderStageToStoreStage);
@@ -38,6 +41,7 @@ function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
         pipelineStorage: new PipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
+        preferences,
       })
     )
   );
