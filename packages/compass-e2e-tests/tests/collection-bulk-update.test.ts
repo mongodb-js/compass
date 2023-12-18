@@ -67,7 +67,7 @@ describe('Bulk Update', () => {
     // Check that the modal starts with the default update text
     expect(
       await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
-    ).to.equal('{\n  $set: {\n\n  },\n}');
+    ).to.match(/{\s+\$set:\s+{\s+},?\s+}/);
 
     // Change the update text
     await browser.setCodemirrorEditorValue(
@@ -198,12 +198,9 @@ describe('Bulk Update', () => {
     ).to.equal('{ i: { $gt: 5 } }');
 
     // Check that the modal starts with the expected update text
-    expect(await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)).to
-      .equal(`{
- $set: {
-  k: 0
- }
-}`);
+    expect(
+      await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
+    ).to.equal(`{ $set: { k: 0 } }`);
   });
 });
 

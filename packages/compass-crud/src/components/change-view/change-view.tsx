@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useMemo } from 'react';
 import { type Document } from 'bson';
 import TypeChecker from 'hadron-type-checker';
 
@@ -569,7 +569,7 @@ export function ChangeView({
   before: Document;
   after: Document;
 }) {
-  const obj = unifyDocuments(before, after);
+  const obj = useMemo(() => unifyDocuments(before, after), [before, after]);
 
   const darkMode = useDarkMode();
 

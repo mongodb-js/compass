@@ -12,7 +12,7 @@ function renderBulkDeleteModal(
     <BulkDeleteModal
       open={true}
       documentCount={0}
-      filterQuery="{ a: 1 }"
+      filter={{ a: 1 }}
       namespace="mydb.mycoll"
       sampleDocuments={[]}
       onCancel={() => {}}
@@ -68,9 +68,9 @@ describe('BulkDeleteModal Component', function () {
   });
 
   it('shows the provided query', function () {
-    renderBulkDeleteModal({ filterQuery: '{ a: 1 }' });
+    renderBulkDeleteModal({ filter: { a: 1 } });
     expect(screen.getByTestId('readonly-filter').textContent).to.equal(
-      '{ a: 1 }'
+      '{\n a: 1\n}'
     );
   });
 

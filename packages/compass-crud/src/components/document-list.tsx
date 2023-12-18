@@ -13,8 +13,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
-import type { BulkUpdateDialogProps } from './bulk-update-dialog';
-import BulkUpdateDialog from './bulk-update-dialog';
+import type { BulkUpdateModalProps } from './bulk-update-modal';
+import BulkUpdateModal from './bulk-update-modal';
 import type { DocumentListViewProps } from './document-list-view';
 import DocumentListView from './document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
@@ -23,7 +23,6 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
-import { toJSString } from 'mongodb-query-parser';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -74,7 +73,7 @@ const loaderContainerStyles = css({
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
-  openBulkUpdateDialog: () => void;
+  openBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
   saveUpdateQuery: (name: string) => void;
@@ -94,10 +93,10 @@ export type DocumentListProps = {
         | 'isCommentNeeded'
       >
     >;
-  bulkUpdate: Partial<BulkUpdateDialogProps> &
+  bulkUpdate: Partial<BulkUpdateModalProps> &
     Required<
       Pick<
-        BulkUpdateDialogProps,
+        BulkUpdateModalProps,
         'isOpen' | 'syntaxError' | 'serverError' | 'preview' | 'updateText'
       >
     >;
@@ -125,7 +124,7 @@ export type DocumentListProps = {
     | 'ns'
     | 'updateComment'
   > &
-  Pick<BulkUpdateDialogProps, 'closeBulkUpdateDialog'> &
+  Pick<BulkUpdateModalProps, 'closeBulkUpdateModal'> &
   Pick<
     CrudToolbarProps,
     | 'error'
@@ -276,13 +275,13 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
 
     return (
-      <BulkUpdateDialog
+      <BulkUpdateModal
         ns={this.props.ns}
         filter={this.props.query.filter}
         count={this.props.count}
         enablePreview={this.props.isUpdatePreviewSupported}
         {...this.props.bulkUpdate}
-        closeBulkUpdateDialog={this.props.closeBulkUpdateDialog}
+        closeBulkUpdateModal={this.props.closeBulkUpdateModal}
         updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
         runBulkUpdate={this.props.runBulkUpdate}
         saveUpdateQuery={this.onSaveUpdateQuery.bind(this)}
@@ -315,7 +314,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         open={this.props.store.state.bulkDelete.status === 'open'}
         namespace={this.props.store.state.ns}
         documentCount={this.props.store.state.bulkDelete.affected}
-        filterQuery={toJSString(this.props.store.state.query.filter) || '{}'}
+        filter={this.props.store.state.query.filter}
         onCancel={this.onCancelBulkDeleteDialog.bind(this)}
         onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
         sampleDocuments={
@@ -385,7 +384,7 @@ class DocumentList extends React.Component<DocumentListProps> {
    * Handle opening the update bulk dialog.
    */
   handleUpdateButton() {
-    this.props.openBulkUpdateDialog();
+    this.props.openBulkUpdateModal();
   }
 
   /**
@@ -457,7 +456,7 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   static propTypes = {
     closeInsertDocumentDialog: PropTypes.func,
-    closeBulkUpdateDialog: PropTypes.func,
+    closeBulkUpdateModal: PropTypes.func,
     toggleInsertDocumentView: PropTypes.func.isRequired,
     toggleInsertDocument: PropTypes.func.isRequired,
     count: PropTypes.number,
@@ -476,7 +475,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     isTimeSeries: PropTypes.bool,
     store: PropTypes.object.isRequired,
     openInsertDocumentDialog: PropTypes.func,
-    openBulkUpdateDialog: PropTypes.func,
+    openBulkUpdateModal: PropTypes.func,
     updateBulkUpdatePreview: PropTypes.func,
     runBulkUpdarte: PropTypes.func,
     openImportFileDialog: PropTypes.func,
@@ -521,7 +520,7 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
-  closeBulkUpdateDialog: PropTypes.func,
+  closeBulkUpdateModal: PropTypes.func,
   count: PropTypes.number,
   start: PropTypes.number,
   end: PropTypes.number,
@@ -538,7 +537,7 @@ DocumentList.propTypes = {
   isTimeSeries: PropTypes.bool,
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
-  openBulkUpdateDialog: PropTypes.func,
+  openBulkUpdateModal: PropTypes.func,
   updateBulkUpdatePreview: PropTypes.func,
   runBulkUpdate: PropTypes.func,
   saveUpdateQuery: PropTypes.func,
