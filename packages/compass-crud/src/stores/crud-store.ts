@@ -2027,6 +2027,7 @@ export function activateDocumentsPlugin(
     )
   ) as CrudStore;
 
+  // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));

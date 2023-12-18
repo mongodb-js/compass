@@ -3,7 +3,7 @@ import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import { ConnectedDocumentList } from './components/connected-document-list';
+import { DocumentListWithReadonly } from './components/connected-document-list';
 import { activateDocumentsPlugin } from './stores/crud-store';
 import {
   dataServiceLocator,
@@ -33,7 +33,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin<
 >(
   {
     name: 'CompassDocuments',
-    component: ConnectedDocumentList as any, // as any because of reflux store
+    component: DocumentListWithReadonly as any, // as any because of reflux store
     activate: activateDocumentsPlugin,
   },
   {

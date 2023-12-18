@@ -136,7 +136,6 @@ export type DocumentListProps = {
     | 'getPage'
     | 'insertDataHandler'
     | 'localAppRegistry'
-    | 'isExportable'
     | 'openExportFileDialog'
     | 'outdated'
     | 'isWritable'
@@ -415,7 +414,6 @@ class DocumentList extends React.Component<DocumentListProps> {
               getPage={this.props.getPage}
               insertDataHandler={this.handleOpenInsert.bind(this)}
               localAppRegistry={this.props.store.localAppRegistry}
-              isExportable={this.props.isExportable}
               onApplyClicked={this.onApplyClicked.bind(this)}
               onResetClicked={this.onResetClicked.bind(this)}
               onUpdateButtonClicked={this.handleUpdateButton.bind(this)}
@@ -471,7 +469,6 @@ class DocumentList extends React.Component<DocumentListProps> {
     insertDocument: PropTypes.func,
     insertMany: PropTypes.func,
     isEditable: PropTypes.bool.isRequired,
-    isExportable: PropTypes.bool.isRequired,
     isTimeSeries: PropTypes.bool,
     store: PropTypes.object.isRequired,
     openInsertDocumentDialog: PropTypes.func,
@@ -533,7 +530,6 @@ DocumentList.propTypes = {
   insertDocument: PropTypes.func,
   insertMany: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
-  isExportable: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool,
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
