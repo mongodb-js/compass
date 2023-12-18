@@ -52,3 +52,6 @@ export interface PreferencesAccess {
 export { setupPreferences };
 export const defaultPreferencesInstance: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
+export function createSandboxFromDefaultPreferences(): Promise<PreferencesAccess> {
+  return defaultPreferencesInstance.createSandbox();
+}

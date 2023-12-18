@@ -1,11 +1,17 @@
-import React from 'react';
+import {
+  type Dispatch,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from '../modules/connection-attempt';
@@ -19,7 +25,8 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { UserPreferences, usePreference } from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -214,7 +221,7 @@ export function connectionsReducer(state: State, action: Action): State {
 }
 
 async function loadConnections(
-  dispatch: React.Dispatch<{
+  dispatch: Dispatch<{
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
@@ -288,7 +295,7 @@ export function useConnections({
   const forceConnectionOptions = usePreference('forceConnectionOptions') ?? [];
   const browserCommandForOIDCAuth = usePreference('browserCommandForOIDCAuth');
 
-  const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
+  const [state, dispatch]: [State, Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
   );

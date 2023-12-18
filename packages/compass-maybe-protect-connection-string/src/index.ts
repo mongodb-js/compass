@@ -1,4 +1,3 @@
-import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
