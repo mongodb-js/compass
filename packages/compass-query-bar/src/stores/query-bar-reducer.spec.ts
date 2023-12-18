@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { promises as fs } from 'fs';
-import os from 'os';
-
-import { DEFAULT_QUERY_VALUES } from '../constants/query-bar-store';
+import {
+  DEFAULT_FIELD_VALUES,
+  DEFAULT_QUERY_VALUES,
+} from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import {
   QueryBarActions,
@@ -14,31 +14,24 @@ import {
   resetQuery,
   setQuery,
 } from './query-bar-reducer';
-import configureStore from './query-bar-store';
-import type { QueryBarStoreOptions } from './query-bar-store';
+import { configureStore } from './query-bar-store';
+import type { QueryBarExtraArgs, RootState } from './query-bar-store';
 import Sinon from 'sinon';
 import type AppRegistry from 'hadron-app-registry';
+import { mapQueryToFormFields } from '../utils/query';
 
-function createStore(opts: Partial<QueryBarStoreOptions>) {
-  return configureStore(opts);
+function createStore(
+  opts: Partial<RootState['queryBar']> = {},
+  services: QueryBarExtraArgs
+) {
+  return configureStore(opts, services);
 }
 
 describe('queryBarReducer', function () {
-  let tmpDir: string;
   let store: ReturnType<typeof createStore>;
 
-  before(async function () {
-    tmpDir = await fs.mkdtemp(os.tmpdir());
-  });
-
   beforeEach(function () {
-    store = createStore({
-      basepath: tmpDir,
-    });
-  });
-
-  after(async function () {
-    await fs.rmdir(tmpDir, { recursive: true });
+    store = createStore({}, {} as any);
   });
 
   describe('changeField', function () {
@@ -245,7 +238,6 @@ describe('queryBarReducer', function () {
 
   describe('isReadonlyConnection', function () {
     it('should refresh the readonly status when requested', function () {
-      const store = createStore({});
       store.dispatch({
         type: QueryBarActions.ChangeReadonlyConnectionStatus,
         readonly: true,
@@ -261,14 +253,17 @@ describe('queryBarReducer', function () {
         on: Sinon.spy(),
         emit: Sinon.spy(),
       } as unknown as AppRegistry;
-      const store = createStore({
-        localAppRegistry,
-        query: {
-          filter: { _id: { $exists: true } },
-          project: { _id: 1 },
-          limit: 10,
+      const store = createStore(
+        {
+          fields: mapQueryToFormFields({
+            ...DEFAULT_FIELD_VALUES,
+            filter: { _id: { $exists: true } },
+            project: { _id: 1 },
+            limit: 10,
+          }),
         },
-      });
+        { localAppRegistry } as any
+      );
       store.dispatch(explainQuery());
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(localAppRegistry.emit).to.have.been.calledOnceWith(
