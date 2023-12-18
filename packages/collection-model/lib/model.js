@@ -93,6 +93,7 @@ function getParentByType(model, type) {
 }
 
 function pickCollectionInfo({
+  type,
   readonly,
   view_on,
   collation,
@@ -101,7 +102,7 @@ function pickCollectionInfo({
   clustered,
   fle2,
 }) {
-  return { readonly, view_on, collation, pipeline, validation, clustered, fle2 };
+  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2 };
 }
 
 /**
@@ -207,16 +208,16 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         return this.type === 'view';
       },
     },
-    sourceId: {
+    sourceName: {
       deps: ['view_on'],
       fn() {
         return this.view_on ? `${this.database}.${this.view_on}` : null;
       },
     },
     source: {
-      deps: ['sourceId'],
+      deps: ['sourceName'],
       fn() {
-        return this.collection.get(this.sourceId) ?? null;
+        return this.collection.get(this.sourceName) ?? null;
       },
     },
     properties: {
@@ -269,6 +270,8 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // We don't care if it fails to get stats from server for any reason
     }
 
+    const instance = getParentByType(this, 'Instance');
+
     /**
      * The support for search indexes is a feature of a server not a collection.
      * As this check can only be performed currently by running $listSearchIndexes
@@ -276,11 +279,12 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
      * With this setup, when a user opens the first collection, we set this property
      * on the instance model and then from there its value is read avoiding call to server.
      */
-    const isSearchIndexesSupported = await getParentByType(this, 'Instance')
-      .getIsSearchSupported({
+    const isSearchIndexesSupported =
+      !this.isView &&
+      (await instance.getIsSearchSupported({
         dataService,
         ns: this.ns,
-      });
+      }));
 
     const collectionMetadata = {
       namespace: this.ns,
@@ -289,23 +293,18 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       isClustered: this.clustered,
       isFLE: this.fle2,
       isSearchIndexesSupported,
+      isDataLake: instance.dataLake.isDataLake,
+      isAtlas: instance.env === 'atlas',
+      serverVersion: instance.build.version,
     };
-    if (this.sourceId) {
-      try {
-        await this.source.fetch({ dataService });
-      } catch (e) {
-        if (e.name !== 'MongoServerError') {
-          throw e;
-        }
-        // We don't care if it fails to get stats from server for any reason
-      }
+
+    if (this.sourceName) {
       Object.assign(collectionMetadata, {
-        sourceName: this.source.ns,
-        sourceReadonly: this.source.readonly,
-        sourceViewon: this.source.sourceId,
+        sourceName: this.sourceName,
         sourcePipeline: this.pipeline,
       });
     }
+
     return collectionMetadata;
   },
 
@@ -370,10 +369,9 @@ const CollectionCollection = AmpersandCollection.extend(
             // refactor significantly. We can address this in COMPASS-5211
             return getNamespaceInfo(coll._id).system === false;
           })
-          .map(({ _id, type, ...rest }) => {
+          .map(({ _id, ...rest }) => {
             return {
               _id,
-              type,
               ...pickCollectionInfo(rest),
             };
           })

@@ -9,7 +9,6 @@ import {
   useDarkMode,
   cx,
 } from '@mongodb-js/compass-components';
-import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
@@ -59,13 +58,13 @@ const errorContainerStyles = css({
   marginRight: spacing[3],
 });
 
-type PipelineEditorProps = {
+export type PipelineEditorProps = {
   num_stages: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
-  fields: CompletionWithServerInfo[];
+  fields: { name: string }[];
   onChangePipelineText: (value: string) => void;
 };
 
@@ -85,10 +84,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const completer = useMemo(() => {
     return createAggregationAutocompleter({
       serverVersion,
-      fields: fields.filter(
-        (field): field is { name: string } & CompletionWithServerInfo =>
-          !!field.name
-      ),
+      fields: fields.filter((field) => !!field.name),
     });
   }, [serverVersion, fields]);
 

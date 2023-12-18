@@ -24,7 +24,7 @@ const loadAutoConnectWithConnection = async (
   try {
     await fs.mkdir(path.join(tmpDir, 'Connections'));
 
-    ConnectionStorage['ipcMain'] = { handle: sinon.stub() };
+    ConnectionStorage['ipcMain'] = { createHandle: sinon.stub() };
     ConnectionStorage.init(tmpDir);
     await Promise.all(
       connections.map((connectionInfo) =>
@@ -55,21 +55,13 @@ const loadAutoConnectWithConnection = async (
 
 describe('auto connection argument parsing', function () {
   let sandbox: sinon.SinonSandbox;
-  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-
   beforeEach(function () {
     sandbox = sinon.createSandbox();
-    sandbox.stub(ipcRenderer, 'call').resolves(true);
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+    sandbox.stub(ipcRenderer!, 'call').resolves(true);
   });
 
   afterEach(function () {
     sandbox.restore();
-    if (initialKeytarEnvValue) {
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
-    } else {
-      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {

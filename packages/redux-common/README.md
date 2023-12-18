@@ -1,11 +1,11 @@
-# mongodb-redux-app-registry [![][npm_img]][npm_url]
+# @mongodb-js/mongodb-redux-common [![][npm_img]][npm_url]
 
-> mongodb-redux-app-registry
+> @mongodb-js/mongodb-redux-common
 
 ## Installation
 
 ```
-npm install --save mongodb-redux-app-registry
+npm install --save @mongodb-js/mongodb-redux-common
 ```
 
 ### Usage
@@ -13,5 +13,5 @@ npm install --save mongodb-redux-app-registry
 ```javascript
 ```
 
-[npm_img]: https://img.shields.io/npm/v/mongodb-redux-app-registry.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/mongodb-redux-app-registry
+[npm_img]: https://img.shields.io/npm/v/@mongodb-js/mongodb-redux-common.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@mongodb-js/mongodb-redux-common

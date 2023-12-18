@@ -7,7 +7,7 @@ import {
   focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import QueryHistory from './query-history';
 import { fetchSavedQueries } from '../stores/query-bar-reducer';
@@ -51,8 +51,7 @@ const QueryHistoryButtonPopover = ({
       }
     },
     [isOpen],
-    undefined,
-    React
+    undefined
   );
 
   const setOpen = useCallback(
@@ -64,6 +63,10 @@ const QueryHistoryButtonPopover = ({
     },
     [onOpenPopover]
   );
+
+  const closePopover = useCallback(() => {
+    setIsOpen(false);
+  }, [setIsOpen]);
 
   return (
     <InteractivePopover
@@ -91,7 +94,10 @@ const QueryHistoryButtonPopover = ({
       open={isOpen}
       setOpen={setOpen}
     >
-      <QueryHistory />
+      <QueryHistory
+        onUpdateRecentChoosen={closePopover}
+        onUpdateFavoriteChoosen={closePopover}
+      />
     </InteractivePopover>
   );
 };

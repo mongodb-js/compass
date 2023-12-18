@@ -5,3 +5,5 @@ ignores:
  # webpack always externalizes 'clipboard' for legacy reasons
  - "clipboard"
  - "react-dom"
+ignore-patterns:
+ - 'dist'

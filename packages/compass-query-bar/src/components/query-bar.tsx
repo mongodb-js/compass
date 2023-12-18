@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Icon,
-  MoreOptionsToggle,
+  OptionsToggle,
   css,
   cx,
   spacing,
@@ -10,7 +10,6 @@ import {
   useDarkMode,
   Label,
   Link,
-  GuideCue,
 } from '@mongodb-js/compass-components';
 import {
   AIExperienceEntry,
@@ -115,20 +114,14 @@ const queryAIContainerStyles = css({
 const queryBarDocumentationLink =
   'https://docs.mongodb.com/compass/current/query/filter/';
 
-const QueryMoreOptionsToggle = connect(
+const QueryOptionsToggle = connect(
   (state: RootState) => {
     return {
       isExpanded: state.queryBar.expanded,
-      label() {
-        return 'Options';
-      },
-      'aria-label'(expanded: boolean) {
-        return expanded ? 'Fewer Options' : 'More Options';
-      },
     };
   },
   { onToggleOptions: toggleQueryOptions }
-)(MoreOptionsToggle);
+)(OptionsToggle);
 
 type QueryBarProps = {
   buttonLabel?: string;
@@ -146,7 +139,6 @@ type QueryBarProps = {
   filterHasContent: boolean;
   showExplainButton?: boolean;
   showExportToLanguageButton?: boolean;
-  showQueryHistoryButton?: boolean;
   valid: boolean;
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
@@ -174,7 +166,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   filterHasContent,
   showExplainButton = false,
   showExportToLanguageButton = true,
-  showQueryHistoryButton = true,
   valid: isQueryValid,
   expanded: isQueryOptionsExpanded,
   placeholders,
@@ -185,7 +176,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onHideAIInputClick,
 }) => {
   const darkMode = useDarkMode();
-  const newExplainPlan = usePreference('newExplainPlan', React);
   const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
   const onFormSubmit = useCallback(
@@ -225,6 +215,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     return filterHasContent;
   }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
+  const enableSavedAggregationsQueries = usePreference(
+    'enableSavedAggregationsQueries',
+    React
+  );
+
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
@@ -245,7 +240,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               Filter
             </Link>
           </Label>
-          {showQueryHistoryButton && <QueryHistoryButtonPopover />}
+          {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         </div>
         <div className={filterContainerStyles}>
           <QueryOptionComponent
@@ -265,27 +260,18 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             </div>
           )}
         </div>
-        {showExplainButton && newExplainPlan && (
-          <GuideCue
-            cueId="query-bar-explain-plan"
-            title="“Explain Plan” has changed"
-            description={
-              'To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.'
-            }
-            trigger={({ ref }) => (
-              <Button
-                ref={ref}
-                aria-label="Reset query"
-                data-testid="query-bar-explain-button"
-                onClick={onExplain}
-                disabled={!isQueryValid}
-                size="small"
-                type="button"
-              >
-                Explain
-              </Button>
-            )}
-          />
+        {showExplainButton && (
+          <Button
+            aria-label="Explain query"
+            title="View the execution plan for the current query"
+            data-testid="query-bar-explain-button"
+            onClick={onExplain}
+            disabled={!isQueryValid}
+            size="small"
+            type="button"
+          >
+            Explain
+          </Button>
         )}
         <Button
           aria-label="Reset query"
@@ -322,7 +308,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div className={moreOptionsContainerStyles}>
-            <QueryMoreOptionsToggle
+            <QueryOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
             />

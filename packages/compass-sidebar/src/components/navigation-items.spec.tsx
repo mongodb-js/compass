@@ -1,28 +1,32 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import reducer from '../modules';
 
 import { NavigationItems } from './navigation-items';
-import store from '../stores/store';
 
 function renderNavigationItems(
   props?: Partial<React.ComponentProps<typeof NavigationItems>>
 ) {
+  const store = createStore(reducer, applyMiddleware(thunk));
   return render(
     <Provider store={store}>
       <NavigationItems
+        isReady
         isExpanded
         onAction={() => {
           /* noop */
         }}
-        isDataLake={false}
-        isWritable={true}
-        changeFilterRegex={() => {
+        showCreateDatabaseAction={true}
+        isPerformanceTabSupported={true}
+        onFilterChange={() => {
           /* noop */
         }}
         currentLocation={null}
-        showCreateDatabaseGuideCue={false}
+        currentNamespace={null}
         {...props}
       />
     </Provider>
@@ -33,6 +37,8 @@ const createDatabaseText = 'Create database';
 const refreshCTAText = 'Refresh databases';
 
 describe('NavigationItems [Component]', function () {
+  afterEach(cleanup);
+
   describe('when rendered', function () {
     it('renders the create database button', function () {
       renderNavigationItems();
@@ -43,33 +49,27 @@ describe('NavigationItems [Component]', function () {
       renderNavigationItems();
       expect(screen.getByLabelText(refreshCTAText)).to.be.visible;
     });
-
-    it('shows guide cue when no databases are created', async function () {
-      renderNavigationItems({
-        showCreateDatabaseGuideCue: true,
-      });
-
-      await screen.findByRole('dialog', undefined, {
-        timeout: 2000,
-      });
-      expect(screen.getByText('It looks a bit empty around here')).to.exist;
-    });
   });
 
   describe('when rendered read only', function () {
     it('does not render the create database button', function () {
       renderNavigationItems({
-        readOnly: true,
+        showCreateDatabaseAction: false,
       });
       expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
     });
+  });
 
-    it('does not show guide cue when no databases are created', function () {
+  describe('when performance tab is not supported', function () {
+    it('renders disabled "Performance" navigation item', function () {
       renderNavigationItems({
-        readOnly: true,
-        showCreateDatabaseGuideCue: true,
+        isPerformanceTabSupported: false,
       });
-      expect(() => screen.getByRole('dialog')).to.throw;
+
+      expect(screen.getByRole('button', { name: 'Performance' })).to.exist;
+      expect(
+        screen.getByRole('button', { name: 'Performance' })
+      ).to.have.attribute('aria-disabled', 'true');
     });
   });
 });

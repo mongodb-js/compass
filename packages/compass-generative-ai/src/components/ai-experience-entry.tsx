@@ -6,6 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -15,6 +16,13 @@ import {
   aiEntrySVGLightModeStyles,
   aiEntrySVGStyles,
 } from './ai-entry-svg';
+
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
 
 const aiEntryStyles = css(
   {
@@ -96,8 +104,9 @@ function AIExperienceEntry({
       )}
       onClick={onClick}
       data-testid={dataTestId}
+      type="button"
     >
-      Generate {type}
+      <span className={hiddenOnNarrowStyles}>Generate {type}</span>
       <AIEntrySVG darkMode={darkMode} />
     </button>
   );
@@ -121,6 +130,7 @@ function createAIPlaceholderHTMLPlaceholder({
 
   const aiButtonEl = document.createElement('button');
   aiButtonEl.setAttribute('data-testid', 'open-ai-query-entry-button');
+  aiButtonEl.setAttribute('type', 'button');
   // By default placeholder container will have pointer events disabled
   aiButtonEl.style.pointerEvents = 'auto';
   // We stop mousedown from propagating and preventing default behavior to avoid

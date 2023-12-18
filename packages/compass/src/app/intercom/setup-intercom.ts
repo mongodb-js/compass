@@ -1,4 +1,4 @@
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
 

@@ -14,7 +14,7 @@ import {
   getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import type { RootState } from '../../modules';
-import type { StoredPipeline } from '../../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 
 const savedPipelinesStyles = css({
   width: '400px',
@@ -58,8 +58,8 @@ const emptyMessageStyles = css({
 
 type SavedPipelinesProps = {
   namespace: string;
-  savedPipelines: StoredPipeline[];
-  onOpenPipeline: (pipelineData: StoredPipeline) => void;
+  savedPipelines: SavedPipeline[];
+  onOpenPipeline: (pipelineData: SavedPipeline) => void;
   onDeletePipeline: (pipelineId: string) => void;
   onMount: () => void;
 };

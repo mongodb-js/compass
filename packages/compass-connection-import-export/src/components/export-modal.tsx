@@ -13,7 +13,10 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import { usePreference } from 'compass-preferences-model';
 
 const TOAST_TIMEOUT_MS = 5000;
@@ -30,12 +33,14 @@ export function ExportConnectionsModal({
   favoriteConnections,
   afterExport,
   trackingProps,
+  connectionStorage,
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
   favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   afterExport?: () => void;
   trackingProps?: Record<string, unknown>;
+  connectionStorage?: typeof ConnectionStorage;
 }): React.ReactElement {
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
@@ -75,12 +80,15 @@ export function ExportConnectionsModal({
       removeSecrets,
       passphrase,
     },
-  } = useExportConnections({
-    finish,
-    open,
-    favoriteConnections,
-    trackingProps,
-  });
+  } = useExportConnections(
+    {
+      finish,
+      open,
+      favoriteConnections,
+      trackingProps,
+    },
+    connectionStorage?.exportConnections.bind(connectionStorage)
+  );
 
   return (
     <FormModal

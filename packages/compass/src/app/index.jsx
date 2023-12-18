@@ -2,13 +2,16 @@
 import '../setup-hadron-distribution';
 
 import dns from 'dns';
-import ipc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
-
+import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import preferences, { getActiveUser } from 'compass-preferences-model';
+import { CompassHomePlugin } from '@mongodb-js/compass-home';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
+
+app.appRegistry = globalAppRegistry;
 
 // this is so sub-processes (ie. the shell) will do the same
 process.env.NODE_OPTIONS ??= '';
@@ -19,7 +22,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
-  ipc.call(
+  ipcRenderer?.call(
     'compass:error:fatal',
     event.error
       ? { message: event.error.message, stack: event.error.stack }
@@ -61,10 +64,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Action } from '@mongodb-js/hadron-plugin-manager';
 
-import { setupTheme } from './theme';
-
 import { setupIntercom } from './intercom';
 
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
@@ -174,19 +176,16 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    const HomeComponent = app.appRegistry.getComponent('Home.Home');
-
-    if (!HomeComponent) {
-      throw new Error("Can't find Home plugin in appRegistry");
-    }
-
     ReactDOM.render(
       <React.StrictMode>
-        <HomeComponent
-          appRegistry={app.appRegistry}
-          appName={remote.app.getName()}
-          getAutoConnectInfo={getAutoConnectInfo}
-        ></HomeComponent>
+        <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
+          <AppRegistryProvider>
+            <CompassHomePlugin
+              appName={remote.app.getName()}
+              getAutoConnectInfo={getAutoConnectInfo}
+            ></CompassHomePlugin>
+          </AppRegistryProvider>
+        </LoggerAndTelemetryProvider>
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );
@@ -212,9 +211,6 @@ app.extend({
         throw err;
       }
 
-      // Get theme from the preferences and set accordingly.
-      setupTheme();
-
       Action.pluginActivationCompleted.listen(async () => {
         state.preRender();
         global.hadronApp.appRegistry.onActivated();
@@ -231,13 +227,22 @@ app.extend({
           // noop
         }
         // Catch a data refresh coming from window-manager.
-        ipc.on('app:refresh-data', () =>
+        ipcRenderer?.on('app:refresh-data', () =>
           global.hadronApp.appRegistry.emit('refresh-data')
         );
         // Catch a toggle sidebar coming from window-manager.
-        ipc.on('app:toggle-sidebar', () =>
+        ipcRenderer?.on('app:toggle-sidebar', () =>
           global.hadronApp.appRegistry.emit('toggle-sidebar')
         );
+        ipcRenderer?.on('window:menu-share-schema-json', () => {
+          global.hadronApp.appRegistry.emit('menu-share-schema-json');
+        });
+        ipcRenderer?.on('compass:open-export', () => {
+          global.hadronApp.appRegistry.emit('open-active-namespace-export');
+        });
+        ipcRenderer?.on('compass:open-import', () => {
+          global.hadronApp.appRegistry.emit('open-active-namespace-import');
+        });
         // As soon as dom is ready, render and set up the rest.
         state.render();
         marky.stop('Time to Connect rendered');

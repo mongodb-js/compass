@@ -41,7 +41,9 @@ import type {
   Db,
   IndexInformationOptions,
   CollectionInfo,
+  UpdateFilter,
   UpdateOptions,
+  UpdateResult,
   ReplaceOptions,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
@@ -137,9 +139,31 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
 }
 
+export type UpdatePreviewChange = {
+  before: Document;
+  after: Document;
+};
+
+export type UpdatePreviewExecutionOptions = ExecutionOptions & {
+  sample?: number;
+  timeout?: number;
+};
+
+export type UpdatePreview = {
+  changes: UpdatePreviewChange[];
+};
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  off<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  removeListener<K extends keyof DataServiceEventMap>(
     event: K,
     listener: DataServiceEventMap[K]
   ): this;
@@ -329,6 +353,14 @@ export interface DataService {
    * @param callback - The callback.
    */
   dropCollection(ns: string): Promise<boolean>;
+
+  /**
+   *
+   */
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>>;
 
   /**
    * Count the number of documents in the collection.
@@ -727,6 +759,33 @@ export interface DataService {
    * is being emitted when this value changes.
    */
   getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
+
+  /**
+   * Runs the update within a transactions, only
+   * modifying a subset of the documents matched by the filter.
+   * It returns a list of the changed documents, or a serverError.
+   */
+  previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions?: UpdatePreviewExecutionOptions
+  ): Promise<UpdatePreview>;
+
+  /**
+   * Updates multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -888,6 +947,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   on(...args: Parameters<DataService['on']>) {
     this._emitter.on(...args);
+    return this;
+  }
+
+  off(...args: Parameters<DataService['on']>) {
+    this._emitter.off(...args);
+    return this;
+  }
+
+  removeListener(...args: Parameters<DataService['on']>) {
+    this._emitter.off(...args);
     return this;
   }
 
@@ -1457,6 +1526,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.deleteMany(filter, options);
   }
 
+  async updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult> {
+    const coll = this._collection(ns, 'CRUD');
+    return await coll.updateMany(filter, update, options);
+  }
+
   async disconnect(): Promise<void> {
     this._logger.info(mongoLogId(1_001_000_016), 'Disconnecting');
 
@@ -1506,6 +1585,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       options.encryptedFields = encryptedFieldsInfo;
     }
     return await coll.drop(options);
+  }
+
+  @op(mongoLogId(1_001_000_276))
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>> {
+    const db = this._database(ns, 'META');
+    return db.renameCollection(this._collectionName(ns), newCollectionName);
   }
 
   @op(mongoLogId(1_001_000_040), ([db], result) => {
@@ -2087,7 +2175,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       result = await raceWithAbort(start(session), abortSignal);
     } catch (err) {
       if (isCancelError(err)) {
-        void abort();
+        await abort();
       }
       throw err;
     }
@@ -2285,6 +2373,104 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return { name, ...normalized };
   }
 
+  @op(mongoLogId(1_001_000_266))
+  async previewUpdate(
+    ns: string,
+    filter: Document,
+    update: Document | Document[],
+    executionOptions: UpdatePreviewExecutionOptions = {}
+  ): Promise<UpdatePreview> {
+    const {
+      abortSignal = new AbortController().signal,
+      sample = 10,
+      timeout = 1000,
+    } = executionOptions;
+    const startTimeMS = Date.now();
+    const remainingTimeoutMS = () =>
+      Math.max(1, timeout - (Date.now() - startTimeMS));
+    return await this._cancellableOperation(
+      async (session) => {
+        if (!session) {
+          throw new Error('Could not open session.');
+        }
+
+        try {
+          return await session.withTransaction(
+            async () => {
+              const coll = this._collection(ns, 'CRUD');
+              const docsToPreview = await coll
+                .find(filter, {
+                  session,
+                  maxTimeMS: remainingTimeoutMS(),
+                  // by using promoteValues: false we can spot BSON type changes
+                  // when diffing. ie. new Double(1) -> new Int32(1)
+                  promoteValues: false,
+                })
+                .sort({ _id: 1 })
+                .limit(sample)
+                .toArray();
+
+              const idsToPreview = docsToPreview.map((doc) => doc._id);
+              await coll.updateMany({ _id: { $in: idsToPreview } }, update, {
+                session,
+                maxTimeMS: remainingTimeoutMS(),
+              });
+              const changedDocs = await coll
+                .find(
+                  { _id: { $in: idsToPreview } },
+                  {
+                    session,
+                    maxTimeMS: remainingTimeoutMS(),
+                    promoteValues: false,
+                  }
+                )
+                .sort({ _id: 1 })
+                .toArray();
+
+              await session.abortTransaction();
+              await session.endSession();
+
+              const changes = docsToPreview.map((before, idx) => ({
+                before,
+                after: changedDocs[idx],
+              }));
+              return { changes };
+            },
+            {
+              maxTimeMS: remainingTimeoutMS(),
+            }
+          );
+        } catch (err: any) {
+          if (isTransactionAbortError(err)) {
+            // The transaction was aborted while it was still calculating the
+            // preview. Just return something here rather than erroring. No
+            // reason to abort the transaction or end the session again because
+            // we only got here because that already happened.
+            return { changes: [] };
+          }
+
+          // The only way this if statement would be true is if aborting the
+          // transaction and ending the session itself failed above. Unlikely.
+          if (session.inTransaction()) {
+            await session.abortTransaction();
+            await session.endSession();
+          }
+
+          throw err;
+        }
+      },
+      async () => {
+        // Rely on the session being killed when we cancel the operation. It can
+        // take a few seconds before the driver reacts, but the Promise.race()
+        // against the abort signal should cause the UI to immediately be
+        // notified that the operation was cancelled. We don't abort the
+        // transaction or end the session as well because the code we run inside
+        // session.withTransaction() above would experience race conditions.
+      },
+      abortSignal
+    );
+  }
+
   /**
    * @param databaseName - The name of the database.
    * @param collectionName - The name of the collection.
@@ -2475,6 +2661,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     assertNoExtraProps(this);
   }
+}
+
+function isTransactionAbortError(err: any) {
+  if (err.message === 'Cannot use a session that has ended') {
+    return true;
+  }
+  if (err.codeName === 'NoSuchTransaction') {
+    return true;
+  }
+  return false;
 }
 
 export { DataServiceImpl };

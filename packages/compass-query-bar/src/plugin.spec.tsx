@@ -6,6 +6,7 @@ import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import Sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
+import preferencesAccess from 'compass-preferences-model';
 
 const mockQueryHistoryRole = {
   name: 'Query History',
@@ -17,11 +18,23 @@ const mockQueryHistoryRole = {
   actionName: 'Query.History.Actions',
 };
 
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: {
+        on() {},
+      },
+    };
+  },
+} as any;
+
 describe('QueryBar [Plugin]', function () {
   let store: ReturnType<typeof configureStore>;
 
   const globalAppRegistry = new AppRegistry();
   globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   const localAppRegistry = new AppRegistry();
   localAppRegistry.registerStore('Query.History', {
@@ -55,18 +68,32 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('when the plugin is rendered with or without a query history button', function () {
-    it('query history button renders by default', function () {
+    let enableSavedAggregationsQueries: boolean;
+
+    before(function () {
+      enableSavedAggregationsQueries =
+        preferencesAccess.getPreferences().enableSavedAggregationsQueries;
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({
+        enableSavedAggregationsQueries,
+      });
+    });
+
+    it('query history button renders when saved queries are enabled', async function () {
+      await preferencesAccess.savePreferences({
+        enableSavedAggregationsQueries: true,
+      });
       render(<QueryBarPlugin store={store} />);
       expect(screen.getByTestId('query-history-button')).to.exist;
     });
 
-    it('query history button renders when showQueryHistoryButton prop is passed and set to true', function () {
-      render(<QueryBarPlugin store={store} showQueryHistoryButton />);
-      expect(screen.getByTestId('query-history-button')).to.exist;
-    });
-
-    it('query history button does not render when showQueryHistoryButton prop is passed and set to false', function () {
-      render(<QueryBarPlugin store={store} showQueryHistoryButton={false} />);
+    it('query history button does not render when ssaved queries are disabled', async function () {
+      await preferencesAccess.savePreferences({
+        enableSavedAggregationsQueries: false,
+      });
+      render(<QueryBarPlugin store={store} />);
       expect(screen.queryByTestId('query-history-button')).to.not.exist;
     });
   });

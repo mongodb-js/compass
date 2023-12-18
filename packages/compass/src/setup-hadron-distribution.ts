@@ -35,15 +35,9 @@ if (
   // Name and version are setup outside of Application and before anything else
   // so that if uncaught exception happens we already show correct name and
   // version
-  app.setName(process.env.HADRON_PRODUCT_NAME);
-
-  // For webdriverio env we are changing appName so that keychain records do not
-  // overlap with anything else. Only appName should be changed for the
-  // webdriverio environment that is running tests, all relevant paths are
-  // configured from the test runner.
-  if (process.env.APP_ENV === 'webdriverio') {
-    app.setName(`${app.getName()} Webdriverio`);
-  }
+  app.setName(
+    process.env.HADRON_PRODUCT_NAME_OVERRIDE ?? process.env.HADRON_PRODUCT_NAME
+  );
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error setVersion is not a public method
@@ -66,4 +60,39 @@ if (
     'crashDumps',
     path.join(app.getPath('userData'), 'CrashReporter')
   );
+}
+
+if (
+  // type `renderer` is electron renderer process (browser window runtime)
+  process.type === 'renderer'
+) {
+  if (process.env.NODE_ENV === 'development') {
+    const ignoreLeafygreenWarnings = [
+      // Not relevant
+      /using the Leafygreen SearchInput/i,
+      // We don't always use SegmentedControl as a view switcher, aria-controls
+      // doesn't apply
+      /The property `aria-controls` is required/i,
+      // TODO(COMPASS-7046): Should go away after leafygreen update
+      /For screen-reader accessibility, label or aria-labelledby/i,
+    ];
+    for (const method of ['warn', 'error'] as const) {
+      /* eslint-disable no-console */
+      const fn = console[method];
+      console[method] = function (...args) {
+        const [msg] = args;
+        if (typeof msg === 'string') {
+          if (
+            ignoreLeafygreenWarnings.some((regex) => {
+              return regex.test(msg);
+            })
+          ) {
+            return;
+          }
+        }
+        return fn.apply(this, args);
+      };
+      /* eslint-enable no-console */
+    }
+  }
 }

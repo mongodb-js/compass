@@ -13,18 +13,22 @@ import atlasLoginReducer, {
   atlasServiceTokenRefreshFailed,
   atlasServiceUserConfigChanged,
 } from './atlas-login';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
-export function configureStore({
-  preferencesSandbox,
-  atlasService,
-}: {
-  preferencesSandbox?: Public<PreferencesSandbox>;
-  atlasService?: Public<AtlasService>;
-} = {}) {
-  preferencesSandbox ??= new PreferencesSandbox();
-  atlasService ??= new AtlasService();
+type ThunkExtraArg = {
+  preferencesSandbox: Public<PreferencesSandbox>;
+  atlasService: Public<AtlasService>;
+  logger: LoggerAndTelemetry;
+};
+
+export function configureStore(
+  options: Pick<ThunkExtraArg, 'logger'> & Partial<ThunkExtraArg>
+) {
+  const preferencesSandbox =
+    options?.preferencesSandbox ?? new PreferencesSandbox();
+  const atlasService = options?.atlasService ?? new AtlasService();
 
   const store = createStore(
     combineReducers({
@@ -35,7 +39,11 @@ export function configureStore({
       atlasLogin: ReturnType<typeof atlasLoginReducer>;
     }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
     applyMiddleware(
-      thunk.withExtraArgument({ preferencesSandbox, atlasService })
+      thunk.withExtraArgument({
+        preferencesSandbox,
+        atlasService,
+        logger: options.logger,
+      })
     )
   );
 
@@ -58,32 +66,38 @@ export function configureStore({
   return store;
 }
 
-const store = configureStore();
-
-export type RootState = ReturnType<typeof store['getState']>;
+export type RootState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
 export type SettingsThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<
-  R,
-  RootState,
+> = ThunkAction<R, RootState, ThunkExtraArg, A>;
+
+const onActivated = (
+  _: unknown,
   {
-    preferencesSandbox: Public<PreferencesSandbox>;
-    atlasService: Public<AtlasService>;
-  },
-  A
->;
+    globalAppRegistry,
+    logger,
+  }: { globalAppRegistry: AppRegistry; logger: LoggerAndTelemetry }
+) => {
+  const store = configureStore({ logger });
 
-(store as any).onActivated = (appRegistry: AppRegistry) => {
-  appRegistry.on('open-compass-settings', () => {
+  const onOpenSettings = () => {
     void store.dispatch(openModal());
-  });
-  ipcRenderer?.on('window:show-settings', () => {
-    void store.dispatch(openModal());
-  });
+  };
+
+  globalAppRegistry.on('open-compass-settings', onOpenSettings);
+  ipcRenderer?.on('window:show-settings', onOpenSettings);
+
+  return {
+    store,
+    deactivate() {
+      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
+      ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
+    },
+  };
 };
 
-export default store as typeof store & {
-  onActivated(appRegistry: AppRegistry): void;
-};
+export { onActivated };

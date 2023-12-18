@@ -1,10 +1,14 @@
+import { EventEmitter } from 'events';
 import Sinon from 'sinon';
 import type AppRegistry from 'hadron-app-registry';
 import type {
-  ConfigureStoreOptions,
   IndexesDataService,
+  IndexesPluginOptions,
+  IndexesPluginServices,
 } from '../src/stores/store';
-import configureStore from '../src/stores/store';
+import { activateIndexesPlugin } from '../src/stores/store';
+import { createActivateHelpers } from 'hadron-app-registry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,9 +48,17 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   },
 };
 
+class FakeInstance extends EventEmitter {
+  isWritable = true;
+  description = 'initial description';
+}
+
+const fakeInstance = new FakeInstance();
+
 export const setupStore = (
-  options: Partial<ConfigureStoreOptions> = {},
-  dataProvider: Partial<IndexesDataService> = NOOP_DATA_PROVIDER
+  options: Partial<IndexesPluginOptions> = {},
+  dataProvider: Partial<IndexesDataService> = NOOP_DATA_PROVIDER,
+  services: Partial<IndexesPluginServices> = {}
 ) => {
   const localAppRegistry = {
     on: Sinon.spy(),
@@ -58,16 +70,22 @@ export const setupStore = (
     getStore: Sinon.spy(),
   } as unknown as AppRegistry;
 
-  return configureStore({
-    namespace: 'citibike.trips',
-    dataProvider: {
-      dataProvider: { ...NOOP_DATA_PROVIDER, ...dataProvider },
+  return activateIndexesPlugin(
+    {
+      namespace: 'citibike.trips',
+      serverVersion: '6.0.0',
+      isReadonly: false,
+      isSearchIndexesSupported: false,
+      ...options,
     },
-    serverVersion: '6.0.0',
-    isReadonly: false,
-    isSearchIndexesSupported: false,
-    globalAppRegistry,
-    localAppRegistry,
-    ...options,
-  });
+    {
+      dataService: { ...NOOP_DATA_PROVIDER, ...dataProvider },
+      globalAppRegistry,
+      localAppRegistry,
+      instance: fakeInstance as any,
+      logger: createLoggerAndTelemetry('TEST'),
+      ...services,
+    },
+    createActivateHelpers()
+  ).store;
 };

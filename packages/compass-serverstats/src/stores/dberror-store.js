@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
-const translate = require('mongodb-js-errors').translate;
 const { isEqual } = require('lodash');
 
 const DBErrorStore = Reflux.createStore({
@@ -19,21 +18,6 @@ const DBErrorStore = Reflux.createStore({
     };
   },
 
-  /**
-   * Translates the error message to something human readable. From data-service.
-   *
-   * @param {Error} error - The error.
-   *
-   * @returns {Error} The error with message translated.
-   */
-  _translateMessage(error) {
-    const mapping = translate(error);
-    if (mapping) {
-      error.message = mapping.message;
-    }
-    return error;
-  },
-
   publish: function () {
     const msg = [];
     for (let key in this.ops) {
@@ -41,7 +25,7 @@ const DBErrorStore = Reflux.createStore({
       if (Object.prototype.hasOwnProperty.call(this.ops, key)) {
         if (this.ops[key] !== null) {
           msg.push({
-            errorMsg: this._translateMessage(this.ops[key]).message,
+            errorMsg: this.ops[key].message,
             ops: key,
             type: this.ops[key].name,
             srcName: this.srcName[key],

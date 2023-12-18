@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-import { ipcRenderer } from 'electron';
-import { ipcInvoke } from '@mongodb-js/compass-utils';
+import { ipcRenderer } from 'hadron-ipc';
 import type { AtlasService as AtlasServiceMain } from './main';
 import {
   disableAIFeature,
@@ -12,7 +11,8 @@ import {
   userConfigChanged,
 } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-signin-store';
-import type { AtlasUserConfig, AtlasUserInfo } from './util';
+import type { AtlasUserInfo } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 
 let atlasServiceInstanceSingleton: AtlasService;
 
@@ -26,7 +26,7 @@ type AtlasServiceEvents = {
 export class AtlasService {
   private emitter = new EventEmitter();
 
-  private ipc = ipcInvoke<
+  private _ipc = ipcRenderer?.createInvoke<
     typeof AtlasServiceMain,
     | 'getUserInfo'
     | 'introspect'
@@ -47,13 +47,34 @@ export class AtlasService {
     'updateAtlasUserConfig',
   ]);
 
-  getUserInfo = this.ipc.getUserInfo;
-  introspect = this.ipc.introspect;
-  isAuthenticated = this.ipc.isAuthenticated;
-  getAggregationFromUserInput = this.ipc.getAggregationFromUserInput;
-  getQueryFromUserInput = this.ipc.getQueryFromUserInput;
-  signOut = this.ipc.signOut;
-  updateAtlasUserConfig = this.ipc.updateAtlasUserConfig;
+  private get ipc() {
+    if (!this._ipc) {
+      throw new Error('IPC not available');
+    }
+    return this._ipc;
+  }
+
+  get getUserInfo() {
+    return this.ipc.getUserInfo;
+  }
+  get introspect() {
+    return this.ipc.introspect;
+  }
+  get isAuthenticated() {
+    return this.ipc.isAuthenticated;
+  }
+  get getAggregationFromUserInput() {
+    return this.ipc.getAggregationFromUserInput;
+  }
+  get getQueryFromUserInput() {
+    return this.ipc.getQueryFromUserInput;
+  }
+  get signOut() {
+    return this.ipc.signOut;
+  }
+  get updateAtlasUserConfig() {
+    return this.ipc.updateAtlasUserConfig;
+  }
 
   on<T extends keyof AtlasServiceEvents>(
     evt: T,
@@ -78,6 +99,14 @@ export class AtlasService {
     listener: (...args: AtlasServiceEvents[T]) => void
   ): this;
   off(evt: string, listener: (...args: any[]) => void): this {
+    this.emitter.off(evt, listener);
+    return this;
+  }
+  removeListener<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  removeListener(evt: string, listener: (...args: any[]) => void): this {
     this.emitter.off(evt, listener);
     return this;
   }
@@ -147,9 +176,9 @@ export class AtlasService {
 export { AtlasSignIn } from './components/atlas-signin';
 
 export { AtlasServiceError } from './util';
+export type { AtlasUserConfig } from './user-config-store';
 export type {
   AtlasUserInfo,
-  AtlasUserConfig,
   IntrospectInfo,
   Token,
   AIQuery,

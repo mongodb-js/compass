@@ -1,0 +1,1 @@
+export { onActivated } from './store';

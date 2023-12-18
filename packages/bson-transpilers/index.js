@@ -161,7 +161,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
 
       const result = {};
       Object.keys(input).map((k) => {
-        result[k] = k === 'options' ? input[k] : compile(input[k], idiomatic, true);
+        result[k] = (k === 'options' || k === 'exportMode') ? input[k] : compile(input[k], idiomatic, true);
       });
       if (!('options' in result) ||
           !('uri' in result.options) ||

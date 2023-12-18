@@ -1,5 +1,5 @@
 import type { HadronIpcRenderer } from 'hadron-ipc';
-import hadronIpc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import type { PreferencesAccess } from '.';
 import type {
   AllPreferences,
@@ -13,11 +13,17 @@ import { createSandboxAccessFromProps } from './setup-preferences';
 /**
  * API to communicate with preferences from the electron renderer process.
  */
-export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
+export const makePreferencesIpc = (
+  ipcRenderer: HadronIpcRenderer | undefined
+) => {
+  if (!ipcRenderer) {
+    throw new Error('IPC not available');
+  }
+
   let cachedPreferences = {} as AllPreferences;
   let inflightCacheRefresh: Promise<AllPreferences> | undefined;
   async function refreshCachedPreferences(): Promise<AllPreferences> {
-    inflightCacheRefresh = ipcRenderer.invoke('compass:get-preferences');
+    inflightCacheRefresh = ipcRenderer!.invoke('compass:get-preferences');
     cachedPreferences = await inflightCacheRefresh;
     inflightCacheRefresh = undefined;
     return cachedPreferences;
@@ -91,5 +97,6 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
   };
 };
 
-export const preferencesIpc: PreferencesAccess | undefined =
-  hadronIpc.ipcRenderer ? makePreferencesIpc(hadronIpc.ipcRenderer) : undefined;
+export const preferencesIpc: PreferencesAccess | undefined = ipcRenderer
+  ? makePreferencesIpc(ipcRenderer)
+  : undefined;

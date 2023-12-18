@@ -28,7 +28,7 @@ describe('Aggregation Store', function () {
           'App.InstanceStore',
           fakeAppInstanceStore
         );
-        store = configureStore({
+        store = configureStore(undefined, undefined, {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
         });
@@ -97,6 +97,8 @@ describe('Aggregation Store', function () {
             stagesIdAndType: [],
           };
           delete state.pipeline;
+          delete state.sidePanel;
+
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
@@ -104,7 +106,7 @@ describe('Aggregation Store', function () {
             isTimeSeries: false,
             editViewName: null,
             sourceName: null,
-            appRegistry: INITIAL_STATE.appRegistry,
+            appRegistry: state.appRegistry,
             comments: INITIAL_STATE.comments,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
@@ -117,7 +119,6 @@ describe('Aggregation Store', function () {
             },
             serverVersion: INITIAL_STATE.serverVersion,
             isModified: INITIAL_STATE.isModified,
-            isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             insights: {
               isCollectionScan: false,
             },
@@ -127,7 +128,6 @@ describe('Aggregation Store', function () {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             savingPipeline: INITIAL_STATE.savingPipeline,
-            projections: INITIAL_STATE.projections,
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,
@@ -135,7 +135,6 @@ describe('Aggregation Store', function () {
             isDataLake: INITIAL_STATE.isDataLake,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
             focusMode: INITIAL_STATE.focusMode,
-            sidePanel: INITIAL_STATE.sidePanel,
             collectionsFields: INITIAL_STATE.collectionsFields,
             searchIndexes: INITIAL_STATE.searchIndexes,
           });
@@ -154,7 +153,7 @@ describe('Aggregation Store', function () {
         'App.InstanceStore',
         fakeAppInstanceStore
       );
-      store = configureStore({
+      store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
       });

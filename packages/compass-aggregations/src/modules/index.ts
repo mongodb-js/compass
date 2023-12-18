@@ -15,7 +15,6 @@ import isModified from './is-modified';
 import name from './name';
 import limit from './limit';
 import largeLimit from './large-limit';
-import isAtlasDeployed from './is-atlas-deployed';
 import maxTimeMS from './max-time-ms';
 import collationString from './collation-string';
 import comments from './comments';
@@ -26,7 +25,6 @@ import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
-import projections from './projections';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
@@ -35,12 +33,13 @@ import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { PipelineStorage } from '../utils/pipeline-storage';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 /**
  * The main application reducer.
@@ -64,13 +63,11 @@ const rootReducer = combineReducers({
   collationString,
   id,
   isModified,
-  isAtlasDeployed,
   settings,
   limit,
   largeLimit,
   maxTimeMS,
   savingPipeline,
-  projections,
   editViewName,
   sourceName,
   outResultsFn,
@@ -93,6 +90,7 @@ export type PipelineBuilderExtraArgs = {
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
+  workspaces: WorkspacesService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

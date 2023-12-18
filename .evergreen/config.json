@@ -119,6 +119,18 @@
           }
         },
         {
+          "name": "70x-community",
+          "vars": {
+            "mongodb_version": "7.0.x"
+          }
+        },
+        {
+          "name": "70x-enterprise",
+          "vars": {
+            "mongodb_version": "7.0.x-enterprise"
+          }
+        },
+        {
           "name": "latest",
           "vars": {
             "mongodb_version": "latest-alpha-enterprise"

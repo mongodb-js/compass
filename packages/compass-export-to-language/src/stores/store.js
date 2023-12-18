@@ -57,15 +57,19 @@ const configureStore = (options = {}) => {
       'open-aggregation-export-to-language',
       (aggregation) => {
         store.dispatch(modalOpenChanged(true));
-        store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
+        store.dispatch(
+          inputExpressionChanged({
+            aggregation: aggregation,
+            exportMode: 'Pipeline',
+          })
+        );
       }
     );
 
-    localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
-      const query = {};
-      if (typeof queryStrings === 'string') {
-        query.filter = queryStrings === '' ? '{}' : queryStrings;
-      } else {
+    localAppRegistry.on(
+      'open-query-export-to-language',
+      (queryStrings, exportMode) => {
+        const query = {};
         [
           'filter',
           'project',
@@ -83,11 +87,18 @@ const configureStore = (options = {}) => {
             query[k] = queryStrings[k];
           }
         });
-      }
 
-      store.dispatch(modalOpenChanged(true));
-      store.dispatch(inputExpressionChanged(query));
-    });
+        if (!exportMode) {
+          throw new Error(
+            'exportMode must be provided with the type of query you want to export to.'
+          );
+        }
+
+        query.exportMode = exportMode;
+        store.dispatch(modalOpenChanged(true));
+        store.dispatch(inputExpressionChanged(query));
+      }
+    );
   }
 
   if (options.globalAppRegistry) {

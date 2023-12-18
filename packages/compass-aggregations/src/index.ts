@@ -1,89 +1,64 @@
-import type AppRegistry from 'hadron-app-registry';
-import AggregationsPlugin from './plugin';
-import configureStore from './stores/store';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { AggregationsPlugin } from './plugin';
+import { activateAggregationsPlugin } from './stores/store';
 import { Aggregations } from './components/aggregations';
-import CreateViewPlugin from './components/create-view-plugin';
-import DuplicateViewPlugin from './components/duplicate-view-plugin';
-import configureCreateViewStore from './stores/create-view';
-import duplicateViewStore from './stores/duplicate-view';
+import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
-import { PipelineStorage } from './utils/pipeline-storage';
+import CreateViewModal from './components/create-view-modal';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from 'mongodb-data-service/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type {
+  OptionalDataServiceProps,
+  RequiredDataServiceProps,
+} from './modules/data-service';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 
-/**
- * A sample role for the component.
- */
-const ROLE = {
+const activate = () => {
+  // noop
+};
+
+const deactivate = () => {
+  // noop
+};
+
+export const CompassAggregationsHadronPlugin = registerHadronPlugin(
+  {
+    name: 'CompassAggregations',
+    component: AggregationsPlugin,
+    activate: activateAggregationsPlugin,
+  },
+  {
+    dataService: dataServiceLocator as DataServiceLocator<
+      RequiredDataServiceProps,
+      OptionalDataServiceProps
+    >,
+    workspaces: workspacesServiceLocator,
+    instance: mongoDBInstanceLocator,
+  }
+);
+
+export const CompassAggregationsPlugin = {
   name: 'Aggregations',
-  component: AggregationsPlugin,
-  order: 2,
-  configureStore: configureStore,
-  configureActions: () => {
-    // noop
+  component: CompassAggregationsHadronPlugin,
+};
+
+export const CreateViewPlugin = registerHadronPlugin(
+  {
+    name: 'CreateView',
+    component: CreateViewModal,
+    activate: activateCreateViewPlugin,
   },
-  storeName: 'Aggregations.Store',
-  actionName: 'Aggregations.Actions',
-};
-
-/**
- * Create view modal plugin.
- */
-const CREATE_ROLE = {
-  name: 'Create View',
-  component: CreateViewPlugin,
-  configureStore: configureCreateViewStore,
-  storeName: 'Aggregations.CreateViewStore',
-  configureActions: () => {
-    // noop
-  },
-  actionName: 'Aggregations.Actions',
-};
-
-/**
- * Duplicate view role.
- */
-const DUPLICATE_ROLE = {
-  name: 'Duplicate View',
-  component: DuplicateViewPlugin,
-};
-
-/**
- * Activate all the components in the Aggregations package.
-
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
- **/
-const activate = (appRegistry: AppRegistry) => {
-  appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
-  appRegistry.registerRole('Global.Modal', DUPLICATE_ROLE);
-  appRegistry.registerStore(
-    'Aggregations.DuplicateViewStore',
-    duplicateViewStore
-  );
-};
-
-/**
- * Deactivate all the components in the Aggregations package.
-
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
- **/
-const deactivate = (appRegistry: AppRegistry) => {
-  appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterRole('Collection.ScopedModal', CREATE_ROLE);
-  appRegistry.deregisterRole('Global.Modal', DUPLICATE_ROLE);
-  appRegistry.deregisterStore('Aggregations.DuplicateViewStore');
-};
+  {
+    dataService: dataServiceLocator as DataServiceLocator<'createView'>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
+    workspaces: workspacesServiceLocator,
+  }
+);
 
 export default AggregationsPlugin;
-export {
-  activate,
-  deactivate,
-  Aggregations,
-  StageEditor,
-  CreateViewPlugin,
-  DuplicateViewPlugin,
-  configureStore,
-  configureCreateViewStore,
-  PipelineStorage,
-};
-export { StoredPipeline } from './utils/pipeline-storage';
+export { activate, deactivate, Aggregations, StageEditor };
 export { default as metadata } from '../package.json';

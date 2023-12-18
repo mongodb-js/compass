@@ -1,13 +1,17 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ImportConnectionsModal,
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import {
+  Card,
   ResizableSidebar,
   ErrorBoundary,
   spacing,
   css,
+  cx,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type { DataService } from 'mongodb-data-service';
@@ -23,6 +27,7 @@ import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -54,6 +59,33 @@ const formContainerStyles = css({
   gap: spacing[4],
   overflow: 'auto',
   height: '100%',
+});
+
+const connectFormContainerStyles = css({
+  margin: 0,
+  padding: 0,
+  height: 'fit-content',
+  width: spacing[6] * 12,
+  position: 'relative',
+  display: 'inline-block',
+});
+
+const connectFormCardStyles = css({
+  margin: 0,
+  height: 'fit-content',
+  width: '100%',
+  position: 'relative',
+  display: 'flex',
+  flexFlow: 'column nowrap',
+  maxHeight: '95vh',
+});
+
+const formCardDarkThemeStyles = css({
+  background: palette.black,
+});
+
+const formCardLightThemeStyles = css({
+  background: palette.white,
 });
 
 function Connections({
@@ -112,6 +144,8 @@ function Connections({
   const [showImportConnectionsModal, setShowImportConnectionsModal] =
     useState(false);
 
+  const darkMode = useDarkMode();
+
   const openConnectionImportExportModal = useCallback(
     (action: 'export-favorites' | 'import-favorites') => {
       if (action === 'export-favorites') {
@@ -121,6 +155,47 @@ function Connections({
       }
     },
     []
+  );
+
+  const protectConnectionStrings = usePreference(
+    'protectConnectionStrings',
+    React
+  );
+  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
+  const showKerberosPasswordField = usePreference(
+    'showKerberosPasswordField',
+    React
+  );
+  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow', React);
+  const enableOidc = usePreference('enableOidc', React);
+  const enableDebugUseCsfleSchemaMap = usePreference(
+    'enableDebugUseCsfleSchemaMap',
+    React
+  );
+  const protectConnectionStringsForNewConnections = usePreference(
+    'protectConnectionStringsForNewConnections',
+    React
+  );
+
+  const preferences = useMemo(
+    () => ({
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    }),
+    [
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    ]
   );
 
   return (
@@ -156,17 +231,30 @@ function Connections({
               );
             }}
           >
-            <ConnectionForm
-              onConnectClicked={(connectionInfo) =>
-                void connect({
-                  ...cloneDeep(connectionInfo),
-                })
-              }
-              key={activeConnectionId}
-              onSaveConnectionClicked={saveConnection}
-              initialConnectionInfo={activeConnectionInfo}
-              connectionErrorMessage={connectionErrorMessage}
-            />
+            <div
+              className={connectFormContainerStyles}
+              data-testid="connection-form"
+            >
+              <Card
+                className={cx(
+                  connectFormCardStyles,
+                  darkMode ? formCardDarkThemeStyles : formCardLightThemeStyles
+                )}
+              >
+                <ConnectionForm
+                  onConnectClicked={(connectionInfo) =>
+                    void connect({
+                      ...cloneDeep(connectionInfo),
+                    })
+                  }
+                  key={activeConnectionId}
+                  onSaveConnectionClicked={saveConnection}
+                  initialConnectionInfo={activeConnectionInfo}
+                  connectionErrorMessage={connectionErrorMessage}
+                  preferences={preferences}
+                />
+              </Card>
+            </div>
           </ErrorBoundary>
           <FormHelp />
         </div>
@@ -185,12 +273,14 @@ function Connections({
         favoriteConnections={favoriteConnections}
         afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
+        connectionStorage={connectionStorage}
       />
       <ExportConnectionsModal
         open={showExportConnectionsModal}
         setOpen={setShowExportConnectionsModal}
         favoriteConnections={favoriteConnections}
         trackingProps={{ context: 'connectionsList' }}
+        connectionStorage={connectionStorage}
       />
       <LegacyConnectionsModal connectionStorage={connectionStorage} />
     </div>

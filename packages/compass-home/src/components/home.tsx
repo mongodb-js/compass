@@ -3,10 +3,13 @@ import {
   Theme,
   ToastArea,
   ConfirmationModalArea,
+  FileInputBackendProvider,
+  createElectronFileInputBackend,
   css,
   cx,
   getScrollbarStyles,
   palette,
+  resetGlobalCSS,
   Body,
   useConfirmationModal,
   GuideCueProvider,
@@ -14,14 +17,13 @@ import {
 import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
-import ipc from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
-import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
@@ -33,20 +35,27 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  AppRegistryRoles,
-  useAppRegistryContext,
-  useAppRegistryRole,
-} from '../contexts/app-registry-context';
+import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
+import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
+import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
+import {
+  CreateNamespacePlugin,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
+} from '@mongodb-js/compass-databases-collections';
+import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import { DataServiceProvider } from 'mongodb-data-service/provider';
+import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
-type Namespace = ReturnType<typeof toNS>;
+resetGlobalCSS();
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;
@@ -96,48 +105,36 @@ const globalDarkThemeStyles = css({
   color: palette.white,
 });
 
-const defaultNS: Namespace = toNS('');
-
 type ThemeState = {
   theme: Theme;
-  enabled: boolean;
 };
 
 type State = {
-  connectionTitle: string;
+  connectionInfo: ConnectionInfo | null;
   isConnected: boolean;
-  namespace: Namespace;
   hasDisconnectedAtLeastOnce: boolean;
 };
 
 const initialState: State = {
-  connectionTitle: '',
+  connectionInfo: null,
   isConnected: false,
-  namespace: defaultNS,
   hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
   | {
       type: 'connected';
-      connectionTitle: string;
+      connectionInfo: ConnectionInfo;
     }
-  | { type: 'disconnected' }
-  | { type: 'update-namespace'; namespace: Namespace };
+  | { type: 'disconnected' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'connected':
       return {
         ...state,
-        namespace: { ...defaultNS },
         isConnected: true,
-        connectionTitle: action.connectionTitle,
-      };
-    case 'update-namespace':
-      return {
-        ...state,
-        namespace: action.namespace,
+        connectionInfo: action.connectionInfo,
       };
     case 'disconnected':
       return {
@@ -150,16 +147,16 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function showCollectionSubMenu({ isReadonly }: { isReadonly: boolean }) {
-  void ipc.ipcRenderer?.call('window:show-collection-submenu', { isReadonly });
+function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
+  void ipcRenderer?.call('window:show-collection-submenu', { isReadOnly });
 }
 
 function hideCollectionSubMenu() {
-  void ipc.ipcRenderer?.call('window:hide-collection-submenu');
+  void ipcRenderer?.call('window:hide-collection-submenu');
 }
 
 function notifyMainProcessOfDisconnect() {
-  void ipc.ipcRenderer?.call('compass:disconnected');
+  void ipcRenderer?.call('compass:disconnected');
 }
 
 function Home({
@@ -169,11 +166,11 @@ function Home({
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
 
   const [
-    { connectionTitle, isConnected, namespace, hasDisconnectedAtLeastOnce },
+    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
     dispatch,
   ] = useReducer(reducer, {
     ...initialState,
@@ -200,7 +197,7 @@ function Home({
     ds.addReauthenticationHandler(reauthenticationHandler.current);
     dispatch({
       type: 'connected',
-      connectionTitle: getConnectionTitle(connectionInfo) || '',
+      connectionInfo: connectionInfo,
     });
   }
 
@@ -216,52 +213,11 @@ function Home({
     [appRegistry]
   );
 
-  function onSelectDatabase(ns: string) {
-    hideCollectionSubMenu();
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(ns),
-    });
-  }
-
-  function onSelectNamespace(meta: CollectionMetadata) {
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(meta.namespace),
-    });
-    showCollectionSubMenu({ isReadonly: meta.isReadonly });
-  }
-
-  function onInstanceWorkspaceOpenTap() {
-    hideCollectionSubMenu();
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(''),
-    });
-  }
-
-  function onOpenNamespaceInNewTab(meta: CollectionMetadata) {
-    dispatch({
-      type: 'update-namespace',
-      namespace: toNS(meta.namespace),
-    });
-    showCollectionSubMenu({ isReadonly: meta.isReadonly });
-  }
-
   const onDataServiceDisconnected = useCallback(() => {
     dispatch({
       type: 'disconnected',
     });
-    hideCollectionSubMenu();
-    notifyMainProcessOfDisconnect();
-    updateTitle(appName);
-  }, [appName]);
-
-  useEffect(() => {
-    if (isConnected) {
-      updateTitle(appName, connectionTitle, namespace);
-    }
-  }, [isConnected, appName, connectionTitle, namespace]);
+  }, []);
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -280,11 +236,11 @@ function Home({
       void handleDisconnectClicked();
     }
 
-    ipc.ipcRenderer?.on('app:disconnect', onDisconnect);
+    ipcRenderer?.on('app:disconnect', onDisconnect);
 
     return () => {
       // Clean up the ipc listener.
-      ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
+      ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
@@ -292,10 +248,6 @@ function Home({
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
-    appRegistry.on('select-database', onSelectDatabase);
-    appRegistry.on('select-namespace', onSelectNamespace);
-    appRegistry.on('open-instance-workspace', onInstanceWorkspaceOpenTap);
-    appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
 
     return () => {
       // Clean up the app registry listeners.
@@ -307,20 +259,47 @@ function Home({
         'data-service-disconnected',
         onDataServiceDisconnected
       );
-      appRegistry.removeListener('select-database', onSelectDatabase);
-      appRegistry.removeListener('select-namespace', onSelectNamespace);
-      appRegistry.removeListener(
-        'open-instance-workspace',
-        onInstanceWorkspaceOpenTap
-      );
-      appRegistry.removeListener(
-        'open-namespace-in-new-tab',
-        onOpenNamespaceInNewTab
-      );
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+  const onWorkspaceChange = useCallback(
+    (ws: WorkspaceTab | null, collectionInfo) => {
+      const namespace =
+        ws?.type === 'Collection' || ws?.type === 'Collections'
+          ? ws.namespace
+          : undefined;
+
+      updateTitle(
+        appName,
+        connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
+        ws?.type,
+        namespace
+      );
+
+      if (ws?.type === 'Collection') {
+        showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
+      } else {
+        hideCollectionSubMenu();
+      }
+    },
+    [appName, connectionInfo]
+  );
+
+  const onDataSeviceDisconnected = useCallback(() => {
+    if (!isConnected) {
+      updateTitle(appName);
+      hideCollectionSubMenu();
+      notifyMainProcessOfDisconnect();
+    }
+  }, [appName, isConnected]);
+
+  useLayoutEffect(onDataSeviceDisconnected);
+
+  if (isConnected && !connectedDataService.current) {
+    throw new Error(
+      'Application is connected, but DataService is not available'
+    );
+  }
 
   return (
     <SignalHooksProvider
@@ -340,13 +319,38 @@ function Home({
         track('Signal Closed', { id });
       }}
     >
-      {isConnected && <Workspace namespace={namespace} />}
-      {/* Hide <Connections> but keep it in scope if connected so that the connection
-          import/export functionality can still be used through the application menu */}
+      {isConnected && connectedDataService.current && (
+        // AppRegistry scope for a connected application
+        <AppRegistryProvider>
+          <DataServiceProvider value={connectedDataService.current}>
+            <CompassInstanceStorePlugin>
+              <Workspace
+                connectionInfo={connectionInfo}
+                onActiveWorkspaceTabChange={onWorkspaceChange}
+                renderModals={() => {
+                  return (
+                    <>
+                      <ImportPlugin></ImportPlugin>
+                      <ExportPlugin></ExportPlugin>
+                      <CreateViewPlugin></CreateViewPlugin>
+                      <CreateNamespacePlugin></CreateNamespacePlugin>
+                      <DropNamespacePlugin></DropNamespacePlugin>
+                      <RenameCollectionPlugin></RenameCollectionPlugin>
+                    </>
+                  );
+                }}
+              />
+            </CompassInstanceStorePlugin>
+          </DataServiceProvider>
+        </AppRegistryProvider>
+      )}
+      {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
+          connected so that the connection import/export functionality can still
+          be used through the application menu */}
       <div
         className={isConnected ? hiddenStyles : homeViewStyles}
         data-hidden={isConnected}
-        data-testid="home-view"
+        data-testid="connections"
       >
         <div className={homePageStyles}>
           <Connections
@@ -360,19 +364,15 @@ function Home({
           />
         </div>
       </div>
-      {globalModals?.map(({ name, component: GlobalModalComponent }) => {
-        return <GlobalModalComponent key={name}></GlobalModalComponent>;
-      })}
+      <CompassSettingsPlugin></CompassSettingsPlugin>
+      <CompassFindInPagePlugin></CompassFindInPagePlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
 }
 
 function getCurrentTheme(): Theme {
-  return preferences.getPreferences().enableLgDarkmode &&
-    remote?.nativeTheme?.shouldUseDarkColors
-    ? Theme.Dark
-    : Theme.Light;
+  return remote?.nativeTheme?.shouldUseDarkColors ? Theme.Dark : Theme.Light;
 }
 
 function ThemedHome(
@@ -380,35 +380,25 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const appRegistry = useAppRegistryContext();
+  const appRegistry = useLocalAppRegistry();
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
-    enabled: !!preferences.getPreferences().enableLgDarkmode,
   });
 
-  const darkMode = useMemo(
-    () => theme.enabled && theme.theme === Theme.Dark,
-    [theme]
-  );
+  const darkMode = useMemo(() => theme.theme === Theme.Dark, [theme]);
 
   useEffect(() => {
     const listener = () => {
       setTheme({
         theme: getCurrentTheme(),
-        enabled: !!preferences.getPreferences().enableLgDarkmode,
       });
     };
 
-    const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
-      'enableLgDarkmode',
-      listener
-    );
     remote?.nativeTheme?.on('updated', listener);
 
     return () => {
       // Cleanup preference listeners.
-      unsubscribeLgDarkmodeListener();
       remote?.nativeTheme?.off('updated', listener);
     };
   }, [appRegistry]);
@@ -457,6 +447,10 @@ function ThemedHome(
     }
   }, []);
 
+  const electronFileInputBackendRef = useRef(
+    remote ? createElectronFileInputBackend(remote) : null
+  );
+
   return (
     <LeafyGreenProvider
       darkMode={darkMode}
@@ -464,33 +458,37 @@ function ThemedHome(
         portalContainer: scrollbarsContainerRef,
       }}
     >
-      <GuideCueProvider
-        onNext={onGuideCueNext}
-        onNextGroup={onGuideCueNextGroup}
+      <FileInputBackendProvider
+        createFileInputBackend={electronFileInputBackendRef.current}
       >
-        {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
-        <Body as="div">
-          <div
-            className={getScrollbarStyles(darkMode)}
-            ref={setScrollbarsContainerRef}
-          >
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            <ConfirmationModalArea>
-              <ToastArea>
-                <div
-                  className={cx(
-                    homeContainerStyles,
-                    darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-                  )}
-                  data-theme={theme.theme}
-                >
-                  <Home {...props}></Home>
-                </div>
-              </ToastArea>
-            </ConfirmationModalArea>
-          </div>
-        </Body>
-      </GuideCueProvider>
+        <GuideCueProvider
+          onNext={onGuideCueNext}
+          onNextGroup={onGuideCueNextGroup}
+        >
+          {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+          <Body as="div">
+            <div
+              className={getScrollbarStyles(darkMode)}
+              ref={setScrollbarsContainerRef}
+            >
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <ConfirmationModalArea>
+                <ToastArea>
+                  <div
+                    className={cx(
+                      homeContainerStyles,
+                      darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                    )}
+                    data-theme={theme.theme}
+                  >
+                    <Home {...props}></Home>
+                  </div>
+                </ToastArea>
+              </ConfirmationModalArea>
+            </div>
+          </Body>
+        </GuideCueProvider>
+      </FileInputBackendProvider>
     </LeafyGreenProvider>
   );
 }

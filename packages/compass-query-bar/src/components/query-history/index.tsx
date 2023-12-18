@@ -7,7 +7,7 @@ import FavoriteList from './favorite-list';
 
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores/query-bar-store';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 const containerStyle = css({
   display: 'flex',
@@ -27,9 +27,15 @@ export type QueryHistoryTab = 'recent' | 'favorite';
 
 type QueryHistoryProps = {
   namespace: string;
+  onUpdateFavoriteChoosen: () => void;
+  onUpdateRecentChoosen: () => void;
 };
 
-const QueryHistory = ({ namespace }: QueryHistoryProps) => {
+const QueryHistory = ({
+  namespace,
+  onUpdateFavoriteChoosen,
+  onUpdateRecentChoosen,
+}: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
 
   useTrackOnChange(
@@ -42,8 +48,7 @@ const QueryHistory = ({ namespace }: QueryHistoryProps) => {
       }
     },
     [tab],
-    undefined,
-    React
+    undefined
   );
 
   return (
@@ -51,9 +56,14 @@ const QueryHistory = ({ namespace }: QueryHistoryProps) => {
       <Toolbar tab={tab} onChange={setTab} namespace={namespace} />
       <div className={contentStyles}>
         {tab === 'recent' && (
-          <RecentList onSaveFavorite={() => setTab('favorite')} />
+          <RecentList
+            onUpdateRecentChoosen={onUpdateRecentChoosen}
+            onSaveFavorite={() => setTab('favorite')}
+          />
         )}
-        {tab === 'favorite' && <FavoriteList />}
+        {tab === 'favorite' && (
+          <FavoriteList onUpdateFavoriteChoosen={onUpdateFavoriteChoosen} />
+        )}
       </div>
     </div>
   );

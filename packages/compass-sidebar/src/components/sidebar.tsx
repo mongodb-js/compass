@@ -3,7 +3,6 @@ import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   css,
   spacing,
@@ -22,10 +21,12 @@ import CSFLEConnectionModal from './csfle-connection-modal';
 import CSFLEMarker from './csfle-marker';
 import NonGenuineMarker from './non-genuine-marker';
 
+import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
 import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import type { RootState } from '../modules';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -36,6 +37,7 @@ const badgesPlaceholderStyles = css({
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
+  activeWorkspace,
   isExpanded,
   connectionInfo,
   globalAppRegistryEmit,
@@ -43,16 +45,19 @@ export function Sidebar({
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
 }: {
+  activeWorkspace: { type: string; namespace?: string } | null;
   isExpanded: boolean;
-  connectionInfo: ConnectionInfo;
+  connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
   globalAppRegistryEmit: any;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
   setIsExpanded: (isExpanded: boolean) => void;
+  setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
@@ -140,18 +145,12 @@ export function Sidebar({
     setIsCSFLEModalVisible(!isCSFLEModalVisible);
   }, [setIsCSFLEModalVisible, isCSFLEModalVisible]);
 
-  const setConnectionIsCSFLEEnabled = useCallback(
-    (enabled: boolean) => {
-      globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
-    },
-    [globalAppRegistryEmit]
-  );
-
   return (
     <ResizableSidebar
       collapsable={true}
       expanded={isExpanded}
       setExpanded={setIsExpanded}
+      data-testid="navigation-sidebar"
     >
       <>
         <SidebarTitle
@@ -179,7 +178,12 @@ export function Sidebar({
           )}
         </div>
 
-        <NavigationItems isExpanded={isExpanded} onAction={onAction} />
+        <NavigationItems
+          currentLocation={activeWorkspace?.type ?? null}
+          currentNamespace={activeWorkspace?.namespace ?? null}
+          isExpanded={isExpanded}
+          onAction={onAction}
+        />
 
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}
@@ -206,14 +210,7 @@ export function Sidebar({
   );
 }
 
-const mapStateToProps = (state: {
-  isExpanded: boolean;
-  connectionInfo: {
-    connectionInfo: ConnectionInfo;
-  };
-  isGenuineMongoDBVisible: boolean;
-  instance?: MongoDBInstance;
-}) => ({
+const mapStateToProps = (state: RootState) => ({
   isExpanded: state.isExpanded,
   connectionInfo: state.connectionInfo.connectionInfo,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
@@ -226,6 +223,7 @@ const MappedSidebar = connect(mapStateToProps, {
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
+  setConnectionIsCSFLEEnabled,
 })(Sidebar);
 
 export default MappedSidebar;

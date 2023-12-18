@@ -11,17 +11,20 @@ import {
   mergeProps,
   useDefaultAction,
   SignalPopover,
-  GuideCue,
   PerformanceSignals,
+  Placeholder,
+  ContentWithFallback,
+  palette,
+  useDarkMode,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
-import toNS from 'mongodb-ns';
 import type { ItemAction } from '@mongodb-js/compass-components';
-
 import DatabaseCollectionFilter from './database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-
 import { changeFilterRegex } from '../modules/databases';
+import type { RootState } from '../modules';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -73,6 +76,14 @@ const activeNavigationItem = css({
   },
 });
 
+const itemPlaceholderStyles = css({
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  paddingLeft: spacing[3],
+  height: spacing[5],
+});
+
 const itemWrapper = css({
   position: 'relative',
   display: 'flex',
@@ -109,40 +120,69 @@ const navigationItemLabel = css({
   marginLeft: spacing[2],
 });
 
+const navigationItemDisabledDarkModeStyles = css({
+  '--item-color': palette.gray.dark1,
+  '--item-color-active': palette.gray.dark1,
+  '--item-bg-color-hover': 'var(--item-bg-color)',
+});
+
+const navigationItemDisabledLightModeStyles = css({
+  '--item-color': palette.gray.base,
+  '--item-color-active': palette.gray.base,
+  '--item-bg-color-hover': 'var(--item-bg-color)',
+});
+
 const navigationItemActionIcons = css({ color: 'inherit' });
 
 export function NavigationItem<Actions extends string>({
   isExpanded,
   onAction,
+  onClick: onButtonClick,
   glyph,
   label,
   actions,
-  tabName,
   isActive,
   showTooManyCollectionsInsight,
+  disabled: isButtonDisabled = false,
+  disabledMessage: buttonDisabledMessage,
 }: {
   isExpanded?: boolean;
-  onAction(actionName: string, ...rest: any[]): void;
+  onAction(actionName: Actions, ...rest: any[]): void;
+  onClick(): void;
   glyph: string;
   label: string;
   actions?: ItemAction<Actions>[];
-  tabName: string;
   isActive: boolean;
   showTooManyCollectionsInsight?: boolean;
+  disabled?: boolean;
+  disabledMessage?: string;
 }) {
+  const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights', React);
   const onClick = useCallback(() => {
-    onAction('open-instance-workspace', tabName);
-  }, [onAction, tabName]);
+    if (isButtonDisabled) {
+      return;
+    }
+    onButtonClick();
+  }, [isButtonDisabled, onButtonClick]);
   const [hoverProps] = useHoverState();
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onClick);
 
   const navigationItemProps = mergeProps(
     {
-      className: cx(navigationItem, isActive && activeNavigationItem),
+      className: cx(
+        navigationItem,
+        isActive && activeNavigationItem,
+        isButtonDisabled &&
+          (darkMode
+            ? navigationItemDisabledDarkModeStyles
+            : navigationItemDisabledLightModeStyles)
+      ),
+      role: 'button',
       ['aria-label']: label,
       ['aria-current']: isActive,
+      ['aria-disabled']: isButtonDisabled,
       tabIndex: 0,
     },
     hoverProps,
@@ -151,79 +191,90 @@ export function NavigationItem<Actions extends string>({
   ) as React.HTMLProps<HTMLDivElement>;
 
   return (
-    <div {...navigationItemProps}>
-      <div className={itemWrapper}>
-        <div className={itemButtonWrapper}>
-          <Icon glyph={glyph} size="small"></Icon>
-          {isExpanded && <span className={navigationItemLabel}>{label}</span>}
-        </div>
-        {showInsights && isExpanded && showTooManyCollectionsInsight && (
-          <div className={signalContainerStyles}>
-            <SignalPopover
-              signals={PerformanceSignals.get('too-many-collections')}
-            ></SignalPopover>
+    <Tooltip
+      align="right"
+      spacing={spacing[3]}
+      isDisabled={!isButtonDisabled || !buttonDisabledMessage}
+      trigger={({ children: tooltip, ...triggerProps }) => {
+        const props = mergeProps(triggerProps, navigationItemProps);
+        return (
+          <div {...props}>
+            <div className={itemWrapper}>
+              <div className={itemButtonWrapper}>
+                <Icon glyph={glyph} size="small"></Icon>
+                {isExpanded && (
+                  <span className={navigationItemLabel}>{label}</span>
+                )}
+                {tooltip}
+              </div>
+              {showInsights && isExpanded && showTooManyCollectionsInsight && (
+                <div className={signalContainerStyles}>
+                  <SignalPopover
+                    signals={PerformanceSignals.get('too-many-collections')}
+                  ></SignalPopover>
+                </div>
+              )}
+              {!isButtonDisabled && isExpanded && actions && (
+                <ItemActionControls<Actions>
+                  iconSize="small"
+                  onAction={onAction}
+                  data-testid="sidebar-navigation-item-actions"
+                  actions={actions}
+                  // This is what renders the "create database" action,
+                  // the icons here should always be clearly visible,
+                  // so we let the icon to inherit the foreground color of
+                  // the text
+                  isVisible={true}
+                  iconClassName={navigationItemActionIcons}
+                  collapseToMenuThreshold={3}
+                ></ItemActionControls>
+              )}
+              <div className={cx('item-background', itemBackground)} />
+            </div>
           </div>
-        )}
-        {isExpanded && actions && (
-          <ItemActionControls<Actions>
-            iconSize="small"
-            onAction={onAction}
-            data-testid="sidebar-navigation-item-actions"
-            actions={actions}
-            // This is what renders the "create database" action,
-            // the icons here should always be clearly visible,
-            // so we let the icon to inherit the foreground color of
-            // the text
-            isVisible={true}
-            iconClassName={navigationItemActionIcons}
-            collapseToMenuThreshold={3}
-          ></ItemActionControls>
-        )}
-        <div className={cx('item-background', itemBackground)} />
-      </div>
-    </div>
+        );
+      }}
+    >
+      {buttonDisabledMessage}
+    </Tooltip>
   );
 }
 
-const GuideCueDatabaseIcon = () => {
+const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
   return (
-    <GuideCue
-      cueId="sidebar-no-databases"
-      title="It looks a bit empty around here"
-      description={
-        'Aside from the default databases, you’ll need to create your first database to get to working with data.'
-      }
-      trigger={({ ref }) => (
-        <span ref={ref}>
-          <Icon glyph="Plus" />
-        </span>
-      )}
-    />
+    <div className={itemPlaceholderStyles}>
+      <Placeholder width={`${forLabel.length}ch`}></Placeholder>
+    </div>
   );
 };
 
 export function NavigationItems({
+  isReady,
   isExpanded,
-  isDataLake,
-  isWritable,
-  changeFilterRegex,
+  showCreateDatabaseAction,
+  isPerformanceTabSupported,
+  onFilterChange,
   onAction,
   currentLocation,
-  readOnly,
+  currentNamespace,
   showTooManyCollectionsInsight = false,
-  showCreateDatabaseGuideCue,
 }: {
+  isReady?: boolean;
   isExpanded?: boolean;
-  isDataLake?: boolean;
-  isWritable?: boolean;
-  changeFilterRegex(regex: RegExp | null): void;
+  showCreateDatabaseAction: boolean;
+  isPerformanceTabSupported: boolean;
+  onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
-  readOnly?: boolean;
+  currentNamespace: string | null;
   showTooManyCollectionsInsight?: boolean;
-  showCreateDatabaseGuideCue: boolean;
 }) {
-  const isReadOnly = readOnly || isDataLake || !isWritable;
+  const {
+    openMyQueriesWorkspace,
+    openPerformanceWorkspace,
+    openDatabasesWorkspace,
+  } = useOpenWorkspace();
+
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
       {
@@ -233,87 +284,115 @@ export function NavigationItems({
       },
     ];
 
-    if (!isReadOnly) {
+    if (showCreateDatabaseAction) {
       actions.push({
         action: 'open-create-database',
         label: 'Create database',
-        icon: showCreateDatabaseGuideCue ? <GuideCueDatabaseIcon /> : 'Plus',
+        icon: 'Plus',
       });
     }
 
     return actions;
-  }, [isReadOnly, showCreateDatabaseGuideCue]);
+  }, [showCreateDatabaseAction]);
 
   return (
     <>
-      <NavigationItem<''>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="CurlyBraces"
-        label="My Queries"
-        tabName="My Queries"
-        isActive={currentLocation === 'My Queries'}
-      />
-      <NavigationItem<DatabasesActions>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="Database"
-        label="Databases"
-        tabName="Databases"
-        actions={databasesActions}
-        isActive={currentLocation === 'Databases'}
-        showTooManyCollectionsInsight={showTooManyCollectionsInsight}
-      />
+      <ContentWithFallback
+        isContentReady={!!isReady}
+        fallback={(shouldRender) => {
+          return (
+            shouldRender && (
+              <>
+                <PlaceholderItem forLabel="My Queries"></PlaceholderItem>
+                <PlaceholderItem forLabel="Performance"></PlaceholderItem>
+                <PlaceholderItem forLabel="Databases"></PlaceholderItem>
+              </>
+            )
+          );
+        }}
+        content={(shouldRender) => {
+          return (
+            shouldRender && (
+              <>
+                <NavigationItem<''>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  onClick={openMyQueriesWorkspace}
+                  glyph="CurlyBraces"
+                  label="My Queries"
+                  isActive={currentLocation === 'My Queries'}
+                />
+                <NavigationItem<''>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  onClick={openPerformanceWorkspace}
+                  glyph="Gauge"
+                  label="Performance"
+                  isActive={currentLocation === 'Performance'}
+                  disabled={!isPerformanceTabSupported}
+                  disabledMessage="Performance metrics are not available for your deployment or to your database user"
+                />
+                <NavigationItem<DatabasesActions>
+                  isExpanded={isExpanded}
+                  onAction={onAction}
+                  onClick={openDatabasesWorkspace}
+                  glyph="Database"
+                  label="Databases"
+                  actions={databasesActions}
+                  isActive={currentLocation === 'Databases'}
+                  showTooManyCollectionsInsight={showTooManyCollectionsInsight}
+                />
+              </>
+            )
+          );
+        }}
+      ></ContentWithFallback>
+
       {isExpanded && (
-        <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
+        <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       )}
-      {isExpanded && <SidebarDatabasesNavigation />}
+      {isExpanded && (
+        <SidebarDatabasesNavigation
+          activeNamespace={currentNamespace ?? undefined}
+        />
+      )}
     </>
   );
 }
 
-const mapStateToProps =
-  (state: // TODO(COMPASS-6914): Properly type stores instead of this
-  {
-    location: string | null;
-    databases: {
-      databases: any[];
-    };
-    instance?: {
-      dataLake: {
-        isDataLake: boolean;
-      };
-      isWritable: boolean;
-      databasesStatus: string;
-    };
-  }) => {
-    const totalCollectionsCount = state.databases.databases.reduce(
-      (acc: number, db: { collectionsLength: number }) => {
-        return acc + db.collectionsLength;
-      },
-      0
-    );
+const mapStateToProps = (
+  state: RootState,
+  { readOnly: preferencesReadOnly }: { readOnly: boolean }
+) => {
+  const totalCollectionsCount = state.databases.databases.reduce(
+    (acc: number, db: { collectionsLength: number }) => {
+      return acc + db.collectionsLength;
+    },
+    0
+  );
 
-    const databasesStatus = state.instance?.databasesStatus;
-    const isReady =
-      databasesStatus !== undefined &&
-      !['initial', 'fetching'].includes(databasesStatus);
+  const isReady =
+    ['ready', 'refreshing'].includes(state.instance?.status ?? '') &&
+    state.isPerformanceTabSupported !== null;
 
-    const numNonSpecialDatabases = state.databases.databases
-      .map((x: { _id: string }) => toNS(x._id))
-      .filter((x) => !x.specialish).length;
+  const isDataLake = state.instance?.dataLake.isDataLake ?? false;
+  const isWritable = state.instance?.isWritable ?? false;
 
-    return {
-      currentLocation: state.location,
-      isDataLake: state.instance?.dataLake.isDataLake,
-      isWritable: state.instance?.isWritable,
-      showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
-      showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
-    };
+  return {
+    isReady,
+    showPerformanceItem: !isDataLake,
+    showCreateDatabaseAction: !isDataLake && isWritable && !preferencesReadOnly,
+    showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
+    isPerformanceTabSupported: !isDataLake && !!state.isPerformanceTabSupported,
   };
+};
 
-const MappedNavigationItems = connect(mapStateToProps, {
-  changeFilterRegex,
-})(withPreferences(NavigationItems, ['readOnly'], React));
+const MappedNavigationItems = withPreferences(
+  connect(mapStateToProps, {
+    onFilterChange: changeFilterRegex,
+  })(NavigationItems),
+  ['readOnly'],
+  React
+);
 
 export default MappedNavigationItems;

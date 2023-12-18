@@ -101,6 +101,8 @@ function useHadronElement(el: HadronElementType) {
     el.on(ElementEvents.Valid, onElementChanged);
     el.on(ElementEvents.Added, onElementAddedOrRemoved);
     el.on(ElementEvents.Removed, onElementAddedOrRemoved);
+    el.on(ElementEvents.Expanded, onElementChanged);
+    el.on(ElementEvents.Collapsed, onElementChanged);
 
     return () => {
       el.off(ElementEvents.Converted, onElementChanged);
@@ -109,6 +111,8 @@ function useHadronElement(el: HadronElementType) {
       el.off(ElementEvents.Valid, onElementChanged);
       el.off(ElementEvents.Added, onElementAddedOrRemoved);
       el.off(ElementEvents.Removed, onElementAddedOrRemoved);
+      el.off(ElementEvents.Expanded, onElementChanged);
+      el.off(ElementEvents.Collapsed, onElementChanged);
     };
   }, [el, onElementChanged, onElementAddedOrRemoved]);
 
@@ -162,6 +166,9 @@ function useHadronElement(el: HadronElementType) {
     parentType: el.parent?.currentType,
     removed: el.isRemoved(),
     internal: el.isInternalField(),
+    expanded: el.expanded,
+    expand: el.expand.bind(el),
+    collapse: el.collapse.bind(el),
   };
 }
 const expandButton = css({
@@ -190,7 +197,7 @@ const hadronElementLightMode = css({
 
 const hadronElementDarkMode = css({
   '&:hover': {
-    backgroundColor: palette.black,
+    backgroundColor: palette.gray.dark4,
   },
 });
 
@@ -353,7 +360,6 @@ export const HadronElement: React.FunctionComponent<{
   editable: boolean;
   editingEnabled: boolean;
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
-  allExpanded: boolean;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
 }> = ({
@@ -361,13 +367,11 @@ export const HadronElement: React.FunctionComponent<{
   editable,
   editingEnabled,
   onEditStart,
-  allExpanded,
   lineNumberSize,
   onAddElement,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
-  const [expanded, setExpanded] = useState(allExpanded);
   const {
     id,
     key,
@@ -381,15 +385,14 @@ export const HadronElement: React.FunctionComponent<{
     parentType,
     removed,
     internal,
+    expanded,
+    expand,
+    collapse,
   } = useHadronElement(element);
 
-  useEffect(() => {
-    setExpanded(allExpanded);
-  }, [allExpanded]);
-
-  const toggleExpanded = useCallback(() => {
-    setExpanded((val) => !val);
-  }, []);
+  const toggleExpanded = () => {
+    expanded ? collapse() : expand();
+  };
 
   const lineNumberMinWidth = useMemo(() => {
     // Only account for ~ line count length if we are in editing mode
@@ -399,10 +402,6 @@ export const HadronElement: React.FunctionComponent<{
     }
     return spacing[3];
   }, [lineNumberSize, editingEnabled]);
-
-  const onLineClick = useCallback(() => {
-    toggleExpanded();
-  }, [toggleExpanded]);
 
   const isValid = key.valid && value.valid;
   const shouldShowActions = editingEnabled;
@@ -420,7 +419,7 @@ export const HadronElement: React.FunctionComponent<{
       darkMode ? hadronElementDarkMode : hadronElementLightMode,
       removed ? elementRemoved : editingEnabled && !isValid && elementInvalid
     ),
-    onClick: onLineClick,
+    onClick: toggleExpanded,
   };
 
   const keyProps = {
@@ -494,7 +493,7 @@ export const HadronElement: React.FunctionComponent<{
                     ? () => {
                         const el = element.insertPlaceholder();
                         onAddElement(el);
-                        setExpanded(true);
+                        expand();
                       }
                     : undefined
                 }
@@ -630,7 +629,7 @@ export const HadronElement: React.FunctionComponent<{
                 // When we change the type to an object or array we auto
                 // expand them to make seeding data a bit quicker.
                 if (newType === 'Array' || newType === 'Object') {
-                  setExpanded(true);
+                  expand();
                 }
               }}
             ></TypeEditor>
@@ -647,7 +646,6 @@ export const HadronElement: React.FunctionComponent<{
               editable={editable}
               editingEnabled={editingEnabled}
               onEditStart={onEditStart}
-              allExpanded={allExpanded}
               lineNumberSize={lineNumberSize}
               onAddElement={onAddElement}
             ></HadronElement>

@@ -20,7 +20,7 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
-import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { usePreference } from 'compass-preferences-model';
 
 const stagePreviewStyles = css({
   display: 'flex',
@@ -52,8 +52,7 @@ type OutputStageProps = {
   isLoading: boolean;
   hasServerError: boolean;
   isFinishedPersistingDocuments: boolean;
-  isAtlasDeployed: boolean;
-  destinationNamespace: string;
+  destinationNamespace: string | null;
   onRunOutputStage: () => void;
   onGoToOutputResults: () => void;
 };
@@ -86,40 +85,50 @@ export const OutputStage = ({
   isLoading,
   hasServerError,
   isFinishedPersistingDocuments,
-  isAtlasDeployed,
   destinationNamespace,
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
+  // When explicit pipeline run is not enabled, we allow to run output stage
+  // from the preview
+  const showOutputActions = !usePreference(
+    'enableAggregationBuilderRunPipeline',
+    React
+  );
+
   if (!isOutputStage(operator ?? '')) {
     return null;
   }
 
-  if (isLoading) {
-    return <Loader destinationNamespace={destinationNamespace} />;
-  }
+  // Following states are only allowed when running out stage from the preview
+  // card is enabled
+  if (showOutputActions) {
+    // Stage editor show the error message.
+    if (hasServerError) {
+      return null;
+    }
 
-  // Stage editor show the error message.
-  if (hasServerError) {
-    return null;
-  }
+    if (isLoading) {
+      return <Loader destinationNamespace={destinationNamespace} />;
+    }
 
-  if (isFinishedPersistingDocuments) {
-    return (
-      <div className={stagePreviewStyles}>
-        <Body className={stagePreviewTextStyles}>
-          {documentsPersistedText(destinationNamespace)}
-        </Body>
-        <Link
-          data-testid="goto-output-collection"
-          as="button"
-          className={stagePreviewLinkStyles}
-          onClick={onGoToOutputResults}
-        >
-          Go to collection.
-        </Link>
-      </div>
-    );
+    if (isFinishedPersistingDocuments) {
+      return (
+        <div className={stagePreviewStyles}>
+          <Body className={stagePreviewTextStyles}>
+            {documentsPersistedText(destinationNamespace)}
+          </Body>
+          <Link
+            data-testid="goto-output-collection"
+            as="button"
+            className={stagePreviewLinkStyles}
+            onClick={onGoToOutputResults}
+          >
+            Go to collection.
+          </Link>
+        </div>
+      );
+    }
   }
 
   return (
@@ -129,7 +138,7 @@ export const OutputStage = ({
           ? MERGE_STAGE_PREVIEW_TEXT
           : OUT_STAGE_PREVIEW_TEXT}
       </div>
-      {isAtlasDeployed && (
+      {showOutputActions && (
         <Button
           variant="primary"
           data-testid="save-output-documents"
@@ -150,18 +159,16 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[
     ownProps.index
   ] as StoreStage;
-  const destinationNamespace = getDestinationNamespaceFromStage(
-    state.namespace,
-    parseShellBSON(`{
-      ${stage.stageOperator as string}: ${stage.value ?? ''}
-    }`)
-  );
+  const destinationNamespace = stage.stageOperator
+    ? getDestinationNamespaceFromStage(state.namespace, {
+        [stage.stageOperator]: stage.value ?? '',
+      })
+    : null;
 
   return {
     isLoading: stage.loading,
     hasServerError: !!stage.serverError,
     isFinishedPersistingDocuments: Boolean(stage.previewDocs),
-    isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
     operator: stage.stageOperator,
   };

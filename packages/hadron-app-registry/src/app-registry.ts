@@ -1,6 +1,8 @@
 import type { Store as RefluxStore } from 'reflux';
+import type { Store as ReduxStore } from 'redux';
 import EventEmitter from 'eventemitter3';
 import { Actions } from './actions';
+import type { ReactReduxContext } from 'react-redux';
 
 /**
  * A non-magic number that is still small and higher than
@@ -17,14 +19,42 @@ interface Role {
   storeName?: string;
   configureStore?: (storeSetup: any) => any;
   order?: number;
-  hasQueryHistory?: boolean;
 }
 
-type Store = Partial<
-  RefluxStore & {
-    onActivated?: (appRegistry: AppRegistry) => void;
-  }
->;
+export type Store = (ReduxStore | Partial<RefluxStore>) & {
+  onActivated?: (appRegistry: AppRegistry) => void;
+};
+
+export function isReduxStore(store: Store): store is ReduxStore {
+  return (
+    store &&
+    typeof store === 'object' &&
+    Object.prototype.hasOwnProperty.call(store, 'dispatch')
+  );
+}
+
+export interface Plugin {
+  /**
+   * Redux or reflux store that will be automatically passed to a
+   * corresponding provider
+   */
+  store: Store;
+  /**
+   * Optional, only relevant for plugins using redux stores in cases where
+   * exposed plugin methods need access to plugin store in react tree where
+   * another redux store is mounted
+   */
+  context?: typeof ReactReduxContext;
+  /**
+   * Optional, only relevant for plugins still using reflux
+   */
+  actions?: typeof Actions;
+  /**
+   * Will be called to clean up plugin subscriptions when it is deactivated by
+   * app registry scope
+   */
+  deactivate: () => void;
+}
 
 /**
  * Is a registry for all user interface components, stores, and actions
@@ -36,6 +66,7 @@ export class AppRegistry {
   components: Record<string, React.ComponentType<any>>;
   stores: Record<string, Store>;
   roles: Record<string, Role[]>;
+  plugins: Record<string, Plugin>;
   storeMisses: Record<string, number>;
 
   /**
@@ -47,6 +78,7 @@ export class AppRegistry {
     this.components = {};
     this.stores = {};
     this.roles = {};
+    this.plugins = {};
     this.storeMisses = {};
   }
 
@@ -114,6 +146,11 @@ export class AppRegistry {
     return this;
   }
 
+  deregisterPlugin(name: string): this {
+    delete this.plugins[name];
+    return this;
+  }
+
   /**
    * Get an action for the name.
    *
@@ -156,6 +193,10 @@ export class AppRegistry {
    */
   getStore(name: string): Store | undefined {
     return this.stores[name];
+  }
+
+  getPlugin(name: string): Plugin | undefined {
+    return this.plugins[name];
   }
 
   /**
@@ -251,6 +292,21 @@ export class AppRegistry {
       Actions.storeRegistered(name);
     }
     return this;
+  }
+
+  registerPlugin(name: string, plugin: Plugin): this {
+    this.plugins[name] = plugin;
+    return this;
+  }
+
+  deactivate() {
+    for (const [name, plugin] of Object.entries(this.plugins)) {
+      plugin.deactivate?.();
+      this.deregisterPlugin(name);
+    }
+    for (const event of this.eventNames()) {
+      this.removeAllListeners(event);
+    }
   }
 
   /**

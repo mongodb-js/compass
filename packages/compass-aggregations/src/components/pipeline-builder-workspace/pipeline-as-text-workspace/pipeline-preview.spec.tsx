@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from '../../../../test/configure-store';
 
 import { PipelinePreview } from './pipeline-preview';
+import HadronDocument from 'hadron-document';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
@@ -23,6 +24,8 @@ const renderPipelineEditor = (
         previewDocs={null}
         isMissingAtlasSupport={false}
         atlasOperator=""
+        onExpand={() => {}}
+        onCollapse={() => {}}
         {...props}
       />
     </Provider>
@@ -56,7 +59,11 @@ describe('PipelinePreview', function () {
   });
 
   it('renders document list', function () {
-    renderPipelineEditor({ previewDocs: [{ _id: 1 }, { _id: 2 }] });
+    renderPipelineEditor({
+      previewDocs: [{ _id: 1 }, { _id: 2 }].map(
+        (doc) => new HadronDocument(doc)
+      ),
+    });
     const container = screen.getByTestId('pipeline-as-text-preview');
     expect(
       container.querySelectorAll('[data-testid="document-list-item"]')
@@ -65,7 +72,7 @@ describe('PipelinePreview', function () {
 
   it('renders pipeline output menu', function () {
     const previewDocs = [
-      {
+      new HadronDocument({
         _id: 1,
         score: [
           { number: 1 },
@@ -79,9 +86,17 @@ describe('PipelinePreview', function () {
             },
           },
         ],
-      },
+      }),
     ];
-    renderPipelineEditor({ previewDocs });
+    renderPipelineEditor({
+      previewDocs,
+      onExpand: () => {
+        previewDocs[0].expand();
+      },
+      onCollapse: () => {
+        previewDocs[0].collapse();
+      },
+    });
 
     const docList = screen.getByTestId('document-list-item');
 
@@ -138,7 +153,9 @@ describe('PipelinePreview', function () {
   it('renders output stage preview', function () {
     renderPipelineEditor(
       {
-        previewDocs: [{ _id: 1 }, { _id: 2 }, { _id: 3 }],
+        previewDocs: [{ _id: 1 }, { _id: 2 }, { _id: 3 }].map(
+          (doc) => new HadronDocument(doc)
+        ),
         isOutStage: true,
       },
       {
@@ -175,7 +192,10 @@ describe('PipelinePreview', function () {
     });
 
     it('renders stale banner when preview is stale', function () {
-      renderPipelineEditor({ isPreviewStale: true, previewDocs: [{ _id: 1 }] });
+      renderPipelineEditor({
+        isPreviewStale: true,
+        previewDocs: [new HadronDocument({ _id: 1 })],
+      });
       expect(screen.getByText(staleMessage)).to.exist;
     });
   });

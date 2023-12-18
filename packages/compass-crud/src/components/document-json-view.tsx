@@ -1,24 +1,25 @@
 import React from 'react';
-import { css, cx, KeylineCard } from '@mongodb-js/compass-components';
+import { css, cx, KeylineCard, spacing } from '@mongodb-js/compass-components';
 
 import type { JSONEditorProps } from './json-editor';
 import JSONEditor from './json-editor';
 import type Document from 'hadron-document';
 
-/**
- * The full document list container class.
- */
-const LIST_CLASS = 'document-json';
+const listStyles = css({
+  listStyle: 'none',
+  position: 'relative',
+  width: '100%',
+});
 
-/**
- * The list item class.
- */
-const LIST_ITEM_CLASS = `${LIST_CLASS}-item`;
+const listItemStyles = css({
+  position: 'relative',
+  marginBottom: spacing[2],
 
-/**
- * The list item test id.
- */
-const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
+  '&:last-child': {
+    marginBottom: 0,
+    borderBottom: '0px solid transparent',
+  },
+});
 
 export type DocumentJsonViewProps = {
   docs: Document[];
@@ -54,7 +55,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
   renderDocuments() {
     return this.props.docs.map((doc, i) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-testid={LIST_ITEM_TEST_ID} key={i}>
+        <li className={listItemStyles} data-testid="document-json-item" key={i}>
           <KeylineCard className={keylineCardCSS}>
             <JSONEditor
               key={doc.uuid}
@@ -82,7 +83,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
    */
   render() {
     return (
-      <ol className={cx(LIST_CLASS, this.props.className)}>
+      <ol className={cx(listStyles, this.props.className)}>
         {this.renderDocuments()}
       </ol>
     );

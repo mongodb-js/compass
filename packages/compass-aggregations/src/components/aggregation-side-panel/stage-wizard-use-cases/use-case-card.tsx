@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
-  KeylineCard,
   Body,
-  Link,
   css,
   spacing,
+  Badge,
+  KeylineCard,
+  cx,
 } from '@mongodb-js/compass-components';
 
-import { getStageHelpLink } from '../../../utils/stage';
 import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
 
@@ -20,39 +20,68 @@ type UseCaseCardProps = DraggedUseCase & {
   onSelect: () => void;
 };
 
-type UseCaseCardLayoutProps = DraggedUseCase & {
-  onClick?: () => void;
-};
-
 const cardStyles = css({
-  cursor: 'grab',
-  padding: spacing[3],
-  ':active': {
-    cursor: 'grabbing',
-  },
+  padding: `${spacing[2]}px ${spacing[3]}px`,
+  textAlign: 'left',
+  width: '100%',
 });
 
-const cardTitleStyles = css({
+const cardStylesDragging = css({
+  opacity: 0.5,
+});
+
+const cardStylesDropping = css({
+  cursor: 'grabbing',
+});
+
+const cardBodyStyles = css({
   display: 'inline',
   marginRight: spacing[2],
 });
 
+type UseCaseCardLayoutProps = DraggedUseCase & {
+  onSelect?: () => void;
+  isDragging?: boolean;
+  isDropping?: boolean;
+};
+
 export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
-  { id, title, stageOperator, ...props }: UseCaseCardLayoutProps,
+  {
+    id,
+    title,
+    stageOperator,
+    isDragging,
+    isDropping,
+    onSelect,
+    ...props
+  }: UseCaseCardLayoutProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) {
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === 'Enter' || event.code === 'Enter') {
+        onSelect?.();
+      }
+    },
+    [onSelect]
+  );
+
   return (
-    <KeylineCard ref={ref} className={cardStyles} {...props}>
-      <Body data-testid={`use-case-${id}`} className={cardTitleStyles}>
-        {title}
+    <KeylineCard
+      ref={ref}
+      contentStyle="clickable"
+      className={cx(
+        cardStyles,
+        isDragging && cardStylesDragging,
+        isDropping && cardStylesDropping
+      )}
+      onClick={onSelect}
+      onKeyDown={handleKeyDown}
+      {...props}
+    >
+      <Body as="div" data-testid={`use-case-${id}`} className={cardBodyStyles}>
+        {title} <Badge>{stageOperator}</Badge>
       </Body>
-      <Link
-        target="_blank"
-        onClick={(e) => e.stopPropagation()}
-        href={getStageHelpLink(stageOperator) as string}
-      >
-        {stageOperator}
-      </Link>
     </KeylineCard>
   );
 });
@@ -63,7 +92,7 @@ const UseCaseCard = ({
   stageOperator,
   onSelect,
 }: UseCaseCardProps) => {
-  const { setNodeRef, attributes, listeners } = useDraggable({
+  const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
     id,
     data: {
       type: 'use-case',
@@ -80,7 +109,8 @@ const UseCaseCard = ({
       id={id}
       title={title}
       stageOperator={stageOperator}
-      onClick={onSelect}
+      isDragging={isDragging}
+      onSelect={onSelect}
       ref={setNodeRef}
       {...attributes}
       {...listeners}

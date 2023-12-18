@@ -1,9 +1,13 @@
 import React from 'react';
-import { Body, css, openToast } from '@mongodb-js/compass-components';
+import {
+  Body,
+  css,
+  openToast,
+  ToastBody,
+} from '@mongodb-js/compass-components';
 import path from 'path';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import { ToastBody } from './toast-body';
 import { openFile } from '../utils/open-file';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');

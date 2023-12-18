@@ -8,10 +8,15 @@ import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
 import {
   countDocuments,
@@ -29,16 +34,27 @@ import {
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
-import type { DataService } from 'mongodb-data-service';
-import type {
-  GridStore,
-  GridStoreOptions,
-  TableHeaderType,
-} from './grid-store';
+import type { UpdatePreview } from 'mongodb-data-service';
+import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import { toJSString } from 'mongodb-query-parser';
+import {
+  openBulkDeleteFailureToast,
+  openBulkDeleteProgressToast,
+  openBulkDeleteSuccessToast,
+  openBulkUpdateFailureToast,
+  openBulkUpdateProgressToast,
+  openBulkUpdateSuccessToast,
+} from '../components/bulk-actions-toasts';
+import type { DataService } from '../utils/data-service';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import configureActions from '../actions';
+import type { ActivateHelpers } from 'hadron-app-registry';
+
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
@@ -57,12 +73,24 @@ export type CrudActions = {
   replaceDocument(doc: Document): void;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
   copyToClipboard(doc: Document): void; //XXX
+  openBulkDeleteDialog(): void;
+  runBulkUpdate(): void;
+  closeBulkDeleteDialog(): void;
+  runBulkDelete(): void;
+  openDeleteQueryExportToLanguageDialog(): void;
+  saveUpdateQuery(name: string): Promise<void>;
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
 
 const { debug, log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-CRUD-UI');
+
+const INITIAL_BULK_UPDATE_TEXT = `{
+  $set: {
+
+  },
+}`;
 
 function pickQueryProps({
   filter,
@@ -110,7 +138,9 @@ export const fetchDocuments: (
     // ADF doesn't support $bsonSize
     !isDataLake &&
     // Accessing $$ROOT is not possible with CSFLE
-    ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
+    ['disabled', 'unavailable', undefined].includes(
+      dataService?.getCSFLEMode?.()
+    ) &&
     // User provided their own projection, we can handle this in some cases, but
     // it's hard to get right, so we will just skip this case
     isEmpty(options?.projection);
@@ -266,32 +296,6 @@ export const setNamespace = (store: CrudStoreImpl, ns: string) => {
 };
 
 /**
- * Set the global app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setGlobalAppRegistry = (
-  store: CrudStoreImpl,
-  appRegistry: AppRegistry
-) => {
-  store.globalAppRegistry = appRegistry;
-};
-
-/**
- * Set the local app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setLocalAppRegistry = (
-  store: CrudStoreImpl,
-  appRegistry: AppRegistry
-) => {
-  store.localAppRegistry = appRegistry;
-};
-
-/**
  * Determine if the document list is editable.
  *
  * @param {Object} opts - The options to determine if the list is editable.
@@ -311,18 +315,14 @@ export const isListEditable = ({
 };
 
 type CrudStoreOptions = {
-  actions: {
-    [key in keyof CrudActions]: Listenable;
-  };
-  query?: Partial<QueryState>;
-  localAppRegistry: AppRegistry;
-  globalAppRegistry: AppRegistry;
+  query?: unknown; // Partial<QueryState>;
   isReadonly: boolean;
   namespace: string;
   isTimeSeries: boolean;
-  dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
   isSearchIndexesSupported: boolean;
+  favoriteQueriesStorage?: FavoriteQueryStorage;
+  recentQueriesStorage?: RecentQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -346,6 +346,16 @@ type InsertState = {
   isCommentNeeded: boolean;
 };
 
+type BulkUpdateState = {
+  isOpen: boolean;
+  updateText: string;
+  preview: UpdatePreview;
+  syntaxError?: Error;
+  serverError?: Error;
+  previewAbortController?: AbortController;
+  affected?: number;
+};
+
 export type TableState = {
   doc: Document | null;
   path: (string | number)[];
@@ -366,6 +376,12 @@ export type QueryState = {
   collation: null | BSONObject;
 };
 
+export type BulkDeleteState = {
+  previews: Document[];
+  status: 'open' | 'closed' | 'in-progress';
+  affected?: number;
+};
+
 type CrudState = {
   ns: string;
   collection: string;
@@ -380,6 +396,7 @@ type CrudState = {
   view: DocumentView;
   count: number | null;
   insert: InsertState;
+  bulkUpdate: BulkUpdateState;
   table: TableState;
   query: QueryState;
   isDataLake: boolean;
@@ -396,10 +413,18 @@ type CrudState = {
   fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
+  bulkDelete: BulkDeleteState;
+};
+
+type CrudStoreActionsOptions = {
+  actions: {
+    [key in keyof CrudActions]: Listenable;
+  };
 };
 
 class CrudStoreImpl
-  extends BaseRefluxStore<CrudStoreOptions>
+  extends BaseRefluxStore<CrudStoreOptions & CrudStoreActionsOptions>
   implements CrudActions
 {
   mixins = [StateMixin.store];
@@ -409,13 +434,34 @@ class CrudStoreImpl
   // readonly state!: Readonly<CrudState>
   state!: CrudState;
   setState!: (newState: Partial<CrudState>) => void;
-  dataService!: DataService;
-  localAppRegistry!: AppRegistry;
-  globalAppRegistry!: AppRegistry;
+  dataService: DataService;
+  localAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
+  >;
+  globalAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
+  favoriteQueriesStorage: FavoriteQueryStorage;
+  recentQueriesStorage: RecentQueryStorage;
 
-  constructor(options: CrudStoreOptions) {
+  constructor(
+    options: CrudStoreOptions & CrudStoreActionsOptions,
+    services: Pick<
+      DocumentsPluginServices,
+      'dataService' | 'localAppRegistry' | 'globalAppRegistry'
+    >
+  ) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
+    this.favoriteQueriesStorage =
+      options.favoriteQueriesStorage || new FavoriteQueryStorage();
+    this.recentQueriesStorage =
+      options.recentQueriesStorage || new RecentQueryStorage();
+    this.dataService = services.dataService;
+    this.localAppRegistry = services.localAppRegistry;
+    this.globalAppRegistry = services.globalAppRegistry;
   }
 
   updateFields(fields: { autocompleteFields: { name: string }[] }) {
@@ -439,6 +485,7 @@ class CrudStoreImpl
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
+      bulkUpdate: this.getInitialBulkUpdateState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
       isDataLake: false,
@@ -455,6 +502,12 @@ class CrudStoreImpl
       fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
+      isUpdatePreviewSupported: false,
+      bulkDelete: {
+        previews: [],
+        status: 'closed',
+        affected: 0,
+      },
     };
   }
 
@@ -473,6 +526,18 @@ class CrudStoreImpl
       jsonView: false,
       isOpen: false,
       isCommentNeeded: true,
+    };
+  }
+
+  getInitialBulkUpdateState(): BulkUpdateState {
+    return {
+      isOpen: false,
+      updateText: INITIAL_BULK_UPDATE_TEXT,
+      preview: {
+        changes: [],
+      },
+      syntaxError: undefined,
+      serverError: undefined,
     };
   }
 
@@ -657,7 +722,7 @@ class CrudStoreImpl
       // doing so is disallowed might not be great UX, but
       // since we are mostly targeting typical FLE2 use cases,
       // it's probably not worth spending too much time on this.
-      const isAllowed = await this.dataService.isUpdateAllowed(
+      const isAllowed = await this.dataService.isUpdateAllowed?.(
         ns,
         doc.generateOriginalObject()
       );
@@ -770,10 +835,7 @@ class CrudStoreImpl
         ],
       };
 
-      if (
-        this.dataService.getCSFLEMode &&
-        this.dataService.getCSFLEMode() === 'enabled'
-      ) {
+      if (this.dataService.getCSFLEMode?.() === 'enabled') {
         const knownSchemaForCollection =
           await this.dataService.knownSchemaForCollection(this.state.ns);
 
@@ -967,6 +1029,18 @@ class CrudStoreImpl
   }
 
   /**
+   * Closing the bulk update dialog just resets the state to the default.
+   */
+  closeBulkUpdateModal() {
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: false,
+      },
+    });
+  }
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -988,10 +1062,7 @@ class CrudStoreImpl
     }
 
     const csfleState: InsertState['csfleState'] = { state: 'none' };
-    const dataServiceCSFLEMode =
-      this.dataService &&
-      this.dataService.getCSFLEMode &&
-      this.dataService.getCSFLEMode();
+    const dataServiceCSFLEMode = this.dataService.getCSFLEMode?.();
     if (dataServiceCSFLEMode === 'enabled') {
       // Show a warning if this is a CSFLE-enabled connection but this
       // collection does not have a schema.
@@ -1011,7 +1082,7 @@ class CrudStoreImpl
       if (!hasSchema) {
         csfleState.state = 'no-known-schema';
       } else if (
-        !(await this.dataService.isUpdateAllowed(this.state.ns, doc))
+        !(await this.dataService.isUpdateAllowed?.(this.state.ns, doc))
       ) {
         csfleState.state = 'incomplete-schema-for-cloned-doc';
       } else {
@@ -1035,6 +1106,210 @@ class CrudStoreImpl
         isCommentNeeded: true,
       },
     });
+  }
+
+  async openBulkUpdateModal() {
+    track('Bulk Update Opened', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
+    await this.updateBulkUpdatePreview(INITIAL_BULK_UPDATE_TEXT);
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        isOpen: true,
+      },
+    });
+  }
+
+  async updateBulkUpdatePreview(updateText: string) {
+    if (this.state.bulkUpdate.previewAbortController) {
+      this.state.bulkUpdate.previewAbortController.abort();
+    }
+
+    // Don't try and calculate the update preview if we know it won't work. Just
+    // see if the update will parse.
+    if (!this.state.isUpdatePreviewSupported) {
+      try {
+        parseShellBSON(updateText);
+      } catch (err: any) {
+        this.setState({
+          bulkUpdate: {
+            ...this.state.bulkUpdate,
+            updateText,
+            preview: {
+              changes: [],
+            },
+            serverError: undefined,
+            syntaxError: err,
+            previewAbortController: undefined,
+          },
+        });
+        return;
+      }
+
+      // if there's no syntax error, then just clear it
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          updateText,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
+
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    // set the abort controller in the state before we start doing anything so
+    // that other calls can see it
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        previewAbortController: abortController,
+      },
+    });
+
+    let update: BSONObject | BSONObject[];
+    try {
+      update = parseShellBSON(updateText);
+    } catch (err: any) {
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
+
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          updateText,
+          preview: {
+            changes: [],
+          },
+          serverError: undefined,
+          syntaxError: err,
+          previewAbortController: undefined,
+        },
+      });
+
+      return;
+    }
+
+    if (abortController.signal.aborted) {
+      // don't kick off an expensive query if we're already aborted anyway
+      return;
+    }
+
+    const { ns } = this.state;
+    const { filter } = this.state.query;
+
+    let preview;
+    try {
+      preview = await this.dataService.previewUpdate(ns, filter, update, {
+        sample: 3,
+        abortSignal: abortController.signal,
+      });
+    } catch (err: any) {
+      if (abortController.signal.aborted) {
+        // ignore this result because it is stale
+        return;
+      }
+
+      this.setState({
+        bulkUpdate: {
+          ...this.state.bulkUpdate,
+          updateText,
+          preview: {
+            changes: [],
+          },
+          serverError: err,
+          syntaxError: undefined,
+          previewAbortController: undefined,
+        },
+      });
+
+      return;
+    }
+
+    if (abortController.signal.aborted) {
+      // ignore this result because it is stale
+      return;
+    }
+
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+        preview,
+        serverError: undefined,
+        syntaxError: undefined,
+        previewAbortController: undefined,
+      },
+    });
+  }
+
+  async runBulkUpdate() {
+    track('Bulk Update Executed', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
+    this.closeBulkUpdateModal();
+
+    // keep the filter count around for the duration of the toast
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        affected: this.state.count ?? undefined,
+      },
+    });
+
+    const { ns } = this.state;
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    await this.recentQueriesStorage.saveQuery({
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
+
+    openBulkUpdateProgressToast({
+      affectedDocuments: this.state.bulkUpdate.affected,
+    });
+
+    try {
+      await this.dataService.updateMany(ns, filter, update);
+
+      openBulkUpdateSuccessToast({
+        affectedDocuments: this.state.bulkUpdate.affected,
+        onRefresh: () => void this.refreshDocuments(),
+      });
+    } catch (err: any) {
+      openBulkUpdateFailureToast({
+        affectedDocuments: this.state.bulkUpdate.affected,
+      });
+
+      log.error(
+        mongoLogId(1_001_000_269),
+        'Bulk Update Documents',
+        `Update operation failed: ${err.message}`,
+        err
+      );
+    }
   }
 
   /**
@@ -1584,71 +1859,229 @@ class CrudStoreImpl
   openCreateSearchIndexModal() {
     this.localAppRegistry.emit('open-create-search-index-modal');
   }
+
+  openBulkDeleteDialog() {
+    track('Bulk Delete Opened');
+
+    const PREVIEW_DOCS = 5;
+
+    const previews = (this.state.docs?.slice(0, PREVIEW_DOCS) || []).map(
+      (doc) => {
+        // The idea is just to break the link with the docs in the list so that
+        // expanding/collapsing docs in the modal doesn't modify the ones in the
+        // list.
+        return Document.FromEJSON(doc.toEJSON());
+      }
+    );
+
+    this.setState({
+      bulkDelete: {
+        previews,
+        status: 'open',
+        affected: this.state.count ?? undefined,
+      },
+    });
+  }
+
+  bulkDeleteInProgress() {
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'in-progress',
+      },
+    });
+
+    openBulkDeleteProgressToast({
+      affectedDocuments: this.state.bulkDelete.affected,
+    });
+  }
+
+  bulkDeleteFailed(ex: Error) {
+    openBulkDeleteFailureToast({
+      affectedDocuments: this.state.bulkDelete.affected,
+    });
+
+    log.error(
+      mongoLogId(1_001_000_268),
+      'Bulk Delete Documents',
+      `Delete operation failed: ${ex.message}`,
+      ex
+    );
+  }
+
+  bulkDeleteSuccess() {
+    openBulkDeleteSuccessToast({
+      affectedDocuments: this.state.bulkDelete.affected,
+      onRefresh: () => void this.refreshDocuments(),
+    });
+  }
+
+  closeBulkDeleteDialog() {
+    this.setState({
+      bulkDelete: {
+        ...this.state.bulkDelete,
+        status: 'closed',
+      },
+    });
+  }
+
+  async runBulkDelete() {
+    track('Bulk Delete Executed');
+
+    const { affected } = this.state.bulkDelete;
+    this.closeBulkDeleteDialog();
+
+    const confirmation = await showConfirmation({
+      title: 'Are you absolutely sure?',
+      buttonText: `Delete ${affected || 0} document${
+        affected !== 1 ? 's' : ''
+      }`,
+      description: `This action can not be undone. This will permanently delete ${
+        affected || 0
+      } document${affected !== 1 ? 's' : ''}.`,
+      variant: 'danger',
+    });
+
+    if (confirmation) {
+      this.bulkDeleteInProgress();
+      try {
+        await this.dataService.deleteMany(
+          this.state.ns,
+          this.state.query.filter
+        );
+        this.bulkDeleteSuccess();
+      } catch (ex) {
+        this.bulkDeleteFailed(ex as Error);
+      }
+    }
+  }
+
+  openDeleteQueryExportToLanguageDialog(): void {
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(this.state.query.filter) || '{}',
+      },
+      'Delete Query'
+    );
+  }
+
+  async saveUpdateQuery(name: string): Promise<void> {
+    track('Bulk Update Favorited', {
+      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+    });
+
+    const { filter } = this.state.query;
+    let update;
+    try {
+      update = parseShellBSON(this.state.bulkUpdate.updateText);
+    } catch (err) {
+      // If this couldn't parse then the update button should have been
+      // disabled. So if we get here it is a race condition and ignoring is
+      // probably OK - the button will soon appear disabled to the user anyway.
+      return;
+    }
+
+    await this.favoriteQueriesStorage.saveQuery({
+      _name: name,
+      _ns: this.state.ns,
+      filter,
+      update,
+    });
+    openToast('saved-favorite-update-query', {
+      title: '',
+      variant: 'success',
+      dismissible: true,
+      timeout: 6_000,
+      description: `${name} added to "My Queries".`,
+    });
+  }
 }
 
 export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
+export type DocumentsPluginServices = {
+  dataService: DataService;
+  instance: MongoDBInstance;
+  localAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
+  >;
+  globalAppRegistry: Pick<
+    AppRegistry,
+    'on' | 'emit' | 'removeListener' | 'getStore'
+  >;
+};
+export function activateDocumentsPlugin(
+  options: CrudStoreOptions,
+  {
+    dataService,
+    instance,
+    localAppRegistry,
+    globalAppRegistry,
+  }: DocumentsPluginServices,
+  { on, cleanup }: ActivateHelpers
+) {
+  const actions = configureActions();
+  const store = Reflux.createStore(
+    new CrudStoreImpl(
+      { ...options, actions },
+      {
+        dataService,
+        localAppRegistry,
+        globalAppRegistry,
+      }
+    )
+  ) as CrudStore;
 
-/**
- * Configure the main CRUD store.
- *
- * @param {Object} options - Options object to configure store. Defaults to {}.
- *
- * @returns {Object} Configured compass-crud store with initial states.
- */
-const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
-  const store = Reflux.createStore(new CrudStoreImpl(options)) as CrudStore;
+  on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
 
-  // Set the app registry if preset. This must happen first.
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
+  on(localAppRegistry, 'fields-changed', store.updateFields.bind(store));
 
-    localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
-
-    localAppRegistry.on('fields-changed', store.updateFields.bind(store));
-
-    setLocalAppRegistry(store, options.localAppRegistry);
-  }
+  on(
+    localAppRegistry,
+    'favorites-open-bulk-update-favorite',
+    (query: QueryState & { update: BSONObject }) => {
+      void store.onQueryChanged(query);
+      void store.refreshDocuments();
+      void store.openBulkUpdateModal();
+      void store.updateBulkUpdatePreview(
+        toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
+      );
+    }
+  );
 
   // Set global app registry to get status actions.
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-
-    const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
-    const instance = instanceStore.getState().instance;
-
-    const instanceState: Partial<CrudState> = {
-      isWritable: instance.isWritable,
-      instanceDescription: instance.description,
-      version: instance.build.version,
-    };
-    if (instance.dataLake.isDataLake) {
-      instanceState.isDataLake = true;
-    }
-    store.setState(instanceState);
-
-    // these can change later
-    instance.on('change:isWritable', () => {
-      store.setState({ isWritable: instance.isWritable });
-    });
-
-    instance.on('change:description', () => {
-      store.setState({ instanceDescription: instance.description });
-    });
-
-    globalAppRegistry.on('refresh-data', () => {
-      void store.refreshDocuments();
-    });
-
-    globalAppRegistry.on('import-finished', ({ ns }) => {
-      if (ns === store.state.ns) {
-        void store.refreshDocuments();
-      }
-    });
-
-    setGlobalAppRegistry(store, globalAppRegistry);
+  const instanceState: Partial<CrudState> = {
+    isWritable: instance.isWritable,
+    instanceDescription: instance.description,
+    version: instance.build.version,
+    isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
+  };
+  if (instance.dataLake.isDataLake) {
+    instanceState.isDataLake = true;
   }
+  store.setState(instanceState);
+
+  // these can change later
+  on(instance, 'change:isWritable', () => {
+    store.setState({ isWritable: instance.isWritable });
+  });
+
+  on(instance, 'change:description', () => {
+    store.setState({ instanceDescription: instance.description });
+  });
+
+  on(globalAppRegistry, 'refresh-data', () => {
+    void store.refreshDocuments();
+  });
+
+  on(globalAppRegistry, 'import-finished', ({ ns }) => {
+    if (ns === store.state.ns) {
+      void store.refreshDocuments();
+    }
+  });
 
   if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
@@ -1662,27 +2095,23 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     setIsTimeSeries(store, options.isTimeSeries);
   }
 
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider as DataService
-    );
-
-    if (!options.noRefreshOnConfigure) {
-      void store.refreshDocuments();
-    }
+  if (!options.noRefreshOnConfigure) {
+    void store.refreshDocuments();
   }
 
   store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
 
-  const gridStore = configureGridStore(options);
+  const gridStore = configureGridStore({ actions });
   store.gridStore = gridStore;
 
-  return store;
-};
-
-export default configureStore;
+  return {
+    store,
+    actions,
+    deactivate() {
+      cleanup();
+    },
+  };
+}
 
 function resultId() {
   return Math.floor(Math.random() * 2 ** 53);
@@ -1750,4 +2179,15 @@ export async function findAndModifyWithFLEFallback(
   // deleted the document between the findAndModify command
   // and the find command. Just return the original error.
   return [error, undefined] as ErrorOrResult;
+}
+
+// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
+export function parseShellBSON(source: string): BSONObject | BSONObject[] {
+  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
+  if (!parsed || typeof parsed !== 'object') {
+    // XXX(COMPASS-5689): We've hit the condition in
+    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
+    throw new Error('The provided definition is invalid.');
+  }
+  return parsed as BSONObject | BSONObject[];
 }

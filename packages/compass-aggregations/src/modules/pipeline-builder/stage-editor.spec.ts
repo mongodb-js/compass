@@ -22,7 +22,7 @@ import {
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
-import { PipelineStorage } from '../../utils/pipeline-storage';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
@@ -98,7 +98,6 @@ function createStore({
     reducer,
     {
       dataService: {
-        error: null,
         dataService: mockDataService(),
       },
       pipelineBuilder: {
@@ -113,6 +112,8 @@ function createStore({
         atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
+        instance: {} as any,
+        workspaces: {} as any,
       })
     )
   );

@@ -8,6 +8,7 @@ import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
+import preferencesAccess from 'compass-preferences-model';
 
 describe('PipelineActions', function () {
   afterEach(cleanup);
@@ -75,9 +76,7 @@ describe('PipelineActions', function () {
     it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal(
-        'fewer options'
-      );
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('options');
       expect(within(button).getByLabelText('Caret Down Icon')).to.exist;
 
       userEvent.click(button);
@@ -104,7 +103,6 @@ describe('PipelineActions', function () {
           onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
-          isAtlasDeployed={false}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
         />
@@ -114,9 +112,7 @@ describe('PipelineActions', function () {
     it('toggle options action button', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal(
-        'more options'
-      );
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('options');
       expect(within(button).getByLabelText('Caret Right Icon')).to.exist;
 
       userEvent.click(button);
@@ -125,9 +121,25 @@ describe('PipelineActions', function () {
     });
   });
 
-  describe('options disabled in atlas', function () {
+  describe('extra options disabled', function () {
+    let enableAggregationBuilderExtraOptions: boolean;
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
+
+    before(async function () {
+      enableAggregationBuilderExtraOptions =
+        preferencesAccess.getPreferences().enableAggregationBuilderExtraOptions;
+      await preferencesAccess.savePreferences({
+        enableAggregationBuilderExtraOptions: false,
+      });
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({
+        enableAggregationBuilderExtraOptions,
+      });
+    });
+
     beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
@@ -143,7 +155,6 @@ describe('PipelineActions', function () {
           onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
-          isAtlasDeployed={true}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
         />
@@ -277,7 +288,7 @@ describe('PipelineActions', function () {
         pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
-      store.dispatch(changeStageDisabled(1, true));
+      store.dispatch(changeStageDisabled(1, true) as any);
 
       rerender();
 

@@ -6,6 +6,7 @@ import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import preferencesAccess from 'compass-preferences-model';
 
 const noop = (): any => {
   /* no-op */
@@ -33,11 +34,21 @@ const mockConnections = [
 ];
 
 describe('use-connections hook', function () {
+  let persistOIDCTokens: boolean | undefined;
   let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
   let deleteSpy: sinon.SinonSpy;
   let loadSpy: sinon.SinonSpy;
+
+  before(async function () {
+    persistOIDCTokens = preferencesAccess.getPreferences().persistOIDCTokens;
+    await preferencesAccess.savePreferences({ persistOIDCTokens: false });
+  });
+
+  after(async function () {
+    await preferencesAccess.savePreferences({ persistOIDCTokens });
+  });
 
   beforeEach(function () {
     loadAllSpy = sinon.spy();

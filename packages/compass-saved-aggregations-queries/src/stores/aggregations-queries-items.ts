@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import toNS from 'mongodb-ns';
-import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
-import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
@@ -25,12 +25,12 @@ export type Item = {
   collection: string;
 } & (
   | {
-      type: 'query';
+      type: 'query' | 'updatemany';
       query: FavoriteQuery;
     }
   | {
       type: 'aggregation';
-      aggregation: Omit<StoredPipeline, 'lastModified'>;
+      aggregation: Omit<SavedPipeline, 'lastModified'>;
     }
 );
 
@@ -70,7 +70,7 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
       const updatedItem =
         item.type === 'query'
           ? mapQueryToItem(action.payload as FavoriteQuery)
-          : mapAggregationToItem(action.payload as StoredPipeline);
+          : mapAggregationToItem(action.payload as SavedPipeline);
       return {
         ...state,
         items: [...state.items.filter((x) => x.id !== action.id), updatedItem],
@@ -102,7 +102,7 @@ export const fetchItems = (): SavedQueryAggregationThunkAction<
   };
 };
 
-const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
+const mapAggregationToItem = (aggregation: SavedPipeline): Item => {
   const { database, collection } = toNS(aggregation.namespace);
   return {
     id: aggregation.id,
@@ -125,7 +125,7 @@ const mapQueryToItem = (query: FavoriteQuery): Item => {
     lastModified: (query._dateModified ?? query._dateSaved).getTime(),
     database,
     collection,
-    type: 'query',
+    type: query.update ? 'updatemany' : 'query',
     query,
   };
 };

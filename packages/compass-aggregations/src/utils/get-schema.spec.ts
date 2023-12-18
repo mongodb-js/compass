@@ -189,4 +189,22 @@ describe('get schema', function () {
       expect(getSchema(input)).to.deep.equal(output);
     });
   });
+
+  it("doesn't break when getting schema from recursive object", function () {
+    const a = {
+      b: {
+        c: {
+          get a() {
+            return a;
+          },
+        },
+      },
+    };
+
+    expect(getSchema([a])).to.deep.eq([
+      { name: 'b', type: 'Object' },
+      { name: 'b.c', type: 'Object' },
+      { name: 'b.c.a', type: 'Object' },
+    ]);
+  });
 });

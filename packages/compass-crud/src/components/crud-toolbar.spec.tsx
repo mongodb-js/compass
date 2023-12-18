@@ -10,7 +10,7 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
+import preferencesAccess from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 
 const noop = () => {
@@ -63,6 +63,8 @@ function renderCrudToolbar(
       instanceDescription=""
       onApplyClicked={noop}
       onResetClicked={noop}
+      onUpdateButtonClicked={noop}
+      onDeleteButtonClicked={noop}
       openExportFileDialog={noop}
       outdated={false}
       page={0}
@@ -71,16 +73,31 @@ function renderCrudToolbar(
       resultId="123"
       start={0}
       viewSwitchHandler={noop}
+      queryLimit={0}
+      querySkip={0}
       {...props}
     />
   );
 }
 
 const addDataText = 'Add Data';
+const updateDataText = 'Update';
+const deleteDataText = 'Delete';
 
 describe('CrudToolbar Component', function () {
+  let sandbox: sinon.SinonSandbox;
+
   afterEach(function () {
     cleanup();
+    return sandbox.restore();
+  });
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+    sandbox.stub(preferencesAccess, 'getPreferences').returns({
+      enableBulkUpdateOperations: true,
+      enableBulkDeleteOperations: true,
+    } as any);
   });
 
   it('renders the query bar role', function () {
@@ -247,12 +264,14 @@ describe('CrudToolbar Component', function () {
     );
   });
 
-  it('should not render the add data button when it is readonly', function () {
+  it('should not render the add data, update and delete buttons when it is readonly', function () {
     renderCrudToolbar({
       readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;
+    expect(screen.queryByText(updateDataText)).to.not.exist;
+    expect(screen.queryByText(deleteDataText)).to.not.exist;
   });
 
   it('should call to open the export dialog when export is clicked', function () {
@@ -267,6 +286,86 @@ describe('CrudToolbar Component', function () {
 
     expect(exportSpy.calledOnce).to.be.true;
     expect(exportSpy.firstCall.args[0]).to.be.true;
+  });
+
+  describe('update button', function () {
+    it('should not be visible when the enableBulkUpdateOperations toggle is off', function () {
+      sandbox.restore();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableBulkUpdateOperations: false,
+      } as any);
+
+      expect(screen.queryByText(updateDataText)).to.not.exist;
+    });
+
+    it('should render disabled when the query has a skip', function () {
+      renderCrudToolbar({
+        querySkip: 10,
+      });
+
+      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
+    });
+
+    it('should render disabled when the query has a limit', function () {
+      renderCrudToolbar({
+        queryLimit: 10,
+      });
+
+      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
+    });
+
+    it('should propagate click events', function () {
+      const onUpdateButtonClickedSpy = sinon.spy();
+
+      renderCrudToolbar({ onUpdateButtonClicked: onUpdateButtonClickedSpy });
+
+      userEvent.click(screen.getByText(updateDataText).closest('button')!);
+      expect(onUpdateButtonClickedSpy).to.have.been.called;
+    });
+  });
+
+  describe('delete button', function () {
+    it('should not be visible when the enableBulkDeleteOperations toggle is off', function () {
+      sandbox.restore();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableBulkDeleteOperations: false,
+      } as any);
+
+      expect(screen.queryByText(deleteDataText)).to.not.exist;
+    });
+
+    it('should render disabled when the query has a skip', function () {
+      renderCrudToolbar({
+        querySkip: 10,
+      });
+
+      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
+    });
+
+    it('should render disabled when the query has a limit', function () {
+      renderCrudToolbar({
+        queryLimit: 10,
+      });
+
+      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
+        'disabled'
+      );
+    });
+
+    it('should propagate click events', function () {
+      const onDeleteButtonClickedSpy = sinon.spy();
+
+      renderCrudToolbar({ onDeleteButtonClicked: onDeleteButtonClickedSpy });
+
+      userEvent.click(screen.getByText(deleteDataText).closest('button')!);
+      expect(onDeleteButtonClickedSpy).to.have.been.called;
+    });
   });
 
   it('should not render the outdated message', function () {

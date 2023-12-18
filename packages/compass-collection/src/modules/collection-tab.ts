@@ -4,9 +4,8 @@ import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import toNs from 'mongodb-ns';
-import preferencesAccess from 'compass-preferences-model';
 import React from 'react';
+import type { CollectionTabOptions } from '../stores/collection-tab';
 
 type CollectionThunkAction<
   ReturnType,
@@ -22,13 +21,8 @@ type CollectionThunkAction<
   Action
 >;
 
-export type CollectionStateMetadata = CollectionMetadata & {
-  serverVersion: string;
-  isAtlas: boolean;
-  isDataLake: boolean;
-};
-
 export type CollectionState = {
+  namespace: string;
   stats: Pick<
     Collection,
     | 'document_count'
@@ -39,16 +33,13 @@ export type CollectionState = {
     | 'storage_size'
     | 'free_storage_size'
   > | null;
-  metadata: CollectionStateMetadata;
+  metadata: CollectionMetadata | null;
   currentTab:
     | 'Documents'
     | 'Aggregations'
     | 'Schema'
     | 'Indexes'
     | 'Validation';
-  initialQuery?: unknown;
-  initialAggregation?: unknown;
-  initialPipelineText?: unknown;
   editViewName?: string;
 };
 
@@ -75,18 +66,6 @@ export function pickCollectionStats(
   };
 }
 
-const initialMetadata: CollectionStateMetadata = {
-  namespace: '',
-  isReadonly: false,
-  isTimeSeries: false,
-  isClustered: false,
-  isFLE: false,
-  isSearchIndexesSupported: false,
-  isAtlas: false,
-  isDataLake: false,
-  serverVersion: '0.0.0',
-};
-
 enum CollectionActions {
   CollectionStatsFetched = 'compass-collection/CollectionStatsFetched',
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
@@ -95,8 +74,9 @@ enum CollectionActions {
 
 const reducer: Reducer<CollectionState> = (
   state = {
+    namespace: '',
     stats: null,
-    metadata: initialMetadata,
+    metadata: null,
     currentTab: 'Documents',
   },
   action
@@ -139,34 +119,42 @@ export const selectTab = (
   };
 };
 
-export const selectDatabase = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { metadata } = getState();
-    const { database } = toNs(metadata.namespace);
-    globalAppRegistry.emit('select-database', database);
-  };
-};
-
-export const editView = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { metadata } = getState();
-    globalAppRegistry.emit('collection-tab-modify-view', {
-      ns: metadata.namespace,
-    });
-  };
-};
-
-export const returnToView = (): CollectionThunkAction<void> => {
-  return (dispatch, getState, { globalAppRegistry }) => {
-    const { editViewName } = getState();
-    globalAppRegistry.emit('collection-tab-select-collection', {
-      ns: editViewName,
-    });
-  };
+export type CollectionTabPluginMetadata = CollectionMetadata & {
+  /**
+   * Initial query for the query bar
+   */
+  query?: unknown;
+  /**
+   * Stored pipeline metadata. Can be provided to preload stored pipeline
+   * right when the plugin is initialized
+   */
+  aggregation?: unknown;
+  /**
+   * Initial pipeline that will be converted to a string to be used by the
+   * aggregation builder. Takes precedence over `pipelineText` option
+   */
+  pipeline?: unknown[];
+  /**
+   * Initial pipeline text to be used by the aggregation builder
+   */
+  pipelineText?: string;
+  /**
+   * Namespace for the view that is being edited. Needs to be provided with the
+   * `pipeline` options
+   */
+  editViewName?: string;
 };
 
 const setupRole = (
-  roleName: string
+  roleName: string,
+  {
+    namespace,
+    initialAggregation,
+    initialPipeline,
+    initialPipelineText,
+    initialQuery,
+    editViewName,
+  }: CollectionTabOptions
 ): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
   return (
     dispatch,
@@ -188,6 +176,12 @@ const setupRole = (
       } = role;
 
       const collectionStoreMetadata = {
+        namespace,
+        aggregation: initialAggregation,
+        pipeline: initialPipeline,
+        pipelineText: initialPipelineText,
+        query: initialQuery,
+        editViewName,
         ...getState().metadata,
         localAppRegistry,
         globalAppRegistry,
@@ -197,10 +191,6 @@ const setupRole = (
           error: null,
           dataProvider: dataService,
         },
-        query: getState().initialQuery,
-        aggregation: getState().initialAggregation,
-        pipelineText: getState().initialPipelineText,
-        editViewName: getState().editViewName,
       };
 
       let actions;
@@ -226,39 +216,38 @@ const setupRole = (
 
       return {
         name,
-        component: React.createElement(component, { store, actions }),
+        component: React.createElement(component, {
+          store,
+          actions,
+          key: name,
+        }),
       };
     });
   };
 };
 
-export const renderScopedModals = (): CollectionThunkAction<
-  React.ReactElement[]
-> => {
+export const renderScopedModals = (
+  collectionOptions: CollectionTabOptions
+): CollectionThunkAction<React.ReactElement[]> => {
   return (dispatch) => {
-    return dispatch(setupRole('Collection.ScopedModal')).map((role) => {
-      return role.component;
-    });
+    return dispatch(setupRole('Collection.ScopedModal', collectionOptions)).map(
+      (role) => {
+        return role.component;
+      }
+    );
   };
 };
 
-export const renderTabs = (): CollectionThunkAction<
-  { name: string; component: React.ReactElement }[]
-> => {
+export const renderTabs = (
+  collectionOptions: CollectionTabOptions
+): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
   return (dispatch) => {
     // TODO(COMPASS-7020): we don't actually render query bar in the collection
     // tab, but compass-crud and compass-schema expect some additional roles and
     // stores to be already set up when they are rendered instead of handling
     // this on their own. We do this here and ignore the return value, this just
     // makes sure that other plugins can use query bar
-    dispatch(setupRole('Query.QueryBar'));
-
-    return dispatch(setupRole('Collection.Tab')).filter((role) => {
-      return !(
-        preferencesAccess.getPreferences().newExplainPlan &&
-        role.name === 'Explain Plan'
-      );
-    });
+    return dispatch(setupRole('Query.QueryBar', collectionOptions));
   };
 };
 

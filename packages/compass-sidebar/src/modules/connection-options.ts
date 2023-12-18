@@ -1,17 +1,22 @@
-import type { AnyAction } from 'redux';
+import type { RootAction } from '.';
 const HOST_STRING_LENGTH = 25;
 
 export const CHANGE_CONNECTION_OPTIONS =
-  'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS';
+  'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS' as const;
+interface ChangeConnectionOptionsAction {
+  type: typeof CHANGE_CONNECTION_OPTIONS;
+  options: ConnectionOptionsState;
+}
+export type ConnectionOptionsAction = ChangeConnectionOptionsAction;
 
-export const INITIAL_STATE = {
+export const INITIAL_STATE: ConnectionOptionsState = {
   sshTunnel: false,
   sshTunnelHostname: '',
   sshTunnelPort: '',
   sshTunnelHostPortString: '',
 };
 
-export type ConnectionOptions = {
+export type ConnectionOptionsState = {
   sshTunnel: boolean;
   sshTunnelHostname: string;
   sshTunnelPort: string | number;
@@ -20,8 +25,8 @@ export type ConnectionOptions = {
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: AnyAction
-): ConnectionOptions {
+  action: RootAction
+): ConnectionOptionsState {
   if (action.type === CHANGE_CONNECTION_OPTIONS) {
     return action.options;
   }
@@ -38,7 +43,7 @@ function combineHostPort(host: string, port: string | number): string {
 
 export function changeConnectionOptions(connectionOptions: {
   sshTunnel?: { host: string; port: string | number };
-}): { type: typeof CHANGE_CONNECTION_OPTIONS; options: ConnectionOptions } {
+}): ConnectionOptionsAction {
   const sshTunnel = !!connectionOptions.sshTunnel;
   const sshTunnelHostname = connectionOptions?.sshTunnel?.host ?? '';
   const sshTunnelPort = connectionOptions?.sshTunnel?.port ?? '';

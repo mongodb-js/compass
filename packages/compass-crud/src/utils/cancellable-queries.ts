@@ -1,9 +1,11 @@
-import createLogger from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
+import type { DataService } from './data-service';
 
-const { log, mongoLogId, debug } = createLogger('cancellable-queries');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry(
+  'COMPASS-CANCELLABLE-QUERIES'
+);
 
 export async function countDocuments(
   dataService: DataService,

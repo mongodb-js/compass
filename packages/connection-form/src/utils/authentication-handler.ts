@@ -1,7 +1,6 @@
-import type { AuthMechanism } from 'mongodb';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { MongoClientOptions } from 'mongodb';
+import type { AuthMechanism, MongoClientOptions } from 'mongodb';
 
 import type { ConnectionFormError } from './validation';
 import {
@@ -67,9 +66,13 @@ export function handleUpdateAuthMechanism({
   if (action.authMechanism) {
     updatedSearchParams.set('authMechanism', action.authMechanism);
     if (
-      ['MONGODB-AWS', 'GSSAPI', 'PLAIN', 'MONGODB-X509'].includes(
-        action.authMechanism
-      )
+      [
+        'MONGODB-AWS',
+        'GSSAPI',
+        'PLAIN',
+        'MONGODB-X509',
+        'MONGODB-OIDC',
+      ].includes(action.authMechanism)
     ) {
       updatedSearchParams.set('authSource', '$external');
     }

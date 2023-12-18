@@ -1,4 +1,4 @@
-import { ipcMain, shell, app } from 'electron';
+import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
@@ -16,29 +16,27 @@ import nodeFetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type {
-  AtlasUserConfig,
   AIAggregation,
   AIFeatureEnablement,
   AIQuery,
   IntrospectInfo,
   AtlasUserInfo,
 } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 import {
   validateAIQueryResponse,
   validateAIAggregationResponse,
   validateAIFeatureEnablementResponse,
 } from './util';
-import {
-  broadcast,
-  ipcExpose,
-  throwIfAborted,
-} from '@mongodb-js/compass-utils';
+import { throwIfAborted } from '@mongodb-js/compass-utils';
+import type { HadronIpcMain } from 'hadron-ipc';
+import { ipcMain } from 'hadron-ipc';
 import {
   createLoggerAndTelemetry,
   mongoLogId,
 } from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
-import { SecretStore, SECRET_STORE_KEY } from './secret-store';
+import { SecretStore } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
@@ -165,7 +163,9 @@ export class AtlasService {
 
   private static atlasUserConfigStore = new AtlasUserConfigStore();
 
-  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
+  private static ipcMain:
+    | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
+    | undefined = ipcMain;
 
   private static config: AtlasServiceConfig;
 
@@ -232,10 +232,8 @@ export class AtlasService {
   static init(config: AtlasServiceConfig): Promise<void> {
     this.config = config;
     return (this.initPromise ??= (async () => {
-      ipcExpose(
-        'AtlasService',
-        this,
-        [
+      if (this.ipcMain) {
+        this.ipcMain.createHandle('AtlasService', this, [
           'getUserInfo',
           'introspect',
           'isAuthenticated',
@@ -244,9 +242,8 @@ export class AtlasService {
           'getAggregationFromUserInput',
           'getQueryFromUserInput',
           'updateAtlasUserConfig',
-        ],
-        this.ipcMain
-      );
+        ]);
+      }
       this.attachOidcPluginLoggerEvents();
       log.info(
         mongoLogId(1_001_000_210),
@@ -254,7 +251,7 @@ export class AtlasService {
         'Atlas service initialized',
         { config: this.config }
       );
-      const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
+      const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
       await this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
@@ -306,19 +303,19 @@ export class AtlasService {
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-failed', () => {
       this.currentUser = null;
       this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-      broadcast('atlas-service-token-refresh-failed');
+      this.ipcMain?.broadcast('atlas-service-token-refresh-failed');
     });
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
       this.oidcPluginLogger.emit('atlas-service-token-refreshed');
-      broadcast('atlas-service-token-refreshed');
+      this.ipcMain?.broadcast('atlas-service-token-refreshed');
     });
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
-      broadcast('atlas-service-signed-out');
+      this.ipcMain?.broadcast('atlas-service-signed-out');
     });
     this.oidcPluginLogger.on(
       'atlas-service-user-config-changed',
       (newConfig) => {
-        broadcast('atlas-service-user-config-changed', newConfig);
+        this.ipcMain?.broadcast('atlas-service-user-config-changed', newConfig);
       }
     );
   }
@@ -794,10 +791,7 @@ export class AtlasService {
       return;
     }
     try {
-      await this.secretStore.setItem(
-        SECRET_STORE_KEY,
-        await this.plugin.serialize()
-      );
+      await this.secretStore.setState(await this.plugin.serialize());
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),

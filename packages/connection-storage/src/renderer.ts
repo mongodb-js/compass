@@ -1,11 +1,14 @@
-import { ipcInvoke } from '@mongodb-js/compass-utils';
+import { ipcRenderer } from 'hadron-ipc';
 
 import type { ConnectionStorage as ConnectionStorageMain } from './connection-storage';
-export { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
+export type {
+  ConnectionInfo,
+  ConnectionFavoriteOptions,
+} from './connection-info';
 export { getConnectionTitle } from './connection-title';
 
 export class ConnectionStorage {
-  private static ipc = ipcInvoke<
+  private static _ipc = ipcRenderer?.createInvoke<
     typeof ConnectionStorageMain,
     | 'loadAll'
     | 'load'
@@ -26,12 +29,35 @@ export class ConnectionStorage {
     'exportConnections',
   ]);
 
-  static loadAll = this.ipc.loadAll;
-  static load = this.ipc.load;
-  static getLegacyConnections = this.ipc.getLegacyConnections;
-  static save = this.ipc.save;
-  static delete = this.ipc.delete;
-  static deserializeConnections = this.ipc.deserializeConnections;
-  static importConnections = this.ipc.importConnections;
-  static exportConnections = this.ipc.exportConnections;
+  private static get ipc() {
+    if (!this._ipc) {
+      throw new Error('IPC not available');
+    }
+    return this._ipc;
+  }
+
+  static get loadAll() {
+    return this.ipc.loadAll;
+  }
+  static get load() {
+    return this.ipc.load;
+  }
+  static get getLegacyConnections() {
+    return this.ipc.getLegacyConnections;
+  }
+  static get save() {
+    return this.ipc.save;
+  }
+  static get delete() {
+    return this.ipc.delete;
+  }
+  static get deserializeConnections() {
+    return this.ipc.deserializeConnections;
+  }
+  static get importConnections() {
+    return this.ipc.importConnections;
+  }
+  static get exportConnections() {
+    return this.ipc.exportConnections;
+  }
 }

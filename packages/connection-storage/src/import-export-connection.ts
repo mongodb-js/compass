@@ -4,7 +4,7 @@ import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
 import { extractSecrets, mergeSecrets } from './connection-secrets';
 import { Decrypter, Encrypter } from './encrypt';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-CONNECTION-IMPORT-EXPORT'

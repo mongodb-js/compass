@@ -39,7 +39,7 @@ function settingsDialogItem(): MenuItemConstructorOptions {
     label: '&Settings',
     accelerator: 'CmdOrCtrl+,',
     click() {
-      ipcMain.broadcastFocused('window:show-settings');
+      ipcMain?.broadcastFocused('window:show-settings');
     },
   };
 }
@@ -99,7 +99,7 @@ function disconnectItem(): MenuItemConstructorOptions {
   return {
     label: '&Disconnect',
     click() {
-      ipcMain.broadcastFocused('app:disconnect');
+      ipcMain?.broadcastFocused('app:disconnect');
     },
   };
 }
@@ -115,13 +115,13 @@ function connectSubMenu(
     {
       label: '&Import Saved Connections',
       click() {
-        ipcMain.broadcastFocused('compass:open-import-connections');
+        ipcMain?.broadcastFocused('compass:open-import-connections');
       },
     },
     {
       label: '&Export Saved Connections',
       click() {
-        ipcMain.broadcastFocused('compass:open-export-connections');
+        ipcMain?.broadcastFocused('compass:open-export-connections');
       },
     },
   ];
@@ -177,7 +177,7 @@ function editSubMenu(): MenuItemConstructorOptions {
         label: 'Find',
         accelerator: 'CmdOrCtrl+F',
         click() {
-          ipcMain.broadcastFocused('app:find');
+          ipcMain?.broadcastFocused('app:find');
         },
       },
       ...(process.platform === 'darwin'
@@ -305,7 +305,7 @@ function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
     label: '&Share Schema as JSON',
     accelerator: 'Alt+CmdOrCtrl+S',
     click() {
-      ipcMain.broadcastFocused('window:menu-share-schema-json');
+      ipcMain?.broadcastFocused('window:menu-share-schema-json');
     },
   });
   subMenu.push(separator());
@@ -313,14 +313,14 @@ function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
     subMenu.push({
       label: '&Import Data',
       click() {
-        ipcMain.broadcastFocused('compass:open-import');
+        ipcMain?.broadcastFocused('compass:open-import');
       },
     });
   }
   subMenu.push({
     label: '&Export Collection',
     click() {
-      ipcMain.broadcastFocused('compass:open-export');
+      ipcMain?.broadcastFocused('compass:open-export');
     },
   });
   return {
@@ -342,7 +342,7 @@ function viewSubMenu(): MenuItemConstructorOptions {
       label: '&Reload Data',
       accelerator: 'CmdOrCtrl+R',
       click() {
-        ipcMain.broadcast('app:refresh-data');
+        ipcMain?.broadcast('app:refresh-data');
       },
     },
     separator(),
@@ -350,7 +350,7 @@ function viewSubMenu(): MenuItemConstructorOptions {
       label: '&Toggle Sidebar',
       accelerator: 'CmdOrCtrl+Shift+D',
       click() {
-        ipcMain.broadcast('app:toggle-sidebar');
+        ipcMain?.broadcast('app:toggle-sidebar');
       },
     },
     separator(),
@@ -358,21 +358,21 @@ function viewSubMenu(): MenuItemConstructorOptions {
       label: 'Actual Size',
       accelerator: 'CmdOrCtrl+0',
       click() {
-        ipcMain.broadcast('window:zoom-reset');
+        ipcMain?.broadcast('window:zoom-reset');
       },
     },
     {
       label: 'Zoom In',
       accelerator: 'CmdOrCtrl+=',
       click() {
-        ipcMain.broadcast('window:zoom-in');
+        ipcMain?.broadcast('window:zoom-in');
       },
     },
     {
       label: 'Zoom Out',
       accelerator: 'CmdOrCtrl+-',
       click() {
-        ipcMain.broadcast('window:zoom-out');
+        ipcMain?.broadcast('window:zoom-out');
       },
     },
   ];
@@ -480,7 +480,7 @@ class CompassMenu {
       this.load(bw);
     });
 
-    ipcMain.respondTo({
+    ipcMain?.respondTo({
       'window:show-collection-submenu': this.showCollection.bind(this),
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
@@ -624,7 +624,7 @@ class CompassMenu {
   };
 
   private static showCollection(
-    _bw: BrowserWindow,
+    evt: unknown,
     { isReadOnly }: { isReadOnly: boolean }
   ) {
     this.updateMenu({ showCollection: true, isReadOnly });

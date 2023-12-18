@@ -76,7 +76,11 @@ describe('AtlasServiceMain', function () {
   let cloudFeatureRolloutAccess: UserPreferences['cloudFeatureRolloutAccess'];
 
   beforeEach(async function () {
-    AtlasService['ipcMain'] = { handle: sandbox.stub() };
+    AtlasService['ipcMain'] = {
+      handle: sandbox.stub(),
+      broadcast: sandbox.stub(),
+      createHandle: sandbox.stub(),
+    };
     AtlasService['fetch'] = mockFetch as any;
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =

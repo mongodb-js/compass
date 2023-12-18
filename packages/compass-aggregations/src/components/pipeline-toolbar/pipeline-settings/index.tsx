@@ -8,13 +8,15 @@ import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
+import { usePreference } from 'compass-preferences-model';
+import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
+import ModifySourceBanner from '../../modify-source-banner';
 
 const containerStyles = css({
-  display: 'grid',
+  display: 'flex',
   gap: spacing[2],
-  gridTemplateAreas: '"settings extraSettings"',
-  gridTemplateColumns: '1fr auto',
   alignItems: 'center',
+  justifyContent: 'space-between',
   whiteSpace: 'nowrap',
 });
 
@@ -22,16 +24,16 @@ const settingsStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
+  flex: 'none',
 });
 
 const extraSettingsStyles = css({
-  gridArea: 'extraSettings',
   display: 'flex',
+  flex: 'none',
 });
 
 type PipelineSettingsProps = {
-  isSavePipelineDisplayed?: boolean;
-  isCreatePipelineDisplayed?: boolean;
+  editViewName?: string;
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
   onCreateNewPipeline: () => void;
@@ -40,12 +42,19 @@ type PipelineSettingsProps = {
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({
-  isSavePipelineDisplayed,
-  isCreatePipelineDisplayed,
+  editViewName,
   isExportToLanguageEnabled,
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
+  const enableSavedAggregationsQueries = usePreference(
+    'enableSavedAggregationsQueries',
+    React
+  );
+  const isSavePipelineDisplayed =
+    !editViewName && enableSavedAggregationsQueries;
+  const isCreatePipelineDisplayed = !editViewName;
+
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
@@ -74,9 +83,14 @@ export const PipelineSettings: React.FunctionComponent<
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
         >
-          Export to language
+          <span className={hiddenOnNarrowPipelineToolbarStyles}>
+            Export to language
+          </span>
         </Button>
       </div>
+      {editViewName && (
+        <ModifySourceBanner editViewName={editViewName}></ModifySourceBanner>
+      )}
       <div className={extraSettingsStyles}>
         <PipelineExtraSettings />
       </div>
@@ -88,8 +102,7 @@ export default connect(
   (state: RootState) => {
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
-      isCreatePipelineDisplayed: !state.editViewName,
+      editViewName: state.editViewName ?? undefined,
       isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },

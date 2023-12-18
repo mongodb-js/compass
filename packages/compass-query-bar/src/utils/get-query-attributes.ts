@@ -1,5 +1,5 @@
 import { isEmpty, isObject } from 'lodash';
-import type { BaseQuery } from './../constants/query-properties';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 
 export const getQueryAttributes = ({
   filter,
@@ -8,7 +8,8 @@ export const getQueryAttributes = ({
   project,
   limit,
   skip,
-}: Omit<BaseQuery, 'maxTimeMS'>): Omit<BaseQuery, 'maxTimeMS'> => {
+  update,
+}: Partial<FavoriteQuery>): Partial<FavoriteQuery> => {
   const attributes = {
     filter,
     collation,
@@ -16,6 +17,7 @@ export const getQueryAttributes = ({
     project,
     limit,
     skip,
+    update,
   };
   Object.keys(attributes).forEach((k) => {
     const key = k as keyof typeof attributes;

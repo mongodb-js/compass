@@ -10,25 +10,16 @@ import type { Telemetry } from '../helpers/telemetry';
 import { startTelemetryServer } from '../helpers/telemetry';
 import { UUID } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser';
+import Debug from 'debug';
+const debug = Debug('import-export-connections');
 
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
-  let originalDisableKeychainUsage: string | undefined;
   let telemetry: Telemetry;
 
   const getTrackedEvents = (): any[] =>
     telemetry.events().filter((e: any) => e.type === 'track');
-
-  before(function () {
-    originalDisableKeychainUsage =
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    if (process.platform === 'linux' && process.env.CI) {
-      // keytar is not working on Linux in CI, see
-      // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
-    }
-  });
 
   beforeEach(async function () {
     telemetry = await startTelemetryServer();
@@ -44,13 +35,6 @@ describe('Connection Import / Export', function () {
     await fs.rmdir(tmpdir, { recursive: true });
 
     await telemetry.stop();
-  });
-
-  after(function () {
-    if (originalDisableKeychainUsage)
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
-        originalDisableKeychainUsage;
-    else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
   });
 
   const connectionString = 'mongodb://foo:bar@host:1234/';
@@ -122,6 +106,7 @@ describe('Connection Import / Export', function () {
           ? ['--protectConnectionStrings']
           : [];
 
+      debug('Favoriting connection');
       {
         // Open compass, create and save favorite
         const compass = await beforeTests();
@@ -135,6 +120,7 @@ describe('Connection Import / Export', function () {
         await afterTests(compass);
       }
 
+      debug('Exporting connection via CLI');
       {
         const existingEventsCount = getTrackedEvents().length;
         // Export favorite, roughly verify file contents
@@ -155,6 +141,7 @@ describe('Connection Import / Export', function () {
         expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
+      debug('Removing connection');
       {
         // Open compass, delete favorite
         const compass = await beforeTests();
@@ -167,6 +154,7 @@ describe('Connection Import / Export', function () {
         await afterTests(compass);
       }
 
+      debug('Importing connection via CLI');
       {
         const existingEventsCount = getTrackedEvents().length;
         // Import favorite
@@ -184,6 +172,7 @@ describe('Connection Import / Export', function () {
         expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
+      debug('Verifying imported connection');
       {
         // Open compass, verify favorite exists
         const compass = await beforeTests();

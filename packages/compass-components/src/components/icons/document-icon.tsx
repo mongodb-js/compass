@@ -13,7 +13,6 @@ const DocumentIcon: React.FunctionComponent = () => {
 
   return (
     <svg
-      className="document-list-zero-state-graphic"
       width="72"
       height="72"
       viewBox="0 0 72 72"

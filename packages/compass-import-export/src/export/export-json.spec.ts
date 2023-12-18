@@ -222,6 +222,7 @@ describe('exportJSON', function () {
           );
         } catch (err) {
           console.log(expectedResultsPath);
+          console.log(resultText);
           throw err;
         }
 

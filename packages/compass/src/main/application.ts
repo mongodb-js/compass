@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app } from 'electron';
+import { app, safeStorage } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -16,12 +16,13 @@ import preferences, {
 } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
 import { defaultsDeep } from 'lodash';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
-const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
+const { debug, log, track, mongoLogId } =
+  createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -85,6 +86,24 @@ class CompassApplication {
 
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
+
+    try {
+      await ConnectionStorage.migrateToSafeStorage();
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_275),
+        'SafeStorage Migration',
+        'Failed to migrate connections',
+        { message: (e as Error).message }
+      );
+    }
+
+    if (process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true') {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
 
     if (mode === 'CLI') {
       return;
@@ -253,18 +272,18 @@ class CompassApplication {
       app.exit();
     });
 
-    ipcMain.respondTo({
+    ipcMain?.respondTo({
       'license:disagree': function () {
         debug('Did not agree to license, quitting app.');
         app.quit();
       },
     });
 
-    ipcMain.handle('coverage', () => {
+    ipcMain?.handle('coverage', () => {
       return (global as any).__coverage__;
     });
 
-    ipcMain.handle('compass:appName', () => {
+    ipcMain?.handle('compass:appName', () => {
       return app.getName();
     });
   }

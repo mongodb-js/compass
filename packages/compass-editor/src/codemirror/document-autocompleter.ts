@@ -1,6 +1,6 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { completer, wrapField } from '../autocompleter';
-import { languageName } from '../json-editor';
+import { languageName } from '../editor';
 import { resolveTokenAtCursor, completeWordsInString } from './utils';
 import type { Token } from './utils';
 

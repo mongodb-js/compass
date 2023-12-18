@@ -9,7 +9,6 @@ export interface ConnectFormState {
 
   // Authentication
   authMethod?:
-    | 'AUTH_NONE'
     | 'DEFAULT'
     | 'MONGODB-X509'
     | 'GSSAPI'

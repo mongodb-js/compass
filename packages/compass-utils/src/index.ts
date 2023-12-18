@@ -1,7 +1,5 @@
-export {
-  AmpersandMethodOptions,
-  promisifyAmpersandMethod,
-} from './promisify-ampersand-method';
+export type { AmpersandMethodOptions } from './promisify-ampersand-method';
+export { promisifyAmpersandMethod } from './promisify-ampersand-method';
 export { getAppName, getStoragePath } from './electron';
 export {
   raceWithAbort,
@@ -10,4 +8,3 @@ export {
   isCancelError,
   throwIfAborted,
 } from './cancellable-promise';
-export { broadcast, ipcExpose, ipcInvoke } from './ipc';

@@ -10,7 +10,6 @@ import {
   spacing,
   useDarkMode,
   SearchInput,
-  GuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -25,8 +24,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   height: '100%',
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+
   paddingTop: spacing[1],
   borderBottomRightRadius: 0,
   borderBottomLeftRadius: 0,
@@ -58,11 +56,19 @@ const titleStylesLight = css({
   color: palette.green.dark2,
 });
 
+const headerContainerStyles = css({
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
+});
+
 const contentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[2],
   overflow: 'auto',
+  paddingTop: spacing[1],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
   paddingBottom: spacing[3],
 });
 
@@ -113,28 +119,31 @@ export const AggregationSidePanel = ({
       data-testid="aggregation-side-panel"
       className={cx(containerStyles, darkMode && darkModeContainerStyles)}
     >
-      <div className={headerStyles}>
-        <Body
-          weight="medium"
-          className={darkMode ? titleStylesDark : titleStylesLight}
-        >
-          Stage Wizard
-        </Body>
-        <IconButton
-          className={closeButtonStyles}
-          title="Hide Stage Wizard"
-          aria-label="Hide Stage Wizard"
-          onClick={() => onCloseSidePanel()}
-        >
-          <Icon glyph="X" />
-        </IconButton>
+      <div className={headerContainerStyles}>
+        <div className={headerStyles}>
+          <Body
+            weight="medium"
+            className={darkMode ? titleStylesDark : titleStylesLight}
+          >
+            Stage Wizard
+          </Body>
+          <IconButton
+            className={closeButtonStyles}
+            title="Hide Stage Wizard"
+            aria-label="Hide Stage Wizard"
+            onClick={() => onCloseSidePanel()}
+          >
+            <Icon glyph="X" />
+          </IconButton>
+        </div>
+        <SearchInput
+          value={searchText}
+          onChange={handleSearchTextChange}
+          placeholder="Search for a Stage"
+          aria-label="Search for a Stage"
+        />
       </div>
-      <SearchInput
-        value={searchText}
-        onChange={handleSearchTextChange}
-        placeholder="How can we help?"
-        aria-label="How can we help?"
-      />
+
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase, index) => {
           if (index !== 0) {
@@ -148,22 +157,10 @@ export const AggregationSidePanel = ({
           }
 
           return (
-            <GuideCue<HTMLDivElement>
+            <UseCaseCard
+              {...useCase}
               key={useCase.id}
-              cueId="aggregation-sidebar-wizard-use-case"
-              title="Quick access to the stages"
-              description={
-                'Choose from the list and use our easy drag & drop functionality to add it in the pipeline overview.'
-              }
-              tooltipAlign="left"
-              trigger={({ ref }) => (
-                <div ref={ref}>
-                  <UseCaseCard
-                    {...useCase}
-                    onSelect={() => onSelect(useCase.id)}
-                  />
-                </div>
-              )}
+              onSelect={() => onSelect(useCase.id)}
             />
           );
         })}

@@ -61,7 +61,7 @@ describe('input documents module', function () {
       'when the action is not toggle input documents collapsed',
       function () {
         it('returns the default state', function () {
-          expect(reducer(undefined, { type: 'test' })).to.deep.equal({
+          expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal({
             documents: [],
             error: null,
             isExpanded: true,

@@ -7,6 +7,7 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
 } from './telemetry';
+import preferencesAccess from 'compass-preferences-model';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
@@ -33,16 +34,16 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
 };
 
 describe('connection tracking', function () {
-  before(function () {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-      trackUsageStatistics: true,
-    });
+  let trackUsageStatistics: boolean;
+
+  before(async function () {
+    trackUsageStatistics =
+      preferencesAccess.getPreferences().trackUsageStatistics;
+    await preferencesAccess.savePreferences({ trackUsageStatistics: true });
   });
 
-  after(function () {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
+  after(async function () {
+    await preferencesAccess.savePreferences({ trackUsageStatistics });
   });
 
   it('tracks a new connection attempt event - favorite', async function () {

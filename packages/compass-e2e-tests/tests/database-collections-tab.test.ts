@@ -30,7 +30,7 @@ describe('Database collections tab', function () {
     await createDummyCollections();
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
   });
 
   afterEach(async function () {
@@ -79,7 +79,7 @@ describe('Database collections tab', function () {
       'Schema',
       'Indexes',
       'Validation',
-    ].map((selector) => Selectors.collectionTab(selector));
+    ].map((selector) => Selectors.collectionSubTab(selector));
 
     for (const tabSelector of tabSelectors) {
       const tabElement = await browser.$(tabSelector);
@@ -99,7 +99,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-basic.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -128,16 +128,14 @@ describe('Database collections tab', function () {
 
     await browser.clickVisible(Selectors.CollectionCardDrop);
 
-    await browser.dropCollection(collectionName);
+    await browser.dropNamespace(collectionName);
 
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
-    await browser
-      .$(Selectors.databaseTab('Collections', true))
-      .waitForDisplayed();
+    await browser.waitUntilActiveDatabaseTab('test');
   });
 
   it('can create a capped collection', async function () {
@@ -156,7 +154,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-capped.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -194,7 +192,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-custom-collation.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -233,7 +231,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -273,7 +271,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -311,7 +309,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-clustered.png'
     );
 
-    await browser.navigateToDatabaseTab('test', 'Collections');
+    await browser.navigateToDatabaseCollectionsTab('test');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -342,7 +340,7 @@ describe('Database collections tab', function () {
     // Create the collection and refresh
     await browser.shellEval(`use ${db};`);
     await browser.shellEval(`db.createCollection('${coll}');`);
-    await browser.navigateToDatabaseTab(db, 'Collections');
+    await browser.navigateToDatabaseCollectionsTab(db);
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
     const collSelector = Selectors.collectionCard(db, coll);

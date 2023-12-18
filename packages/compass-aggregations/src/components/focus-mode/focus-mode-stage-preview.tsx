@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Body,
   css,
@@ -6,7 +6,7 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
+import type HadronDocument from 'hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
@@ -19,6 +19,10 @@ import {
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
+import {
+  collapsePreviewDocsForStage,
+  expandPreviewDocsForStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
@@ -73,10 +77,12 @@ const loaderStyles = css({
 type FocusModePreviewProps = {
   title: string;
   isLoading?: boolean;
-  documents?: Document[] | null;
+  documents?: HadronDocument[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
+  onExpand: (stageIdx: number) => void;
+  onCollapse: (stageIdx: number) => void;
 };
 
 export const FocusModePreview = ({
@@ -86,10 +92,24 @@ export const FocusModePreview = ({
   stageIndex = -1,
   stageOperator = '',
   isMissingAtlasOnlyStageSupport = false,
+  onExpand,
+  onCollapse,
 }: FocusModePreviewProps) => {
-  const [pipelineOutputOption, setPipelineOutputOption] =
-    useState<PipelineOutputOption>('collapse');
-  const isExpanded = pipelineOutputOption === 'expand';
+  const copyToClipboard = useCallback((doc: HadronDocument) => {
+    const str = doc.toEJSON();
+    void navigator.clipboard.writeText(str);
+  }, []);
+
+  const handlePipelineOutputOptionChanged = useCallback(
+    (option: PipelineOutputOption) => {
+      if (option === 'expand') {
+        onExpand(stageIndex);
+      } else if (option === 'collapse') {
+        onCollapse(stageIndex);
+      }
+    },
+    [onExpand, onCollapse, stageIndex]
+  );
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -123,13 +143,9 @@ export const FocusModePreview = ({
   } else if (documents && documents.length > 0) {
     content = (
       <DocumentListView
-        docs={documents}
-        copyToClipboard={(doc) => {
-          const str = doc.toEJSON();
-          void navigator.clipboard.writeText(str);
-        }}
         isEditable={false}
-        isExpanded={isExpanded}
+        docs={documents ?? []}
+        copyToClipboard={copyToClipboard}
         className={documentListStyles}
       />
     );
@@ -156,8 +172,7 @@ export const FocusModePreview = ({
           {isPipelineOptionsMenuVisible && (
             <PipelineOutputOptionsMenu
               buttonText="Options"
-              option={pipelineOutputOption}
-              onChangeOption={setPipelineOutputOption}
+              onChangeOption={handlePipelineOutputOptionChanged}
             />
           )}
         </div>
@@ -228,6 +243,10 @@ export const FocusModeStageInput = connect(
       stageOperator: previousStage.stageOperator,
       isMissingAtlasOnlyStageSupport,
     };
+  },
+  {
+    onExpand: expandPreviewDocsForStage,
+    onCollapse: collapsePreviewDocsForStage,
   }
 )(InputPreview);
 
@@ -256,5 +275,9 @@ export const FocusModeStageOutput = connect(
       stageOperator: stage.stageOperator,
       isMissingAtlasOnlyStageSupport,
     };
+  },
+  {
+    onExpand: expandPreviewDocsForStage,
+    onCollapse: collapsePreviewDocsForStage,
   }
 )(OutputPreview);

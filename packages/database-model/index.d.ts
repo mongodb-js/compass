@@ -1,12 +1,12 @@
 import type { CollectionCollection } from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 
-interface Database {
+interface DatabaseProps {
   _id: string;
   name: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
-  collectionsStatus: string;
+  collectionsStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   collectionsStatusError: string | null;
   collection_count: number;
   document_count: number;
@@ -16,6 +16,9 @@ interface Database {
   index_size: number;
   collectionsLength: number;
   collections: CollectionCollection;
+}
+
+interface Database extends DatabaseProps {
   fetch(opts: { dataService: DataService; force?: boolean }): Promise<void>;
   fetchCollections(opts: {
     dataService: DataService;
@@ -28,15 +31,24 @@ interface Database {
     force?: boolean;
   }): Promise<void>;
   on(evt: string, fn: (...args: any) => void);
-  toJSON(opts?: { derived: boolean }): this;
+  off(evt: string, fn: (...args: any) => void);
+  removeListener(evt: string, fn: (...args: any) => void);
+  toJSON(opts?: { derived: boolean }): DatabaseProps;
+  previousAttributes(): DatabaseProps;
+  set(val: Partial<DatabaseProps>): this;
 }
 
 interface DatabaseCollection extends Array<Database> {
   fetch(opts: { dataService: DataService }): Promise<void>;
-  toJSON(opts?: { derived: boolean }): this;
+  toJSON(opts?: { derived: boolean }): Array<DatabaseProps>;
   at(index: number): Database | undefined;
   get(id: string, key?: '_id' | 'name'): Database | undefined;
+  add(props: Partial<DatabaseProps>): Database;
+  remove(
+    models: string | [string] | Database | [Database]
+  ): Database | undefined;
+  remove(models: string[] | Database[]): (Database | undefined)[];
 }
 
 export default Database;
-export { DatabaseCollection as Collection };
+export { DatabaseCollection as Collection, DatabaseProps };

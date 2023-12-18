@@ -15,13 +15,14 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableGenAIExperience: boolean;
-  enableAIWithoutRolloutAccess: boolean;
-  enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
   showInsights: boolean;
   enableAtlasSearchIndexManagement: boolean;
+  enableBulkUpdateOperations: boolean;
+  enableBulkDeleteOperations: boolean;
+  enableRenameCollectionModal: boolean;
 };
 
 export const featureFlags: Required<{
@@ -36,31 +37,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Compass AI Features',
       long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
-    },
-  },
-
-  /**
-   * Temporary feature flag for bypassing our incremental rollout for ai access.
-   * Ticket to remove: COMPASS-7226
-   */
-  enableAIWithoutRolloutAccess: {
-    stage: 'development',
-    description: {
-      short: 'Enable AI Features Without Rollout Access',
-      long: 'Bypass the public preview rollout access for the AI features in Compass. Do not use this feature with sensitive data.',
-    },
-  },
-
-  /**
-   * Currently Compass uses `darkreader` to globally change the views of
-   * Compass to a dark theme. Turning on this feature flag stops darkreader
-   * from being used and instead components which have darkMode
-   * support will listen to the theme to change their styles.
-   */
-  enableLgDarkmode: {
-    stage: 'released',
-    description: {
-      short: 'Modern Dark Mode',
     },
   },
 
@@ -112,6 +88,39 @@ export const featureFlags: Required<{
     description: {
       short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
+    },
+  },
+  /**
+   * Feature flag bulk updates
+   * Epic: COMPASS-6671
+   */
+  enableBulkUpdateOperations: {
+    stage: 'development',
+    description: {
+      short: 'Enable bulk update operations.',
+      long: 'Allows editing all documents given a query.',
+    },
+  },
+  /**
+   * Feature flag for bulk deletes.
+   * Epic: COMPASS-6671
+   */
+  enableBulkDeleteOperations: {
+    stage: 'development',
+    description: {
+      short: 'Enable bulk delete operations.',
+      long: 'Allows deleting all documents given a query.',
+    },
+  },
+
+  /**
+   * Feature flag for the rename collection modal.
+   */
+  enableRenameCollectionModal: {
+    stage: 'development',
+    description: {
+      short: 'Enables renaming a collection',
+      long: 'Allows users to rename a collection from the sidebar',
     },
   },
 };

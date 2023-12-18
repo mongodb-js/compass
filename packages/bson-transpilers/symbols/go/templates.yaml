@@ -49,10 +49,24 @@ Templates:
             const options = spec.options;
             const uri = spec.options.uri
             const filter = spec.filter || {};
+            const exportMode = spec.exportMode;
             delete spec.options;
             delete spec.filter;
+            delete spec.exportMode;
 
             const indent = (depth) => '  '.repeat(depth)
+
+            let driverMethod;
+            switch (exportMode) {
+                case 'Delete Query':
+                    driverMethod = 'DeleteMany';
+                    break;
+                case 'Update Query':
+                    driverMethod = 'UpdateMany';
+                    break;
+                default:
+                    driverMethod = 'Find';
+            }
 
             const comment = []
                 .concat('// Requires the MongoDB Go Driver')
@@ -107,9 +121,8 @@ Templates:
                 .concat(comment)
                 .concat(connect)
                 .concat('')
-                .concat('// Find data')
                 .concat(`${coll}`)
-                .concat(`_, err = coll.Find(ctx, ${filter}${optsStr})`)
+                .concat(`_, err = coll.${driverMethod}(ctx, ${filter}${optsStr})`)
                 .concat('if err != nil {')
                 .concat('  log.Fatal(err)')
                 .concat('}')

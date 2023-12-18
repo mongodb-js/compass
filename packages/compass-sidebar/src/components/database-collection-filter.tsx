@@ -6,9 +6,9 @@ const databaseCollectionsFilter = css({
 });
 
 export default function DatabaseCollectionFilter({
-  changeFilterRegex,
+  onFilterChange,
 }: {
-  changeFilterRegex(regex: RegExp | null): void;
+  onFilterChange(regex: RegExp | null): void;
 }) {
   const onChange = useCallback(
     (event) => {
@@ -22,9 +22,9 @@ export default function DatabaseCollectionFilter({
         re = null;
       }
 
-      changeFilterRegex(re);
+      onFilterChange(re);
     },
-    [changeFilterRegex]
+    [onFilterChange]
   );
 
   const onSubmit = useCallback((evt) => {

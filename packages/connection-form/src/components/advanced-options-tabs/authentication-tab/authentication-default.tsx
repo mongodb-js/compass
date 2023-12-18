@@ -10,7 +10,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import { AuthMechanism } from 'mongodb';
+import type { AuthMechanism } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -30,15 +30,15 @@ const defaultAuthMechanismOptions: {
 }[] = [
   {
     title: 'Default',
-    value: AuthMechanism.MONGODB_DEFAULT,
+    value: 'DEFAULT',
   },
   {
     title: 'SCRAM-SHA-1',
-    value: AuthMechanism.MONGODB_SCRAM_SHA1,
+    value: 'SCRAM-SHA-1',
   },
   {
     title: 'SCRAM-SHA-256',
-    value: AuthMechanism.MONGODB_SCRAM_SHA256,
+    value: 'SCRAM-SHA-256',
   },
 ];
 
@@ -94,6 +94,7 @@ function AuthenticationDefault({
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
+          optional
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -112,6 +113,7 @@ function AuthenticationDefault({
           value={password || ''}
           errorMessage={passwordError}
           state={passwordError ? 'error' : undefined}
+          optional
         />
       </FormFieldContainer>
       <FormFieldContainer>

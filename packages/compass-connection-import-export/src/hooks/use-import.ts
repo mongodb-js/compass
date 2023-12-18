@@ -91,6 +91,7 @@ export function useImportConnections(
     favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
     open: boolean;
     trackingProps?: Record<string, unknown>;
+    connectionStorage?: typeof ConnectionStorage;
   },
   importConnections = ConnectionStorage.importConnections.bind(
     ConnectionStorage

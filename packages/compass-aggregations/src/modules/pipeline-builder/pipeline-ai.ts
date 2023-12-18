@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
@@ -143,6 +143,10 @@ type AIPipelineFailedAction = {
 export type PipelineGeneratedFromQueryAction = {
   type: AIPipelineActionTypes.PipelineGeneratedFromQuery;
   text: string;
+  stages: Stage[];
+  pipelineText: string;
+  pipeline: Document[] | null;
+  syntaxErrors: PipelineParserError[];
 };
 
 type FailedResponseTrackMessage = {
@@ -409,7 +413,19 @@ export const disableAIFeature = (): PipelineBuilderThunkAction<void> => {
   };
 };
 
-const aiPipelineReducer: Reducer<AIPipelineState> = (
+export type AIPipelineAction =
+  | AIPipelineStartedAction
+  | AIPipelineFailedAction
+  | LoadGeneratedPipelineAction
+  | PipelineGeneratedFromQueryAction
+  | LoadGeneratedPipelineAction
+  | CancelAIPipelineGenerationAction
+  | resetIsAggregationGeneratedFromQueryAction
+  | ShowInputAction
+  | HideInputAction
+  | ChangeAIPromptTextAction
+  | AtlasServiceDisableAIFeatureAction;
+const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
   state = initialState,
   action
 ) => {

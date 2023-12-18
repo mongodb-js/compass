@@ -3,7 +3,7 @@ import reducer, {
   SAVED_PIPELINE_ADD,
 } from './saved-pipeline';
 import { expect } from 'chai';
-import type { StoredPipeline } from '../utils/pipeline-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 
 describe('saved pipelines module', function () {
   describe('#addSavedPipelines', function () {
@@ -26,7 +26,7 @@ describe('saved pipelines module', function () {
       it('returns new state with an additional pipeline item ', function () {
         const pipelines = [
           { id: 'pipeline', name: 'newPipeline', namespace: 'test' },
-        ] as StoredPipeline[];
+        ] as SavedPipeline[];
         expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
           isLoaded: true,

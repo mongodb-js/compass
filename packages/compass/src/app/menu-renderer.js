@@ -1,5 +1,5 @@
 const electron = require('electron');
-const ipc = require('hadron-ipc');
+const { ipcRenderer: ipc } = require('hadron-ipc');
 
 const ZOOM_DEFAULT = 0;
 const ZOOM_INCREMENT = 0.5;

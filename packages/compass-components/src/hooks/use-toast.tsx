@@ -10,6 +10,7 @@ import {
   ToastProvider,
   useToast as useLeafygreenToast,
 } from '../components/leafygreen';
+import { css } from '@leafygreen-ui/emotion';
 
 export type ToastProperties = Pick<
   ToastProps,
@@ -20,7 +21,7 @@ const defaultToastProperties: Partial<ToastProperties> = {
   dismissible: true,
 };
 
-interface ToastActions {
+export interface ToastActions {
   openToast: (id: string, toastProperties: ToastProperties) => void;
   closeToast: (id: string) => void;
 }
@@ -153,11 +154,20 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
   );
 };
 
+const toastAreaFronLayerStyles = css({ zIndex: 1 });
+const ToastAreaMountedContext = React.createContext(false);
+
 export const ToastArea: React.FunctionComponent = ({ children }) => {
+  if (useContext(ToastAreaMountedContext)) {
+    return <>{children}</>;
+  }
+
   return (
-    <ToastProvider>
-      <_ToastArea>{children}</_ToastArea>
-    </ToastProvider>
+    <ToastAreaMountedContext.Provider value={true}>
+      <ToastProvider portalClassName={toastAreaFronLayerStyles}>
+        <_ToastArea>{children}</_ToastArea>
+      </ToastProvider>
+    </ToastAreaMountedContext.Provider>
   );
 };
 

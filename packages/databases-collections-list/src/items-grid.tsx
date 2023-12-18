@@ -76,7 +76,6 @@ interface RenderItem<T> {
 }
 
 type ItemsGridProps<T> = {
-  isEditable: boolean;
   itemType: 'collection' | 'database';
   itemGridWidth: number;
   itemGridHeight: number;
@@ -137,7 +136,6 @@ const GridControls = () => {
 };
 
 export const ItemsGrid = <T extends Item>({
-  isEditable,
   itemType,
   itemGridWidth,
   itemGridHeight,
@@ -157,11 +155,7 @@ export const ItemsGrid = <T extends Item>({
     },
     [itemType]
   );
-  const createControls = useCreateControls(
-    isEditable,
-    itemType,
-    onCreateItemClick
-  );
+  const createControls = useCreateControls(itemType, onCreateItemClick);
   const refreshControls = useRefreshControls(onRefreshClick);
   const [sortControls, sortState] = useSortControls(sortBy);
   const [viewTypeControls, viewType] = useViewTypeControls({

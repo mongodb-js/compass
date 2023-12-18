@@ -1,4 +1,3 @@
-@import './reset.less';
 @import './palette.less';
 @import './fonts.less';
 
@@ -37,6 +36,21 @@
   &-content {
     grid-area: 'content';
     background: @palette__gray--light-3;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: @palette__black;
+    color: @palette__white;
+  }
+  #loading {
+    &-sidebar {
+      background: @palette__black;
+    }
+    &-content {
+      background: @palette__black;
+    }
   }
 }
 

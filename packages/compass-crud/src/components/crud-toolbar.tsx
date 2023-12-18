@@ -17,6 +17,8 @@ import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model';
+import UpdateMenu from './update-data-menu';
+import DeleteMenu from './delete-data-menu';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -96,9 +98,11 @@ export type CrudToolbarProps = {
   isExportable: boolean;
   isWritable: boolean;
   loadingCount: boolean;
-  localAppRegistry: AppRegistry;
+  localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
   onApplyClicked: () => void;
   onResetClicked: () => void;
+  onUpdateButtonClicked: () => void;
+  onDeleteButtonClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
   page: number;
@@ -108,6 +112,8 @@ export type CrudToolbarProps = {
   start: number;
   viewSwitchHandler: (view: DocumentView) => void;
   insights?: Signal;
+  queryLimit?: number;
+  querySkip?: number;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -124,6 +130,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   localAppRegistry,
   onApplyClicked,
   onResetClicked,
+  onUpdateButtonClicked,
+  onDeleteButtonClicked,
   openExportFileDialog,
   outdated,
   page,
@@ -133,6 +141,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   start,
   viewSwitchHandler,
   insights,
+  queryLimit,
+  querySkip,
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
@@ -168,6 +178,10 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
 
   const enableExplainPlan = usePreference('enableExplainPlan', React);
+  const shouldDisableBulkOp = useMemo(
+    () => querySkip || queryLimit,
+    [querySkip, queryLimit]
+  );
 
   return (
     <div className={crudToolbarStyles}>
@@ -207,6 +221,20 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               leftGlyph: <Icon glyph="Export" />,
             }}
           />
+          {!readonly && (
+            <UpdateMenu
+              isWritable={isWritable && !shouldDisableBulkOp}
+              disabledTooltip="Remove limit and skip in your query to perform an update"
+              onClick={onUpdateButtonClicked}
+            ></UpdateMenu>
+          )}
+          {!readonly && (
+            <DeleteMenu
+              isWritable={isWritable && !shouldDisableBulkOp}
+              disabledTooltip="Remove limit and skip in your query to perform a delete"
+              onClick={onDeleteButtonClicked}
+            ></DeleteMenu>
+          )}
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">

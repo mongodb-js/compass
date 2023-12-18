@@ -134,7 +134,7 @@ describe('Instance sidebar', function () {
     );
     await browser.$(headerSelector).waitForDisplayed();
     await browser
-      .$(Selectors.collectionTab('Documents', true))
+      .$(Selectors.collectionSubTab('Documents', true))
       .waitForDisplayed();
 
     await browser.clickVisible(Selectors.sidebarDatabase(dbName));
@@ -146,12 +146,6 @@ describe('Instance sidebar', function () {
     await collectionElement.waitForDisplayed();
 
     await browser.dropDatabaseFromSidebar(dbName);
-
-    // the app should land back on the instance Databases tab because it was
-    // still on the collection Documents tab
-    await browser
-      .$(Selectors.instanceTab('Databases', true))
-      .waitForDisplayed();
   });
 
   it('can create a collection and drop it', async function () {
@@ -179,17 +173,10 @@ describe('Instance sidebar', function () {
       collectionName
     );
     await browser.$(headerSelector).waitForDisplayed();
-    const tabSelectedSelector = Selectors.collectionTab('Documents', true);
+    const tabSelectedSelector = Selectors.collectionSubTab('Documents', true);
     await browser.$(tabSelectedSelector).waitForDisplayed();
 
     await browser.dropCollectionFromSidebar(dbName, collectionName);
-
-    // the app should have redirected to the the database Collections tab
-    // because we were on the collection Documents tab and the database has
-    // other collections
-    await browser
-      .$(Selectors.databaseTab('Collections', true))
-      .waitForDisplayed();
   });
 
   it('can refresh the databases', async function () {

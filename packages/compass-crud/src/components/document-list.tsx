@@ -13,6 +13,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
+import type { BulkUpdateModalProps } from './bulk-update-modal';
+import BulkUpdateModal from './bulk-update-modal';
 import type { DocumentListViewProps } from './document-list-view';
 import DocumentListView from './document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
@@ -30,15 +32,14 @@ import {
   DOCUMENTS_STATUSES_ALL,
 } from '../constants/documents-statuses';
 
-import './index.less';
 import type {
   CrudStore,
   BSONObject,
   DocumentView,
   QueryState,
 } from '../stores/crud-store';
-import type Document from 'hadron-document';
 import { getToolbarSignal } from '../utils/toolbar-signal';
+import BulkDeleteModal from './bulk-delete-modal';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -53,9 +54,29 @@ const tableStyles = css({
   paddingLeft: spacing[3],
 });
 
+const documentsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  width: '100%',
+  height: '100%',
+  flexGrow: 1,
+  position: 'relative',
+});
+
+const loaderContainerStyles = css({
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+});
+
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
+  openBulkUpdateModal: () => void;
+  updateBulkUpdatePreview: (updateText: string) => void;
+  runBulkUpdate: () => void;
+  saveUpdateQuery: (name: string) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
@@ -72,12 +93,20 @@ export type DocumentListProps = {
         | 'isCommentNeeded'
       >
     >;
+  bulkUpdate: Partial<BulkUpdateModalProps> &
+    Required<
+      Pick<
+        BulkUpdateModalProps,
+        'isOpen' | 'syntaxError' | 'serverError' | 'preview' | 'updateText'
+      >
+    >;
   status: DOCUMENTS_STATUSES;
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
   darkMode?: boolean;
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
+  isUpdatePreviewSupported: boolean;
   query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
@@ -95,6 +124,7 @@ export type DocumentListProps = {
     | 'ns'
     | 'updateComment'
   > &
+  Pick<BulkUpdateModalProps, 'closeBulkUpdateModal'> &
   Pick<
     CrudToolbarProps,
     | 'error'
@@ -178,7 +208,7 @@ class DocumentList extends React.Component<DocumentListProps> {
    */
   renderFetching() {
     return (
-      <div className="loader">
+      <div className={loaderContainerStyles}>
         <CancelLoader
           data-testid="fetching-documents"
           progressText="Fetching Documents"
@@ -235,6 +265,65 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
   }
 
+  onSaveUpdateQuery(name: string) {
+    void this.props.store.saveUpdateQuery(name);
+  }
+
+  renderBulkUpdateModal() {
+    if (!this.props.isEditable) {
+      return;
+    }
+
+    return (
+      <BulkUpdateModal
+        ns={this.props.ns}
+        filter={this.props.query.filter}
+        count={this.props.count}
+        enablePreview={this.props.isUpdatePreviewSupported}
+        {...this.props.bulkUpdate}
+        closeBulkUpdateModal={this.props.closeBulkUpdateModal}
+        updateBulkUpdatePreview={this.props.updateBulkUpdatePreview}
+        runBulkUpdate={this.props.runBulkUpdate}
+        saveUpdateQuery={this.onSaveUpdateQuery.bind(this)}
+      />
+    );
+  }
+
+  onOpenBulkDeleteDialog() {
+    this.props.store.openBulkDeleteDialog();
+  }
+
+  onCancelBulkDeleteDialog() {
+    this.props.store.closeBulkDeleteDialog();
+  }
+
+  onConfirmBulkDeleteDialog() {
+    void this.props.store.runBulkDelete();
+  }
+
+  onExportToLanguageDeleteQuery() {
+    void this.props.store.openDeleteQueryExportToLanguageDialog();
+  }
+
+  /**
+   * Render the bulk deletion modal
+   */
+  renderDeletionModal() {
+    return (
+      <BulkDeleteModal
+        open={this.props.store.state.bulkDelete.status === 'open'}
+        namespace={this.props.store.state.ns}
+        documentCount={this.props.store.state.bulkDelete.affected}
+        filter={this.props.store.state.query.filter}
+        onCancel={this.onCancelBulkDeleteDialog.bind(this)}
+        onConfirmDeletion={this.onConfirmBulkDeleteDialog.bind(this)}
+        sampleDocuments={
+          this.props.store.state.bulkDelete.previews as any as Document[]
+        }
+        onExportToLanguage={this.onExportToLanguageDeleteQuery.bind(this)}
+      />
+    );
+  }
   /**
    * Render EmptyContent view when no documents are present.
    *
@@ -257,7 +346,7 @@ class DocumentList extends React.Component<DocumentListProps> {
       this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
     ) {
       return (
-        <div className="document-list-zero-state">
+        <div data-testid="document-list-zero-state">
           <EmptyContent
             icon={DocumentIcon}
             title="No results"
@@ -268,7 +357,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
 
     return (
-      <div className="document-list-zero-state">
+      <div data-testid="document-list-zero-state">
         <EmptyContent
           icon={DocumentIcon}
           title="This collection has no data"
@@ -292,13 +381,27 @@ class DocumentList extends React.Component<DocumentListProps> {
   }
 
   /**
+   * Handle opening the update bulk dialog.
+   */
+  handleUpdateButton() {
+    this.props.openBulkUpdateModal();
+  }
+
+  /**
+   * Handle running the bulk update.
+   */
+  handleRunBulkUpdate() {
+    this.props.runBulkUpdate();
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
    */
   render() {
     return (
-      <div className="compass-documents">
+      <div className={documentsContainerStyles}>
         <WorkspaceContainer
           toolbar={
             <CrudToolbar
@@ -315,6 +418,8 @@ class DocumentList extends React.Component<DocumentListProps> {
               isExportable={this.props.isExportable}
               onApplyClicked={this.onApplyClicked.bind(this)}
               onResetClicked={this.onResetClicked.bind(this)}
+              onUpdateButtonClicked={this.handleUpdateButton.bind(this)}
+              onDeleteButtonClicked={this.onOpenBulkDeleteDialog.bind(this)}
               openExportFileDialog={this.props.openExportFileDialog}
               outdated={this.props.outdated}
               readonly={!this.props.isEditable}
@@ -323,6 +428,8 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              querySkip={this.props.store.state.query.skip}
+              queryLimit={this.props.store.state.query.limit}
               insights={getToolbarSignal(
                 JSON.stringify(this.props.query.filter),
                 Boolean(this.props.isCollectionScan),
@@ -338,6 +445,8 @@ class DocumentList extends React.Component<DocumentListProps> {
           {this.renderZeroState()}
           {this.renderContent()}
           {this.renderInsertModal()}
+          {this.renderBulkUpdateModal()}
+          {this.renderDeletionModal()}
         </WorkspaceContainer>
       </div>
     );
@@ -347,6 +456,7 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   static propTypes = {
     closeInsertDocumentDialog: PropTypes.func,
+    closeBulkUpdateModal: PropTypes.func,
     toggleInsertDocumentView: PropTypes.func.isRequired,
     toggleInsertDocument: PropTypes.func.isRequired,
     count: PropTypes.number,
@@ -356,6 +466,8 @@ class DocumentList extends React.Component<DocumentListProps> {
     getPage: PropTypes.func,
     error: PropTypes.object,
     insert: PropTypes.object.isRequired,
+    bulkUpdate: PropTypes.object.isRequired,
+    query: PropTypes.object.isRequired,
     insertDocument: PropTypes.func,
     insertMany: PropTypes.func,
     isEditable: PropTypes.bool.isRequired,
@@ -363,6 +475,9 @@ class DocumentList extends React.Component<DocumentListProps> {
     isTimeSeries: PropTypes.bool,
     store: PropTypes.object.isRequired,
     openInsertDocumentDialog: PropTypes.func,
+    openBulkUpdateModal: PropTypes.func,
+    updateBulkUpdatePreview: PropTypes.func,
+    runBulkUpdarte: PropTypes.func,
     openImportFileDialog: PropTypes.func,
     openExportFileDialog: PropTypes.func,
     refreshDocuments: PropTypes.func,
@@ -393,6 +508,8 @@ class DocumentList extends React.Component<DocumentListProps> {
     version: '3.4.0',
     isEditable: true,
     insert: {} as any,
+    bulkUpdate: {} as any,
+    query: {} as any,
     tz: 'UTC',
   } as const;
 }
@@ -403,6 +520,7 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
+  closeBulkUpdateModal: PropTypes.func,
   count: PropTypes.number,
   start: PropTypes.number,
   end: PropTypes.number,
@@ -410,6 +528,8 @@ DocumentList.propTypes = {
   getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
+  bulkUpdate: PropTypes.object,
+  query: PropTypes.object,
   insertDocument: PropTypes.func,
   insertMany: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
@@ -417,6 +537,10 @@ DocumentList.propTypes = {
   isTimeSeries: PropTypes.bool,
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
+  openBulkUpdateModal: PropTypes.func,
+  updateBulkUpdatePreview: PropTypes.func,
+  runBulkUpdate: PropTypes.func,
+  saveUpdateQuery: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
   refreshDocuments: PropTypes.func,
@@ -441,7 +565,7 @@ DocumentList.propTypes = {
   darkMode: PropTypes.bool,
   isCollectionScan: PropTypes.bool,
   isSearchIndexesSupported: PropTypes.bool,
-  query: PropTypes.object,
+  isUpdatePreviewSupported: PropTypes.bool,
 };
 
 DocumentList.defaultProps = {
@@ -450,6 +574,8 @@ DocumentList.defaultProps = {
   version: '3.4.0',
   isEditable: true,
   insert: {},
+  bulkUpdate: {},
+  query: {},
   tz: 'UTC',
 };
 

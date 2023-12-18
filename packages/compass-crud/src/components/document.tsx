@@ -11,7 +11,6 @@ export type DocumentProps = {
   doc: HadronDocument | BSONObject;
   editable: boolean;
   isTimeSeries?: boolean;
-  isExpanded?: boolean;
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
 
@@ -19,7 +18,6 @@ const Document = (props: DocumentProps) => {
   const {
     editable,
     isTimeSeries,
-    isExpanded,
     copyToClipboard,
     openInsertDocumentDialog,
     doc: _doc,
@@ -40,22 +38,15 @@ const Document = (props: DocumentProps) => {
         doc={doc}
         copyToClipboard={copyToClipboard}
         openInsertDocumentDialog={openInsertDocumentDialog}
-        expandAll={!!isExpanded}
       />
     );
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} expandAll={!!isExpanded} />;
+    return <EditableDocument {...props} doc={doc} />;
   }
 
-  return (
-    <ReadonlyDocument
-      doc={doc}
-      copyToClipboard={copyToClipboard}
-      expandAll={!!isExpanded}
-    />
-  );
+  return <ReadonlyDocument doc={doc} copyToClipboard={copyToClipboard} />;
 };
 
 Document.propTypes = {
@@ -70,4 +61,4 @@ Document.propTypes = {
   isExpanded: PropTypes.bool,
 };
 
-export default Document;
+export default React.memo(Document);

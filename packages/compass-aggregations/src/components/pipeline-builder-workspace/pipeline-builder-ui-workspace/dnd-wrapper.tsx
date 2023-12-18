@@ -8,7 +8,7 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import {
   indexFromDroppableId,
@@ -132,6 +132,7 @@ const PipelineBuilderDndWrapper = ({
             id={draggedUseCase.id}
             title={draggedUseCase.title}
             stageOperator={draggedUseCase.stageOperator}
+            isDropping={true}
           />
         </DragOverlay>
       ) : null}

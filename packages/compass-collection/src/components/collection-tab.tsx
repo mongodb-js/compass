@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react';
-import type { Store } from 'redux';
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import {
-  returnToView,
-  selectDatabase,
   type CollectionState,
-  editView,
   selectTab,
   renderScopedModals,
   renderTabs,
 } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useCollectionTabPlugins } from './collection-tab-provider';
+import type { CollectionTabOptions } from '../stores/collection-tab';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-COLLECTION-TAB-UI'
@@ -21,21 +20,6 @@ const { log, mongoLogId, track } = createLoggerAndTelemetry(
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
-
-const ConnectedCollectionHeader = connect(
-  (state: CollectionState) => {
-    return {
-      ...state.metadata,
-      editViewName: state.editViewName,
-      stats: state.stats,
-    };
-  },
-  {
-    onSelectDatabaseClick: selectDatabase,
-    onEditViewClick: editView,
-    onReturnToViewClick: returnToView,
-  }
-)(CollectionHeader);
 
 const collectionStyles = css({
   display: 'flex',
@@ -56,15 +40,32 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-const CollectionTab: React.FunctionComponent<{
+type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
-  renderScopedModals(): React.ReactElement[];
-  renderTabs(): { name: string; component: React.ReactElement }[];
+  collectionMetadata: CollectionMetadata;
+  renderScopedModals(props: CollectionTabOptions): React.ReactElement[];
+  // TODO(COMPASS-7405): Remove usage of `renderTabs` for Query.QueryBar role
+  renderTabs(
+    props: CollectionTabOptions
+  ): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
-}> = ({ currentTab, renderScopedModals, renderTabs, onTabClick }) => {
-  const tabs = renderTabs();
-  const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+};
 
+const CollectionTabWithMetadata: React.FunctionComponent<
+  CollectionTabProps
+> = ({
+  namespace,
+  currentTab,
+  initialAggregation,
+  initialPipeline,
+  initialPipelineText,
+  initialQuery,
+  editViewName,
+  collectionMetadata,
+  renderScopedModals,
+  renderTabs,
+  onTabClick,
+}) => {
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -77,10 +78,46 @@ const CollectionTab: React.FunctionComponent<{
     }
   }, [currentTab]);
 
+  const pluginTabs = useCollectionTabPlugins();
+
+  const tabsProps = {
+    namespace,
+    initialAggregation,
+    initialPipeline,
+    initialPipelineText,
+    initialQuery,
+    editViewName,
+  };
+  renderTabs(tabsProps); // TODO(COMPASS-7405): Remove usage for Query.QueryBar role
+  const tabs = pluginTabs.map(({ name, component: Component }) => {
+    const pluginProps = {
+      ...collectionMetadata,
+      namespace: namespace,
+      aggregation: initialAggregation,
+      pipeline: initialPipeline,
+      pipelineText: initialPipelineText,
+      query: initialQuery,
+      editViewName: editViewName,
+    };
+
+    // `pluginTabs` never change in runtime so it's safe to call the hook here
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    Component.useActivate(pluginProps);
+
+    return {
+      name,
+      component: <Component {...pluginProps} />,
+    };
+  });
+  const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
-        <ConnectedCollectionHeader></ConnectedCollectionHeader>
+        <CollectionHeader
+          editViewName={editViewName}
+          {...collectionMetadata}
+        ></CollectionHeader>
         <TabNavBar
           data-testid="collection-tabs"
           aria-label="Collection Tabs"
@@ -111,16 +148,36 @@ const CollectionTab: React.FunctionComponent<{
         />
       </div>
       <div className={collectionModalContainerStyles}>
-        {renderScopedModals()}
+        {renderScopedModals(tabsProps)}
       </div>
     </div>
+  );
+};
+
+const CollectionTab = ({
+  collectionMetadata,
+  ...props
+}: Omit<CollectionTabProps, 'collectionMetadata'> & {
+  collectionMetadata: CollectionMetadata | null;
+}) => {
+  if (!collectionMetadata) {
+    return null;
+  }
+
+  return (
+    <CollectionTabWithMetadata
+      collectionMetadata={collectionMetadata}
+      {...props}
+    ></CollectionTabWithMetadata>
   );
 };
 
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
+      namespace: state.namespace,
       currentTab: state.currentTab,
+      collectionMetadata: state.metadata,
     };
   },
   {
@@ -128,16 +185,6 @@ const ConnectedCollectionTab = connect(
     renderTabs: renderTabs,
     onTabClick: selectTab,
   }
-)(CollectionTab);
+)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
 
-const CollectionTabPlugin: React.FunctionComponent<{ store: Store }> = ({
-  store,
-}) => {
-  return (
-    <Provider store={store}>
-      <ConnectedCollectionTab></ConnectedCollectionTab>
-    </Provider>
-  );
-};
-
-export default CollectionTabPlugin;
+export default ConnectedCollectionTab;

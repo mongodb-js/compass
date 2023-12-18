@@ -325,10 +325,7 @@ describe('Search Indexes', function () {
         const namespace = await browser.getActiveTabNamespace();
         expect(namespace).to.equal(`${DB_NAME}.${collectionName}`);
 
-        const workspaceTabText = await browser
-          .$(Selectors.SelectedWorkspaceTabButton)
-          .getText();
-        expect(workspaceTabText).to.contain('Aggregations');
+        await browser.waitUntilActiveCollectionSubTab('Aggregations');
       });
     });
   }

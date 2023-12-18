@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
-  MoreOptionsToggle,
+  OptionsToggle,
   PerformanceSignals,
   SignalPopover,
   css,
@@ -54,8 +54,6 @@ type PipelineActionsProps = {
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
 
-  isAtlasDeployed?: boolean;
-
   showAIEntry: boolean;
   onShowAIInputClick: () => void;
 
@@ -80,10 +78,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onToggleOptions,
   onExportAggregationResults,
   onExplainAggregation,
-  isAtlasDeployed,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
 }) => {
+  const enableAggregationBuilderExtraOptions = usePreference(
+    'enableAggregationBuilderExtraOptions',
+    React
+  );
   const showInsights = usePreference('showInsights', React);
   const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
@@ -151,8 +152,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Run
         </Button>
       )}
-      {!isAtlasDeployed && (
-        <MoreOptionsToggle
+      {enableAggregationBuilderExtraOptions && (
+        <OptionsToggle
           isExpanded={!!isOptionsVisible}
           aria-controls="pipeline-options"
           id="pipeline-toolbar-options"
@@ -181,7 +182,6 @@ const mapState = (state: RootState) => {
       isBuilderView,
     showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
-    isAtlasDeployed: state.isAtlasDeployed,
     showCollectionScanInsight: state.insights.isCollectionScan,
   };
 };

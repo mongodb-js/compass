@@ -18,7 +18,11 @@ import {
   codeLanguageToOutputLanguage,
 } from '../modules/languages';
 import type { OutputLanguage } from '../modules/languages';
-import { getInputExpressionMode, runTranspiler } from '../modules/transpiler';
+import {
+  getInputExpressionMode,
+  isQuery,
+  runTranspiler,
+} from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -137,7 +141,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     useBuilders,
   ]);
 
-  const includeUseBuilders = outputLanguage === 'java' && mode === 'Query';
+  const includeUseBuilders = outputLanguage === 'java' && isQuery(mode);
 
   const input =
     'aggregation' in inputExpression
@@ -147,13 +151,19 @@ const ExportToLanguageModal: React.FunctionComponent<
   const [wasOpen, setWasOpen] = useState(false);
 
   useEffect(() => {
+    const trackingEvent =
+      mode === 'Update Query'
+        ? 'Update Export Opened'
+        : mode === 'Delete Query'
+        ? 'Delete Export Opened'
+        : mode === 'Query'
+        ? 'Query Export Opened'
+        : 'Aggregation Export Opened';
+
     if (modalOpen && !wasOpen) {
-      track(
-        mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened',
-        {
-          ...stageCountForTelemetry(inputExpression),
-        }
-      );
+      track(trackingEvent, {
+        ...stageCountForTelemetry(inputExpression),
+      });
       track('Screen', { name: 'export_to_language_modal' });
     }
 
@@ -161,7 +171,16 @@ const ExportToLanguageModal: React.FunctionComponent<
   }, [modalOpen, wasOpen, mode, inputExpression]);
 
   function trackCopiedOutput() {
-    track(mode === 'Query' ? 'Query Exported' : 'Aggregation Exported', {
+    const trackingEvent =
+      mode === 'Update Query'
+        ? 'Update Exported'
+        : mode === 'Delete Query'
+        ? 'Delete Exported'
+        : mode === 'Query'
+        ? 'Query Exported'
+        : 'Aggregation Exported';
+
+    track(trackingEvent, {
       language: outputLanguage,
       with_import_statements: includeImports,
       with_drivers_syntax: includeDrivers,
