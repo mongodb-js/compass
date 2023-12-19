@@ -24,14 +24,14 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
   "scripts": {
     "bootstrap": "npm run postcompile",
