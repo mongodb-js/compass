@@ -17,8 +17,8 @@ const QueryBarPlugin = registerHadronPlugin(
     // having a store set up. Connected QueryBar component is exported
     // separately. This allows us to render query bar as an actual component
     // inside collection subtabs and share the state between them
-    component: ({ children }) => {
-      return React.createElement(React.Fragment, {}, children);
+    component: function QueryBarStoreProvider({ children }) {
+      return <>{children}</>;
     },
     activate: activatePlugin,
   },
@@ -54,7 +54,7 @@ export function useChangeQueryBarQuery<T extends ChangeFilterEvent['type']>() {
     (type: T, payload: Extract<ChangeFilterEvent, { type: T }>['payload']) => {
       store.dispatch(applyFilterChange({ type, payload } as ChangeFilterEvent));
     },
-    []
+    [store]
   );
 }
 

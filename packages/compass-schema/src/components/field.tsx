@@ -214,10 +214,9 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
   const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
   const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
 
-  // Convert the string array of paths
-  // to a single string with dots between field names.
-  // Note: This will cause collisions when
-  // there are fields with dots in them.
+  // TODO(COMPASS-7547): Convert the string array of paths to a single string
+  // with dots between field names. This will cause collisions when there are
+  // fields with dots in them.
   const fieldName = path.join('.');
 
   return (
