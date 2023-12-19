@@ -190,7 +190,6 @@ export function openBulkUpdateFailureToast({
     title: '',
     variant: 'warning',
     dismissible: true,
-    timeout: 6_000,
     description: <ToastBody statusMessage={text} />,
   });
 }
