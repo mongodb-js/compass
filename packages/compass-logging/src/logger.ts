@@ -3,9 +3,10 @@ import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 
-let preferences: {
+export interface LoggingAndTelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
-};
+}
+let preferences: LoggingAndTelemetryPreferences;
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
@@ -20,7 +21,7 @@ export type LoggerAndTelemetry = {
 export function createGenericLoggerAndTelemetry(
   component: string,
   emit: (event: string, arg: any) => void,
-  preferencesService?: typeof preferences
+  preferencesService?: LoggingAndTelemetryPreferences
 ): LoggerAndTelemetry {
   // Do not create an actual Writable stream here, since the callback
   // logic in Node.js streams would mean that two writes from the

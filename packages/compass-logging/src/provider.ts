@@ -1,5 +1,8 @@
 import React from 'react';
-import type { LoggerAndTelemetry } from './logger';
+import type {
+  LoggerAndTelemetry,
+  LoggingAndTelemetryPreferences,
+} from './logger';
 export type { LoggerAndTelemetry } from './logger';
 
 function defaultCreateLoggerAndTelemetry(component: string) {
@@ -10,7 +13,10 @@ function defaultCreateLoggerAndTelemetry(component: string) {
 }
 
 const LoggerAndTelemetryContext = React.createContext<
-  (component: string) => LoggerAndTelemetry
+  (
+    component: string,
+    preferences: LoggingAndTelemetryPreferences
+  ) => LoggerAndTelemetry
 >(defaultCreateLoggerAndTelemetry);
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
@@ -24,9 +30,16 @@ export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
   if (!createLoggerAndTelemetry) {
     throw new Error('LoggerAndTelemetry service is missing from React context');
   }
+  // Avoid circular dependency, similar to the one in logger.ts
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const preferences: LoggingAndTelemetryPreferences =
+    require('compass-preferences-model/provider').preferencesLocator();
   const loggerRef = React.createRef<LoggerAndTelemetry>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = createLoggerAndTelemetry(component);
+    (loggerRef as any).current = createLoggerAndTelemetry(
+      component,
+      preferences
+    );
   }
   return loggerRef.current!;
 }

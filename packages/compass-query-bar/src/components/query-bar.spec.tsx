@@ -145,10 +145,13 @@ describe('QueryBar Component', function () {
             queryOptionsLayout: ['filter'],
           },
           {
-            fields: mapQueryToFormFields({
-              ...DEFAULT_FIELD_VALUES,
-              filter: { a: 2 },
-            }),
+            fields: mapQueryToFormFields(
+              {},
+              {
+                ...DEFAULT_FIELD_VALUES,
+                filter: { a: 2 },
+              }
+            ),
           }
         );
       });

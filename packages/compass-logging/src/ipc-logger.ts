@@ -1,5 +1,6 @@
 import isElectronRenderer from 'is-electron-renderer';
 import type { HadronIpcRenderer } from 'hadron-ipc';
+import type { LoggingAndTelemetryPreferences } from './logger';
 import { createGenericLoggerAndTelemetry } from './logger';
 
 function emit(
@@ -17,7 +18,7 @@ function emit(
 
 export function createLoggerAndTelemetry(
   component: string,
-  preferencesService?: Parameters<typeof createGenericLoggerAndTelemetry>[2]
+  preferencesService?: LoggingAndTelemetryPreferences
 ) {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer

@@ -12,7 +12,7 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 import type { DataService } from '../data-service';
-import { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 

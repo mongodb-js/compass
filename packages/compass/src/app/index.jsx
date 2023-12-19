@@ -183,11 +183,7 @@ const Application = View.extend({
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
-          <LoggerAndTelemetryProvider
-            value={(component) =>
-              createLoggerAndTelemetry(component, defaultPreferencesInstance)
-            }
-          >
+          <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
             <AppRegistryProvider>
               <CompassHomePlugin
                 appName={remote.app.getName()}

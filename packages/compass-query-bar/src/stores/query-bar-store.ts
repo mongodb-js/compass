@@ -25,7 +25,6 @@ import {
 } from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
@@ -96,7 +95,7 @@ export function configureStore(
 export function activatePlugin(
   options: QueryBarStoreOptions,
   services: QueryBarServices & QueryBarExtraServices,
-  { on, cleanup }: ActivateHelpers
+  { on, addCleanup, cleanup }: ActivateHelpers
 ) {
   const { serverVersion, query, namespace } = options;
 
@@ -116,7 +115,7 @@ export function activatePlugin(
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields({
+      fields: mapQueryToFormFields(preferences.getPreferences(), {
         ...DEFAULT_FIELD_VALUES,
         ...getQueryAttributes(query ?? {}),
       }),
@@ -138,9 +137,11 @@ export function activatePlugin(
       preferences,
     }
   );
-  // TODO(COMPASS-7405): unsubscribe on deactivate
-  preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
-    store.dispatch(updatePreferencesMaxTimeMS(newValue))
+
+  addCleanup(
+    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+      store.dispatch(updatePreferencesMaxTimeMS(newValue))
+    )
   );
 
   on(instance, 'change:isWritable', () => {

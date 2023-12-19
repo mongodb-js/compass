@@ -255,12 +255,15 @@ describe('queryBarReducer', function () {
       } as unknown as AppRegistry;
       const store = createStore(
         {
-          fields: mapQueryToFormFields({
-            ...DEFAULT_FIELD_VALUES,
-            filter: { _id: { $exists: true } },
-            project: { _id: 1 },
-            limit: 10,
-          }),
+          fields: mapQueryToFormFields(
+            {},
+            {
+              ...DEFAULT_FIELD_VALUES,
+              filter: { _id: { $exists: true } },
+              project: { _id: 1 },
+              limit: 10,
+            }
+          ),
         },
         { localAppRegistry } as any
       );

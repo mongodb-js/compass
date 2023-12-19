@@ -3,8 +3,8 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Provider } from 'react-redux';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import preferencesAccess, {
-  PreferencesAccess,
   createSandboxFromDefaultPreferences,
 } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';

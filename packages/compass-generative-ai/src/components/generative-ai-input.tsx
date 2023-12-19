@@ -132,7 +132,7 @@ const aiEntryContainerStyles = css({
   display: 'flex',
 });
 
-const closeText = 'Close AI Helper';
+const closeText = 'Close AI Helper XXX';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
