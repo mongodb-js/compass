@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
@@ -10,6 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type {
   CollectionTabInfo,
+  OpenWorkspaceOptions,
   WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
@@ -64,12 +65,13 @@ type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
   activeTab?: WorkspaceTab | null;
   collectionInfo: Record<string, CollectionTabInfo>;
+  openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
   onSelectPrevTab(): void;
   onMoveTab(from: number, to: number): void;
-  onCreateTab(): void;
+  onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
 };
 
@@ -77,6 +79,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   tabs,
   activeTab,
   collectionInfo,
+  openOnEmptyWorkspace,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -172,6 +175,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     }
   }, [activeTab, getWorkspaceByName]);
 
+  const onCreateNewTab = useCallback(() => {
+    onCreateTab(openOnEmptyWorkspace);
+  }, [onCreateTab, openOnEmptyWorkspace]);
+
   return (
     <div className={workspacesContainerStyles}>
       <WorkspaceTabs
@@ -180,7 +187,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onSelectNextTab={onSelectNextTab}
         onSelectPrevTab={onSelectPrevTab}
         onMoveTab={onMoveTab}
-        onCreateNewTab={onCreateTab}
+        onCreateNewTab={onCreateNewTab}
         onCloseTab={onCloseTab}
         tabs={tabDescriptions}
         selectedTabIndex={activeTabIndex}

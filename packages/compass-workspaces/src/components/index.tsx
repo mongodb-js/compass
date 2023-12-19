@@ -36,7 +36,12 @@ type WorkspacesWithSidebarProps = {
   /**
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
-  initialWorkspaceTab?: OpenWorkspaceOptions;
+  initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+  /**
+   * Workspace configuration to be opened when all tabs are closed (defaults to
+   * "My Queries")
+   */
+  openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
   /**
    * Workspaces sidebar component slot Required so that plugin modals can be
    * rendered inside workspace React tree and access workspace state and actions
@@ -73,6 +78,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 > = ({
   activeTab,
   activeTabCollectionInfo,
+  openOnEmptyWorkspace,
   onActiveWorkspaceTabChange,
   renderSidebar,
   renderModals,
@@ -89,7 +95,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
           {renderSidebar && React.createElement(renderSidebar)}
         </div>
         <div className={workspacesStyles}>
-          <Workspaces></Workspaces>
+          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
         </div>
       </div>
       {renderModals && React.createElement(renderModals)}

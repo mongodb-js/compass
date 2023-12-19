@@ -69,7 +69,7 @@ export default function Workspace({
           queryBar={CompassQueryBarPlugin}
         >
           <WorkspacesPlugin
-            initialWorkspaceTab={{ type: 'My Queries' }}
+            initialWorkspaceTabs={[{ type: 'My Queries' }]}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => {
               return (
