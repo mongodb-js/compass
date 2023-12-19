@@ -238,17 +238,4 @@ export const renderScopedModals = (
   };
 };
 
-export const renderTabs = (
-  collectionOptions: CollectionTabOptions
-): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
-  return (dispatch) => {
-    // TODO(COMPASS-7020): we don't actually render query bar in the collection
-    // tab, but compass-crud and compass-schema expect some additional roles and
-    // stores to be already set up when they are rendered instead of handling
-    // this on their own. We do this here and ignore the return value, this just
-    // makes sure that other plugins can use query bar
-    return dispatch(setupRole('Query.QueryBar', collectionOptions));
-  };
-};
-
 export default reducer;

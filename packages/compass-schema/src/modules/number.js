@@ -23,7 +23,7 @@ function extractNumericValueFromBSON(value) {
   return value;
 }
 
-const minicharts_d3fns_number = (appRegistry) => {
+const minicharts_d3fns_number = (changeQueryFn) => {
   let width = 400;
   let height = 100;
   const options = {
@@ -31,7 +31,7 @@ const minicharts_d3fns_number = (appRegistry) => {
   };
   const margin = shared.margin;
   const xBinning = d3.scale.linear();
-  const manyChart = many(appRegistry);
+  const manyChart = many(changeQueryFn);
 
   function chart(selection) {
     selection.each(function (data) {

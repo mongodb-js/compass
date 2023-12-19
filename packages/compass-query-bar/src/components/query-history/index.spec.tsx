@@ -7,7 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
+import { Provider } from '../../stores/context';
 import Sinon from 'sinon';
 import fs from 'fs';
 import os from 'os';
@@ -17,7 +17,7 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
-import configureStore from '../../stores/query-bar-store';
+import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 
 const BASE_QUERY = {
@@ -47,12 +47,14 @@ function createStore(basepath: string) {
   const favoriteQueryStorage = new FavoriteQueryStorage({ basepath });
   const recentQueryStorage = new RecentQueryStorage({ basepath });
 
-  const store = configureStore({
-    namespace: 'airbnb.listings',
-    favoriteQueryStorage,
-    recentQueryStorage,
-    dataProvider: {
-      dataProvider: {
+  const store = configureStore(
+    {
+      namespace: 'airbnb.listings',
+    },
+    {
+      favoriteQueryStorage,
+      recentQueryStorage,
+      dataService: {
         sample() {
           return Promise.resolve([]);
         },
@@ -60,8 +62,8 @@ function createStore(basepath: string) {
           return { hosts: [] } as any;
         },
       },
-    },
-  });
+    } as any
+  );
 
   return {
     store,

@@ -106,7 +106,6 @@
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
-    "@types/reflux": "^6.4.3",
     "chai": "^4.3.4",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
@@ -114,7 +113,6 @@
     "prettier": "^2.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "reflux": "^0.4.1",
     "sinon": "^9.0.0",
     "typescript": "^5.0.4"
   },

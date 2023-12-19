@@ -5,7 +5,7 @@ import few from './few';
 import many from './many';
 import shared from './shared';
 
-const minicharts_d3fns_string = (appRegistry) => {
+const minicharts_d3fns_string = (changeQueryFn) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
@@ -13,8 +13,8 @@ const minicharts_d3fns_string = (appRegistry) => {
     query: {},
   };
 
-  const manyChart = many(appRegistry);
-  const fewChart = few(appRegistry);
+  const manyChart = many(changeQueryFn);
+  const fewChart = few(changeQueryFn);
   const margin = shared.margin;
   // --- end chart setup ---
 

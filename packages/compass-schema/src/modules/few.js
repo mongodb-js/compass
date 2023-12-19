@@ -6,7 +6,7 @@ import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';
 import { createD3Tip } from './create-d3-tip';
 
-const minicharts_d3fns_few = (localAppRegistry) => {
+const minicharts_d3fns_few = (changeQueryFn) => {
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height
@@ -50,12 +50,9 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     // if selection has changed, trigger query builder event
     if (numSelected !== selected[0].length) {
       const values = map(selected.data(), 'value');
-      localAppRegistry.emit('query-bar-change-filter', {
-        type: 'setDistinctValues',
-        payload: {
-          field: options.fieldName,
-          value: values.map((v) => options.promoter(v)),
-        },
+      changeQueryFn('setDistinctValues', {
+        field: options.fieldName,
+        value: values.map((v) => options.promoter(v)),
       });
     }
   }
@@ -75,13 +72,10 @@ const minicharts_d3fns_few = (localAppRegistry) => {
 
     const start = xScale.invert(d3.mouse(background)[0]);
 
-    localAppRegistry.emit('query-bar-change-filter', {
-      type: d3.event.shiftKey ? 'toggleDistinctValue' : 'setValue',
-      payload: {
-        field: options.fieldName,
-        value: options.promoter(d.value),
-        unsetIfSet: true,
-      },
+    changeQueryFn(d3.event.shiftKey ? 'toggleDistinctValue' : 'setValue', {
+      field: options.fieldName,
+      value: options.promoter(d.value),
+      unsetIfSet: true,
     });
 
     const w = d3

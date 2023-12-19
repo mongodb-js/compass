@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import UniqueMiniChart from '../unique-minichart';
 import DocumentMinichart from '../document-minichart';
@@ -7,24 +7,23 @@ import CoordinatesMinichart from '../coordinates-minichart';
 import D3Component from '../d3-component';
 import vizFns from '../../modules';
 import CONSTANTS from '../../constants/schema';
-import { debounce } from 'lodash';
 
-class MiniChart extends Component {
+class MiniChart extends PureComponent {
   static displayName = 'MiniChartComponent';
 
   static propTypes = {
-    localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
+    fieldValue: PropTypes.any,
     actions: PropTypes.object.isRequired,
     type: PropTypes.object.isRequired,
     nestedDocType: PropTypes.object,
+    onQueryChanged: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
     this.state = {
       containerWidth: null,
-      filter: {},
     };
     this.resizeListener = this.handleResize.bind(this);
   }
@@ -35,48 +34,12 @@ class MiniChart extends Component {
     // but it is not noticable to the user.
     this.resizeListener();
     window.addEventListener('resize', this.resizeListener);
-
-    const onQueryChanged = (state) => {
-      this.setState((prevState) => {
-        const filter = state.queryBar.fields.filter.value;
-        const valid = [...Object.values(state.queryBar.fields)].every(
-          (value) => value.valid
-        );
-        if (!valid || prevState.filter === filter) {
-          return null;
-        }
-        return { filter, valid };
-      });
-    };
-
-    this.unsubscribeQueryStore = this.subscribeToQueryStore(onQueryChanged);
     this.unsubscribeMiniChartResize =
       this.props.actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
-  subscribeToQueryStore(fn) {
-    const QueryStore = this.props.localAppRegistry.getStore('Query.Store');
-    // Also populate initial values
-    fn(QueryStore.getState());
-    const debouncedFn = debounce(() => {
-      fn(QueryStore.getState());
-    }, 100);
-    // We bombard component with updates on any change to the query bar store
-    // which causes massive rendering lag as every minichart is getting
-    // re-rendered even for unrelated changes. We compensate by having a
-    // setState function debounced and by short-circuiting state update when
-    // query is not valid (which can lead to components ending up in weird
-    // state)
-    const cancelStoreSubscription = QueryStore.subscribe(debouncedFn);
-    return () => {
-      debouncedFn.cancel();
-      cancelStoreSubscription();
-    };
-  }
-
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
-    this.unsubscribeQueryStore();
     this.unsubscribeMiniChartResize();
   }
 
@@ -108,9 +71,10 @@ class MiniChart extends Component {
       : this.props.type.name;
 
     const fieldName = this.props.fieldName;
-    const queryValue = this.state.filter[fieldName];
+    const fieldValue = this.props.fieldValue;
+
     const hasDuplicates = this.props.type.hasDuplicates;
-    const fn = vizFns[typeName.toLowerCase()];
+    const chartFactory = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
     if (
@@ -119,10 +83,9 @@ class MiniChart extends Component {
     ) {
       return (
         <UniqueMiniChart
-          localAppRegistry={this.props.localAppRegistry}
           key={`${typeName}-${this.props.type.isInArray}`}
           fieldName={fieldName}
-          queryValue={queryValue}
+          queryValue={fieldValue}
           type={this.props.type}
           width={width}
         />
@@ -134,7 +97,6 @@ class MiniChart extends Component {
           actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
-          localAppRegistry={this.props.localAppRegistry}
         />
       );
     }
@@ -152,19 +114,19 @@ class MiniChart extends Component {
     if (typeName === 'Undefined') {
       return <div>Undefined</div>;
     }
-    if (!fn) {
+    if (!chartFactory) {
       return null;
     }
+
     return (
       <D3Component
         fieldName={this.props.fieldName}
         type={this.props.type}
         renderMode="svg"
-        query={queryValue}
+        query={fieldValue}
         width={width}
         height={100}
-        fn={fn}
-        localAppRegistry={this.props.localAppRegistry}
+        chart={chartFactory(this.props.onQueryChanged)}
       />
     );
   }

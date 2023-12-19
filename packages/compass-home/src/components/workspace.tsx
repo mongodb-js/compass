@@ -21,6 +21,7 @@ import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
 import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
+import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -65,6 +66,7 @@ export default function Workspace({
             CompassIndexesPlugin,
             CompassSchemaValidationPlugin,
           ]}
+          queryBar={CompassQueryBarPlugin}
         >
           <WorkspacesPlugin
             initialWorkspaceTab={{ type: 'My Queries' }}

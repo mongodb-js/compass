@@ -21,7 +21,7 @@ function extractTimestamp(d) {
   return d._bsontype === 'ObjectId' ? d.getTimestamp() : d;
 }
 
-const minicharts_d3fns_date = (appRegistry) => {
+const minicharts_d3fns_date = (changeQueryFn) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
@@ -74,11 +74,8 @@ const minicharts_d3fns_date = (appRegistry) => {
       // number of selected items has changed, trigger querybuilder event
       if (selected[0].length === 0) {
         // clear value
-        appRegistry.emit('query-bar-change-filter', {
-          type: 'clearValue',
-          payload: {
-            field: options.fieldName,
-          },
+        changeQueryFn('clearValue', {
+          field: options.fieldName,
         });
         return;
       }
@@ -92,25 +89,19 @@ const minicharts_d3fns_date = (appRegistry) => {
     });
 
     if (isEqual(minValue.ts, maxValue.ts)) {
-      appRegistry.emit('query-bar-change-filter', {
-        type: 'setValue',
-        payload: {
-          field: options.fieldName,
-          value: minValue.value,
-        },
+      changeQueryFn('setValue', {
+        field: options.fieldName,
+        value: minValue.value,
       });
       return;
     }
 
     // binned values, build range query with $gte and $lte
-    appRegistry.emit('query-bar-change-filter', {
-      type: 'setRangeValues',
-      payload: {
-        field: options.fieldName,
-        min: minValue.value,
-        max: maxValue.value,
-        maxInclusive: true,
-      },
+    changeQueryFn('setRangeValues', {
+      field: options.fieldName,
+      min: minValue.value,
+      max: maxValue.value,
+      maxInclusive: true,
     });
   }
 
@@ -132,25 +123,19 @@ const minicharts_d3fns_date = (appRegistry) => {
         d.ts > lastNonShiftRangeValue.ts
           ? d.value
           : lastNonShiftRangeValue.value;
-      appRegistry.emit('query-bar-change-filter', {
-        type: 'setRangeValues',
-        payload: {
-          field: options.fieldName,
-          min: minVal,
-          max: maxVal,
-          maxInclusive: true,
-        },
+      changeQueryFn('setRangeValues', {
+        field: options.fieldName,
+        min: minVal,
+        max: maxVal,
+        maxInclusive: true,
       });
     } else {
       // remember non-shift value so that range can be extended with shift
       lastNonShiftRangeValue = d;
-      appRegistry.emit('query-bar-change-filter', {
-        type: 'setValue',
-        payload: {
-          field: options.fieldName,
-          value: d.value,
-          unsetIfSet: true,
-        },
+      changeQueryFn('setValue', {
+        field: options.fieldName,
+        value: d.value,
+        unsetIfSet: true,
       });
     }
 
@@ -390,7 +375,7 @@ const minicharts_d3fns_date = (appRegistry) => {
 
       let chartWidth = innerWidth / (upperRatio + 1) - upperMargin;
       const weekdayContainer = g.select('g.weekday').data([weekdays]);
-      const manyDayChart = many(appRegistry)
+      const manyDayChart = many(changeQueryFn)
         .width(chartWidth)
         .height(upperBarBottom)
         .options({
@@ -408,7 +393,7 @@ const minicharts_d3fns_date = (appRegistry) => {
 
       chartWidth = (innerWidth / (upperRatio + 1)) * upperRatio - upperMargin;
       const hourContainer = g.select('g.hour').data([hours]);
-      const manyHourChart = many(appRegistry)
+      const manyHourChart = many(changeQueryFn)
         .width(chartWidth)
         .height(upperBarBottom)
         .options({

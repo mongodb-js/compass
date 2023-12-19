@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { connect } from '../../stores/context';
 import {
   applyFromHistory,
   deleteFavoriteQuery,
