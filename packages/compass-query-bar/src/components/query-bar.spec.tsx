@@ -6,11 +6,13 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import QueryBar from './query-bar';
-import { Provider } from 'react-redux';
+import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
-import type { QueryBarStoreOptions } from '../stores/query-bar-store';
+import type { RootState } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import preferencesAccess from 'compass-preferences-model';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 const noop = () => {
   /* no op */
@@ -25,9 +27,9 @@ const renderQueryBar = (
     expanded = false,
     ...props
   }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {},
-  storeOptions: Partial<QueryBarStoreOptions> = {}
+  storeOptions: Partial<RootState['queryBar']> = {}
 ) => {
-  const store = configureStore(storeOptions);
+  const store = configureStore(storeOptions, {} as any);
   store.dispatch(toggleQueryOptions(expanded));
 
   render(
@@ -143,9 +145,10 @@ describe('QueryBar Component', function () {
             queryOptionsLayout: ['filter'],
           },
           {
-            query: {
+            fields: mapQueryToFormFields({
+              ...DEFAULT_FIELD_VALUES,
               filter: { a: 2 },
-            },
+            }),
           }
         );
       });

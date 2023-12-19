@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { Provider } from 'react-redux';
+import { Provider } from '../stores/context';
 import userEvent from '@testing-library/user-event';
 
 import { QueryAI } from './query-ai';
@@ -24,7 +24,7 @@ const noop = () => {
 const renderQueryAI = ({
   ...props
 }: Partial<ComponentProps<typeof QueryAI>> = {}) => {
-  const store = configureStore();
+  const store = configureStore({}, {} as any);
 
   render(
     <Provider store={store}>

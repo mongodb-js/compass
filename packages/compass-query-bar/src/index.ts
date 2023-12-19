@@ -1,33 +1,66 @@
-import type AppRegistry from 'hadron-app-registry';
-import QueryBarPlugin from './plugin';
-import configureStore from './stores';
+import React, { useCallback, useMemo } from 'react';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import { activatePlugin } from './stores/query-bar-store';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { useSelector, useStore } from './stores/context';
+import { mapFormFieldsToQuery } from './utils/query';
+import { applyFilterChange } from './stores/query-bar-reducer';
+import type { ChangeFilterEvent } from './modules/change-filter';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
-/**
- * A sample role for the component.
- */
-const ROLE = {
-  name: 'Query Bar',
-  component: QueryBarPlugin,
-  configureStore: configureStore,
-  storeName: 'Query.Store',
-};
+const QueryBarPlugin = registerHadronPlugin(
+  {
+    name: 'QueryBar',
+    // Query bar is a special case where we render nothing for the purposes of
+    // having a store set up. Connected QueryBar component is exported
+    // separately. This allows us to render query bar as an actual component
+    // inside collection subtabs and share the state between them
+    component: ({ children }) => {
+      return React.createElement(React.Fragment, {}, children);
+    },
+    activate: activatePlugin,
+  },
+  {
+    dataService: dataServiceLocator as DataServiceLocator<
+      'sample' | 'getConnectionString'
+    >,
+    instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
+  }
+);
 
-/**
- * Activate all the components in the Query Bar package.
- * @param {Object} appRegistry - The global appRegisrty to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Query.QueryBar', ROLE);
+function activate(): void {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Query Bar package.
- * @param {Object} appRegistry - The global appRegisrty to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Query.QueryBar', ROLE);
+function deactivate(): void {
+  // noop
 }
+
+export function useQueryBarQuery() {
+  const fields = useSelector((state) => {
+    return state.queryBar.fields;
+  });
+  return useMemo(() => {
+    return mapFormFieldsToQuery(fields);
+  }, [fields]);
+}
+
+export function useChangeQueryBarQuery<T extends ChangeFilterEvent['type']>() {
+  const store = useStore();
+  return useCallback(
+    (type: T, payload: Extract<ChangeFilterEvent, { type: T }>['payload']) => {
+      store.dispatch(applyFilterChange({ type, payload } as ChangeFilterEvent));
+    },
+    []
+  );
+}
+
+export type ChangeQueryBar = typeof useChangeQueryBarQuery;
 
 export default QueryBarPlugin;
-export { activate, deactivate, configureStore };
+export { activate, deactivate };
 export { default as metadata } from '../package.json';
+export { default as QueryBar } from './components/query-bar';

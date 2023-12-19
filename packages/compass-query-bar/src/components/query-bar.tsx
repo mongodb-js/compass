@@ -15,7 +15,7 @@ import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import {
   usePreference,
   useIsAIFeatureEnabled,

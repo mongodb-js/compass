@@ -8,7 +8,6 @@ class UniqueMiniChart extends Component {
   static displayName = 'UniqueMiniChartComponent';
 
   static propTypes = {
-    localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     queryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     type: PropTypes.object.isRequired,
@@ -43,7 +42,6 @@ class UniqueMiniChart extends Component {
     const randomValueList = samp.map((value, i) => {
       return (
         <ValueBubble
-          localAppRegistry={this.props.localAppRegistry}
           key={`${fieldName}-${typeName}-${i}`}
           value={value}
           queryValue={this.props.queryValue}

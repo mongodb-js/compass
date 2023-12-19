@@ -1,5 +1,5 @@
 import type AppRegistry from 'hadron-app-registry';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Body,
@@ -19,6 +19,7 @@ import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
+import { QueryBar } from '@mongodb-js/compass-query-bar';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -95,7 +96,6 @@ export type CrudToolbarProps = {
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
-  isExportable: boolean;
   isWritable: boolean;
   loadingCount: boolean;
   localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
@@ -124,10 +124,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   getPage,
   insertDataHandler,
   instanceDescription,
-  isExportable,
   isWritable,
   loadingCount,
-  localAppRegistry,
   onApplyClicked,
   onResetClicked,
   onUpdateButtonClicked,
@@ -144,17 +142,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
-  const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
-
-  const queryBarRef = useRef(
-    isExportable
-      ? {
-          component: queryBarRole.component,
-          store: localAppRegistry.getStore(queryBarRole.storeName!),
-        }
-      : null
-  );
-
   const displayedDocumentCount = useMemo(
     () => (loadingCount ? '' : `${count ?? 'N/A'}`),
     [loadingCount, count]
@@ -164,10 +151,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     track('Query Results Refreshed');
     refreshDocuments();
   }, [refreshDocuments]);
-
-  const QueryBarComponent = isExportable
-    ? queryBarRef.current!.component
-    : null;
 
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
@@ -186,18 +169,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   return (
     <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
-        {isExportable && QueryBarComponent && (
-          <QueryBarComponent
-            store={queryBarRef.current!.store}
-            // TODO(COMPASS-6606): add the same for other query bars
-            resultId={resultId}
-            buttonLabel="Find"
-            onApply={onApplyClicked}
-            onReset={onResetClicked}
-            showExplainButton={enableExplainPlan}
-            insights={insights}
-          />
-        )}
+        <QueryBar
+          resultId={resultId}
+          buttonLabel="Find"
+          onApply={onApplyClicked}
+          onReset={onResetClicked}
+          showExplainButton={enableExplainPlan}
+          insights={insights}
+        />
       </div>
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>

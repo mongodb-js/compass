@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect } from '../../stores/context';
 import { useFormattedDate } from '@mongodb-js/compass-components';
 import {
   deleteRecentQuery,

@@ -4,12 +4,14 @@ import {
   type CollectionState,
   selectTab,
   renderScopedModals,
-  renderTabs,
 } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useCollectionTabPlugins } from './collection-tab-provider';
+import {
+  useCollectionQueryBar,
+  useCollectionSubTabs,
+} from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 
@@ -44,10 +46,6 @@ type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
   collectionMetadata: CollectionMetadata;
   renderScopedModals(props: CollectionTabOptions): React.ReactElement[];
-  // TODO(COMPASS-7405): Remove usage of `renderTabs` for Query.QueryBar role
-  renderTabs(
-    props: CollectionTabOptions
-  ): { name: string; component: React.ReactElement }[];
   onTabClick(name: string): void;
 };
 
@@ -63,7 +61,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   editViewName,
   collectionMetadata,
   renderScopedModals,
-  renderTabs,
   onTabClick,
 }) => {
   useEffect(() => {
@@ -78,7 +75,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     }
   }, [currentTab]);
 
-  const pluginTabs = useCollectionTabPlugins();
+  const QueryBarPlugin = useCollectionQueryBar();
+  const pluginTabs = useCollectionSubTabs();
 
   const tabsProps = {
     namespace,
@@ -88,18 +86,18 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     initialQuery,
     editViewName,
   };
-  renderTabs(tabsProps); // TODO(COMPASS-7405): Remove usage for Query.QueryBar role
-  const tabs = pluginTabs.map(({ name, component: Component }) => {
-    const pluginProps = {
-      ...collectionMetadata,
-      namespace: namespace,
-      aggregation: initialAggregation,
-      pipeline: initialPipeline,
-      pipelineText: initialPipelineText,
-      query: initialQuery,
-      editViewName: editViewName,
-    };
 
+  const pluginProps = {
+    ...collectionMetadata,
+    namespace: namespace,
+    aggregation: initialAggregation,
+    pipeline: initialPipeline,
+    pipelineText: initialPipelineText,
+    query: initialQuery,
+    editViewName: editViewName,
+  };
+
+  const tabs = pluginTabs.map(({ name, component: Component }) => {
     // `pluginTabs` never change in runtime so it's safe to call the hook here
     // eslint-disable-next-line react-hooks/rules-of-hooks
     Component.useActivate(pluginProps);
@@ -112,45 +110,47 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (
-    <div className={collectionStyles} data-testid="collection">
-      <div className={collectionContainerStyles}>
-        <CollectionHeader
-          editViewName={editViewName}
-          {...collectionMetadata}
-        ></CollectionHeader>
-        <TabNavBar
-          data-testid="collection-tabs"
-          aria-label="Collection Tabs"
-          tabs={tabs.map((tab) => {
-            return tab.name;
-          })}
-          views={tabs.map((tab) => {
-            return (
-              <ErrorBoundary
-                key={tab.name}
-                onError={(error: Error, errorInfo: unknown) => {
-                  log.error(
-                    mongoLogId(1001000107),
-                    'Collection Workspace',
-                    'Rendering collection tab failed',
-                    { name: tab.name, error: error.stack, errorInfo }
-                  );
-                }}
-              >
-                {tab.component}
-              </ErrorBoundary>
-            );
-          })}
-          activeTabIndex={activeTabIndex}
-          onTabClicked={(id) => {
-            onTabClick(tabs[id].name);
-          }}
-        />
+    <QueryBarPlugin {...pluginProps}>
+      <div className={collectionStyles} data-testid="collection">
+        <div className={collectionContainerStyles}>
+          <CollectionHeader
+            editViewName={editViewName}
+            {...collectionMetadata}
+          ></CollectionHeader>
+          <TabNavBar
+            data-testid="collection-tabs"
+            aria-label="Collection Tabs"
+            tabs={tabs.map((tab) => {
+              return tab.name;
+            })}
+            views={tabs.map((tab) => {
+              return (
+                <ErrorBoundary
+                  key={tab.name}
+                  onError={(error: Error, errorInfo: unknown) => {
+                    log.error(
+                      mongoLogId(1001000107),
+                      'Collection Workspace',
+                      'Rendering collection tab failed',
+                      { name: tab.name, error: error.stack, errorInfo }
+                    );
+                  }}
+                >
+                  {tab.component}
+                </ErrorBoundary>
+              );
+            })}
+            activeTabIndex={activeTabIndex}
+            onTabClicked={(id) => {
+              onTabClick(tabs[id].name);
+            }}
+          />
+        </div>
+        <div className={collectionModalContainerStyles}>
+          {renderScopedModals(tabsProps)}
+        </div>
       </div>
-      <div className={collectionModalContainerStyles}>
-        {renderScopedModals(tabsProps)}
-      </div>
-    </div>
+    </QueryBarPlugin>
   );
 };
 
@@ -182,7 +182,6 @@ const ConnectedCollectionTab = connect(
   },
   {
     renderScopedModals: renderScopedModals,
-    renderTabs: renderTabs,
     onTabClick: selectTab,
   }
 )(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;

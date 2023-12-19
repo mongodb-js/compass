@@ -1,7 +1,7 @@
 import React from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model';
 
