@@ -95,7 +95,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6671
    */
   enableBulkUpdateOperations: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable bulk update operations.',
       long: 'Allows editing all documents given a query.',
@@ -106,7 +106,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6671
    */
   enableBulkDeleteOperations: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable bulk delete operations.',
       long: 'Allows deleting all documents given a query.',
