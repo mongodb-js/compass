@@ -12,17 +12,24 @@ import {
   Label,
   ErrorBoundary,
   Banner,
+  Body,
 } from '@mongodb-js/compass-components';
 import {
   redactConnectionString,
   ConnectionString,
 } from 'mongodb-connection-string-url';
 import { CompassWeb } from '../src/index';
+import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 
 const sandboxContainerStyles = css({
-  paddingTop: spacing[6],
   width: '100%',
   height: '100%',
+});
+
+const cardContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  paddingTop: spacing[7],
 });
 
 const cardStyles = css({
@@ -106,6 +113,19 @@ function validateConnectionString(str: string) {
 }
 
 const App = () => {
+  const [initialTab] = useState<OpenWorkspaceOptions>(() => {
+    const [, tab, namespace = ''] = window.location.pathname.split('/');
+    if (tab === 'databases') {
+      return { type: 'Databases' };
+    }
+    if (tab === 'collections' && namespace) {
+      return { type: 'Collections', namespace };
+    }
+    if (tab === 'collection' && namespace) {
+      return { type: 'Collection', namespace };
+    }
+    return { type: 'Databases' };
+  });
   const [connectionsHistory, setConnectionsHistory] = useState<string[]>(() => {
     return getHistory();
   });
@@ -142,100 +162,110 @@ const App = () => {
 
   if (openCompassWeb) {
     return (
-      <ErrorBoundary>
-        <CompassWeb
-          connectionString={connectionString}
-          initialWorkspaceTab={{ type: 'Databases' }}
-          onActiveWorkspaceTabChange={(tab) => {
-            let newPath = '';
-            switch (tab?.type) {
-              case 'Databases':
-                newPath = '/databases';
-                break;
-              case 'Collections':
-                newPath = `/collections/${tab.namespace}`;
-                break;
-              case 'Collection':
-                newPath = `/collection/${tab.namespace}`;
-                break;
-            }
-            window.history.replaceState(null, '', newPath);
-          }}
-        ></CompassWeb>
-      </ErrorBoundary>
+      <Body as="div" className={sandboxContainerStyles}>
+        <ErrorBoundary>
+          <CompassWeb
+            connectionString={connectionString}
+            initialWorkspaceTabs={[initialTab]}
+            onActiveWorkspaceTabChange={(tab) => {
+              let newPath: string;
+              switch (tab?.type) {
+                case 'Databases':
+                  newPath = '/databases';
+                  break;
+                case 'Collections':
+                  newPath = `/collections/${tab.namespace}`;
+                  break;
+                case 'Collection':
+                  newPath = `/collection/${tab.namespace}`;
+                  break;
+                default:
+                  newPath = '/';
+              }
+              if (newPath) {
+                window.history.replaceState(null, '', newPath);
+              }
+            }}
+          ></CompassWeb>
+        </ErrorBoundary>
+      </Body>
     );
   }
 
   return (
-    <div className={sandboxContainerStyles}>
-      <Card className={cardStyles}>
-        <form
-          className={connectionFormStyles}
-          onSubmit={(evt) => {
-            evt.preventDefault();
-            onConnectClick();
-          }}
-        >
-          <TextArea
-            label="Connection string"
-            placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
-            value={
-              focused
-                ? connectionString
-                : redactConnectionString(connectionString)
-            }
-            onKeyDown={(evt) => {
-              if (evt.key === 'Enter') {
-                evt.preventDefault();
-                onConnectClick();
+    <Body as="div" className={sandboxContainerStyles}>
+      <div className={cardContainerStyles}>
+        <Card className={cardStyles}>
+          <form
+            className={connectionFormStyles}
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              onConnectClick();
+            }}
+          >
+            <TextArea
+              label="Connection string"
+              placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
+              value={
+                focused
+                  ? connectionString
+                  : redactConnectionString(connectionString)
               }
-            }}
-            onChange={(evt) => {
-              onChangeConnectionString(evt.currentTarget.value);
-            }}
-            onFocus={() => {
-              setFocused(true);
-            }}
-            onBlur={() => {
-              setFocused(false);
-            }}
-          ></TextArea>
-          {connectionStringValidationResult && (
-            <Banner variant="danger">{connectionStringValidationResult}</Banner>
-          )}
-          {connectionsHistory.length > 0 && (
-            <div>
-              <Label htmlFor="connection-list">Connection history</Label>
-              <ul id="connection-list" className={historyListStyles}>
-                {connectionsHistory.map((connectionString) => {
-                  return (
-                    <KeylineCard
-                      as="li"
-                      key={connectionString}
-                      className={historyListItemStyles}
-                      contentStyle="clickable"
-                    >
-                      <button
-                        className={historyItemButtonStyles}
-                        type="button"
-                        onClick={() => {
-                          onChangeConnectionString(connectionString);
-                        }}
+              onKeyDown={(evt) => {
+                if (evt.key === 'Enter') {
+                  evt.preventDefault();
+                  onConnectClick();
+                }
+              }}
+              onChange={(evt) => {
+                onChangeConnectionString(evt.currentTarget.value);
+              }}
+              onFocus={() => {
+                setFocused(true);
+              }}
+              onBlur={() => {
+                setFocused(false);
+              }}
+            ></TextArea>
+            {connectionStringValidationResult && (
+              <Banner variant="danger">
+                {connectionStringValidationResult}
+              </Banner>
+            )}
+            {connectionsHistory.length > 0 && (
+              <div>
+                <Label htmlFor="connection-list">Connection history</Label>
+                <ul id="connection-list" className={historyListStyles}>
+                  {connectionsHistory.map((connectionString) => {
+                    return (
+                      <KeylineCard
+                        as="li"
+                        key={connectionString}
+                        className={historyListItemStyles}
+                        contentStyle="clickable"
                       >
-                        {redactConnectionString(connectionString)}
-                      </button>
-                    </KeylineCard>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          <Button disabled={!canSubmit} variant="primary" type="submit">
-            Connect
-          </Button>
-        </form>
-      </Card>
-    </div>
+                        <button
+                          className={historyItemButtonStyles}
+                          type="button"
+                          onClick={() => {
+                            onChangeConnectionString(connectionString);
+                          }}
+                        >
+                          {redactConnectionString(connectionString)}
+                        </button>
+                      </KeylineCard>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+            <Button disabled={!canSubmit} variant="primary" type="submit">
+              Connect
+            </Button>
+          </form>
+        </Card>
+      </div>
+    </Body>
   );
 };
 

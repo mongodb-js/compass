@@ -12,9 +12,12 @@ function localPolyfill(name) {
 }
 
 module.exports = async (env, args) => {
+  const serve = isServe({ env });
+
   let config = createWebConfig({
     ...args,
-    entry: path.resolve(__dirname, 'src', 'index.tsx'),
+    hot: serve,
+    entry: path.resolve(__dirname, serve ? 'sandbox' : 'src', 'index.tsx'),
   });
 
   delete config.externals;
@@ -103,30 +106,29 @@ module.exports = async (env, args) => {
     ],
   });
 
-  if (isServe({ env })) {
+  if (serve) {
     // TODO: logs are pretty rough here, should make it better
     createWebSocketProxy();
 
-    config.entry = path.resolve(__dirname, 'sandbox', 'index.tsx');
-
     config.output = {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'index.js',
+      path: config.output.path,
+      filename: config.output.filename,
+      assetModuleFilename: config.output.assetModuleFilename,
     };
 
     return merge(config, {
       devServer: {
+        hot: true,
         magicHtml: false,
         historyApiFallback: {
           rewrites: [{ from: /./, to: 'index.html' }],
         },
-        hot: true,
         static: {
           directory: path.resolve(__dirname, 'sandbox'),
           publicPath: '/',
         },
         client: {
-          overlay: { errors: true, warnings: false, runtimeErrors: false },
+          overlay: { warnings: false, errors: true, runtimeErrors: true },
         },
       },
       resolve: {
@@ -141,19 +143,28 @@ module.exports = async (env, args) => {
           // connection on their side)
           dns: localPolyfill('dns'),
           'os-dns-native': localPolyfill('os-dns-native'),
-          // We exclude it for the published  distribution as it requires dns
-          // resolution to work which is not expected
+          // We exclude it for the published distribution as it requires dns
+          // resolution to work which is not expected. Re-include for the
+          // sandbox
           'resolve-mongodb-srv': require.resolve('resolve-mongodb-srv'),
         },
       },
     });
   }
 
+  config.output = {
+    path: config.output.path,
+    filename: config.output.filename,
+    library: {
+      name: 'CompassWeb',
+      type: 'commonjs2',
+    },
+  };
+
   return merge(config, {
-    resolve: {
-      externals: {
-        mongodb: 'commonjs2 mongodb',
-      },
+    externals: {
+      // TODO(ticket): move mongodb-browser to the monorepo and package it too
+      mongodb: 'commonjs2 mongodb',
     },
   });
 };

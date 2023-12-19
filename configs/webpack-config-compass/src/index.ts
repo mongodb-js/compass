@@ -321,6 +321,23 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...sharedResolveOptions(opts.target),
     },
     ignoreWarnings: sharedIgnoreWarnings,
+    plugins:
+      isServe(opts) && opts.hot
+        ? [
+            // Plugin types are not matching Webpack 5, but they work
+            new ReactRefreshWebpackPlugin() as unknown as WebpackPluginInstance,
+          ]
+        : opts.analyze
+        ? [
+            // Plugin types are not matching Webpack 5, but they work
+            new BundleAnalyzerPlugin({
+              logLevel: 'silent',
+              analyzerPort: 'auto',
+            }) as unknown as WebpackPluginInstance,
+
+            new DuplicatePackageCheckerPlugin(),
+          ]
+        : [],
   };
 }
 

@@ -18,7 +18,7 @@ type CompassWebProps = {
   connectionString: string;
 } & Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
-  'initialWorkspaceTab' | 'onActiveWorkspaceTabChange'
+  'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
 >;
 
 const loadingContainerStyles = css({
@@ -53,9 +53,11 @@ function LoadingScreen({ connectionString }: { connectionString: string }) {
   );
 }
 
+const DEFAULT_TAB = { type: 'Databases' } as const;
+
 const CompassWeb = ({
   connectionString,
-  initialWorkspaceTab,
+  initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
 }: CompassWebProps) => {
   const [connected, setConnected] = useState(false);
@@ -101,7 +103,8 @@ const CompassWeb = ({
               value={[DatabasesWorkspaceTab, CollectionsWorkspaceTab]}
             >
               <WorkspacesPlugin
-                initialWorkspaceTab={initialWorkspaceTab}
+                initialWorkspaceTabs={initialWorkspaceTabs}
+                openOnEmptyWorkspace={DEFAULT_TAB}
                 onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
                 renderSidebar={() => {
                   return null;
