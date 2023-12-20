@@ -25,6 +25,7 @@ type State = {
 export const INITIAL_STATE: State = { current: null, preferencesValue: null };
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+  // TODO(COMPASS-7550): Avoid tracking preferences maxTimeMS in redux state
   if (isAction<MaxTimeMSChangedAction>(action, MAX_TIME_MS_CHANGED)) {
     return {
       current: capMaxTimeMSAtPreferenceLimit(
