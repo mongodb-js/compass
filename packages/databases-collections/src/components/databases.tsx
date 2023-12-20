@@ -80,7 +80,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick,
   onRefreshClick,
 }) => {
-  const isPreferencesReadOnly = usePreference('readOnly', React);
+  const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
   useTrackOnChange(

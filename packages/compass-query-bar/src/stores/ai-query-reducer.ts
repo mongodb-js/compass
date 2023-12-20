@@ -2,7 +2,6 @@ import type { Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import preferences from 'compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -148,7 +147,7 @@ export const runAIQuery = (
   return async (
     dispatch,
     getState,
-    { dataService, atlasService, localAppRegistry }
+    { dataService, atlasService, localAppRegistry, preferences }
   ) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
@@ -243,7 +242,10 @@ export const runAIQuery = (
     let generatedFields: QueryFormFields;
     try {
       query = jsonResponse?.content?.query;
-      generatedFields = parseQueryAttributesToFormFields(query);
+      generatedFields = parseQueryAttributesToFormFields(
+        query,
+        preferences.getPreferences()
+      );
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
@@ -291,7 +293,10 @@ export const runAIQuery = (
     }
 
     const queryFields = {
-      ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+      ...mapQueryToFormFields(
+        preferences.getPreferences(),
+        DEFAULT_FIELD_VALUES
+      ),
       ...generatedFields,
     };
 

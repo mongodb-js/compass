@@ -72,4 +72,4 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   );
 };
 
-export default withPreferences(WelcomeModal, ['networkTraffic'], React);
+export default withPreferences(WelcomeModal, ['networkTraffic']);

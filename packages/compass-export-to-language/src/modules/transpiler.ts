@@ -52,6 +52,7 @@ type RunTranspilerOptions = {
   useBuilders: boolean;
   uri: string;
   namespace: string;
+  protectConnectionStrings: boolean;
 };
 
 export function runTranspiler({
@@ -62,6 +63,7 @@ export function runTranspiler({
   useBuilders,
   uri,
   namespace,
+  protectConnectionStrings,
 }: RunTranspilerOptions) {
   const mode = getInputExpressionMode(inputExpression);
 
@@ -75,7 +77,7 @@ export function runTranspiler({
         options: {
           collection: ns.collection,
           database: ns.database,
-          uri: maybeProtectConnectionString(uri),
+          uri: maybeProtectConnectionString(protectConnectionStrings, uri),
         },
       },
       inputExpression

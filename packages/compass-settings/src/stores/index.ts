@@ -14,6 +14,7 @@ import atlasLoginReducer, {
   atlasServiceUserConfigChanged,
 } from './atlas-login';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
@@ -21,13 +22,15 @@ type ThunkExtraArg = {
   preferencesSandbox: Public<PreferencesSandbox>;
   atlasService: Public<AtlasService>;
   logger: LoggerAndTelemetry;
+  preferences: PreferencesAccess;
 };
 
 export function configureStore(
-  options: Pick<ThunkExtraArg, 'logger'> & Partial<ThunkExtraArg>
+  options: Pick<ThunkExtraArg, 'logger' | 'preferences'> &
+    Partial<ThunkExtraArg>
 ) {
   const preferencesSandbox =
-    options?.preferencesSandbox ?? new PreferencesSandbox();
+    options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
   const atlasService = options?.atlasService ?? new AtlasService();
 
   const store = createStore(
@@ -40,6 +43,7 @@ export function configureStore(
     }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
     applyMiddleware(
       thunk.withExtraArgument({
+        preferences: options.preferences,
         preferencesSandbox,
         atlasService,
         logger: options.logger,
@@ -80,9 +84,14 @@ const onActivated = (
   {
     globalAppRegistry,
     logger,
-  }: { globalAppRegistry: AppRegistry; logger: LoggerAndTelemetry }
+    preferences,
+  }: {
+    globalAppRegistry: AppRegistry;
+    logger: LoggerAndTelemetry;
+    preferences: PreferencesAccess;
+  }
 ) => {
-  const store = configureStore({ logger });
+  const store = configureStore({ logger, preferences });
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());

@@ -20,6 +20,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { AppRegistry } from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 /**
  * The lowest supported version.
@@ -27,8 +28,17 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 const MIN_VERSION = '3.2.0';
 
 // Exposed for testing
-export function configureStore(): Store<RootState, RootAction> {
-  return createStore(reducer, applyMiddleware(thunk));
+export function configureStore({
+  dataService,
+  preferences,
+}: {
+  dataService: DataService;
+  preferences: PreferencesAccess;
+}): Store<RootState, RootAction> {
+  return createStore(
+    reducer,
+    applyMiddleware(thunk.withExtraArgument({ dataService, preferences }))
+  );
 }
 
 /**
@@ -40,15 +50,17 @@ export function onActivated(
     localAppRegistry,
     globalAppRegistry,
     dataService,
+    preferences,
     instance,
   }: {
     localAppRegistry: AppRegistry;
     globalAppRegistry: AppRegistry;
     dataService: DataService;
+    preferences: PreferencesAccess;
     instance: MongoDBInstance;
   }
 ) {
-  const store = configureStore();
+  const store = configureStore({ dataService, preferences });
   const cleanup: (() => void)[] = [];
   function on(
     eventEmitter: {

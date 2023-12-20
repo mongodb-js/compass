@@ -40,7 +40,7 @@ function SidebarDatabasesNavigation({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
-  const preferencesReadOnly = usePreference('readOnly', React);
+  const preferencesReadOnly = usePreference('readOnly');
   const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
   const onNamespaceAction = useCallback(
     (ns: string, action: Actions) => {

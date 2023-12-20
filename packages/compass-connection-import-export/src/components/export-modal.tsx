@@ -61,10 +61,7 @@ export function ExportConnectionsModal({
 
   useOpenModalThroughIpc(open, setOpen, 'compass:open-export-connections');
 
-  const protectConnectionStrings = !!usePreference(
-    'protectConnectionStrings',
-    React
-  );
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const {
     onSubmit,
     onCancel,

@@ -37,7 +37,7 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const readOnlyCompass = usePreference('readOnly', React);
+  const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);

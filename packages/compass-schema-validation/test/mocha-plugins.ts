@@ -9,6 +9,8 @@ const setupIpc = () => {
         preferences = { ...preferences, ...attributes };
       } else if (name === 'test:clear-preferences') {
         preferences = {};
+      } else if (name === 'compass:get-preference-sandbox-properties') {
+        return Promise.resolve('');
       }
       return Promise.resolve(preferences);
     },

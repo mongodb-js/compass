@@ -17,6 +17,7 @@ import { stringify as javascriptStringify } from 'javascript-stringify';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -44,12 +45,13 @@ describe('Schema Validation Store', function () {
   const globalAppRegistry = new AppRegistry();
   const localAppRegistry = new AppRegistry();
 
-  beforeEach(function () {
+  beforeEach(async function () {
     const activateResult = onActivated({} as any, {
       localAppRegistry: localAppRegistry,
       globalAppRegistry: globalAppRegistry,
       dataService: fakeDataService,
       instance: fakeInstance,
+      preferences: await createSandboxFromDefaultPreferences(),
     });
     store = activateResult.store;
     // eslint-disable-next-line @typescript-eslint/unbound-method

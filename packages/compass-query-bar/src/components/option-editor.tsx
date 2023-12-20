@@ -112,7 +112,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
 }) => {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
 

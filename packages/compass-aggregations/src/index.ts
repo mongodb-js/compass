@@ -14,8 +14,9 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './modules/data-service';
-import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const activate = () => {
   // noop
@@ -38,6 +39,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     >,
     workspaces: workspacesServiceLocator,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 

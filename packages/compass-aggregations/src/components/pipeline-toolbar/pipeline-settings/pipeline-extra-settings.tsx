@@ -76,7 +76,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSettings,
   onToggleSidePanel,
 }) => {
-  const showStageWizard = usePreference('enableStageWizard', React);
+  const showStageWizard = usePreference('enableStageWizard');
 
   return (
     <div

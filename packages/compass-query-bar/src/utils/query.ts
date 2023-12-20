@@ -1,5 +1,5 @@
 import { stringify, validate } from 'mongodb-query-parser';
-import preferences from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 import { isEqual } from 'lodash';
 import {
   DEFAULT_FIELD_VALUES,
@@ -53,7 +53,8 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
 }
 
 export function parseQueryAttributesToFormFields(
-  query: Record<string, unknown>
+  query: Record<string, unknown>,
+  preferences: Pick<UserPreferences, 'maxTimeMS'>
 ): QueryFormFields {
   return Object.fromEntries(
     Object.entries(query)
@@ -61,7 +62,7 @@ export function parseQueryAttributesToFormFields(
         if (!isQueryProperty(key) || typeof valueString !== 'string') {
           return null;
         }
-        const value = validateField(key, valueString);
+        const value = validateField(key, valueString, preferences);
         const valid = value !== false;
         return [
           key,
@@ -78,6 +79,7 @@ export function parseQueryAttributesToFormFields(
  * Map query document to the query fields state only preserving valid values
  */
 export function mapQueryToFormFields(
+  preferences: Pick<UserPreferences, 'maxTimeMS'>,
   query?: BaseQuery,
   onlyValid = true
 ): QueryFormFields {
@@ -89,7 +91,7 @@ export function mapQueryToFormFields(
         }
         const valueAsString =
           typeof _value === 'undefined' ? '' : stringify(_value) || '';
-        const value = validateField(key, valueAsString);
+        const value = validateField(key, valueAsString, preferences);
         const valid: boolean = value !== false;
         if (onlyValid && !valid) {
           return null;
@@ -115,7 +117,11 @@ function isQueryProperty(field: string): field is QueryProperty {
   return (QUERY_PROPERTIES as readonly string[]).includes(field);
 }
 
-export function validateField(field: string, value: string) {
+export function validateField(
+  field: string,
+  value: string,
+  { maxTimeMS: preferencesMaxTimeMS }: Pick<UserPreferences, 'maxTimeMS'>
+) {
   const validated = validate(field, value);
   if (field === 'filter' && validated === '') {
     // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
@@ -128,7 +134,6 @@ export function validateField(field: string, value: string) {
   // Additional validation for maxTimeMS to make sure that we are not over the
   // upper bound set in preferences
   if (field === 'maxTimeMS') {
-    const preferencesMaxTimeMS = preferences.getPreferences().maxTimeMS;
     if (
       typeof preferencesMaxTimeMS !== 'undefined' &&
       value &&
@@ -142,9 +147,12 @@ export function validateField(field: string, value: string) {
   return validated;
 }
 
-export function isQueryFieldsValid(fields: QueryFormFields) {
+export function isQueryFieldsValid(
+  fields: QueryFormFields,
+  preferences: Pick<UserPreferences, 'maxTimeMS'>
+) {
   return Object.entries(fields).every(
-    ([key, value]) => validateField(key, value.string) !== false
+    ([key, value]) => validateField(key, value.string, preferences) !== false
   );
 }
 
