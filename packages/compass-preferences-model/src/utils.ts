@@ -39,19 +39,6 @@ export async function getActiveUser(
   return userStorage.getUser(userId);
 }
 
-export function capMaxTimeMSAtPreferenceLimit<T>(
-  preferences: { getPreferences(): { maxTimeMS?: number } },
-  value: T
-): T | number {
-  const preferenceMaxTimeMS = preferences.getPreferences().maxTimeMS;
-  if (typeof value === 'number' && typeof preferenceMaxTimeMS === 'number') {
-    return Math.min(value, preferenceMaxTimeMS);
-  } else if (typeof preferenceMaxTimeMS === 'number') {
-    return preferenceMaxTimeMS;
-  }
-  return value;
-}
-
 /**
  * Helper method to check whether or not AI feature is enabled in Compass. The
  * feature is considered enabled if:
