@@ -7,8 +7,8 @@ import { Transform } from 'stream';
 import type { Readable, Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
 

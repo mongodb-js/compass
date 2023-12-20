@@ -1,6 +1,6 @@
 import type { AggregateOptions, Document } from 'mongodb';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { DataService } from '../modules/data-service';
 
 const defaultOptions = {

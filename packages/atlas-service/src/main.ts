@@ -35,11 +35,11 @@ import {
   createLoggerAndTelemetry,
   mongoLogId,
 } from '@mongodb-js/compass-logging';
-import type { PreferencesAccess, UserStorage } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import { isAIFeatureEnabled } from 'compass-preferences-model';
 import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
@@ -145,8 +145,6 @@ export class AtlasService {
 
   private static currentUser: AtlasUserInfo | null = null;
 
-  private static getActiveCompassUser: typeof getActiveUser = getActiveUser;
-
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
   private static fetch = (
@@ -170,7 +168,7 @@ export class AtlasService {
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
     | undefined = ipcMain;
 
-  private static userStorage: UserStorage;
+  private static getUserId: () => Promise<string>;
   private static preferences: PreferencesAccess;
   private static config: AtlasServiceConfig;
 
@@ -238,11 +236,11 @@ export class AtlasService {
     config: AtlasServiceConfig,
     {
       preferences,
-      userStorage,
-    }: { preferences: PreferencesAccess; userStorage: UserStorage }
+      getUserId,
+    }: { preferences: PreferencesAccess; getUserId: () => Promise<string> }
   ): Promise<void> {
     this.preferences = preferences;
-    this.userStorage = userStorage;
+    this.getUserId = getUserId;
     this.config = config;
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
@@ -576,9 +574,7 @@ export class AtlasService {
   static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     this.throwIfNetworkTrafficDisabled();
 
-    const userId = (
-      await this.getActiveCompassUser(this.preferences, this.userStorage)
-    ).id;
+    const userId = await this.getUserId();
     const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
     log.info(

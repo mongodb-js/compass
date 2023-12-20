@@ -85,12 +85,7 @@ describe('AtlasServiceMain', function () {
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
-    AtlasService['getActiveCompassUser'] = () =>
-      Promise.resolve({
-        id: 'test',
-        createdAt: new Date(),
-        lastUsed: new Date(),
-      });
+    AtlasService['getUserId'] = () => Promise.resolve('test');
 
     AtlasService['config'] = defaultConfig;
 
@@ -454,7 +449,7 @@ describe('AtlasServiceMain', function () {
     it('should try to restore service state by fetching user info', async function () {
       await AtlasService.init(defaultConfig, {
         preferences,
-        userStorage: {} as any,
+        getUserId: AtlasService['getUserId'],
       });
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
@@ -500,7 +495,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['oidcPluginLogger'] = logger;
       await AtlasService.init(defaultConfig, {
         preferences,
-        userStorage: {} as any,
+        getUserId: AtlasService['getUserId'],
       });
       expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions

@@ -25,19 +25,14 @@ const getPreferencesValidator = () => {
 
   return z.object(preferencesPropsValidator);
 };
-export abstract class BasePreferencesStorage {
-  abstract setup(): Promise<void>;
-  abstract getPreferences(): StoredPreferences;
-  abstract updatePreferences(
-    attributes: Partial<StoredPreferences>
-  ): Promise<void>;
+export interface BasePreferencesStorage {
+  setup(): Promise<void>;
+  getPreferences(): StoredPreferences;
+  updatePreferences(attributes: Partial<StoredPreferences>): Promise<void>;
 }
 
-export class SandboxPreferences extends BasePreferencesStorage {
+export class SandboxPreferences implements BasePreferencesStorage {
   private preferences = getDefaultPreferences();
-  constructor() {
-    super();
-  }
 
   getPreferences() {
     return this.preferences;
@@ -56,14 +51,13 @@ export class SandboxPreferences extends BasePreferencesStorage {
   }
 }
 
-export class StoragePreferences extends BasePreferencesStorage {
+export class StoragePreferences implements BasePreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultPreferences();
   private readonly userData: UserData<PreferencesValidator>;
   private preferences: StoredPreferences = getDefaultPreferences();
 
   constructor(basePath?: string) {
-    super();
     this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,

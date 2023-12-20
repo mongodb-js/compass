@@ -1,6 +1,6 @@
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { BSONObject } from '../stores/crud-store';
 import type { DataService } from './data-service';
 

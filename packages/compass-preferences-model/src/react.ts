@@ -2,6 +2,7 @@ import type { FunctionComponent } from 'react';
 import { useState, useEffect, createElement } from 'react';
 import { type AllPreferences } from './';
 import { preferencesLocator } from './provider';
+export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
 /** Use as: const enableMaps = usePreference('enableMaps', React); */
 export function usePreference<K extends keyof AllPreferences>(

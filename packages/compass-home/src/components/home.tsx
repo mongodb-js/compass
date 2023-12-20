@@ -378,6 +378,7 @@ function getCurrentTheme(): Theme {
 function ThemedHome(
   props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
+  // TODO(COMPASS-7433): should not be used directly in render, will go away with a home cleanup
   const preferences = preferencesLocator();
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);

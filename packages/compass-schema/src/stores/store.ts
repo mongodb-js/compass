@@ -17,7 +17,7 @@ import {
   ANALYSIS_STATE_INITIAL,
   ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService as OriginalDataService } from 'mongodb-data-service';
@@ -26,7 +26,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import type { Schema } from 'mongodb-schema';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;

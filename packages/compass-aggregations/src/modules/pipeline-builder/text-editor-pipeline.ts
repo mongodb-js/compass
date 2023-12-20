@@ -16,7 +16,7 @@ import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
