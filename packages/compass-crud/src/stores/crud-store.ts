@@ -627,12 +627,9 @@ class CrudStoreImpl
    * @param {String} ns - The new namespace.
    */
   onCollectionChanged(ns: string) {
-    // If the existing collection's operations are still in progress they will
-    // complete after we reset the state and change it based on some of the
-    // previous collection.
-    if (this.state.abortController) {
-      this.state.abortController.abort();
-    }
+    // If the existing collection's bulk update operations are still in progress
+    // they will complete after we reset the state and change it for the
+    // previous collection
     if (this.state.bulkUpdate.previewAbortController) {
       this.state.bulkUpdate.previewAbortController.abort();
     }
