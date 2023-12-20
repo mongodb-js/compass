@@ -991,6 +991,48 @@ describe('store', function () {
     });
   });
 
+  describe('favourite bulk update queries', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          query: {
+            update: {
+              $set: {
+                foo: 1,
+              },
+            },
+          },
+        },
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+        },
+        createActivateHelpers()
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('opens the bulk update modal if there is an initial options.query.update value', async function () {
+      const listener = waitForState(store, (state) => {
+        expect(state.bulkUpdate.isOpen).to.equal(true);
+        expect(state.bulkUpdate.updateText).to.match(
+          /{\s+\$set:\s+{\s+foo:\s+1\s+}\s+}/
+        );
+      });
+
+      await listener;
+    });
+  });
+
   describe('#bulkDeleteDialog', function () {
     let store: CrudStore;
 

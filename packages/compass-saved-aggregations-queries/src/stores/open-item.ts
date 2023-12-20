@@ -212,7 +212,10 @@ const openItem =
     workspaces.openCollectionWorkspace(`${database}.${collection}`, {
       initialAggregation:
         item.type === 'aggregation' ? item.aggregation : undefined,
-      initialQuery: item.type === 'query' ? item.query : undefined,
+      initialQuery:
+        item.type === 'query' || item.type === 'updatemany'
+          ? item.query
+          : undefined,
       newTab: true,
     });
   };

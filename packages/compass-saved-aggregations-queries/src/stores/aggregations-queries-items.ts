@@ -68,7 +68,7 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
         return state;
       }
       const updatedItem =
-        item.type === 'query'
+        item.type === 'query' || item.type === 'updatemany'
           ? mapQueryToItem(action.payload as FavoriteQuery)
           : mapAggregationToItem(action.payload as SavedPipeline);
       return {
