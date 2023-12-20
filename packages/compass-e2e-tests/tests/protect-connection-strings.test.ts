@@ -16,11 +16,14 @@ async function expectCopyConnectionStringToClipboard(
       favoriteName,
       Selectors.CopyConnectionStringItem
     );
+    let actual = '';
     await browser.waitUntil(
       async () => {
-        return (await clipboard.read()) === expected;
+        return (actual = await clipboard.read()) === expected;
       },
-      { timeoutMsg: 'Expected copy to clipboard to work' }
+      {
+        timeoutMsg: `Expected copy to clipboard to contain '${expected}', saw '${actual}'`,
+      }
     );
   }
 }

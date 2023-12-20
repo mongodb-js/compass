@@ -133,6 +133,7 @@ export function Sidebar({
       setIsExpanded,
       globalAppRegistryEmit,
       openToast,
+      maybeProtectConnectionString,
     ]
   );
 

@@ -266,7 +266,13 @@ function Connection({
         return;
       }
     },
-    [connectionInfo, duplicateConnection, openToast, removeConnection]
+    [
+      connectionInfo,
+      duplicateConnection,
+      openToast,
+      removeConnection,
+      maybeProtectConnectionString,
+    ]
   );
 
   const [hoverProps, isHovered] = useHoverState();
