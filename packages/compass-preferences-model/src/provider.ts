@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import type { PreferencesAccess } from './';
 import { defaultPreferencesInstance } from '.';
 export { usePreference, withPreferences } from './react';
+export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
 const PreferencesContext = createContext<PreferencesAccess>(
   // should be `defaultPreferencesInstance`, only using undefined here
