@@ -489,6 +489,7 @@ class CrudStoreImpl
       count: 0,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
+      bulkDelete: this.getInitialBulkDeleteState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
       isDataLake: false,
@@ -506,11 +507,6 @@ class CrudStoreImpl
       isCollectionScan: false,
       isSearchIndexesSupported: false,
       isUpdatePreviewSupported: false,
-      bulkDelete: {
-        previews: [],
-        status: 'closed',
-        affected: 0,
-      },
     };
   }
 
@@ -541,6 +537,14 @@ class CrudStoreImpl
       },
       syntaxError: undefined,
       serverError: undefined,
+    };
+  }
+
+  getInitialBulkDeleteState(): BulkDeleteState {
+    return {
+      previews: [],
+      status: 'closed',
+      affected: 0,
     };
   }
 
@@ -626,12 +630,21 @@ class CrudStoreImpl
    * @param {String} ns - The new namespace.
    */
   onCollectionChanged(ns: string) {
+    // If the existing collection's bulk update operations are still in progress
+    // they will complete after we reset the state and change it for the
+    // previous collection
+    if (this.state.bulkUpdate.previewAbortController) {
+      this.state.bulkUpdate.previewAbortController.abort();
+    }
+
     const nsobj = toNS(ns);
     this.setState({
       ns: ns,
       collection: nsobj.collection,
       table: this.getInitialTableState(),
       query: this.getInitialQueryState(),
+      bulkUpdate: this.getInitialBulkUpdateState(),
+      bulkDelete: this.getInitialBulkDeleteState(),
     });
   }
 
