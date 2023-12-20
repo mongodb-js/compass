@@ -62,11 +62,6 @@ const descriptionStyles = css({
   marginBottom: spacing[2],
 });
 
-const previewStyles = css({
-  contain: 'size',
-  overflow: 'auto',
-});
-
 const previewDescriptionStyles = css({
   display: 'inline',
 });
@@ -100,10 +95,19 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+const emptyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
+});
+
 const updatePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+  contain: 'size',
+  height: 'calc(100% - 20px)',
+  overflowY: 'scroll',
 });
 
 const modalFooterToolbarSpacingStyles = css({
@@ -263,8 +267,8 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   if (count === 0) {
     return (
       <div
-        className={updatePreviewStyles}
         data-testid="bulk-update-preview-empty-state"
+        className={emptyStyles}
       >
         <Label htmlFor="bulk-update-preview">
           Preview{' '}
@@ -285,7 +289,7 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   }
 
   return (
-    <div className={previewStyles}>
+    <div>
       <Label htmlFor="bulk-update-preview">
         Preview{' '}
         <Description className={previewDescriptionStyles}>
