@@ -12,12 +12,13 @@ function defaultCreateLoggerAndTelemetry(component: string) {
   });
 }
 
-const LoggerAndTelemetryContext = React.createContext<
-  (
+const LoggerAndTelemetryContext = React.createContext<{
+  createLogger(
     component: string,
     preferences: LoggingAndTelemetryPreferences
-  ) => LoggerAndTelemetry
->(defaultCreateLoggerAndTelemetry);
+  ): LoggerAndTelemetry;
+  preferences?: LoggingAndTelemetryPreferences;
+}>({ createLogger: defaultCreateLoggerAndTelemetry });
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
@@ -26,19 +27,19 @@ export function createLoggerAndTelemetryLocator(component: string) {
 }
 
 export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
-  const createLoggerAndTelemetry = React.useContext(LoggerAndTelemetryContext);
-  if (!createLoggerAndTelemetry) {
+  const context = React.useContext(LoggerAndTelemetryContext);
+  if (!context) {
     throw new Error('LoggerAndTelemetry service is missing from React context');
   }
-  // Avoid circular dependency, similar to the one in logger.ts
-  const preferences: LoggingAndTelemetryPreferences =
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('compass-preferences-model/provider').preferencesLocator();
   const loggerRef = React.createRef<LoggerAndTelemetry>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = createLoggerAndTelemetry(
+    (loggerRef as any).current = context.createLogger(
       component,
-      preferences
+      context.preferences ?? {
+        getPreferences() {
+          return { trackUsageStatistics: true };
+        },
+      }
     );
   }
   return loggerRef.current!;

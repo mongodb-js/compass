@@ -42,7 +42,9 @@ describe('PipelineAI Component', function () {
     );
     render(
       <PreferencesProvider value={preferences}>
-        <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
+        <LoggerAndTelemetryProvider
+          value={{ createLogger: createLoggerAndTelemetry, preferences }}
+        >
           <Provider store={store}>
             <PipelineAI />
           </Provider>

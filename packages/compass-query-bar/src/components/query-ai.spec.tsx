@@ -43,7 +43,9 @@ describe('QueryAI Component', function () {
 
     render(
       <PreferencesProvider value={preferences}>
-        <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
+        <LoggerAndTelemetryProvider
+          value={{ createLogger: createLoggerAndTelemetry, preferences }}
+        >
           <Provider store={store}>
             <QueryAI onClose={noop} show {...props} />
           </Provider>
