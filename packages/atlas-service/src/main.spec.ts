@@ -71,7 +71,6 @@ describe('AtlasServiceMain', function () {
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const userStore = AtlasService['atlasUserConfigStore'];
-  const getActiveCompassUser = AtlasService['getActiveCompassUser'];
 
   let preferences: PreferencesAccess;
 
@@ -111,7 +110,6 @@ describe('AtlasServiceMain', function () {
     AtlasService['oidcPluginLogger'].removeAllListeners();
     AtlasService['signInPromise'] = null;
     AtlasService['currentUser'] = null;
-    AtlasService['getActiveCompassUser'] = getActiveCompassUser;
 
     sandbox.resetHistory();
   });
