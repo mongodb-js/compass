@@ -66,8 +66,7 @@ export const CollectionItem: React.FunctionComponent<
   onNamespaceAction,
 }) => {
   const isRenameCollectionEnabled = usePreference(
-    'enableRenameCollectionModal',
-    React
+    'enableRenameCollectionModal'
   );
   const [hoverProps, isHovered] = useHoverState();
 

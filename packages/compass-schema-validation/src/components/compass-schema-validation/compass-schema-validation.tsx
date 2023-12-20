@@ -73,7 +73,7 @@ const MappedCompassSchemaValidation: React.FunctionComponent<unknown> = connect(
     validationLevelChanged,
     changeZeroState,
   }
-)(withPreferences(CompassSchemaValidation, ['readOnly'], React));
+)(withPreferences(CompassSchemaValidation, ['readOnly']));
 
 export default MappedCompassSchemaValidation;
 export { CompassSchemaValidation };

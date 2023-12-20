@@ -8,6 +8,8 @@ import type { DataService } from './stores/store';
 import { activateSchemaPlugin } from './stores/store';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 function activate() {
   // no-op
@@ -22,6 +24,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
   {
     dataService: () => DataService;
     loggerAndTelemetry: () => LoggerAndTelemetry;
+    preferences: () => PreferencesAccess;
   }
 >(
   {
@@ -34,6 +37,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
       'sample' | 'isCancelError'
     >,
     loggerAndTelemetry: createLoggerAndTelemetryLocator('COMPASS-SCHEMA-UI'),
+    preferences: preferencesLocator,
   }
 );
 export const CompassSchemaPlugin = {

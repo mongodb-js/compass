@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import preferences from 'compass-preferences-model';
-import sinon from 'sinon';
 import { getInputExpressionMode, runTranspiler } from './transpiler';
 import type { InputExpression } from './transpiler';
 
@@ -38,7 +36,16 @@ describe('transpiler', function () {
   });
 
   describe('runTranspiler', function () {
-    let defaults: any;
+    let defaults: Pick<
+      Parameters<typeof runTranspiler>[0],
+      | 'outputLanguage'
+      | 'includeDrivers'
+      | 'includeImports'
+      | 'useBuilders'
+      | 'uri'
+      | 'namespace'
+      | 'protectConnectionStrings'
+    >;
     let queryExpression: InputExpression;
     let aggregationExpression: InputExpression;
 
@@ -50,6 +57,7 @@ describe('transpiler', function () {
         useBuilders: false,
         uri: 'mongodb://foo:bar@mongodb.net',
         namespace: 'namespace',
+        protectConnectionStrings: false,
       } as const;
 
       queryExpression = { filter: '{ foo: 1 }' };
@@ -178,26 +186,6 @@ FindIterable<Document> result = collection.find(filter);`);
       context(
         `when protect connection strings is ${protectConnectionStrings}`,
         function () {
-          beforeEach(function () {
-            sinon.stub(preferences, 'getPreferences').returns({
-              protectConnectionStrings,
-              autoUpdates: false,
-              enableMaps: false,
-              trackUsageStatistics: false,
-              enableFeedbackPanel: false,
-              networkTraffic: false,
-              theme: 'DARK',
-              showedNetworkOptIn: false,
-              id: '',
-              lastKnownVersion: '',
-              currentUserId: '',
-              telemetryAnonymousId: '',
-            } as any);
-          });
-          afterEach(function () {
-            return sinon.restore();
-          });
-
           it('showes/hides the connection string as appropriate', function () {
             const uri = protectConnectionStrings
               ? 'mongodb://<credentials>@mongodb.net/'
@@ -209,6 +197,7 @@ FindIterable<Document> result = collection.find(filter);`);
                 outputLanguage: 'javascript',
                 inputExpression: queryExpression,
                 includeDrivers: true,
+                protectConnectionStrings,
               })
             ).to.equal(`/*
  * Requires the MongoDB Node.js Driver

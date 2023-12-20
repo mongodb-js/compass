@@ -1,5 +1,8 @@
 import React from 'react';
-import type { LoggerAndTelemetry } from './logger';
+import type {
+  LoggerAndTelemetry,
+  LoggingAndTelemetryPreferences,
+} from './logger';
 export type { LoggerAndTelemetry } from './logger';
 
 function defaultCreateLoggerAndTelemetry(component: string) {
@@ -9,9 +12,13 @@ function defaultCreateLoggerAndTelemetry(component: string) {
   });
 }
 
-const LoggerAndTelemetryContext = React.createContext<
-  (component: string) => LoggerAndTelemetry
->(defaultCreateLoggerAndTelemetry);
+const LoggerAndTelemetryContext = React.createContext<{
+  createLogger(
+    component: string,
+    preferences: LoggingAndTelemetryPreferences
+  ): LoggerAndTelemetry;
+  preferences?: LoggingAndTelemetryPreferences;
+}>({ createLogger: defaultCreateLoggerAndTelemetry });
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
@@ -20,13 +27,20 @@ export function createLoggerAndTelemetryLocator(component: string) {
 }
 
 export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
-  const createLoggerAndTelemetry = React.useContext(LoggerAndTelemetryContext);
-  if (!createLoggerAndTelemetry) {
+  const context = React.useContext(LoggerAndTelemetryContext);
+  if (!context) {
     throw new Error('LoggerAndTelemetry service is missing from React context');
   }
   const loggerRef = React.createRef<LoggerAndTelemetry>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = createLoggerAndTelemetry(component);
+    (loggerRef as any).current = context.createLogger(
+      component,
+      context.preferences ?? {
+        getPreferences() {
+          return { trackUsageStatistics: true };
+        },
+      }
+    );
   }
   return loggerRef.current!;
 }

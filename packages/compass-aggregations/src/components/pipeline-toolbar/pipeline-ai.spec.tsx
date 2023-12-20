@@ -1,9 +1,9 @@
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import sinon from 'sinon';
 import { Provider } from 'react-redux';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
 import PipelineAI from './pipeline-ai';
 import configureStore from '../../../test/configure-store';
@@ -13,6 +13,9 @@ import {
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 
 const mockAtlasService = {
   signIn() {
@@ -24,23 +27,35 @@ const mockAtlasService = {
   on() {},
 } as any;
 
-const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
-  const store = configureStore({ atlasService: mockAtlasService, ...opts });
-  render(
-    <Provider store={store}>
-      <PipelineAI />
-    </Provider>
-  );
-  return store;
-};
-
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
 
 describe('PipelineAI Component', function () {
+  let preferences: PreferencesAccess;
   let store: ReturnType<typeof configureStore>;
 
+  const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
+    const store = configureStore(
+      { atlasService: mockAtlasService, ...opts },
+      undefined,
+      { preferences }
+    );
+    render(
+      <PreferencesProvider value={preferences}>
+        <LoggerAndTelemetryProvider
+          value={{ createLogger: createLoggerAndTelemetry, preferences }}
+        >
+          <Provider store={store}>
+            <PipelineAI />
+          </Provider>
+        </LoggerAndTelemetryProvider>
+      </PreferencesProvider>
+    );
+    return store;
+  };
+
   beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     store = renderPipelineAI();
     await store.dispatch(showInput());
   });
@@ -97,30 +112,12 @@ describe('PipelineAI Component', function () {
   });
 
   describe('Pipeline AI Feedback', function () {
-    let trackUsageStatistics: boolean | undefined;
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
-
     describe('usage statistics enabled', function () {
       beforeEach(async function () {
-        trackUsageStatistics =
-          preferencesAccess.getPreferences().trackUsageStatistics;
-        sandbox
-          .stub(preferencesAccess, 'getPreferences')
-          .returns({ trackUsageStatistics: true } as any);
         // 'compass:track' will only emit if tracking is enabled.
-        await preferencesAccess.savePreferences({ trackUsageStatistics: true });
-      });
-
-      afterEach(async function () {
-        await preferencesAccess.savePreferences({ trackUsageStatistics });
+        await preferences.savePreferences({ trackUsageStatistics: true });
+        store = renderPipelineAI();
+        await store.dispatch(showInput());
       });
 
       it('should log a telemetry event with the entered text on submit', async function () {
@@ -177,19 +174,10 @@ describe('PipelineAI Component', function () {
 
     describe('usage statistics disabled', function () {
       beforeEach(async function () {
-        trackUsageStatistics =
-          preferencesAccess.getPreferences().trackUsageStatistics;
-        sandbox
-          .stub(preferencesAccess, 'getPreferences')
-          .returns({ trackUsageStatistics: false } as any);
-        await preferencesAccess.savePreferences({
+        await preferences.savePreferences({
           trackUsageStatistics: false,
         });
         store = renderPipelineAI();
-      });
-
-      afterEach(async function () {
-        await preferencesAccess.savePreferences({ trackUsageStatistics });
       });
 
       it('should not show the feedback items', function () {

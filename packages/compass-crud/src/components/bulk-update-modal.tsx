@@ -132,6 +132,7 @@ const inlineSaveQueryModalInputStyles = css({
 });
 
 type InlineSaveQueryModalProps = {
+  disabled?: boolean;
   onSave: (name: string) => void;
 };
 
@@ -139,7 +140,7 @@ const inlineSaveQueryModalContainedElements = ['#inline-save-query-modal *'];
 
 const InlineSaveQueryModal: React.FunctionComponent<
   InlineSaveQueryModalProps
-> = ({ onSave }) => {
+> = ({ disabled, onSave }) => {
   const [open, setOpen] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [valid, setValid] = useState(false);
@@ -187,6 +188,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
             data-testid="inline-save-query-modal-opener"
             aria-haspopup="true"
             aria-expanded={open ? true : undefined}
+            disabled={disabled}
           >
             <Icon glyph="Favorite" />
             Save
@@ -385,6 +387,8 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
+  const disabled = !!(syntaxError || serverError);
+
   return (
     <Modal
       open={isOpen}
@@ -456,7 +460,7 @@ export default function BulkUpdateModal({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <InlineSaveQueryModal onSave={saveUpdateQuery} />
+          <InlineSaveQueryModal disabled={disabled} onSave={saveUpdateQuery} />
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button
@@ -467,7 +471,7 @@ export default function BulkUpdateModal({
             Cancel
           </Button>
           <Button
-            disabled={!!(syntaxError || serverError)}
+            disabled={disabled}
             variant="primary"
             onClick={runBulkUpdate}
             data-testid="update-button"

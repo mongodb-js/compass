@@ -18,6 +18,8 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const activate = () => {
   // noop
@@ -29,7 +31,11 @@ const deactivate = () => {
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,
-  { dataService: () => DataService; instance: () => MongoDBInstance }
+  {
+    dataService: () => DataService;
+    instance: () => MongoDBInstance;
+    preferences: () => PreferencesAccess;
+  }
 >(
   {
     name: 'CompassDocuments',
@@ -42,6 +48,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin<
       OptionalDataServiceProps
     >,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 

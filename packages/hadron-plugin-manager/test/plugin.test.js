@@ -72,7 +72,7 @@ describe('Plugin', () => {
       });
 
       it('sets the plugin error', () => {
-        expect(plugin.error.message).to.include('Unexpected string');
+        expect(plugin.error.message).to.match(/Unexpected string|after property value in JSON/);
       });
     });
   });

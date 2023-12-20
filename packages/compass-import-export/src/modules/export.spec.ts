@@ -22,6 +22,7 @@ import {
 } from './export';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { configureStore } from '../stores/export-store';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const mockServices = {
   dataService: { findCursor() {}, aggregateCursor() {} },
@@ -308,6 +309,7 @@ describe('export [module]', function () {
       testStore = configureStore({
         dataService,
         globalAppRegistry: appRegistry,
+        preferences: await createSandboxFromDefaultPreferences(),
       });
     });
 

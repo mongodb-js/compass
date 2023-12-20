@@ -11,6 +11,7 @@ import {
   useQueryBarQuery,
 } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -34,6 +35,7 @@ const QueryBarPlugin = registerHadronPlugin(
       'sample' | 'getConnectionString'
     >,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 

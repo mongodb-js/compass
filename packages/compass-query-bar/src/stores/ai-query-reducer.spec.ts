@@ -11,9 +11,16 @@ import {
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('aiQueryReducer', function () {
+  let preferences: PreferencesAccess;
   const sandbox = Sinon.createSandbox();
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
 
   afterEach(function () {
     sandbox.reset();
@@ -48,6 +55,7 @@ describe('aiQueryReducer', function () {
           {
             dataService: mockDataService,
             atlasService: mockAtlasService,
+            preferences,
           } as any
         );
 
@@ -92,6 +100,7 @@ describe('aiQueryReducer', function () {
               return Promise.resolve([]);
             },
           },
+          preferences,
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
@@ -116,6 +125,7 @@ describe('aiQueryReducer', function () {
               return Promise.resolve([]);
             },
           },
+          preferences,
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({

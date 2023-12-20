@@ -71,7 +71,12 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const { id, namespace, dataService, maxTimeMS } = getState();
+    const {
+      id,
+      namespace,
+      dataService,
+      maxTimeMS: { current: maxTimeMS },
+    } = getState();
     const abortSignal = getAbortSignal(id);
     try {
       // Debounce action to allow for user typing to stop
