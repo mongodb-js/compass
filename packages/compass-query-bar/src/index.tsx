@@ -8,6 +8,7 @@ import { useSelector, useStore } from './stores/context';
 import { mapFormFieldsToQuery } from './utils/query';
 import { applyFilterChange } from './stores/query-bar-reducer';
 import type { ChangeFilterEvent } from './modules/change-filter';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -26,6 +27,7 @@ const QueryBarPlugin = registerHadronPlugin(
       'sample' | 'getConnectionString'
     >,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 

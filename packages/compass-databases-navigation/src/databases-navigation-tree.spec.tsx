@@ -11,7 +11,9 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { DatabasesNavigationTree } from './databases-navigation-tree';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 const databases = [
   {
@@ -44,25 +46,24 @@ describe('DatabasesNavigationTree', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
-    const sandbox = Sinon.createSandbox();
-    before(() => {
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
-        enableRenameCollectionModal: true,
-      } as any);
+    let preferences: PreferencesAccess;
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableRenameCollectionModal: true });
     });
-
-    after(() => sandbox.restore());
 
     it('shows the Rename Collection action', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
-          activeNamespace="bar.meow"
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        <PreferencesProvider value={preferences}>
+          <DatabasesNavigationTree
+            databases={databases}
+            expanded={{ bar: true }}
+            activeNamespace="bar.meow"
+            onDatabaseExpand={() => {}}
+            onNamespaceAction={() => {}}
+            {...TEST_VIRTUAL_PROPS}
+          />
+        </PreferencesProvider>
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.meow');
@@ -78,14 +79,16 @@ describe('DatabasesNavigationTree', function () {
     it('should activate callback with `rename-collection` when corresponding action is clicked', function () {
       const spy = Sinon.spy();
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
-          activeNamespace="bar.meow"
-          onNamespaceAction={spy}
-          onDatabaseExpand={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        <PreferencesProvider value={preferences}>
+          <DatabasesNavigationTree
+            databases={databases}
+            expanded={{ bar: true }}
+            activeNamespace="bar.meow"
+            onNamespaceAction={spy}
+            onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
+          />
+        </PreferencesProvider>
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.meow');

@@ -330,7 +330,7 @@ export const runExport = ({
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
 }): ExportThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, preferences }) => {
     let outputWriteStream: fs.WriteStream;
     try {
       outputWriteStream = fs.createWriteStream(filePath);
@@ -428,7 +428,8 @@ export const runExport = ({
     const baseExportOptions = {
       ns: namespace,
       abortSignal: exportAbortController.signal,
-      dataService: dataService,
+      dataService,
+      preferences,
       progressCallback,
       output: outputWriteStream,
     };

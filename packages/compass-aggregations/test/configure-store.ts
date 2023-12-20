@@ -1,19 +1,17 @@
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
-import type { ConfigureStoreOptions } from '../src/stores/store';
+import type {
+  AggregationsPluginServices,
+  ConfigureStoreOptions,
+} from '../src/stores/store';
 import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
   dataService: DataService = mockDataService(),
-  appRegistries: {
-    globalAppRegistry: AppRegistry;
-    localAppRegistry: AppRegistry;
-  } = {
-    globalAppRegistry: new AppRegistry(),
-    localAppRegistry: new AppRegistry(),
-  }
+  appRegistries: Partial<AggregationsPluginServices> = {}
 ) {
   return activateAggregationsPlugin(
     {
@@ -30,9 +28,13 @@ export default function configureStore(
     },
     {
       dataService,
-      instance: {},
+      instance: {} as any,
+      preferences: defaultPreferencesInstance,
+      globalAppRegistry: new AppRegistry(),
+      localAppRegistry: new AppRegistry(),
+      workspaces: {} as any,
       ...appRegistries,
-    } as any,
+    },
     createActivateHelpers()
   ).store;
 }

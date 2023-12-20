@@ -25,19 +25,14 @@ const getPreferencesValidator = () => {
 
   return z.object(preferencesPropsValidator);
 };
-export abstract class BasePreferencesStorage {
-  abstract setup(): Promise<void>;
-  abstract getPreferences(): StoredPreferences;
-  abstract updatePreferences(
-    attributes: Partial<StoredPreferences>
-  ): Promise<void>;
+export interface BasePreferencesStorage {
+  setup(): Promise<void>;
+  getPreferences(): StoredPreferences;
+  updatePreferences(attributes: Partial<StoredPreferences>): Promise<void>;
 }
 
-export class SandboxPreferences extends BasePreferencesStorage {
+export class SandboxPreferences implements BasePreferencesStorage {
   private preferences = getDefaultPreferences();
-  constructor() {
-    super();
-  }
 
   getPreferences() {
     return this.preferences;
@@ -56,14 +51,13 @@ export class SandboxPreferences extends BasePreferencesStorage {
   }
 }
 
-export class StoragePreferences extends BasePreferencesStorage {
+export class StoragePreferences implements BasePreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultPreferences();
   private readonly userData: UserData<PreferencesValidator>;
   private preferences: StoredPreferences = getDefaultPreferences();
 
   constructor(basePath?: string) {
-    super();
     this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
@@ -121,7 +115,16 @@ const UserSchema = z.object({
 
 export type User = z.output<typeof UserSchema>;
 
-export class UserStorage {
+export interface UserStorage {
+  getOrCreate(id?: string): Promise<User>;
+  getUser(id: string): Promise<User>;
+  updateUser(
+    id: string,
+    attributes: Partial<z.input<typeof UserSchema>>
+  ): Promise<User>;
+}
+
+export class UserStorageImpl implements UserStorage {
   private readonly userData: UserData<typeof UserSchema>;
   constructor(basePath?: string) {
     this.userData = new UserData(UserSchema, {

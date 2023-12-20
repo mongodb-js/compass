@@ -27,6 +27,7 @@ import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 
 const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
@@ -90,8 +91,9 @@ function createStore({
   pipelineSource?: string;
   stages?: StageEditorState['stages'];
 }) {
+  const preferences = defaultPreferencesInstance;
   const pipelineBuilder = Sinon.spy(
-    new PipelineBuilder({} as DataService, pipelineSource)
+    new PipelineBuilder({} as DataService, preferences, pipelineSource)
   ) as unknown as PipelineBuilder;
 
   const store = createReduxStore(
@@ -114,6 +116,7 @@ function createStore({
         pipelineStorage: new PipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
+        preferences,
       })
     )
   );

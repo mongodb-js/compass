@@ -27,7 +27,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
@@ -45,6 +44,7 @@ import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -295,6 +295,7 @@ function Home({
   );
 
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  const preferences = preferencesLocator();
 
   useLayoutEffect(() => {
     // If we haven't showed welcome modal that points users to network opt in
@@ -304,7 +305,7 @@ function Home({
       setIsWelcomeOpen(true);
       void preferences.ensureDefaultConfigurableUserPreferences();
     }
-  }, []);
+  }, [preferences]);
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {

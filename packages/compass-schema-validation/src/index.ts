@@ -6,6 +6,8 @@ import type { DataService } from 'mongodb-data-service';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 function activate() {
   // no-op
@@ -20,6 +22,7 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin<
   {
     dataService: () => DataService;
     instance: () => MongoDBInstance;
+    preferences: () => PreferencesAccess;
   }
 >(
   {
@@ -30,6 +33,7 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin<
   {
     dataService: dataServiceLocator,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 export const CompassSchemaValidationPlugin = {

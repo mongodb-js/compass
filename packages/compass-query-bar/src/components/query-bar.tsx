@@ -176,7 +176,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onHideAIInputClick,
 }) => {
   const darkMode = useDarkMode();
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -216,8 +216,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
   const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries',
-    React
+    'enableSavedAggregationsQueries'
   );
 
   return (

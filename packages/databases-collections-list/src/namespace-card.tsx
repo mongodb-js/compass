@@ -202,7 +202,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   viewType,
   ...props
 }) => {
-  const readOnly = usePreference('readOnly', React);
+  const readOnly = usePreference('readOnly');
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 

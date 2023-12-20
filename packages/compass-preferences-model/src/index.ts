@@ -25,14 +25,14 @@ export {
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
 export { usePreference, withPreferences } from './react';
+export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 export {
-  capMaxTimeMSAtPreferenceLimit,
   setupPreferencesAndUser,
   getActiveUser,
   useIsAIFeatureEnabled,
   isAIFeatureEnabled,
 } from './utils';
-export type { User } from './storage';
+export type { User, UserStorage } from './storage';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -50,6 +50,8 @@ export interface PreferencesAccess {
   createSandbox(): Promise<PreferencesAccess>;
 }
 export { setupPreferences };
-export const preferencesAccess: PreferencesAccess =
+export const defaultPreferencesInstance: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
-export default preferencesAccess;
+export function createSandboxFromDefaultPreferences(): Promise<PreferencesAccess> {
+  return defaultPreferencesInstance.createSandbox();
+}

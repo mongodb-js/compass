@@ -297,4 +297,4 @@ class EditableDocument extends React.Component<
   };
 }
 
-export default withPreferences(EditableDocument, ['showInsights'], React);
+export default withPreferences(EditableDocument, ['showInsights']);

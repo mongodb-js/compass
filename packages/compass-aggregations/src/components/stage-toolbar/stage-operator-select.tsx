@@ -130,6 +130,5 @@ export default withPreferences(
       };
     }
   )(StageOperatorSelect),
-  ['readOnly'],
-  React
+  ['readOnly']
 );

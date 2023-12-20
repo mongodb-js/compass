@@ -15,6 +15,7 @@ import {
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   changeSchemaFields,
   QueryBarActions,
+  updatePreferencesMaxTimeMS,
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -23,6 +24,7 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
@@ -36,6 +38,7 @@ type QueryBarServices = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: QueryBarDataService;
+  preferences: PreferencesAccess;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
@@ -60,6 +63,7 @@ export type QueryBarExtraArgs = {
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
   atlasService: AtlasService;
+  preferences: PreferencesAccess;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
 };
@@ -91,7 +95,7 @@ export function configureStore(
 export function activatePlugin(
   options: QueryBarStoreOptions,
   services: QueryBarServices & QueryBarExtraServices,
-  { on, cleanup }: ActivateHelpers
+  { on, addCleanup, cleanup }: ActivateHelpers
 ) {
   const { serverVersion, query, namespace } = options;
 
@@ -100,6 +104,7 @@ export function activatePlugin(
     globalAppRegistry,
     instance,
     dataService,
+    preferences,
     atlasService = new AtlasService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
@@ -110,11 +115,12 @@ export function activatePlugin(
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields({
+      fields: mapQueryToFormFields(preferences.getPreferences(), {
         ...DEFAULT_FIELD_VALUES,
         ...getQueryAttributes(query ?? {}),
       }),
       isReadonlyConnection: !instance.isWritable,
+      preferencesMaxTimeMS: preferences.getPreferences().maxTimeMS ?? null,
     },
     {
       dataService: services.dataService ?? {
@@ -128,7 +134,14 @@ export function activatePlugin(
       recentQueryStorage,
       favoriteQueryStorage,
       atlasService,
+      preferences,
     }
+  );
+
+  addCleanup(
+    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+      store.dispatch(updatePreferencesMaxTimeMS(newValue))
+    )
   );
 
   on(instance, 'change:isWritable', () => {

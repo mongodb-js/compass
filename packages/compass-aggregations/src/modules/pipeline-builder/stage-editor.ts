@@ -286,7 +286,7 @@ export const loadStagePreview = (
 
       const {
         namespace,
-        maxTimeMS,
+        maxTimeMS: { current: maxTimeMS },
         collationString,
         limit,
         largeLimit,
@@ -389,7 +389,7 @@ export const loadPreviewForStagesFrom = (
 export const runStage = (
   idx: number
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       dataService: { dataService },
       namespace,
@@ -423,13 +423,14 @@ export const runStage = (
         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
       );
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS.current ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
       const result = await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline,

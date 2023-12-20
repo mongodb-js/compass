@@ -7,10 +7,12 @@ import type {
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useExportConnections } from './use-export';
 import type { ImportExportResult } from './common';
-import preferences from 'compass-preferences-model';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createElement } from 'react';
 
 type UseExportConnectionsProps = Parameters<typeof useExportConnections>[0];
 type UseExportConnectionsResult = ReturnType<typeof useExportConnections>;
@@ -64,7 +66,7 @@ describe('useExportConnections', function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
-  it('sets removeSecrets if protectConnectionStrings is set', function () {
+  it('sets removeSecrets if protectConnectionStrings is set', async function () {
     expect(result.current.state.removeSecrets).to.equal(false);
     act(() => {
       result.current.onChangeRemoveSecrets({
@@ -73,12 +75,17 @@ describe('useExportConnections', function () {
     });
     expect(result.current.state.removeSecrets).to.equal(true);
 
-    sandbox
-      .stub(preferences, 'getPreferences')
-      .returns({ protectConnectionStrings: true } as any);
-    const resultInProtectedMode = renderHook(() => {
-      return useExportConnections(defaultProps, exportConnections);
-    }).result;
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({ protectConnectionStrings: true });
+    const resultInProtectedMode = renderHook(
+      () => {
+        return useExportConnections(defaultProps, exportConnections);
+      },
+      {
+        wrapper: ({ children }) =>
+          createElement(PreferencesProvider, { children, value: preferences }),
+      }
+    ).result;
 
     expect(resultInProtectedMode.current.state.removeSecrets).to.equal(true);
     act(() => {

@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 import type { DataService } from '../data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -75,7 +76,10 @@ export function createPreviewAggregation(
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
   private lastPipeline = new Map<number, Document[]>();
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private preferences: PreferencesAccess
+  ) {}
 
   /**
    * Request aggregation results with a default debounce
@@ -101,6 +105,7 @@ export class PipelinePreviewManager {
     this.lastPipeline.set(idx, pipeline);
     const result = await aggregatePipeline({
       dataService: this.dataService,
+      preferences: this.preferences,
       signal: controller.signal,
       namespace,
       pipeline: createPreviewAggregation(pipeline, {
