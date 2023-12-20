@@ -77,7 +77,16 @@ function useDarkMode(_darkMode?: boolean) {
 }
 
 /**
- * All compass components providers combined into one for convenience
+ * This component combines most of the existing compass-component providers into
+ * one for the purposes of being reused between compass-main (electron) and
+ * compass-web. This component ONLY combines UI-related providers exported from
+ * the compass-components plugin and is not intended to include all the various
+ * other providers we use in the app that usually have a platform specific role
+ * (like WorkspacesProviders or FileInputBackendProvider).
+ *
+ * A rule of thumb for adding a new provider in this component tree should be
+ * whether or not it can be used completely interchangeably between electron and
+ * browser environment.
  */
 export const CompassComponentsProvider = ({
   darkMode: _darkMode,
