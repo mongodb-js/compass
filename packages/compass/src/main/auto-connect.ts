@@ -1,5 +1,4 @@
 import type { AllPreferences } from 'compass-preferences-model';
-import preferences from 'compass-preferences-model';
 import type { BrowserWindow } from 'electron';
 
 export type AutoConnectPreferences = Pick<
@@ -29,7 +28,10 @@ export function registerMongoDbUrlForBrowserWindow(
 }
 
 export function getWindowAutoConnectPreferences(
-  bw: Pick<BrowserWindow, 'id'> | undefined | null
+  bw: Pick<BrowserWindow, 'id'> | undefined | null,
+  preferences: {
+    getPreferences(): Omit<AutoConnectPreferences, 'shouldAutoConnect'>;
+  }
 ): AutoConnectPreferences {
   if (!bw) {
     return { shouldAutoConnect: false };

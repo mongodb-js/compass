@@ -60,7 +60,7 @@ class CompassApplication {
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
-  private static preferences: PreferencesAccess;
+  public static preferences: PreferencesAccess;
   private static userStorage: UserStorage;
 
   private static async _init(
@@ -83,7 +83,8 @@ class CompassApplication {
     // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
     await setupProtocolHandlers(
-      process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install'
+      process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install',
+      this.preferences
     );
 
     // needs to happen after setupProtocolHandlers
@@ -120,7 +121,7 @@ class CompassApplication {
     void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
-    setupTheme();
+    setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
@@ -195,21 +196,25 @@ class CompassApplication {
 
     const { atlasServiceBackendPreset } = this.preferences.getPreferences();
 
-    const atlasServiceConfig = defaultsDeep(
-      {
-        atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
-        atlasApiUnauthBaseUrl:
-          process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
-        atlasLogin: {
-          clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
-          issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
-        },
-        authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+    const envConfig = {
+      atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
+      atlasApiUnauthBaseUrl:
+        process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+      atlasLogin: {
+        clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
+        issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
       },
+      authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+    };
+    const atlasServiceConfig = defaultsDeep(
+      envConfig,
       config[atlasServiceBackendPreset]
-    );
+    ) as typeof envConfig & typeof config[keyof typeof config];
 
-    await AtlasService.init(atlasServiceConfig, this);
+    await AtlasService.init(atlasServiceConfig, {
+      preferences: this.preferences,
+      userStorage: this.userStorage,
+    });
 
     this.addExitHandler(() => {
       return AtlasService.onExit();

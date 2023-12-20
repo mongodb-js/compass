@@ -4,7 +4,6 @@ import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
-import { preferencesAccess as preferences } from 'compass-preferences-model';
 import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
@@ -299,7 +298,10 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(
+  menuReadOnly: boolean,
+  app: typeof CompassApplication
+): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -309,7 +311,7 @@ function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (!preferences.getPreferences().readOnly && !menuReadOnly) {
+  if (!app.preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -329,7 +331,9 @@ function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   };
 }
 
-function viewSubMenu(): MenuItemConstructorOptions {
+function viewSubMenu(
+  app: typeof CompassApplication
+): MenuItemConstructorOptions {
   const subMenu = [
     {
       label: '&Reload',
@@ -377,7 +381,7 @@ function viewSubMenu(): MenuItemConstructorOptions {
     },
   ];
 
-  if (preferences.getPreferences().enableDevTools) {
+  if (app.preferences.getPreferences().enableDevTools) {
     subMenu.push(separator());
     subMenu.push({
       label: '&Toggle DevTools',
@@ -426,10 +430,10 @@ function darwinMenu(
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
-  menu.push(viewSubMenu());
+  menu.push(viewSubMenu(app));
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly));
+    menu.push(collectionSubMenu(menuState.isReadOnly, app));
   }
 
   menu.push(windowSubMenu());
@@ -442,10 +446,10 @@ function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), editSubMenu(), viewSubMenu()];
+  const menu = [connectSubMenu(true, app), editSubMenu(), viewSubMenu(app)];
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly));
+    menu.push(collectionSubMenu(menuState.isReadOnly, app));
   }
 
   menu.push(helpSubMenu(app));
@@ -474,6 +478,7 @@ class CompassMenu {
   private static initCalled = false;
 
   private static _init(app: typeof CompassApplication): void {
+    const { preferences } = app;
     this.app = app;
 
     app.on('new-window', (bw) => {

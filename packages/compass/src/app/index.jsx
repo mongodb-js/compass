@@ -230,7 +230,7 @@ app.extend({
 
         try {
           const user = await getActiveUser(defaultPreferencesInstance);
-          setupIntercom(user);
+          setupIntercom(user, defaultPreferencesInstance);
         } catch (e) {
           // noop
         }

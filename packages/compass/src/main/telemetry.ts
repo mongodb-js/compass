@@ -5,7 +5,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
-import preferences from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
@@ -126,6 +125,7 @@ class CompassTelemetry {
   }
 
   private static async _init(app: typeof CompassApplication) {
+    const { preferences } = app;
     const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
       preferences.getPreferences();
     this.currentUserId = currentUserId;

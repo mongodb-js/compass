@@ -465,7 +465,7 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('with networkTraffic turned off', function () {
-    before(async function () {
+    beforeEach(async function () {
       await preferences.savePreferences({ networkTraffic: false });
     });
 

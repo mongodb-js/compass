@@ -31,8 +31,8 @@ export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
     throw new Error('LoggerAndTelemetry service is missing from React context');
   }
   // Avoid circular dependency, similar to the one in logger.ts
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const preferences: LoggingAndTelemetryPreferences =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('compass-preferences-model/provider').preferencesLocator();
   const loggerRef = React.createRef<LoggerAndTelemetry>();
   if (!loggerRef.current) {
