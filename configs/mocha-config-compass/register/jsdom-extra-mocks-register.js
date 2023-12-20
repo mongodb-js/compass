@@ -1,6 +1,6 @@
 // Not implemented in jsdom
 if (!window.matchMedia) {
-  window.matchMedia = global.matchMedia = (media) => {
+  window.matchMedia = globalThis.matchMedia = (media) => {
     return {
       media,
       matches: false,
