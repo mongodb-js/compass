@@ -37,15 +37,20 @@ type GuideCueContextValue = {
 const GuideCueContext = React.createContext<GuideCueContextValue>({});
 export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   children,
-  onNext,
-  onNextGroup,
+  ...callbacks
 }) => {
+  const callbacksRef = useRef(callbacks);
+  callbacksRef.current = callbacks;
   const value = useMemo(
     () => ({
-      onNext,
-      onNextGroup,
+      onNext(cue: Cue) {
+        callbacksRef.current.onNext?.(cue);
+      },
+      onNextGroup(groupCue: GroupCue) {
+        callbacksRef.current.onNextGroup?.(groupCue);
+      },
     }),
-    [onNext, onNextGroup]
+    []
   );
   return (
     <GuideCueContext.Provider value={value}>
