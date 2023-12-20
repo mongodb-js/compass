@@ -53,6 +53,9 @@ export function createGenericLoggerAndTelemetry(
       // Avoid circular dependency between compass-logging and compass-preferences-model
       // Note that this is mainly a performance optimization, since the main process
       // telemetry code also checks this preference value, so it is safe to fall back to 'true'.
+      // TODO(COMPASS-7407): Revisit whether it still makes sense to rely on the default
+      // preferences instance here or whether it wouldn't be better to just always use
+      // the explicitly passed one (or a fallback if none exists).
       try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
