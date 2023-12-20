@@ -5,9 +5,13 @@ import type { ChangeFilterEvent } from '../modules/change-filter';
 import { applyFilterChange } from '../stores/query-bar-reducer';
 import { mapFormFieldsToQuery } from '../utils/query';
 
-const QueryBarComponentContext = React.createContext<typeof QueryBar>(
-  (() => null) as unknown as typeof QueryBar
-);
+function NoOpQueryBarComponent() {
+  return <></>;
+}
+
+const QueryBarComponentContext = React.createContext<
+  React.FC<React.ComponentProps<typeof QueryBar>>
+>(NoOpQueryBarComponent);
 
 export const QueryBarComponentProvider = QueryBarComponentContext.Provider;
 
