@@ -52,7 +52,7 @@ describe('OutputStagePreview', function () {
     });
 
     describe(`${stageOperator} with run aggregation disabled`, function () {
-      before(async function () {
+      beforeEach(async function () {
         await preferences.savePreferences({
           enableAggregationBuilderRunPipeline: false,
         });

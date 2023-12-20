@@ -7,6 +7,7 @@ import {
   changeEditorValue,
   loadPreviewForPipeline,
 } from './text-editor-pipeline';
+import type { PipelineBuilderThunkDispatch } from '..';
 import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
@@ -18,7 +19,7 @@ function createStore(
   data: unknown[] | (() => unknown[]) = []
 ) {
   const pipelineBuilder = Sinon.spy(
-    new PipelineBuilder(mockDataService({ data }), pipelineSource)
+    new PipelineBuilder(mockDataService({ data }), {} as any, pipelineSource)
   ) as unknown as PipelineBuilder;
   const store = createReduxStore(
     reducer,
@@ -58,7 +59,7 @@ function createStore(
     )
   );
   return {
-    dispatch: store.dispatch,
+    dispatch: store.dispatch as PipelineBuilderThunkDispatch,
     getState() {
       return store.getState().pipelineBuilder.textEditor;
     },

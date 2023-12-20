@@ -19,7 +19,6 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import preferencesAccess from 'compass-preferences-model';
 import { getDestinationNamespaceFromStage } from '../../utils/stage';
 
 const enum OutputStageActionTypes {

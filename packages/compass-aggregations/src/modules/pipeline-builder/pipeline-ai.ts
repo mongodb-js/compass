@@ -2,7 +2,6 @@ import type { Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import preferences from 'compass-preferences-model';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 

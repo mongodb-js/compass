@@ -1,12 +1,9 @@
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import sinon from 'sinon';
 import { Provider } from 'react-redux';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import preferencesAccess, {
-  createSandboxFromDefaultPreferences,
-} from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
 import PipelineAI from './pipeline-ai';
 import configureStore from '../../../test/configure-store';
@@ -17,6 +14,8 @@ import {
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 
 const mockAtlasService = {
   signIn() {
@@ -43,9 +42,11 @@ describe('PipelineAI Component', function () {
     );
     render(
       <PreferencesProvider value={preferences}>
-        <Provider store={store}>
-          <PipelineAI />
-        </Provider>
+        <LoggerAndTelemetryProvider value={createLoggerAndTelemetry}>
+          <Provider store={store}>
+            <PipelineAI />
+          </Provider>
+        </LoggerAndTelemetryProvider>
       </PreferencesProvider>
     );
     return store;
@@ -113,6 +114,8 @@ describe('PipelineAI Component', function () {
       beforeEach(async function () {
         // 'compass:track' will only emit if tracking is enabled.
         await preferences.savePreferences({ trackUsageStatistics: true });
+        store = renderPipelineAI();
+        await store.dispatch(showInput());
       });
 
       it('should log a telemetry event with the entered text on submit', async function () {

@@ -19,6 +19,8 @@ import type { QueryBarExtraArgs, RootState } from './query-bar-store';
 import Sinon from 'sinon';
 import type AppRegistry from 'hadron-app-registry';
 import { mapQueryToFormFields } from '../utils/query';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -29,9 +31,11 @@ function createStore(
 
 describe('queryBarReducer', function () {
   let store: ReturnType<typeof createStore>;
+  let preferences: PreferencesAccess;
 
-  beforeEach(function () {
-    store = createStore({}, {} as any);
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    store = createStore({}, { preferences } as QueryBarExtraArgs);
   });
 
   describe('changeField', function () {

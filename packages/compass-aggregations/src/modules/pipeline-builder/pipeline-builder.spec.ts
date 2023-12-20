@@ -5,7 +5,7 @@ import { DEFAULT_PIPELINE, PipelineBuilder } from './pipeline-builder';
 import Stage from './stage';
 
 describe('PipelineBuilder', function () {
-  const pipelineBuilder = new PipelineBuilder(mockDataService());
+  const pipelineBuilder = new PipelineBuilder(mockDataService(), {} as any);
   const sandbox = sinon.createSandbox();
   beforeEach(function () {
     pipelineBuilder.reset();

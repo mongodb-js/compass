@@ -92,7 +92,7 @@ export function activateAggregationsPlugin(
     globalAppRegistry,
     workspaces,
     instance,
-    preferences
+    preferences,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
