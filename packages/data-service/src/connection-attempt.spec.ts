@@ -1,14 +1,35 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { createConnectionAttempt } from './connection-attempt';
+import type { UnboundDataServiceImplLogger } from './logger';
+
+const { mongoLogId } = createLoggerAndTelemetry('CONNECTION-ATTEMPT-TEST');
 
 describe('ConnectionAttempt Module', function () {
+  let logger: UnboundDataServiceImplLogger;
+
+  beforeEach(function () {
+    logger = {
+      mongoLogId,
+      debug: sinon.spy(),
+      info: sinon.spy(),
+      warn: sinon.spy(),
+      error: sinon.spy(),
+      fatal: sinon.spy(),
+    };
+  });
+
   describe('connect', function () {
     it('returns the connected data service', async function () {
       const dataService = {} as any;
-      const connectionAttempt = createConnectionAttempt(async () => {
-        await new Promise((resolve) => setTimeout(() => resolve(null), 25));
-        return dataService;
+      const connectionAttempt = createConnectionAttempt({
+        connectFn: async () => {
+          await new Promise((resolve) => setTimeout(() => resolve(null), 25));
+          return dataService;
+        },
+        logger,
       });
       const connectionAttemptResult = await connectionAttempt.connect({
         connectionString: 'mongodb://localhost:27017',
@@ -18,9 +39,12 @@ describe('ConnectionAttempt Module', function () {
 
     it('returns undefined if is cancelled', async function () {
       const dataService = {} as any;
-      const connectionAttempt = createConnectionAttempt(async () => {
-        await new Promise((resolve) => setTimeout(() => resolve(null), 100));
-        return dataService;
+      const connectionAttempt = createConnectionAttempt({
+        connectFn: async () => {
+          await new Promise((resolve) => setTimeout(() => resolve(null), 100));
+          return dataService;
+        },
+        logger,
       });
 
       const connectPromise = connectionAttempt.connect({
@@ -34,13 +58,14 @@ describe('ConnectionAttempt Module', function () {
 
     it('throws if connecting throws', async function () {
       try {
-        const connectionAttempt = createConnectionAttempt(
-          async (): Promise<any> => {
+        const connectionAttempt = createConnectionAttempt({
+          connectFn: async (): Promise<any> => {
             await new Promise((resolve) => setTimeout(() => resolve(null), 5));
 
             throw new Error('should have been thrown');
-          }
-        );
+          },
+          logger,
+        });
 
         await connectionAttempt.connect({
           connectionString: 'mongodb://localhost:27017',
@@ -48,7 +73,7 @@ describe('ConnectionAttempt Module', function () {
 
         expect(false, 'It should have errored');
       } catch (err) {
-        expect(err.message).to.equal('should have been thrown');
+        expect((err as Error).message).to.equal('should have been thrown');
       }
     });
 
@@ -60,11 +85,14 @@ describe('ConnectionAttempt Module', function () {
           return Promise.resolve();
         },
       } as any;
-      const connectionAttempt = createConnectionAttempt(async () => {
-        await new Promise((resolve) =>
-          setTimeout(() => resolve(undefined), 25)
-        );
-        return dataService;
+      const connectionAttempt = createConnectionAttempt({
+        connectFn: async () => {
+          await new Promise((resolve) =>
+            setTimeout(() => resolve(undefined), 25)
+          );
+          return dataService;
+        },
+        logger,
       });
       await connectionAttempt.connect({
         connectionString: 'mongodb://localhost:27017',
