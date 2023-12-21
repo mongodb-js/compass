@@ -1,4 +1,3 @@
-import preferencesAccess from 'compass-preferences-model';
 import { promisify } from 'util';
 import { app as electronApp } from 'electron';
 import path from 'path';
@@ -6,6 +5,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { mongoLogId } from 'mongodb-log-writer';
 import type { RegistryItem } from 'winreg-ts';
 import { Registry } from 'winreg-ts';
+import type { PreferencesAccess } from 'compass-preferences-model';
 const { log } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ProtocolsList = { name: string; schemes: string[] }[];
@@ -19,7 +19,7 @@ const commandArgv = process.defaultApp
 
 export async function setupProtocolHandlers(
   action: 'install' | 'uninstall',
-  preferences = preferencesAccess,
+  preferences: PreferencesAccess,
   protocols?: ProtocolsList
 ): Promise<void> {
   if (action === 'install') {

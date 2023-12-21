@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { BrowserWindow, ipcMain, Menu, app } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import preferences from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
@@ -19,10 +19,12 @@ describe('CompassMenu', function () {
   const App = new EventEmitter() as unknown as typeof CompassApplication;
   let CompassMenu: typeof _CompassMenu;
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    App.preferences = await createSandboxFromDefaultPreferences();
     delete require.cache[require.resolve('./menu')];
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     CompassMenu = require('./menu').CompassMenu;
+    CompassMenu.init(App);
   });
 
   afterEach(function () {
@@ -31,7 +33,6 @@ describe('CompassMenu', function () {
   });
 
   it('should create an instance of Compass menu handler with initial state where no window is loaded', function () {
-    CompassMenu.init(App);
     expect(CompassMenu['windowState']).to.have.property('size', 0);
     expect(CompassMenu).to.have.property('lastFocusedWindow', null);
     expect(CompassMenu).to.have.property('currentWindowMenuLoaded', null);
@@ -39,7 +40,6 @@ describe('CompassMenu', function () {
 
   it('should create and set window menu state when new window is created', function () {
     const bw = new BrowserWindow({ show: false });
-    CompassMenu.init(App);
     App.emit('new-window', bw);
     expect(CompassMenu['windowState']).to.have.property('size', 1);
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
@@ -50,7 +50,6 @@ describe('CompassMenu', function () {
 
   it('should remove window from state when window is closed', function () {
     const bw = new BrowserWindow({ show: false });
-    CompassMenu.init(App);
     App.emit('new-window', bw);
     bw.destroy();
     expect(CompassMenu['windowState']).to.have.property('size', 0);
@@ -61,7 +60,6 @@ describe('CompassMenu', function () {
   it('should swich window state when windows change focus', function () {
     const bw1 = new BrowserWindow({ show: false });
     const bw2 = new BrowserWindow({ show: false });
-    CompassMenu.init(App);
     App.emit('new-window', bw1);
     App.emit('new-window', bw2);
     expect(CompassMenu['windowState']).to.have.property('size', 2);
@@ -74,7 +72,6 @@ describe('CompassMenu', function () {
 
   it('should change window state when window emits show-collection-submenu event', function () {
     const bw = new BrowserWindow({ show: false });
-    CompassMenu.init(App);
     App.emit('new-window', bw);
     ipcMain.emit(
       'window:show-collection-submenu',
@@ -337,10 +334,8 @@ describe('CompassMenu', function () {
       });
     });
 
-    it('should generate a view menu template with toggle devtools', function () {
-      sinon
-        .stub(preferences, 'getPreferences')
-        .returns({ enableDevTools: true } as any);
+    it('should generate a view menu template with toggle devtools', async function () {
+      await App.preferences.savePreferences({ enableDevTools: true });
 
       const menu = serializable(
         CompassMenu.getTemplate(0).find((item) => item.label === '&View')

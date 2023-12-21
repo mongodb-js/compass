@@ -57,7 +57,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   showExplainButton,
 }) => {
   const darkMode = useDarkMode();
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <PipelineToolbarContainer>

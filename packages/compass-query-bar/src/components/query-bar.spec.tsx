@@ -8,11 +8,13 @@ import type { SinonSpy } from 'sinon';
 import QueryBar from './query-bar';
 import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
-import type { RootState } from '../stores/query-bar-store';
+import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 const noop = () => {
   /* no op */
@@ -22,35 +24,41 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
-const renderQueryBar = (
-  {
-    expanded = false,
-    ...props
-  }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {},
-  storeOptions: Partial<RootState['queryBar']> = {}
-) => {
-  const store = configureStore(storeOptions, {} as any);
-  store.dispatch(toggleQueryOptions(expanded));
-
-  render(
-    <Provider store={store}>
-      <QueryBar
-        buttonLabel="Apply"
-        onApply={noop}
-        onReset={noop}
-        showExportToLanguageButton
-        resultId="123"
-        {...props}
-      />
-    </Provider>
-  );
-};
-
 describe('QueryBar Component', function () {
+  let preferences: PreferencesAccess;
   let onApplySpy: SinonSpy;
   let onResetSpy: SinonSpy;
 
-  beforeEach(function () {
+  const renderQueryBar = (
+    {
+      expanded = false,
+      ...props
+    }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {},
+    storeOptions: Partial<RootState['queryBar']> = {}
+  ) => {
+    const store = configureStore(storeOptions, {
+      preferences,
+    } as QueryBarExtraArgs);
+    store.dispatch(toggleQueryOptions(expanded));
+
+    render(
+      <PreferencesProvider value={preferences}>
+        <Provider store={store}>
+          <QueryBar
+            buttonLabel="Apply"
+            onApply={noop}
+            onReset={noop}
+            showExportToLanguageButton
+            resultId="123"
+            {...props}
+          />
+        </Provider>
+      </PreferencesProvider>
+    );
+  };
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
   });
@@ -121,21 +129,14 @@ describe('QueryBar Component', function () {
   });
 
   describe('with ai enabled', function () {
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    beforeEach(async function () {
+      await preferences.savePreferences({
         enableGenAIExperience: true,
         enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
-      } as any);
-    });
-
-    afterEach(function () {
-      return sandbox.restore();
+      });
     });
 
     describe('with filter content supplied', function () {
@@ -145,10 +146,13 @@ describe('QueryBar Component', function () {
             queryOptionsLayout: ['filter'],
           },
           {
-            fields: mapQueryToFormFields({
-              ...DEFAULT_FIELD_VALUES,
-              filter: { a: 2 },
-            }),
+            fields: mapQueryToFormFields(
+              {},
+              {
+                ...DEFAULT_FIELD_VALUES,
+                filter: { a: 2 },
+              }
+            ),
           }
         );
       });
@@ -175,24 +179,17 @@ describe('QueryBar Component', function () {
   });
 
   describe('with enableGenAIExperience ai disabled', function () {
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    beforeEach(async function () {
+      await preferences.savePreferences({
         enableGenAIExperience: false,
         enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
-      } as any);
+      });
       renderQueryBar({
         queryOptionsLayout: ['filter'],
       });
-    });
-
-    afterEach(function () {
-      return sandbox.restore();
     });
 
     it('does not render the ask ai button', function () {
@@ -201,24 +198,17 @@ describe('QueryBar Component', function () {
   });
 
   describe('with enableGenAIFeatures ai disabled', function () {
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    beforeEach(async function () {
+      await preferences.savePreferences({
         enableGenAIExperience: true,
         enableGenAIFeatures: false,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
-      } as any);
+      });
       renderQueryBar({
         queryOptionsLayout: ['filter'],
       });
-    });
-
-    afterEach(function () {
-      return sandbox.restore();
     });
 
     it('does not render the ask ai button', function () {

@@ -11,6 +11,7 @@ import { Provider } from '../../stores/context';
 import Sinon from 'sinon';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
 import QueryHistory from '.';
 import {
   FavoriteQueryStorage,
@@ -88,7 +89,7 @@ const renderQueryHistory = (basepath: string) => {
 describe('query-history', function () {
   let tmpDir: string;
   before(function () {
-    tmpDir = fs.mkdtempSync(os.tmpdir());
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-query-history'));
   });
 
   after(function () {

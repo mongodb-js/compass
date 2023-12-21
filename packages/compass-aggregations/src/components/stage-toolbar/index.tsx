@@ -120,7 +120,7 @@ export function StageToolbar({
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const darkMode = useDarkMode();
 
   const insight = useMemo(

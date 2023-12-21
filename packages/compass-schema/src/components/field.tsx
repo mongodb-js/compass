@@ -321,4 +321,4 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
   );
 }
 
-export default withPreferences(Field, ['enableMaps'], React);
+export default withPreferences(Field, ['enableMaps']);

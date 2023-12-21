@@ -16,7 +16,7 @@ import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
@@ -211,11 +211,11 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       autoPreview,
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       collationString,
       limit,
       largeLimit,
@@ -250,6 +250,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
       const options: PreviewOptions = {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+          preferences,
           maxTimeMS ?? DEFAULT_MAX_TIME_MS
         ),
         collation: collationString.value ?? undefined,

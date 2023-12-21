@@ -155,4 +155,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(RegularIndexesTable, ['readOnly'], React));
+)(withPreferences(RegularIndexesTable, ['readOnly']));

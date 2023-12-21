@@ -157,24 +157,16 @@ function Connections({
     []
   );
 
-  const protectConnectionStrings = usePreference(
-    'protectConnectionStrings',
-    React
-  );
-  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
-  const showKerberosPasswordField = usePreference(
-    'showKerberosPasswordField',
-    React
-  );
-  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow', React);
-  const enableOidc = usePreference('enableOidc', React);
+  const protectConnectionStrings = usePreference('protectConnectionStrings');
+  const forceConnectionOptions = usePreference('forceConnectionOptions');
+  const showKerberosPasswordField = usePreference('showKerberosPasswordField');
+  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
+  const enableOidc = usePreference('enableOidc');
   const enableDebugUseCsfleSchemaMap = usePreference(
-    'enableDebugUseCsfleSchemaMap',
-    React
+    'enableDebugUseCsfleSchemaMap'
   );
   const protectConnectionStringsForNewConnections = usePreference(
-    'protectConnectionStringsForNewConnections',
-    React
+    'protectConnectionStringsForNewConnections'
   );
 
   const preferences = useMemo(

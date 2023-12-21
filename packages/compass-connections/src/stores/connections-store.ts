@@ -1,11 +1,17 @@
-import React from 'react';
+import {
+  type Dispatch,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from '../modules/connection-attempt';
@@ -19,7 +25,8 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import preferences, { usePreference } from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -214,18 +221,19 @@ export function connectionsReducer(state: State, action: Action): State {
 }
 
 async function loadConnections(
-  dispatch: React.Dispatch<{
+  dispatch: Dispatch<{
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
-  connectionStorage: typeof ConnectionStorage
+  connectionStorage: typeof ConnectionStorage,
+  { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
     const toBeReSaved: ConnectionInfo[] = [];
 
     // Scrub OIDC tokens from connections when the option to store them has been disabled
-    if (!preferences.getPreferences().persistOIDCTokens) {
+    if (!persistOIDCTokens) {
       for (const connection of loadedConnections) {
         if (connection.connectionOptions.oidc?.serializedState) {
           delete connection.connectionOptions.oidc?.serializedState;
@@ -283,8 +291,11 @@ export function useConnections({
   reloadConnections: () => void;
 } {
   const { openToast } = useToast('compass-connections');
+  const persistOIDCTokens = usePreference('persistOIDCTokens');
+  const forceConnectionOptions = usePreference('forceConnectionOptions') ?? [];
+  const browserCommandForOIDCAuth = usePreference('browserCommandForOIDCAuth');
 
-  const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
+  const [state, dispatch]: [State, Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
   );
@@ -371,7 +382,7 @@ export function useConnections({
         if (!shouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
-        if (preferences.getPreferences().persistOIDCTokens) {
+        if (persistOIDCTokens) {
           mergeConnectionInfo = {
             connectionOptions: await dataService.getUpdatedSecrets(),
           };
@@ -397,7 +408,7 @@ export function useConnections({
         dataService.on?.('connectionInfoSecretsChanged', () => {
           void (async () => {
             try {
-              if (!preferences.getPreferences().persistOIDCTokens) return;
+              if (!persistOIDCTokens) return;
               // Get updated secrets first (and not in parallel) so that the
               // race condition window between load() and save() is as short as possible.
               const mergeConnectionInfo = {
@@ -434,12 +445,18 @@ export function useConnections({
         );
       }
     },
-    [onConnected, connectionStorage, saveConnectionInfo, removeConnection]
+    [
+      onConnected,
+      connectionStorage,
+      saveConnectionInfo,
+      removeConnection,
+      persistOIDCTokens,
+    ]
   );
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch, connectionStorage);
+    void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
 
     if (getAutoConnectInfo) {
       log.info(
@@ -460,11 +477,11 @@ export function useConnections({
         connectingConnectionAttempt.current.cancelConnectionAttempt();
       }
     };
-  }, [getAutoConnectInfo]);
+  }, [getAutoConnectInfo, persistOIDCTokens]);
 
-  const persistOIDCTokens = usePreference('persistOIDCTokens', React);
   useEffectOnChange(() => {
-    if (!persistOIDCTokens) void loadConnections(dispatch, connectionStorage);
+    if (!persistOIDCTokens)
+      void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
   }, [persistOIDCTokens]);
 
   const connect = async (
@@ -540,9 +557,6 @@ export function useConnections({
           });
         };
       }
-
-      const { forceConnectionOptions = [], browserCommandForOIDCAuth } =
-        preferences.getPreferences();
 
       const newConnectionDataService = await newConnectionAttempt.connect(
         adjustConnectionOptionsBeforeConnect({
@@ -700,7 +714,7 @@ export function useConnections({
       });
     },
     reloadConnections() {
-      void loadConnections(dispatch, connectionStorage);
+      void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
     },
   };
 }

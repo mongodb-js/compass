@@ -21,6 +21,7 @@ import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -323,6 +324,7 @@ describe('exportJSON', function () {
       output,
       variant: 'default',
       abortSignal: abortController.signal,
+      preferences: await createSandboxFromDefaultPreferences(),
     });
 
     expect(result.docsWritten).to.equal(3);

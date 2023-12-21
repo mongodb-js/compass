@@ -10,8 +10,10 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 
 const noop = () => {
@@ -33,62 +35,63 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   instance: { on() {}, removeListener() {} } as any,
 });
 
-function renderCrudToolbar(
-  props?: Partial<React.ComponentProps<typeof CrudToolbar>>
-) {
-  const appRegistry = new AppRegistry();
-  const queryBarProps = {};
-
-  return render(
-    <MockQueryBarPlugin {...(queryBarProps as any)}>
-      <CrudToolbar
-        activeDocumentView="List"
-        count={55}
-        end={20}
-        getPage={noop}
-        insertDataHandler={noop}
-        loadingCount={false}
-        localAppRegistry={appRegistry}
-        isWritable
-        instanceDescription=""
-        onApplyClicked={noop}
-        onResetClicked={noop}
-        onUpdateButtonClicked={noop}
-        onDeleteButtonClicked={noop}
-        openExportFileDialog={noop}
-        outdated={false}
-        page={0}
-        readonly={false}
-        refreshDocuments={noop}
-        resultId="123"
-        start={0}
-        viewSwitchHandler={noop}
-        queryLimit={0}
-        querySkip={0}
-        {...props}
-      />
-    </MockQueryBarPlugin>
-  );
-}
-
 const addDataText = 'Add Data';
 const updateDataText = 'Update';
 const deleteDataText = 'Delete';
 
 describe('CrudToolbar Component', function () {
-  let sandbox: sinon.SinonSandbox;
+  let preferences: PreferencesAccess;
+
+  function renderCrudToolbar(
+    props?: Partial<React.ComponentProps<typeof CrudToolbar>>
+  ) {
+    const appRegistry = new AppRegistry();
+    const queryBarProps = {};
+
+    return render(
+      <PreferencesProvider value={preferences}>
+        <MockQueryBarPlugin {...(queryBarProps as any)}>
+          <CrudToolbar
+            activeDocumentView="List"
+            count={55}
+            end={20}
+            getPage={noop}
+            insertDataHandler={noop}
+            loadingCount={false}
+            localAppRegistry={appRegistry}
+            isWritable
+            instanceDescription=""
+            onApplyClicked={noop}
+            onResetClicked={noop}
+            onUpdateButtonClicked={noop}
+            onDeleteButtonClicked={noop}
+            openExportFileDialog={noop}
+            outdated={false}
+            page={0}
+            readonly={false}
+            refreshDocuments={noop}
+            resultId="123"
+            start={0}
+            viewSwitchHandler={noop}
+            queryLimit={0}
+            querySkip={0}
+            {...props}
+          />
+        </MockQueryBarPlugin>
+      </PreferencesProvider>
+    );
+  }
 
   afterEach(function () {
     cleanup();
-    return sandbox.restore();
   });
 
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-    sandbox.stub(preferencesAccess, 'getPreferences').returns({
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
       enableBulkUpdateOperations: true,
       enableBulkDeleteOperations: true,
-    } as any);
+    });
   });
 
   it('renders the query bar role', function () {
@@ -272,11 +275,10 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('update button', function () {
-    it('should not be visible when the enableBulkUpdateOperations toggle is off', function () {
-      sandbox.restore();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    it('should not be visible when the enableBulkUpdateOperations toggle is off', async function () {
+      await preferences.savePreferences({
         enableBulkUpdateOperations: false,
-      } as any);
+      });
 
       expect(screen.queryByText(updateDataText)).to.not.exist;
     });
@@ -312,11 +314,10 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('delete button', function () {
-    it('should not be visible when the enableBulkDeleteOperations toggle is off', function () {
-      sandbox.restore();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    it('should not be visible when the enableBulkDeleteOperations toggle is off', async function () {
+      await preferences.savePreferences({
         enableBulkDeleteOperations: false,
-      } as any);
+      });
 
       expect(screen.queryByText(deleteDataText)).to.not.exist;
     });

@@ -48,8 +48,7 @@ export const PipelineSettings: React.FunctionComponent<
   onCreateNewPipeline,
 }) => {
   const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries',
-    React
+    'enableSavedAggregationsQueries'
   );
   const isSavePipelineDisplayed =
     !editViewName && enableSavedAggregationsQueries;

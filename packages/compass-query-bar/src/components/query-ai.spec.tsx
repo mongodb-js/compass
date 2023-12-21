@@ -8,6 +8,7 @@ import { Provider } from '../stores/context';
 import userEvent from '@testing-library/user-event';
 
 import { QueryAI } from './query-ai';
+import type { QueryBarExtraArgs } from '../stores/query-bar-store';
 import { configureStore } from '../stores/query-bar-store';
 import {
   AIQueryActionTypes,
@@ -15,31 +16,48 @@ import {
 } from '../stores/ai-query-reducer';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const noop = () => {
   /* no op */
-};
-
-const renderQueryAI = ({
-  ...props
-}: Partial<ComponentProps<typeof QueryAI>> = {}) => {
-  const store = configureStore({}, {} as any);
-
-  render(
-    <Provider store={store}>
-      <QueryAI onClose={noop} show {...props} />
-    </Provider>
-  );
-  return store;
 };
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
 
 describe('QueryAI Component', function () {
+  let preferences: PreferencesAccess;
   let store: ReturnType<typeof configureStore>;
   afterEach(cleanup);
+
+  const renderQueryAI = ({
+    ...props
+  }: Partial<ComponentProps<typeof QueryAI>> = {}) => {
+    const store = configureStore({}, {
+      preferences,
+    } as Partial<QueryBarExtraArgs> as QueryBarExtraArgs);
+
+    render(
+      <PreferencesProvider value={preferences}>
+        <LoggerAndTelemetryProvider
+          value={{ createLogger: createLoggerAndTelemetry, preferences }}
+        >
+          <Provider store={store}>
+            <QueryAI onClose={noop} show {...props} />
+          </Provider>
+        </LoggerAndTelemetryProvider>
+      </PreferencesProvider>
+    );
+    return store;
+  };
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
 
   describe('when rendered', function () {
     let onCloseSpy: SinonSpy;
@@ -77,30 +95,11 @@ describe('QueryAI Component', function () {
   });
 
   describe('Query AI Feedback', function () {
-    let trackUsageStatistics: boolean | undefined;
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-    });
-    afterEach(function () {
-      sandbox.restore();
-    });
-
     describe('usage statistics enabled', function () {
       beforeEach(async function () {
-        trackUsageStatistics =
-          preferencesAccess.getPreferences().trackUsageStatistics;
         // 'compass:track' will only emit if tracking is enabled.
-        await preferencesAccess.savePreferences({ trackUsageStatistics: true });
-        sandbox
-          .stub(preferencesAccess, 'getPreferences')
-          .returns({ trackUsageStatistics: true } as any);
+        await preferences.savePreferences({ trackUsageStatistics: true });
         store = renderQueryAI();
-      });
-
-      afterEach(async function () {
-        await preferencesAccess.savePreferences({ trackUsageStatistics });
       });
 
       it('should log a telemetry event with the entered text on submit', async function () {
@@ -116,7 +115,7 @@ describe('QueryAI Component', function () {
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
@@ -152,19 +151,10 @@ describe('QueryAI Component', function () {
 
     describe('usage statistics disabled', function () {
       beforeEach(async function () {
-        trackUsageStatistics =
-          preferencesAccess.getPreferences().trackUsageStatistics;
-        await preferencesAccess.savePreferences({
+        await preferences.savePreferences({
           trackUsageStatistics: false,
         });
-        sandbox
-          .stub(preferencesAccess, 'getPreferences')
-          .returns({ trackUsageStatistics: false } as any);
         store = renderQueryAI();
-      });
-
-      afterEach(async function () {
-        await preferencesAccess.savePreferences({ trackUsageStatistics });
       });
 
       it('should not show the feedback items', function () {
@@ -172,7 +162,7 @@ describe('QueryAI Component', function () {
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
         });
 
         // No feedback popover is shown.

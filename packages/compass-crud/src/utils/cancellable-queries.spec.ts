@@ -8,6 +8,8 @@ import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 chai.use(chaiAsPromised);
 
 describe('cancellable-queries', function () {
@@ -15,10 +17,12 @@ describe('cancellable-queries', function () {
 
   const cluster = mochaTestServer();
   let dataService: DataService;
+  let preferences: PreferencesAccess;
   let abortController;
   let signal;
 
   before(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     dataService = await connect({
       connectionOptions: {
         connectionString: cluster().connectionString,
@@ -77,6 +81,7 @@ describe('cancellable-queries', function () {
     it('resolves to the count when a filter is supplied', async function () {
       const count = await countDocuments(
         dataService,
+        preferences,
         'cancel.numbers',
         { i: { $gt: 5 } },
         {
@@ -90,15 +95,22 @@ describe('cancellable-queries', function () {
     });
 
     it('resolves to the count when no filter is supplied', async function () {
-      const count = await countDocuments(dataService, 'cancel.numbers', null, {
-        signal,
-      });
+      const count = await countDocuments(
+        dataService,
+        preferences,
+        'cancel.numbers',
+        null,
+        {
+          signal,
+        }
+      );
       expect(count).to.equal(1000);
     });
 
     it('resolves to the count when a blank filter is supplied', async function () {
       const count = await countDocuments(
         dataService,
+        preferences,
         'cancel.numbers',
         {},
         {
@@ -111,6 +123,7 @@ describe('cancellable-queries', function () {
     it('resolves to 0 for empty collections', async function () {
       const count = await countDocuments(
         dataService,
+        preferences,
         'cancel.empty',
         {},
         {
@@ -123,6 +136,7 @@ describe('cancellable-queries', function () {
     it('resolves to null if the query fails', async function () {
       const count = await countDocuments(
         dataService,
+        preferences,
         'cancel.numbers',
         'this is not a filter',
         {
@@ -136,6 +150,7 @@ describe('cancellable-queries', function () {
     it('can be aborted', async function () {
       const promise = countDocuments(
         dataService,
+        preferences,
         'cancel.numbers',
         {},
         { signal }

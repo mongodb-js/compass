@@ -3,12 +3,9 @@ import type { ComponentProps } from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import type { SinonSandbox } from 'sinon';
-import { spy, createSandbox } from 'sinon';
+import { spy } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
-import preferences from 'compass-preferences-model';
-import sinon from 'sinon';
 
 const renderPipelineExtraSettings = (
   props: Partial<ComponentProps<typeof PipelineExtraSettings>> = {}
@@ -28,14 +25,7 @@ const renderPipelineExtraSettings = (
 };
 
 describe('PipelineExtraSettings', function () {
-  let sandbox: SinonSandbox;
-  beforeEach(function () {
-    sandbox = createSandbox();
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
+  afterEach(cleanup);
 
   it('calls onToggleAutoPreview when clicked', function () {
     const onToggleAutoPreviewSpy = spy();
@@ -70,18 +60,6 @@ describe('PipelineExtraSettings', function () {
   });
 
   describe('stage wizard', function () {
-    let sandbox: sinon.SinonSandbox;
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox
-        .stub(preferences, 'getPreferences')
-        .returns({ enableStageWizard: true } as any);
-    });
-    afterEach(function () {
-      sandbox.restore();
-      cleanup();
-    });
-
     it('calls onToggleSidePanel when clicked', function () {
       const onToggleSidePanelSpy = spy();
       renderPipelineExtraSettings({ onToggleSidePanel: onToggleSidePanelSpy });

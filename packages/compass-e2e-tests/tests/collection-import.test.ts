@@ -115,6 +115,20 @@ describe('Collection import', function () {
   it('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
+    async function getDocumentCount() {
+      const countText = await browser.$(Selectors.DocumentCountValue).getText();
+      return countText ? Number(countText) : null;
+    }
+
+    // wait for the stats to load
+    await browser.waitUntil(async () => {
+      const count = await getDocumentCount();
+      return count !== null && !isNaN(count);
+    });
+
+    // store current document count
+    const initialDocCount = await getDocumentCount();
+
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
     const insertDocumentOption = await browser.$(
@@ -161,6 +175,14 @@ describe('Collection import', function () {
     expect(result).to.deep.equal({
       foo: '10',
       long: '99',
+    });
+
+    // make sure document count also updated
+    await browser.waitUntil(async () => {
+      const currentDocCount = await getDocumentCount();
+      return (
+        initialDocCount !== null && initialDocCount + 1 === currentDocCount
+      );
     });
   });
 

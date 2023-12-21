@@ -116,7 +116,7 @@ export function createInstanceStore(
     );
   }
 
-  async function refreshNamespaceStats(ns: string) {
+  async function refreshNamespaceStats({ ns }: { ns: string }) {
     const { database } = toNS(ns);
     const db = instance.databases.get(database);
     const coll = db?.collections.get(ns);

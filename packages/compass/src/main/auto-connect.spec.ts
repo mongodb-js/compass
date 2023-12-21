@@ -1,6 +1,5 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import preferences from 'compass-preferences-model';
 import type { AutoConnectPreferences } from './auto-connect';
 import {
   resetForTesting,
@@ -11,6 +10,7 @@ import {
 
 describe('auto connect management', function () {
   let sandbox: sinon.SinonSandbox;
+  let preferences: Parameters<typeof getWindowAutoConnectPreferences>[1];
   let fakePreferences: Omit<AutoConnectPreferences, 'shouldAutoConnect'>;
 
   beforeEach(function () {
@@ -23,9 +23,11 @@ describe('auto connect management', function () {
       username: '',
       password: '',
     };
-    sandbox
-      .stub(preferences, 'getPreferences')
-      .callsFake(() => fakePreferences as any);
+    preferences = {
+      getPreferences() {
+        return fakePreferences;
+      },
+    };
   });
 
   afterEach(function () {
@@ -34,22 +36,30 @@ describe('auto connect management', function () {
   });
 
   it('should indicate to the first window that it is supposed to auto-connect', function () {
-    expect(getWindowAutoConnectPreferences({ id: 1 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 1 }, preferences)
+    ).to.deep.equal({
       ...fakePreferences,
       shouldAutoConnect: true,
     });
-    expect(getWindowAutoConnectPreferences({ id: 1 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 1 }, preferences)
+    ).to.deep.equal({
       ...fakePreferences,
       shouldAutoConnect: true,
     });
-    expect(getWindowAutoConnectPreferences({ id: 2 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 2 }, preferences)
+    ).to.deep.equal({
       shouldAutoConnect: false,
     });
   });
 
   it('should allow specifying a fixed url for a browser window', function () {
     registerMongoDbUrlForBrowserWindow({ id: 2 }, 'mongodb://foo');
-    expect(getWindowAutoConnectPreferences({ id: 2 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 2 }, preferences)
+    ).to.deep.equal({
       positionalArguments: ['mongodb://foo'],
       shouldAutoConnect: true,
     });
@@ -57,26 +67,34 @@ describe('auto connect management', function () {
 
   it('should not indicate to a window that it should auto-connect if it has ever disconnected', function () {
     onCompassDisconnect({ id: 1 });
-    expect(getWindowAutoConnectPreferences({ id: 1 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 1 }, preferences)
+    ).to.deep.equal({
       shouldAutoConnect: false,
     });
     registerMongoDbUrlForBrowserWindow({ id: 2 }, 'mongodb://foo');
     onCompassDisconnect({ id: 2 });
-    expect(getWindowAutoConnectPreferences({ id: 2 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 2 }, preferences)
+    ).to.deep.equal({
       shouldAutoConnect: false,
     });
   });
 
   it('should ignore about: urls', function () {
     fakePreferences = { positionalArguments: ['about:blank'] };
-    expect(getWindowAutoConnectPreferences({ id: 1 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 1 }, preferences)
+    ).to.deep.equal({
       shouldAutoConnect: false,
     });
   });
 
   it('should not auto-connect if no args were passed', function () {
     fakePreferences = { positionalArguments: [] };
-    expect(getWindowAutoConnectPreferences({ id: 1 })).to.deep.equal({
+    expect(
+      getWindowAutoConnectPreferences({ id: 1 }, preferences)
+    ).to.deep.equal({
       shouldAutoConnect: false,
     });
   });

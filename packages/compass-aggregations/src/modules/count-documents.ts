@@ -92,10 +92,10 @@ export const cancelCount = (): PipelineBuilderThunkAction<void> => {
 };
 
 export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       dataService: { dataService },
       collationString: { value: collation },
     } = getState();
@@ -121,6 +121,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
 
       const [{ count }] = await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline: [...pipeline, { $count: 'count' }],

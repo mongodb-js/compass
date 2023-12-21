@@ -100,4 +100,4 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
   };
 }
 
-export default withPreferences(ReadonlyDocument, ['showInsights'], React);
+export default withPreferences(ReadonlyDocument, ['showInsights']);
