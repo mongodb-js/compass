@@ -1,8 +1,5 @@
 import {
-  LeafyGreenProvider,
-  Theme,
-  ToastArea,
-  ConfirmationModalArea,
+  CompassComponentsProvider,
   FileInputBackendProvider,
   createElectronFileInputBackend,
   css,
@@ -12,9 +9,7 @@ import {
   resetGlobalCSS,
   Body,
   useConfirmationModal,
-  GuideCueProvider,
 } from '@mongodb-js/compass-components';
-import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
 import { ipcRenderer } from 'hadron-ipc';
@@ -28,7 +23,6 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useReducer,
   useRef,
   useState,
@@ -37,7 +31,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
-import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
@@ -104,10 +97,6 @@ const globalDarkThemeStyles = css({
   backgroundColor: palette.black,
   color: palette.white,
 });
-
-type ThemeState = {
-  theme: Theme;
-};
 
 type State = {
   connectionInfo: ConnectionInfo | null;
@@ -301,23 +290,39 @@ function Home({
     );
   }
 
+  const electronFileInputBackendRef = useRef(
+    remote ? createElectronFileInputBackend(remote) : null
+  );
+
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  const preferences = preferencesLocator();
+
+  useLayoutEffect(() => {
+    // If we haven't showed welcome modal that points users to network opt in
+    // yet, show the modal and update preferences with default values to reflect
+    // that
+    if (preferences.getPreferences().showedNetworkOptIn === false) {
+      setIsWelcomeOpen(true);
+      void preferences.ensureDefaultConfigurableUserPreferences();
+    }
+  }, [preferences]);
+
+  const closeWelcomeModal = useCallback(
+    (showSettings?: boolean) => {
+      function close() {
+        setIsWelcomeOpen(false);
+        if (showSettings) {
+          appRegistry.emit('open-compass-settings');
+        }
+      }
+      void close();
+    },
+    [setIsWelcomeOpen, appRegistry]
+  );
+
   return (
-    <SignalHooksProvider
-      onSignalMount={(id) => {
-        track('Signal Shown', { id });
-      }}
-      onSignalOpen={(id) => {
-        track('Signal Opened', { id });
-      }}
-      onSignalPrimaryActionClick={(id) => {
-        track('Signal Action Button Clicked', { id });
-      }}
-      onSignalLinkClick={(id) => {
-        track('Signal Link Clicked', { id });
-      }}
-      onSignalClose={(id) => {
-        track('Signal Closed', { id });
-      }}
+    <FileInputBackendProvider
+      createFileInputBackend={electronFileInputBackendRef.current}
     >
       {isConnected && connectedDataService.current && (
         // AppRegistry scope for a connected application
@@ -364,137 +369,75 @@ function Home({
           />
         </div>
       </div>
+      <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
       <AtlasSignIn></AtlasSignIn>
-    </SignalHooksProvider>
+    </FileInputBackendProvider>
   );
-}
-
-function getCurrentTheme(): Theme {
-  return remote?.nativeTheme?.shouldUseDarkColors ? Theme.Dark : Theme.Light;
 }
 
 function ThemedHome(
   props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
-  // TODO(COMPASS-7433): should not be used directly in render, will go away with a home cleanup
-  const preferences = preferencesLocator();
-  const [scrollbarsContainerRef, setScrollbarsContainerRef] =
-    useState<HTMLDivElement | null>(null);
-  const appRegistry = useLocalAppRegistry();
-
-  const [theme, setTheme] = useState<ThemeState>({
-    theme: getCurrentTheme(),
-  });
-
-  const darkMode = useMemo(() => theme.theme === Theme.Dark, [theme]);
-
-  useEffect(() => {
-    const listener = () => {
-      setTheme({
-        theme: getCurrentTheme(),
-      });
-    };
-
-    remote?.nativeTheme?.on('updated', listener);
-
-    return () => {
-      // Cleanup preference listeners.
-      remote?.nativeTheme?.off('updated', listener);
-    };
-  }, [appRegistry]);
-
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
-
-  useLayoutEffect(() => {
-    // If we haven't showed welcome modal that points users to network opt in
-    // yet, show the modal and update preferences with default values to reflect
-    // that
-    if (preferences.getPreferences().showedNetworkOptIn === false) {
-      setIsWelcomeOpen(true);
-      void preferences.ensureDefaultConfigurableUserPreferences();
-    }
-  }, [preferences]);
-
-  const closeWelcomeModal = useCallback(
-    (showSettings?: boolean) => {
-      function close() {
-        setIsWelcomeOpen(false);
-        if (showSettings) {
-          appRegistry.emit('open-compass-settings');
-        }
-      }
-
-      void close();
-    },
-    [setIsWelcomeOpen, appRegistry]
-  );
-
-  const onGuideCueNext = useCallback((cue: Cue) => {
-    track('Guide Cue Dismissed', {
-      groupId: cue.groupId,
-      cueId: cue.cueId,
-      step: cue.step,
-    });
-  }, []);
-
-  const onGuideCueNextGroup = useCallback((cue: GroupCue) => {
-    if (cue.groupSteps !== cue.step) {
-      track('Guide Cue Group Dismissed', {
-        groupId: cue.groupId,
-        cueId: cue.cueId,
-        step: cue.step,
-      });
-    }
-  }, []);
-
-  const electronFileInputBackendRef = useRef(
-    remote ? createElectronFileInputBackend(remote) : null
-  );
-
   return (
-    <LeafyGreenProvider
-      darkMode={darkMode}
-      popoverPortalContainer={{
-        portalContainer: scrollbarsContainerRef,
+    <CompassComponentsProvider
+      onNextGuideGue={(cue) => {
+        track('Guide Cue Dismissed', {
+          groupId: cue.groupId,
+          cueId: cue.cueId,
+          step: cue.step,
+        });
+      }}
+      onNextGuideCueGroup={(cue) => {
+        if (cue.groupSteps !== cue.step) {
+          track('Guide Cue Group Dismissed', {
+            groupId: cue.groupId,
+            cueId: cue.cueId,
+            step: cue.step,
+          });
+        }
+      }}
+      onSignalMount={(id) => {
+        track('Signal Shown', { id });
+      }}
+      onSignalOpen={(id) => {
+        track('Signal Opened', { id });
+      }}
+      onSignalPrimaryActionClick={(id) => {
+        track('Signal Action Button Clicked', { id });
+      }}
+      onSignalLinkClick={(id) => {
+        track('Signal Link Clicked', { id });
+      }}
+      onSignalClose={(id) => {
+        track('Signal Closed', { id });
       }}
     >
-      <FileInputBackendProvider
-        createFileInputBackend={electronFileInputBackendRef.current}
-      >
-        <GuideCueProvider
-          onNext={onGuideCueNext}
-          onNextGroup={onGuideCueNextGroup}
-        >
-          {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+      {({ darkMode, portalContainerRef }) => {
+        return (
+          // Wrap the page in a body typography element so that font-size and
+          // line-height is standardized.
           <Body as="div">
             <div
               className={getScrollbarStyles(darkMode)}
-              ref={setScrollbarsContainerRef}
+              ref={portalContainerRef as React.Ref<HTMLDivElement>}
             >
-              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-              <ConfirmationModalArea>
-                <ToastArea>
-                  <div
-                    className={cx(
-                      homeContainerStyles,
-                      darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-                    )}
-                    data-theme={theme.theme}
-                  >
-                    <Home {...props}></Home>
-                  </div>
-                </ToastArea>
-              </ConfirmationModalArea>
+              <div
+                className={cx(
+                  homeContainerStyles,
+                  darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                )}
+                data-theme={darkMode ? 'Dark' : 'Light'}
+              >
+                <Home {...props}></Home>
+              </div>
             </div>
           </Body>
-        </GuideCueProvider>
-      </FileInputBackendProvider>
-    </LeafyGreenProvider>
+        );
+      }}
+    </CompassComponentsProvider>
   );
 }
-
-ThemedHome.displayName = 'HomeComponent';
 
 export default ThemedHome;
