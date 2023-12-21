@@ -341,6 +341,21 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   };
 }
 
+function findEntry(cwd: string) {
+  const files = fs.readdirSync(path.join(cwd, 'src'));
+  const entryFile = ['index.tsx', 'index.ts', 'index.jsx', 'index.js'].find(
+    (entry) => {
+      return files.includes(entry);
+    }
+  );
+  if (!entryFile) {
+    throw new Error(
+      `Can not find entry file for the package. Looking for index.{tsx,ts,jsx,js} in plugin src folder`
+    );
+  }
+  return path.join(cwd, 'src', entryFile);
+}
+
 export function compassPluginConfig(
   _env: WebpackCLIArgs['env'],
   _args: Partial<WebpackCLIArgs>
@@ -386,9 +401,7 @@ export function compassPluginConfig(
     ];
   }
 
-  const entry = fs.existsSync(path.join(opts.cwd, 'src', 'index.ts'))
-    ? path.join(opts.cwd, 'src', 'index.ts')
-    : path.join(opts.cwd, 'src', 'index.js');
+  const entry = findEntry(opts.cwd);
 
   return [
     merge(
