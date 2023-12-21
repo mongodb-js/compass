@@ -24,7 +24,10 @@ import DatabaseCollectionFilter from './database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import { changeFilterRegex } from '../modules/databases';
 import type { RootState } from '../modules';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useOpenWorkspace,
+  useWorkspacePlugins,
+} from '@mongodb-js/compass-workspaces/provider';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -274,6 +277,7 @@ export function NavigationItems({
     openPerformanceWorkspace,
     openDatabasesWorkspace,
   } = useOpenWorkspace();
+  const { hasWorkspacePlugin } = useWorkspacePlugins();
 
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
@@ -303,8 +307,12 @@ export function NavigationItems({
           return (
             shouldRender && (
               <>
-                <PlaceholderItem forLabel="My Queries"></PlaceholderItem>
-                <PlaceholderItem forLabel="Performance"></PlaceholderItem>
+                {hasWorkspacePlugin('My Queries') && (
+                  <PlaceholderItem forLabel="My Queries"></PlaceholderItem>
+                )}
+                {hasWorkspacePlugin('Performance') && (
+                  <PlaceholderItem forLabel="Performance"></PlaceholderItem>
+                )}
                 <PlaceholderItem forLabel="Databases"></PlaceholderItem>
               </>
             )
@@ -314,24 +322,28 @@ export function NavigationItems({
           return (
             shouldRender && (
               <>
-                <NavigationItem<''>
-                  isExpanded={isExpanded}
-                  onAction={onAction}
-                  onClick={openMyQueriesWorkspace}
-                  glyph="CurlyBraces"
-                  label="My Queries"
-                  isActive={currentLocation === 'My Queries'}
-                />
-                <NavigationItem<''>
-                  isExpanded={isExpanded}
-                  onAction={onAction}
-                  onClick={openPerformanceWorkspace}
-                  glyph="Gauge"
-                  label="Performance"
-                  isActive={currentLocation === 'Performance'}
-                  disabled={!isPerformanceTabSupported}
-                  disabledMessage="Performance metrics are not available for your deployment or to your database user"
-                />
+                {hasWorkspacePlugin('My Queries') && (
+                  <NavigationItem<''>
+                    isExpanded={isExpanded}
+                    onAction={onAction}
+                    onClick={openMyQueriesWorkspace}
+                    glyph="CurlyBraces"
+                    label="My Queries"
+                    isActive={currentLocation === 'My Queries'}
+                  />
+                )}
+                {hasWorkspacePlugin('Performance') && (
+                  <NavigationItem<''>
+                    isExpanded={isExpanded}
+                    onAction={onAction}
+                    onClick={openPerformanceWorkspace}
+                    glyph="Gauge"
+                    label="Performance"
+                    isActive={currentLocation === 'Performance'}
+                    disabled={!isPerformanceTabSupported}
+                    disabledMessage="Performance metrics are not available for your deployment or to your database user"
+                  />
+                )}
                 <NavigationItem<DatabasesActions>
                   isExpanded={isExpanded}
                   onAction={onAction}

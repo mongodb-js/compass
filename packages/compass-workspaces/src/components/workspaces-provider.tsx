@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useCallback } from 'react';
+import React, { useContext, useRef, useCallback, useMemo } from 'react';
 import type { AnyWorkspace, WorkspaceComponent } from '../';
 
 export type AnyWorkspaceComponent =
@@ -21,9 +21,15 @@ export const WorkspacesProvider: React.FunctionComponent<{
   );
 };
 
-export const useWorkspacePlugin = () => {
+export const useWorkspacePlugins = () => {
   const workspaces = useContext(WorkspacesContext);
-  return useCallback(
+  const hasWorkspacePlugin = useCallback(
+    <T extends AnyWorkspace['type']>(name: T) => {
+      return workspaces.some((ws) => ws.name === name);
+    },
+    [workspaces]
+  );
+  const getWorkspacePluginByName = useCallback(
     <T extends AnyWorkspace['type']>(name: T) => {
       const plugin = workspaces.find((workspace) => workspace.name === name);
       if (!plugin) {
@@ -35,4 +41,7 @@ export const useWorkspacePlugin = () => {
     },
     [workspaces]
   );
+  return useMemo(() => {
+    return { hasWorkspacePlugin, getWorkspacePluginByName };
+  }, [hasWorkspacePlugin, getWorkspacePluginByName]);
 };

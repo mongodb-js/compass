@@ -5,19 +5,23 @@ import { useConnectionColor } from '@mongodb-js/connection-form';
 
 import { css, spacing } from '@mongodb-js/compass-components';
 
+const favoriteCSS = css({
+  height: spacing[2],
+});
+
 export default function FavoriteIndicator({
-  favorite,
+  favoriteColor,
 }: {
-  favorite: ConnectionFavoriteOptions;
+  favoriteColor: ConnectionFavoriteOptions['color'];
 }) {
   const { connectionColorToHex } = useConnectionColor();
 
-  const favoriteColorHex = connectionColorToHex(favorite.color) ?? '';
+  const favoriteColorHex = connectionColorToHex(favoriteColor) ?? 'transparent';
 
-  const favoriteCSS = css({
-    backgroundColor: favoriteColorHex || 'transparent',
-    height: spacing[2],
-  });
-
-  return <div className={favoriteCSS} />;
+  return (
+    <div
+      style={{ backgroundColor: favoriteColorHex }}
+      className={favoriteCSS}
+    />
+  );
 }

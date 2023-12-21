@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { css } from '@mongodb-js/compass-components';
+import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -56,6 +56,16 @@ type WorkspacesWithSidebarProps = {
   renderModals?: () => React.ReactElement | null;
 };
 
+const containerLightThemeStyles = css({
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
+});
+
+const containerDarkThemeStyles = css({
+  backgroundColor: palette.black,
+  color: palette.white,
+});
+
 const horizontalSplitStyles = css({
   width: '100%',
   height: '100%',
@@ -83,6 +93,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderSidebar,
   renderModals,
 }) => {
+  const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
   useEffect(() => {
@@ -90,7 +101,12 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   }, [activeTab, activeTabCollectionInfo]);
   return (
     <WorkspacesServiceProvider>
-      <div className={horizontalSplitStyles}>
+      <div
+        className={cx(
+          horizontalSplitStyles,
+          darkMode ? containerDarkThemeStyles : containerLightThemeStyles
+        )}
+      >
         <div className={sidebarStyles}>
           {renderSidebar && React.createElement(renderSidebar)}
         </div>

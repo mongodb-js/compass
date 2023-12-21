@@ -24,7 +24,7 @@ import {
   selectPrevTab,
   selectTab,
 } from '../stores/workspaces';
-import { useWorkspacePlugin } from './workspaces-provider';
+import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
@@ -88,7 +88,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
-  const getWorkspaceByName = useWorkspacePlugin();
+  const { getWorkspacePluginByName } = useWorkspacePlugins();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -157,15 +157,15 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       case 'My Queries':
       case 'Performance':
       case 'Databases': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }
       case 'Collections': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         return <Component namespace={activeTab.namespace}></Component>;
       }
       case 'Collection': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
         return <Component {...collectionMetadata}></Component>;
@@ -173,7 +173,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       default:
         return null;
     }
-  }, [activeTab, getWorkspaceByName]);
+  }, [activeTab, getWorkspacePluginByName]);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
