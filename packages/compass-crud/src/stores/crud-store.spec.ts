@@ -991,7 +991,7 @@ describe('store', function () {
     });
   });
 
-  describe('favourite bulk update queries', function () {
+  describe('favourited bulk update queries coming from My Queries', function () {
     let store: CrudStore;
 
     beforeEach(function () {
