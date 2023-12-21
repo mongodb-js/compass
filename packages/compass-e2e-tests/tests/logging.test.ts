@@ -167,7 +167,7 @@ describe('Logging and Telemetry integration', function () {
         },
         {
           s: 'I',
-          c: 'COMPASS-CONNECT-UI',
+          c: 'COMPASS-CONNECTIONS',
           id: 1_001_000_004,
           ctx: 'Connection UI',
           msg: 'Initiating connection attempt',
