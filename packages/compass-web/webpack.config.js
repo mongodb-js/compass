@@ -89,6 +89,9 @@ module.exports = async (env, args) => {
         util: require.resolve('util/'),
         buffer: require.resolve('buffer/'),
         events: require.resolve('events/'),
+        // Used by export-to-language feature and there is no real way we can
+        // remove the usage at the moment
+        vm: require.resolve('vm-browserify'),
 
         // TODO(ticket): requires a polyfill to be able to parse connection
         // string correctly at the moment, but we should also omit some

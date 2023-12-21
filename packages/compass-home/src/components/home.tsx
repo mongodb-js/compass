@@ -33,14 +33,7 @@ import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
-import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
@@ -332,18 +325,6 @@ function Home({
               <Workspace
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
-                renderModals={() => {
-                  return (
-                    <>
-                      <ImportPlugin></ImportPlugin>
-                      <ExportPlugin></ExportPlugin>
-                      <CreateViewPlugin></CreateViewPlugin>
-                      <CreateNamespacePlugin></CreateNamespacePlugin>
-                      <DropNamespacePlugin></DropNamespacePlugin>
-                      <RenameCollectionPlugin></RenameCollectionPlugin>
-                    </>
-                  );
-                }}
               />
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
