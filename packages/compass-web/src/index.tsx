@@ -79,7 +79,7 @@ function LoadingScreen({ connectionString }: { connectionString: string }) {
   }, [connectionString]);
 
   return (
-    <div className={loadingContainerStyles}>
+    <div data-testid="compass-web-loading" className={loadingContainerStyles}>
       <SpinLoaderWithLabel
         className={spinnerStyles}
         progressText={`Connecting to ${host}…`}
@@ -90,11 +90,20 @@ function LoadingScreen({ connectionString }: { connectionString: string }) {
 
 const DEFAULT_TAB = { type: 'Databases' } as const;
 
+const connectedContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+});
+
 const CompassWeb = ({
   darkMode,
   connectionString,
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
+  // @ts-expect-error not an interface we want to expose in any way, only for
+  // testing purposes, should never be used otherwise
+  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
@@ -105,7 +114,9 @@ const CompassWeb = ({
     let ds: DataService;
     void (async () => {
       try {
-        ds = await connect({
+        const connectFn =
+          (__TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect) ?? connect;
+        ds = await connectFn({
           connectionOptions: { connectionString },
           signal: controller.signal,
         });
@@ -118,7 +129,7 @@ const CompassWeb = ({
     return () => {
       void ds?.disconnect();
     };
-  }, [connectionString]);
+  }, [connectionString, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
@@ -150,28 +161,33 @@ const CompassWeb = ({
                     CompassSchemaValidationPlugin,
                   ]}
                 >
-                  <WorkspacesPlugin
-                    initialWorkspaceTabs={initialWorkspaceTabs}
-                    openOnEmptyWorkspace={DEFAULT_TAB}
-                    onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                    renderSidebar={() => {
-                      return (
-                        <CompassSidebarPlugin
-                          showConnectionInfo={false}
-                        ></CompassSidebarPlugin>
-                      );
-                    }}
-                    renderModals={() => {
-                      return (
-                        <>
-                          <CreateViewPlugin></CreateViewPlugin>
-                          <CreateNamespacePlugin></CreateNamespacePlugin>
-                          <DropNamespacePlugin></DropNamespacePlugin>
-                          <RenameCollectionPlugin></RenameCollectionPlugin>
-                        </>
-                      );
-                    }}
-                  ></WorkspacesPlugin>
+                  <div
+                    data-testid="compass-web-connected"
+                    className={connectedContainerStyles}
+                  >
+                    <WorkspacesPlugin
+                      initialWorkspaceTabs={initialWorkspaceTabs}
+                      openOnEmptyWorkspace={DEFAULT_TAB}
+                      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                      renderSidebar={() => {
+                        return (
+                          <CompassSidebarPlugin
+                            showConnectionInfo={false}
+                          ></CompassSidebarPlugin>
+                        );
+                      }}
+                      renderModals={() => {
+                        return (
+                          <>
+                            <CreateViewPlugin></CreateViewPlugin>
+                            <CreateNamespacePlugin></CreateNamespacePlugin>
+                            <DropNamespacePlugin></DropNamespacePlugin>
+                            <RenameCollectionPlugin></RenameCollectionPlugin>
+                          </>
+                        );
+                      }}
+                    ></WorkspacesPlugin>
+                  </div>
                 </CollectionTabsProvider>
               </WorkspacesProvider>
             </CompassInstanceStorePlugin>
@@ -181,7 +197,11 @@ const CompassWeb = ({
     );
   }
 
-  return <LoadingScreen connectionString={connectionString}></LoadingScreen>;
+  return (
+    <CompassComponentsProvider darkMode={darkMode}>
+      <LoadingScreen connectionString={connectionString}></LoadingScreen>
+    </CompassComponentsProvider>
+  );
 };
 
 export { CompassWeb };
