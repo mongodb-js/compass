@@ -1,9 +1,10 @@
 import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
-import type { ConnectionOptions, DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import type { UnboundDataServiceImplLogger } from './logger';
+import connect from './connect';
+import type { DataService } from './data-service';
+import type { ConnectionOptions } from './connection-options';
 
 const { mongoLogId } = createLoggerAndTelemetry('CONNECTION-ATTEMPT');
 
@@ -66,7 +67,7 @@ export class ConnectionAttempt {
       if (isConnectionAttemptTerminatedError(err as Error)) {
         this._logger.debug(
           'Connection Attempt',
-          mongoLogId(1_001_000_277),
+          mongoLogId(1_001_000_282),
           'connect',
           'caught connection attempt closed error',
           err
@@ -115,7 +116,7 @@ export class ConnectionAttempt {
       // silently wait for the timeout if it's still attempting to connect.
       this._logger.debug(
         'Connection Attempt',
-        mongoLogId(1_001_000_278),
+        mongoLogId(1_001_000_283),
         'close requested',
         'error while disconnecting from connection attempt',
         err

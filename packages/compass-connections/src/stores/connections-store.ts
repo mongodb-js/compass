@@ -497,7 +497,7 @@ export function useConnections({
 
     const newConnectionAttempt = createConnectionAttempt({
       connectFn,
-      log,
+      logger: log.unbound,
     });
     connectingConnectionAttempt.current = newConnectionAttempt;
 
