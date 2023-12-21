@@ -1027,6 +1027,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
