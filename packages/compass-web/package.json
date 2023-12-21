@@ -95,7 +95,7 @@
     "events": "^3.3.0",
     "hadron-app-registry": "^9.1.1",
     "mocha": "^10.2.0",
-    "mongodb-connection-string-url": "^3.0.0",
+    "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.16.2",
     "nyc": "^15.1.0",
     "path-browserify": "^1.0.1",
