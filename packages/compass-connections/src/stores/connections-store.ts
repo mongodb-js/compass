@@ -14,8 +14,9 @@ import type {
 import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import type { ConnectionAttempt } from '../modules/connection-attempt';
-import { createConnectionAttempt } from '../modules/connection-attempt';
+import type { ConnectionAttempt } from 'mongodb-data-service';
+import { createConnectionAttempt } from 'mongodb-data-service';
+
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
@@ -494,7 +495,10 @@ export function useConnections({
       return;
     }
 
-    const newConnectionAttempt = createConnectionAttempt(connectFn);
+    const newConnectionAttempt = createConnectionAttempt({
+      connectFn,
+      log,
+    });
     connectingConnectionAttempt.current = newConnectionAttempt;
 
     let connectionInfo: ConnectionInfo | undefined = undefined;
@@ -558,6 +562,12 @@ export function useConnections({
         };
       }
 
+      log.info(
+        mongoLogId(1001000004),
+        'Connection UI',
+        'Initiating connection attempt'
+      );
+
       const newConnectionDataService = await newConnectionAttempt.connect(
         adjustConnectionOptionsBeforeConnect({
           connectionOptions: connectionInfo.connectionOptions,
@@ -614,6 +624,12 @@ export function useConnections({
     recentConnections,
     favoriteConnections,
     cancelConnectionAttempt() {
+      log.info(
+        mongoLogId(1001000005),
+        'Connection UI',
+        'Canceling connection attempt'
+      );
+
       connectionAttempt?.cancelConnectionAttempt();
 
       dispatch({

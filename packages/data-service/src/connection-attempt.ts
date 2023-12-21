@@ -1,31 +1,36 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 import type { ConnectionOptions, DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-const { log, mongoLogId, debug } =
-  createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+import type { UnboundDataServiceImplLogger } from './logger';
+
+const { mongoLogId } = createLoggerAndTelemetry('CONNECTION-ATTEMPT');
 
 function isConnectionAttemptTerminatedError(err: Error) {
-  return err?.name === 'MongoError' && err?.message === 'Topology closed';
+  return err?.name === 'MongoTopologyClosedError';
 }
 
 export class ConnectionAttempt {
   _abortController: AbortController;
   _closed = false;
+  _connectFn: typeof connect;
   _dataService: DataService | null = null;
+  _logger: UnboundDataServiceImplLogger;
 
-  constructor(private _connectFn: typeof connect) {
+  constructor({
+    connectFn,
+    logger,
+  }: {
+    connectFn: typeof connect;
+    logger: UnboundDataServiceImplLogger;
+  }) {
+    this._logger = logger;
+    this._connectFn = connectFn;
     this._abortController = new AbortController();
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
-    log.info(
-      mongoLogId(1001000004),
-      'Connection UI',
-      'Initiating connection attempt'
-    );
-
     return raceWithAbort(
       this._connect(connectionOptions),
       this._abortController.signal
@@ -35,12 +40,6 @@ export class ConnectionAttempt {
   }
 
   cancelConnectionAttempt(): void {
-    log.info(
-      mongoLogId(1001000005),
-      'Connection UI',
-      'Canceling connection attempt'
-    );
-
     this._abortController.abort();
     void this._close();
   }
@@ -60,16 +59,28 @@ export class ConnectionAttempt {
       this._dataService = await this._connectFn({
         connectionOptions,
         signal: this._abortController.signal,
-        logger: log.unbound,
+        logger: this._logger,
       });
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err as Error)) {
-        debug('caught connection attempt closed error', err);
+        this._logger.debug(
+          'Connection Attempt',
+          mongoLogId(1_001_000_277),
+          'connect',
+          'caught connection attempt closed error',
+          err
+        );
         return;
       }
 
-      debug('connection attempt failed', err);
+      this._logger.debug(
+        'Connection Attempt',
+        mongoLogId(1_001_000_279),
+        'connect',
+        'connection attempt failed',
+        err
+      );
       throw err;
     }
   }
@@ -82,23 +93,46 @@ export class ConnectionAttempt {
     this._closed = true;
 
     if (!this._dataService) {
-      debug('cancelled connection attempt');
+      this._logger.debug(
+        'Connection Attempt',
+        mongoLogId(1_001_000_280),
+        'close requested',
+        'cancelled connection attempt'
+      );
       return;
     }
 
     try {
       await this._dataService.disconnect();
-      debug('disconnected from connection attempt');
+      this._logger.debug(
+        'Connection Attempt',
+        mongoLogId(1_001_000_281),
+        'close requested',
+        'disconnected from connection attempt'
+      );
     } catch (err) {
       // When the disconnect fails, we free up the ui and we can
       // silently wait for the timeout if it's still attempting to connect.
-      debug('error while disconnecting from connection attempt', err);
+      this._logger.debug(
+        'Connection Attempt',
+        mongoLogId(1_001_000_278),
+        'close requested',
+        'error while disconnecting from connection attempt',
+        err
+      );
     }
   }
 }
 
-export function createConnectionAttempt(
-  connectFn = connect
-): ConnectionAttempt {
-  return new ConnectionAttempt(connectFn);
+export function createConnectionAttempt({
+  logger,
+  connectFn = connect,
+}: {
+  logger: UnboundDataServiceImplLogger;
+  connectFn: typeof connect;
+}): ConnectionAttempt {
+  return new ConnectionAttempt({
+    logger,
+    connectFn,
+  });
 }
