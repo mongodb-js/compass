@@ -1124,12 +1124,12 @@ class CrudStoreImpl
     });
   }
 
-  async openBulkUpdateModal() {
+  async openBulkUpdateModal(updateText?: string) {
     track('Bulk Update Opened', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    await this.updateBulkUpdatePreview(INITIAL_BULK_UPDATE_TEXT);
+    await this.updateBulkUpdatePreview(updateText ?? INITIAL_BULK_UPDATE_TEXT);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -2130,6 +2130,15 @@ export function activateDocumentsPlugin(
 
   if (!options.noRefreshOnConfigure) {
     void store.refreshDocuments();
+  }
+
+  if ((options.query as any)?.update) {
+    // This will be set if the user clicked a bulk update query on the My Queries page
+    const initialUpdate: BSONObject | undefined = (options.query as any)
+      ?.update;
+    const updateText = initialUpdate ? toJSString(initialUpdate) : undefined;
+
+    void store.openBulkUpdateModal(updateText);
   }
 
   store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
