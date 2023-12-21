@@ -25,17 +25,6 @@ module.exports = async (env, args) => {
   config = merge(config, {
     resolve: {
       alias: {
-        // Leafygreen tries to include all the server-side emotion stuff in
-        // the client bundle, this requires packaging a ton of otherwise
-        // unneccessary polyfills. To work around this, we're prviding a
-        // minimally required polyfill for code not to break
-        //
-        // TODO(ticket): move this to shared config, all our code will benefit
-        // from this, also ask leafygreen again if they ever plan to fix this
-        '@emotion/server/create-instance': localPolyfill(
-          '@emotion/server/create-instance'
-        ),
-
         // TODO(ticket): data-service (only certain connection types, not
         // explicitly optional)
         '@mongodb-js/ssh-tunnel': false,
@@ -81,8 +70,7 @@ module.exports = async (env, args) => {
         'mongodb-client-encryption': false,
         kerberos: false,
 
-        // Things that are easier to polyfill than not to (TODO: we can limit
-        // the polyfilling here by not using third party packages for it)
+        // Things that are easier to polyfill than not to
         stream: require.resolve('readable-stream'),
         // The `/` so that we are resolving the installed polyfill version, not
         // a built-in Node.js one
@@ -98,6 +86,7 @@ module.exports = async (env, args) => {
         // depdendencies that might not be required for this to work in the
         // browser
         url: require.resolve('whatwg-url'),
+        // Make sure we're not getting multiple versions included
         'whatwg-url': require.resolve('whatwg-url'),
       },
     },
@@ -136,16 +125,20 @@ module.exports = async (env, args) => {
       },
       resolve: {
         alias: {
+          // TODO(ticket): move mongodb-browser from mms to the monorepo and
+          // package it too
           mongodb: require.resolve('@gribnoysup/mongodb-browser'),
 
           // NB: We polyfill those in `@gribnoysup/mongodb-browser` already, but
-          // devtools-connect does its own dns resolution for srv so we have to
-          // do it again. This is something that potentially mms will also need
-          // to do on their side if they ever want to support srv connections
-          // (but they don't need to, they already have a resolved info for
-          // connection on their side)
+          // devtools-connect does its own dns resolution (for a good reason
+          // COMPASS-4768) for srv so we have to do it again. This is something
+          // that potentially mms will also need to adjust on their side if they
+          // ever want to support passing srv connections as-is (but they don't
+          // need to, they already have a resolved info for connection on their
+          // side)
           dns: localPolyfill('dns'),
           'os-dns-native': localPolyfill('os-dns-native'),
+
           // We exclude it for the published distribution as it requires dns
           // resolution to work which is not expected. Re-include for the
           // sandbox
@@ -166,7 +159,8 @@ module.exports = async (env, args) => {
 
   return merge(config, {
     externals: {
-      // TODO(ticket): move mongodb-browser to the monorepo and package it too
+      // TODO(ticket): move mongodb-browser from mms to the monorepo and package
+      // it too
       mongodb: 'commonjs2 mongodb',
     },
   });

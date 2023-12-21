@@ -42,7 +42,7 @@ import {
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 
-// TODO(ticket): only required while these plugins are not converted to the new
+// TODO(COMPASS-7403): only required while these plugins are not converted to the new
 // plugin interface
 activateExplainPlanPluginRoles(globalAppRegistry);
 activateExportToLanguagePluginRoles(globalAppRegistry);

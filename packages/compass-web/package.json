@@ -26,15 +26,13 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
   },
   "types": "./dist/src/index.d.ts",
   "scripts": {
-    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",

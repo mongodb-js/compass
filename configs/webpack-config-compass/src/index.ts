@@ -88,6 +88,21 @@ const sharedResolveOptions = (
       // KeyObject instances from the Node.js crypto API (https://tinyurl.com/2rrtu2hy).
       // Manually resolve `jose` to use the Node.js export here.
       jose: require.resolve('jose'),
+
+      // Leafygreen tries to include all the server-side emotion stuff in the
+      // client bundle, this requires packaging a ton of otherwise unneccessary
+      // polyfills.To work around this, we're providing a minimally required
+      // polyfill for code not to break. This is mostly a problem for our web
+      // packages, but also not a bad thing at all for the electron app itself.
+      '@emotion/server/create-instance': path.resolve(
+        __dirname,
+        '..',
+        'polyfills',
+        '@emotion',
+        'server',
+        'create-instance',
+        'index.js'
+      ),
     },
   };
 };
