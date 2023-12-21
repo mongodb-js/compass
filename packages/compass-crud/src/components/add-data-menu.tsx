@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Icon,
   Tooltip,
@@ -6,6 +6,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model';
 
 const tooltipContainerStyles = css({
   display: 'flex',
@@ -25,6 +26,23 @@ function AddDataMenuButton({
   insertDataHandler: (openInsertKey: AddDataOption) => void;
   isDisabled?: boolean;
 }) {
+  const isImportExportEnabled = usePreference('enableImportExport');
+
+  const addDataActions = useMemo(() => {
+    const actions: MenuAction<AddDataOption>[] = [
+      { action: 'insert-document' as const, label: 'Insert document' },
+    ];
+
+    if (isImportExportEnabled) {
+      actions.unshift({
+        action: 'import-file' as const,
+        label: 'Import JSON or CSV file',
+      });
+    }
+
+    return actions;
+  }, [isImportExportEnabled]);
+
   return (
     <DropdownMenuButton<AddDataOption>
       data-testid="crud-add-data"
@@ -42,10 +60,6 @@ function AddDataMenuButton({
 }
 
 type AddDataOption = 'import-file' | 'insert-document';
-const addDataActions: MenuAction<AddDataOption>[] = [
-  { action: 'import-file', label: 'Import JSON or CSV file' },
-  { action: 'insert-document', label: 'Insert document' },
-];
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,

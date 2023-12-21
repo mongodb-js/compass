@@ -142,6 +142,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
+  const isImportExportEnabled = usePreference('enableImportExport');
+
   const displayedDocumentCount = useMemo(
     () => (loadingCount ? '' : `${count ?? 'N/A'}`),
     [loadingCount, count]
@@ -187,19 +189,21 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          <DropdownMenuButton<ExportDataOption>
-            data-testid="crud-export-collection"
-            actions={exportDataActions}
-            onAction={(action: ExportDataOption) =>
-              openExportFileDialog(action === 'export-full-collection')
-            }
-            buttonText="Export Data"
-            buttonProps={{
-              className: exportCollectionButtonStyles,
-              size: 'xsmall',
-              leftGlyph: <Icon glyph="Export" />,
-            }}
-          />
+          {isImportExportEnabled && (
+            <DropdownMenuButton<ExportDataOption>
+              data-testid="crud-export-collection"
+              actions={exportDataActions}
+              onAction={(action: ExportDataOption) =>
+                openExportFileDialog(action === 'export-full-collection')
+              }
+              buttonText="Export Data"
+              buttonProps={{
+                className: exportCollectionButtonStyles,
+                size: 'xsmall',
+                leftGlyph: <Icon glyph="Export" />,
+              }}
+            />
+          )}
           {!readonly && (
             <UpdateMenu
               isWritable={isWritable && !shouldDisableBulkOp}
