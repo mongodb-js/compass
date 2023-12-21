@@ -3,10 +3,6 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": [
-    "src/**/*",
-    "../data-service/src/connection-attempt.spec.ts",
-    "../data-service/src/connection-attempt.ts"
-  ],
+  "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }
