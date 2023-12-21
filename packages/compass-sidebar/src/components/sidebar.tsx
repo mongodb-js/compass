@@ -13,7 +13,6 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
-import FavoriteIndicator from './favorite-indicator';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from './connection-info-modal';
 import NonGenuineWarningModal from './non-genuine-warning-modal';
@@ -30,13 +29,39 @@ import type { RootState } from '../modules';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
-// NOTE: This covers both the typical case where we have no badges and the case where we do.
-const badgesPlaceholderStyles = css({
-  paddingTop: spacing[3],
+const sidebarStyles = css({
+  // Sidebar internally has z-indexes higher than zero. We set zero on the
+  // container so that the sidebar doesn't stick out in the layout z ordering
+  // with other parts of the app
+  zIndex: 0,
+});
+
+const connectionInfoContainerStyles = css({});
+
+const connectionBadgesContainerStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '100%',
+  gridTemplateRows: 'auto',
+  gap: spacing[2],
+  marginTop: spacing[3],
+  '&:empty': {
+    display: 'none',
+  },
+});
+
+const navigationItemsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  marginTop: spacing[2],
+  '&:first-child': {
+    marginTop: 2,
+  },
 });
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
+  showConnectionInfo = true,
   activeWorkspace,
   isExpanded,
   connectionInfo,
@@ -49,6 +74,7 @@ export function Sidebar({
   isGenuine,
   csfleMode,
 }: {
+  showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
   isExpanded: boolean;
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
@@ -153,39 +179,43 @@ export function Sidebar({
       expanded={isExpanded}
       setExpanded={setIsExpanded}
       data-testid="navigation-sidebar"
+      className={sidebarStyles}
     >
       <>
-        <SidebarTitle
-          title={getConnectionTitle(connectionInfo)}
-          isFavorite={!!connectionInfo.favorite}
-          isExpanded={isExpanded}
-          onAction={onAction}
-        />
-        {connectionInfo.favorite && (
-          <FavoriteIndicator favorite={connectionInfo.favorite} />
+        {showConnectionInfo && (
+          <div className={connectionInfoContainerStyles}>
+            <SidebarTitle
+              title={getConnectionTitle(connectionInfo)}
+              isFavorite={!!connectionInfo.favorite}
+              favoriteColor={connectionInfo.favorite?.color}
+              isExpanded={isExpanded}
+              onAction={onAction}
+            />
+            <div className={connectionBadgesContainerStyles}>
+              {isExpanded && (
+                <NonGenuineMarker
+                  isGenuine={isGenuine}
+                  showNonGenuineModal={showNonGenuineModal}
+                />
+              )}
+              {isExpanded && (
+                <CSFLEMarker
+                  csfleMode={csfleMode}
+                  toggleCSFLEModalVisible={toggleCSFLEModalVisible}
+                />
+              )}
+            </div>
+          </div>
         )}
 
-        <div className={badgesPlaceholderStyles}>
-          {isExpanded && (
-            <NonGenuineMarker
-              isGenuine={isGenuine}
-              showNonGenuineModal={showNonGenuineModal}
-            />
-          )}
-          {isExpanded && (
-            <CSFLEMarker
-              csfleMode={csfleMode}
-              toggleCSFLEModalVisible={toggleCSFLEModalVisible}
-            />
-          )}
+        <div className={navigationItemsContainerStyles}>
+          <NavigationItems
+            currentLocation={activeWorkspace?.type ?? null}
+            currentNamespace={activeWorkspace?.namespace ?? null}
+            isExpanded={isExpanded}
+            onAction={onAction}
+          />
         </div>
-
-        <NavigationItems
-          currentLocation={activeWorkspace?.type ?? null}
-          currentNamespace={activeWorkspace?.namespace ?? null}
-          isExpanded={isExpanded}
-          onAction={onAction}
-        />
 
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}

@@ -14,19 +14,11 @@ type CompassComponentsProviderProps = {
    */
   darkMode?: boolean;
   /**
-   * Leafygreen provider portalContainer property as a ref
-   */
-  portalContainerRef?: React.RefObject<HTMLElement>;
-  /**
-   * Leafygreen provider scrollContainer property as a ref
-   */
-  scrollContainerRef?: React.RefObject<HTMLElement>;
-  /**
    * Either React children or a render callback that will get the darkMode
    * property passed as function properties
    */
   children?:
-    | React.ReactChildren
+    | React.ReactNode
     | (({
         darkMode,
       }: {
