@@ -56,7 +56,7 @@
     "scripts": "dist/**/*.js",
     "assets": "scripts/garasign.sh",
     "targets": [
-      "node16-win-arm64"
+      "node16-win-x64"
     ],
     "outputPath": "dist",
     "output": "signtool"
