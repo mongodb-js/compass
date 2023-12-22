@@ -2,15 +2,17 @@
 /* eslint-disable no-sync */
 
 // Replaces signtool.exe in electron-winstaller with the emulated version
-// that uses the notary service.
+// that uses the garasign with ssh.
 
 const fs = require('fs');
-const path = require('path');
 
 if (process.platform !== 'win32') {
   console.info('Skip installing signtool.exe, not running on windows');
   process.exit(0);
 }
+
+// todo: check this
+const compassSigntool = require.resolve('@mongodb-js/compass-signtool/compass-signtool.exe');
 
 const originalSigntool = require.resolve('electron-winstaller/vendor/signtool.exe');
 
@@ -19,4 +21,4 @@ if (!fs.existsSync(originalSigntool)) {
 }
 
 fs.renameSync(originalSigntool, originalSigntool + '.bkp');
-fs.copyFileSync(path.resolve(__dirname, 'signtool.exe'), originalSigntool);
+fs.copyFileSync(compassSigntool, originalSigntool);

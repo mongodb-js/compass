@@ -17,7 +17,7 @@ const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
-const { signtool } = require('./signtool');
+const { sign: signtool } = require('@mongodb-js/compass-signtool');
 const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
