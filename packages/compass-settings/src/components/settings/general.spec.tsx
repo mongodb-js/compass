@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { GeneralSettings } from './general';
 import { configureStore } from '../../stores';
 import { fetchSettings } from '../../stores/settings';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('GeneralSettings', function () {
   let container: HTMLElement;
@@ -17,7 +18,10 @@ describe('GeneralSettings', function () {
   }
 
   beforeEach(async function () {
-    store = configureStore({ logger: stub() as any });
+    store = configureStore({
+      logger: stub() as any,
+      preferences: await createSandboxFromDefaultPreferences(),
+    });
     await store.dispatch(fetchSettings());
     const component = () => (
       <Provider store={store}>

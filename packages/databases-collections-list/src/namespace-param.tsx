@@ -97,7 +97,7 @@ export const NamespaceParam: React.FunctionComponent<{
   viewType: ViewType;
   insights?: React.ComponentProps<typeof SignalPopover>['signals'];
 }> = ({ label, value, status, hint, viewType, insights }) => {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
 
   const renderedValue = useMemo(() => {
     const isReady = status !== 'initial' && status !== 'fetching';

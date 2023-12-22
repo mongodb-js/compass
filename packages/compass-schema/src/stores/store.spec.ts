@@ -6,6 +6,7 @@ import { expect } from 'chai';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const dummyLogger = createLoggerAndTelemetry('TEST');
 
@@ -18,7 +19,7 @@ describe('Schema Store', function () {
     const dataService = 'test';
     const namespace = 'db.coll';
 
-    beforeEach(function () {
+    beforeEach(async function () {
       const plugin = activateSchemaPlugin(
         {
           namespace: namespace,
@@ -28,6 +29,7 @@ describe('Schema Store', function () {
           globalAppRegistry: globalAppRegistry,
           dataService: dataService as any,
           loggerAndTelemetry: dummyLogger,
+          preferences: await createSandboxFromDefaultPreferences(),
         },
         createActivateHelpers()
       );
@@ -80,7 +82,7 @@ describe('Schema Store', function () {
     const limit = 50;
     const project = { name: 1 };
 
-    beforeEach(function () {
+    beforeEach(async function () {
       const plugin = activateSchemaPlugin(
         {
           namespace: 'test',
@@ -90,6 +92,7 @@ describe('Schema Store', function () {
           globalAppRegistry: new EventEmitter() as any,
           dataService: {} as any,
           loggerAndTelemetry: dummyLogger,
+          preferences: await createSandboxFromDefaultPreferences(),
         },
         createActivateHelpers()
       );

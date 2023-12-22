@@ -7,7 +7,7 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
 } from './telemetry';
-import preferencesAccess from 'compass-preferences-model';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
@@ -37,13 +37,16 @@ describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
 
   before(async function () {
+    // TODO(COMPASS-7397): Proper dependency injection for logger + telemetry would be nice here!
     trackUsageStatistics =
-      preferencesAccess.getPreferences().trackUsageStatistics;
-    await preferencesAccess.savePreferences({ trackUsageStatistics: true });
+      defaultPreferencesInstance.getPreferences().trackUsageStatistics;
+    await defaultPreferencesInstance.savePreferences({
+      trackUsageStatistics: true,
+    });
   });
 
   after(async function () {
-    await preferencesAccess.savePreferences({ trackUsageStatistics });
+    await defaultPreferencesInstance.savePreferences({ trackUsageStatistics });
   });
 
   it('tracks a new connection attempt event - favorite', async function () {

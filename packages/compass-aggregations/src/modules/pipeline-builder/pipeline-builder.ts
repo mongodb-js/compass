@@ -8,6 +8,7 @@ import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 import type { DataService } from '../data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export const DEFAULT_PIPELINE = `[]`;
 
@@ -26,8 +27,12 @@ export class PipelineBuilder {
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
-  constructor(dataService: DataService, source = DEFAULT_PIPELINE) {
-    this.previewManager = new PipelinePreviewManager(dataService);
+  constructor(
+    dataService: DataService,
+    preferences: PreferencesAccess,
+    source = DEFAULT_PIPELINE
+  ) {
+    this.previewManager = new PipelinePreviewManager(dataService, preferences);
     this.changeSource(source);
     this.sourceToStages();
   }

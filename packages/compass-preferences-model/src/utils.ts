@@ -1,44 +1,42 @@
-import preferences, { preferencesAccess, usePreference } from '.';
-import type { AllPreferences, ParsedGlobalPreferencesResult } from '.';
+import { usePreference } from '.';
+import type {
+  AllPreferences,
+  ParsedGlobalPreferencesResult,
+  PreferencesAccess,
+  User,
+} from '.';
 import { setupPreferences } from './setup-preferences';
-import { UserStorage } from './storage';
-import type { ReactHooks } from './react';
+import type { UserStorage } from './storage';
+import { UserStorageImpl } from './storage';
 
 export async function setupPreferencesAndUser(
   globalPreferences: ParsedGlobalPreferencesResult
-): Promise<void> {
-  await setupPreferences(globalPreferences);
-  const userStorage = new UserStorage();
-  const user = await userStorage.getOrCreate(getActiveUserId());
+): Promise<{ userStorage: UserStorage; preferences: PreferencesAccess }> {
+  const preferences = await setupPreferences(globalPreferences);
+  const userStorage = new UserStorageImpl();
+  const user = await userStorage.getOrCreate(getActiveUserId(preferences));
   // update user id (telemetryAnonymousId) in preferences if new user was created.
   await preferences.savePreferences({ telemetryAnonymousId: user.id });
   await userStorage.updateUser(user.id, {
     lastUsed: new Date(),
   });
+  return { preferences, userStorage };
 }
 
-function getActiveUserId() {
+function getActiveUserId(preferences: PreferencesAccess): string | undefined {
   const { currentUserId, telemetryAnonymousId } = preferences.getPreferences();
   return currentUserId || telemetryAnonymousId;
 }
 
-export async function getActiveUser() {
-  const userStorage = new UserStorage();
-  const userId = getActiveUserId();
+export async function getActiveUser(
+  preferences: PreferencesAccess,
+  userStorage: UserStorage
+): Promise<User> {
+  const userId = getActiveUserId(preferences);
   if (!userId) {
     throw new Error('User not setup.');
   }
   return userStorage.getUser(userId);
-}
-
-export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
-  const preferenceMaxTimeMS = preferencesAccess.getPreferences().maxTimeMS;
-  if (typeof value === 'number' && typeof preferenceMaxTimeMS === 'number') {
-    return Math.min(value, preferenceMaxTimeMS);
-  } else if (typeof preferenceMaxTimeMS === 'number') {
-    return preferenceMaxTimeMS;
-  }
-  return value;
 }
 
 /**
@@ -54,7 +52,7 @@ export function isAIFeatureEnabled(
     | 'enableGenAIFeatures'
     | 'enableGenAIExperience'
     | 'cloudFeatureRolloutAccess'
-  > = preferencesAccess.getPreferences()
+  >
 ) {
   const {
     // a "kill switch" property from configuration file to be able to disable
@@ -72,13 +70,10 @@ export function isAIFeatureEnabled(
   );
 }
 
-export function useIsAIFeatureEnabled(React: ReactHooks) {
-  const enableGenAIFeatures = usePreference('enableGenAIFeatures', React);
-  const enableGenAIExperience = usePreference('enableGenAIExperience', React);
-  const cloudFeatureRolloutAccess = usePreference(
-    'cloudFeatureRolloutAccess',
-    React
-  );
+export function useIsAIFeatureEnabled() {
+  const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIExperience = usePreference('enableGenAIExperience');
+  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,

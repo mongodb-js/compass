@@ -1,7 +1,11 @@
 import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import {
+  capMaxTimeMSAtPreferenceLimit,
+  defaultPreferencesInstance,
+} from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import type { Action, AnyAction, Reducer } from 'redux';
@@ -70,6 +74,7 @@ type ExplainPlanAppRegistry = Pick<AppRegistry, 'on' | 'emit'>;
 
 type ExplainPlanModalExtraArgs = {
   dataService: ExplainPlanDataService;
+  preferences: PreferencesAccess;
   localAppRegistry?: ExplainPlanAppRegistry;
 };
 
@@ -210,7 +215,7 @@ const DEFAULT_MAX_TIME_MS = 60_000;
 export const openExplainPlanModal = (
   event: OpenExplainPlanModalEvent
 ): ExplainPlanModalThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, preferences }) => {
     const { id: fetchId, signal } = getAbortSignal();
 
     let rawExplainPlan = null;
@@ -242,6 +247,7 @@ export const openExplainPlanModal = (
 
         const explainOptions = {
           maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
             maxTimeMS ?? DEFAULT_MAX_TIME_MS
           ),
         };
@@ -281,6 +287,7 @@ export const openExplainPlanModal = (
         const explainOptions = {
           ...options,
           maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
             options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
           ),
         };
@@ -378,6 +385,8 @@ export function configureStore({
       thunk.withExtraArgument({
         dataService: dataProvider.dataProvider,
         localAppRegistry,
+        // TODO(COMPASS-7403): Take this as service argument
+        preferences: defaultPreferencesInstance,
       })
     )
   );

@@ -3,7 +3,7 @@ import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import { ConnectedDocumentList } from './components/connected-document-list';
+import { DocumentListWithReadonly } from './components/connected-document-list';
 import { activateDocumentsPlugin } from './stores/crud-store';
 import {
   dataServiceLocator,
@@ -18,6 +18,8 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const activate = () => {
   // noop
@@ -29,11 +31,15 @@ const deactivate = () => {
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,
-  { dataService: () => DataService; instance: () => MongoDBInstance }
+  {
+    dataService: () => DataService;
+    instance: () => MongoDBInstance;
+    preferences: () => PreferencesAccess;
+  }
 >(
   {
     name: 'CompassDocuments',
-    component: ConnectedDocumentList as any, // as any because of reflux store
+    component: DocumentListWithReadonly as any, // as any because of reflux store
     activate: activateDocumentsPlugin,
   },
   {
@@ -42,6 +48,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin<
       OptionalDataServiceProps
     >,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
   }
 );
 

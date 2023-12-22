@@ -27,6 +27,7 @@ import type { InputExpression } from '../modules/transpiler';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
+import { usePreference } from 'compass-preferences-model';
 const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
 type LanguageOption = {
@@ -116,6 +117,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     modalOpenChanged(false);
   };
 
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const [transpiledExpression, errorMessage] = useMemo(() => {
     try {
       const output = runTranspiler({
@@ -126,6 +128,7 @@ const ExportToLanguageModal: React.FunctionComponent<
         useBuilders,
         uri,
         namespace,
+        protectConnectionStrings,
       });
       return [output, null];
     } catch (e) {
@@ -139,6 +142,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     outputLanguage,
     uri,
     useBuilders,
+    protectConnectionStrings,
   ]);
 
   const includeUseBuilders = outputLanguage === 'java' && isQuery(mode);

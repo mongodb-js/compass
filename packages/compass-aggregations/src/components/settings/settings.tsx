@@ -121,8 +121,7 @@ function Settings({
   toggleSettingsIsExpanded,
 }: SettingsProps) {
   const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions',
-    React
+    'enableAggregationBuilderExtraOptions'
   );
   const darkMode = useDarkMode();
   const onSampleSizeChanged = useCallback(

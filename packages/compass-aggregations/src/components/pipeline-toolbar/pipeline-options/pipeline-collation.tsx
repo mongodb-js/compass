@@ -66,7 +66,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
     },
     [maxTimeMSChanged]
   );
-  const maxTimeMSLimit = usePreference('maxTimeMS', React);
+  const maxTimeMSLimit = usePreference('maxTimeMS');
 
   return (
     <div
@@ -135,7 +135,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
 const mapState = ({ collationString, maxTimeMS }: RootState) => ({
   collationValue: collationString.text,
   collationHasError: !collationString.isValid,
-  maxTimeMSValue: maxTimeMS,
+  maxTimeMSValue: maxTimeMS.current,
 });
 
 const mapDispatch = {

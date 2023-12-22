@@ -21,6 +21,8 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 chai.use(chaiAsPromised);
 
@@ -99,11 +101,13 @@ describe('store', function () {
   let dataService: DataService;
   let deactivate: (() => void) | null = null;
   let instance: MongoDBInstance;
+  let preferences: PreferencesAccess;
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
   before(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     dataService = await connect({
       connectionOptions: {
         connectionString: cluster().connectionString,
@@ -181,6 +185,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -279,6 +284,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -332,6 +338,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -378,6 +385,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -424,6 +432,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -469,6 +478,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -514,6 +524,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -627,6 +638,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -909,6 +921,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -991,6 +1004,49 @@ describe('store', function () {
     });
   });
 
+  describe('favourited bulk update queries coming from My Queries', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          query: {
+            update: {
+              $set: {
+                foo: 1,
+              },
+            },
+          },
+        },
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+          preferences,
+        },
+        createActivateHelpers()
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('opens the bulk update modal if there is an initial options.query.update value', async function () {
+      const listener = waitForState(store, (state) => {
+        expect(state.bulkUpdate.isOpen).to.equal(true);
+        expect(state.bulkUpdate.updateText).to.match(
+          /{\s+\$set:\s+{\s+foo:\s+1\s+}\s+}/
+        );
+      });
+
+      await listener;
+    });
+  });
+
   describe('#bulkDeleteDialog', function () {
     let store: CrudStore;
 
@@ -1007,6 +1063,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1086,6 +1143,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1243,6 +1301,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1414,6 +1473,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1585,6 +1645,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1768,6 +1829,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1809,6 +1871,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1847,6 +1910,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -1883,6 +1947,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -1959,6 +2024,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2004,6 +2070,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2046,6 +2113,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2090,6 +2158,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2141,6 +2210,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2207,6 +2277,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -2314,6 +2385,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -2757,6 +2829,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );
@@ -2812,6 +2885,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2897,6 +2971,7 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
           },
           createActivateHelpers()
         );
@@ -2955,6 +3030,7 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
         },
         createActivateHelpers()
       );

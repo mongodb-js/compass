@@ -2,7 +2,6 @@ import type {
   PreferencesAccess,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
-import { preferencesAccess } from 'compass-preferences-model';
 import { pick } from '../utils/pick';
 
 // Wrapper class for preferences to be able to pass it as a thunk extra arg
@@ -17,12 +16,12 @@ export class PreferencesSandbox {
   }
   constructor(
     private preferences: Pick<
-      typeof preferencesAccess,
+      PreferencesAccess,
       | 'createSandbox'
       | 'ensureDefaultConfigurableUserPreferences'
       | 'getPreferences'
       | 'savePreferences'
-    > = preferencesAccess
+    >
   ) {}
 
   async setupSandbox() {

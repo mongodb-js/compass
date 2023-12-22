@@ -226,3 +226,5 @@ export function useActiveWorkspace() {
 }
 
 export const workspacesServiceLocator = useWorkspacesService;
+
+export { useWorkspacePlugins } from './components/workspaces-provider';

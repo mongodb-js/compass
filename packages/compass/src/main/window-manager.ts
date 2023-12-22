@@ -18,7 +18,6 @@ import { enable } from '@electron/remote/main';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import preferences from 'compass-preferences-model';
 import {
   getWindowAutoConnectPreferences,
   onCompassDisconnect,
@@ -159,6 +158,7 @@ function showConnectWindow(
   };
 
   debug('creating new main window:', windowOpts);
+  const { preferences } = compassApp;
   const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
@@ -346,7 +346,7 @@ class CompassWindowManager {
       },
       'compass:get-window-auto-connect-preferences': (evt) => {
         const bw = BrowserWindow.fromWebContents(evt.sender);
-        return getWindowAutoConnectPreferences(bw);
+        return getWindowAutoConnectPreferences(bw, compassApp.preferences);
       },
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });

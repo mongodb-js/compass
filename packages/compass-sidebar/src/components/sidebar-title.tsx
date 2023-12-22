@@ -8,10 +8,12 @@ import {
   spacing,
   ItemActionControls,
   useDarkMode,
+  useDefaultAction,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import FavoriteIndicator from './favorite-indicator';
 
 type Action =
   | 'copy-connection-string'
@@ -94,11 +96,13 @@ const iconButtonStyle = css({
 function SidebarTitle({
   title,
   isFavorite,
+  favoriteColor,
   onAction,
   isExpanded = false,
 }: {
   title: string;
   isFavorite: boolean;
+  favoriteColor?: string;
   isExpanded?: boolean;
   onAction(actionName: Action, ...rest: any[]): void;
 }) {
@@ -144,28 +148,34 @@ function SidebarTitle({
     }
   }, [isExpanded, onAction, openMyQueriesWorkspace]);
 
+  const defaultActionProps = useDefaultAction(onClick);
+
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div
-      className={cx(sidebarTitle)}
-      data-testid="sidebar-title"
-      onClick={onClick}
-    >
-      <TitleLogo />
-      {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
-      {isExpanded && (
-        <ItemActionControls<Action>
-          onAction={onAction}
-          iconSize="small"
-          actions={actions}
-          data-testid="sidebar-title-actions"
-          iconClassName={cx(
-            iconButtonStyle,
-            darkMode ? iconButtonDark : iconButtonLight
-          )}
-        ></ItemActionControls>
+    <>
+      <div
+        className={cx(sidebarTitle)}
+        data-testid="sidebar-title"
+        {...defaultActionProps}
+      >
+        <TitleLogo />
+        {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
+        {isExpanded && (
+          <ItemActionControls<Action>
+            onAction={onAction}
+            iconSize="small"
+            actions={actions}
+            data-testid="sidebar-title-actions"
+            iconClassName={cx(
+              iconButtonStyle,
+              darkMode ? iconButtonDark : iconButtonLight
+            )}
+          ></ItemActionControls>
+        )}
+      </div>
+      {isFavorite && favoriteColor && (
+        <FavoriteIndicator favoriteColor={favoriteColor}></FavoriteIndicator>
       )}
-    </div>
+    </>
   );
 }
 

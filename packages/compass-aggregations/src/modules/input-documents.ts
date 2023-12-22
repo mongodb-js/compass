@@ -1,5 +1,5 @@
 import HadronDocument from 'hadron-document';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
@@ -104,11 +104,11 @@ export const updateInputDocuments = (
 export const refreshInputDocuments = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const {
       dataService: { dataService },
       namespace: ns,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       settings: { sampleSize },
     } = getState();
 
@@ -117,7 +117,9 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
     }
 
     const options = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS) as number | undefined,
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, maxTimeMS) as
+        | number
+        | undefined,
     };
 
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];

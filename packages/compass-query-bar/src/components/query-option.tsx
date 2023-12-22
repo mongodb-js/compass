@@ -9,7 +9,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';

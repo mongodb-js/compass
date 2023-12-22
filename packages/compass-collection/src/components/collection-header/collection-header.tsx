@@ -149,7 +149,7 @@ export const CollectionHeader: React.FunctionComponent<
   stats,
 }) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const {
     openCollectionsWorkspace,
     openCollectionWorkspace,

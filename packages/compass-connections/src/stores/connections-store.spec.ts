@@ -6,7 +6,9 @@ import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import preferencesAccess from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createElement } from 'react';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 const noop = (): any => {
   /* no-op */
@@ -34,20 +36,21 @@ const mockConnections = [
 ];
 
 describe('use-connections hook', function () {
-  let persistOIDCTokens: boolean | undefined;
   let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
   let deleteSpy: sinon.SinonSpy;
   let loadSpy: sinon.SinonSpy;
+  let renderHookWithContext: typeof renderHook;
 
   before(async function () {
-    persistOIDCTokens = preferencesAccess.getPreferences().persistOIDCTokens;
-    await preferencesAccess.savePreferences({ persistOIDCTokens: false });
-  });
-
-  after(async function () {
-    await preferencesAccess.savePreferences({ persistOIDCTokens });
+    const preferences = await createSandboxFromDefaultPreferences();
+    renderHookWithContext = (callback, options) => {
+      const wrapper: React.FC = ({ children }) =>
+        createElement(PreferencesProvider, { children, value: preferences });
+      return renderHook(callback, { wrapper, ...options });
+    };
+    await preferences.savePreferences({ persistOIDCTokens: false });
   });
 
   beforeEach(function () {
@@ -71,7 +74,7 @@ describe('use-connections hook', function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -100,7 +103,7 @@ describe('use-connections hook', function () {
       ]);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -131,7 +134,7 @@ describe('use-connections hook', function () {
       ]);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -155,7 +158,7 @@ describe('use-connections hook', function () {
   describe('#connect', function () {
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
           connectionStorage: mockConnectionStorage,
@@ -179,7 +182,7 @@ describe('use-connections hook', function () {
 
     it('allows connecting to a dynamically provided connection info object', async function () {
       const onConnected = sinon.spy();
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
           connectionStorage: mockConnectionStorage,
@@ -210,7 +213,7 @@ describe('use-connections hook', function () {
       beforeEach(async function () {
         mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
 
-        const { result } = renderHook(() =>
+        const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             connectionStorage: mockConnectionStorage,
@@ -269,7 +272,7 @@ describe('use-connections hook', function () {
     describe('saving a new connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
-        const { result } = renderHook(() =>
+        const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             connectionStorage: mockConnectionStorage,
@@ -314,7 +317,7 @@ describe('use-connections hook', function () {
     describe('saving an invalid connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
-        const { result } = renderHook(() =>
+        const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             connectionStorage: mockConnectionStorage,
@@ -352,7 +355,7 @@ describe('use-connections hook', function () {
       beforeEach(async function () {
         mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
 
-        const { result } = renderHook(() =>
+        const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             connectionStorage: mockConnectionStorage,
@@ -441,7 +444,7 @@ describe('use-connections hook', function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -468,7 +471,7 @@ describe('use-connections hook', function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -516,7 +519,7 @@ describe('use-connections hook', function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,
@@ -574,7 +577,7 @@ describe('use-connections hook', function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
-      const { result } = renderHook(() =>
+      const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
           connectionStorage: mockConnectionStorage,

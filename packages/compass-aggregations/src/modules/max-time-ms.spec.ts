@@ -14,13 +14,19 @@ describe('max-time-ms module', function () {
   describe('#reducer', function () {
     context('when the action is not limit changed', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' } as any)).to.equal(null);
+        expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal({
+          current: null,
+          preferencesValue: null,
+        });
       });
     });
 
     context('when the action is maxTimeMSChanged changed', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, maxTimeMSChanged(100))).to.equal(100);
+        expect(reducer(undefined, maxTimeMSChanged(100))).to.deep.equal({
+          current: 100,
+          preferencesValue: null,
+        });
       });
     });
   });

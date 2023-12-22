@@ -18,12 +18,15 @@ const errorBoundaryStyles = css({
 });
 
 export interface SidebarPluginProps {
+  showConnectionInfo?: boolean;
   // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
   // away with refactoring compoass-conneciton to a plugin
   initialConnectionInfo?: ConnectionInfo | null | undefined;
 }
 
-const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = () => {
+const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
+  showConnectionInfo,
+}) => {
   const activeWorkspace = useActiveWorkspace();
   return (
     <ErrorBoundary
@@ -38,7 +41,10 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = () => {
         );
       }}
     >
-      <Sidebar activeWorkspace={activeWorkspace} />
+      <Sidebar
+        showConnectionInfo={showConnectionInfo}
+        activeWorkspace={activeWorkspace}
+      />
     </ErrorBoundary>
   );
 };

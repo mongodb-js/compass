@@ -39,17 +39,16 @@ class D3Component extends Component {
   static propTypes = {
     fieldName: PropTypes.string.isRequired,
     type: PropTypes.object.isRequired,
-    localAppRegistry: PropTypes.object.isRequired,
     renderMode: PropTypes.oneOf(['svg', 'div']),
     width: PropTypes.number,
     height: PropTypes.number,
-    fn: PropTypes.func.isRequired,
+    chart: PropTypes.any.isRequired,
     query: PropTypes.any,
   };
 
   constructor(props) {
     super(props);
-    this.state = { chart: this.props.fn(this.props.localAppRegistry) };
+    this.state = { chart: this.props.chart };
   }
 
   componentDidMount() {

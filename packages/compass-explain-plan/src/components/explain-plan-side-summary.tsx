@@ -144,7 +144,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
   onCreateIndexInsightClick,
 }) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
 
   const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
 

@@ -7,7 +7,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<void> => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
     const {
       collationString: { value: collation },
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
     } = getState();
 
     dispatch(
