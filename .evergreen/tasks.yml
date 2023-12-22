@@ -105,6 +105,10 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
+      # todo: this should only happen on windows and does not belong here.
+      # this function needs to be called in the package task
+      # so that its used in all packaging distributions (read-only, isolated, etc.)
+      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'

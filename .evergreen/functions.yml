@@ -369,8 +369,6 @@ functions:
             sleep 10
           done
   package:
-    # todo: this should only happen on windows
-    - func: spawn-host-for-windows-signing
     - command: shell.exec
       params:
         working_dir: src
