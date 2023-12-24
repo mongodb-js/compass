@@ -24,7 +24,7 @@ func main() {
 	fileToSignPath := os.Args[len(os.Args)-1]
 
 	command := fmt.Sprintf(
-		"npx run @mongodb-js/compass-signtool %s --client=remote --host=%s --private-key=%s",
+		"npx @mongodb-js/compass-signtool %s --client=remote --host=%s --private-key=%s",
 		fileToSignPath,
 		os.Getenv("SSH_HOSTNAME"),
 		os.Getenv("SSH_PRIVATE_KEY"),
