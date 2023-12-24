@@ -366,7 +366,7 @@ functions:
             ((attempts++))
             printf "SSH connection attempt %d/%d failed. Retrying...\n" "$attempts" "$connection_attempts"
             ## sleep for Permission denied (publickey) errors
-            sleep 10
+            sleep 20
           done
   package:
     - command: shell.exec
