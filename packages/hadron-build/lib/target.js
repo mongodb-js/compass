@@ -17,7 +17,6 @@ const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
-const { sign: signtool } = require('@mongodb-js/compass-signtool');
 const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
@@ -28,7 +27,11 @@ async function signLinuxPackage(src) {
 
 async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
-  await signtool(src);
+  const { sign: signtool } = require('@mongodb-js/compass-signtool');
+  await signtool(src, 'remote', {
+    host: process.env.SSH_HOSTNAME,
+    privateKey: process.env.SSH_PRIVATE_KEY,
+  });
   debug('Successfully signed %s', src);
 }
 
