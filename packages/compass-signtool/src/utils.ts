@@ -1,3 +1,11 @@
+import { SSHClient, type SSHClientOptions } from './ssh-client';
+import {
+  type SigningClient,
+  LocalSigningClient,
+  RemoteSigningClient,
+} from './signing-clients';
+
+// eslint-disable-next-line no-console
 export const debug = console.log;
 
 export function assertRequiredVars() {
@@ -12,3 +20,26 @@ export function assertRequiredVars() {
     }
   });
 }
+
+const getSshClient = async (sshOptions: SSHClientOptions) => {
+  const sshClient = new SSHClient(sshOptions);
+  await sshClient.connect();
+  return sshClient;
+};
+
+export type ClientType = 'local' | 'remote';
+export type ClientOptions<T> = T extends 'remote'
+  ? SSHClientOptions
+  : Record<string, unknown>;
+
+const SIGNING_DIR = '/home/ubuntu/garasign';
+export const getSigningClient = async <T extends ClientType>(
+  client: T,
+  options: ClientOptions<T>
+): Promise<SigningClient> => {
+  if (client === 'remote') {
+    const sshClient = await getSshClient(options);
+    return new RemoteSigningClient(sshClient, SIGNING_DIR);
+  }
+  return new LocalSigningClient(SIGNING_DIR);
+};

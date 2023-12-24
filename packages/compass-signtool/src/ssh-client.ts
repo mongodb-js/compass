@@ -1,12 +1,11 @@
-import { Client, SFTPWrapper } from 'ssh2';
-import { readFileSync } from 'fs';
+import type { SFTPWrapper } from 'ssh2';
+import { Client, type ConnectConfig } from 'ssh2';
+import { readFile } from 'fs/promises';
 import { debug } from './utils';
 
-type SSHClientOptions = {
-  host: string;
-  port: number;
-  username: string;
-  privateKey: string;
+export type SSHClientOptions = ConnectConfig & {
+  // Absolute path to private key file. We will read it when connecting.
+  privateKey?: string;
 };
 
 export class SSHClient {
@@ -40,10 +39,13 @@ export class SSHClient {
     if (this.connected) {
       return Promise.resolve();
     }
-    return new Promise(async (resolve, reject) => {
+    const privateKey = this.sshClientOptions.privateKey
+      ? await readFile(this.sshClientOptions.privateKey)
+      : undefined;
+    return new Promise((resolve, reject) => {
       this.sshConnection.connect({
         ...this.sshClientOptions,
-        privateKey: readFileSync(this.sshClientOptions.privateKey),
+        privateKey,
       });
       this.sshConnection.on('error', reject);
       this.sshConnection.on('ready' as any, resolve);

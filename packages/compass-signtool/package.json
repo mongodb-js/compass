@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-signtool",
-  "description": "Signtool to sign Compass windows artifacts",
+  "description": "Signtool to sign Compass artifacts",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -25,13 +25,13 @@
   "main": "dist/index.js",
   "exports": {
     "import": "./dist/.esm-wrapper.mjs",
-    "require": "./dist/index.js",
-    "compass-signtool.exe": "./dist/compass-signtool.exe"
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
+  "bin": "./bin/sign.js",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
@@ -47,19 +47,7 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "build": "npm run compile && pkg package.json",
-    "postinstall": "npm run build"
-  },
-  "bin": "dist/cli.js",
-  "pkg": {
-    "scripts": "dist/**/*.js",
-    "assets": "scripts/garasign.sh",
-    "targets": [
-      "node16-win-x64"
-    ],
-    "outputPath": "dist",
-    "output": "signtool"
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.12",
@@ -70,12 +58,12 @@
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
+    "commander": "^11.1.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "pkg": "^5.8.1",
     "prettier": "^2.7.1",
     "sinon": "^17.0.1",
     "ssh2": "^1.15.0",

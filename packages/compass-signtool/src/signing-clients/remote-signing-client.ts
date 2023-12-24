@@ -1,9 +1,10 @@
 import path from 'path';
 import type { SFTPWrapper } from 'ssh2';
-import type { SSHClient } from './ssh-client';
-import { debug } from './utils';
+import type { SSHClient } from '../ssh-client';
+import { debug } from '../utils';
+import type { SigningClient } from '.';
 
-export class SigningClient {
+export class RemoteSigningClient implements SigningClient {
   private sftpConnection!: SFTPWrapper;
 
   constructor(private sshClient: SSHClient, private rootDir: string) {}
@@ -14,18 +15,14 @@ export class SigningClient {
    * - Create a working directory on the remote machine
    * - Copy the signing script to the remote machine
    */
-  async init() {
+  private async init() {
     this.sftpConnection = await this.sshClient.getSftpConnection();
     await this.sshClient.exec(`mkdir -p ${this.rootDir}`);
 
     // Copy the signing script to the remote machine
     {
       const remoteGarasignScript = `${this.rootDir}/garasign.sh`;
-      const localGarasignScript = path.join(
-        __dirname,
-        '..',
-        './scripts/garasign.sh'
-      );
+      const localGarasignScript = path.join(__dirname, '..', './garasign.sh');
       await this.copyFile(localGarasignScript, remoteGarasignScript);
       await this.sshClient.exec(`chmod +x ${remoteGarasignScript}`);
     }
@@ -84,7 +81,7 @@ export class SigningClient {
     ];
     const command = cmds.join(' && ');
     const res = await this.sshClient.exec(command);
-    console.log('Sign remote file response\n', res.trim());
+    debug('Sign remote file response\n', res.trim());
   }
 
   async sign(file: string): Promise<void> {
@@ -104,6 +101,7 @@ export class SigningClient {
     } finally {
       await this.removeFile(remotePath);
       debug(`SFTP: Removed remote file ${remotePath}`);
+      this.sshClient.disconnect();
     }
   }
 }
