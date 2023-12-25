@@ -293,10 +293,10 @@ const _abortAggregation = (controller?: AbortController): void => {
 const fetchAggregationData = (
   page = 1
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const {
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       dataService: { dataService },
       aggregation: { limit, abortController: _abortController, pipeline },
       collationString: { value: collation },
@@ -331,6 +331,7 @@ const fetchAggregationData = (
 
       const documents = await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline,
@@ -405,7 +406,7 @@ export const exportAggregationResults =
       const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS.current ?? DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
         collation: collation ?? undefined,
       };

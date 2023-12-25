@@ -8,6 +8,7 @@ enum ResizeDirection {
 }
 
 const baseResizerStyles = css({
+  all: 'unset',
   position: 'absolute',
   background: 'transparent',
   padding: 0,
@@ -17,18 +18,22 @@ const baseResizerStyles = css({
   opacity: '0',
   outline: 'none',
   zIndex: 100,
-  ':focus': {
+  '&:focus': {
     opacity: 1,
   },
-  ':hover': {
+  '&:hover': {
     transitionDelay: '250ms',
     opacity: 1,
   },
   WebkitAppearance: 'none',
-  '::-webkit-slider-thumb': {
+  '&::-moz-range-thumb': {
+    width: 0,
+    height: 0,
+  },
+  '&::-webkit-slider-thumb': {
     WebkitAppearance: 'none',
   },
-  '::-ms-track': {
+  '&::-ms-track': {
     background: 'none',
     borderColor: 'none',
     color: 'none',
@@ -36,6 +41,7 @@ const baseResizerStyles = css({
 });
 
 const verticalResizerStyle = css({
+  height: '100%',
   width: '4px !important',
   right: '-2px',
   bottom: 0,

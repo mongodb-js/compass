@@ -18,7 +18,7 @@ import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
@@ -112,7 +112,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
 }) => {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
 

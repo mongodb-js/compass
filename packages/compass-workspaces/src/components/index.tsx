@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { css } from '@mongodb-js/compass-components';
+import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -36,7 +36,12 @@ type WorkspacesWithSidebarProps = {
   /**
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
-  initialWorkspaceTab?: OpenWorkspaceOptions;
+  initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+  /**
+   * Workspace configuration to be opened when all tabs are closed (defaults to
+   * "My Queries")
+   */
+  openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
   /**
    * Workspaces sidebar component slot Required so that plugin modals can be
    * rendered inside workspace React tree and access workspace state and actions
@@ -51,8 +56,19 @@ type WorkspacesWithSidebarProps = {
   renderModals?: () => React.ReactElement | null;
 };
 
+const containerLightThemeStyles = css({
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
+});
+
+const containerDarkThemeStyles = css({
+  backgroundColor: palette.black,
+  color: palette.white,
+});
+
 const horizontalSplitStyles = css({
   width: '100%',
+  height: '100%',
   display: 'grid',
   gridTemplateColumns: 'min-content auto',
   minHeight: 0,
@@ -72,10 +88,12 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 > = ({
   activeTab,
   activeTabCollectionInfo,
+  openOnEmptyWorkspace,
   onActiveWorkspaceTabChange,
   renderSidebar,
   renderModals,
 }) => {
+  const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
   useEffect(() => {
@@ -83,12 +101,17 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   }, [activeTab, activeTabCollectionInfo]);
   return (
     <WorkspacesServiceProvider>
-      <div className={horizontalSplitStyles}>
+      <div
+        className={cx(
+          horizontalSplitStyles,
+          darkMode ? containerDarkThemeStyles : containerLightThemeStyles
+        )}
+      >
         <div className={sidebarStyles}>
           {renderSidebar && React.createElement(renderSidebar)}
         </div>
         <div className={workspacesStyles}>
-          <Workspaces></Workspaces>
+          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
         </div>
       </div>
       {renderModals && React.createElement(renderModals)}

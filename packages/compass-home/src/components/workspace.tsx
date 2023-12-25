@@ -2,12 +2,10 @@ import React from 'react';
 import { css } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { CompassShellPlugin } from '@mongodb-js/compass-shell';
-import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
 } from '@mongodb-js/compass-collection';
-import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -17,10 +15,20 @@ import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
-import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
-import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
+import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
+import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
+import {
+  CreateNamespacePlugin,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
+} from '@mongodb-js/compass-databases-collections';
+import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -38,13 +46,11 @@ const shellContainerStyles = css({
 export default function Workspace({
   connectionInfo,
   onActiveWorkspaceTabChange,
-  renderModals,
 }: {
   connectionInfo: ConnectionInfo | null | undefined;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
-  renderModals?: () => React.ReactElement;
 }): React.ReactElement {
   return (
     <div data-testid="home" className={verticalSplitStyles}>
@@ -65,9 +71,10 @@ export default function Workspace({
             CompassIndexesPlugin,
             CompassSchemaValidationPlugin,
           ]}
+          queryBar={CompassQueryBarPlugin}
         >
           <WorkspacesPlugin
-            initialWorkspaceTab={{ type: 'My Queries' }}
+            initialWorkspaceTabs={[{ type: 'My Queries' }]}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => {
               return (
@@ -76,7 +83,18 @@ export default function Workspace({
                 />
               );
             }}
-            renderModals={renderModals}
+            renderModals={() => {
+              return (
+                <>
+                  <ImportPlugin></ImportPlugin>
+                  <ExportPlugin></ExportPlugin>
+                  <CreateViewPlugin></CreateViewPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
+                  <DropNamespacePlugin></DropNamespacePlugin>
+                  <RenameCollectionPlugin></RenameCollectionPlugin>
+                </>
+              );
+            }}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>

@@ -107,7 +107,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
 
   const insight = useMemo(() => {
     if (stage) {

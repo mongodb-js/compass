@@ -59,6 +59,5 @@ export default withPreferences(
       };
     }
   )(PrivacySettings),
-  ['cloudFeatureRolloutAccess'],
-  React
+  ['cloudFeatureRolloutAccess']
 );

@@ -86,11 +86,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference(
-    'enableAtlasSearchIndexManagement',
-    React
+    'enableAtlasSearchIndexManagement'
   );
 
-  const showInsights = usePreference('showInsights', React) && !errorMessage;
+  const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -310,4 +309,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(IndexesToolbar, ['readOnly'], React));
+)(withPreferences(IndexesToolbar, ['readOnly']));

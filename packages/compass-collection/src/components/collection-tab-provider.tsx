@@ -7,19 +7,40 @@ export interface CollectionTabPlugin {
   component: HadronPluginComponent<CollectionTabPluginMetadata, any>;
 }
 
-const CollectionTabsContext = React.createContext<CollectionTabPlugin[]>([]);
-
-export const CollectionTabsProvider: React.FunctionComponent<{
+type CollectionTabComponentsProviderValue = {
   tabs: CollectionTabPlugin[];
-}> = ({ tabs, children }) => {
-  const tabsRef = useRef(tabs);
+  modals: CollectionTabPlugin['component'][];
+  queryBar: CollectionTabPlugin['component'];
+};
+
+const defaultComponents: CollectionTabComponentsProviderValue = {
+  tabs: [],
+  modals: [],
+  queryBar: (() => null) as any,
+};
+
+const CollectionTabComponentsContext =
+  React.createContext<CollectionTabComponentsProviderValue>(defaultComponents);
+
+export const CollectionTabsProvider: React.FunctionComponent<
+  Partial<CollectionTabComponentsProviderValue>
+> = ({ children, ...props }) => {
+  const valueRef = useRef({ ...defaultComponents, ...props });
   return (
-    <CollectionTabsContext.Provider value={tabsRef.current}>
+    <CollectionTabComponentsContext.Provider value={valueRef.current}>
       {children}
-    </CollectionTabsContext.Provider>
+    </CollectionTabComponentsContext.Provider>
   );
 };
 
-export function useCollectionTabPlugins(): CollectionTabPlugin[] {
-  return useContext(CollectionTabsContext);
+export function useCollectionSubTabs() {
+  return useContext(CollectionTabComponentsContext).tabs;
+}
+
+export function useCollectionScopedModals() {
+  return useContext(CollectionTabComponentsContext).modals;
+}
+
+export function useCollectionQueryBar() {
+  return useContext(CollectionTabComponentsContext).queryBar;
 }

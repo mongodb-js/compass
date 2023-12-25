@@ -82,11 +82,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions',
-    React
+    'enableAggregationBuilderExtraOptions'
   );
-  const showInsights = usePreference('showInsights', React);
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const showInsights = usePreference('showInsights');
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
 
   return (
     <div className={containerStyles}>

@@ -5,6 +5,7 @@ import type CompassShellComponentType from './components/compass-shell';
 import type AppRegistry from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { DataService } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export function ShellPlugin() {
   const [ShellComponent, setShellComponent] = useState<
@@ -45,10 +46,12 @@ export function onActivated(
     globalAppRegistry,
     logger,
     dataService,
+    preferences,
   }: {
     globalAppRegistry: AppRegistry;
     logger: LoggerAndTelemetry;
     dataService: DataService;
+    preferences: PreferencesAccess;
   }
 ) {
   const store = new CompassShellStore();
@@ -56,6 +59,7 @@ export function onActivated(
     globalAppRegistry,
     logger,
     dataService,
+    preferences,
   });
   return {
     store: store.reduxStore,

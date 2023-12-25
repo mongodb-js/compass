@@ -5,7 +5,7 @@ import { Toolbar } from './toolbar/toolbar';
 import RecentList from './recent-list';
 import FavoriteList from './favorite-list';
 
-import { connect } from 'react-redux';
+import { connect } from '../../stores/context';
 import type { RootState } from '../../stores/query-bar-store';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 

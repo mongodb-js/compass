@@ -273,4 +273,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(SearchIndexesTable, ['readOnly'], React));
+)(withPreferences(SearchIndexesTable, ['readOnly']));

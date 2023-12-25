@@ -161,7 +161,7 @@ const reducer: Reducer<WorkspacesState> = (
     const currentActiveTab = getActiveTab(state);
     let newTab: WorkspaceTab;
     if (!currentActiveTab) {
-      newTab = getInitialTabState({ type: 'My Queries' });
+      newTab = getInitialTabState(action.defaultTab);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, ...tabProps } = currentActiveTab;
@@ -479,10 +479,16 @@ export const selectNextTab = (): SelectNextTabAction => {
 
 type OpenTabFromCurrentActiveAction = {
   type: WorkspacesActions.OpenTabFromCurrentActive;
+  defaultTab: OpenWorkspaceOptions;
 };
 
-export const openTabFromCurrent = (): OpenTabFromCurrentActiveAction => {
-  return { type: WorkspacesActions.OpenTabFromCurrentActive };
+export const openTabFromCurrent = (
+  defaultTab?: OpenWorkspaceOptions | null
+): OpenTabFromCurrentActiveAction => {
+  return {
+    type: WorkspacesActions.OpenTabFromCurrentActive,
+    defaultTab: defaultTab ?? { type: 'My Queries' },
+  };
 };
 
 type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };

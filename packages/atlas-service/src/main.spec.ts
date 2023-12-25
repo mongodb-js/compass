@@ -2,8 +2,8 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
-import preferencesAccess from 'compass-preferences-model';
-import type { UserPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 
@@ -71,9 +71,8 @@ describe('AtlasServiceMain', function () {
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const userStore = AtlasService['atlasUserConfigStore'];
-  const getActiveCompassUser = AtlasService['getActiveCompassUser'];
 
-  let cloudFeatureRolloutAccess: UserPreferences['cloudFeatureRolloutAccess'];
+  let preferences: PreferencesAccess;
 
   beforeEach(async function () {
     AtlasService['ipcMain'] = {
@@ -85,27 +84,23 @@ describe('AtlasServiceMain', function () {
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
-    AtlasService['getActiveCompassUser'] = () =>
-      Promise.resolve({
-        id: 'test',
-        createdAt: new Date(),
-        lastUsed: new Date(),
-      });
+    AtlasService['getUserId'] = () => Promise.resolve('test');
 
     AtlasService['config'] = defaultConfig;
 
     AtlasService['setupPlugin']();
     AtlasService['attachOidcPluginLoggerEvents']();
 
-    cloudFeatureRolloutAccess =
-      preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
-    await preferencesAccess.savePreferences({
+    preferences = await createSandboxFromDefaultPreferences();
+    AtlasService['preferences'] = preferences;
+    await preferences.savePreferences({
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: true,
       },
     });
   });
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   afterEach(async function () {
     AtlasService['fetch'] = fetch;
     AtlasService['atlasUserConfigStore'] = userStore;
@@ -115,9 +110,6 @@ describe('AtlasServiceMain', function () {
     AtlasService['oidcPluginLogger'].removeAllListeners();
     AtlasService['signInPromise'] = null;
     AtlasService['currentUser'] = null;
-    AtlasService['getActiveCompassUser'] = getActiveCompassUser;
-
-    await preferencesAccess.savePreferences({ cloudFeatureRolloutAccess });
 
     sandbox.resetHistory();
   });
@@ -453,7 +445,10 @@ describe('AtlasServiceMain', function () {
 
   describe('init', function () {
     it('should try to restore service state by fetching user info', async function () {
-      await AtlasService.init(defaultConfig);
+      await AtlasService.init(defaultConfig, {
+        preferences,
+        getUserId: AtlasService['getUserId'],
+      });
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
@@ -463,15 +458,8 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('with networkTraffic turned off', function () {
-    let networkTraffic: boolean;
-
-    before(async function () {
-      networkTraffic = preferencesAccess.getPreferences().networkTraffic;
-      await preferencesAccess.savePreferences({ networkTraffic: false });
-    });
-
-    after(async function () {
-      await preferencesAccess.savePreferences({ networkTraffic });
+    beforeEach(async function () {
+      await preferences.savePreferences({ networkTraffic: false });
     });
 
     for (const methodName of [
@@ -503,7 +491,10 @@ describe('AtlasServiceMain', function () {
       const logger = new EventEmitter();
       AtlasService['openExternal'] = sandbox.stub().resolves();
       AtlasService['oidcPluginLogger'] = logger;
-      await AtlasService.init(defaultConfig);
+      await AtlasService.init(defaultConfig, {
+        preferences,
+        getUserId: AtlasService['getUserId'],
+      });
       expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
@@ -546,7 +537,7 @@ describe('AtlasServiceMain', function () {
 
   describe('setupAIAccess', function () {
     beforeEach(async function () {
-      await preferencesAccess.savePreferences({
+      await preferences.savePreferences({
         cloudFeatureRolloutAccess: undefined,
       });
     });
@@ -567,7 +558,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['fetch'] = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
 
       await AtlasService.setupAIAccess();
@@ -578,7 +569,7 @@ describe('AtlasServiceMain', function () {
       expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.deep.equal({
         GEN_AI_COMPASS: true,
       });
@@ -600,7 +591,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['fetch'] = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
 
       await AtlasService.setupAIAccess();
@@ -611,7 +602,7 @@ describe('AtlasServiceMain', function () {
       expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.deep.equal({
         GEN_AI_COMPASS: false,
       });
@@ -629,7 +620,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['fetch'] = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
 
       await AtlasService.setupAIAccess();
@@ -640,7 +631,7 @@ describe('AtlasServiceMain', function () {
       expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.deep.equal({
         GEN_AI_COMPASS: false,
       });
@@ -651,7 +642,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['fetch'] = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
 
       await AtlasService.setupAIAccess();
@@ -662,7 +653,7 @@ describe('AtlasServiceMain', function () {
       expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
-        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+        preferences.getPreferences().cloudFeatureRolloutAccess;
       expect(currentCloudFeatureRolloutAccess).to.deep.equal(undefined);
     });
   });

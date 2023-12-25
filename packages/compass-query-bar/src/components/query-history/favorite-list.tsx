@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { connect } from '../../stores/context';
 import {
   applyFromHistory,
   deleteFavoriteQuery,
@@ -37,7 +37,7 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const readOnlyCompass = usePreference('readOnly', React);
+  const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);

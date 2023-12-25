@@ -1,3 +1,4 @@
+import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
 
 import appRegistry, {
@@ -29,6 +30,9 @@ import isLoaded, { INITIAL_STATE as IS_LOADED_STATE } from './is-loaded';
 import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 import type AppRegistry from 'hadron-app-registry';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import type { DataService } from 'mongodb-data-service';
 
 /**
  * Reset action constant.
@@ -65,6 +69,19 @@ export type RootAction =
   | IsLoadedAction
   | EditModeAction
   | ResetAction;
+
+export type SchemaValidationExtraArgs = {
+  dataService: DataService;
+  preferences: PreferencesAccess;
+};
+
+export type SchemaValidationThunkDispatch<A extends Action = AnyAction> =
+  ThunkDispatch<RootState, SchemaValidationExtraArgs, A>;
+
+export type SchemaValidationThunkAction<
+  R,
+  A extends Action = AnyAction
+> = ThunkAction<R, RootState, SchemaValidationExtraArgs, A>;
 
 /**
  * The intial state of the root reducer.

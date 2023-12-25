@@ -3,51 +3,53 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import preferencesAccess from 'compass-preferences-model';
 
 import { IndexesToolbar } from './indexes-toolbar';
-
-const renderIndexesToolbar = (
-  props: Partial<React.ComponentProps<typeof IndexesToolbar>> = {}
-) => {
-  render(
-    <IndexesToolbar
-      indexView="regular-indexes"
-      hasTooManyIndexes={false}
-      errorMessage={null}
-      isReadonlyView={false}
-      readOnly={false}
-      isWritable={true}
-      writeStateDescription={undefined}
-      onRefreshIndexes={() => {}}
-      isAtlasSearchSupported={false}
-      isRefreshing={false}
-      onChangeIndexView={() => {}}
-      onCreateRegularIndex={() => {}}
-      onCreateSearchIndex={() => {}}
-      {...props}
-    />
-  );
-};
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('IndexesToolbar Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
+  let preferences: PreferencesAccess;
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
+  const renderIndexesToolbar = (
+    props: Partial<React.ComponentProps<typeof IndexesToolbar>> = {}
+  ) => {
+    render(
+      <PreferencesProvider value={preferences}>
+        <IndexesToolbar
+          indexView="regular-indexes"
+          hasTooManyIndexes={false}
+          errorMessage={null}
+          isReadonlyView={false}
+          readOnly={false}
+          isWritable={true}
+          writeStateDescription={undefined}
+          onRefreshIndexes={() => {}}
+          isAtlasSearchSupported={false}
+          isRefreshing={false}
+          onChangeIndexView={() => {}}
+          onCreateRegularIndex={() => {}}
+          onCreateSearchIndex={() => {}}
+          {...props}
+        />
+      </PreferencesProvider>
+    );
+  };
+
   describe('when rendered', function () {
     describe('with atlas search index management is disabled', function () {
-      let sandbox: sinon.SinonSandbox;
-
-      afterEach(function () {
-        return sandbox.restore();
-      });
-
-      beforeEach(function () {
-        sandbox = sinon.createSandbox();
-        sandbox.stub(preferencesAccess, 'getPreferences').returns({
+      beforeEach(async function () {
+        await preferences.savePreferences({
           enableAtlasSearchIndexManagement: false,
           showInsights: true,
-        } as any);
+        });
 
         renderIndexesToolbar({});
       });
@@ -61,18 +63,11 @@ describe('IndexesToolbar Component', function () {
 
     describe('with atlas search index management is enabled', function () {
       describe('when cluster has Atlas Search available', function () {
-        let sandbox: sinon.SinonSandbox;
-
-        afterEach(function () {
-          return sandbox.restore();
-        });
-
-        beforeEach(function () {
-          sandbox = sinon.createSandbox();
-          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        beforeEach(async function () {
+          await preferences.savePreferences({
             enableAtlasSearchIndexManagement: true,
             showInsights: true,
-          } as any);
+          });
 
           renderIndexesToolbar({ isAtlasSearchSupported: true });
         });
@@ -94,18 +89,11 @@ describe('IndexesToolbar Component', function () {
       });
 
       describe('when cluster does not support Atlas Search', function () {
-        let sandbox: sinon.SinonSandbox;
-
-        afterEach(function () {
-          return sandbox.restore();
-        });
-
-        beforeEach(function () {
-          sandbox = sinon.createSandbox();
-          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        beforeEach(async function () {
+          await preferences.savePreferences({
             enableAtlasSearchIndexManagement: true,
             showInsights: true,
-          } as any);
+          });
 
           renderIndexesToolbar({ isAtlasSearchSupported: false });
         });
@@ -184,16 +172,12 @@ describe('IndexesToolbar Component', function () {
   });
 
   describe('allows creating of indexes', function () {
-    let sandbox: sinon.SinonSandbox;
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    beforeEach(async function () {
+      await preferences.savePreferences({
         enableAtlasSearchIndexManagement: true,
-      } as any);
+      });
     });
-    afterEach(function () {
-      sandbox.restore();
-    });
+
     context('when search indexes is not supported', function () {
       it('calls onCreateRegularIndex when index button is clicked', function () {
         const onCreateRegularIndexSpy = sinon.spy();
@@ -310,19 +294,13 @@ describe('IndexesToolbar Component', function () {
   });
 
   describe('segment control', function () {
-    let sandbox: sinon.SinonSandbox;
     let onChangeViewCallback: sinon.SinonSpy;
 
-    afterEach(function () {
-      return sandbox.restore();
-    });
-
-    beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+    beforeEach(async function () {
+      await preferences.savePreferences({
         enableAtlasSearchIndexManagement: true,
         showInsights: true,
-      } as any);
+      });
 
       onChangeViewCallback = sinon.spy();
     });

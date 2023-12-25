@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import {
   Body,
   ErrorSummary,
@@ -7,14 +7,13 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-
 import type { AnalysisState } from '../../constants/analysis-states';
 import {
   ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_TIMEOUT,
   ANALYSIS_STATE_COMPLETE,
 } from '../../constants/analysis-states';
-import type AppRegistry from 'hadron-app-registry';
+import { QueryBar } from '@mongodb-js/compass-query-bar';
 
 const schemaToolbarStyles = css({
   display: 'flex',
@@ -60,7 +59,6 @@ type SchemaToolbarProps = {
   analysisState: AnalysisState;
   errorMessage: string;
   isOutdated: boolean;
-  localAppRegistry: AppRegistry;
   onAnalyzeSchemaClicked: () => void;
   onResetClicked: () => void;
   sampleSize: number;
@@ -71,24 +69,11 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
   errorMessage,
   isOutdated,
-  localAppRegistry,
   onAnalyzeSchemaClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
 }) => {
-  const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
-
-  const queryBarRef = useRef<{
-    component: React.ComponentType<any>;
-    store: any; // Query bar store is not currently typed.
-  }>({
-    component: queryBarRole.component,
-    store: localAppRegistry.getStore(queryBarRole.storeName!),
-  });
-
-  const QueryBarComponent = queryBarRef.current.component;
-
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
     [sampleSize]
@@ -97,8 +82,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   return (
     <div className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
-        <QueryBarComponent
-          store={queryBarRef.current.store}
+        <QueryBar
           buttonLabel="Analyze"
           resultId={schemaResultId}
           onApply={onAnalyzeSchemaClicked}

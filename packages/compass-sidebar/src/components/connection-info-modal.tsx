@@ -170,7 +170,7 @@ function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
       break;
 
     default:
-      clusterType = ServerType.humanize(servers[0].type);
+      clusterType = ServerType.humanize(servers[0]?.type ?? 'Unknown');
       break;
   }
 
