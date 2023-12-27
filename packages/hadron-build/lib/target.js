@@ -14,7 +14,7 @@ const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-cod
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
-const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
+// const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
 const { sign: signtool } = require('@mongodb-js/compass-signtool');
@@ -22,7 +22,8 @@ const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
   debug('Signing ... %s', src);
-  await mongodbNotaryServiceClient(src);
+  // await mongodbNotaryServiceClient(src);
+  await signtool(src, 'local');
   debug('Successfully signed %s', src);
 }
 
