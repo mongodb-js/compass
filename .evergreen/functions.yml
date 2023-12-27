@@ -389,7 +389,7 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             "$(printf "%s@%s" "$user" "$hostname")" \
-            run-on-ssh.sh spawned_hosts.json
+            ./run-on-ssh.sh spawned_hosts.json
 
           # copy file from remote host
           scp \
