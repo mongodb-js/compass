@@ -369,6 +369,11 @@ functions:
             sleep 10
           done
 
+          set -xv
+
+          echo "Current directory: $(pwd)"
+          echo "Directory listing: $(ls -la)"
+
           echo "SSH connection established. Copying files..."
           scp \
             -i "$identity_file" \
