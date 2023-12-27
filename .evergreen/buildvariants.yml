@@ -100,11 +100,16 @@ buildvariants:
 
       - name: test-electron
 
+      - name: spawn-windows-signing-host
+
       - name: package-compass
+        depends_on: spawn-windows-signing-host
 
       - name: package-compass-readonly
+        depends_on: spawn-windows-signing-host
 
       - name: package-compass-isolated
+        depends_on: spawn-windows-signing-host
 
       - name: test-packaged-app-40x-community
         depends_on: package-compass

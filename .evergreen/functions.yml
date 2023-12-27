@@ -312,16 +312,6 @@ functions:
         file: src/packages/compass/expansions.yml
 
   spawn-host-for-windows-signing:
-    # if we are not on windows, we don't need to spawn a host
-    - command: shell.exec
-      params:
-        script: |
-          set -e
-          echo "IS_WINDOWS: $IS_WINDOWS"
-          if ! [ "$IS_WINDOWS" = "true" ]; then
-            echo "Skipping host.spawn because we are not on windows"
-            exit 0
-          fi
     # spawn
     - command: host.create
       type: setup
