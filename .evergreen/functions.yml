@@ -82,8 +82,8 @@ variables:
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
     GARASIGN_USERNAME: ${garasign_username}
     GARASIGN_PASSWORD: ${garasign_password}
-    DOCKER_ARTIFACTORY_USERNAME: ${artifactory_username}
-    DOCKER_ARTIFACTORY_PASSWORD: ${artifactory_password}
+    ARTIFACTORY_USERNAME: ${artifactory_username}
+    ARTIFACTORY_PASSWORD: ${artifactory_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -391,7 +391,7 @@ functions:
 
           echo "Running signing script on remote host..."
           # Pass env variables to remote host and run script
-          command="export garasign_username=$GARASIGN_USERNAME && export garasign_password=${GARASIGN_PASSWORD} && export docker_artifactory_username=${DOCKER_ARTIFACTORY_USERNAME} && export docker_artifactory_password=${DOCKER_ARTIFACTORY_PASSWORD} && ./run-on-ssh.sh spawned_hosts.json"
+          command="garasign_username=$GARASIGN_USERNAME garasign_password=${GARASIGN_PASSWORD} artifactory_username=${ARTIFACTORY_USERNAME} artifactory_password=${ARTIFACTORY_PASSWORD} ./run-on-ssh.sh spawned_hosts.json"
           ssh \
             -i "$identity_file" \
             -o ForwardAgent=yes \

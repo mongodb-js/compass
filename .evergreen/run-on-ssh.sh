@@ -8,15 +8,15 @@ fi
 set -e
 echo "Checking environment variables"
 echo "garasign_username: ${garasign_username}"
-echo "docker_artifactory_username: ${docker_artifactory_username}"
+echo "artifactory_username: ${artifactory_username}"
 
 if [ -z ${garasign_username+omitted} ]; then echo "garasign_username is unset" && exit 1; fi
 if [ -z ${garasign_password+omitted} ]; then echo "garasign_password is unset" && exit 1; fi
-if [ -z ${docker_artifactory_username+omitted} ]; then echo "docker_artifactory_username is unset" && exit 1; fi
-if [ -z ${docker_artifactory_password+omitted} ]; then echo "docker_artifactory_password is unset" && exit 1; fi
+if [ -z ${artifactory_username+omitted} ]; then echo "artifactory_username is unset" && exit 1; fi
+if [ -z ${artifactory_password+omitted} ]; then echo "artifactory_password is unset" && exit 1; fi
 
 echo "Logging into docker artifactory"
-echo "${docker_artifactory_password}" | docker login --password-stdin --username ${docker_artifactory_username} artifactory.corp.mongodb.com
+echo "${artifactory_password}" | docker login --password-stdin --username ${artifactory_username} artifactory.corp.mongodb.com
 
 # If the docker login failed, exit
 [ $? -ne 0 ] && exit $?
