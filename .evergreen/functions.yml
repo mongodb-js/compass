@@ -370,7 +370,7 @@ functions:
           done
 
           echo "Current directory: $(pwd)"
-          echo "Directory listing: $(ls -la)"
+          echo "Directory listing: $(ls -la src)"
 
           echo "SSH connection established. Copying files..."
           scp \
@@ -400,13 +400,20 @@ functions:
             "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
             spawned_hosts.json
 
+          exit 1
     - command: s3.put
       params:
         <<: *save-artifact-params-public
         local_file: spawned_hosts.json
         remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
         optional: true
-
+    # terminate
+    - command: shell.exec
+      params:
+        exec_as_string: true
+        shell: bash
+        script: |
+          exit 1
   package:
     - command: shell.exec
       params:
