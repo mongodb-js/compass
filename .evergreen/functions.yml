@@ -369,8 +369,6 @@ functions:
             sleep 10
           done
 
-          set -xv
-
           echo "Current directory: $(pwd)"
           echo "Directory listing: $(ls -la)"
 
@@ -381,7 +379,7 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             spawned_hosts.json \
-            src/.evergreen/run-on-ssh.sh \
+            .evergreen/run-on-ssh.sh \
             "$(printf "%s@%s:%s" "$user" "$hostname")"
 
           echo "Running signing script on remote host..."
@@ -391,7 +389,7 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             "$(printf "%s@%s" "$user" "$hostname")" \
-            src/.evergreen/run-on-ssh.sh spawned_hosts.json
+            .evergreen/run-on-ssh.sh spawned_hosts.json
 
           # copy file from remote host
           scp \

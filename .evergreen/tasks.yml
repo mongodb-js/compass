@@ -94,11 +94,6 @@ tasks:
       - func: bootstrap
       - func: publish-packages-next
 
-  - name: spawn-windows-signing-host
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: spawn-host-for-windows-signing
-
   - name: package-compass
     tags: ['required-for-publish', 'run-on-pr']
     commands:
@@ -110,6 +105,7 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
+      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
