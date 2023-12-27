@@ -417,6 +417,13 @@ class Target {
     }
 
     this.createInstaller = async() => {
+      // no secret data in debug logs
+      console.log('Signing Windows package...', {
+        host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
+        privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
+        username: process.env.WINDOWS_SIGNING_SERVER_USERNAME,
+        port: process.env.WINDOWS_SIGNING_SERVER_PORT
+      });
       // sign the main application .exe
       await signWindowsPackage(
         path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
