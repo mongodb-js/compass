@@ -379,7 +379,7 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             spawned_hosts.json \
-            .evergreen/run-on-ssh.sh \
+            src/.evergreen/run-on-ssh.sh \
             "$(printf "%s@%s:%s" "$user" "$hostname")"
 
           echo "Running signing script on remote host..."
@@ -389,7 +389,7 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             "$(printf "%s@%s" "$user" "$hostname")" \
-            .evergreen/run-on-ssh.sh spawned_hosts.json
+            src/.evergreen/run-on-ssh.sh spawned_hosts.json
 
           # copy file from remote host
           scp \
