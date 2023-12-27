@@ -328,7 +328,7 @@ functions:
     - command: host.list
       params:
         num_hosts: 1
-        path: ~/spawned_hosts.json
+        path: spawned_hosts.json
         timeout_seconds: 1200
         wait: true
     # copy ssh key (this key will be used to connect to ssh server)
@@ -350,7 +350,7 @@ functions:
         shell: bash
         script: |
           user=ubuntu
-          hostname=$(tr -d '"[]{}' < ~/spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
           identity_file=~/.ssh/mcipacker.pem
 
           attempts=0
@@ -376,7 +376,7 @@ functions:
       params:
         updates:
         - key: windows_signing_server_hostname
-          value: ~/spawned_hosts.json
+          value: spawned_hosts.json
         - key: windows_signing_server_username
           value: ubuntu
         - key: windows_signing_server_private_key
