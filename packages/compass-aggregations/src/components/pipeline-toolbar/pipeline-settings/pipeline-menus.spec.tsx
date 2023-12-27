@@ -19,7 +19,8 @@ describe('PipelineMenus', function () {
       onCreateViewSpy = spy();
       render(
         <SaveMenuComponent
-          isCreateViewAvailable={true}
+          isSaveEnabled={true}
+          isCreateViewEnabled={true}
           pipelineName={'Name'}
           onSave={onSaveSpy}
           onSaveAs={onSaveAsSpy}
@@ -65,7 +66,8 @@ describe('PipelineMenus', function () {
     it('does not render createView menu option', function () {
       render(
         <SaveMenuComponent
-          isCreateViewAvailable={false}
+          isSaveEnabled={true}
+          isCreateViewEnabled={false}
           pipelineName={'Name'}
           onSave={spy()}
           onSaveAs={spy()}
