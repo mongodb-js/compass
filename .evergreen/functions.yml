@@ -409,7 +409,6 @@ functions:
             "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
             ../spawned_hosts.json
 
-          exit 1
     - command: s3.put
       params:
         <<: *save-artifact-params-public
