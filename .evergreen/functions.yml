@@ -406,7 +406,7 @@ functions:
             -o ForwardAgent=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
-            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
+            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json.sig")" \
             ../spawned_hosts.json
 
     - command: s3.put
