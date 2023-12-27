@@ -391,7 +391,7 @@ functions:
 
           echo "Running signing script on remote host..."
           # Pass env variables to remote host and run script
-          command="garasign_username=$GARASIGN_USERNAME garasign_password=${GARASIGN_PASSWORD} artifactory_username=${ARTIFACTORY_USERNAME} artifactory_password=${ARTIFACTORY_PASSWORD} ./run-on-ssh.sh spawned_hosts.json"
+          command="garasign_username=$GARASIGN_USERNAME garasign_password=$GARASIGN_PASSWORD artifactory_username=$ARTIFACTORY_USERNAME artifactory_password=$ARTIFACTORY_PASSWORD ./run-on-ssh.sh spawned_hosts.json"
           ssh \
             -i "$identity_file" \
             -o ForwardAgent=yes \
