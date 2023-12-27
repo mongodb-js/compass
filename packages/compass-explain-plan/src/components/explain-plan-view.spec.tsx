@@ -1,11 +1,11 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render as _render, screen } from '@testing-library/react';
 import { ExplainPlanView } from './explain-plan-view';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { configureStore } from '../stores/explain-plan-modal-store';
+import { activatePlugin } from '../stores';
 
 const simpleExplain = new ExplainPlan({
   queryPlanner: {
@@ -45,25 +45,27 @@ const simpleExplain = new ExplainPlan({
   ok: 1,
 } as unknown as Stage).serialize();
 
+function render(props: React.ComponentProps<typeof ExplainPlanView>) {
+  const { store } = activatePlugin(
+    { namespace: 'test.test', isDataLake: false },
+    { dataService: {}, localAppRegistry: {}, preferences: {} } as any,
+    { on() {}, cleanup() {} } as any
+  );
+  return _render(
+    <Provider store={store}>
+      <ExplainPlanView {...props}></ExplainPlanView>
+    </Provider>
+  );
+}
+
 describe('ExplainPlanView', function () {
   afterEach(cleanup);
 
   it('should render explain plan', function () {
-    render(
-      <Provider
-        store={configureStore({
-          namespace: 'test.test',
-          dataProvider: { dataProvider: {} as any },
-          isDataLake: false,
-          localAppRegistry: { on() {}, emit() {} } as any,
-        })}
-      >
-        <ExplainPlanView
-          explainPlan={simpleExplain}
-          rawExplainPlan={simpleExplain.originalExplainData}
-        ></ExplainPlanView>
-      </Provider>
-    );
+    render({
+      explainPlan: simpleExplain,
+      rawExplainPlan: simpleExplain.originalExplainData,
+    });
     expect(screen.getByText('COLLSCAN')).to.exist;
     expect(screen.getByText('Query Performance Summary')).to.exist;
     expect(screen.getByTestId('docsReturned'))
@@ -84,17 +86,15 @@ describe('ExplainPlanView', function () {
   });
 
   it('should render error when there is no explain plan', function () {
-    render(<ExplainPlanView error="No explain plan"></ExplainPlanView>);
+    render({ error: 'No explain plan' });
     expect(screen.getByText('No explain plan')).to.exist;
   });
 
   it('should render raw explain when explain was not parsed successfully', function () {
-    render(
-      <ExplainPlanView
-        rawExplainPlan={simpleExplain.originalExplainData}
-        error="Can't parse explain plan"
-      ></ExplainPlanView>
-    );
+    render({
+      rawExplainPlan: simpleExplain.originalExplainData,
+      error: "Can't parse explain plan",
+    });
     expect(
       screen.getByText(
         'Visual explain plan is not supported with this query on this collection in this Compass release',

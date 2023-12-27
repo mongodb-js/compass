@@ -1,5 +1,4 @@
-import type { Store } from 'redux';
-import { Provider, connect } from 'react-redux';
+import { connect } from 'react-redux';
 import React from 'react';
 import {
   Button,
@@ -14,13 +13,17 @@ import {
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 export type ExplainPlanModalProps = Partial<
   Pick<
     ExplainPlanModalState,
     'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
   >
-> & { onModalClose(): void };
+> &
+  Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
+    onModalClose(): void;
+  };
 
 const explainPlanModalContentStyles = css({
   '& > div': {
@@ -135,10 +138,4 @@ const ConnectedExplainPlanModal = connect(
   }
 )(ExplainPlanModal);
 
-export default function ExplainPlanModalPlugin({ store }: { store: Store }) {
-  return (
-    <Provider store={store}>
-      <ConnectedExplainPlanModal></ConnectedExplainPlanModal>
-    </Provider>
-  );
-}
+export default ConnectedExplainPlanModal;
