@@ -101,7 +101,7 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: '@mongodb-js/webpack-config-compass'
+          scope: "'@mongodb-js/{webpack-config-compass,compass-signtool}'"
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
