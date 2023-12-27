@@ -31,7 +31,7 @@ async function signWindowsPackage(src) {
   await signtool(src, 'remote', {
     host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
     privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
-    username:  process.env.WINDOWS_SIGNING_SERVER_USERNAME,
+    username: process.env.WINDOWS_SIGNING_SERVER_USERNAME,
     port: process.env.WINDOWS_SIGNING_SERVER_PORT
   });
   debug('Successfully signed %s', src);
