@@ -383,13 +383,15 @@ functions:
             "$(printf "%s@%s:%s" "$user" "$hostname")"
 
           echo "Running signing script on remote host..."
+          # Pass env variables to remote host and run script
+          command="export garasign_username=$GARASIGN_USERNAME && garasign_password=${GARASIGN_PASSWORD} && docker_artifactory_username=${DOCKER_ARTIFACTORY_USERNAME} && docker_artifactory_password=${DOCKER_ARTIFACTORY_PASSWORD} && ./run-on-ssh.sh spawned_hosts.json"
           ssh \
             -i "$identity_file" \
             -o ForwardAgent=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             "$(printf "%s@%s" "$user" "$hostname")" \
-            ./run-on-ssh.sh spawned_hosts.json
+            "$command"
 
           # copy file from remote host
           scp \
