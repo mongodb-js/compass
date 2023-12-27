@@ -32,6 +32,9 @@ file=$1
 echo "File to be signed: $file"
 echo "Working directory: $directory"
 
+echo "Listing files in working directory before signing"
+ls -la
+
 docker run \
     --env-file=signing-envfile \
     --rm \
@@ -39,6 +42,9 @@ docker run \
     -w $directory \
     artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-gpg \
     /bin/bash -c "gpgloader && gpg --yes -v --armor -o $file.sig --detach-sign $file"
+
+echo "Listing files in working directory after signing"
+ls -la
 
 rm signing-envfile
 echo "Finished signing $file"

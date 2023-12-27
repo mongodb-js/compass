@@ -400,20 +400,40 @@ functions:
             "$(printf "%s@%s" "$user" "$hostname")" \
             "$command"
 
+          echo "Copying signed files from remote host..."
+          ls -la ..
+
           # copy file from remote host
           scp \
             -i "$identity_file" \
             -o ForwardAgent=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
-            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json.sig")" \
+            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
             ../spawned_hosts.json
+          
+          scp \
+            -i "$identity_file" \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json.sig")" \
+            ../spawned_hosts.json.sig
+
+          echo "Done."
+          ls -la ..
 
     - command: s3.put
       params:
         <<: *save-artifact-params-public
         local_file: spawned_hosts.json
         remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: spawned_hosts.json.sig
+        remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json.sig
         optional: true
     # terminate
     - command: shell.exec
