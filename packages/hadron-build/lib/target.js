@@ -14,7 +14,7 @@ const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-cod
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
-// const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
+const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
 const { sign: signtool } = require('@mongodb-js/compass-signtool');
@@ -22,16 +22,17 @@ const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
   debug('Signing ... %s', src);
-  // await mongodbNotaryServiceClient(src);
-  await signtool(src, 'local');
+  await mongodbNotaryServiceClient(src);
   debug('Successfully signed %s', src);
 }
 
 async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
   await signtool(src, 'remote', {
-    host: process.env.SSH_HOSTNAME,
-    privateKey: process.env.SSH_PRIVATE_KEY,
+    host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
+    privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
+    username:  process.env.WINDOWS_SIGNING_SERVER_USERNAME,
+    port: process.env.WINDOWS_SIGNING_SERVER_PORT
   });
   debug('Successfully signed %s', src);
 }

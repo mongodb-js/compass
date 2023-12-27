@@ -29,8 +29,8 @@ const getSshClient = async (sshOptions: SSHClientOptions) => {
 
 export type ClientType = 'local' | 'remote';
 export type ClientOptions<T> = T extends 'remote'
-  ? SSHClientOptions
-  : Record<string, unknown>;
+  ? Pick<SSHClientOptions, 'username' | 'host' | 'privateKey' | 'port'>
+  : undefined;
 
 const SIGNING_DIR = '/home/ubuntu/garasign';
 export const getSigningClient = async <T extends ClientType>(
@@ -38,7 +38,7 @@ export const getSigningClient = async <T extends ClientType>(
   options: ClientOptions<T>
 ): Promise<SigningClient> => {
   if (client === 'remote') {
-    const sshClient = await getSshClient(options);
+    const sshClient = await getSshClient(options as SSHClientOptions);
     return new RemoteSigningClient(sshClient, SIGNING_DIR);
   }
   return new LocalSigningClient(SIGNING_DIR);
