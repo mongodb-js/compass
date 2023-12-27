@@ -412,7 +412,7 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
-        local_file: ../spawned_hosts.json
+        local_file: spawned_hosts.json
         remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
         optional: true
     # terminate
