@@ -369,6 +369,41 @@ functions:
             sleep 10
           done
 
+          echo "SSH connection established. Copying files..."
+          scp \
+            -i "$identity_file" \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            spawned_hosts.json \
+            run-on-ssh.sh \
+            "$(printf "%s@%s:%s" "$user" "$hostname")"
+
+          echo "Running signing script on remote host..."
+          ssh \
+            -i "$identity_file" \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s" "$user" "$hostname")" \
+            ./run-on-ssh.sh spawned_hosts.json
+
+          # copy file from remote host
+          scp \
+            -i "$identity_file" \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
+            spawned_hosts.json
+
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/spawned_hosts.json
+        remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
+        optional: true
+
   package:
     - command: shell.exec
       params:
