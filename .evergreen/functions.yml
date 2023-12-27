@@ -382,7 +382,7 @@ functions:
         - key: windows_signing_server_private_key
           value: ~/.ssh/mcipacker.pem
         - key: windows_signing_server_port
-          value: 22
+          value: '22'
 
   package:
     - command: shell.exec
