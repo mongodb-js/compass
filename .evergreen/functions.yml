@@ -372,6 +372,8 @@ functions:
           echo "Current directory: $(pwd)"
           echo "Directory listing: $(ls -la src)"
 
+          eval $(.evergreen/print-compass-env.sh)
+
           echo "SSH connection established. Copying files..."
           scp \
             -i "$identity_file" \
