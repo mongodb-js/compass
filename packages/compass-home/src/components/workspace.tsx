@@ -29,6 +29,7 @@ import {
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -64,6 +65,7 @@ export default function Workspace({
         ]}
       >
         <CollectionTabsProvider
+          queryBar={CompassQueryBarPlugin}
           tabs={[
             CompassDocumentsPlugin,
             CompassAggregationsPlugin,
@@ -71,7 +73,7 @@ export default function Workspace({
             CompassIndexesPlugin,
             CompassSchemaValidationPlugin,
           ]}
-          queryBar={CompassQueryBarPlugin}
+          modals={[ExplainPlanCollectionTabModal]}
         >
           <WorkspacesPlugin
             initialWorkspaceTabs={[{ type: 'My Queries' }]}

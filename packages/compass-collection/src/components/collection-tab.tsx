@@ -10,6 +10,7 @@ import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   useCollectionQueryBar,
+  useCollectionScopedModals,
   useCollectionSubTabs,
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
@@ -77,6 +78,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   const QueryBarPlugin = useCollectionQueryBar();
   const pluginTabs = useCollectionSubTabs();
+  const pluginModals = useCollectionScopedModals();
 
   const tabsProps = {
     namespace,
@@ -148,6 +150,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         </div>
         <div className={collectionModalContainerStyles}>
           {renderScopedModals(tabsProps)}
+          {pluginModals.map((ModalPlugin, idx) => {
+            return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
+          })}
         </div>
       </div>
     </QueryBarPlugin>

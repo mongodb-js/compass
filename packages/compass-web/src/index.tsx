@@ -34,7 +34,7 @@ import {
   CompassIndexesPlugin,
 } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
-import { activate as activateExplainPlanPluginRoles } from '@mongodb-js/compass-explain-plan';
+import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import { activate as activateExportToLanguagePluginRoles } from '@mongodb-js/compass-export-to-language';
 import {
   CreateNamespacePlugin,
@@ -51,7 +51,6 @@ import type {
 
 // TODO(COMPASS-7403): only required while these plugins are not converted to
 // the new plugin interface
-activateExplainPlanPluginRoles(globalAppRegistry);
 activateExportToLanguagePluginRoles(globalAppRegistry);
 activateCompassIndexesPluginRoles(globalAppRegistry);
 
@@ -223,6 +222,7 @@ const CompassWeb = ({
                     CompassIndexesPlugin,
                     CompassSchemaValidationPlugin,
                   ]}
+                  modals={[ExplainPlanCollectionTabModal]}
                 >
                   <div
                     data-testid="compass-web-connected"
