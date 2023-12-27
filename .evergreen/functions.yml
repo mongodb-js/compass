@@ -84,10 +84,6 @@ variables:
     GARASIGN_PASSWORD: ${garasign_password}
     DOCKER_ARTIFACTORY_USERNAME: ${artifactory_username}
     DOCKER_ARTIFACTORY_PASSWORD: ${artifactory_password}
-    WINDOWS_SIGNING_SERVER_HOSTNAME: ${windows_signing_server_hostname}
-    WINDOWS_SIGNING_SERVER_USERNAME: ${windows_signing_server_username}
-    WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ${windows_signing_server_private_key}
-    WINDOWS_SIGNING_SERVER_PORT: ${windows_signing_server_port}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -372,17 +368,6 @@ functions:
             ## sleep for Permission denied (publickey) errors
             sleep 10
           done
-    - command: expansions.update
-      params:
-        updates:
-        - key: windows_signing_server_hostname
-          value: spawned_hosts.json
-        - key: windows_signing_server_username
-          value: ubuntu
-        - key: windows_signing_server_private_key
-          value: ~/.ssh/mcipacker.pem
-        - key: windows_signing_server_port
-          value: '22'
 
   package:
     - command: shell.exec
