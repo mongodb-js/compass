@@ -25,55 +25,55 @@ module.exports = async (env, args) => {
   config = merge(config, {
     resolve: {
       alias: {
-        // TODO(ticket): data-service (only certain connection types, not
-        // explicitly optional)
+        // Dependencies for the unsupported connection types in data-service
         '@mongodb-js/ssh-tunnel': false,
         ssh2: false,
 
-        // TODO(ticket): data-service -> devtools-connect (only certain
-        // connection types, not explicitly optional)
-        '@mongodb-js/oidc-plugin': localPolyfill('@mongodb-js/oidc-plugin'),
+        // Dependencies for the unsupported connection types in data-service ->
+        // devtools-connect package
+        // TODO(COMPASS-7552): We should refactor the package in a way that
+        // sould allow us to change all these to `{ <name>: false }` instead of
+        // providing polyfills
+        // used for useSystemCA option
         'system-ca': false,
+        // used for oidc
+        '@mongodb-js/oidc-plugin': localPolyfill('@mongodb-js/oidc-plugin'),
         http: localPolyfill('http'),
         zlib: false,
         os: localPolyfill('os'),
         crypto: localPolyfill('crypto'),
-
-        // TODO(ticket): non-optional data-service -> devtools-connect required
-        // for +srv, should be skippable
+        // used for +srv
         dns: false,
         'os-dns-native': false,
         'resolve-mongodb-srv': false,
+        // for socks proxy connection
+        socks: false,
+        // for csfle
+        'mongodb-client-encryption': false,
+        // for kerberos connection
+        kerberos: false,
 
-        // TODO(ticket): compass-logging
+        // TODO(COMPASS-7407): compass-logging
         // hard to disable the whole thing while there are direct dependencies
-        // on logger
+        // on log-writer
         // 'mongodb-log-writer': localPolyfill('mongodb-log-writer'),
         v8: false,
-        // TODO(ticket): compass-logging
+        electron: false,
         'hadron-ipc': false,
 
-        // TODO(ticket): compass-user-data
+        // TODO(COMPASS-7411): compass-user-data
         // can't disable the whole module, imports used directly in module scope
         // '@mongodb-js/compass-user-data': false,
         worker_threads: false,
 
-        // TODO(ticket): compass-utils
+        // TODO(COMPASS-7411): compass-utils
         fs: localPolyfill('fs'),
 
-        // TODO(ticket): required by FileInput component, we probably can remove
-        // this dependency from the package
-        path: require.resolve('path-browserify'),
-
-        // Optional data-service -> devtools-connect dependencies
-        socks: false,
-        'mongodb-client-encryption': false,
-        kerberos: false,
-
-        // Things that are easier to polyfill than not to
+        // Things that are easier to polyfill than to deal with their usage
         stream: require.resolve('readable-stream'),
-        // The `/` so that we are resolving the installed polyfill version, not
-        // a built-in Node.js one
+        path: require.resolve('path-browserify'),
+        // The `/` so that we are resolving the installed polyfill version with
+        // the same name as Node.js built-in, not a built-in Node.js one
         util: require.resolve('util/'),
         buffer: require.resolve('buffer/'),
         events: require.resolve('events/'),
@@ -81,7 +81,7 @@ module.exports = async (env, args) => {
         // remove the usage at the moment
         vm: require.resolve('vm-browserify'),
 
-        // TODO(ticket): requires a polyfill to be able to parse connection
+        // TODO(NODE-5408): requires a polyfill to be able to parse connection
         // string correctly at the moment, but we should also omit some
         // depdendencies that might not be required for this to work in the
         // browser
@@ -111,6 +111,7 @@ module.exports = async (env, args) => {
     return merge(config, {
       devServer: {
         hot: true,
+        open: true,
         magicHtml: false,
         historyApiFallback: {
           rewrites: [{ from: /./, to: 'index.html' }],
