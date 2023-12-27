@@ -316,9 +316,9 @@ functions:
     - command: shell.exec
       params:
         script: |
-          set -vx
-          echo "IS_WINDOWS: ${IS_WINDOWS}"
-          if ! [ "${IS_WINDOWS}" = "true" ]; then
+          set -e
+          echo "IS_WINDOWS: $IS_WINDOWS"
+          if ! [ "$IS_WINDOWS" = "true" ]; then
             echo "Skipping host.spawn because we are not on windows"
             exit 0
           fi
