@@ -1015,10 +1015,11 @@ export const createIndexModalFieldTypeSelectMenu = (idx: number): string => {
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
 export const CreateIndexConfirmButton = `${CreateIndexModal} [data-testid="create-index-actions-create-index-button"]`;
 
+export const IndexesTableDropIndexButton =
+  '[data-testid="index-actions-delete-action"]';
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
-export const DropIndexModalConfirmName =
-  '[data-testid="confirm-drop-index-name"]';
-export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
+export const DropIndexModalConfirmNameInput = `${DropIndexModal} input`;
+export const DropIndexModalConfirmButton = `${DropIndexModal} button:first-of-type`;
 
 export const HiddenIndexBadge = (indexName: string) =>
   `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;

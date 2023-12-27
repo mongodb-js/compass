@@ -78,7 +78,7 @@ describe('Collection Tab Content store', function () {
         localAppRegistry,
         instance,
       },
-      { on() {}, cleanup() {}, addCleanup() {} }
+      { on() {}, cleanup() {} } as any
     ));
     await waitFor(() => {
       expect(store.getState())

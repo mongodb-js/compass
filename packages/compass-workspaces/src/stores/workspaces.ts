@@ -31,6 +31,13 @@ const cleanupLocalAppRegistryForTab = (tabId: string): boolean => {
   return LocalAppRegistryMap.delete(tabId);
 };
 
+export const cleanupLocalAppRegistries = () => {
+  for (const appRegistry of LocalAppRegistryMap.values()) {
+    appRegistry.deactivate();
+  }
+  LocalAppRegistryMap.clear();
+};
+
 export enum WorkspacesActions {
   OpenWorkspace = 'compass-workspaces/OpenWorkspace',
   SelectTab = 'compass-workspaces/SelectTab',

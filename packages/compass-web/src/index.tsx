@@ -32,6 +32,7 @@ import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 import {
   activate as activateCompassIndexesPluginRoles,
   CompassIndexesPlugin,
+  DropIndexPlugin as DropIndexCollectionTabModal,
 } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
@@ -222,7 +223,10 @@ const CompassWeb = ({
                     CompassIndexesPlugin,
                     CompassSchemaValidationPlugin,
                   ]}
-                  modals={[ExplainPlanCollectionTabModal]}
+                  modals={[
+                    ExplainPlanCollectionTabModal,
+                    DropIndexCollectionTabModal,
+                  ]}
                 >
                   <div
                     data-testid="compass-web-connected"

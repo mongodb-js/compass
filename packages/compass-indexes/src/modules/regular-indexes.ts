@@ -342,7 +342,8 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
       void dispatch(fetchIndexes());
       return;
     }
-    localAppRegistry?.emit('toggle-drop-index-modal', true, index.name);
+
+    localAppRegistry?.emit('open-drop-index-modal', index.name);
   };
 };
 
