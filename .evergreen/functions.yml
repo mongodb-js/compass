@@ -344,6 +344,8 @@ functions:
       params:
         exec_as_string: true
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
           user=ubuntu
