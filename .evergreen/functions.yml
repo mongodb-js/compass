@@ -369,10 +369,12 @@ functions:
             sleep 10
           done
 
-          echo "Current directory: $(pwd)"
-          echo "Directory listing: $(ls -la src)"
+          cd src
 
-          eval $(src/.evergreen/print-compass-env.sh)
+          echo "Current directory: $(pwd)"
+          echo "Directory listing: $(ls -la)"
+
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "SSH connection established. Copying files..."
           scp \
@@ -380,8 +382,8 @@ functions:
             -o ForwardAgent=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
-            spawned_hosts.json \
-            src/.evergreen/run-on-ssh.sh \
+            ../spawned_hosts.json \
+            .evergreen/run-on-ssh.sh \
             "$(printf "%s@%s:%s" "$user" "$hostname")"
 
           echo "Running signing script on remote host..."
@@ -402,13 +404,13 @@ functions:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
-            spawned_hosts.json
+            ../spawned_hosts.json
 
           exit 1
     - command: s3.put
       params:
         <<: *save-artifact-params-public
-        local_file: spawned_hosts.json
+        local_file: ../spawned_hosts.json
         remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
         optional: true
     # terminate
