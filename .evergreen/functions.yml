@@ -363,9 +363,11 @@ functions:
             "$(printf "%s@%s" "$user" "$hostname")" \
             exit
           do
-            [ "$attempts" -ge "$connection_attempts" ] && exit 1
-            ((attempts++))
-            printf "SSH connection attempt %d/%d failed. Retrying...\n" "$attempts" "$connection_attempts"
+            if [ "$attempts" -ge "$connection_attempts" ]; then
+              echo "SSH connection failed after $connection_attempts attempts. Exiting..."
+              exit 1
+            fi
+            printf "SSH connection attempt %d/%d failed. Retrying...\n" "$((attempts++))" "$connection_attempts"
             ## sleep for Permission denied (publickey) errors
             sleep 20
           done
