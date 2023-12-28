@@ -371,6 +371,24 @@ functions:
             ## sleep for Permission denied (publickey) errors
             sleep 10
           done
+      # Write the host info
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+
+          cat <<EOL > signing_host_info.yml
+          WINDOWS_SIGNING_SERVER_HOSTNAME: ${hostname}
+          WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ~/.ssh/mcipacker.pem
+          WINDOWS_SIGNING_SERVER_USERNAME: ubuntu
+          WINDOWS_SIGNING_SERVER_PORT: 22
+          EOL
+    # Update the expansions
+    - command: expansions.update
+      params:
+        file: signing_host_info.yml
 
   package:
     - command: shell.exec

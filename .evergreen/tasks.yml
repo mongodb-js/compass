@@ -125,6 +125,7 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-readonly
+      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -144,6 +145,7 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-isolated
+      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
