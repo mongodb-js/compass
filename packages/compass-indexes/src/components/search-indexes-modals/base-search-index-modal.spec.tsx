@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -83,40 +82,27 @@ describe('Create Search Index Modal', function () {
 
   describe('form behaviour', function () {
     it('closes the modal on cancel', function () {
-      const cancelButton: HTMLButtonElement = screen
-        .getByText('Cancel')
-        .closest('button')!;
-
-      userEvent.click(cancelButton);
+      userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(onCloseSpy).to.have.been.calledOnce;
     });
 
     it('submits the modal on create search index', function () {
-      const submitButton: HTMLButtonElement = screen
-        .getByTestId('search-index-submit-button')
-        .closest('button')!;
-
-      userEvent.click(submitButton);
+      userEvent.click(
+        screen.getByRole('button', { name: 'Create Search Index' })
+      );
       expect(onSubmitSpy).to.have.been.calledOnceWithExactly('default', {});
     });
   });
 
   describe('templates', function () {
     it('replaces the contents of the index editor when a template is selected', async function () {
-      const dropDown = screen
-        .getByText('Dynamic field mappings')
-        .closest('button')!;
-
-      userEvent.click(dropDown);
-
-      const staticFieldMappingOption = await screen.findByText(
-        'Static field mappings'
+      userEvent.click(screen.getByRole('button', { name: 'Template' }));
+      userEvent.click(
+        screen.getByRole('option', { name: 'Static field mappings' })
       );
-      userEvent.click(staticFieldMappingOption);
 
       await waitFor(() => {
         const indexDef = getCodemirrorEditorValue('definition-of-search-index');
-
         expect(indexDef).to.equal(
           normalizedTemplateNamed('Static field mappings')
         );
