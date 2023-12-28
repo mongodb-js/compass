@@ -11,6 +11,7 @@ export class LocalSigningClient implements SigningClient {
 
   private async init() {
     const garasignScript = `${this.rootDir}/garasign.sh`;
+    await execAsync(`mkdir -p ${this.rootDir}`);
     await this.copyFile(
       path.join(__dirname, '..', '..', 'src', './garasign.sh'),
       garasignScript

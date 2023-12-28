@@ -22,7 +22,13 @@ export class RemoteSigningClient implements SigningClient {
     // Copy the signing script to the remote machine
     {
       const remoteGarasignScript = `${this.rootDir}/garasign.sh`;
-      const localGarasignScript = path.join(__dirname, '..', './garasign.sh');
+      const localGarasignScript = path.join(
+        __dirname,
+        '..',
+        '..',
+        'src',
+        './garasign.sh'
+      );
       await this.copyFile(localGarasignScript, remoteGarasignScript);
       await this.sshClient.exec(`chmod +x ${remoteGarasignScript}`);
     }

@@ -37,15 +37,15 @@ export const getSigningClient = async <T extends ClientType>(
   client: T,
   options: ClientOptions<T>
 ): Promise<SigningClient> => {
-  switch (client) {
-    case 'local':
-      // For local client, we put everything in a tmp directory to avoid
-      // polluting the user's working directory.
-      return new LocalSigningClient(path.resolve(__dirname, '..', 'tmp'));
-    case 'remote':
-      const sshClient = await getSshClient(options as SSHClientOptions);
-      // Currently only linux remote is supported to sign the artifacts
-      return new RemoteSigningClient(sshClient, '~/garasign');
+  if (client === 'remote') {
+    const sshClient = await getSshClient(options as SSHClientOptions);
+    // Currently only linux remote is supported to sign the artifacts
+    return new RemoteSigningClient(sshClient, '~/garasign');
+  }
+  if (client === 'local') {
+    // For local client, we put everything in a tmp directory to avoid
+    // polluting the user's working directory.
+    return new LocalSigningClient(path.resolve(__dirname, '..', 'tmp'));
   }
   throw new Error(`Unknown client type: ${client}`);
 };
