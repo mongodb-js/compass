@@ -126,9 +126,12 @@ export function IndexesTable<Column extends string>({
       // The table is rendered inside the card that has additional padding on
       // top and botton. This is the spacing[3] that we subtract here to
       // calculate the actual available max height for the table.
-      tableParent.style.maxHeight = `${
-        availableHeightInContainer - spacing[3] * 2
-      }px`;
+      const maxHeight = availableHeightInContainer - spacing[3] * 2;
+      tableParent.style.maxHeight = `${maxHeight}px`;
+      // To make sure that our table does not always render in a super small
+      // keyline card when there are only a few rows in the table.
+      const minHeight = Math.min(maxHeight, spacing[6] * 4);
+      tableParent.style.minHeight = `${minHeight}px`;
     }
   }, [availableHeightInContainer]);
 
