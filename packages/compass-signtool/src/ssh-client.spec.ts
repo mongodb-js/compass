@@ -11,6 +11,7 @@ describe('SSHClient', () => {
       host: 'example.com',
       port: 22,
       username: 'admin',
+      privateKey: '~/root/key',
     };
     sshClient = new SSHClient(sshClientOptions);
     sandbox = sinon.createSandbox();
@@ -33,7 +34,7 @@ describe('SSHClient', () => {
       host: 'example.com',
       port: 22,
       username: 'admin',
-      privateKey: undefined,
+      privateKey: '~/root/key',
     });
     expect(sshClient).to.have.property('connected', true);
   });
@@ -70,7 +71,7 @@ describe('SSHClient', () => {
         host: 'example.com',
         port: 22,
         username: 'admin',
-        privateKey: undefined,
+        privateKey: '~/root/key',
       });
       expect(sshClient).to.have.property('connected', false);
     }

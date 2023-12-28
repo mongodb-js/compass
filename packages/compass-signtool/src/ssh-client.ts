@@ -1,6 +1,5 @@
 import type { SFTPWrapper } from 'ssh2';
 import { Client, type ConnectConfig } from 'ssh2';
-import { readFile } from 'fs/promises';
 import { debug } from './utils';
 
 export type SSHClientOptions = ConnectConfig & {
@@ -39,14 +38,8 @@ export class SSHClient {
     if (this.connected) {
       return Promise.resolve();
     }
-    const privateKey = this.sshClientOptions.privateKey
-      ? await readFile(this.sshClientOptions.privateKey)
-      : undefined;
     return new Promise((resolve, reject) => {
-      this.sshConnection.connect({
-        ...this.sshClientOptions,
-        privateKey,
-      });
+      this.sshConnection.connect(this.sshClientOptions);
       this.sshConnection.on('error', reject);
       this.sshConnection.on('ready' as any, resolve);
     });
