@@ -80,6 +80,10 @@ variables:
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
+    GARASIGN_USERNAME: ${garasign_username}
+    GARASIGN_PASSWORD: ${garasign_password}
+    ARTIFACTORY_USERNAME: ${artifactory_username}
+    ARTIFACTORY_PASSWORD: ${artifactory_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -306,6 +310,67 @@ functions:
         # e2e tests are using appPath / appName to extract packaged application
         # and be able to find the binary that is used for the tests
         file: src/packages/compass/expansions.yml
+
+  spawn-host-for-windows-signing:
+    # spawn
+    - command: host.create
+      type: setup
+      params:
+        provider: ec2
+        distro: ubuntu2004-large
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    # write host info (this file will be read by sigingtool when connection to ssh server)
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: spawned_hosts.json
+        timeout_seconds: 1200
+        wait: true
+    # copy ssh key (this key will be used to connect to ssh server)
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    # wait for host to be ready
+    - command: shell.exec
+      params:
+        exec_as_string: true
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          user=ubuntu
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+          identity_file=~/.ssh/mcipacker.pem
+
+          attempts=0
+          connection_attempts=25
+
+          ## Check for remote connectivity
+          while ! ssh \
+            -i "$identity_file" \
+            -o ConnectTimeout=10 \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s" "$user" "$hostname")" \
+            exit
+          do
+            [ "$attempts" -ge "$connection_attempts" ] && exit 1
+            ((attempts++))
+            printf "SSH connection attempt %d/%d failed. Retrying...\n" "$attempts" "$connection_attempts"
+            ## sleep for Permission denied (publickey) errors
+            sleep 10
+          done
 
   package:
     - command: shell.exec

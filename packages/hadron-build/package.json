@@ -19,6 +19,8 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
+    "@electron/rebuild": "^3.4.1",
+    "@mongodb-js/compass-signtool": "^0.1.0",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
     "@mongodb-js/dl-center": "^1.0.1",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
@@ -36,7 +38,6 @@
     "electron": "^25.9.8",
     "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
-    "@electron/rebuild": "^3.4.1",
     "flatnest": "^1.0.0",
     "fs-extra": "^8.1.0",
     "getos": "^3.1.4",
