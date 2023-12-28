@@ -30,9 +30,9 @@ import {
 } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 import {
-  activate as activateCompassIndexesPluginRoles,
   CompassIndexesPlugin,
   DropIndexPlugin as DropIndexCollectionTabModal,
+  CreateIndexPlugin as CreateIndexCollectionTabModal,
 } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
@@ -53,7 +53,6 @@ import type {
 // TODO(COMPASS-7403): only required while these plugins are not converted to
 // the new plugin interface
 activateExportToLanguagePluginRoles(globalAppRegistry);
-activateCompassIndexesPluginRoles(globalAppRegistry);
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -226,6 +225,7 @@ const CompassWeb = ({
                   modals={[
                     ExplainPlanCollectionTabModal,
                     DropIndexCollectionTabModal,
+                    CreateIndexCollectionTabModal,
                   ]}
                 >
                   <div

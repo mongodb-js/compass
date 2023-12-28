@@ -1,47 +1,31 @@
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
-
-import configureStore from './create-index';
+import { activatePlugin } from './create-index';
 
 describe('CreateIndexStore [Store]', function () {
   const appRegistry = new AppRegistry();
   let store;
+  let deactivate;
 
-  context('when the data service is connected', function () {
-    const ds = { 'data-service': 1 };
-    beforeEach(function () {
-      store = configureStore({
-        dataProvider: {
-          error: null,
-          dataProvider: ds,
-        },
-      });
-    });
-    it('dispatches the data service connected action', function () {
-      expect(store.getState().dataService).to.deep.equal({ 'data-service': 1 });
-    });
-  });
+  function configureStore() {
+    ({ store, deactivate } = activatePlugin(
+      {
+        namespace: 'db.coll',
+        serverVersion: '0.0.0',
+      },
+      { localAppRegistry: appRegistry },
+      createActivateHelpers()
+    ));
+  }
 
-  context('when the data service errors', function () {
-    beforeEach(function () {
-      store = configureStore({
-        dataProvider: {
-          error: { message: 'err' },
-          dataProvider: null,
-        },
-      });
-    });
-
-    it('dispatches the data service connected action', function () {
-      expect(store.getState().error).to.equal('err');
-    });
+  afterEach(function () {
+    deactivate();
+    appRegistry.deactivate();
   });
 
   context('when the field-store triggers', function () {
     beforeEach(function () {
-      store = configureStore({
-        localAppRegistry: appRegistry,
-      });
+      configureStore();
       appRegistry.emit('fields-changed', {
         fields: { a: 1, b: 2 },
         topLevelFields: ['a'],
