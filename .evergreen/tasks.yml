@@ -106,6 +106,16 @@ tasks:
         vars:
           compass_distribution: compass
       - func: spawn-host-for-windows-signing
+      - command: shell.exec
+        params:
+          shell: bash
+          # env:
+          #   <<: *compass-env
+          script: |
+            set -e
+            echo "Verifying that the signing host is up and running..."
+            echo "WINDOWS_SIGNING_SERVER_HOSTNAME: ${WINDOWS_SIGNING_SERVER_HOSTNAME}"
+            echo "WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ${WINDOWS_SIGNING_SERVER_PRIVATE_KEY}"
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'

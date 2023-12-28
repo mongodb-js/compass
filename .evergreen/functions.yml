@@ -371,77 +371,24 @@ functions:
             ## sleep for Permission denied (publickey) errors
             sleep 10
           done
-
-          cd src
-
-          echo "Current directory: $(pwd)"
-          echo "Directory listing: $(ls -la)"
-
-          eval $(.evergreen/print-compass-env.sh)
-
-          echo "SSH connection established. Copying files..."
-          scp \
-            -i "$identity_file" \
-            -o ForwardAgent=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            ../spawned_hosts.json \
-            .evergreen/run-on-ssh.sh \
-            "$(printf "%s@%s:%s" "$user" "$hostname")"
-
-          echo "Running signing script on remote host..."
-          # Pass env variables to remote host and run script
-          command="garasign_username=$GARASIGN_USERNAME garasign_password=$GARASIGN_PASSWORD artifactory_username=$ARTIFACTORY_USERNAME artifactory_password=$ARTIFACTORY_PASSWORD ./run-on-ssh.sh spawned_hosts.json"
-          ssh \
-            -i "$identity_file" \
-            -o ForwardAgent=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            "$(printf "%s@%s" "$user" "$hostname")" \
-            "$command"
-
-          echo "Copying signed files from remote host..."
-          ls -la ..
-
-          # copy file from remote host
-          scp \
-            -i "$identity_file" \
-            -o ForwardAgent=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json")" \
-            ../spawned_hosts.json
-          
-          scp \
-            -i "$identity_file" \
-            -o ForwardAgent=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            "$(printf "%s@%s:%s" "$user" "$hostname" "spawned_hosts.json.sig")" \
-            ../spawned_hosts.json.sig
-
-          echo "Done."
-          ls -la ..
-
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-public
-        local_file: spawned_hosts.json
-        remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-public
-        local_file: spawned_hosts.json.sig
-        remote_file: ${project}/${revision}_${revision_order_id}/spawned_hosts.json.sig
-        optional: true
-    # terminate
+    # Write the host info
     - command: shell.exec
       params:
-        exec_as_string: true
         shell: bash
         script: |
-          exit 1
+          set -e
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+
+          cat <<EOL > signing_host_info.yml
+          WINDOWS_SIGNING_SERVER_HOSTNAME=${hostname}
+          WINDOWS_SIGNING_SERVER_PRIVATE_KEY=~/.ssh/mcipacker.pem
+          WINDOWS_SIGNING_SERVER_USERNAME=ubuntu
+          WINDOWS_SIGNING_SERVER_PORT=22
+          EOL
+    # Update the expansions
+    - command: expansions.update
+      params:
+        file: signing_host_info.yml
   package:
     - command: shell.exec
       params:
