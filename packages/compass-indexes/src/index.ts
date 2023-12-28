@@ -1,6 +1,5 @@
-import type AppRegistry from 'hadron-app-registry';
-import CreateIndexPlugin from './create-index-plugin';
-import configureCreateIndexStore from './stores/create-index';
+import CreateIndexModal from './components/create-index-modal';
+import { activatePlugin as activateCreateIndexPlugin } from './stores/create-index';
 import {
   activatePlugin as activateDropIndexPlugin,
   DropIndexComponent,
@@ -46,16 +45,17 @@ export const CompassIndexesPlugin = {
   component: CompassIndexesHadronPlugin,
 };
 
-const CREATE_INDEX_ROLE = {
-  name: 'Create Index',
-  component: CreateIndexPlugin,
-  configureStore: configureCreateIndexStore,
-  configureActions: () => {
-    /* noop */
+export const CreateIndexPlugin = registerHadronPlugin(
+  {
+    name: 'CreateIndex',
+    activate: activateCreateIndexPlugin,
+    component: CreateIndexModal,
   },
-  storeName: 'Indexes.CreateIndexStore',
-  actionName: 'Indexes.CreateIndexActions',
-};
+  {
+    dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
+  }
+);
 
 export const DropIndexPlugin = registerHadronPlugin(
   {
@@ -69,20 +69,12 @@ export const DropIndexPlugin = registerHadronPlugin(
   }
 );
 
-/**
- * Activate all the components in the Indexes package.
- * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
+function activate(): void {
+  // noop
 }
 
-/**
- * Deactivate all the components in the Indexes package.
- * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
+function deactivate(): void {
+  // noop
 }
 
 export { activate, deactivate };
