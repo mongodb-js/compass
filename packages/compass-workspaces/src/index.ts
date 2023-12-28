@@ -9,6 +9,7 @@ import workspacesReducer, {
   getActiveTab,
   getInitialTabState,
   getLocalAppRegistryForTab,
+  cleanupLocalAppRegistries,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -90,13 +91,15 @@ export function activateWorkspacePlugin(
     initialWorkspaceTabs,
   }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
   { globalAppRegistry, instance, dataService }: WorkspacesServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
     instance,
     dataService,
   });
+
+  addCleanup(cleanupLocalAppRegistries);
 
   on(instance, 'change:collections._id', (collection: Collection) => {
     const { _id: from } = collection.previousAttributes();

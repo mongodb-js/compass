@@ -11,7 +11,7 @@ describe('tabs behavior', function () {
     },
   } as any;
   const globalAppRegistry = { on() {}, removeListener() {} } as any;
-  const helpers = { on() {}, cleanup() {} } as any;
+  const helpers = { on() {}, cleanup() {}, addCleanup() {} } as any;
   const dataService = {} as any;
 
   function configureStore() {
