@@ -2,12 +2,15 @@ import path from 'path';
 import type { SFTPWrapper } from 'ssh2';
 import type { SSHClient } from '../ssh-client';
 import { debug } from '../utils';
-import type { SigningClient } from '.';
+import type { SigningClient, SigningClientOptions } from '.';
 
 export class RemoteSigningClient implements SigningClient {
   private sftpConnection!: SFTPWrapper;
 
-  constructor(private sshClient: SSHClient, private rootDir: string) {}
+  constructor(
+    private sshClient: SSHClient,
+    private options: SigningClientOptions
+  ) {}
 
   /**
    * Initialize the signing client and setup remote machine to be ready for signing
@@ -17,25 +20,18 @@ export class RemoteSigningClient implements SigningClient {
    */
   private async init() {
     this.sftpConnection = await this.sshClient.getSftpConnection();
-    await this.sshClient.exec(`mkdir -p ${this.rootDir}`);
+    await this.sshClient.exec(`mkdir -p ${this.options.rootDir}`);
 
     // Copy the signing script to the remote machine
     {
-      const remoteGarasignScript = `${this.rootDir}/garasign.sh`;
-      const localGarasignScript = path.join(
-        __dirname,
-        '..',
-        '..',
-        'src',
-        './garasign.sh'
-      );
-      await this.copyFile(localGarasignScript, remoteGarasignScript);
-      await this.sshClient.exec(`chmod +x ${remoteGarasignScript}`);
+      const remoteScript = `${this.options.rootDir}/garasign.sh`;
+      await this.copyFile(this.options.signingScript, remoteScript);
+      await this.sshClient.exec(`chmod +x ${remoteScript}`);
     }
   }
 
   private getRemoteFilePath(file: string) {
-    return `${this.rootDir}/temp-${Date.now()}-${path.basename(file)}`;
+    return `${this.options.rootDir}/temp-${Date.now()}-${path.basename(file)}`;
   }
 
   private async copyFile(file: string, remotePath: string): Promise<void> {
@@ -78,7 +74,7 @@ export class RemoteSigningClient implements SigningClient {
      * So, here we are passing the env variables as part of the command.
      */
     const cmds = [
-      `cd ${this.rootDir}`,
+      `cd ${this.options.rootDir}`,
       `export garasign_username=${process.env.GARASIGN_USERNAME}`,
       `export garasign_password=${process.env.GARASIGN_PASSWORD}`,
       `export artifactory_username=${process.env.ARTIFACTORY_USERNAME}`,

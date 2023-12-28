@@ -2,21 +2,18 @@ import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { debug } from '../utils';
-import type { SigningClient } from '.';
+import type { SigningClient, SigningClientOptions } from '.';
 
 const execAsync = promisify(exec);
 
 export class LocalSigningClient implements SigningClient {
-  constructor(private rootDir: string) {}
+  constructor(private options: SigningClientOptions) {}
 
   private async init() {
-    const garasignScript = `${this.rootDir}/garasign.sh`;
-    await execAsync(`mkdir -p ${this.rootDir}`);
-    await this.copyFile(
-      path.join(__dirname, '..', '..', 'src', './garasign.sh'),
-      garasignScript
-    );
-    await execAsync(`chmod +x ${garasignScript}`);
+    const remoteScript = `${this.options.rootDir}/garasign.sh`;
+    await execAsync(`mkdir -p ${this.options.rootDir}`);
+    await this.copyFile(this.options.signingScript, remoteScript);
+    await execAsync(`chmod +x ${remoteScript}`);
   }
 
   private async copyFile(from: string, to: string): Promise<void> {
@@ -26,7 +23,7 @@ export class LocalSigningClient implements SigningClient {
   async sign(file: string): Promise<void> {
     debug('Signing file', file);
 
-    const remotePath = path.join(this.rootDir, path.basename(file));
+    const remotePath = path.join(this.options.rootDir, path.basename(file));
 
     try {
       await this.init();
@@ -35,7 +32,7 @@ export class LocalSigningClient implements SigningClient {
       debug(`LocalSigningClient: Copied file ${file} to ${remotePath}`);
 
       await execAsync(
-        `cd ${this.rootDir} && ./garasign.sh ${path.basename(file)}`
+        `cd ${this.options.rootDir} && ./garasign.sh ${path.basename(file)}`
       );
       debug(`LocalSigningClient: Signed file ${remotePath}`);
 

@@ -344,8 +344,6 @@ functions:
       params:
         exec_as_string: true
         shell: bash
-        env:
-          <<: *compass-env
         script: |
           set -e
           user=ubuntu
@@ -369,8 +367,9 @@ functions:
             ((attempts++))
             printf "SSH connection attempt %d/%d failed. Retrying...\n" "$attempts" "$connection_attempts"
             ## sleep for Permission denied (publickey) errors
-            sleep 10
+            sleep 20
           done
+          echo "SSH connection established after $attempts attempts"
       # Write the host info
     - command: shell.exec
       params:

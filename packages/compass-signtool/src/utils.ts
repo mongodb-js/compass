@@ -1,9 +1,11 @@
 import path from 'path';
 import { SSHClient, type SSHClientOptions } from './ssh-client';
 import {
-  type SigningClient,
   LocalSigningClient,
   RemoteSigningClient,
+  type SigningClient,
+  type ClientType,
+  type ClientOptions,
 } from './signing-clients';
 
 // eslint-disable-next-line no-console
@@ -22,30 +24,35 @@ export function assertRequiredVars() {
   });
 }
 
-const getSshClient = async (sshOptions: SSHClientOptions) => {
+function getSigningScript() {
+  return path.join(__dirname, '..', 'src', './garasign.sh');
+}
+
+async function getSshClient(sshOptions: SSHClientOptions) {
   const sshClient = new SSHClient(sshOptions);
   await sshClient.connect();
   return sshClient;
-};
+}
 
-export type ClientType = 'local' | 'remote';
-export type ClientOptions<T> = T extends 'remote'
-  ? Pick<SSHClientOptions, 'username' | 'host' | 'privateKey' | 'port'>
-  : undefined;
-
-export const getSigningClient = async <T extends ClientType>(
+export async function getSigningClient<T extends ClientType>(
   client: T,
   options: ClientOptions<T>
-): Promise<SigningClient> => {
+): Promise<SigningClient> {
   if (client === 'remote') {
     const sshClient = await getSshClient(options as SSHClientOptions);
     // Currently only linux remote is supported to sign the artifacts
-    return new RemoteSigningClient(sshClient, '~/garasign');
+    return new RemoteSigningClient(sshClient, {
+      rootDir: '~/garasign',
+      signingScript: getSigningScript(),
+    });
   }
   if (client === 'local') {
     // For local client, we put everything in a tmp directory to avoid
     // polluting the user's working directory.
-    return new LocalSigningClient(path.resolve(__dirname, '..', 'tmp'));
+    return new LocalSigningClient({
+      rootDir: path.resolve(__dirname, '..', 'tmp'),
+      signingScript: getSigningScript(),
+    });
   }
   throw new Error(`Unknown client type: ${client}`);
-};
+}

@@ -54,6 +54,7 @@ export class SSHClient {
 
   disconnect() {
     this.sshConnection.end();
+    this.connected = false;
   }
 
   async exec(command: string): Promise<string> {
@@ -66,22 +67,21 @@ export class SSHClient {
           return reject(err);
         }
         let data = '';
-        stream
-          .on('close', (code: number) => {
-            if (code === 0) {
-              return resolve(data);
-            } else {
-              return reject(
-                new Error(`Command failed with code ${code}. Error: ${data}`)
-              );
-            }
-          })
-          .on('data', (chunk: string) => {
-            data += chunk;
-          })
-          .stderr.on('data', (chunk) => {
-            data += chunk;
-          });
+        stream.on('data', (chunk: string) => {
+          data += chunk;
+        });
+        stream.stderr.on('data', (chunk) => {
+          data += chunk;
+        });
+        stream.on('close', (code: number) => {
+          if (code === 0) {
+            return resolve(data);
+          } else {
+            return reject(
+              new Error(`Command failed with code ${code}. Error: ${data}`)
+            );
+          }
+        });
       });
     });
   }
