@@ -67,13 +67,14 @@ const tableStyles = css({
 });
 
 const cardStyles = css({
+  maxHeight: '100%',
+  overflow: 'hidden',
   padding: spacing[3],
 });
 
 const spaceProviderStyles = css({
   flex: 1,
-  position: 'relative',
-  overflow: 'hidden',
+  minHeight: 0,
 });
 
 type IndexInfo = {
@@ -84,6 +85,7 @@ type IndexInfo = {
     'data-testid': string;
     children: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
   }[];
   actions?: React.ReactNode;
   details?: React.ReactNode;
@@ -120,27 +122,13 @@ export function IndexesTable<Column extends string>({
     const tableParent = table?.parentElement;
 
     if (table && tableParent) {
-      // We add a top and bottom padding of spacing[3] and our root container
-      // has a bottom margin of spacing[3] which is why the actual usable
-      // height of the container is less than what we get here
-      const heightWithoutSpacing = availableHeightInContainer - spacing[3] * 3;
-
-      // This will be the height of the table. We take whichever is the max of
-      // the actual table height vs the half of the height available to make
-      // sure that our table does not always render in a super small keyline
-      // card when there are only a few rows in the table.
-      const tableHeight = Math.max(
-        table.clientHeight,
-        heightWithoutSpacing / 2
-      );
-
-      // When we have enough space available to render the table, we simply want
-      // our keyline card to have a height as much as that of the table content
-      const tableParentHeight = Math.max(
-        0,
-        Math.min(tableHeight, heightWithoutSpacing)
-      );
-      tableParent.style.height = `${tableParentHeight}px`;
+      // The `availableHeightInContainer` is calculated from the card container.
+      // The table is rendered inside the card that has additional padding on
+      // top and botton. This is the spacing[3] that we subtract here to
+      // calculate the actual available max height for the table.
+      tableParent.style.maxHeight = `${
+        availableHeightInContainer - spacing[3] * 2
+      }px`;
     }
   }, [availableHeightInContainer]);
 
@@ -163,7 +151,7 @@ export function IndexesTable<Column extends string>({
       _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
     }
     return _columns;
-  }, [canModifyIndex, onSortTable, sortColumns]);
+  }, [canModifyIndex, dataTestId, onSortTable, sortColumns]);
 
   return (
     <div className={spaceProviderStyles} {...rectProps}>
@@ -192,6 +180,7 @@ export function IndexesTable<Column extends string>({
                       key={field.key ?? `${info.key}-${index}`}
                       data-testid={`${dataTestId}-${field['data-testid']}`}
                       className={cx(cellStyles, field.className)}
+                      style={field.style}
                     >
                       {field.children}
                     </Cell>
@@ -216,6 +205,12 @@ export function IndexesTable<Column extends string>({
                   </Cell>
                 )}
                 {info.details && (
+                  // TODO(COMPASS-7046): leafygreen animation for the nested row
+                  // (more specifically the way they style the "hidden" row)
+                  // causes scrolling issues here: a 9px scroll is always
+                  // visible unless the last row in the table is "expanded".
+                  // After we update to latest, we should check whether or not
+                  // 1) the issue gone away 2) we have some new way to fix it
                   <Row>
                     <Cell
                       className={cx(nestedRowCellStyles, cellStyles)}
