@@ -19,18 +19,17 @@ if [ -z ${artifactory_password+omitted} ]; then echo "artifactory_password is un
 
 ARTIFACTORY_HOST="artifactory.corp.mongodb.com"
 
+logout_artifactory() {
+  docker logout "${ARTIFACTORY_HOST}" > /dev/null 2>&1
+  echo "Logged out from artifactory"
+}
+trap logout_artifactory EXIT
+
 echo "Logging into docker artifactory"
 echo "${artifactory_password}" | docker login --password-stdin --username ${artifactory_username} ${ARTIFACTORY_HOST} > /dev/null 2>&1
 
 # If the docker login failed, exit
 [ $? -ne 0 ] && exit $?
-
-logout_artifactory() {
-  docker logout "${ARTIFACTORY_HOST}" > /dev/null 2>&1
-  echo "Logged out from artifactory"
-}
-
-trap logout_artifactory EXIT
 
 cat <<EOL > signing-envfile
 GRS_CONFIG_USER1_USERNAME=${garasign_username}

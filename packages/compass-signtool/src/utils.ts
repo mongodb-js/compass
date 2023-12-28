@@ -1,3 +1,4 @@
+import path from 'path';
 import { SSHClient, type SSHClientOptions } from './ssh-client';
 import {
   type SigningClient,
@@ -32,14 +33,19 @@ export type ClientOptions<T> = T extends 'remote'
   ? Pick<SSHClientOptions, 'username' | 'host' | 'privateKey' | 'port'>
   : undefined;
 
-const SIGNING_DIR = '/home/ubuntu/garasign';
 export const getSigningClient = async <T extends ClientType>(
   client: T,
   options: ClientOptions<T>
 ): Promise<SigningClient> => {
-  if (client === 'remote') {
-    const sshClient = await getSshClient(options as SSHClientOptions);
-    return new RemoteSigningClient(sshClient, SIGNING_DIR);
+  switch (client) {
+    case 'local':
+      // For local client, we put everything in a tmp directory to avoid
+      // polluting the user's working directory.
+      return new LocalSigningClient(path.resolve(__dirname, '..', 'tmp'));
+    case 'remote':
+      const sshClient = await getSshClient(options as SSHClientOptions);
+      // Currently only linux remote is supported to sign the artifacts
+      return new RemoteSigningClient(sshClient, '~/garasign');
   }
-  return new LocalSigningClient(SIGNING_DIR);
+  throw new Error(`Unknown client type: ${client}`);
 };
