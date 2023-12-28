@@ -84,7 +84,6 @@ variables:
     GARASIGN_PASSWORD: ${garasign_password}
     ARTIFACTORY_USERNAME: ${artifactory_username}
     ARTIFACTORY_PASSWORD: ${artifactory_password}
-    WINDOWS_SIGNING_SERVER_USERNAME: ${WINDOWS_SIGNING_SERVER_USERNAME}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -373,18 +372,12 @@ functions:
             sleep 20
           done
           echo "SSH connection established after $attempts attempts"
-      # Write the host info
-    - command: shell.exec
-      params:
-        shell: bash
-        script: |
-          set -e
-          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
-
+    
+          # Write the host info so that it can be used by the signing tool
           cat <<EOL > signing_host_info.yml
           WINDOWS_SIGNING_SERVER_HOSTNAME: ${hostname}
-          WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ~/.ssh/mcipacker.pem
-          WINDOWS_SIGNING_SERVER_USERNAME: ubuntu
+          WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ${identity_file}
+          WINDOWS_SIGNING_SERVER_USERNAME: ${user}
           WINDOWS_SIGNING_SERVER_PORT: 22
           EOL
     # Update the expansions
@@ -411,8 +404,6 @@ functions:
           echo "WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ${WINDOWS_SIGNING_SERVER_PRIVATE_KEY}"
           echo "WINDOWS_SIGNING_SERVER_USERNAME: ${WINDOWS_SIGNING_SERVER_USERNAME}"
           echo "WINDOWS_SIGNING_SERVER_PORT: ${WINDOWS_SIGNING_SERVER_PORT}"
-
-          exit 1
 
           eval $(.evergreen/print-compass-env.sh)
           .evergreen/compass_package.sh
