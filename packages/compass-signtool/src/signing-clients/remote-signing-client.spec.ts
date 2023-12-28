@@ -19,7 +19,7 @@ const getMockedSSHClient = () => {
             await fs.copyFile(localFile, remoteFile);
             cb();
           } catch (err) {
-            cb(err);
+            cb(err as Error);
           }
         },
         fastGet: async (
@@ -31,7 +31,7 @@ const getMockedSSHClient = () => {
             await fs.copyFile(remoteFile, localFile);
             cb();
           } catch (err) {
-            cb(err);
+            cb(err as Error);
           }
         },
         unlink: async (remoteFile: string, cb: (err?: Error) => void) => {
@@ -39,7 +39,7 @@ const getMockedSSHClient = () => {
             await fs.unlink(remoteFile);
             cb();
           } catch (err) {
-            cb(err);
+            cb(err as Error);
           }
         },
       };

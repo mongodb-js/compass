@@ -86,7 +86,7 @@ describe('SSHClient', () => {
 
   context('exec', function () {
     const COMMAND = 'echo "Hello World"';
-    type ExecCallback = (err: Error | undefined, channel: any) => void;
+    type ExecCallback = (err: Error | undefined, channel: any) => any;
     it('should throw when exec fails', async function () {
       const execStub = sandbox
         .stub(sshClient['sshConnection'], 'exec')
@@ -169,7 +169,7 @@ describe('SSHClient', () => {
   it('should get SFTP connection', async function () {
     const sftpStub = sandbox
       .stub(sshClient['sshConnection'], 'sftp')
-      .callsFake((cb: (err: Error | undefined, sftp: any) => void) => {
+      .callsFake((cb: (err: Error | undefined, sftp: any) => any) => {
         return cb(undefined, 'mockedSFTP');
       });
 
