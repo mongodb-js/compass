@@ -59,8 +59,8 @@
     "@mongodb-js/compass-components": "^1.21.0",
     "@mongodb-js/compass-logging": "^1.2.9",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.15.0",
-    "@mongodb-js/mongodb-redux-common": "*",
-    "bson-transpilers": "*",
+    "@mongodb-js/mongodb-redux-common": "^2.0.19",
+    "bson-transpilers": "^2.2.0",
     "compass-preferences-model": "^2.17.0",
     "react": "^17.0.2"
   },
@@ -82,6 +82,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^2.0.0",
+    "electron-mocha": "^12.2.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.1.3",
