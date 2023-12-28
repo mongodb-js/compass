@@ -27,6 +27,8 @@ async function signLinuxPackage(src) {
 
 async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
+  // These environment variables are set by the `spawn-host-for-windows-signing`
+  // function, when it spawns the new host.
   await signtool(src, 'remote', {
     host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
     privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,

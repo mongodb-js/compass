@@ -84,6 +84,7 @@ variables:
     GARASIGN_PASSWORD: ${garasign_password}
     ARTIFACTORY_USERNAME: ${artifactory_username}
     ARTIFACTORY_PASSWORD: ${artifactory_password}
+    WINDOWS_SIGNING_SERVER_USERNAME: ${WINDOWS_SIGNING_SERVER_USERNAME}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -395,16 +396,19 @@ functions:
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
+          WINDOWS_SIGNING_SERVER_HOSTNAME: ${WINDOWS_SIGNING_SERVER_HOSTNAME}
         script: |
           set -e
+          
+          eval $(.evergreen/print-compass-env.sh)
 
+          echo "Packaging Compass for ${target_platform} ${target_arch}..."
           # TODO: remove me - check if the env vars are set
           echo "WINDOWS_SIGNING_SERVER_HOSTNAME: ${WINDOWS_SIGNING_SERVER_HOSTNAME}"
           echo "WINDOWS_SIGNING_SERVER_PRIVATE_KEY: ${WINDOWS_SIGNING_SERVER_PRIVATE_KEY}"
           echo "WINDOWS_SIGNING_SERVER_USERNAME: ${WINDOWS_SIGNING_SERVER_USERNAME}"
           echo "WINDOWS_SIGNING_SERVER_PORT: ${WINDOWS_SIGNING_SERVER_PORT}"
 
-          eval $(.evergreen/print-compass-env.sh)
           .evergreen/compass_package.sh
 
   publish:
