@@ -228,3 +228,4 @@ export function useActiveWorkspace() {
 export const workspacesServiceLocator = useWorkspacesService;
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
+export { useTabState } from './components/workspace-tab-state-provider';
