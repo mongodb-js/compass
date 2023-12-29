@@ -1,3 +1,4 @@
 * text=auto eol=lf
+*.exe binary
 /packages/bson-transpilers/lib/**/* linguist-generated=true
 packages/compass-crud/test/fixture-results/* linguist-generated=true

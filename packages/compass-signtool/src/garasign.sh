@@ -5,12 +5,6 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-echo "Checking environment variables"
-echo "garasign_username: ${garasign_username}"
-echo "garasign_password: ${garasign_password}"
-echo "artifactory_username: ${artifactory_username}"
-echo "artifactory_password: ${artifactory_password}"
-
 if [ -z ${garasign_username+omitted} ]; then echo "garasign_username is unset" && exit 1; fi
 if [ -z ${garasign_password+omitted} ]; then echo "garasign_password is unset" && exit 1; fi
 if [ -z ${artifactory_username+omitted} ]; then echo "artifactory_username is unset" && exit 1; fi
