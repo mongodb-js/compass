@@ -102,13 +102,53 @@ const getInitialState = () => {
   };
 };
 
+const isWorkspaceEqual = (
+  t1: AnyWorkspace & Partial<{ id: string }>,
+  t2: AnyWorkspace & Partial<{ id: string }>
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id1, ...ws1 } = t1;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id2, ...ws2 } = t2;
+  return isEqual(ws1, ws2);
+};
+
+const getRemovedTabsIndexes = (
+  oldTabs: WorkspaceTab[],
+  newTabs: WorkspaceTab[]
+) => {
+  const newTabsIds = new Set(
+    newTabs.map((tab) => {
+      return tab.id;
+    })
+  );
+  return new Set(
+    oldTabs
+      .map((tab) => {
+        return tab.id;
+      })
+      .filter((id) => {
+        return !newTabsIds.has(id);
+      })
+  );
+};
+
+const cleanupRemovedTabs = (
+  oldTabs: WorkspaceTab[],
+  newTabs: WorkspaceTab[]
+) => {
+  for (const tabId of getRemovedTabsIndexes(oldTabs, newTabs)) {
+    cleanupLocalAppRegistryForTab(tabId);
+  }
+};
+
 const reducer: Reducer<WorkspacesState> = (
   state = getInitialState(),
   action
 ) => {
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
+    const newTab = getInitialTabState(action.workspace);
     if (action.newTab) {
-      const newTab = getInitialTabState(action.workspace);
       return {
         ...state,
         tabs: [...state.tabs, newTab],
@@ -116,19 +156,30 @@ const reducer: Reducer<WorkspacesState> = (
       };
     }
     const activeTab = getActiveTab(state);
+    // If current tab type is the same as the new one we're trying to open and
+    // the workspaces are not equal, replace the current tab with the new one
+    if (
+      activeTab?.type === action.workspace.type &&
+      !isWorkspaceEqual(activeTab, newTab)
+    ) {
+      const activeTabIndex = getActiveTabIndex(state);
+      const newTabs = [...state.tabs];
+      newTabs.splice(activeTabIndex, 1, newTab);
+      return {
+        ...state,
+        tabs: newTabs,
+        activeTabId: newTab.id,
+      };
+    }
+    // ... otherwise try to find an existing tab that is equal to what we're
+    // trying to open and select it if found.
     const existingTab =
       // If there is an active tab, give it priority when looking for a tab to
       // select when opening a tab, it might be that we don't need to update the
       // state at all
-      (activeTab ? [activeTab, ...state.tabs] : state.tabs).find(
-        ({
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          id: _id,
-          ...tab
-        }) => {
-          return isEqual(tab, action.workspace);
-        }
-      );
+      (activeTab ? [activeTab, ...state.tabs] : state.tabs).find((tab) => {
+        return isWorkspaceEqual(tab, action.workspace);
+      });
     if (existingTab) {
       if (existingTab.id !== state.activeTabId) {
         return {
@@ -138,23 +189,11 @@ const reducer: Reducer<WorkspacesState> = (
       }
       return state;
     }
-    // If there is no existing tab matching the one we're trying to open, either
-    // replace the current tab if we're trying to open the same workspace that
-    // is currently active, or just open a new tab with the workspace
-    const newTab = getInitialTabState(action.workspace);
-    if (activeTab?.type !== action.workspace.type) {
-      return {
-        ...state,
-        tabs: [...state.tabs, newTab],
-        activeTabId: newTab.id,
-      };
-    }
-    const activeTabIndex = getActiveTabIndex(state);
-    const newTabs = [...state.tabs];
-    newTabs.splice(activeTabIndex, 1, newTab);
+    // In any other case (the current active tab type is different or no
+    // existing matching tab) just open a new tab with the new workspace
     return {
       ...state,
-      tabs: newTabs,
+      tabs: [...state.tabs, newTab],
       activeTabId: newTab.id,
     };
   }
@@ -413,6 +452,7 @@ export const openWorkspace = (
   OpenWorkspaceAction | FetchCollectionInfoAction
 > => {
   return (dispatch, getState, { instance, dataService }) => {
+    const oldTabs = getState().tabs;
     if (
       workspaceOptions.type === 'Collection' &&
       !getState().collectionInfo[workspaceOptions.namespace]
@@ -453,6 +493,7 @@ export const openWorkspace = (
       workspace: workspaceOptions,
       newTab: !!tabOptions?.newTab,
     });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
@@ -521,13 +562,9 @@ export const collectionRenamed = (
   to: string
 ): WorkspacesThunkAction<void, CollectionRenamedAction> => {
   return (dispatch, getState) => {
-    const tabsToReplace = getState().tabs.filter(
-      (tab) => tab.type === 'Collection' && tab.namespace === from
-    );
+    const oldTabs = getState().tabs;
     dispatch({ type: WorkspacesActions.CollectionRenamed, from, to });
-    tabsToReplace.forEach((tab) => {
-      cleanupLocalAppRegistryForTab(tab.id);
-    });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
@@ -540,16 +577,12 @@ export const collectionRemoved = (
   namespace: string
 ): WorkspacesThunkAction<void, CollectionRemovedAction> => {
   return (dispatch, getState) => {
-    const tabsToRemove = getState().tabs.filter(
-      (tab) => tab.type === 'Collection' && tab.namespace === namespace
-    );
+    const oldTabs = getState().tabs;
     dispatch({
       type: WorkspacesActions.CollectionRemoved,
       namespace,
     });
-    tabsToRemove.forEach((tab) => {
-      cleanupLocalAppRegistryForTab(tab.id);
-    });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
@@ -562,23 +595,12 @@ export const databaseRemoved = (
   namespace: string
 ): WorkspacesThunkAction<void, DatabaseRemovedAction> => {
   return (dispatch, getState) => {
-    const tabsToRemove = getState().tabs.filter((tab) => {
-      switch (tab.type) {
-        case 'Collections':
-          return tab.namespace === namespace;
-        case 'Collection':
-          return toNS(tab.namespace).database === namespace;
-        default:
-          return false;
-      }
-    });
+    const oldTabs = getState().tabs;
     dispatch({
       type: WorkspacesActions.DatabaseRemoved,
       namespace,
     });
-    tabsToRemove.forEach((tab) => {
-      cleanupLocalAppRegistryForTab(tab.id);
-    });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
