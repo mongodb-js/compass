@@ -6,6 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 if (process.platform !== 'win32') {
   console.info('Skip installing signtool.exe, not running on windows');
@@ -18,5 +19,15 @@ if (!fs.existsSync(originalSigntool)) {
   throw new Error('Original signtool.exe to be replaced not found');
 }
 
+const buildScriptDir = __dirname;
+const buildScriptName = 'build.sh';
+const buildScriptCmd = `cd "${buildScriptDir}" && ./${buildScriptName}`;
+console.info('Building signtool.exe');
+console.info(execSync(buildScriptCmd).toString());
+
+
+
 fs.renameSync(originalSigntool, originalSigntool + '.bkp');
 fs.copyFileSync(path.resolve(__dirname, 'signtool.exe'), originalSigntool);
+
+console.info('Postintall script finished in hadron-build');
