@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -37,6 +37,7 @@ import type {
 } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
+import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -321,9 +322,28 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     }
   }
 
+  const [initialScrollTop, setInitialScrollTop] = useTabState(
+    'documents-list-initial-scroll-top',
+    0
+  );
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = initialScrollTop;
+    }
+
+    return () => {
+      setInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
+    };
+  }, [initialScrollTop, setInitialScrollTop]);
+
   return (
-    <div className={documentsContainerStyles}>
+    <div className={documentsContainerStyles} data-testid="compass-crud">
       <WorkspaceContainer
+        scrollableContainerRef={scrollRef}
+        initialTopInView={initialScrollTop === 0}
         toolbar={
           <CrudToolbar
             activeDocumentView={view}

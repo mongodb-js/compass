@@ -64,7 +64,7 @@ const shadowStyles = css({
   height: shadowHeight,
   borderRadius: spacing[2],
 
-  width: `calc(100% - ${shadowHeight})`,
+  width: `calc(100% - ${shadowHeight}px)`,
   margin: '0 auto',
   marginTop: -shadowHeight,
 });
@@ -100,6 +100,9 @@ const darkThemeStyles = css({
 
 type WorkspaceContainerProps = {
   toolbar?: React.ReactNode;
+  toolbarRef?: React.Ref<HTMLDivElement>;
+  scrollableContainerRef?: React.Ref<HTMLDivElement>;
+  initialTopInView?: boolean;
   'data-testid'?: string;
 };
 
@@ -107,6 +110,9 @@ function WorkspaceContainer({
   className,
   children,
   toolbar,
+  toolbarRef,
+  scrollableContainerRef,
+  initialTopInView = true,
   'data-testid': dataTestId,
   ...props
 }: React.PropsWithChildren<
@@ -118,10 +124,11 @@ function WorkspaceContainer({
 
   const [scrollDetectionTrigger, triggerStillInView] = useInView({
     root: scrollContainer.current,
-    // Prevents flicker on initial mount: when this component mounts we know for
-    // sure that trigger in view as the trigger is at the very top of the
-    // container
-    initialInView: true,
+    // Setting this value prevents flicker on initial mount. Default value is
+    // `true`, if the value is not provided we assume that the trigger is at the
+    // very top of the container, which is the most common case for the initial
+    // mount
+    initialInView: initialTopInView,
   });
 
   return (
@@ -134,7 +141,11 @@ function WorkspaceContainer({
       data-testid={dataTestId}
       {...props}
     >
-      {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
+      {toolbar && (
+        <div ref={toolbarRef} className={toolbarStyles}>
+          {toolbar}
+        </div>
+      )}
       <div className={scrollBoxStyles} ref={scrollContainer}>
         {triggerStillInView || (
           <div className={shadowContainerStyles}>
@@ -146,7 +157,7 @@ function WorkspaceContainer({
             ></div>
           </div>
         )}
-        <div className={workspaceContentStyles}>
+        <div ref={scrollableContainerRef} className={workspaceContentStyles}>
           <div ref={scrollDetectionTrigger}></div>
           {children}
         </div>
