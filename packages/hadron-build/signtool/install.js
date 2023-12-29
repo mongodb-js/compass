@@ -21,7 +21,8 @@ if (!fs.existsSync(originalSigntool)) {
 
 const buildScriptDir = __dirname;
 const buildScriptName = 'build.sh';
-const buildScriptCmd = `cd "${buildScriptDir}" && ./${buildScriptName}`;
+const buildScriptCmd = `cd "${buildScriptDir}" && ${path.resolve(__dirname, buildScriptName)}`;
+console.info(`Running preinstall script in hadron-build. Command: ${buildScriptCmd}`);
 console.info('Building signtool.exe');
 console.info(execSync(buildScriptCmd).toString());
 
