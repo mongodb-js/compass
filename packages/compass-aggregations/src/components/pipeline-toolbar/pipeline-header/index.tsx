@@ -14,6 +14,7 @@ import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -116,18 +117,21 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
+  const isSavingAggregationsEnabled = usePreference(
+    'enableSavedAggregationsQueries'
+  );
   return (
     <div>
       <div className={containerStyles} data-testid="pipeline-header">
-        {isOpenPipelineVisible && (
-          <div
-            data-testid="saved-pipelines-popover"
-            className={pipelineTextAndOpenStyles}
-          >
-            <Body weight="medium">Pipeline</Body>
+        <div
+          data-testid="saved-pipelines-popover"
+          className={pipelineTextAndOpenStyles}
+        >
+          <Body weight="medium">Pipeline</Body>
+          {isOpenPipelineVisible && isSavingAggregationsEnabled && (
             <SavedPipelinesButton></SavedPipelinesButton>
-          </div>
-        )}
+          )}
+        </div>
         <div className={pipelineStagesStyles}>
           <PipelineStages />
         </div>

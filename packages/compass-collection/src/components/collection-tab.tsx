@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import {
-  type CollectionState,
-  selectTab,
-  renderScopedModals,
-} from '../modules/collection-tab';
+import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   useCollectionQueryBar,
+  useCollectionScopedModals,
   useCollectionSubTabs,
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
@@ -45,7 +42,6 @@ const collectionModalContainerStyles = css({
 type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
   collectionMetadata: CollectionMetadata;
-  renderScopedModals(props: CollectionTabOptions): React.ReactElement[];
   onTabClick(name: string): void;
 };
 
@@ -60,7 +56,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   initialQuery,
   editViewName,
   collectionMetadata,
-  renderScopedModals,
   onTabClick,
 }) => {
   useEffect(() => {
@@ -77,15 +72,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   const QueryBarPlugin = useCollectionQueryBar();
   const pluginTabs = useCollectionSubTabs();
-
-  const tabsProps = {
-    namespace,
-    initialAggregation,
-    initialPipeline,
-    initialPipelineText,
-    initialQuery,
-    editViewName,
-  };
+  const pluginModals = useCollectionScopedModals();
 
   const pluginProps = {
     ...collectionMetadata,
@@ -147,7 +134,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           />
         </div>
         <div className={collectionModalContainerStyles}>
-          {renderScopedModals(tabsProps)}
+          {pluginModals.map((ModalPlugin, idx) => {
+            return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
+          })}
         </div>
       </div>
     </QueryBarPlugin>
@@ -181,7 +170,6 @@ const ConnectedCollectionTab = connect(
     };
   },
   {
-    renderScopedModals: renderScopedModals,
     onTabClick: selectTab,
   }
 )(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;

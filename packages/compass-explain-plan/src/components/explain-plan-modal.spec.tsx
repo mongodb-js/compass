@@ -4,19 +4,20 @@ import { cleanup, screen, render as _render } from '@testing-library/react';
 import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';
-import { configureStore } from '../stores/explain-plan-modal-store';
+import { activatePlugin } from '../stores';
 
 function render(props: Partial<ExplainPlanModalProps>) {
+  const { store } = activatePlugin(
+    { namespace: 'test.test', isDataLake: false },
+    { dataService: {}, localAppRegistry: {}, preferences: {} } as any,
+    { on() {}, cleanup() {} } as any
+  );
+
   return _render(
-    <Provider
-      store={configureStore({
-        namespace: 'test.test',
-        dataProvider: { dataProvider: {} as any },
-        isDataLake: false,
-        localAppRegistry: { on() {}, emit() {} } as any,
-      })}
-    >
+    <Provider store={store}>
       <ExplainPlanModal
+        namespace="test.test"
+        isDataLake={false}
         isModalOpen={true}
         onModalClose={() => {}}
         {...props}

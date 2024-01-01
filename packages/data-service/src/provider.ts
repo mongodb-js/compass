@@ -25,3 +25,5 @@ export function dataServiceLocator<
   }
   return ds;
 }
+
+export type { DataService };

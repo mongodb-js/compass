@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
-import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { AppRegistryProvider } from 'hadron-app-registry';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
@@ -30,27 +30,30 @@ import {
 } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 import {
-  activate as activateCompassIndexesPluginRoles,
   CompassIndexesPlugin,
+  DropIndexPlugin as DropIndexCollectionTabModal,
+  CreateIndexPlugin as CreateIndexCollectionTabModal,
 } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
-import { activate as activateExplainPlanPluginRoles } from '@mongodb-js/compass-explain-plan';
-import { activate as activateExportToLanguagePluginRoles } from '@mongodb-js/compass-export-to-language';
+import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
+import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
   CreateNamespacePlugin,
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-
-// TODO(COMPASS-7403): only required while these plugins are not converted to the new
-// plugin interface
-activateExplainPlanPluginRoles(globalAppRegistry);
-activateExportToLanguagePluginRoles(globalAppRegistry);
-activateCompassIndexesPluginRoles(globalAppRegistry);
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type {
+  PreferencesAccess,
+  AllPreferences,
+  UserConfigurablePreferences,
+  PreferenceStateInformation,
+} from 'compass-preferences-model';
 
 type CompassWebProps = {
   darkMode?: boolean;
   connectionString: string;
+  initialPreferences?: Partial<AllPreferences>;
 } & Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
@@ -96,15 +99,62 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
+function useSimplePreferencesService(
+  initialPreferences?: Partial<AllPreferences>
+): PreferencesAccess {
+  const preferencesRef = useRef(initialPreferences as AllPreferences);
+  const preferencesServiceRef = useRef<PreferencesAccess>({
+    savePreferences() {
+      return Promise.resolve(preferencesRef.current);
+    },
+    refreshPreferences() {
+      return Promise.resolve(preferencesRef.current);
+    },
+    getPreferences() {
+      return preferencesRef.current;
+    },
+    ensureDefaultConfigurableUserPreferences() {
+      return Promise.resolve();
+    },
+    getConfigurableUserPreferences() {
+      return Promise.resolve({} as UserConfigurablePreferences);
+    },
+    getPreferenceStates() {
+      return Promise.resolve({} as PreferenceStateInformation);
+    },
+    onPreferenceValueChanged() {
+      return () => {
+        // noop
+      };
+    },
+    createSandbox() {
+      return Promise.resolve(this);
+    },
+  });
+  return preferencesServiceRef.current;
+}
+
 const CompassWeb = ({
   darkMode,
   connectionString,
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
+  initialPreferences,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
+  // TODO(COMPASS-7415): this should be supported by the preferences service /
+  // preferences provider
+  const preferences = useSimplePreferencesService({
+    maxTimeMS: 10_000,
+    enableExplainPlan: true,
+    enableAggregationBuilderRunPipeline: true,
+    enableAggregationBuilderExtraOptions: true,
+    enableImportExport: false,
+    enableSavedAggregationsQueries: false,
+    ...initialPreferences,
+  });
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
   const dataService = useRef<DataService>();
@@ -138,9 +188,17 @@ const CompassWeb = ({
     throw connectionError;
   }
 
-  if (connected && dataService.current) {
+  if (!connected || !dataService.current) {
     return (
       <CompassComponentsProvider darkMode={darkMode}>
+        <LoadingScreen connectionString={connectionString}></LoadingScreen>
+      </CompassComponentsProvider>
+    );
+  }
+
+  return (
+    <CompassComponentsProvider darkMode={darkMode}>
+      <PreferencesProvider value={preferences}>
         <AppRegistryProvider>
           <DataServiceProvider value={dataService.current}>
             <CompassInstanceStorePlugin>
@@ -159,6 +217,12 @@ const CompassWeb = ({
                     CompassSchemaPlugin,
                     CompassIndexesPlugin,
                     CompassSchemaValidationPlugin,
+                  ]}
+                  modals={[
+                    ExplainPlanCollectionTabModal,
+                    DropIndexCollectionTabModal,
+                    CreateIndexCollectionTabModal,
+                    ExportToLanguageCollectionTabModal,
                   ]}
                 >
                   <div
@@ -193,13 +257,7 @@ const CompassWeb = ({
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
-      </CompassComponentsProvider>
-    );
-  }
-
-  return (
-    <CompassComponentsProvider darkMode={darkMode}>
-      <LoadingScreen connectionString={connectionString}></LoadingScreen>
+      </PreferencesProvider>
     </CompassComponentsProvider>
   );
 };

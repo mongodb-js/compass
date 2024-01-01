@@ -50,19 +50,16 @@ export const PipelineSettings: React.FunctionComponent<
   const enableSavedAggregationsQueries = usePreference(
     'enableSavedAggregationsQueries'
   );
-  const isSavePipelineDisplayed =
-    !editViewName && enableSavedAggregationsQueries;
+  const isPipelineNameDisplayed =
+    !editViewName && !!enableSavedAggregationsQueries;
+
   const isCreatePipelineDisplayed = !editViewName;
 
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
-        {isSavePipelineDisplayed && (
-          <>
-            <PipelineName />
-            <SaveMenu />
-          </>
-        )}
+        {isPipelineNameDisplayed && <PipelineName />}
+        <SaveMenu isSaveEnabled={!!enableSavedAggregationsQueries}></SaveMenu>
         {isCreatePipelineDisplayed && (
           <Button
             size="xsmall"

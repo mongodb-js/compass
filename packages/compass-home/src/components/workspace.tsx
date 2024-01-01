@@ -20,7 +20,11 @@ import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
-import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import {
+  CompassIndexesPlugin,
+  DropIndexPlugin as DropIndexCollectionTabModal,
+  CreateIndexPlugin as CreateIndexCollectionTabModal,
+} from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import {
@@ -29,6 +33,8 @@ import {
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
+import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
+import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -64,6 +70,7 @@ export default function Workspace({
         ]}
       >
         <CollectionTabsProvider
+          queryBar={CompassQueryBarPlugin}
           tabs={[
             CompassDocumentsPlugin,
             CompassAggregationsPlugin,
@@ -71,7 +78,12 @@ export default function Workspace({
             CompassIndexesPlugin,
             CompassSchemaValidationPlugin,
           ]}
-          queryBar={CompassQueryBarPlugin}
+          modals={[
+            ExplainPlanCollectionTabModal,
+            DropIndexCollectionTabModal,
+            CreateIndexCollectionTabModal,
+            ExportToLanguageCollectionTabModal,
+          ]}
         >
           <WorkspacesPlugin
             initialWorkspaceTabs={[{ type: 'My Queries' }]}
