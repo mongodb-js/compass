@@ -12,7 +12,7 @@ async function buildSignTool() {
     debug('Signtool not found, building it');
     const buildScriptDir = path.resolve(__dirname, '..', 'signtool');
     debug(`Building signtool.exe in ${buildScriptDir}`);
-    console.info(execFileSync('./build.sh', {
+    console.info(execFileSync('.\\build.bat', {
       cwd: buildScriptDir,
     }).toString());
   }
