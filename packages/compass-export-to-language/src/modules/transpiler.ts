@@ -4,17 +4,26 @@ import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-
 
 import type { OutputLanguage } from './languages';
 
-export type ExportMode = 'Query' | 'Pipeline' | 'Delete Query' | 'Update Query';
+type QueryExportMode = 'Query' | 'Delete Query' | 'Update Query';
 
-type WithExportMode = {
-  exportMode?: ExportMode;
-};
+type PipelineExportMode = 'Pipeline';
 
-type AggregationExpression = {
+export type ExportMode = PipelineExportMode | QueryExportMode;
+
+const EXPORT_MODES: ExportMode[] = [
+  'Pipeline',
+  'Query',
+  'Delete Query',
+  'Update Query',
+];
+
+export type AggregationExpression = {
+  exportMode: 'Pipeline';
   aggregation: string;
 };
 
-type QueryExpression = {
+export type QueryExpression = {
+  exportMode: 'Query' | 'Delete Query' | 'Update Query';
   filter: string;
   project?: string;
   sort?: string;
@@ -24,24 +33,18 @@ type QueryExpression = {
   maxTimeMS?: string;
 };
 
-export function isQuery(exportMode?: ExportMode) {
-  return exportMode === 'Query' || exportMode === 'Delete Query';
+export function isValidExportMode(val: any): val is ExportMode {
+  return EXPORT_MODES.includes(val);
 }
 
-export type InputExpression = WithExportMode &
-  (AggregationExpression | QueryExpression);
+export type InputExpression = AggregationExpression | QueryExpression;
 
-export function getInputExpressionMode(
+export function isQueryExpression(
   inputExpression: InputExpression
-): ExportMode {
-  if (inputExpression.exportMode) {
-    return inputExpression.exportMode;
-  }
-
-  if ('filter' in inputExpression) {
-    return 'Query';
-  }
-  return 'Pipeline';
+): inputExpression is QueryExpression {
+  return ['Query', 'Delete Query', 'Update Query'].includes(
+    inputExpression.exportMode
+  );
 }
 
 type RunTranspilerOptions = {
@@ -65,9 +68,13 @@ export function runTranspiler({
   namespace,
   protectConnectionStrings,
 }: RunTranspilerOptions) {
-  const mode = getInputExpressionMode(inputExpression);
+  const mode = inputExpression.exportMode;
 
-  useBuilders = useBuilders && outputLanguage === 'java' && isQuery(mode);
+  useBuilders =
+    useBuilders &&
+    outputLanguage === 'java' &&
+    isQueryExpression(inputExpression);
+
   let output = '';
 
   if (includeDrivers) {

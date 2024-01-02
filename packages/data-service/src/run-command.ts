@@ -223,6 +223,10 @@ export type ListCollectionsResult<CollectionType> = {
   cursor: { firstBatch: CollectionType };
 };
 
+export type ListStreamProcessorsOptions = {
+  filter?: Document;
+};
+
 /**
  * @see {@link https://www.mongodb.com/docs/manual/reference/command/nav-administration/}
  */
@@ -278,6 +282,13 @@ interface RunAdministrationCommand {
     spec: { collMod: string; [flags: string]: unknown },
     options?: RunCommandOptions
   ): Promise<Document>;
+  (
+    db: Db,
+    spec: { listStreamProcessors: 1 } & ListStreamProcessorsOptions
+  ): Promise<Document>;
+  (db: Db, spec: { startStreamProcessor: string }): Promise<Document>;
+  (db: Db, spec: { stopStreamProcessor: string }): Promise<Document>;
+  (db: Db, spec: { dropStreamProcessor: string }): Promise<Document>;
 }
 
 /**

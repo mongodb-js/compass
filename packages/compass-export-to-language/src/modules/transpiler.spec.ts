@@ -1,40 +1,8 @@
 import { expect } from 'chai';
-import { getInputExpressionMode, runTranspiler } from './transpiler';
+import { runTranspiler } from './transpiler';
 import type { InputExpression } from './transpiler';
 
 describe('transpiler', function () {
-  describe('getInputExpressionMode', function () {
-    it('returns the provided exportMode', function () {
-      expect(
-        getInputExpressionMode({ exportMode: 'Delete Query', filter: 'foo' })
-      ).to.equal('Delete Query');
-    });
-
-    it('returns Query for basic queries', function () {
-      expect(getInputExpressionMode({ filter: 'foo' })).to.equal('Query');
-    });
-
-    it('returns Query for full queries', function () {
-      expect(
-        getInputExpressionMode({
-          filter: 'x',
-          project: 'x',
-          sort: 'x',
-          collation: 'x',
-          skip: 'x',
-          limit: 'x',
-          maxTimeMS: 'x',
-        })
-      ).to.equal('Query');
-    });
-
-    it('returns Pipeline for aggregations', function () {
-      expect(getInputExpressionMode({ aggregation: 'foo' })).to.equal(
-        'Pipeline'
-      );
-    });
-  });
-
   describe('runTranspiler', function () {
     let defaults: Pick<
       Parameters<typeof runTranspiler>[0],
@@ -60,8 +28,11 @@ describe('transpiler', function () {
         protectConnectionStrings: false,
       } as const;
 
-      queryExpression = { filter: '{ foo: 1 }' };
-      aggregationExpression = { aggregation: '[{ $match: { foo: 1 }}]' };
+      queryExpression = { filter: '{ foo: 1 }', exportMode: 'Query' };
+      aggregationExpression = {
+        aggregation: '[{ $match: { foo: 1 }}]',
+        exportMode: 'Pipeline',
+      };
     });
 
     it('transpiles a query', function () {
