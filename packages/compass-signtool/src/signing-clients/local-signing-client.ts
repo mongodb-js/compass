@@ -32,7 +32,15 @@ export class LocalSigningClient implements SigningClient {
       debug(`LocalSigningClient: Copied file ${file} to ${remotePath}`);
 
       await execAsync(
-        `cd ${this.options.rootDir} && ./garasign.sh ${path.basename(file)}`
+        `cd ${this.options.rootDir} && ./garasign.sh ${path.basename(file)}`,
+        {
+          env: {
+            garasign_username: process.env.GARASIGN_USERNAME,
+            garasign_password: process.env.GARASIGN_PASSWORD,
+            artifactory_username: process.env.ARTIFACTORY_USERNAME,
+            artifactory_password: process.env.ARTIFACTORY_PASSWORD,
+          },
+        }
       );
       debug(`LocalSigningClient: Signed file ${remotePath}`);
 

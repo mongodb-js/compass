@@ -11,6 +11,10 @@ describe('LocalSigningClient', () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'local-signing-client'));
   });
 
+  afterEach(async () => {
+    await fs.rmdir(tmpDir, { recursive: true });
+  });
+
   it('signs the file correctly', async function () {
     // In order to sign a file locally, we setup the following:
     // 1. Create a tmp directory, tmp file to sign and a tmp signing script

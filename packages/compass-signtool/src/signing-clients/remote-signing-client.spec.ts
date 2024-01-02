@@ -65,6 +65,10 @@ describe('RemoteSigningClient', () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remote-signing-client'));
   });
 
+  afterEach(async () => {
+    await fs.rmdir(tmpDir, { recursive: true });
+  });
+
   it('signs the file correctly', async function () {
     const fileToSign = path.join(tmpDir, 'originals', 'file-to-sign.txt');
     const signingScript = path.join(tmpDir, 'originals', 'script.sh');
