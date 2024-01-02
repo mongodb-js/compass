@@ -19,7 +19,7 @@ function normalizedTemplateNamed(name: string) {
   return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
 
-describe('Create Search Index Modal', function () {
+describe('Base Search Index Modal', function () {
   let onSubmitSpy: SinonSpy;
   let onCloseSpy: SinonSpy;
 
