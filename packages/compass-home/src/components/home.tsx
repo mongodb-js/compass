@@ -27,7 +27,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
@@ -38,8 +38,6 @@ import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-
-const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
 resetGlobalCSS();
 
@@ -361,6 +359,8 @@ function Home({
 function ThemedHome(
   props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
+  const { track } = useLoggerAndTelemetry('COMPASS-HOME-UI');
+
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {

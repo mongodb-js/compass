@@ -21,9 +21,8 @@ import { OpenBulkUpdateActionButton } from './query-item/query-item-action-butto
 import { usePreference } from 'compass-preferences-model';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
@@ -43,6 +42,7 @@ const RecentItem = ({
   query: RecentQuery;
   isReadonly: boolean;
 }) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
@@ -65,7 +65,14 @@ const RecentItem = ({
       isUpdateQuery,
     });
     onApply(attributes);
-  }, [isDisabled, isUpdateQuery, onApply, attributes, onUpdateRecentChoosen]);
+  }, [
+    isDisabled,
+    isUpdateQuery,
+    track,
+    onApply,
+    attributes,
+    onUpdateRecentChoosen,
+  ]);
 
   const onCardClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -84,7 +91,7 @@ const RecentItem = ({
       track('Query History Favorite Added', { isUpdateQuery });
       void onFavorite(query, name);
     },
-    [query, onFavorite, isUpdateQuery]
+    [track, isUpdateQuery, onFavorite, query]
   );
 
   return (
