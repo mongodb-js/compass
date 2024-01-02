@@ -6,7 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 if (process.platform !== 'win32') {
   console.info('Skip installing signtool.exe, not running on windows');
@@ -24,7 +24,7 @@ const buildScriptName = 'build.sh';
 const buildScriptCmd = `cd "${buildScriptDir}" && ${path.resolve(__dirname, buildScriptName)}`;
 console.info(`Running preinstall script in hadron-build. Command: ${buildScriptCmd}`);
 console.info('Building signtool.exe');
-console.info(execSync(buildScriptCmd).toString());
+console.info(execFileSync(buildScriptCmd).toString());
 
 
 
