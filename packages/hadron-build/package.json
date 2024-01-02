@@ -7,8 +7,7 @@
     "test": "mocha -R spec",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
-    "test-ci": "npm run test",
-    "postinstall": "node signtool/install.js"
+    "test-ci": "npm run test"
   },
   "bin": {
     "hadron-build": "cli.js"
