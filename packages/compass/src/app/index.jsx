@@ -180,12 +180,15 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
+    const loggerProviderValue = {
+      createLogger: createLoggerAndTelemetry,
+      preferences: defaultPreferencesInstance,
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
-          <LoggerAndTelemetryProvider
-            value={{ createLogger: createLoggerAndTelemetry }}
-          >
+          <LoggerAndTelemetryProvider value={loggerProviderValue}>
             <AppRegistryProvider>
               <CompassHomePlugin
                 appName={remote.app.getName()}

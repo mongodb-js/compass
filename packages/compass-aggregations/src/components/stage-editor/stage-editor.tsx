@@ -6,7 +6,7 @@ import {
   createStageAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   css,
   cx,
@@ -23,8 +23,6 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -96,6 +94,7 @@ export const StageEditor = ({
   editor_view_type,
   editorRef,
 }: StageEditorProps) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorCurrentValueRef = useRef<string | null>(stageValue);
@@ -138,13 +137,7 @@ export const StageEditor = ({
       });
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [
-    editorInitialValueRef,
-    num_stages,
-    index,
-    stageOperator,
-    editor_view_type,
-  ]);
+  }, [track, num_stages, index, stageOperator, editor_view_type]);
 
   return (
     <div

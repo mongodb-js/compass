@@ -1,10 +1,10 @@
 const React = require('react');
 const Actions = require('../actions');
 const { Button, Icon } = require('@mongodb-js/compass-components');
-const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
-const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
-
-// const debug = require('debug')('mongodb-compass:server-stats:detailview-component');
+const {
+  withLoggerAndTelemetry,
+} = require('@mongodb-js/compass-logging/provider');
+const PropTypes = require('prop-types');
 
 class DetailViewComponent extends React.Component {
   constructor(props) {
@@ -43,7 +43,7 @@ class DetailViewComponent extends React.Component {
   }
 
   killOp() {
-    track('DetailView killOp');
+    this.props.logger.track('DetailView killOp');
     Actions.killOp(this.state.data.opid);
     this.hideOperationDetails();
   }
@@ -52,7 +52,7 @@ class DetailViewComponent extends React.Component {
    * Fire the show operation detail action with the row data.
    */
   hideOperationDetails() {
-    track('DetailView hideOperationDetails');
+    this.props.logger.track('DetailView hideOperationDetails');
     Actions.hideOperationDetails();
   }
 
@@ -156,8 +156,15 @@ class DetailViewComponent extends React.Component {
     }
     return this.renderGraph();
   }
+
+  static propTypes = {
+    logger: PropTypes.any.isRequired,
+  };
 }
 
 DetailViewComponent.displayName = 'DetailViewComponent';
 
-module.exports = DetailViewComponent;
+module.exports = withLoggerAndTelemetry(
+  DetailViewComponent,
+  'COMPASS-PERFORMANCE-UI'
+);

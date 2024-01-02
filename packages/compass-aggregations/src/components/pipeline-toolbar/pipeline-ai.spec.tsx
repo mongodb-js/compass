@@ -14,7 +14,6 @@ import {
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 
 const mockAtlasService = {
@@ -33,6 +32,13 @@ const thumbsUpId = 'ai-feedback-thumbs-up';
 describe('PipelineAI Component', function () {
   let preferences: PreferencesAccess;
   let store: ReturnType<typeof configureStore>;
+  let trackingEvents: any[] = [];
+  const track = (event: any, properties: any) => {
+    trackingEvents.push({
+      event,
+      properties: typeof properties === 'function' ? properties() : properties,
+    });
+  };
 
   const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
     const store = configureStore(
@@ -41,9 +47,16 @@ describe('PipelineAI Component', function () {
       { preferences }
     );
     render(
+      // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
         <LoggerAndTelemetryProvider
-          value={{ createLogger: createLoggerAndTelemetry, preferences }}
+          value={
+            {
+              createLogger() {
+                return { track, log: { info() {} }, mongoLogId() {} };
+              },
+            } as any
+          }
         >
           <Provider store={store}>
             <PipelineAI />
@@ -61,6 +74,7 @@ describe('PipelineAI Component', function () {
   });
 
   afterEach(function () {
+    trackingEvents = [];
     (store as any) = null;
     cleanup();
   });
@@ -114,19 +128,13 @@ describe('PipelineAI Component', function () {
   describe('Pipeline AI Feedback', function () {
     describe('usage statistics enabled', function () {
       beforeEach(async function () {
-        // 'compass:track' will only emit if tracking is enabled.
+        // Elements will render only if `trackUsageStatistics` is true
         await preferences.savePreferences({ trackUsageStatistics: true });
         store = renderPipelineAI();
         await store.dispatch(showInput());
       });
 
       it('should log a telemetry event with the entered text on submit', async function () {
-        // Note: This is coupling this test with internals of the logger and telemetry.
-        // We're doing this as this is a unique case where we're using telemetry
-        // for feedback. Avoid repeating this elsewhere.
-        const trackingLogs: any[] = [];
-        process.on('compass:track', (event) => trackingLogs.push(event));
-
         // No feedback popover is shown yet.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
@@ -157,7 +165,7 @@ describe('PipelineAI Component', function () {
             // No feedback popover is shown.
             expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not
               .exist;
-            expect(trackingLogs).to.deep.equal([
+            expect(trackingEvents).to.deep.equal([
               {
                 event: 'PipelineAI Feedback',
                 properties: {

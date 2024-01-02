@@ -8,7 +8,7 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 import {
   indexFromDroppableId,
@@ -17,8 +17,6 @@ import {
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 import type { PipelineBuilderUIWorkspaceProps } from '.';
 import type { DraggedUseCase } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 // Types
 type PipelineBuilderDndWrapperProps = {
@@ -49,6 +47,8 @@ const PipelineBuilderDndWrapper = ({
   onStageMoveEnd,
   onUseCaseDropped,
 }: PipelineBuilderDndWrapperProps) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
   const [draggedUseCase, setDraggedUseCase] = useState<DraggedUseCase | null>(
     null
   );
@@ -88,7 +88,7 @@ const PipelineBuilderDndWrapper = ({
       }
       setDraggedUseCase(null);
     },
-    [draggedUseCase, onUseCaseDropped]
+    [draggedUseCase, onUseCaseDropped, track]
   );
 
   const handleSortEnd = useCallback(

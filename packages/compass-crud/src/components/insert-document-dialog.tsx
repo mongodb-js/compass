@@ -16,7 +16,7 @@ import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banne
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**

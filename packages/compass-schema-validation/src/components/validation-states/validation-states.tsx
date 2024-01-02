@@ -14,7 +14,6 @@ import {
 import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
 import { ZeroGraphic } from '../zero-graphic';
-import type { ValidationEditorProps } from '../validation-editor/validation-editor';
 
 const validationStatesStyles = css({ padding: spacing[3] });
 const contentContainerStyles = css({ height: '100%' });
@@ -44,7 +43,7 @@ const DOC_UPGRADE_REVISION =
   'https://docs.mongodb.com/manual/tutorial/upgrade-revision/';
 
 export interface ValidationStatesProps
-  extends Omit<ValidationEditorProps, 'isEditable'> {
+  extends Omit<React.ComponentProps<typeof ValidationEditor>, 'isEditable'> {
   isZeroState: boolean;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
