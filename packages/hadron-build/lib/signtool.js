@@ -37,11 +37,9 @@ async function patchWinInstaller() {
 }
 
 async function signtool(fileToSign) {
-  
-  { // Build signtool if it doesn't exist and patch it into electron-winstaller
-    await buildSignTool();
-    await patchWinInstaller();
-  }
+  // Build signtool if it doesn't exist and patch it into electron-winstaller
+  await buildSignTool();
+  await patchWinInstaller();
 
   const execArgs = [SIGNTOOL_PATH, [path.resolve(fileToSign)], { stdio: 'inherit' }];
   debug(`Running signtool.exe to sign '${SIGNTOOL_PATH}'`, {
