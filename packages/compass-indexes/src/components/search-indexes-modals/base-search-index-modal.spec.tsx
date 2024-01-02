@@ -95,6 +95,13 @@ describe('Base Search Index Modal', function () {
   });
 
   describe('templates', function () {
+    before(function () {
+      // TODO(COMPASS-7557): these tests don't work anywhere but on macos
+      if (process.env.PLATFORM !== 'darwin') {
+        this.skip();
+      }
+    });
+
     it('replaces the contents of the index editor when a template is selected', async function () {
       userEvent.click(screen.getByRole('button', { name: 'Template' }));
       userEvent.click(
