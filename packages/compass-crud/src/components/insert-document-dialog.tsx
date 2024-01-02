@@ -56,7 +56,6 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   jsonView: boolean;
   doc: Document;
   ns: string;
-  tz: string;
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: LoggerAndTelemetry;
