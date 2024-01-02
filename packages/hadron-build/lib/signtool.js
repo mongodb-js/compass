@@ -26,14 +26,12 @@ async function patchWinInstaller() {
 
   try {
     await fs.access(originalSigntoolBackup);
+    debug('electron-winstaller already patched, skipping');
   } catch (err) {
-    debug('Original signtool.exe to be replaced not found');
-    return;
+    debug('Patching electron-winstaller');
+    await fs.rename(originalSigntool, originalSigntool + '.bkp');
+    await fs.copyFile(SIGNTOOL_PATH, originalSigntool);
   }
-
-  debug('Patching electron-winstaller signtool.exe');
-  await fs.rename(originalSigntool, originalSigntool + '.bkp');
-  await fs.copyFile(SIGNTOOL_PATH, originalSigntool);
 }
 
 async function signtool(fileToSign) {
