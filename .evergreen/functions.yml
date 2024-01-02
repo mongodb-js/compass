@@ -348,7 +348,7 @@ functions:
           set -e
           user=ubuntu
           hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
-          identity_file=~/.ssh/mcipacker.pem
+          identity_file=$(echo ~/.ssh/mcipacker.pem)
 
           attempts=0
           connection_attempts=25
