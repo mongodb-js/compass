@@ -16,7 +16,7 @@ import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banne
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**
@@ -56,7 +56,6 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   jsonView: boolean;
   doc: Document;
   ns: string;
-  tz: string;
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: LoggerAndTelemetry;

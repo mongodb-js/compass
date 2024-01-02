@@ -13,8 +13,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const formHelpContainerStyles = css({
   position: 'relative',
@@ -65,6 +64,7 @@ const createClusterButtonLightModeStyles = css({
 });
 
 function AtlasHelpSection() {
+  const { track } = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
   const darkMode = useDarkMode();
 
   return (

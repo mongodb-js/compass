@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Dec 28 2023.
+This document was automatically generated on Tue Jan 02 2024.
 
 ## List of dependencies
 
@@ -255,7 +255,7 @@ This document was automatically generated on Thu Dec 28 2023.
 | **[ejson-shell-parser](#1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7)**                                 | 2.0.0        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#a84059647e0f17ad299dba6c5fd678c87ec2d812242b40a3a3b95a3b1882327c)**                                           | 25.9.8       | MIT                                 |
+| **[electron](#9f9cd5566dca23471439b2911ef131673369a7fbb7bf2dfbd640c21600334dfa)**                                           | 28.1.0       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -340,7 +340,6 @@ This document was automatically generated on Thu Dec 28 2023.
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                               | 2.1.0        | MIT                                 |
 | **[join-component](#e3b7c74ebe2a0ad1c2f2cabfde196da4dc350a8c6cd6016f884d316a85a58d6b)**                                     | 1.1.0        | MIT                                 |
 | **[jose](#1c9a4e6acd63a2e0d5844777470f9d4ce80d639d2851eff1f301a7ad967b9787)**                                               | 4.14.4       | MIT                                 |
-| **[js-beautify](#dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7)**                                        | 1.14.7       | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**                                            | 3.14.1       | MIT                                 |
 | **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**                                            | 4.1.0        | MIT                                 |
@@ -21233,9 +21232,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="a84059647e0f17ad299dba6c5fd678c87ec2d812242b40a3a3b95a3b1882327c"></a>
+<a id="9f9cd5566dca23471439b2911ef131673369a7fbb7bf2dfbd640c21600334dfa"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 25.9.8)
+### [electron](https://www.npmjs.com/package/electron) (version 28.1.0)
 
 License tags: MIT
 
@@ -24280,26 +24279,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
-
-<a id="dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7"></a>
-
-### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.14.7)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4"></a>
 

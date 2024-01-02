@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
-import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { AppRegistryProvider } from 'hadron-app-registry';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
@@ -36,7 +36,7 @@ import {
 } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
-import { activate as activateExportToLanguagePluginRoles } from '@mongodb-js/compass-export-to-language';
+import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
   CreateNamespacePlugin,
   DropNamespacePlugin,
@@ -49,10 +49,6 @@ import type {
   UserConfigurablePreferences,
   PreferenceStateInformation,
 } from 'compass-preferences-model';
-
-// TODO(COMPASS-7403): only required while these plugins are not converted to
-// the new plugin interface
-activateExportToLanguagePluginRoles(globalAppRegistry);
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -226,6 +222,7 @@ const CompassWeb = ({
                     ExplainPlanCollectionTabModal,
                     DropIndexCollectionTabModal,
                     CreateIndexCollectionTabModal,
+                    ExportToLanguageCollectionTabModal,
                   ]}
                 >
                   <div

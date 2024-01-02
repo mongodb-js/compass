@@ -69,26 +69,42 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
 
+    it('should open workspace in the same tab if type is the same, but other workspace options are different', function () {
+      const store = configureStore();
+      openTabs(store);
+      store.dispatch(
+        openWorkspace({ type: 'Collection', namespace: 'test.bar' })
+      );
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(3);
+      expect(state).to.have.nested.property('tabs[2].namespace', 'test.bar');
+    });
+
     it('should select already opened tab when trying to open a new one with the same attributes', function () {
       const store = configureStore();
       openTabs(store);
-      const currentState = store.getState();
+      const currentState1 = store.getState();
 
       // opening literally the same tab, state is not changed
       store.dispatch(
         openWorkspace({ type: 'Collection', namespace: 'test.buz' } as any)
       );
-      expect(store.getState()).to.eq(currentState);
+      expect(store.getState()).to.eq(currentState1);
+
+      // opening "My Queries" so that the current active workspace type is
+      // different
+      store.dispatch(openWorkspace({ type: 'My Queries' }));
+      const currentState2 = store.getState();
 
       // opening an existing tab changes the active id, but doesn't change the
       // tabs array
       store.dispatch(
         openWorkspace({ type: 'Collection', namespace: 'test.foo' } as any)
       );
-      expect(store.getState()).to.have.property('tabs', currentState.tabs);
+      expect(store.getState()).to.have.property('tabs', currentState2.tabs);
       expect(store.getState()).to.have.property(
         'activeTabId',
-        currentState.tabs[0].id
+        currentState2.tabs[0].id
       );
     });
 
