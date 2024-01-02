@@ -16,6 +16,7 @@ import type { BSONObject } from '../stores/crud-store';
 import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
+import type { Document } from 'bson';
 
 const modalFooterSpacingStyles = css({
   gap: spacing[2],

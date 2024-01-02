@@ -34,6 +34,7 @@ import {
 } from '@mongodb-js/compass-databases-collections';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
+import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -81,6 +82,7 @@ export default function Workspace({
             ExplainPlanCollectionTabModal,
             DropIndexCollectionTabModal,
             CreateIndexCollectionTabModal,
+            ExportToLanguageCollectionTabModal,
           ]}
         >
           <WorkspacesPlugin
