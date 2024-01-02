@@ -91,6 +91,7 @@
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
+    "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "mongodb-collection-model": "^5.17.1",

@@ -18,8 +18,7 @@ import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const containerStyles = css({
   position: 'relative',
@@ -77,6 +76,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   fields,
   onChangePipelineText,
 }) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;
@@ -99,7 +99,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       });
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [editorInitialValueRef, num_stages]);
+  }, [num_stages, track]);
 
   const annotations: Annotation[] = useMemo(() => {
     return syntaxErrors

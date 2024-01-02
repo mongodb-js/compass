@@ -84,6 +84,7 @@
     "depcheck": "^1.4.1",
     "digest-fetch": "^2.0.3",
     "ejson-shell-parser": "^2.0.0",
+    "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "mongodb": "^6.3.0",
