@@ -57,9 +57,9 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-user-data": "^0.1.12",
     "@mongodb-js/compass-components": "^1.21.0",
     "@mongodb-js/compass-logging": "^1.2.9",
+    "@mongodb-js/compass-user-data": "^0.1.12",
     "@mongodb-js/compass-utils": "^0.5.8",
     "@mongosh/node-runtime-worker-thread": "^2.1.1",
     "compass-preferences-model": "^2.17.0",
@@ -67,9 +67,9 @@
     "mongodb-data-service": "^22.17.1"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-user-data": "^0.1.12",
     "@mongodb-js/compass-components": "^1.21.0",
     "@mongodb-js/compass-logging": "^1.2.9",
+    "@mongodb-js/compass-user-data": "^0.1.12",
     "@mongodb-js/compass-utils": "^0.5.8",
     "@mongosh/node-runtime-worker-thread": "^2.1.1",
     "compass-preferences-model": "^2.17.0",
@@ -87,7 +87,8 @@
     "@mongosh/logging": "^2.1.1",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^25.9.8",
+    "electron": "^28.1.0",
+    "electron-mocha": "^12.2.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",

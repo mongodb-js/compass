@@ -85,6 +85,7 @@
     "chai": "^4.3.4",
     "d3": "^3.5.17",
     "depcheck": "^1.4.1",
+    "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "leaflet": "^1.5.1",
     "leaflet-defaulticon-compatibility": "^0.1.1",
