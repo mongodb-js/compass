@@ -1,8 +1,6 @@
 import type { Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -30,7 +28,6 @@ import type {
   RecentQuery,
   FavoriteQuery,
 } from '@mongodb-js/my-queries-storage';
-const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {
   isReadonlyConnection: boolean;
@@ -262,7 +259,11 @@ export const fetchRecents = (): QueryBarThunkAction<
   Promise<void>,
   RecentQueriesFetchedAction
 > => {
-  return async (dispatch, _getState, { recentQueryStorage }) => {
+  return async (
+    dispatch,
+    _getState,
+    { recentQueryStorage, logger: { debug } }
+  ) => {
     try {
       const recents = await recentQueryStorage.loadAll();
       dispatch({
@@ -290,7 +291,11 @@ export const fetchFavorites = (): QueryBarThunkAction<
   Promise<void>,
   FavoriteQueriesFetchedAction
 > => {
-  return async (dispatch, _getState, { favoriteQueryStorage }) => {
+  return async (
+    dispatch,
+    _getState,
+    { favoriteQueryStorage, logger: { debug } }
+  ) => {
     try {
       const favorites = await favoriteQueryStorage.loadAll();
       dispatch({
@@ -319,7 +324,11 @@ export const saveRecentAsFavorite = (
   recentQuery: RecentQuery,
   name: string
 ): QueryBarThunkAction<Promise<boolean>> => {
-  return async (dispatch, getState, { favoriteQueryStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { favoriteQueryStorage, logger: { debug } }
+  ) => {
     try {
       const now = new Date();
       const { _id, _host, _lastExecuted, _ns, ...baseQuery } = recentQuery;
@@ -357,7 +366,11 @@ export const saveRecentAsFavorite = (
 export const deleteRecentQuery = (
   id: string
 ): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { recentQueryStorage }) => {
+  return async (
+    dispatch,
+    _getState,
+    { recentQueryStorage, logger: { debug } }
+  ) => {
     try {
       await recentQueryStorage.delete(id);
       return dispatch(fetchRecents());
@@ -370,7 +383,11 @@ export const deleteRecentQuery = (
 export const deleteFavoriteQuery = (
   id: string
 ): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { favoriteQueryStorage }) => {
+  return async (
+    dispatch,
+    _getState,
+    { favoriteQueryStorage, logger: { debug } }
+  ) => {
     try {
       await favoriteQueryStorage.delete(id);
       return dispatch(fetchFavorites());
@@ -383,7 +400,11 @@ export const deleteFavoriteQuery = (
 const saveRecentQuery = (
   query: Omit<BaseQuery, 'maxTimeMS'>
 ): QueryBarThunkAction<Promise<void>> => {
-  return async (_dispatch, getState, { recentQueryStorage }) => {
+  return async (
+    _dispatch,
+    getState,
+    { recentQueryStorage, logger: { debug } }
+  ) => {
     try {
       const {
         queryBar: { recentQueries, host, namespace },
