@@ -1764,7 +1764,7 @@ class CrudStoreImpl
       countOptions,
       (err: any) => {
         this.logger.log.warn(
-          mongoLogId(1_001_000_275),
+          mongoLogId(1_001_000_276),
           'Documents',
           'Failed to count documents',
           err

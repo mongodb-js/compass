@@ -43,6 +43,7 @@ const testJsOverrides = {
   rules: {
     ...common.testRules,
     '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+    '@typescript-eslint/no-restricted-imports': 'off',
   },
 };
 
@@ -52,6 +53,7 @@ const testTsOverrides = {
     ...common.testRules,
     ...extraTsRules,
     '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+    '@typescript-eslint/no-restricted-imports': 'off',
   },
 };
 
