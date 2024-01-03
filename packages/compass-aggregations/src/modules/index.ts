@@ -41,6 +41,7 @@ import insights from './insights';
 import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**
  * The main application reducer.
@@ -87,12 +88,14 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 export type PipelineBuilderExtraArgs = {
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

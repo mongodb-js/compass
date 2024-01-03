@@ -1,5 +1,4 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { openToast } from '@mongodb-js/compass-components';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
@@ -16,8 +15,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { AnyAction } from 'redux';
-
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -91,7 +88,7 @@ export const getSavedPipelines =
  */
 export const updatePipelineList =
   (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState, { pipelineStorage }) => {
+  (dispatch, getState, { pipelineStorage, logger: { debug } }) => {
     const state = getState();
     pipelineStorage
       .loadAll()
@@ -136,7 +133,7 @@ export const openStoredPipeline = (
   pipelineData: SavedPipeline,
   updatePreview = true
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
     try {
       pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch(restorePipeline(pipelineData, pipelineBuilder));
@@ -166,7 +163,11 @@ export const openStoredPipeline = (
  */
 export const saveCurrentPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
+  async (
+    dispatch,
+    getState,
+    { pipelineBuilder, pipelineStorage, logger: { track } }
+  ) => {
     if (getState().id === '') {
       dispatch(createId());
     }
@@ -218,7 +219,7 @@ export const saveCurrentPipeline =
 
 export const confirmOpenPipeline =
   (pipelineData: SavedPipeline): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState) => {
+  async (dispatch, getState, { logger: { track } }) => {
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'restore_pipeline_modal' });
@@ -242,7 +243,7 @@ export const confirmOpenPipeline =
 
 export const confirmDeletePipeline =
   (pipelineId: string): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineStorage }) => {
+  async (dispatch, getState, { pipelineStorage, logger: { track } }) => {
     track('Screen', { name: 'delete_pipeline_modal' });
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this pipeline?',

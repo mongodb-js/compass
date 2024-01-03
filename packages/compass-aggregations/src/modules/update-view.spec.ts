@@ -1,9 +1,9 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-describe('large-limit module', function () {
+describe('update-view module', function () {
   const thunkArg = {
     pipelineBuilder: {
       getPipelineFromStages() {
@@ -16,6 +16,7 @@ describe('large-limit module', function () {
     workspaces: {
       openCollectionWorkspace() {},
     },
+    logger: createNoopLoggerAndTelemetry(),
   };
 
   describe('#updateView', function () {

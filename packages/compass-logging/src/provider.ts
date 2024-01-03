@@ -3,13 +3,38 @@ import type {
   LoggerAndTelemetry,
   LoggingAndTelemetryPreferences,
 } from './logger';
+import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
+
 export type { LoggerAndTelemetry } from './logger';
 
-function defaultCreateLoggerAndTelemetry(component: string) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('./logger').createGenericLoggerAndTelemetry(component, () => {
-    /* ignore */
-  });
+const throwIfNotTestEnv = () => {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error(
+      "Can't find Workspaces service in React context. Make sure you are using workspaces service and hooks inside Workspaces scope"
+    );
+  }
+};
+
+export function createNoopLoggerAndTelemetry(
+  component = 'NOOP-LOGGER'
+): LoggerAndTelemetry {
+  return {
+    log: {
+      component,
+      get unbound() {
+        return this as unknown as MongoLogWriter;
+      },
+      write: () => true,
+      info: throwIfNotTestEnv,
+      warn: throwIfNotTestEnv,
+      error: throwIfNotTestEnv,
+      fatal: throwIfNotTestEnv,
+      debug: throwIfNotTestEnv,
+    },
+    debug: throwIfNotTestEnv as unknown as LoggerAndTelemetry['debug'],
+    track: throwIfNotTestEnv,
+    mongoLogId,
+  };
 }
 
 const LoggerAndTelemetryContext = React.createContext<{
@@ -18,7 +43,7 @@ const LoggerAndTelemetryContext = React.createContext<{
     preferences: LoggingAndTelemetryPreferences
   ): LoggerAndTelemetry;
   preferences?: LoggingAndTelemetryPreferences;
-}>({ createLogger: defaultCreateLoggerAndTelemetry });
+}>({ createLogger: createNoopLoggerAndTelemetry });
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
@@ -69,6 +94,7 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   : F extends { new (...args: [infer A, ...any]): any }
   ? A
   : never;
+
 export function withLoggerAndTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(
@@ -82,4 +108,8 @@ export function withLoggerAndTelemetry<
     return React.createElement(ReactComponent, { ...props, logger });
   };
   return WithLoggerAndTelemetry;
+}
+
+export function mongoLogId(id: number): MongoLogId {
+  return { __value: id };
 }

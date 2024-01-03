@@ -22,7 +22,6 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
@@ -36,7 +35,6 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -535,7 +533,7 @@ export const changeStageOperator = (
   string | undefined,
   ChangeStageOperatorAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       env,
       comments,
@@ -644,7 +642,7 @@ export const changeStageCollapsed = (
 export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -675,7 +673,7 @@ export const addStage = (
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -707,7 +705,7 @@ export const moveStage = (
   from: number,
   to: number
 ): PipelineBuilderThunkAction<void, StageMoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     if (from === to) {
       return;
     }
@@ -873,7 +871,7 @@ export const convertWizardToStage = (
   void,
   WizardChangeAction | WizardToStageAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },

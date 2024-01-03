@@ -36,6 +36,7 @@ import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -82,6 +83,7 @@ export type AggregationsPluginServices = {
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export function activateAggregationsPlugin(
@@ -93,6 +95,7 @@ export function activateAggregationsPlugin(
     workspaces,
     instance,
     preferences,
+    logger,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -187,6 +190,7 @@ export function activateAggregationsPlugin(
         workspaces,
         instance,
         preferences,
+        logger,
       })
     )
   );

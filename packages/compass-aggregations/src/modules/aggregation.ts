@@ -7,7 +7,6 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
@@ -20,10 +19,6 @@ import {
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry(
-  'COMPASS-AGGREGATIONS-UI'
-);
 
 export enum ActionTypes {
   RunAggregation = 'compass-aggeregations/runAggregation',
@@ -211,7 +206,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 };
 
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
     void dispatch(fetchExplainForPipeline());
     dispatch({
@@ -272,7 +267,7 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { track } }) => {
     track('Aggregation Canceled');
     const {
       aggregation: { abortController },
@@ -293,7 +288,11 @@ const _abortAggregation = (controller?: AbortController): void => {
 const fetchAggregationData = (
   page = 1
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { preferences, logger: { track, log, mongoLogId } }
+  ) => {
     const {
       namespace,
       maxTimeMS: { current: maxTimeMS },

@@ -28,6 +28,7 @@ import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
@@ -117,6 +118,7 @@ function createStore({
         instance: {} as any,
         workspaces: {} as any,
         preferences,
+        logger: createNoopLoggerAndTelemetry(),
       })
     )
   );

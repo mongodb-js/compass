@@ -1,6 +1,5 @@
 import toNS from 'mongodb-ns';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
@@ -10,8 +9,6 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
-
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export type UpdateViewState = null | string;
 
@@ -83,7 +80,11 @@ export const dismissViewError = (): DismissViewUpdateErrorAction => ({
  * @returns {Function} The function.
  */
 export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder, workspaces }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, workspaces, logger: { track, debug } }
+  ) => {
     dispatch(dismissViewError());
 
     const state = getState();
