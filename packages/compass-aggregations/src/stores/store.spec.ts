@@ -6,16 +6,6 @@ import type { Store } from 'redux';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
-const fakeAppInstanceStore = {
-  getState: function () {
-    return {
-      instance: {
-        env: 'atlas',
-      },
-    };
-  },
-} as any;
-
 describe('Aggregation Store', function () {
   describe('#configureStore', function () {
     context('when providing an app registry', function () {
@@ -24,10 +14,6 @@ describe('Aggregation Store', function () {
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(function () {
-        globalAppRegistry.registerStore(
-          'App.InstanceStore',
-          fakeAppInstanceStore
-        );
         store = configureStore(undefined, undefined, {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
@@ -149,10 +135,6 @@ describe('Aggregation Store', function () {
     const globalAppRegistry = new AppRegistry();
 
     beforeEach(function () {
-      globalAppRegistry.registerStore(
-        'App.InstanceStore',
-        fakeAppInstanceStore
-      );
       store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,

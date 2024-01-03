@@ -1,6 +1,6 @@
 // add Reflux store method to listen to external stores
 // https://github.com/reflux/refluxjs/blob/ae5a046bd4c0acdb6d8b199fad413af32a0931ed/README.md#refluxstoremethods
-const app = require('hadron-app');
+const { globalAppRegistry } = require('hadron-app-registry');
 const Reflux = require('reflux');
 const pluginActivationCompleted = require('@mongodb-js/hadron-plugin-manager')
   .Action.pluginActivationCompleted;
@@ -14,7 +14,7 @@ const pluginActivationCompleted = require('@mongodb-js/hadron-plugin-manager')
  */
 Reflux.StoreMethods.listenToExternalStore = function (storeKey, callback) {
   this.listenTo(pluginActivationCompleted, () => {
-    const store = app.appRegistry.getStore(storeKey);
+    const store = globalAppRegistry.getStore(storeKey);
     this.listenTo(store, callback);
     this.stopListeningTo(pluginActivationCompleted);
   });
