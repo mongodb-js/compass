@@ -82,7 +82,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, workspaces, logger: { track, debug }, localAppRegistry }
+    { pipelineBuilder, workspaces, logger: { track, debug }, globalAppRegistry }
   ) => {
     dispatch(dismissViewError());
 
@@ -110,7 +110,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
         editor_view_type: mapPipelineModeToEditorViewType(state),
       });
       debug('selecting namespace', viewNamespace);
-      localAppRegistry.emit('view-edited', viewNamespace);
+      globalAppRegistry.emit('view-edited', viewNamespace);
       workspaces.openCollectionWorkspace(viewNamespace);
     } catch (e: any) {
       debug('Unexpected error updating view', e);
