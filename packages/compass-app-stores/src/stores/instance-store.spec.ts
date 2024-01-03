@@ -4,7 +4,7 @@ import { createInstanceStore } from './instance-store';
 import { once } from 'events';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 
 class FakeDataService extends EventEmitter {
@@ -60,7 +60,7 @@ describe('InstanceStore [Store]', function () {
 
     emitSpy = sandbox.spy(globalAppRegistry, 'emit');
     dataService = createDataService();
-    const logger = createLoggerAndTelemetry('COMPASS-INSTANCE-STORE');
+    const logger = createNoopLoggerAndTelemetry();
     initialInstanceRefreshedPromise = once(
       globalAppRegistry,
       'instance-refreshed'
