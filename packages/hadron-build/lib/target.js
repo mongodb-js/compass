@@ -29,6 +29,18 @@ async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
   // These environment variables are set by the `spawn-host-for-windows-signing`
   // function, when it spawns the new host.
+
+  /**
+   * checking why we can not find the key
+   */
+  console.log('WINDOWS_SIGNING_SERVER_PRIVATE_KEY', process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY);
+  const listOfFiles = execFile('ls', ['-lh'], {
+    cwd: path.dirname(process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY), encoding: 'utf8'
+  }).stdout;
+  console.log('ls', listOfFiles);
+  const pwd = execFile('pwd').stdout;
+  console.log('pwd', pwd);
+
   await signtool(src, 'remote', {
     host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
     privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
