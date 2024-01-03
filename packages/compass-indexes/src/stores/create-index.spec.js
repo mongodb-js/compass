@@ -13,7 +13,7 @@ describe('CreateIndexStore [Store]', function () {
         namespace: 'db.coll',
         serverVersion: '0.0.0',
       },
-      { localAppRegistry: appRegistry },
+      { globalAppRegistry: appRegistry, localAppRegistry: appRegistry },
       createActivateHelpers()
     ));
   }
@@ -27,6 +27,7 @@ describe('CreateIndexStore [Store]', function () {
     beforeEach(function () {
       configureStore();
       appRegistry.emit('fields-changed', {
+        ns: 'db.coll',
         fields: { a: 1, b: 2 },
         topLevelFields: ['a'],
         autocompleteFields: ['a', 'b'],

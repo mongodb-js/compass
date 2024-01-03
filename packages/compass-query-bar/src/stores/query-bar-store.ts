@@ -157,8 +157,10 @@ export function activatePlugin(
     }
   });
 
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(changeSchemaFields(fields.autocompleteFields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === namespace) {
+      store.dispatch(changeSchemaFields(fields.autocompleteFields));
+    }
   });
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };

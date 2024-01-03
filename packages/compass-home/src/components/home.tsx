@@ -38,6 +38,7 @@ import { DataServiceProvider } from 'mongodb-data-service/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 resetGlobalCSS();
 
@@ -324,6 +325,7 @@ function Home({
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
               />
+              <FieldStorePlugin></FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>

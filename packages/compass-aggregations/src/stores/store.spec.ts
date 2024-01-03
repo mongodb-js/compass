@@ -182,7 +182,8 @@ describe('Aggregation Store', function () {
           done();
         });
 
-        localAppRegistry.emit('fields-changed', {
+        globalAppRegistry.emit('fields-changed', {
+          ns: 'test.test',
           fields: {
             harry: {
               name: 'harry',

@@ -223,8 +223,10 @@ export function activateAggregationsPlugin(
    *
    * @param {Object} fields - The fields.
    */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.autocompleteFields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(fieldsChanged(fields.autocompleteFields));
+    }
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
