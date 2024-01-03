@@ -391,7 +391,7 @@ functions:
           # Write the host info so that it can be used by the signing tool
           cat <<EOL > signing_host_info.yml
           WINDOWS_SIGNING_SERVER_HOSTNAME: $hostname
-          WINDOWS_SIGNING_SERVER_PRIVATE_KEY: $identity_file
+          WINDOWS_SIGNING_SERVER_PRIVATE_KEY: $(cygpath -wa "$identity_file")
           WINDOWS_SIGNING_SERVER_USERNAME: $user
           WINDOWS_SIGNING_SERVER_PORT: 22
           EOL
