@@ -171,11 +171,8 @@ export function activateAggregationsPlugin(
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // if the feature is enabled in preferences, the state of the
-          // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferences.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
