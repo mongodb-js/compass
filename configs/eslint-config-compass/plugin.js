@@ -3,13 +3,6 @@
 const baseConfig = require('./index');
 
 function restrictedProviderImport(servicePkg) {
-  try {
-    require.resolve(servicePkg);
-  } catch {
-    throw new Error(
-      `Invalid configuration for the 'no-restricted-imports' rule: package for the service ${servicePkg} doesn't exist`
-    );
-  }
   return {
     name: servicePkg,
     message: `Use '${servicePkg}/provider' instead.`,
