@@ -1,15 +1,12 @@
-import type { RootAction, RootState } from '.';
+import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
 import { EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-
-const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -386,18 +383,8 @@ export const syntaxErrorOccurred = (
 export const fetchValidation = (namespace: {
   database: string;
   collection: string;
-}) => {
-  return (
-    dispatch: (action: RootAction) => void,
-    getState: () => RootState
-  ) => {
-    const state = getState();
-    const dataService = state.dataService;
-
-    if (!dataService) {
-      return;
-    }
-
+}): SchemaValidationThunkAction<void> => {
+  return (dispatch, _getState, { dataService }) => {
     dataService.collectionInfo(namespace.database, namespace.collection).then(
       (collInfo) => {
         const validation = validationFromCollection(null, collInfo ?? {});
@@ -466,13 +453,11 @@ export function validationFromCollection(
 /**
  * Save validation.
  */
-export const saveValidation = (validation: Validation) => {
-  return async (
-    dispatch: ThunkDispatch<RootState, unknown, RootAction>,
-    getState: () => RootState
-  ) => {
+export const saveValidation = (
+  validation: Validation
+): SchemaValidationThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { dataService, logger: { track } }) => {
     const state = getState();
-    const dataService = state.dataService;
     const namespace = state.namespace;
     const checkedValidator = checkValidator(validation.validator);
     const savedValidation = {
@@ -482,25 +467,23 @@ export const saveValidation = (validation: Validation) => {
       isChanged: false,
     };
 
-    if (dataService) {
-      const trackEvent = {
-        validation_action: validation.validationAction,
-        validation_level: validation.validationLevel,
-      };
-      track('Schema Validation Updated', trackEvent);
-      try {
-        await dataService.updateCollection(
-          `${namespace.database}.${namespace.collection}`,
-          {
-            validator: savedValidation.validator,
-            validationAction: savedValidation.validationAction,
-            validationLevel: savedValidation.validationLevel,
-          }
-        );
-        dispatch(fetchValidation(namespace));
-      } catch (error) {
-        dispatch(validationSaveFailed(error as Error));
-      }
+    const trackEvent = {
+      validation_action: validation.validationAction,
+      validation_level: validation.validationLevel,
+    };
+    track('Schema Validation Updated', trackEvent);
+    try {
+      await dataService.updateCollection(
+        `${namespace.database}.${namespace.collection}`,
+        {
+          validator: savedValidation.validator,
+          validationAction: savedValidation.validationAction,
+          validationLevel: savedValidation.validationLevel,
+        }
+      );
+      dispatch(fetchValidation(namespace));
+    } catch (error) {
+      dispatch(validationSaveFailed(error as Error));
     }
   };
 };
@@ -538,11 +521,8 @@ export const cancelValidation = () => {
  *
  * @returns {Function} The function.
  */
-export const activateValidation = () => {
-  return (
-    dispatch: ThunkDispatch<RootState, unknown, RootAction>,
-    getState: () => RootState
-  ) => {
+export const activateValidation = (): SchemaValidationThunkAction<void> => {
+  return (dispatch, getState) => {
     const state = getState();
     const namespace = state.namespace;
 

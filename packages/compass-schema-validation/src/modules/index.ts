@@ -1,11 +1,5 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-
-import appRegistry, {
-  INITIAL_STATE as APP_REGISTRY_STATE,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { DataServiceAction, DataServiceState } from './data-service';
-import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import type { FieldsAction, FieldsState } from './fields';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import type { NamespaceAction, NamespaceState } from './namespace';
@@ -29,10 +23,11 @@ import type { IsLoadedAction, IsLoadedState } from './is-loaded';
 import isLoaded, { INITIAL_STATE as IS_LOADED_STATE } from './is-loaded';
 import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
-import type AppRegistry from 'hadron-app-registry';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
+import type AppRegistry from 'hadron-app-registry';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**
  * Reset action constant.
@@ -43,11 +38,6 @@ interface ResetAction {
 }
 
 export interface RootState {
-  appRegistry: {
-    localAppRegistry: AppRegistry;
-    globalAppRegistry: AppRegistry;
-  };
-  dataService: DataServiceState;
   fields: FieldsState;
   namespace: NamespaceState;
   serverVersion: ServerVersionState;
@@ -59,7 +49,6 @@ export interface RootState {
 }
 
 export type RootAction =
-  | DataServiceAction
   | FieldsAction
   | NamespaceAction
   | ServerVersionAction
@@ -71,12 +60,14 @@ export type RootAction =
   | ResetAction;
 
 export type SchemaValidationExtraArgs = {
-  dataService: DataService;
+  dataService: Pick<
+    DataService,
+    'aggregate' | 'collectionInfo' | 'updateCollection'
+  >;
   preferences: PreferencesAccess;
+  localAppRegistry: AppRegistry;
+  logger: LoggerAndTelemetry;
 };
-
-export type SchemaValidationThunkDispatch<A extends Action = AnyAction> =
-  ThunkDispatch<RootState, SchemaValidationExtraArgs, A>;
 
 export type SchemaValidationThunkAction<
   R,
@@ -87,8 +78,6 @@ export type SchemaValidationThunkAction<
  * The intial state of the root reducer.
  */
 export const INITIAL_STATE: RootState = {
-  appRegistry: APP_REGISTRY_STATE,
-  dataService: DS_INITIAL_STATE,
   fields: FIELDS_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
@@ -103,8 +92,6 @@ export const INITIAL_STATE: RootState = {
  * The reducer.
  */
 const appReducer = combineReducers<RootState, RootAction>({
-  appRegistry,
-  dataService,
   fields,
   namespace,
   serverVersion,
