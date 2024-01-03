@@ -110,6 +110,8 @@ export function withLoggerAndTelemetry<
   return WithLoggerAndTelemetry;
 }
 
-export function mongoLogId(id: number): MongoLogId {
+// Because dupedLogId needs to stay on the same line
+// prettier-ignore
+export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
