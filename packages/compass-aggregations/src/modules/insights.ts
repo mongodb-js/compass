@@ -112,9 +112,8 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
 };
 
 export const openCreateIndexModal = (): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState) => {
-    const { appRegistry } = getState();
-    (appRegistry as any).localAppRegistry.emit('open-create-index-modal');
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-index-modal');
   };
 };
 

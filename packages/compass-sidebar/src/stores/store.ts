@@ -1,9 +1,6 @@
-import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import throttle from 'lodash/throttle';
 import thunk from 'redux-thunk';
-import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
 import type { Database } from '../modules/databases';
@@ -36,13 +33,10 @@ export function createSidebarStore(
     logger: LoggerAndTelemetry;
   },
   { on, cleanup, addCleanup }: ActivateHelpers
-): {
-  store: Store<RootState, RootAction>;
-  deactivate: () => void;
-} {
-  const store: Store<RootState, RootAction> = createStore(
+) {
+  const store = createStore(
     reducer,
-    applyMiddleware(thunk)
+    applyMiddleware(thunk.withExtraArgument({ globalAppRegistry }))
   );
 
   const onInstanceChange = throttle(
@@ -124,8 +118,6 @@ export function createSidebarStore(
   addCleanup(() => {
     onDatabasesChange.cancel();
   });
-
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
   store.dispatch(setDataService(dataService));
   if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));

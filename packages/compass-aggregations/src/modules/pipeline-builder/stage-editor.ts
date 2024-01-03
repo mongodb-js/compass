@@ -1,7 +1,6 @@
 import type { Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
@@ -387,7 +386,11 @@ export const loadPreviewForStagesFrom = (
 export const runStage = (
   idx: number
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, globalAppRegistry }
+  ) => {
     const {
       dataService: { dataService },
       namespace,
@@ -439,13 +442,11 @@ export const runStage = (
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
-      dispatch(
-        globalAppRegistryEmit(
-          'agg-pipeline-out-executed',
-          getDestinationNamespaceFromStage(
-            namespace,
-            pipeline[pipeline.length - 1]
-          )
+      globalAppRegistry.emit(
+        'agg-pipeline-out-executed',
+        getDestinationNamespaceFromStage(
+          namespace,
+          pipeline[pipeline.length - 1]
         )
       );
     } catch (error: any) {
