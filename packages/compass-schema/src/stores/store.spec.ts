@@ -5,10 +5,10 @@ import { EventEmitter } from 'events';
 import { expect } from 'chai';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const dummyLogger = createLoggerAndTelemetry('TEST');
+const dummyLogger = createNoopLoggerAndTelemetry('TEST');
 
 describe('Schema Store', function () {
   describe('#configureStore', function () {
