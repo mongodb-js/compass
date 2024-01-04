@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ConnectionFavoriteOptions } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionFavoriteOptions } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 
 import { css, spacing } from '@mongodb-js/compass-components';

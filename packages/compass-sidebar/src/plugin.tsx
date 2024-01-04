@@ -5,7 +5,7 @@ import {
   css,
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/sidebar';
 

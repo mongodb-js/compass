@@ -3,7 +3,7 @@ import {
   deserializeConnections,
 } from './import-export-connection';
 import { expect } from 'chai';
-import type { ConnectionInfo } from './connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { cloneDeep } from 'lodash';
 
 const CONNECTIONS: ConnectionInfo[] = [

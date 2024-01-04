@@ -10,7 +10,7 @@ import {
   ConnectionStorage,
   type ConnectionWithLegacyProps,
 } from './connection-storage';
-import type { ConnectionInfo } from './connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import Sinon from 'sinon';
 
 import connection1270 from './../test/fixtures/favorite_connection_1.27.0.json';
