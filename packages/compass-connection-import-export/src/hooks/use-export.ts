@@ -4,7 +4,7 @@ import {
   COMMON_INITIAL_STATE,
   useImportExportConnectionsCommon,
 } from './common';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import type {

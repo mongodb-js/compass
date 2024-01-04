@@ -1,6 +1,6 @@
 import React from 'react';
 import { css } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { CompassShellPlugin } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,

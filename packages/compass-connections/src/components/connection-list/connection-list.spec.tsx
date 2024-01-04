@@ -9,7 +9,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 import ConnectionList from './connection-list';
 
