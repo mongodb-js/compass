@@ -132,8 +132,10 @@ export function activateIndexesPlugin(
     }
   );
 
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(setFields(fields.autocompleteFields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(setFields(fields.autocompleteFields));
+    }
   });
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
