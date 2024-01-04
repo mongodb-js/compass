@@ -65,7 +65,7 @@ export type SchemaValidationExtraArgs = {
     'aggregate' | 'collectionInfo' | 'updateCollection'
   >;
   preferences: PreferencesAccess;
-  localAppRegistry: AppRegistry;
+  globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
 };
 

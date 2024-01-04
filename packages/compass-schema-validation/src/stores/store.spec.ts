@@ -43,13 +43,13 @@ const fakeDataService = {
 describe('Schema Validation Store', function () {
   let store: Store<RootState, RootAction>;
   let deactivate: null | (() => void) = null;
-  const localAppRegistry = new AppRegistry();
+  const globalAppRegistry = new AppRegistry();
 
   beforeEach(async function () {
     const activateResult = onActivated(
       {} as any,
       {
-        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
         dataService: fakeDataService,
         instance: fakeInstance,
         preferences: await createSandboxFromDefaultPreferences(),

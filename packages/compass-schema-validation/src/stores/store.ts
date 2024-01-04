@@ -21,7 +21,7 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 const MIN_VERSION = '3.2.0';
 
 type SchemaValidationServices = {
-  localAppRegistry: AppRegistry;
+  globalAppRegistry: AppRegistry;
   dataService: Pick<
     DataService,
     'aggregate' | 'collectionInfo' | 'updateCollection'
@@ -36,7 +36,7 @@ export function configureStore(
   state: Partial<RootState>,
   services: Pick<
     SchemaValidationServices,
-    'localAppRegistry' | 'dataService' | 'preferences' | 'logger'
+    'globalAppRegistry' | 'dataService' | 'preferences' | 'logger'
   >
 ) {
   return createStore(
@@ -55,7 +55,7 @@ export function configureStore(
 export function onActivated(
   options: CollectionTabPluginMetadata,
   {
-    localAppRegistry,
+    globalAppRegistry,
     dataService,
     preferences,
     instance,
@@ -76,7 +76,7 @@ export function onActivated(
     {
       dataService,
       preferences,
-      localAppRegistry,
+      globalAppRegistry,
       logger,
     }
   );
