@@ -42,7 +42,7 @@ export async function getSigningClient<T extends ClientType>(
     const sshClient = await getSshClient(options as SSHClientOptions);
     // Currently only linux remote is supported to sign the artifacts
     return new RemoteSigningClient(sshClient, {
-      rootDir: '~/garasign',
+      rootDir: '/home/ubuntu/garasign',
       signingScript: getSigningScript(),
     });
   }
