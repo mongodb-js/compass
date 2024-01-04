@@ -41,8 +41,8 @@ docker run \
   --rm \
   -v $directory:$directory \
   -w $directory \
-  ${ARTIFACTORY_HOST}/release-tools-container-registry-local/garasign-gpg \
-  /bin/bash -c "gpgloader && gpg --yes -v --armor -o $file.sig --detach-sign $file"
+  ${ARTIFACTORY_HOST}/release-tools-container-registry-local/garasign-jsign \
+  /bin/bash -c "jsign --tsaurl "http://timestamp.sectigo.com" -a mongo-authenticode-2021 $file"
 
 rm signing-envfile
 echo "Finished signing $file"

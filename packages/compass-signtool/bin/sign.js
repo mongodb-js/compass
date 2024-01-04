@@ -22,5 +22,4 @@ const file = program.args[0];
 
 const options =
   client === 'remote' ? { host, username, port, privateKey } : undefined;
-console.log('Signing file:', file, 'with client:', client, 'options:', options);
 sign(file, client, options);
