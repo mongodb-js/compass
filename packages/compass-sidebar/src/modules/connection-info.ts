@@ -1,7 +1,5 @@
-import {
-  ConnectionStorage,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootAction } from '.';
 

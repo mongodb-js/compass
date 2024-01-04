@@ -9,10 +9,8 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 

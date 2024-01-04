@@ -14,10 +14,8 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const TOAST_TIMEOUT_MS = 5000;
 

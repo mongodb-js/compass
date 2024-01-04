@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import {

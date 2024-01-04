@@ -1,6 +1,6 @@
 {
-  "name": "@mongodb-js/connection-storage",
-  "description": "Compass connection storage",
+  "name": "@mongodb-js/connection-info",
+  "description": "Types and utilites for connections agnostic of backend",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -13,31 +13,29 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.7.5",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist",
-    "main.js",
-    "main.d.ts",
-    "renderer.js",
-    "renderer.d.ts"
+    "dist"
   ],
   "license": "SSPL",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "./main": "./main.js",
-    "./renderer": "./renderer.js"
+    "import": "./dist/.esm-wrapper.mjs",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
-    "./main": "./src/main.ts",
-    "./renderer": "./src/renderer.ts"
+    ".": "./src/index.ts"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -52,14 +50,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/connection-info": "^0.1.0",
-    "@mongodb-js/compass-logging": "^1.2.9",
-    "@mongodb-js/compass-user-data": "^0.1.12",
-    "@mongodb-js/compass-utils": "^0.5.8",
     "bson": "^6.2.0",
-    "electron": "^28.1.0",
-    "hadron-ipc": "^3.2.7",
-    "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "mongodb-connection-string-url": "^2.6.0"
   },
@@ -74,10 +65,13 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
+    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
+    "mongodb": "^6.3.0",
+    "mongodb-data-service": "^22.17.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "sinon": "^9.2.3",
+    "sinon": "^17.0.1",
     "typescript": "^5.0.4"
   }
 }

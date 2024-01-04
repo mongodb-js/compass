@@ -17,8 +17,8 @@ import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import React, {
   useCallback,
   useEffect,

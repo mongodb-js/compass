@@ -7,11 +7,9 @@ import {
   useRef,
 } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
-import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';

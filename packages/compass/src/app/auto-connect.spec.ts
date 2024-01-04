@@ -5,7 +5,7 @@ import {
   ConnectionStorage,
   type ExportConnectionOptions,
 } from '@mongodb-js/connection-storage/main';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ipcRenderer } from 'hadron-ipc';
 import fs from 'fs/promises';
 import path from 'path';
