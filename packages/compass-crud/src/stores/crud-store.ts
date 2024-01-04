@@ -1064,7 +1064,7 @@ class CrudStoreImpl
   }
 
   /**
-   * Open the insert document diathis.logger.log.
+   * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
    * @param {Boolean} clone - Whether this is a clone operation.
