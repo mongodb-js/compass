@@ -349,6 +349,8 @@ export function activateSchemaPlugin(
         );
         const analysisTime = Date.now() - analysisStartTime;
 
+        this.globalAppRegistry.emit('schema-analyzed', { ns: this.ns, schema });
+
         this.setState({
           analysisState: schema
             ? ANALYSIS_STATE_COMPLETE

@@ -163,11 +163,8 @@ export function activateAggregationsPlugin(
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // if the feature is enabled in preferences, the state of the
-          // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferences.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
@@ -218,8 +215,10 @@ export function activateAggregationsPlugin(
    *
    * @param {Object} fields - The fields.
    */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.autocompleteFields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(fieldsChanged(fields.autocompleteFields));
+    }
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {

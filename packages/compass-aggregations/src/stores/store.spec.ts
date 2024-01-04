@@ -6,16 +6,6 @@ import type { Store } from 'redux';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
-const fakeAppInstanceStore = {
-  getState: function () {
-    return {
-      instance: {
-        env: 'atlas',
-      },
-    };
-  },
-} as any;
-
 describe('Aggregation Store', function () {
   describe('#configureStore', function () {
     context('when providing a serverVersion', function () {
@@ -124,10 +114,6 @@ describe('Aggregation Store', function () {
     const globalAppRegistry = new AppRegistry();
 
     beforeEach(function () {
-      globalAppRegistry.registerStore(
-        'App.InstanceStore',
-        fakeAppInstanceStore
-      );
       store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
@@ -157,7 +143,8 @@ describe('Aggregation Store', function () {
           done();
         });
 
-        localAppRegistry.emit('fields-changed', {
+        globalAppRegistry.emit('fields-changed', {
+          ns: 'test.test',
           fields: {
             harry: {
               name: 'harry',

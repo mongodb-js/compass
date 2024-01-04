@@ -95,7 +95,7 @@ describe('Schema Validation Store', function () {
           done();
         });
 
-        localAppRegistry.emit('fields-changed', {
+        globalAppRegistry.emit('fields-changed', {
           fields: {
             harry: {
               name: 'harry',

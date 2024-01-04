@@ -1034,10 +1034,10 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.localAppRegistry.emit(
-      'documents-paginated',
-      documents[0]?.generateObject()
-    );
+    this.globalAppRegistry.emit('documents-paginated', {
+      ns: this.state.ns,
+      docs: [documents[0]?.generateObject()],
+    });
 
     cancelDebounceLoad();
   }
@@ -1471,7 +1471,6 @@ class CrudStoreImpl
         multiple: true,
         docs,
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1526,7 +1525,6 @@ class CrudStoreImpl
         multiple: false,
         docs: [doc],
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1842,10 +1840,10 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.localAppRegistry.emit(
-        'documents-refreshed',
-        docs[0]?.generateObject()
-      );
+      this.globalAppRegistry.emit('documents-refreshed', {
+        ns: this.state.ns,
+        docs: [docs[0]?.generateObject()],
+      });
     } catch (error) {
       this.logger.log.error(
         mongoLogId(1_001_000_074),
@@ -2102,10 +2100,14 @@ export function activateDocumentsPlugin(
 
   // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
   on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
 
-  on(localAppRegistry, 'fields-changed', store.updateFields.bind(store));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === store.state.ns) {
+      store.updateFields(fields);
+    }
+  });
 
   on(
     localAppRegistry,

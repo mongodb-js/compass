@@ -84,8 +84,10 @@ export function onActivated(
   /**
    * When the collection is changed, update the store.
    */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.fields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(fieldsChanged(fields.fields));
+    }
   });
 
   // isWritable can change later
