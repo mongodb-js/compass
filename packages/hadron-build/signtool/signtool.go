@@ -23,18 +23,22 @@ func main() {
 
 	fileToSignPath := os.Args[len(os.Args)-1]
 
-	command := fmt.Sprintf(
-		"npx @mongodb-js/compass-signtool %s --client=remote --host=%s --private-key=%s  --username=%s  --port=%s",
+	if _, err := os.Stat(fileToSignPath); os.IsNotExist(err) {
+		log.Fatalf("File %s does not exist", fileToSignPath)
+	}
+
+	cmd := exec.Command(
+		"npx",
+		"@mongodb-js/compass-signtool",
 		fileToSignPath,
-		os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
-		os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
-		os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),
-		os.Getenv("WINDOWS_SIGNING_SERVER_PORT"),
+		"--client=remote",
+		"--host="+os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
+		"--private-key="+os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
+		"--username="+os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),
+		"--port="+os.Getenv("WINDOWS_SIGNING_SERVER_PORT"),
 	)
 
-	fmt.Printf("Running %s \n", command)
-
-	cmd := exec.Command(command)
+	fmt.Println("Running command:", cmd.String())
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
