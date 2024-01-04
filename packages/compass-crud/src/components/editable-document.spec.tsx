@@ -1,7 +1,5 @@
 import React from 'react';
 import Reflux from 'reflux';
-import app from 'hadron-app';
-import AppRegistry from 'hadron-app-registry';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
@@ -10,15 +8,6 @@ import sinon from 'sinon';
 import EditableDocument from './editable-document';
 
 describe('<EditableDocument />', function () {
-  before(function () {
-    global.hadronApp = app;
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
-  after(function () {
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
   describe('#render', function () {
     let wrapper;
     const doc = { a: 1, b: 2, c: null };

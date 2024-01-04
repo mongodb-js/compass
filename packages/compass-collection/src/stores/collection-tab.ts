@@ -62,17 +62,6 @@ export function activatePlugin(
   const { dataService, globalAppRegistry, localAppRegistry, instance } =
     services;
 
-  const configureFieldStore = globalAppRegistry.getStore(
-    'Field.Store'
-  ) as unknown as (...args: any) => void | undefined; // Field.Store is odd because it registers a configure method, not the actual store
-
-  configureFieldStore?.({
-    namespace: namespace,
-    localAppRegistry: localAppRegistry,
-    globalAppRegistry: globalAppRegistry,
-    serverVersion: instance.build.version,
-  });
-
   const { database, collection } = toNs(namespace);
 
   const collectionModel = instance.databases

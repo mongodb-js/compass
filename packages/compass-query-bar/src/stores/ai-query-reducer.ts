@@ -1,5 +1,4 @@
 import type { Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 
@@ -13,8 +12,8 @@ import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -111,6 +110,8 @@ type FailedResponseTrackMessage = {
   errorCode?: string;
   errorName: string;
   errorMessage: string;
+  log: LoggerAndTelemetry['log'];
+  track: LoggerAndTelemetry['track'];
 };
 
 function trackAndLogFailed({
@@ -118,6 +119,8 @@ function trackAndLogFailed({
   errorCode,
   errorName,
   errorMessage,
+  log,
+  track,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
     statusCode,
@@ -139,16 +142,22 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
-  track('AI Prompt Submitted', () => ({
-    editor_view_type: 'find',
-    user_input_length: userInput.length,
-  }));
-
   return async (
     dispatch,
     getState,
-    { dataService, atlasService, localAppRegistry, preferences }
+    {
+      dataService,
+      atlasService,
+      localAppRegistry,
+      preferences,
+      logger: { log, track },
+    }
   ) => {
+    track('AI Prompt Submitted', () => ({
+      editor_view_type: 'find',
+      user_input_length: userInput.length,
+    }));
+
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -205,6 +214,8 @@ export const runAIQuery = (
         statusCode: (err as AtlasServiceError).statusCode || err?.code,
         errorCode: (err as AtlasServiceError).errorCode || err?.name,
         errorMessage: (err as AtlasServiceError).message,
+        log,
+        track,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -251,6 +262,8 @@ export const runAIQuery = (
         errorName: 'could_not_parse_fields',
         statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: err?.message,
+        log,
+        track,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -275,6 +288,8 @@ export const runAIQuery = (
         trackAndLogFailed({
           errorName: 'ai_generated_aggregation_instead_of_query',
           errorMessage: msg,
+          log,
+          track,
         });
         return;
       }
@@ -284,6 +299,8 @@ export const runAIQuery = (
       trackAndLogFailed({
         errorName: 'no_usable_query_from_ai',
         errorMessage: msg,
+        log,
+        track,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,

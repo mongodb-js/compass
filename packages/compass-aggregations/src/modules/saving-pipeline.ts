@@ -1,6 +1,5 @@
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
@@ -164,7 +163,7 @@ export const savingPipelineOpen = ({
  * @see create-view src/stores/create-view.js
  */
 export const openCreateView = (): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (_dispatch, getState, { pipelineBuilder, globalAppRegistry }) => {
     const state = getState();
     const sourceNs = state.namespace;
     const sourcePipeline = getPipelineFromBuilderState(
@@ -177,6 +176,6 @@ export const openCreateView = (): PipelineBuilderThunkAction<void> => {
       pipeline: sourcePipeline,
     };
 
-    dispatch(globalAppRegistryEmit('open-create-view', meta));
+    globalAppRegistry.emit('open-create-view', meta);
   };
 };

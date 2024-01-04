@@ -10,7 +10,7 @@ import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
 import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 type MyQueriesServices = {

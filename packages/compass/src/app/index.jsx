@@ -15,8 +15,6 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
-app.appRegistry = globalAppRegistry;
-
 // this is so sub-processes (ie. the shell) will do the same
 process.env.NODE_OPTIONS ??= '';
 if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
@@ -46,12 +44,6 @@ EventEmitter.defaultMaxListeners = 100;
 
 document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
-
-/**
- * Set hadron-app as a global so plugins can use it.
- */
-import app from 'hadron-app';
-global.hadronApp = app;
 
 /**
  * The main entrypoint for the application!
@@ -214,8 +206,7 @@ const Application = View.extend({
 
 const state = new Application();
 
-app.extend({
-  client: null,
+const app = {
   init: async function () {
     await defaultPreferencesInstance.refreshPreferences();
 
@@ -226,12 +217,7 @@ app.extend({
 
       Action.pluginActivationCompleted.listen(async () => {
         state.preRender();
-        global.hadronApp.appRegistry.onActivated();
-        global.hadronApp.appRegistry.emit(
-          'application-initialized',
-          APP_VERSION,
-          process.env.HADRON_PRODUCT_NAME
-        );
+        globalAppRegistry.onActivated();
 
         try {
           const user = await getActiveUser(defaultPreferencesInstance);
@@ -241,20 +227,20 @@ app.extend({
         }
         // Catch a data refresh coming from window-manager.
         ipcRenderer?.on('app:refresh-data', () =>
-          global.hadronApp.appRegistry.emit('refresh-data')
+          globalAppRegistry.emit('refresh-data')
         );
         // Catch a toggle sidebar coming from window-manager.
         ipcRenderer?.on('app:toggle-sidebar', () =>
-          global.hadronApp.appRegistry.emit('toggle-sidebar')
+          globalAppRegistry.emit('toggle-sidebar')
         );
         ipcRenderer?.on('window:menu-share-schema-json', () => {
-          global.hadronApp.appRegistry.emit('menu-share-schema-json');
+          globalAppRegistry.emit('menu-share-schema-json');
         });
         ipcRenderer?.on('compass:open-export', () => {
-          global.hadronApp.appRegistry.emit('open-active-namespace-export');
+          globalAppRegistry.emit('open-active-namespace-export');
         });
         ipcRenderer?.on('compass:open-import', () => {
-          global.hadronApp.appRegistry.emit('open-active-namespace-import');
+          globalAppRegistry.emit('open-active-namespace-import');
         });
         // As soon as dom is ready, render and set up the rest.
         state.render();
@@ -270,7 +256,7 @@ app.extend({
       require('./setup-plugin-manager');
     });
   },
-});
+};
 
 Object.defineProperty(app, 'autoUpdate', {
   get: function () {

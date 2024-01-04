@@ -23,10 +23,12 @@ import {
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { configureStore } from '../stores/export-store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const mockServices = {
   dataService: { findCursor() {}, aggregateCursor() {} },
   globalAppRegistry: new AppRegistry(),
+  logger: createNoopLoggerAndTelemetry(),
 } as any;
 
 describe('export [module]', function () {
@@ -310,6 +312,7 @@ describe('export [module]', function () {
         dataService,
         globalAppRegistry: appRegistry,
         preferences: await createSandboxFromDefaultPreferences(),
+        logger: createNoopLoggerAndTelemetry(),
       });
     });
 

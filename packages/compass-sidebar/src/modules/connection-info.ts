@@ -1,9 +1,6 @@
 import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootAction } from '.';
-
-const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');
 
 /**
  * Change connection action name.
@@ -53,14 +50,8 @@ async function saveConnectionInfo(
 ) {
   try {
     await connectionStorage.save({ connectionInfo });
-    debug(`saved connection with id ${connectionInfo.id || ''}`);
-  } catch (err: any) {
+  } catch {
     // Currently we silently fail if saving the favorite fails.
-    debug(
-      `error saving connection with id ${connectionInfo.id || ''}: ${
-        err.message
-      }`
-    );
   }
 }
 

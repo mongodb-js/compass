@@ -3,13 +3,13 @@ import bson from 'bson';
 import { expect } from 'chai';
 import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
 import type { Schema } from 'mongodb-schema';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 import {
   analyzeSchema,
   calculateSchemaDepth,
   schemaContainsGeoData,
 } from './schema-analysis';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const testDocs = [
   {
@@ -66,7 +66,7 @@ const testDocs = [
   },
 ];
 
-const dummyLogger = createLoggerAndTelemetry('TEST');
+const dummyLogger = createNoopLoggerAndTelemetry('TEST');
 
 describe('schema-analysis', function () {
   afterEach(function () {

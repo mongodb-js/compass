@@ -49,6 +49,7 @@ import type {
   UserConfigurablePreferences,
   PreferenceStateInformation,
 } from 'compass-preferences-model';
+import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -254,6 +255,7 @@ const CompassWeb = ({
                   </div>
                 </CollectionTabsProvider>
               </WorkspacesProvider>
+              <FieldStorePlugin></FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>

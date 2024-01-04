@@ -40,6 +40,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     workspaces: workspacesServiceLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-AGGREGATIONS-UI'),
   }
 );
 

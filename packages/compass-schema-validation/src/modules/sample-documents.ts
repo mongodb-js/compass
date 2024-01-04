@@ -1,7 +1,7 @@
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { checkValidator } from './validation';
 import type { DataService } from 'mongodb-data-service';
-import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -220,7 +220,7 @@ const getSampleDocuments = async ({
   preferences,
 }: {
   namespace: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'aggregate'>;
   preferences: PreferencesAccess;
   pipeline: Record<string, unknown>[];
 }) => {
@@ -236,15 +236,10 @@ const getSampleDocuments = async ({
 export const fetchValidDocument = (): SchemaValidationThunkAction<
   Promise<void>
 > => {
-  return async (
-    dispatch: (action: RootAction) => void,
-    getState: () => RootState,
-    { preferences }
-  ) => {
+  return async (dispatch, getState, { preferences, dataService }) => {
     dispatch(fetchingValidDocument());
 
     const state = getState();
-    const dataService = state.dataService;
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
@@ -252,10 +247,6 @@ export const fetchValidDocument = (): SchemaValidationThunkAction<
     const query = checkValidator(
       checkedValidator.validator as string
     ).validator;
-
-    if (!dataService) {
-      return;
-    }
 
     try {
       const valid = (
@@ -277,15 +268,10 @@ export const fetchValidDocument = (): SchemaValidationThunkAction<
 export const fetchInvalidDocument = (): SchemaValidationThunkAction<
   Promise<void>
 > => {
-  return async (
-    dispatch: (action: RootAction) => void,
-    getState: () => RootState,
-    { preferences }
-  ) => {
+  return async (dispatch, getState, { preferences, dataService }) => {
     dispatch(fetchingInvalidDocument());
 
     const state = getState();
-    const dataService = state.dataService;
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
@@ -294,10 +280,6 @@ export const fetchInvalidDocument = (): SchemaValidationThunkAction<
     const query = checkValidator(
       checkedValidator.validator as string
     ).validator;
-
-    if (!dataService) {
-      return;
-    }
 
     try {
       const invalid = (

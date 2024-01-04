@@ -21,13 +21,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -66,19 +66,22 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.1.3",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb-schema": "^12.1.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "redux": "^4.2.1",
-    "reflux": "^0.4.1",
-    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "hadron-app-registry": "^9.1.3"
+  },
+  "peerDependencies": {
+    "hadron-app-registry": "^9.1.3"
   }
 }

@@ -1,43 +1,51 @@
-import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
-import type { ThunkDispatch } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { RootAction, RootState } from '../modules';
-import reducer from '../modules';
+import type { RootState } from '../modules';
+import reducer, { INITIAL_STATE } from '../modules';
 import toNS from 'mongodb-ns';
 import { namespaceChanged } from '../modules/namespace';
-import { dataServiceConnected } from '../modules/data-service';
 import { fieldsChanged } from '../modules/fields';
-import { serverVersionChanged } from '../modules/server-version';
 import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
-import {
-  localAppRegistryActivated,
-  globalAppRegistryActivated,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
 import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 /**
  * The lowest supported version.
  */
 const MIN_VERSION = '3.2.0';
 
-// Exposed for testing
-export function configureStore({
-  dataService,
-  preferences,
-}: {
-  dataService: DataService;
+type SchemaValidationServices = {
+  globalAppRegistry: AppRegistry;
+  dataService: Pick<
+    DataService,
+    'aggregate' | 'collectionInfo' | 'updateCollection'
+  >;
   preferences: PreferencesAccess;
-}): Store<RootState, RootAction> {
+  instance: MongoDBInstance;
+  logger: LoggerAndTelemetry;
+};
+
+// Exposed for testing
+export function configureStore(
+  state: Partial<RootState>,
+  services: Pick<
+    SchemaValidationServices,
+    'globalAppRegistry' | 'dataService' | 'preferences' | 'logger'
+  >
+) {
   return createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ dataService, preferences }))
+    {
+      ...INITIAL_STATE,
+      ...state,
+    },
+    applyMiddleware(thunk.withExtraArgument(services))
   );
 }
 
@@ -47,59 +55,40 @@ export function configureStore({
 export function onActivated(
   options: CollectionTabPluginMetadata,
   {
-    localAppRegistry,
     globalAppRegistry,
     dataService,
     preferences,
     instance,
-  }: {
-    localAppRegistry: AppRegistry;
-    globalAppRegistry: AppRegistry;
-    dataService: DataService;
-    preferences: PreferencesAccess;
-    instance: MongoDBInstance;
-  }
+    logger,
+  }: SchemaValidationServices,
+  { on, cleanup }: ActivateHelpers
 ) {
-  const store = configureStore({ dataService, preferences });
-  const cleanup: (() => void)[] = [];
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
-    },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-
-  // Set the app registry if preset. This must happen first.
-  store.dispatch(localAppRegistryActivated(localAppRegistry));
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-  store.dispatch(serverVersionChanged(instance.build.version));
-  store.dispatch(dataServiceConnected(dataService));
-
-  /**
-   * When the collection is changed, update the store.
-   */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.fields));
-  });
-
-  const setEditMode = () => {
-    store.dispatch(
-      editModeChanged({
+  const store = configureStore(
+    {
+      serverVersion: instance.build.version,
+      editMode: {
         collectionTimeSeries: !!options.isTimeSeries,
         collectionReadOnly: options.isReadonly ? true : false,
         writeStateStoreReadOnly: !instance.isWritable,
         oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
-      })
-    );
-  };
+      },
+    },
+    {
+      dataService,
+      preferences,
+      globalAppRegistry,
+      logger,
+    }
+  );
 
-  // set the initial value
-  setEditMode();
+  /**
+   * When the collection is changed, update the store.
+   */
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(fieldsChanged(fields.fields));
+    }
+  });
 
   // isWritable can change later
   instance.on('change:isWritable', () => {
@@ -116,14 +105,10 @@ export function onActivated(
   }
 
   // Activate validation when this plugin is first rendered
-  (store.dispatch as ThunkDispatch<RootState, unknown, RootAction>)(
-    activateValidation()
-  );
+  store.dispatch(activateValidation());
 
   return {
     store,
-    deactivate() {
-      for (const cleaner of cleanup) cleaner();
-    },
+    deactivate: cleanup,
   };
 }

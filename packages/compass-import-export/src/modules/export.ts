@@ -1,5 +1,4 @@
 import type { AnyAction, Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import fs from 'fs';
 import _ from 'lodash';
 import {
@@ -31,10 +30,6 @@ import {
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
 import type { ExportThunkAction } from '../stores/export-store';
-
-const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
-  'COMPASS-IMPORT-EXPORT-UI'
-);
 
 export type FieldsToExport = {
   [fieldId: string]: {
@@ -134,10 +129,18 @@ type OpenExportAction = {
 
 export const openExport = (
   exportOptions: Omit<OpenExportAction, 'type'>
-): OpenExportAction => ({
-  type: ExportActionTypes.OpenExport,
-  ...exportOptions,
-});
+): ExportThunkAction<void, OpenExportAction> => {
+  return (dispatch, _getState, { logger: { track } }) => {
+    track('Export Opened', {
+      type: exportOptions.aggregation ? 'aggregation' : 'query',
+      origin: exportOptions.origin,
+    });
+    dispatch({
+      type: ExportActionTypes.OpenExport,
+      ...exportOptions,
+    });
+  };
+};
 
 type CloseExportAction = {
   type: ExportActionTypes.CloseExport;
@@ -261,7 +264,11 @@ export const selectFieldsToExport = (): ExportThunkAction<
   | FetchFieldsToExportErrorAction
   | FetchFieldsToExportSuccessAction
 > => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, logger: { log, mongoLogId } }
+  ) => {
     dispatch({
       type: ExportActionTypes.SelectFieldsToExport,
     });
@@ -330,7 +337,11 @@ export const runExport = ({
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
 }): ExportThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, logger: { log, track, mongoLogId } }
+  ) => {
     let outputWriteStream: fs.WriteStream;
     try {
       outputWriteStream = fs.createWriteStream(filePath);
@@ -475,7 +486,6 @@ export const runExport = ({
       exportSucceeded = true;
       progressCallback.flush();
     } catch (err: any) {
-      debug('Error while exporting:', err.stack);
       log.error(mongoLogId(1_001_000_187), 'Export', 'Export failed', {
         namespace,
         error: (err as Error)?.message,
@@ -558,11 +568,6 @@ export const exportReducer: Reducer<ExportState> = (
         isInProgressMessageOpen: true,
       };
     }
-
-    track('Export Opened', {
-      type: action.aggregation ? 'aggregation' : 'query',
-      origin: action.origin,
-    });
 
     return {
       ...initialState,

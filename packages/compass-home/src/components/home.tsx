@@ -35,9 +35,13 @@ import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
+// The only place where the app-stores plugin can be used as a plugin and not a
+// provider
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 resetGlobalCSS();
 
@@ -324,6 +328,7 @@ function Home({
                 connectionInfo={connectionInfo}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
               />
+              <FieldStorePlugin></FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>

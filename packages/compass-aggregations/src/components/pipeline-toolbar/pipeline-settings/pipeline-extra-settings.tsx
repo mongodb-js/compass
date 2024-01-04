@@ -18,7 +18,6 @@ import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-m
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { toggleSidePanel } from '../../../modules/side-panel';
-import { usePreference } from 'compass-preferences-model';
 import {
   hiddenOnNarrowPipelineToolbarStyles,
   smallPipelineToolbar,
@@ -76,8 +75,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSettings,
   onToggleSidePanel,
 }) => {
-  const showStageWizard = usePreference('enableStageWizard');
-
   return (
     <div
       className={containerStyles}
@@ -128,20 +125,18 @@ export const PipelineExtraSettings: React.FunctionComponent<
           Text
         </SegmentedControlOption>
       </SegmentedControl>
-      {showStageWizard && (
-        <Button
-          size="xsmall"
-          leftGlyph={<Icon glyph="Wizard" />}
-          onClick={onToggleSidePanel}
-          title="Toggle Stage Wizard"
-          aria-label="Toggle Stage Wizard"
-          data-testid="pipeline-toolbar-side-panel-button"
-          className={toggleStageWizardStyles}
-          disabled={pipelineMode === 'as-text'}
-        >
-          <span className={hiddenOnNarrowPipelineToolbarStyles}>Wizard</span>
-        </Button>
-      )}
+      <Button
+        size="xsmall"
+        leftGlyph={<Icon glyph="Wizard" />}
+        onClick={onToggleSidePanel}
+        title="Toggle Stage Wizard"
+        aria-label="Toggle Stage Wizard"
+        data-testid="pipeline-toolbar-side-panel-button"
+        className={toggleStageWizardStyles}
+        disabled={pipelineMode === 'as-text'}
+      >
+        <span className={hiddenOnNarrowPipelineToolbarStyles}>Wizard</span>
+      </Button>
       <IconButton
         title="More Settings"
         aria-label="More Settings"

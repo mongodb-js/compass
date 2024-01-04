@@ -28,6 +28,8 @@ import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import AppRegistry from 'hadron-app-registry';
 
 const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
@@ -111,12 +113,15 @@ function createStore({
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry: new AppRegistry(),
+        localAppRegistry: new AppRegistry(),
         atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
         preferences,
+        logger: createNoopLoggerAndTelemetry(),
       })
     )
   );

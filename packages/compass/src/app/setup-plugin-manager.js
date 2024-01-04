@@ -1,16 +1,11 @@
 const marky = require('marky');
 const remote = require('@electron/remote');
-const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
-const { globalAppRegistry } = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
+const { globalAppRegistry } = require('hadron-app-registry');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
-
-const appRegistry = globalAppRegistry;
-
-app.appRegistry = appRegistry;
 
 /**
  * The root dir.
@@ -46,7 +41,7 @@ const PLUGIN_COUNT = COMPASS_PLUGINS.length;
  *   of packages for the distribution and their relative paths from the
  *   root directory.
  */
-app.pluginManager = new PluginManager([DEV_PLUGINS], ROOT, COMPASS_PLUGINS);
+const pluginManager = new PluginManager([DEV_PLUGINS], ROOT, COMPASS_PLUGINS);
 
 /**
  * Security related items before moving them to security plugin, phase 1.
@@ -95,7 +90,7 @@ PluginManager.Action.pluginActivated.listen(() => {
   }
 });
 
-app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
+pluginManager.activate(globalAppRegistry, pkg.apiVersion);
 
 debug(
   `Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`

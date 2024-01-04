@@ -3,10 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import type { IndexesThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
-import {
-  localAppRegistryActivated,
-  globalAppRegistryActivated,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
@@ -104,9 +100,6 @@ export function activateIndexesPlugin(
     )
   );
 
-  // Set the app registry if preset. This must happen first.
-  store.dispatch(localAppRegistryActivated(localAppRegistry));
-
   on(localAppRegistry, 'refresh-regular-indexes', () => {
     void store.dispatch(fetchIndexes());
   });
@@ -132,15 +125,15 @@ export function activateIndexesPlugin(
     }
   );
 
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(setFields(fields.autocompleteFields));
+  on(globalAppRegistry, 'fields-changed', (fields) => {
+    if (fields.ns === options.namespace) {
+      store.dispatch(setFields(fields.autocompleteFields));
+    }
   });
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(showCreateModal());
   });
-
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
   on(globalAppRegistry, 'refresh-data', () => {
     void store.dispatch(fetchIndexes());

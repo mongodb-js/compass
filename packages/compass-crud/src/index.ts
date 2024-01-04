@@ -10,16 +10,13 @@ import {
   type DataServiceLocator,
 } from 'mongodb-data-service/provider';
 import type {
-  DataService,
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './utils/data-service';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
 const activate = () => {
   // noop
@@ -29,14 +26,7 @@ const deactivate = () => {
   // noop
 };
 
-export const CompassDocumentsHadronPlugin = registerHadronPlugin<
-  CollectionTabPluginMetadata,
-  {
-    dataService: () => DataService;
-    instance: () => MongoDBInstance;
-    preferences: () => PreferencesAccess;
-  }
->(
+export const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassDocuments',
     component: DocumentListWithReadonly as any, // as any because of reflux store
@@ -49,6 +39,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin<
     >,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-CRUD-UI'),
   }
 );
 

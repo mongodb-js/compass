@@ -6,7 +6,6 @@ import type { Writable } from 'stream';
 export interface LoggingAndTelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
 }
-let preferences: LoggingAndTelemetryPreferences;
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
@@ -49,29 +48,12 @@ export function createGenericLoggerAndTelemetry(
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    if (!preferencesService) {
-      // Avoid circular dependency between compass-logging and compass-preferences-model
-      // Note that this is mainly a performance optimization, since the main process
-      // telemetry code also checks this preference value, so it is safe to fall back to 'true'.
-      // TODO(COMPASS-7407): Revisit whether it still makes sense to rely on the default
-      // preferences instance here or whether it wouldn't be better to just always use
-      // the explicitly passed one (or a fallback if none exists).
-      try {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
-        preferences ??= (await import('compass-preferences-model'))
-          .defaultPreferencesInstance;
-      } catch {
-        preferences ??= {
-          getPreferences() {
-            return { trackUsageStatistics: true };
-          },
-        };
-      }
-      preferencesService = preferences;
-    }
+    // Note that this preferences check is mainly a performance optimization,
+    // since the main process telemetry code also checks this preference value,
+    // so it is safe to fall back to 'true'.
     const { trackUsageStatistics = true } =
-      preferencesService?.getPreferences();
+      preferencesService?.getPreferences() ?? {};
+
     if (!trackUsageStatistics) {
       return;
     }

@@ -1,6 +1,4 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { RootAction } from '.';
-const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 /**
  * Zero state changed action.
@@ -47,8 +45,10 @@ export const zeroStateChanged = (
 /**
  * Change zero state.
  */
-export const changeZeroState = (isZeroState: boolean) => {
-  return (dispatch: (action: IsZeroStateAction) => void) => {
+export const changeZeroState = (
+  isZeroState: boolean
+): SchemaValidationThunkAction<void> => {
+  return (dispatch, _getState, { logger: { track } }) => {
     if (isZeroState === false) {
       track('Schema Validation Added');
     }

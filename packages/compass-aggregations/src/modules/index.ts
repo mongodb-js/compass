@@ -21,7 +21,6 @@ import comments from './comments';
 import autoPreview from './auto-preview';
 import id from './id';
 import savedPipeline from './saved-pipeline';
-import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
@@ -41,6 +40,8 @@ import insights from './insights';
 import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type AppRegistry from 'hadron-app-registry';
 
 /**
  * The main application reducer.
@@ -49,7 +50,6 @@ import type { PreferencesAccess } from 'compass-preferences-model';
  * be handled differently in the default reducer
  */
 const rootReducer = combineReducers({
-  appRegistry,
   comments,
   autoPreview,
   dataService,
@@ -87,12 +87,16 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 export type PipelineBuilderExtraArgs = {
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =
