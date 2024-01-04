@@ -110,8 +110,8 @@ export function withLoggerAndTelemetry<
 // specific code we re-implement mongoLogId in the provider to re-export
 //
 // Disable prettier so that dupedLogId stays on the same line to be ignored by
-// the check-logids script prettier-ignore
-export function mongoLogId(id: number): MongoLogId {
-  // !dupedLogId
+// the check-logids script
+// prettier-ignore
+export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
