@@ -7,12 +7,8 @@ import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
 
 export type { LoggerAndTelemetry } from './logger';
 
-const throwIfNotTestEnv = () => {
-  if (process.env.NODE_ENV !== 'test') {
-    throw new Error(
-      "Can't find Workspaces service in React context. Make sure you are using workspaces service and hooks inside Workspaces scope"
-    );
-  }
+const noop = () => {
+  // noop
 };
 
 export function createNoopLoggerAndTelemetry(
@@ -25,14 +21,14 @@ export function createNoopLoggerAndTelemetry(
         return this as unknown as MongoLogWriter;
       },
       write: () => true,
-      info: throwIfNotTestEnv,
-      warn: throwIfNotTestEnv,
-      error: throwIfNotTestEnv,
-      fatal: throwIfNotTestEnv,
-      debug: throwIfNotTestEnv,
+      info: noop,
+      warn: noop,
+      error: noop,
+      fatal: noop,
+      debug: noop,
     },
-    debug: throwIfNotTestEnv as unknown as LoggerAndTelemetry['debug'],
-    track: throwIfNotTestEnv,
+    debug: noop as unknown as LoggerAndTelemetry['debug'],
+    track: noop,
     mongoLogId,
   };
 }
