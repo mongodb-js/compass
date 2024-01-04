@@ -24,22 +24,6 @@ export const WorkspaceTab: WorkspaceComponent<'Collection'> = {
   component: CollectionTabPlugin,
 };
 
-/**
- * Activate all the components in the Collection package.
- **/
-function activate(): void {
-  // noop
-}
-
-/**
- * Deactivate all the components in the Collection package.
- **/
-function deactivate(): void {
-  // noop
-}
-
 export default CollectionTabPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
 export type { CollectionTabPluginMetadata } from './modules/collection-tab';
 export { CollectionTabsProvider } from './components/collection-tab-provider';

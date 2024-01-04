@@ -44,14 +44,3 @@ export const ExportPlugin = registerHadronPlugin(
     preferences: preferencesLocator,
   }
 );
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

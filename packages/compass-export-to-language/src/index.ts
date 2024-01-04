@@ -16,14 +16,4 @@ const ExportToLanguagePlugin = registerHadronPlugin(
   }
 );
 
-function activate() {
-  // noop
-}
-
-function deactivate() {
-  // noop
-}
-
 export default ExportToLanguagePlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

@@ -39,14 +39,6 @@ const QueryBarPlugin = registerHadronPlugin(
   }
 );
 
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
 export type ChangeQueryBar = typeof useChangeQueryBarQuery;
 
 // Rendering query bar only makes sense if query bar store is in the rendering
@@ -59,6 +51,4 @@ export const QueryBar: React.FunctionComponent<
 };
 
 export default QueryBarPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
 export { useChangeQueryBarQuery, useQueryBarQuery };

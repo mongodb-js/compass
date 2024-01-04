@@ -21,14 +21,6 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
-const activate = () => {
-  // noop
-};
-
-const deactivate = () => {
-  // noop
-};
-
 export const CompassDocumentsHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,
   {
@@ -59,9 +51,8 @@ export const CompassDocumentsPlugin = {
 
 export default DocumentList;
 export type { DocumentListProps, DocumentProps };
-export { activate, deactivate, DocumentList, Document, InsertDocumentDialog };
+export { DocumentList, Document, InsertDocumentDialog };
 export type { DocumentListViewProps } from './components/document-list-view';
 export { default as DocumentListView } from './components/document-list-view';
 export type { DocumentJsonViewProps } from './components/document-json-view';
 export { default as DocumentJsonView } from './components/document-json-view';
-export { default as metadata } from '../package.json';

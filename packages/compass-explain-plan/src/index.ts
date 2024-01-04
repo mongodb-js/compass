@@ -21,14 +21,4 @@ const ExplainPlanModalPlugin = registerHadronPlugin(
   }
 );
 
-function activate() {
-  // noop
-}
-
-function deactivate() {
-  // noop
-}
-
 export default ExplainPlanModalPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

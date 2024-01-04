@@ -46,14 +46,8 @@ export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 export type IndexesPluginServices = {
   dataService: IndexesDataService;
   instance: MongoDBInstance;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: LoggerAndTelemetry;
 };
 

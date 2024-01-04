@@ -68,14 +68,3 @@ export const DropIndexPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
   }
 );
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

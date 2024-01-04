@@ -51,14 +51,12 @@ document.addEventListener('drop', (evt) => evt.preventDefault());
 const APP_VERSION = remote.app.getVersion() || '';
 
 import View from 'ampersand-view';
-import async from 'async';
 import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Action } from '@mongodb-js/hadron-plugin-manager';
 
 import { setupIntercom } from './intercom';
 
@@ -209,52 +207,42 @@ const state = new Application();
 const app = {
   init: async function () {
     await defaultPreferencesInstance.refreshPreferences();
+    await state.updateAppVersion();
+    state.preRender();
 
-    async.series([state.updateAppVersion.bind(state)], function (err) {
-      if (err) {
-        throw err;
-      }
-
-      Action.pluginActivationCompleted.listen(async () => {
-        state.preRender();
-        globalAppRegistry.onActivated();
-
-        try {
-          const user = await getActiveUser(defaultPreferencesInstance);
-          setupIntercom(user, defaultPreferencesInstance);
-        } catch (e) {
-          // noop
-        }
-        // Catch a data refresh coming from window-manager.
-        ipcRenderer?.on('app:refresh-data', () =>
-          globalAppRegistry.emit('refresh-data')
-        );
-        // Catch a toggle sidebar coming from window-manager.
-        ipcRenderer?.on('app:toggle-sidebar', () =>
-          globalAppRegistry.emit('toggle-sidebar')
-        );
-        ipcRenderer?.on('window:menu-share-schema-json', () => {
-          globalAppRegistry.emit('menu-share-schema-json');
-        });
-        ipcRenderer?.on('compass:open-export', () => {
-          globalAppRegistry.emit('open-active-namespace-export');
-        });
-        ipcRenderer?.on('compass:open-import', () => {
-          globalAppRegistry.emit('open-active-namespace-import');
-        });
-        // As soon as dom is ready, render and set up the rest.
-        state.render();
-        marky.stop('Time to Connect rendered');
-        state.postRender();
-        marky.stop('Time to user can Click Connect');
-        if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
-          queueMicrotask(() => {
-            throw new Error('fake exception');
-          });
-        }
-      });
-      require('./setup-plugin-manager');
+    try {
+      const user = await getActiveUser(defaultPreferencesInstance);
+      setupIntercom(user, defaultPreferencesInstance);
+    } catch (e) {
+      // noop
+    }
+    // Catch a data refresh coming from window-manager.
+    ipcRenderer?.on('app:refresh-data', () =>
+      globalAppRegistry.emit('refresh-data')
+    );
+    // Catch a toggle sidebar coming from window-manager.
+    ipcRenderer?.on('app:toggle-sidebar', () =>
+      globalAppRegistry.emit('toggle-sidebar')
+    );
+    ipcRenderer?.on('window:menu-share-schema-json', () => {
+      globalAppRegistry.emit('menu-share-schema-json');
     });
+    ipcRenderer?.on('compass:open-export', () => {
+      globalAppRegistry.emit('open-active-namespace-export');
+    });
+    ipcRenderer?.on('compass:open-import', () => {
+      globalAppRegistry.emit('open-active-namespace-import');
+    });
+    // As soon as dom is ready, render and set up the rest.
+    state.render();
+    marky.stop('Time to Connect rendered');
+    state.postRender();
+    marky.stop('Time to user can Click Connect');
+    if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
+      queueMicrotask(() => {
+        throw new Error('fake exception');
+      });
+    }
   },
 };
 
@@ -285,5 +273,4 @@ Object.defineProperty(app, 'state', {
   },
 });
 
-import './reflux-listen-to-external-store';
 app.init();

@@ -9,14 +9,6 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,
   {
@@ -36,6 +28,3 @@ export const CompassShellPlugin = registerHadronPlugin<
     preferences: preferencesLocator,
   }
 );
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

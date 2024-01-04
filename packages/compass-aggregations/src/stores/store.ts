@@ -71,14 +71,8 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
 
 export type AggregationsPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;

@@ -55,14 +55,8 @@ function resultId(): number {
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
 export type SchemaPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   loggerAndTelemetry: LoggerAndTelemetry;
   preferences: PreferencesAccess;
 };

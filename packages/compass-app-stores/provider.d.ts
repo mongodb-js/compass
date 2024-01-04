@@ -1,1 +1,1 @@
-export * from './dist/src/provider.d';
+export * from './dist/provider.d';
