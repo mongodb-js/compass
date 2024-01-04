@@ -141,11 +141,9 @@ From Electron's `ipcRenderer` API. Useful for when replying to Main process'
 
 ```js
 const ipc = require('hadron-ipc');
-const app = require('hadron-app');
-global.hadronApp = app;
 
 ipc.on('app:refresh-data', () =>
-  global.hadronApp.appRegistry.emit('refresh-data')
+  // do something
 );
 ```
 

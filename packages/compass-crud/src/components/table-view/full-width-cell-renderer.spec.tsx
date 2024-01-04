@@ -1,7 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import AppRegistry from 'hadron-app-registry';
-import app from 'hadron-app';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 
@@ -15,15 +13,6 @@ import {
 import FullWidthCellRenderer from './full-width-cell-renderer';
 
 describe('<FullWidthCellRenderer />', function () {
-  before(function () {
-    global.hadronApp = app;
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
-  after(function () {
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
   describe('#render', function () {
     let component;
     let rowNode;

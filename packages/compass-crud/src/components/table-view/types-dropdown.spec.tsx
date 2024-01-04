@@ -2,8 +2,6 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Element } from 'hadron-document';
-
-import app from 'hadron-app';
 import TypesDropdown from './types-dropdown';
 
 const selectableTypes = [
@@ -29,17 +27,13 @@ const selectableTypes = [
 ];
 
 describe('TypesDropdown', function () {
-  let hadronAppBkp;
   let element;
   beforeEach(function () {
-    hadronAppBkp = global.hadronApp;
-    global.hadronApp = app;
     element = new Element('name', 1, null, false);
     render(<TypesDropdown element={element}></TypesDropdown>);
   });
 
   afterEach(function () {
-    global.hadronApp = hadronAppBkp;
     cleanup();
   });
 
