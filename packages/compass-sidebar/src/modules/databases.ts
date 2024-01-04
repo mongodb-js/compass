@@ -1,6 +1,5 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { RootAction, RootState } from '.';
-import type { Dispatch } from 'redux';
+import type { RootAction, SidebarThunkAction } from '.';
 import toNS from 'mongodb-ns';
 
 /**
@@ -135,31 +134,30 @@ export const changeDatabases = (databases: Database[]) => ({
 });
 
 export const toggleDatabaseExpanded =
-  (id: string, forceExpand: boolean) =>
-  (dispatch: Dispatch<DatabasesAction>, getState: () => RootState) => {
+  (
+    id: string,
+    forceExpand: boolean
+  ): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, getState, { globalAppRegistry }) => {
     const { database } = toNS(id);
-    const { appRegistry, databases } = getState();
+    const { databases } = getState();
     const expanded = forceExpand ?? !databases.expandedDbList[database];
-    if (appRegistry.globalAppRegistry && expanded) {
+    if (expanded) {
       // Fetch collections list on expand if we haven't done it yet (this is
       // relevant only for the code path that has global overlay disabled)
-      appRegistry.globalAppRegistry.emit('sidebar-expand-database', database);
+      globalAppRegistry.emit('sidebar-expand-database', database);
     }
     dispatch({ type: TOGGLE_DATABASE, id: database, expanded });
   };
 
 export const changeFilterRegex =
-  (filterRegex: RegExp | null) =>
-  (
-    dispatch: Dispatch<DatabasesAction>,
-    getState: () => Pick<RootState, 'appRegistry'>
-  ) => {
-    const { appRegistry } = getState();
-    if (appRegistry.globalAppRegistry && filterRegex) {
+  (filterRegex: RegExp | null): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, _getState, { globalAppRegistry }) => {
+    if (filterRegex) {
       // When filtering, emit an event so that we can fetch all collections. This
       // is required as a workaround for the syncronous nature of the current
       // filtering feature
-      appRegistry.globalAppRegistry.emit('sidebar-filter-navigation-list');
+      globalAppRegistry.emit('sidebar-filter-navigation-list');
     }
     dispatch({
       type: CHANGE_FILTER_REGEX,

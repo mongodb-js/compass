@@ -36,6 +36,7 @@ import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -76,6 +77,7 @@ export type AggregationsPluginServices = {
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export function activateAggregationsPlugin(
@@ -87,6 +89,7 @@ export function activateAggregationsPlugin(
     workspaces,
     instance,
     preferences,
+    logger,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -130,11 +133,6 @@ export function activateAggregationsPlugin(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry,
-        globalAppRegistry,
-      },
-      // TODO: move this to thunk extra arg
       dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -165,22 +163,22 @@ export function activateAggregationsPlugin(
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // if the feature is enabled in preferences, the state of the
-          // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferences.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
         workspaces,
         instance,
         preferences,
+        logger,
       })
     )
   );

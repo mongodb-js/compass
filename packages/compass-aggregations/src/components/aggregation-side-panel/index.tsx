@@ -13,7 +13,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-
 import { toggleSidePanel } from '../../modules/side-panel';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
@@ -110,7 +109,7 @@ export const AggregationSidePanel = ({
         stage_name: useCase.stageOperator,
       });
     },
-    [onSelectUseCase]
+    [onSelectUseCase, track]
   );
 
   return (

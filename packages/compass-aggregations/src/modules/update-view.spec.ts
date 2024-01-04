@@ -1,10 +1,13 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import AppRegistry from 'hadron-app-registry';
 
-describe('large-limit module', function () {
+describe('update-view module', function () {
   const thunkArg = {
+    globalAppRegistry: new AppRegistry(),
+    localAppRegistry: new AppRegistry(),
     pipelineBuilder: {
       getPipelineFromStages() {
         return [{ $project: { _id: 0, avg_price: { $avg: '$price' } } }];
@@ -16,6 +19,7 @@ describe('large-limit module', function () {
     workspaces: {
       openCollectionWorkspace() {},
     },
+    logger: createNoopLoggerAndTelemetry(),
   };
 
   describe('#updateView', function () {

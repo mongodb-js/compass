@@ -3,11 +3,9 @@ import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
@@ -20,10 +18,6 @@ import {
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry(
-  'COMPASS-AGGREGATIONS-UI'
-);
 
 export enum ActionTypes {
   RunAggregation = 'compass-aggeregations/runAggregation',
@@ -211,7 +205,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 };
 
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
     void dispatch(fetchExplainForPipeline());
     dispatch({
@@ -272,7 +266,7 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { track } }) => {
     track('Aggregation Canceled');
     const {
       aggregation: { abortController },
@@ -293,7 +287,11 @@ const _abortAggregation = (controller?: AbortController): void => {
 const fetchAggregationData = (
   page = 1
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { preferences, logger: { track, log, mongoLogId }, globalAppRegistry }
+  ) => {
     const {
       namespace,
       maxTimeMS: { current: maxTimeMS },
@@ -343,13 +341,11 @@ const fetchAggregationData = (
       });
 
       if (isMergeOrOut) {
-        dispatch(
-          globalAppRegistryEmit(
-            'agg-pipeline-out-executed',
-            getDestinationNamespaceFromStage(
-              namespace,
-              pipeline[pipeline.length - 1]
-            )
+        globalAppRegistry.emit(
+          'agg-pipeline-out-executed',
+          getDestinationNamespaceFromStage(
+            namespace,
+            pipeline[pipeline.length - 1]
           )
         );
       }
@@ -395,7 +391,7 @@ const fetchAggregationData = (
 
 export const exportAggregationResults =
   (): PipelineBuilderThunkAction<void> => {
-    return (dispatch, getState, { pipelineBuilder }) => {
+    return (_dispatch, getState, { pipelineBuilder, globalAppRegistry }) => {
       const {
         namespace,
         maxTimeMS,
@@ -411,17 +407,15 @@ export const exportAggregationResults =
         collation: collation ?? undefined,
       };
 
-      dispatch(
-        globalAppRegistryEmit('open-export', {
-          namespace,
-          aggregation: {
-            stages: pipeline,
-            options,
-          },
-          origin: 'aggregations-toolbar',
-          count,
-        })
-      );
+      globalAppRegistry.emit('open-export', {
+        namespace,
+        aggregation: {
+          stages: pipeline,
+          options,
+        },
+        origin: 'aggregations-toolbar',
+        count,
+      });
     };
   };
 

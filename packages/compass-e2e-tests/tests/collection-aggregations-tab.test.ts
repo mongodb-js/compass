@@ -150,10 +150,7 @@ describe('Collection aggregations tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests({
-      // Feature flag: enableStageWizard
-      extraSpawnArgs: ['--enable-stage-wizard'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
   });
 

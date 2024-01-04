@@ -8,26 +8,6 @@ const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
 describe('Aggregation Store', function () {
   describe('#configureStore', function () {
-    context('when providing an app registry', function () {
-      let store: Store;
-      const localAppRegistry = new AppRegistry();
-      const globalAppRegistry = new AppRegistry();
-
-      beforeEach(function () {
-        store = configureStore(undefined, undefined, {
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-        });
-      });
-
-      it('sets the app registry state', function () {
-        expect(store.getState().appRegistry).to.deep.equal({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-        });
-      });
-    });
-
     context('when providing a serverVersion', function () {
       let store: Store;
 
@@ -92,7 +72,6 @@ describe('Aggregation Store', function () {
             isTimeSeries: false,
             editViewName: null,
             sourceName: null,
-            appRegistry: state.appRegistry,
             comments: INITIAL_STATE.comments,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,

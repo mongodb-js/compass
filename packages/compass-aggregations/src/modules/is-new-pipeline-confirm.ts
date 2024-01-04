@@ -1,15 +1,14 @@
 import type { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type Stage from './pipeline-builder/stage';
 import type { Document } from 'bson';
 import type { PipelineParserError } from './pipeline-builder/pipeline-parser/utils';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS');
 
 export enum ActionTypes {
   NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
 }
+
 export type NewPipelineConfirmedAction = {
   type: ActionTypes.NewPipelineConfirmed;
   stages: Stage[];
@@ -23,7 +22,7 @@ export type NewPipelineConfirmedAction = {
  */
 export const confirmNewPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder }) => {
+  async (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'confirm_new_pipeline_modal' });

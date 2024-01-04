@@ -13,6 +13,7 @@ import {
 } from './ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 describe('aiQueryReducer', function () {
   let preferences: PreferencesAccess;
@@ -56,6 +57,7 @@ describe('aiQueryReducer', function () {
             dataService: mockDataService,
             atlasService: mockAtlasService,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           } as any
         );
 
@@ -101,6 +103,7 @@ describe('aiQueryReducer', function () {
             },
           },
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
@@ -126,6 +129,7 @@ describe('aiQueryReducer', function () {
             },
           },
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({

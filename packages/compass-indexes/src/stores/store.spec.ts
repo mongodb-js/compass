@@ -3,7 +3,7 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
 import type { IndexesDataService } from './store';
 import { activateIndexesPlugin, type IndexesStore } from './store';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 class FakeInstance extends EventEmitter {
   isWritable = true;
@@ -11,7 +11,6 @@ class FakeInstance extends EventEmitter {
 }
 
 const fakeInstance = new FakeInstance();
-const dummyLogger = createLoggerAndTelemetry('TEST');
 
 describe('IndexesStore [Store]', function () {
   let globalAppRegistry: AppRegistry;
@@ -45,7 +44,7 @@ describe('IndexesStore [Store]', function () {
           },
           isConnected: () => true,
         } as IndexesDataService,
-        logger: dummyLogger,
+        logger: createNoopLoggerAndTelemetry(),
       },
       createActivateHelpers()
     );

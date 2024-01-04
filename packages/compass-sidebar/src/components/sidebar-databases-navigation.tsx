@@ -1,14 +1,12 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import type { Dispatch } from 'redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import type { Actions } from '@mongodb-js/compass-databases-navigation';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
 import type { Database } from '../modules/databases';
 import { toggleDatabaseExpanded } from '../modules/databases';
 import { usePreference } from 'compass-preferences-model';
-import type { RootState } from '../modules';
+import type { RootState, SidebarThunkAction } from '../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 function findCollection(ns: string, databases: Database[]) {
@@ -115,9 +113,14 @@ function mapStateToProps(state: RootState) {
   };
 }
 
-const onNamespaceAction = (namespace: string, action: Actions) => {
-  return (dispatch: Dispatch, getState: () => RootState) => {
-    const emit = (...args: any[]) => dispatch(globalAppRegistryEmit(...args));
+const onNamespaceAction = (
+  namespace: string,
+  action: Actions
+): SidebarThunkAction<void> => {
+  return (_dispatch, getState, { globalAppRegistry }) => {
+    const emit = (action: string, ...rest: any[]) => {
+      globalAppRegistry.emit(action, ...rest);
+    };
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':

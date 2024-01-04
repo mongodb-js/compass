@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
@@ -129,7 +128,11 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
 export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, globalAppRegistry }
+  ) => {
     const {
       autoPreview,
       dataService: { dataService },
@@ -170,13 +173,11 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
       });
-      dispatch(
-        globalAppRegistryEmit(
-          'agg-pipeline-out-executed',
-          getDestinationNamespaceFromStage(
-            namespace,
-            pipeline[pipeline.length - 1]
-          )
+      globalAppRegistry.emit(
+        'agg-pipeline-out-executed',
+        getDestinationNamespaceFromStage(
+          namespace,
+          pipeline[pipeline.length - 1]
         )
       );
     } catch (error: any) {
