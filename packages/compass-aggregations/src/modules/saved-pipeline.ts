@@ -1,4 +1,3 @@
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { openToast } from '@mongodb-js/compass-components';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
@@ -88,7 +87,11 @@ export const getSavedPipelines =
  */
 export const updatePipelineList =
   (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState, { pipelineStorage, logger: { debug } }) => {
+  (
+    dispatch,
+    getState,
+    { pipelineStorage, logger: { debug }, globalAppRegistry }
+  ) => {
     const state = getState();
     pipelineStorage
       .loadAll()
@@ -97,9 +100,7 @@ export const updatePipelineList =
           ({ namespace }) => namespace === state.namespace
         );
         dispatch(savedPipelineAdd(thisNamespacePipelines));
-        dispatch(
-          globalAppRegistryEmit('agg-pipeline-saved', { name: state.name })
-        );
+        globalAppRegistry.emit('agg-pipeline-saved', { name: state.name });
       })
       .catch((err) => {
         debug('Failed to load pipelines', err);

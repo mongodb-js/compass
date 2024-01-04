@@ -1,5 +1,4 @@
 import toNS from 'mongodb-ns';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
@@ -83,7 +82,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, workspaces, logger: { track, debug } }
+    { pipelineBuilder, workspaces, logger: { track, debug }, globalAppRegistry }
   ) => {
     dispatch(dismissViewError());
 
@@ -111,7 +110,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
         editor_view_type: mapPipelineModeToEditorViewType(state),
       });
       debug('selecting namespace', viewNamespace);
-      dispatch(globalAppRegistryEmit('view-edited', viewNamespace));
+      globalAppRegistry.emit('view-edited', viewNamespace);
       workspaces.openCollectionWorkspace(viewNamespace);
     } catch (e: any) {
       debug('Unexpected error updating view', e);

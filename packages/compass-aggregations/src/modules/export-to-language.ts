@@ -1,4 +1,3 @@
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
 
@@ -8,13 +7,11 @@ import type { PipelineBuilderThunkAction } from '.';
  * @returns {Function} The export to language function.
  */
 export const exportToLanguage = (): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (_dispatch, getState, { pipelineBuilder, localAppRegistry }) => {
     const pipeline = getPipelineStringFromBuilderState(
       getState(),
       pipelineBuilder
     );
-    dispatch(
-      localAppRegistryEmit('open-aggregation-export-to-language', pipeline)
-    );
+    localAppRegistry.emit('open-aggregation-export-to-language', pipeline);
   };
 };

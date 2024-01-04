@@ -3,7 +3,6 @@ import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
@@ -291,7 +290,7 @@ const fetchAggregationData = (
   return async (
     dispatch,
     getState,
-    { preferences, logger: { track, log, mongoLogId } }
+    { preferences, logger: { track, log, mongoLogId }, globalAppRegistry }
   ) => {
     const {
       namespace,
@@ -342,13 +341,11 @@ const fetchAggregationData = (
       });
 
       if (isMergeOrOut) {
-        dispatch(
-          globalAppRegistryEmit(
-            'agg-pipeline-out-executed',
-            getDestinationNamespaceFromStage(
-              namespace,
-              pipeline[pipeline.length - 1]
-            )
+        globalAppRegistry.emit(
+          'agg-pipeline-out-executed',
+          getDestinationNamespaceFromStage(
+            namespace,
+            pipeline[pipeline.length - 1]
           )
         );
       }
@@ -394,7 +391,7 @@ const fetchAggregationData = (
 
 export const exportAggregationResults =
   (): PipelineBuilderThunkAction<void> => {
-    return (dispatch, getState, { pipelineBuilder }) => {
+    return (_dispatch, getState, { pipelineBuilder, globalAppRegistry }) => {
       const {
         namespace,
         maxTimeMS,
@@ -410,17 +407,15 @@ export const exportAggregationResults =
         collation: collation ?? undefined,
       };
 
-      dispatch(
-        globalAppRegistryEmit('open-export', {
-          namespace,
-          aggregation: {
-            stages: pipeline,
-            options,
-          },
-          origin: 'aggregations-toolbar',
-          count,
-        })
-      );
+      globalAppRegistry.emit('open-export', {
+        namespace,
+        aggregation: {
+          stages: pipeline,
+          options,
+        },
+        origin: 'aggregations-toolbar',
+        count,
+      });
     };
   };
 

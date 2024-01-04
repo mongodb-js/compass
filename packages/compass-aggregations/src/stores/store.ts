@@ -72,14 +72,8 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
 
 export type AggregationsPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
@@ -139,11 +133,6 @@ export function activateAggregationsPlugin(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry,
-        globalAppRegistry,
-      },
-      // TODO: move this to thunk extra arg
       dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -184,6 +173,8 @@ export function activateAggregationsPlugin(
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
