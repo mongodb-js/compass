@@ -1,6 +1,5 @@
+import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-
-import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { DatabaseState, DatabasesAction } from './databases';
 import databases from './databases';
 import type { InstanceAction, InstanceState } from './instance';
@@ -35,12 +34,9 @@ import type {
   SetIsPerformanceTabSupportedAction,
 } from './is-performance-tab-supported';
 import isPerformanceTabSupported from './is-performance-tab-supported';
+import type { ThunkAction } from 'redux-thunk';
 
 export interface RootState {
-  appRegistry: {
-    globalAppRegistry: AppRegistry | null;
-    localAppRegistry: AppRegistry | null;
-  };
   dataService: DataServiceState;
   connectionInfo: ConnectionInfoState;
   connectionOptions: ConnectionOptionsState;
@@ -63,11 +59,17 @@ export type RootAction =
   | DataServiceAction
   | SetIsPerformanceTabSupportedAction;
 
+export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  { globalAppRegistry: AppRegistry },
+  A
+>;
+
 /**
  * The reducer.
  */
 const reducer = combineReducers<RootState, RootAction>({
-  appRegistry,
   databases,
   dataService,
   connectionInfo,

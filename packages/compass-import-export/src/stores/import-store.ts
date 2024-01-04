@@ -6,11 +6,13 @@ import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import { cancelImport, importReducer, openImport } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'isConnected' | 'bulkWrite' | 'insertOne'>;
   workspaces: WorkspacesService;
+  logger: LoggerAndTelemetry;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -35,12 +37,13 @@ export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService, workspaces }: ImportPluginServices
+  { globalAppRegistry, dataService, workspaces, logger }: ImportPluginServices
 ) {
   const store = configureStore({
     globalAppRegistry,
     dataService,
     workspaces,
+    logger,
   });
 
   const onOpenImport = ({

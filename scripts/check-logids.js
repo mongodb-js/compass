@@ -13,6 +13,7 @@ async function main() {
 
     if (filename.match(/\.(spec|test)\.(js|jsx|ts|tsx)$/)) continue;
     if (filename.startsWith('configs')) continue;
+    if (source.match(/\/\/\s+?!dupedLogId/)) continue;
 
     if (source.match(/mongoLogId\([^)]*$/)) {
       process.exitCode = 1;

@@ -21,6 +21,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -35,7 +36,10 @@ describe('queryBarReducer', function () {
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
-    store = createStore({}, { preferences } as QueryBarExtraArgs);
+    store = createStore({}, {
+      preferences,
+      logger: createNoopLoggerAndTelemetry(),
+    } as QueryBarExtraArgs);
   });
 
   describe('changeField', function () {

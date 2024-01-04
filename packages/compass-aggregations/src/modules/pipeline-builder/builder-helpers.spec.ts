@@ -1,50 +1,11 @@
 import { expect } from 'chai';
-import { applyMiddleware, createStore as createReduxStore } from 'redux';
-import type { DataService } from 'mongodb-data-service';
-import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
-
-import reducer from '..';
 import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
-import { PipelineBuilder } from './pipeline-builder';
-import {
-  addStage,
-  mapBuilderStageToStoreStage,
-  mapStoreStagesToStageIdAndType,
-} from './stage-editor';
+import { addStage } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import configureStore from '../../../test/configure-store';
 
-function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
-  const preferences = defaultPreferencesInstance;
-  const pipelineBuilder = new PipelineBuilder(
-    {} as DataService,
-    preferences,
-    pipelineSource
-  );
-  const stages = pipelineBuilder.stages.map(mapBuilderStageToStoreStage);
-  return createReduxStore(
-    reducer,
-    {
-      pipelineBuilder: {
-        stageEditor: {
-          stages,
-          stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
-        },
-      },
-    },
-    applyMiddleware(
-      thunk.withExtraArgument({
-        atlasService: new AtlasService(),
-        pipelineBuilder,
-        pipelineStorage: new PipelineStorage(),
-        instance: {} as any,
-        workspaces: {} as any,
-        preferences,
-      })
-    )
-  );
+function createStore(pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`) {
+  return configureStore({ pipelineText });
 }
 
 describe('builder-helpers', function () {

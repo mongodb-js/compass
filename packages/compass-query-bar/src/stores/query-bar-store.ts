@@ -29,6 +29,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -39,6 +40,7 @@ type QueryBarServices = {
   localAppRegistry: AppRegistry;
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
@@ -66,6 +68,7 @@ export type QueryBarExtraArgs = {
   preferences: PreferencesAccess;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
+  logger: LoggerAndTelemetry;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -105,6 +108,7 @@ export function activatePlugin(
     instance,
     dataService,
     preferences,
+    logger,
     atlasService = new AtlasService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
@@ -135,6 +139,7 @@ export function activatePlugin(
       favoriteQueryStorage,
       atlasService,
       preferences,
+      logger,
     }
   );
 

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { MongoDBInstance } from 'mongodb-instance-model';
 
 import {
@@ -18,6 +18,7 @@ import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -43,16 +44,19 @@ describe('Schema Validation Store', function () {
   let store: Store<RootState, RootAction>;
   let deactivate: null | (() => void) = null;
   const globalAppRegistry = new AppRegistry();
-  const localAppRegistry = new AppRegistry();
 
   beforeEach(async function () {
-    const activateResult = onActivated({} as any, {
-      localAppRegistry: localAppRegistry,
-      globalAppRegistry: globalAppRegistry,
-      dataService: fakeDataService,
-      instance: fakeInstance,
-      preferences: await createSandboxFromDefaultPreferences(),
-    });
+    const activateResult = onActivated(
+      {} as any,
+      {
+        globalAppRegistry: globalAppRegistry,
+        dataService: fakeDataService,
+        instance: fakeInstance,
+        preferences: await createSandboxFromDefaultPreferences(),
+        logger: createNoopLoggerAndTelemetry(),
+      },
+      createActivateHelpers()
+    );
     store = activateResult.store;
     // eslint-disable-next-line @typescript-eslint/unbound-method
     deactivate = activateResult.deactivate;
@@ -149,12 +153,6 @@ describe('Schema Validation Store', function () {
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });
-      });
-    });
-
-    context('when the data service is connected', function () {
-      it('sets the data service in the state', function () {
-        expect(store.getState().dataService).to.equal(fakeDataService);
       });
     });
   });

@@ -1,5 +1,4 @@
 import type { Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
@@ -11,8 +10,8 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -154,7 +153,7 @@ type FailedResponseTrackMessage = {
   errorMessage: string;
   errorName: string;
   errorCode?: string;
-};
+} & Pick<LoggerAndTelemetry, 'log' | 'track'>;
 
 function trackAndLogFailed({
   editor_view_type,
@@ -162,6 +161,8 @@ function trackAndLogFailed({
   errorMessage,
   errorName,
   errorCode,
+  log,
+  track,
 }: FailedResponseTrackMessage) {
   log.warn(
     mongoLogId(1_001_000_230),
@@ -174,12 +175,12 @@ function trackAndLogFailed({
       errorCode,
     }
   );
-  track('AI Response Failed', () => ({
+  track('AI Response Failed', {
     editor_view_type,
     error_code: errorCode || '',
     status_code: statusCode,
     error_name: errorName,
-  }));
+  });
 }
 
 export const runAIPipelineGeneration = (
@@ -191,7 +192,12 @@ export const runAIPipelineGeneration = (
   return async (
     dispatch,
     getState,
-    { atlasService, pipelineBuilder, preferences }
+    {
+      atlasService,
+      pipelineBuilder,
+      preferences,
+      logger: { track, log, mongoLogId },
+    }
   ) => {
     const {
       pipelineBuilder: {
@@ -261,6 +267,8 @@ export const runAIPipelineGeneration = (
         errorCode: (err as AtlasServiceError).errorCode || err?.name,
         errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
+        track,
+        log,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -305,6 +313,8 @@ export const runAIPipelineGeneration = (
         statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as Error).message,
         errorName: 'empty_pipeline_error',
+        track,
+        log,
       });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,

@@ -3,13 +3,34 @@ import type {
   LoggerAndTelemetry,
   LoggingAndTelemetryPreferences,
 } from './logger';
+import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
+
 export type { LoggerAndTelemetry } from './logger';
 
-function defaultCreateLoggerAndTelemetry(component: string) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('./logger').createGenericLoggerAndTelemetry(component, () => {
-    /* ignore */
-  });
+const noop = () => {
+  // noop
+};
+
+export function createNoopLoggerAndTelemetry(
+  component = 'NOOP-LOGGER'
+): LoggerAndTelemetry {
+  return {
+    log: {
+      component,
+      get unbound() {
+        return this as unknown as MongoLogWriter;
+      },
+      write: () => true,
+      info: noop,
+      warn: noop,
+      error: noop,
+      fatal: noop,
+      debug: noop,
+    },
+    debug: noop as unknown as LoggerAndTelemetry['debug'],
+    track: noop,
+    mongoLogId,
+  };
 }
 
 const LoggerAndTelemetryContext = React.createContext<{
@@ -18,7 +39,7 @@ const LoggerAndTelemetryContext = React.createContext<{
     preferences: LoggingAndTelemetryPreferences
   ): LoggerAndTelemetry;
   preferences?: LoggingAndTelemetryPreferences;
-}>({ createLogger: defaultCreateLoggerAndTelemetry });
+}>({ createLogger: createNoopLoggerAndTelemetry });
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
@@ -69,6 +90,7 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   : F extends { new (...args: [infer A, ...any]): any }
   ? A
   : never;
+
 export function withLoggerAndTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(
@@ -82,4 +104,14 @@ export function withLoggerAndTelemetry<
     return React.createElement(ReactComponent, { ...props, logger });
   };
   return WithLoggerAndTelemetry;
+}
+
+// To avoid dependency on mongodb-log-writer that will pull in a lot of Node.js
+// specific code we re-implement mongoLogId in the provider to re-export
+//
+// Disable prettier so that dupedLogId stays on the same line to be ignored by
+// the check-logids script
+// prettier-ignore
+export function mongoLogId(id: number): MongoLogId { // !dupedLogId
+  return { __value: id };
 }

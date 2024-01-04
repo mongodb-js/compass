@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 import { WorkerRuntime } from '../modules/worker-runtime';
 import CompassShellStore from './';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function createMockDataService() {
@@ -30,7 +30,7 @@ describe('CompassShellStore [Store]', function () {
     appRegistry = new EventEmitter();
     deactivate = store.onActivated({
       globalAppRegistry: appRegistry,
-      logger: createLoggerAndTelemetry('COMPASS-SHELL'),
+      logger: createNoopLoggerAndTelemetry('COMPASS-SHELL'),
       dataService: createMockDataService(),
       preferences: await createSandboxFromDefaultPreferences(),
     } as any);

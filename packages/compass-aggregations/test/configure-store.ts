@@ -7,11 +7,12 @@ import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
   dataService: DataService = mockDataService(),
-  appRegistries: Partial<AggregationsPluginServices> = {}
+  services: Partial<AggregationsPluginServices> = {}
 ) {
   return activateAggregationsPlugin(
     {
@@ -33,7 +34,8 @@ export default function configureStore(
       globalAppRegistry: new AppRegistry(),
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
-      ...appRegistries,
+      logger: createNoopLoggerAndTelemetry(),
+      ...services,
     },
     createActivateHelpers()
   ).store;

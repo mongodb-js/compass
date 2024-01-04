@@ -23,6 +23,7 @@ import {
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 chai.use(chaiAsPromised);
 
@@ -186,6 +187,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -285,6 +287,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -339,6 +342,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -386,6 +390,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -433,6 +438,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -479,6 +485,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -525,6 +532,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -639,6 +647,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -922,6 +931,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1028,6 +1038,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1064,6 +1075,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1144,6 +1156,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1302,6 +1315,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1474,6 +1488,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1646,6 +1661,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1830,6 +1846,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1872,6 +1889,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1911,6 +1929,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1948,6 +1967,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2025,6 +2045,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2071,6 +2092,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2114,6 +2136,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2159,6 +2182,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2211,6 +2235,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2278,6 +2303,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2386,6 +2412,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2830,6 +2857,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2886,6 +2914,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2972,6 +3001,7 @@ describe('store', function () {
             globalAppRegistry,
             instance,
             preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -3031,6 +3061,7 @@ describe('store', function () {
           globalAppRegistry,
           instance,
           preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );

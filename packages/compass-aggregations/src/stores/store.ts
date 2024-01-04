@@ -36,6 +36,7 @@ import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -71,17 +72,12 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
 
 export type AggregationsPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export function activateAggregationsPlugin(
@@ -93,6 +89,7 @@ export function activateAggregationsPlugin(
     workspaces,
     instance,
     preferences,
+    logger,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -136,11 +133,6 @@ export function activateAggregationsPlugin(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry,
-        globalAppRegistry,
-      },
-      // TODO: move this to thunk extra arg
       dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -178,12 +170,15 @@ export function activateAggregationsPlugin(
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
         workspaces,
         instance,
         preferences,
+        logger,
       })
     )
   );
