@@ -21,7 +21,6 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { setFields } from '../modules/fields';
 import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
@@ -76,7 +75,6 @@ export function activateIndexesPlugin(
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
-      fields: [],
       indexView: INDEX_LIST_INITIAL_STATE,
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
@@ -118,12 +116,6 @@ export function activateIndexesPlugin(
       store.dispatch(inProgressIndexFailed(data));
     }
   );
-
-  on(globalAppRegistry, 'fields-changed', (fields) => {
-    if (fields.ns === options.namespace) {
-      store.dispatch(setFields(fields.autocompleteFields));
-    }
-  });
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(showCreateModal());

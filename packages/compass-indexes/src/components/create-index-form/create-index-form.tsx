@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
-
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
 import CheckboxInput from './checkbox-input';
@@ -21,11 +21,9 @@ const createIndexModalOptionStyles = css({
 type IndexField = { name: string; type: string };
 
 type CreateIndexFormProps = {
+  namespace: string;
   fields: IndexField[];
-  schemaFields: string[];
-
   serverVersion: string;
-
   updateFieldName: (idx: number, name: string) => void;
   updateFieldType: (idx: number, fType: string) => void;
   addField: () => void; // Plus icon.
@@ -33,16 +31,21 @@ type CreateIndexFormProps = {
 };
 
 function CreateIndexForm({
+  namespace,
   fields,
-  schemaFields,
-
   serverVersion,
-
   updateFieldName,
   updateFieldType,
   addField,
   removeField,
 }: CreateIndexFormProps) {
+  const schemaFields = useAutocompleteFields(namespace);
+  const schemaFieldNames = useMemo(() => {
+    return schemaFields.map((field) => {
+      return field.name;
+    });
+  }, [schemaFields]);
+
   return (
     <>
       <div
@@ -54,7 +57,7 @@ function CreateIndexForm({
         </Body>
         {fields.length > 0 ? (
           <CreateIndexFields
-            schemaFields={schemaFields}
+            schemaFields={schemaFieldNames}
             fields={fields}
             serverVersion={serverVersion}
             isRemovable={!(fields.length > 1)}

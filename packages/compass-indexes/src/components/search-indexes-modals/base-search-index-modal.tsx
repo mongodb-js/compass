@@ -35,7 +35,7 @@ import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import type { Field } from '../../modules/fields';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -95,13 +95,13 @@ type ParsingError = {
 };
 
 type BaseSearchIndexModalProps = {
+  namespace: string;
   mode: 'create' | 'update';
   initialIndexName: string;
   initialIndexDefinition: string;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  fields: Field[];
   onSubmit: (indexName: string, indexDefinition: Document) => void;
   onClose: () => void;
 };
@@ -109,13 +109,13 @@ type BaseSearchIndexModalProps = {
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
 > = ({
+  namespace,
   mode,
   initialIndexName,
   initialIndexDefinition,
   isModalOpen,
   isBusy,
   error,
-  fields,
   onSubmit,
   onClose,
 }) => {
@@ -204,13 +204,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     [editorRef]
   );
 
-  const completer = useMemo(
-    () =>
-      createSearchIndexAutocompleter({
-        fields,
-      }),
-    [fields]
-  );
+  const fields = useAutocompleteFields(namespace);
+
+  const completer = useMemo(() => {
+    return createSearchIndexAutocompleter({ fields });
+  }, [fields]);
 
   return (
     <Modal

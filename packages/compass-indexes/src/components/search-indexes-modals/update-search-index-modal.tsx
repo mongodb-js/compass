@@ -4,15 +4,14 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
-import type { Field } from '../../modules/fields';
 
 type UpdateSearchIndexModalProps = {
+  namespace: string;
   indexName: string;
   indexDefinition: string;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  fields: Field[];
   onUpdateIndex: (indexName: string, indexDefinition: Document) => void;
   onCloseModal: () => void;
 };
@@ -20,24 +19,24 @@ type UpdateSearchIndexModalProps = {
 export const UpdateSearchIndexModal: React.FunctionComponent<
   UpdateSearchIndexModalProps
 > = ({
+  namespace,
   indexName,
   indexDefinition,
   isModalOpen,
   isBusy,
   error,
-  fields,
   onUpdateIndex,
   onCloseModal,
 }) => {
   return (
     <BaseSearchIndexModal
+      namespace={namespace}
       mode={'update'}
       initialIndexName={indexName}
       initialIndexDefinition={indexDefinition}
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      fields={fields}
       onSubmit={onUpdateIndex}
       onClose={onCloseModal}
     />
@@ -45,12 +44,13 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
 };
 
 const mapState = ({
+  namespace,
   searchIndexes: {
     indexes,
     updateIndex: { indexName, isBusy, isModalOpen, error },
   },
-  fields,
 }: RootState) => ({
+  namespace,
   isModalOpen,
   isBusy,
   indexName,
@@ -60,7 +60,6 @@ const mapState = ({
     2
   ),
   error,
-  fields,
 });
 
 const mapDispatch = {

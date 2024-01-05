@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
-import type { Field } from '../../modules/fields';
 
 export const DEFAULT_INDEX_DEFINITION = `{
   mappings: {
@@ -13,26 +12,33 @@ export const DEFAULT_INDEX_DEFINITION = `{
 }`;
 
 type CreateSearchIndexModalProps = {
+  namespace: string;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  fields: Field[];
   onCreateIndex: (indexName: string, indexDefinition: Document) => void;
   onCloseModal: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, isBusy, error, fields, onCreateIndex, onCloseModal }) => {
+> = ({
+  namespace,
+  isModalOpen,
+  isBusy,
+  error,
+  onCreateIndex,
+  onCloseModal,
+}) => {
   return (
     <BaseSearchIndexModal
+      namespace={namespace}
       mode={'create'}
       initialIndexName={'default'}
       initialIndexDefinition={DEFAULT_INDEX_DEFINITION}
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      fields={fields}
       onSubmit={onCreateIndex}
       onClose={onCloseModal}
     />
@@ -40,15 +46,15 @@ export const CreateSearchIndexModal: React.FunctionComponent<
 };
 
 const mapState = ({
+  namespace,
   searchIndexes: {
     createIndex: { isBusy, isModalOpen, error },
   },
-  fields,
 }: RootState) => ({
+  namespace,
   isModalOpen,
   isBusy,
   error,
-  fields,
 });
 
 const mapDispatch = {
