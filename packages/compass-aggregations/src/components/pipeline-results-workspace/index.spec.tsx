@@ -15,6 +15,7 @@ const renderPipelineResultsWorkspace = (
   render(
     <Provider store={configureStore()}>
       <PipelineResultsWorkspace
+        namespace="test.test"
         documents={[]}
         isLoading={false}
         isError={false}
