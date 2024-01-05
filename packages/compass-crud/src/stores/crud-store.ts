@@ -412,7 +412,6 @@ type CrudState = {
   resultId: number;
   isWritable: boolean;
   instanceDescription: string;
-  fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
@@ -468,12 +467,6 @@ class CrudStoreImpl
     this.logger = services.logger;
   }
 
-  updateFields(fields: { autocompleteFields: { name: string }[] }) {
-    this.setState({
-      fields: fields.autocompleteFields.map((field) => field.name),
-    });
-  }
-
   getInitialState(): CrudState {
     return {
       ns: '',
@@ -504,7 +497,6 @@ class CrudStoreImpl
       resultId: resultId(),
       isWritable: false,
       instanceDescription: '',
-      fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
       isUpdatePreviewSupported: false,
@@ -2090,12 +2082,6 @@ export function activateDocumentsPlugin(
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
 
   on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
-
-  on(globalAppRegistry, 'fields-changed', (fields) => {
-    if (fields.ns === store.state.ns) {
-      store.updateFields(fields);
-    }
-  });
 
   on(
     localAppRegistry,

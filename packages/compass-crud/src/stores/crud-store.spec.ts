@@ -264,7 +264,6 @@ describe('store', function () {
         isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
-        fields: [],
       });
     });
   });
