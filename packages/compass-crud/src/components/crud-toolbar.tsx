@@ -1,4 +1,3 @@
-import type AppRegistry from 'hadron-app-registry';
 import React, { useCallback, useMemo } from 'react';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
@@ -96,7 +95,6 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   loadingCount: boolean;
-  localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
   onApplyClicked: () => void;
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;

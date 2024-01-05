@@ -32,7 +32,7 @@
     ".": "./src/index.ts",
     "./provider": "./src/provider.ts"
   },
-  "types": "./dist/src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",

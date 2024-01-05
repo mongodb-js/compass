@@ -161,17 +161,7 @@ const WorkspacesPlugin = registerHadronPlugin(
   }
 );
 
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
 export default WorkspacesPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
 export type {

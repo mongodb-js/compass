@@ -7,14 +7,6 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
-function activate() {
-  // no-op
-}
-
-function deactivate() {
-  // no-op
-}
-
 export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassSchemaValidationPlugin',
@@ -34,6 +26,3 @@ export const CompassSchemaValidationPlugin = {
   name: 'Validation',
   component: CompassSchemaValidationHadronPlugin,
 };
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

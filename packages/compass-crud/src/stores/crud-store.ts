@@ -438,14 +438,8 @@ class CrudStoreImpl
   setState!: (newState: Partial<CrudState>) => void;
   dataService: DataService;
   preferences: PreferencesAccess;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   favoriteQueriesStorage: FavoriteQueryStorage;
   recentQueriesStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
@@ -2061,14 +2055,8 @@ export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
 export type DocumentsPluginServices = {
   dataService: DataService;
   instance: MongoDBInstance;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
 };

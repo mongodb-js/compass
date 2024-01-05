@@ -41,21 +41,6 @@ const WorkspaceTab: WorkspaceComponent<'Performance'> = {
   component: PerformancePlugin,
 };
 
-/**
- * Activate all the components in the RTSS package.
- */
-function activate() {
-  // noop
-}
-
-/**
- * Deactivate all the components in the RTSS package.
- */
-function deactivate() {
-  // noop
-}
-
 export default PerformancePlugin;
-export { activate, deactivate, WorkspaceTab };
+export { WorkspaceTab };
 export { default as d3 } from './d3';
-export { default as metadata } from '../package.json';

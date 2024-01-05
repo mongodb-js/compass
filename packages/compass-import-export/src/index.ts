@@ -47,14 +47,3 @@ export const ExportPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-EXPORT-UI'),
   }
 );
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

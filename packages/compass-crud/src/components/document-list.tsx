@@ -132,7 +132,6 @@ export type DocumentListProps = {
     | 'page'
     | 'getPage'
     | 'insertDataHandler'
-    | 'localAppRegistry'
     | 'openExportFileDialog'
     | 'outdated'
     | 'isWritable'
@@ -355,7 +354,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             page={page}
             getPage={getPage}
             insertDataHandler={onOpenInsert}
-            localAppRegistry={store.localAppRegistry}
             onApplyClicked={onApplyClicked}
             onResetClicked={onResetClicked}
             onUpdateButtonClicked={onUpdateButtonClicked}

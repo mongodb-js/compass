@@ -1,14 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './stores/store';
 
-function activate() {
-  // noop
-}
-
-function deactivate() {
-  // noop
-}
-
 const FieldStorePlugin = registerHadronPlugin({
   name: 'FieldStore',
   component() {
@@ -20,5 +12,3 @@ const FieldStorePlugin = registerHadronPlugin({
 });
 
 export default FieldStorePlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

@@ -11,14 +11,6 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
-function activate() {
-  // no-op
-}
-
-function deactivate() {
-  // no-op
-}
-
 export const CompassSchemaHadronPlugin = registerHadronPlugin<
   Pick<CollectionTabPluginMetadata, 'namespace'>,
   {
@@ -44,6 +36,3 @@ export const CompassSchemaPlugin = {
   name: 'Schema',
   component: CompassSchemaHadronPlugin,
 };
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

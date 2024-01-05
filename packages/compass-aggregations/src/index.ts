@@ -18,14 +18,6 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
-const activate = () => {
-  // noop
-};
-
-const deactivate = () => {
-  // noop
-};
-
 export const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassAggregations',
@@ -63,5 +55,4 @@ export const CreateViewPlugin = registerHadronPlugin(
 );
 
 export default AggregationsPlugin;
-export { activate, deactivate, Aggregations, StageEditor };
-export { default as metadata } from '../package.json';
+export { Aggregations, StageEditor };
