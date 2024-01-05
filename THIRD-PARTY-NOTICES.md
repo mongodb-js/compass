@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Jan 04 2024.
+This document was automatically generated on Fri Jan 05 2024.
 
 ## List of dependencies
 
@@ -175,7 +175,6 @@ This document was automatically generated on Thu Jan 04 2024.
 | **[array-flatten](#832052c97b92484a7685d432fbdac9cb8d6cd26a0de715df336780d91762bfc9)**                                      | 1.1.1        | MIT                                 |
 | **[array-next](#2eca7126c828f7c4b047e8bc3982acc390adc906c9e1fd2ab512d7ade811a40d)**                                         | 0.0.1        | MIT                                 |
 | **[asn1](#5363ee1aa0a9a8fd1531804a5ce1572535002c9149fe851f53f26dfecfa36c81)**                                               | 0.2.4        | MIT                                 |
-| **[async](#c29f9245bacd8b068a226c6aaae5379890a2101ab279bf2289de05bd4287ecd9)**                                              | 3.2.4        | MIT                                 |
 | **[asynckit](#e54c0004f31bd0783134afe6ff005293b9c43376e12e2026d2afff50620115b1)**                                           | 0.4.0        | MIT                                 |
 | **[aws4](#10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573)**                                               | 1.11.0       | MIT                                 |
 | **[axios-retry](#d41b0f37c97e76d36413f38469af5abaa624f54636102a82c9c9a395f0e8d42a)**                                        | 3.2.0        | Apache-2.0                          |
@@ -18153,36 +18152,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE
-
-<a id="c29f9245bacd8b068a226c6aaae5379890a2101ab279bf2289de05bd4287ecd9"></a>
-
-### [async](https://www.npmjs.com/package/async) (version 3.2.4)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright (c) 2010-2018 Caolan McMahon
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
 
 <a id="e54c0004f31bd0783134afe6ff005293b9c43376e12e2026d2afff50620115b1"></a>
 
