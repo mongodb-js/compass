@@ -4,9 +4,10 @@ import type { Schema } from 'mongodb-schema';
 import parseSchema from 'mongodb-schema';
 import type { AppRegistry, ActivateHelpers } from 'hadron-app-registry';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
+import { FieldStoreContext } from './context';
 
 export function activatePlugin(
-  _: unknown,
+  _initialProps: unknown,
   { globalAppRegistry }: { globalAppRegistry: AppRegistry },
   { on, cleanup }: ActivateHelpers
 ) {
@@ -52,5 +53,5 @@ export function activatePlugin(
     }
   );
 
-  return { store, deactivate: cleanup };
+  return { store, deactivate: cleanup, context: FieldStoreContext };
 }

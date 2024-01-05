@@ -324,11 +324,12 @@ function Home({
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
             <CompassInstanceStorePlugin>
-              <Workspace
-                connectionInfo={connectionInfo}
-                onActiveWorkspaceTabChange={onWorkspaceChange}
-              />
-              <FieldStorePlugin></FieldStorePlugin>
+              <FieldStorePlugin>
+                <Workspace
+                  connectionInfo={connectionInfo}
+                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                />
+              </FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
