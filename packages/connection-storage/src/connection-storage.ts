@@ -3,13 +3,12 @@ import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 import { safeStorage } from 'electron';
 
-import type { ConnectionInfo } from './connection-info';
+import type {
+  ConnectionInfo,
+  ConnectionSecrets,
+} from '@mongodb-js/connection-info';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  type ConnectionSecrets,
-  mergeSecrets,
-  extractSecrets,
-} from './connection-secrets';
+import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
 import {
   deleteCompassAppNameParam,
   getKeytarServiceName,
