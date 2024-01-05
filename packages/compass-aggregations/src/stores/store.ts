@@ -6,7 +6,6 @@ import { toJSString } from 'mongodb-query-parser';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
-import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
@@ -143,8 +142,6 @@ export function activateAggregationsPlugin(
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
         options.env ?? (instance.env as typeof ENVS[number]),
-      // options.fields is only used by mms, but always set to [] which is the initial value anyway
-      fields: options.fields ?? [],
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
@@ -207,18 +204,6 @@ export function activateAggregationsPlugin(
    */
   on(localAppRegistry, 'refresh-data', () => {
     refreshInput();
-  });
-
-  /**
-   * When the schema fields change, update the state with the new
-   * fields.
-   *
-   * @param {Object} fields - The fields.
-   */
-  on(globalAppRegistry, 'fields-changed', (fields) => {
-    if (fields.ns === options.namespace) {
-      store.dispatch(fieldsChanged(fields.autocompleteFields));
-    }
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
