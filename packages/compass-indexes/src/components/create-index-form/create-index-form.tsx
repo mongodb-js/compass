@@ -41,9 +41,13 @@ function CreateIndexForm({
 }: CreateIndexFormProps) {
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
-    return schemaFields.map((field) => {
-      return field.name;
-    });
+    return schemaFields
+      .filter((field) => {
+        return field.name !== '_id';
+      })
+      .map((field) => {
+        return field.name;
+      });
   }, [schemaFields]);
 
   return (
