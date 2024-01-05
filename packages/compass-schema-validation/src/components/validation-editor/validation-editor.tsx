@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -19,6 +18,7 @@ import {
   CodemirrorMultilineEditor,
   createValidationAutocompleter,
 } from '@mongodb-js/compass-editor';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 import type {
   Validation,
@@ -27,9 +27,7 @@ import type {
   ValidationState,
 } from '../../modules/validation';
 import { checkValidator } from '../../modules/validation';
-
 import { ActionSelector, LevelSelector } from '../validation-selectors';
-import type { FieldsState } from '../../modules/fields';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -69,21 +67,20 @@ export type ValidationCodeEditorProps = Pick<
   React.ComponentProps<typeof CodemirrorMultilineEditor>,
   'onChangeText' | 'readOnly'
 > & {
+  namespace: string;
   text: string;
-  fields: {
-    name: string;
-    description?: string;
-  }[];
   serverVersion: string;
 };
 
 const ValidationCodeEditor = ({
+  namespace,
   text,
   onChangeText,
   readOnly,
-  fields,
   serverVersion,
 }: ValidationCodeEditorProps) => {
+  const fields = useAutocompleteFields(namespace);
+
   const completer = React.useMemo(() => {
     return createValidationAutocompleter({ fields, serverVersion });
   }, [fields, serverVersion]);
@@ -99,15 +96,8 @@ const ValidationCodeEditor = ({
   );
 };
 
-ValidationCodeEditor.propTypes = {
-  text: PropTypes.string.isRequired,
-  onChangeText: PropTypes.func.isRequired,
-  readOnly: PropTypes.bool.isRequired,
-  fields: PropTypes.array,
-  serverVersion: PropTypes.string,
-};
-
 export type ValidationEditorProps = {
+  namespace: string;
   clearSampleDocuments: () => void;
   validatorChanged: (text: string) => void;
   validationActionChanged: (action: ValidationServerAction) => void;
@@ -115,7 +105,6 @@ export type ValidationEditorProps = {
   cancelValidation: () => void;
   saveValidation: (text: Validation) => void;
   serverVersion: string;
-  fields: FieldsState;
   validation: Pick<
     ValidationState,
     | 'validator'
@@ -307,12 +296,12 @@ class ValidationEditor extends Component<ValidationEditorProps> {
           )}
         >
           <ValidationCodeEditor
+            namespace={this.props.namespace}
             text={validation.validator}
             onChangeText={(text) => {
               return this.onValidatorChange(text);
             }}
             readOnly={!isEditable}
-            fields={this.props.fields}
             serverVersion={this.props.serverVersion}
           />
         </div>

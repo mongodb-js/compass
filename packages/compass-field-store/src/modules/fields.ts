@@ -133,6 +133,14 @@ export function mergeSchema(
 export function schemaFieldsToAutocompleteItems(
   fields: Record<string, SchemaFieldSubset>
 ) {
+  function stringifyType(type: string | string[]) {
+    return typeof type === 'string'
+      ? type
+      : // Type can be an array of arrays, values can also be duplicated between
+        // arrays of types, so we pick only unique ones
+        uniq(type.flat()).join(' | ');
+  }
+
   return Object.entries(fields).map(([key, field]) => {
     return {
       name: key,
@@ -140,9 +148,7 @@ export function schemaFieldsToAutocompleteItems(
       score: 1,
       meta: 'field',
       version: '0.0.0',
-      description: Array.isArray(field.type)
-        ? field.type.join(' | ')
-        : field.type,
+      description: stringifyType(field.type),
     };
   });
 }

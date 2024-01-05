@@ -13,7 +13,6 @@ import { mapQueryToFormFields } from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
-  changeSchemaFields,
   QueryBarActions,
   updatePreferencesMaxTimeMS,
 } from './query-bar-reducer';
@@ -159,12 +158,6 @@ export function activatePlugin(
   on(atlasService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
-    }
-  });
-
-  on(globalAppRegistry, 'fields-changed', (fields) => {
-    if (fields.ns === namespace) {
-      store.dispatch(changeSchemaFields(fields.autocompleteFields));
     }
   });
 

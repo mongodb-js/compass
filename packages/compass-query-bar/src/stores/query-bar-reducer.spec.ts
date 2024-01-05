@@ -9,7 +9,6 @@ import {
   applyFromHistory,
   applyQuery,
   changeField,
-  changeSchemaFields,
   explainQuery,
   resetQuery,
   setQuery,
@@ -201,19 +200,6 @@ describe('queryBarReducer', function () {
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
         });
-    });
-  });
-
-  describe('changeSchemaFields', function () {
-    it('should save fields in the store', function () {
-      expect(store.getState().queryBar)
-        .to.have.property('schemaFields')
-        .deep.eq([]);
-      const fields = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
-      store.dispatch(changeSchemaFields(fields));
-      expect(store.getState().queryBar)
-        .to.have.property('schemaFields')
-        .deep.eq(fields);
     });
   });
 

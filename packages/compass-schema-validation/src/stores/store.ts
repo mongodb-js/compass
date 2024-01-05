@@ -3,8 +3,6 @@ import thunk from 'redux-thunk';
 import type { RootState } from '../modules';
 import reducer, { INITIAL_STATE } from '../modules';
 import toNS from 'mongodb-ns';
-import { namespaceChanged } from '../modules/namespace';
-import { fieldsChanged } from '../modules/fields';
 import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
 import semver from 'semver';
@@ -65,6 +63,7 @@ export function onActivated(
 ) {
   const store = configureStore(
     {
+      namespace: toNS(options.namespace),
       serverVersion: instance.build.version,
       editMode: {
         collectionTimeSeries: !!options.isTimeSeries,
@@ -81,28 +80,14 @@ export function onActivated(
     }
   );
 
-  /**
-   * When the collection is changed, update the store.
-   */
-  on(globalAppRegistry, 'fields-changed', (fields) => {
-    if (fields.ns === options.namespace) {
-      store.dispatch(fieldsChanged(fields.fields));
-    }
-  });
-
   // isWritable can change later
-  instance.on('change:isWritable', () => {
+  on(instance, 'change:isWritable', () => {
     store.dispatch(
       editModeChanged({
         writeStateStoreReadOnly: !instance.isWritable,
       })
     );
   });
-
-  if (options.namespace) {
-    const namespace = toNS(options.namespace);
-    store.dispatch(namespaceChanged(namespace));
-  }
 
   // Activate validation when this plugin is first rendered
   store.dispatch(activateValidation());

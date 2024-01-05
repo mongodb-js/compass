@@ -47,7 +47,7 @@ describe('Schema Validation Store', function () {
 
   beforeEach(async function () {
     const activateResult = onActivated(
-      {} as any,
+      { namespace: 'test.test' } as any,
       {
         globalAppRegistry: globalAppRegistry,
         dataService: fakeDataService,
@@ -70,65 +70,6 @@ describe('Schema Validation Store', function () {
   describe('#onActivated', function () {
     it('uses instance.build.version', function () {
       expect(store.getState().serverVersion).to.equal('6.0.0');
-    });
-
-    context('when the validation changes', function () {
-      it('updates the namespace in the store', function (done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().fields).to.deep.equal([
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ]);
-          done();
-        });
-
-        globalAppRegistry.emit('fields-changed', {
-          fields: {
-            harry: {
-              name: 'harry',
-              path: 'harry',
-              count: 1,
-              type: 'Number',
-            },
-            potter: {
-              name: 'potter',
-              path: 'potter',
-              count: 1,
-              type: 'Boolean',
-            },
-          },
-          topLevelFields: ['harry', 'potter'],
-          autocompleteFields: [
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ],
-        });
-      });
     });
 
     context('when instance.isWritable changes', function () {

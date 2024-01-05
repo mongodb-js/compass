@@ -31,6 +31,7 @@ describe('OptionEditor', function () {
     it('fills the input with an empty object "{}" when empty on focus', async function () {
       render(
         <OptionEditor
+          namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
@@ -49,6 +50,7 @@ describe('OptionEditor', function () {
     it('does not change input value when empty on focus', async function () {
       render(
         <OptionEditor
+          namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
@@ -67,6 +69,7 @@ describe('OptionEditor', function () {
     it('should adjust pasted query if pasting over empty brackets with the cursor in the middle', async function () {
       render(
         <OptionEditor
+          namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
@@ -91,6 +94,7 @@ describe('OptionEditor', function () {
     it('should not modify user text whe pasting when cursor moved', async function () {
       render(
         <OptionEditor
+          namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
@@ -117,6 +121,7 @@ describe('OptionEditor', function () {
     it('should not modify user text when pasting in empty input', async function () {
       render(
         <OptionEditor
+          namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""

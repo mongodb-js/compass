@@ -10,7 +10,6 @@ import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
 import namespace from './namespace';
-import fields from './fields';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -24,7 +23,6 @@ const reducer = combineReducers({
   namespace,
   regularIndexes,
   searchIndexes,
-  fields,
 });
 
 export type SortDirection = 'asc' | 'desc';

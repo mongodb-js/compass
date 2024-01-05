@@ -29,6 +29,7 @@ describe('Base Search Index Modal', function () {
 
     render(
       <BaseSearchIndexModal
+        namespace="test.test"
         mode="create"
         initialIndexName={'default'}
         initialIndexDefinition={'{}'}
@@ -37,7 +38,6 @@ describe('Base Search Index Modal', function () {
         onSubmit={onSubmitSpy}
         onClose={onCloseSpy}
         error={'Invalid index definition.'}
-        fields={[]}
       />
     );
   });

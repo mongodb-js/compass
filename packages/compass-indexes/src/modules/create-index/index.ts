@@ -11,7 +11,6 @@ import type { IndexField } from '../create-index/fields';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
 import type { InProgressIndex } from '../regular-indexes';
-import schemaFields from '../create-index/schema-fields';
 import { resetForm } from '../reset-form';
 import options from './options';
 import { hasColumnstoreIndex } from '../../utils/columnstore-indexes';
@@ -37,9 +36,8 @@ const reducer = combineReducers({
   inProgress,
   isVisible,
 
-  // fields realted
+  // form fields realted
   fields,
-  schemaFields,
 
   // validation
   error,

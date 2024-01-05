@@ -77,7 +77,6 @@ describe('Aggregation Store', function () {
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             savedPipeline: INITIAL_STATE.savedPipeline,
-            fields: INITIAL_STATE.fields,
             inputDocuments: {
               ...INITIAL_STATE.inputDocuments,
               isLoading: true,
@@ -117,66 +116,6 @@ describe('Aggregation Store', function () {
       store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
-      });
-    });
-
-    context('when the fields change', function () {
-      it('updates the fields', function (done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().fields).to.deep.equal([
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ]);
-          done();
-        });
-
-        globalAppRegistry.emit('fields-changed', {
-          ns: 'test.test',
-          fields: {
-            harry: {
-              name: 'harry',
-              path: ['harry'],
-              count: 1,
-              type: 'Number',
-            },
-            potter: {
-              name: 'potter',
-              path: ['potter'],
-              count: 1,
-              type: 'Boolean',
-            },
-          },
-          topLevelFields: ['harry', 'potter'],
-          autocompleteFields: [
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ],
-        });
       });
     });
 

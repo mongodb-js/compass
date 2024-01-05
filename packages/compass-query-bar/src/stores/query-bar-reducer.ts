@@ -34,7 +34,6 @@ type QueryBarState = {
   fields: QueryFormFields;
   expanded: boolean;
   serverVersion: string;
-  schemaFields: unknown[];
   lastAppliedQuery: BaseQuery | null;
   /**
    * For testing purposes only, allows to track whether or not apply button was
@@ -53,7 +52,6 @@ export const INITIAL_STATE: QueryBarState = {
   fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
-  schemaFields: [],
   lastAppliedQuery: null,
   applyId: 0,
   namespace: '',
@@ -66,7 +64,6 @@ export enum QueryBarActions {
   ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
-  ChangeSchemaFields = 'compass-query-bar/ChangeSchemaFields',
   SetQuery = 'compass-query-bar/SetQuery',
   ApplyQuery = 'compass-query-bar/ApplyQuery',
   ResetQuery = 'compass-query-bar/ResetQuery',
@@ -134,17 +131,6 @@ export const changeField = (
   value: string
 ): ChangeFieldAction => {
   return { type: QueryBarActions.ChangeField, name, value };
-};
-
-type ChangeSchemaFieldsAction = {
-  type: QueryBarActions.ChangeSchemaFields;
-  fields: unknown[];
-};
-
-export const changeSchemaFields = (
-  fields: unknown[]
-): ChangeSchemaFieldsAction => {
-  return { type: QueryBarActions.ChangeSchemaFields, fields };
 };
 
 type ApplyQueryAction = {
@@ -532,18 +518,6 @@ export const queryBarReducer: Reducer<QueryBarState> = (
         { maxTimeMS: state.preferencesMaxTimeMS ?? undefined },
         DEFAULT_FIELD_VALUES
       ),
-    };
-  }
-
-  if (
-    isAction<ChangeSchemaFieldsAction>(
-      action,
-      QueryBarActions.ChangeSchemaFields
-    )
-  ) {
-    return {
-      ...state,
-      schemaFields: action.fields,
     };
   }
 

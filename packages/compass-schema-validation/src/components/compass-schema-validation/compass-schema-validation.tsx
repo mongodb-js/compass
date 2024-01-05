@@ -51,8 +51,7 @@ class CompassSchemaValidation extends Component<ValidationStatesProps> {
 const mapStateToProps = (state: RootState) => ({
   serverVersion: state.serverVersion,
   validation: state.validation,
-  fields: state.fields,
-  namespace: state.namespace,
+  namespace: state.namespace.ns,
   isZeroState: state.isZeroState,
   isLoaded: state.isLoaded,
   editMode: state.editMode,

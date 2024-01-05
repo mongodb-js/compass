@@ -369,7 +369,7 @@ export function registerHadronPlugin<
       useHadronPluginActivate(config, services, props);
     },
     withMockServices(
-      mocks: Partial<Registries & Services<S>>,
+      mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
     ): React.FunctionComponent<T> {
       const {

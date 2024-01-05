@@ -1,7 +1,5 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-import type { FieldsAction, FieldsState } from './fields';
-import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import type { NamespaceAction, NamespaceState } from './namespace';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE } from './namespace';
 import type { ServerVersionAction, ServerVersionState } from './server-version';
@@ -38,7 +36,6 @@ interface ResetAction {
 }
 
 export interface RootState {
-  fields: FieldsState;
   namespace: NamespaceState;
   serverVersion: ServerVersionState;
   validation: ValidationState;
@@ -49,7 +46,6 @@ export interface RootState {
 }
 
 export type RootAction =
-  | FieldsAction
   | NamespaceAction
   | ServerVersionAction
   | ValidationAction
@@ -78,7 +74,6 @@ export type SchemaValidationThunkAction<
  * The intial state of the root reducer.
  */
 export const INITIAL_STATE: RootState = {
-  fields: FIELDS_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   validation: VALIDATION_STATE,
@@ -92,7 +87,6 @@ export const INITIAL_STATE: RootState = {
  * The reducer.
  */
 const appReducer = combineReducers<RootState, RootAction>({
-  fields,
   namespace,
   serverVersion,
   validation,

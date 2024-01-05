@@ -23,6 +23,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -67,10 +68,10 @@ const bannerStyles = css({
 
 type StageEditorProps = {
   index: number;
+  namespace: string;
   stageOperator: string | null;
   stageValue: string | null;
   serverVersion: string;
-  autocompleteFields: { name: string; description?: string }[];
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   num_stages: number;
@@ -81,6 +82,7 @@ type StageEditorProps = {
 };
 
 export const StageEditor = ({
+  namespace,
   stageValue,
   stageOperator,
   index,
@@ -88,7 +90,6 @@ export const StageEditor = ({
   serverError,
   syntaxError,
   className,
-  autocompleteFields,
   serverVersion,
   num_stages,
   editor_view_type,
@@ -100,13 +101,15 @@ export const StageEditor = ({
   const editorCurrentValueRef = useRef<string | null>(stageValue);
   editorCurrentValueRef.current = stageValue;
 
+  const fields = useAutocompleteFields(namespace);
+
   const completer = useMemo(() => {
     return createStageAutocompleter({
       serverVersion,
       stageOperator: stageOperator ?? undefined,
-      fields: autocompleteFields,
+      fields,
     });
-  }, [autocompleteFields, serverVersion, stageOperator]);
+  }, [fields, serverVersion, stageOperator]);
 
   const annotations = useMemo<Annotation[]>(() => {
     if (syntaxError?.loc?.index) {
@@ -195,15 +198,12 @@ export default connect(
     const stage = stages[ownProps.index] as StoreStage;
     const num_stages = pipelineFromStore(stages).length;
     return {
+      namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
       serverError: !stage.empty ? stage.serverError ?? null : null,
       serverVersion: state.serverVersion,
-      autocompleteFields: state.fields as {
-        name: string;
-        description?: string;
-      }[],
       num_stages,
       editor_view_type: mapPipelineModeToEditorViewType(state),
     };

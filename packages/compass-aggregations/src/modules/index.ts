@@ -2,7 +2,6 @@ import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
 import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import dataService from './data-service';
-import fields from './fields';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
 import pipelineBuilder from './pipeline-builder';
@@ -53,7 +52,6 @@ const rootReducer = combineReducers({
   comments,
   autoPreview,
   dataService,
-  fields,
   inputDocuments,
   namespace,
   env,

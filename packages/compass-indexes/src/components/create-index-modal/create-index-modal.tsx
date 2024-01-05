@@ -14,7 +14,6 @@ import {
   updateFieldType,
   updateFieldName,
 } from '../../modules/create-index/fields';
-import { changeSchemaFields } from '../../modules/create-index/schema-fields';
 import { clearError } from '../../modules/create-index/error';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
@@ -74,7 +73,7 @@ function CreateIndexModal({
       <ModalHeader title="Create Index" subtitle={namespace} />
 
       <ModalBody>
-        <CreateIndexForm {...props} />
+        <CreateIndexForm namespace={namespace} {...props} />
       </ModalBody>
 
       <ModalFooter>
@@ -91,15 +90,7 @@ function CreateIndexModal({
 }
 
 const mapState = (
-  {
-    fields,
-    inProgress,
-    schemaFields,
-    error,
-    isVisible,
-    namespace,
-    serverVersion,
-  }: RootState,
+  { fields, inProgress, error, isVisible, namespace, serverVersion }: RootState,
   // To make sure the derived type is correctly including plugin metadata passed
   // by CollectionTab
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -107,7 +98,6 @@ const mapState = (
 ) => ({
   fields,
   inProgress,
-  schemaFields,
   error,
   isVisible,
   namespace,
@@ -115,7 +105,6 @@ const mapState = (
 });
 
 const mapDispatch = {
-  changeSchemaFields,
   clearError,
   createIndex,
   closeCreateIndexModal,
