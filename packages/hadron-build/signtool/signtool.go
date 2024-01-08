@@ -27,9 +27,21 @@ func main() {
 		log.Fatalf("File %s does not exist", fileToSignPath)
 	}
 
+	allowedExtensions := []string{
+		"WINDOWS_SIGNING_SERVER_HOSTNAME",
+		"WINDOWS_SIGNING_SERVER_PRIVATE_KEY",
+		"WINDOWS_SIGNING_SERVER_USERNAME",
+		"WINDOWS_SIGNING_SERVER_PORT",
+	}
+	for _, k := range allowedExtensions {
+		if os.Getenv(k) == "" {
+			log.Fatal(fmt.Sprintf("Must set %s environment variable", k))
+		}
+	}
+
 	cmd := exec.Command(
 		"node",
-		"./cli.js",
+		"cli.js",
 		"sign",
 		"--file="+fileToSignPath,
 		"--host="+os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
