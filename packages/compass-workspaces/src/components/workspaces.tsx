@@ -28,6 +28,7 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
+import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -195,25 +196,27 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
       <div className={workspacesContentStyles}>
         {activeTab && activeWorkspaceElement ? (
-          <AppRegistryProvider
-            key={activeTab.id}
-            localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
-            deactivateOnUnmount={false}
-          >
-            <ErrorBoundary
-              displayName={activeTab.type}
-              onError={(error, errorInfo) => {
-                log.error(
-                  mongoLogId(1_001_000_277),
-                  'Workspace',
-                  'Rendering workspace tab failed',
-                  { name: activeTab.type, error: error.message, errorInfo }
-                );
-              }}
+          <WorkspaceTabStateProvider id={activeTab.id}>
+            <AppRegistryProvider
+              key={activeTab.id}
+              localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
+              deactivateOnUnmount={false}
             >
-              {activeWorkspaceElement}
-            </ErrorBoundary>
-          </AppRegistryProvider>
+              <ErrorBoundary
+                displayName={activeTab.type}
+                onError={(error, errorInfo) => {
+                  log.error(
+                    mongoLogId(1_001_000_277),
+                    'Workspace',
+                    'Rendering workspace tab failed',
+                    { name: activeTab.type, error: error.message, errorInfo }
+                  );
+                }}
+              >
+                {activeWorkspaceElement}
+              </ErrorBoundary>
+            </AppRegistryProvider>
+          </WorkspaceTabStateProvider>
         ) : (
           <EmptyWorkspaceContent></EmptyWorkspaceContent>
         )}

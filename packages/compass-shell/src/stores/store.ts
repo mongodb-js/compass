@@ -4,7 +4,7 @@ import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeEnableShell, setupRuntime } from '../modules/runtime';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';

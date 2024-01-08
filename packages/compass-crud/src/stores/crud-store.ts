@@ -9,7 +9,6 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -55,6 +54,9 @@ import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -83,9 +85,6 @@ export type CrudActions = {
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
-
-const { debug, log, mongoLogId, track } =
-  createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const INITIAL_BULK_UPDATE_TEXT = `{
   $set: {
@@ -315,13 +314,15 @@ export const isListEditable = ({
   return !hasProjection && !isDataLake && !isReadonly;
 };
 
-type CrudStoreOptions = {
-  query?: unknown; // Partial<QueryState>;
-  isReadonly: boolean;
-  namespace: string;
-  isTimeSeries: boolean;
+type CrudStoreOptions = Pick<
+  CollectionTabPluginMetadata,
+  | 'query'
+  | 'isReadonly'
+  | 'namespace'
+  | 'isTimeSeries'
+  | 'isSearchIndexesSupported'
+> & {
   noRefreshOnConfigure?: boolean;
-  isSearchIndexesSupported: boolean;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
 };
@@ -411,7 +412,6 @@ type CrudState = {
   resultId: number;
   isWritable: boolean;
   instanceDescription: string;
-  fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
@@ -437,22 +437,21 @@ class CrudStoreImpl
   setState!: (newState: Partial<CrudState>) => void;
   dataService: DataService;
   preferences: PreferencesAccess;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   favoriteQueriesStorage: FavoriteQueryStorage;
   recentQueriesStorage: RecentQueryStorage;
+  logger: LoggerAndTelemetry;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
     services: Pick<
       DocumentsPluginServices,
-      'dataService' | 'localAppRegistry' | 'globalAppRegistry' | 'preferences'
+      | 'dataService'
+      | 'localAppRegistry'
+      | 'globalAppRegistry'
+      | 'preferences'
+      | 'logger'
     >
   ) {
     super(options);
@@ -465,12 +464,7 @@ class CrudStoreImpl
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
     this.preferences = services.preferences;
-  }
-
-  updateFields(fields: { autocompleteFields: { name: string }[] }) {
-    this.setState({
-      fields: fields.autocompleteFields.map((field) => field.name),
-    });
+    this.logger = services.logger;
   }
 
   getInitialState(): CrudState {
@@ -503,7 +497,6 @@ class CrudStoreImpl
       resultId: resultId(),
       isWritable: false,
       instanceDescription: '',
-      fields: [],
       isCollectionScan: false,
       isSearchIndexesSupported: false,
       isUpdatePreviewSupported: false,
@@ -681,7 +674,7 @@ class CrudStoreImpl
    * @returns {Boolean} If the copy succeeded.
    */
   copyToClipboard(doc: Document) {
-    track('Document Copied', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Copied', { mode: this.modeForTelemetry() });
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
@@ -693,7 +686,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async removeDocument(doc: Document) {
-    track('Document Deleted', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Deleted', { mode: this.modeForTelemetry() });
     const id = doc.getId();
     if (id !== undefined) {
       doc.emit('remove-start');
@@ -761,7 +754,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async updateDocument(doc: Document) {
-    track('Document Updated', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
       // We add the shard keys here, if there are any, because that is
@@ -775,7 +768,7 @@ class CrudStoreImpl
             ),
           }
         );
-      debug('Performing findOneAndUpdate', { query, updateDoc });
+      this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
         doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
@@ -827,7 +820,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async replaceDocument(doc: Document) {
-    track('Document Updated', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
 
@@ -880,7 +873,7 @@ class CrudStoreImpl
       const query = doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(
         queryKeyInclusionOptions
       );
-      debug('Performing findOneAndReplace', { query, object });
+      this.logger.debug('Performing findOneAndReplace', { query, object });
 
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
@@ -1027,10 +1020,10 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.localAppRegistry.emit(
-      'documents-paginated',
-      documents[0]?.generateObject()
-    );
+    this.globalAppRegistry.emit('documents-paginated', {
+      ns: this.state.ns,
+      docs: [documents[0]?.generateObject()],
+    });
 
     cancelDebounceLoad();
   }
@@ -1066,7 +1059,7 @@ class CrudStoreImpl
     const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
-      track('Document Cloned', { mode: this.modeForTelemetry() });
+      this.logger.track('Document Cloned', { mode: this.modeForTelemetry() });
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
       for (const element of hadronDoc.elements) {
@@ -1125,7 +1118,7 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateModal(updateText?: string) {
-    track('Bulk Update Opened', {
+    this.logger.track('Bulk Update Opened', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1271,7 +1264,7 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
-    track('Bulk Update Executed', {
+    this.logger.track('Bulk Update Executed', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1319,7 +1312,7 @@ class CrudStoreImpl
         affectedDocuments: this.state.bulkUpdate.affected,
       });
 
-      log.error(
+      this.logger.log.error(
         mongoLogId(1_001_000_269),
         'Bulk Update Documents',
         `Update operation failed: ${err.message}`,
@@ -1449,7 +1442,7 @@ class CrudStoreImpl
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
-    track('Document Inserted', {
+    this.logger.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: docs.length > 1,
     });
@@ -1464,7 +1457,6 @@ class CrudStoreImpl
         multiple: true,
         docs,
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1495,7 +1487,7 @@ class CrudStoreImpl
    * view to insert.
    */
   async insertDocument() {
-    track('Document Inserted', {
+    this.logger.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: false,
     });
@@ -1519,7 +1511,6 @@ class CrudStoreImpl
         multiple: false,
         docs: [doc],
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1633,7 +1624,7 @@ class CrudStoreImpl
    */
   async refreshDocuments(onApply = false) {
     if (this.dataService && !this.dataService.isConnected()) {
-      log.warn(
+      this.logger.log.warn(
         mongoLogId(1_001_000_072),
         'Documents',
         'Trying to refresh documents but dataService is disconnected'
@@ -1649,7 +1640,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { query, isTimeSeries, isReadonly } = this.state;
-      track('Query Executed', {
+      this.logger.track('Query Executed', {
         has_projection:
           !!query.project && Object.keys(query.project).length > 0,
         has_skip: query.skip > 0,
@@ -1714,12 +1705,17 @@ class CrudStoreImpl
       findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
     }
 
-    log.info(mongoLogId(1_001_000_073), 'Documents', 'Refreshing documents', {
-      ns,
-      withFilter: !isEmpty(query.filter),
-      findOptions,
-      countOptions,
-    });
+    this.logger.log.info(
+      mongoLogId(1_001_000_073),
+      'Documents',
+      'Refreshing documents',
+      {
+        ns,
+        withFilter: !isEmpty(query.filter),
+        findOptions,
+        countOptions,
+      }
+    );
 
     // Only check if index was used if query filter or sort is not empty
     if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
@@ -1749,7 +1745,15 @@ class CrudStoreImpl
       this.preferences,
       ns,
       query.filter,
-      countOptions
+      countOptions,
+      (err: any) => {
+        this.logger.log.warn(
+          mongoLogId(1_001_000_288),
+          'Documents',
+          'Failed to count documents',
+          err
+        );
+      }
     )
       .then((count) => this.setState({ count, loadingCount: false }))
       .catch((err) => {
@@ -1763,7 +1767,19 @@ class CrudStoreImpl
       });
 
     const promises = [
-      fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
+      fetchShardingKeys(
+        this.dataService,
+        ns,
+        fetchShardingKeysOptions,
+        (err) => {
+          this.logger.log.warn(
+            mongoLogId(1_001_000_075),
+            'Documents',
+            'Failed to fetch sharding keys',
+            err
+          );
+        }
+      ),
       fetchDocuments(
         this.dataService,
         this.state.version,
@@ -1810,12 +1826,12 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.localAppRegistry.emit(
-        'documents-refreshed',
-        docs[0]?.generateObject()
-      );
+      this.globalAppRegistry.emit('documents-refreshed', {
+        ns: this.state.ns,
+        docs: [docs[0]?.generateObject()],
+      });
     } catch (error) {
-      log.error(
+      this.logger.log.error(
         mongoLogId(1_001_000_074),
         'Documents',
         'Failed to refresh documents',
@@ -1890,7 +1906,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    track('Bulk Delete Opened');
+    this.logger.track('Bulk Delete Opened');
 
     const PREVIEW_DOCS = 5;
 
@@ -1930,7 +1946,7 @@ class CrudStoreImpl
       affectedDocuments: this.state.bulkDelete.affected,
     });
 
-    log.error(
+    this.logger.log.error(
       mongoLogId(1_001_000_268),
       'Bulk Delete Documents',
       `Delete operation failed: ${ex.message}`,
@@ -1955,7 +1971,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    track('Bulk Delete Executed');
+    this.logger.track('Bulk Delete Executed');
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1996,7 +2012,7 @@ class CrudStoreImpl
   }
 
   async saveUpdateQuery(name: string): Promise<void> {
-    track('Bulk Update Favorited', {
+    this.logger.track('Bulk Update Favorited', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -2031,15 +2047,10 @@ export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
 export type DocumentsPluginServices = {
   dataService: DataService;
   instance: MongoDBInstance;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -2049,6 +2060,7 @@ export function activateDocumentsPlugin(
     localAppRegistry,
     globalAppRegistry,
     preferences,
+    logger,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -2061,16 +2073,15 @@ export function activateDocumentsPlugin(
         localAppRegistry,
         globalAppRegistry,
         preferences,
+        logger,
       }
     )
   ) as CrudStore;
 
   // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
 
-  on(localAppRegistry, 'fields-changed', store.updateFields.bind(store));
+  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
 
   on(
     localAppRegistry,

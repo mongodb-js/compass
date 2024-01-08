@@ -15,14 +15,6 @@ import type {
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
 const serviceLocators = {
   dataService: dataServiceLocator as DataServiceLocator<
     // Getting passed to the mongodb instance so hard to be more explicit
@@ -55,5 +47,3 @@ export const WorkspaceTab: WorkspaceComponent<'My Queries'> = {
 };
 
 export default MyQueriesPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

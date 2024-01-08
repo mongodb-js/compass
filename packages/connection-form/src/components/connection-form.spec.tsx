@@ -12,7 +12,7 @@ import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
 import { defaultConnectionString } from '../constants/default-connection';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const DEFAULT_CONNECTION: ConnectionInfo = {
   id: 'default',

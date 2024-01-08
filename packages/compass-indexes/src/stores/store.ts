@@ -3,10 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import type { IndexesThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
-import {
-  localAppRegistryActivated,
-  globalAppRegistryActivated,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
@@ -25,7 +21,6 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { setFields } from '../modules/fields';
 import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
@@ -46,14 +41,8 @@ export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 export type IndexesPluginServices = {
   dataService: IndexesDataService;
   instance: MongoDBInstance;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: LoggerAndTelemetry;
 };
 
@@ -86,7 +75,6 @@ export function activateIndexesPlugin(
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
-      fields: [],
       indexView: INDEX_LIST_INITIAL_STATE,
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
@@ -103,9 +91,6 @@ export function activateIndexesPlugin(
       })
     )
   );
-
-  // Set the app registry if preset. This must happen first.
-  store.dispatch(localAppRegistryActivated(localAppRegistry));
 
   on(localAppRegistry, 'refresh-regular-indexes', () => {
     void store.dispatch(fetchIndexes());
@@ -132,15 +117,9 @@ export function activateIndexesPlugin(
     }
   );
 
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(setFields(fields.autocompleteFields));
-  });
-
   on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(showCreateModal());
   });
-
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
   on(globalAppRegistry, 'refresh-data', () => {
     void store.dispatch(fetchIndexes());

@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
 
@@ -119,8 +118,8 @@ export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
 };
 
 export const createSearchIndex = (): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(localAppRegistryEmit('open-create-search-index-modal'));
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-search-index-modal');
   };
 };
 

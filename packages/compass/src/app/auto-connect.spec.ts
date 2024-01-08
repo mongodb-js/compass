@@ -4,8 +4,8 @@ import { loadAutoConnectInfo } from './auto-connect';
 import {
   ConnectionStorage,
   type ExportConnectionOptions,
+  type ConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { ipcRenderer } from 'hadron-ipc';
 import fs from 'fs/promises';
 import path from 'path';

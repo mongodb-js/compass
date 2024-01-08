@@ -98,6 +98,7 @@ const OutResultBanner: React.FunctionComponent<{
 };
 
 type PipelineResultsWorkspaceProps = {
+  namespace: string;
   documents: HadronDocument[];
   isLoading?: boolean;
   isError?: boolean;
@@ -114,6 +115,7 @@ type PipelineResultsWorkspaceProps = {
 export const PipelineResultsWorkspace: React.FunctionComponent<
   PipelineResultsWorkspaceProps
 > = ({
+  namespace,
   documents,
   isLoading,
   error,
@@ -175,7 +177,11 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     results = <PipelineEmptyResults />;
   } else {
     results = (
-      <PipelineResultsList documents={documents} view={resultsViewType} />
+      <PipelineResultsList
+        namespace={namespace}
+        documents={documents}
+        view={resultsViewType}
+      />
     );
   }
 
@@ -195,6 +201,7 @@ const mapState = (state: RootState) => {
   const stageOperator = getStageOperator(lastStage) ?? '';
 
   return {
+    namespace,
     documents,
     isLoading: loading,
     error,

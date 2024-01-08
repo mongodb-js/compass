@@ -9,7 +9,6 @@ import {
   applyFromHistory,
   applyQuery,
   changeField,
-  changeSchemaFields,
   explainQuery,
   resetQuery,
   setQuery,
@@ -21,6 +20,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -35,7 +35,10 @@ describe('queryBarReducer', function () {
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
-    store = createStore({}, { preferences } as QueryBarExtraArgs);
+    store = createStore({}, {
+      preferences,
+      logger: createNoopLoggerAndTelemetry(),
+    } as QueryBarExtraArgs);
   });
 
   describe('changeField', function () {
@@ -197,19 +200,6 @@ describe('queryBarReducer', function () {
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
         });
-    });
-  });
-
-  describe('changeSchemaFields', function () {
-    it('should save fields in the store', function () {
-      expect(store.getState().queryBar)
-        .to.have.property('schemaFields')
-        .deep.eq([]);
-      const fields = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
-      store.dispatch(changeSchemaFields(fields));
-      expect(store.getState().queryBar)
-        .to.have.property('schemaFields')
-        .deep.eq(fields);
     });
   });
 

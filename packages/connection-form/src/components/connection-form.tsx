@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
-} from '@mongodb-js/connection-storage/renderer';
+} from '@mongodb-js/connection-info';
 import {
   Banner,
   BannerVariant,

@@ -16,7 +16,6 @@ describe('ValidationEditor [Component]', function () {
     const saveValidationSpy = sinon.spy();
     const clearSampleDocumentsSpy = sinon.spy();
     const serverVersion = '3.6.0';
-    const fields: any[] = [];
     const validation = {
       validator: '',
       validationAction: 'warn',
@@ -30,6 +29,7 @@ describe('ValidationEditor [Component]', function () {
     beforeEach(function () {
       component = mount(
         <ValidationEditor
+          namespace="test.test"
           validatorChanged={setValidatorChangedSpy}
           validationActionChanged={setValidationActionChangedSpy}
           validationLevelChanged={setValidationLevelChangedSpy}
@@ -37,7 +37,6 @@ describe('ValidationEditor [Component]', function () {
           saveValidation={saveValidationSpy}
           clearSampleDocuments={clearSampleDocumentsSpy}
           serverVersion={serverVersion}
-          fields={fields}
           validation={validation}
           isEditable={isEditable}
         />
@@ -65,7 +64,6 @@ describe('ValidationEditor [Component]', function () {
     const saveValidationSpy = sinon.spy();
     const clearSampleDocumentsSpy = sinon.spy();
     const serverVersion = '3.6.0';
-    const fields: any[] = [];
     const validation = {
       validator: '',
       validationAction: 'warn',
@@ -79,6 +77,7 @@ describe('ValidationEditor [Component]', function () {
     beforeEach(function () {
       component = mount(
         <ValidationEditor
+          namespace="test.test"
           validatorChanged={setValidatorChangedSpy}
           validationActionChanged={setValidationActionChangedSpy}
           validationLevelChanged={setValidationLevelChangedSpy}
@@ -86,7 +85,6 @@ describe('ValidationEditor [Component]', function () {
           saveValidation={saveValidationSpy}
           clearSampleDocuments={clearSampleDocumentsSpy}
           serverVersion={serverVersion}
-          fields={fields}
           validation={validation}
           isEditable={isEditable}
         />

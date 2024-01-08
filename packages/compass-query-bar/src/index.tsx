@@ -12,6 +12,7 @@ import {
 } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -36,16 +37,9 @@ const QueryBarPlugin = registerHadronPlugin(
     >,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-QUERY-BAR-UI'),
   }
 );
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
 
 export type ChangeQueryBar = typeof useChangeQueryBarQuery;
 
@@ -59,6 +53,4 @@ export const QueryBar: React.FunctionComponent<
 };
 
 export default QueryBarPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
 export { useChangeQueryBarQuery, useQueryBarQuery };

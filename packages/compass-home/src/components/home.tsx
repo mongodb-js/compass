@@ -18,7 +18,7 @@ import type {
   ReauthenticationHandler,
 } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import React, {
   useCallback,
   useEffect,
@@ -27,7 +27,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
@@ -35,11 +35,13 @@ import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
+// The only place where the app-stores plugin can be used as a plugin and not a
+// provider
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-
-const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
+import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 resetGlobalCSS();
 
@@ -322,10 +324,12 @@ function Home({
         <AppRegistryProvider>
           <DataServiceProvider value={connectedDataService.current}>
             <CompassInstanceStorePlugin>
-              <Workspace
-                connectionInfo={connectionInfo}
-                onActiveWorkspaceTabChange={onWorkspaceChange}
-              />
+              <FieldStorePlugin>
+                <Workspace
+                  connectionInfo={connectionInfo}
+                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                />
+              </FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>
@@ -361,6 +365,8 @@ function Home({
 function ThemedHome(
   props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
+  const { track } = useLoggerAndTelemetry('COMPASS-HOME-UI');
+
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {

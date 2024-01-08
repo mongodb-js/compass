@@ -1,6 +1,5 @@
-import type AppRegistry from 'hadron-app-registry';
 import React, { useCallback, useMemo } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   Body,
   DropdownMenuButton,
@@ -20,8 +19,6 @@ import { usePreference } from 'compass-preferences-model';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
-
-const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -98,7 +95,6 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   loadingCount: boolean;
-  localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
   onApplyClicked: () => void;
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
@@ -142,6 +138,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-CRUD-UI');
   const isImportExportEnabled = usePreference('enableImportExport');
 
   const displayedDocumentCount = useMemo(
@@ -152,7 +149,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const onClickRefreshDocuments = useCallback(() => {
     track('Query Results Refreshed');
     refreshDocuments();
-  }, [refreshDocuments]);
+  }, [refreshDocuments, track]);
 
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(

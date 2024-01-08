@@ -1,17 +1,13 @@
 import React from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   ErrorBoundary,
   css,
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/sidebar';
-
-const { log, mongoLogId } = createLoggerAndTelemetry(
-  'mongodb-compass:compass-sidebar:plugin'
-);
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -28,6 +24,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
 }) => {
   const activeWorkspace = useActiveWorkspace();
+  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
   return (
     <ErrorBoundary
       className={errorBoundaryStyles}

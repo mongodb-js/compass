@@ -80,16 +80,6 @@ describe('Collection Tab Content store', function () {
   };
 
   afterEach(function () {
-    globalAppRegistry.roles = {};
-    globalAppRegistry.stores = {};
-    globalAppRegistry.actions = {};
-    globalAppRegistry.components = {};
-
-    localAppRegistry.roles = {};
-    localAppRegistry.stores = {};
-    localAppRegistry.actions = {};
-    localAppRegistry.components = {};
-
     sandbox.resetHistory();
     deactivate();
   });

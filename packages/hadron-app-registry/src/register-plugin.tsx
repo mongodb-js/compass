@@ -1,8 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
-import type { Actions } from './actions';
-import type { Plugin } from './app-registry';
+import type { Plugin, RefluxActions } from './app-registry';
 import { AppRegistry, isReduxStore } from './app-registry';
 import {
   GlobalAppRegistryContext,
@@ -84,7 +83,7 @@ function LegacyRefluxProvider({
   children,
 }: {
   store: Partial<RefluxStore>;
-  actions?: Partial<typeof Actions>;
+  actions?: Partial<RefluxActions>;
   children: React.ReactElement;
 }) {
   const storeRef = useRef(store);
@@ -370,7 +369,7 @@ export function registerHadronPlugin<
       useHadronPluginActivate(config, services, props);
     },
     withMockServices(
-      mocks: Partial<Registries & Services<S>>,
+      mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
     ): React.FunctionComponent<T> {
       const {

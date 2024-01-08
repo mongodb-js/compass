@@ -14,10 +14,10 @@ describe('StageEditor [Component]', function () {
   beforeEach(function () {
     component = mount(
       <StageEditor
+        namespace="test.test"
         stageValue={stage}
         stageOperator={stageOperator}
         index={0}
-        autocompleteFields={[]}
         serverVersion="3.6.0"
         onChange={spy}
         syntaxError={null}

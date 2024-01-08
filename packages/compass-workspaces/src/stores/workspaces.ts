@@ -5,6 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
 import type { AnyWorkspace, Workspace, WorkspacesServices } from '..';
 import { isEqual } from 'lodash';
+import { cleanupTabState } from '../components/workspace-tab-state-provider';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -139,6 +140,7 @@ const cleanupRemovedTabs = (
 ) => {
   for (const tabId of getRemovedTabsIndexes(oldTabs, newTabs)) {
     cleanupLocalAppRegistryForTab(tabId);
+    cleanupTabState(tabId);
   }
 };
 

@@ -4,7 +4,7 @@ import {
   FormFieldContainer,
   TextInput,
 } from '@mongodb-js/compass-components';
-import type { ConnectionFavoriteOptions } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionFavoriteOptions } from '@mongodb-js/connection-info';
 
 import { FavoriteColorPicker } from './favorite-color-picker';
 

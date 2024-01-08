@@ -1,9 +1,0 @@
-ignores: [
-    "babel-register",
-    "hadron-app-registry",
-    "less",
-    "mongodb-data-service",
-    "prop-types",
-    "react",
-    "react-dom"
-]

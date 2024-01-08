@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useCallback, useMemo } from 'react';
+import React, { useContext, useRef } from 'react';
 import type { AnyWorkspace, WorkspaceComponent } from '../';
 
 export type AnyWorkspaceComponent =
@@ -23,15 +23,12 @@ export const WorkspacesProvider: React.FunctionComponent<{
 
 export const useWorkspacePlugins = () => {
   const workspaces = useContext(WorkspacesContext);
-  const hasWorkspacePlugin = useCallback(
-    <T extends AnyWorkspace['type']>(name: T) => {
+  const workspacePlugins = useRef({
+    hasWorkspacePlugin: <T extends AnyWorkspace['type']>(name: T) => {
       return workspaces.some((ws) => ws.name === name);
     },
-    [workspaces]
-  );
-  const getWorkspacePluginByName = useCallback(
-    <T extends AnyWorkspace['type']>(name: T) => {
-      const plugin = workspaces.find((workspace) => workspace.name === name);
+    getWorkspacePluginByName: <T extends AnyWorkspace['type']>(name: T) => {
+      const plugin = workspaces.find((ws) => ws.name === name);
       if (!plugin) {
         throw new Error(
           `Component for workspace "${name}" is missing in context. Did you forget to set up WorkspacesProvider?`
@@ -39,9 +36,6 @@ export const useWorkspacePlugins = () => {
       }
       return plugin.component as unknown as WorkspaceComponent<T>['component'];
     },
-    [workspaces]
-  );
-  return useMemo(() => {
-    return { hasWorkspacePlugin, getWorkspacePluginByName };
-  }, [hasWorkspacePlugin, getWorkspacePluginByName]);
+  });
+  return workspacePlugins.current;
 };

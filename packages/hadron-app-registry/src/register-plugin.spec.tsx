@@ -2,8 +2,6 @@ import React, { createContext, useContext } from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createStore as createRefluxStore } from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import { AppRegistryProvider, registerHadronPlugin } from './';
 import { createStore } from 'redux';
 import { connect } from 'react-redux';
@@ -38,12 +36,7 @@ describe('registerHadronPlugin', function () {
 
   it('allows registering plugins with a proper reflux store', function () {
     const component = sinon.stub().callsFake(() => <></>);
-    const store = createRefluxStore({
-      mixins: [StateMixin.store],
-      getInitialState() {
-        return { foo: 'bar' };
-      },
-    });
+    const store = { state: { foo: 'bar' } };
     const activate = sinon.stub().returns({ store });
     const Plugin = registerHadronPlugin({
       name: 'reflux',

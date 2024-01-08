@@ -49,6 +49,7 @@ import type {
   UserConfigurablePreferences,
   PreferenceStateInformation,
 } from 'compass-preferences-model';
+import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -202,58 +203,60 @@ const CompassWeb = ({
         <AppRegistryProvider>
           <DataServiceProvider value={dataService.current}>
             <CompassInstanceStorePlugin>
-              <WorkspacesProvider
-                value={[
-                  DatabasesWorkspaceTab,
-                  CollectionsWorkspaceTab,
-                  CollectionWorkspace,
-                ]}
-              >
-                <CollectionTabsProvider
-                  queryBar={CompassQueryBarPlugin}
-                  tabs={[
-                    CompassDocumentsPlugin,
-                    CompassAggregationsPlugin,
-                    CompassSchemaPlugin,
-                    CompassIndexesPlugin,
-                    CompassSchemaValidationPlugin,
-                  ]}
-                  modals={[
-                    ExplainPlanCollectionTabModal,
-                    DropIndexCollectionTabModal,
-                    CreateIndexCollectionTabModal,
-                    ExportToLanguageCollectionTabModal,
+              <FieldStorePlugin>
+                <WorkspacesProvider
+                  value={[
+                    DatabasesWorkspaceTab,
+                    CollectionsWorkspaceTab,
+                    CollectionWorkspace,
                   ]}
                 >
-                  <div
-                    data-testid="compass-web-connected"
-                    className={connectedContainerStyles}
+                  <CollectionTabsProvider
+                    queryBar={CompassQueryBarPlugin}
+                    tabs={[
+                      CompassDocumentsPlugin,
+                      CompassAggregationsPlugin,
+                      CompassSchemaPlugin,
+                      CompassIndexesPlugin,
+                      CompassSchemaValidationPlugin,
+                    ]}
+                    modals={[
+                      ExplainPlanCollectionTabModal,
+                      DropIndexCollectionTabModal,
+                      CreateIndexCollectionTabModal,
+                      ExportToLanguageCollectionTabModal,
+                    ]}
                   >
-                    <WorkspacesPlugin
-                      initialWorkspaceTabs={initialWorkspaceTabs}
-                      openOnEmptyWorkspace={DEFAULT_TAB}
-                      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                      renderSidebar={() => {
-                        return (
-                          <CompassSidebarPlugin
-                            showConnectionInfo={false}
-                          ></CompassSidebarPlugin>
-                        );
-                      }}
-                      renderModals={() => {
-                        return (
-                          <>
-                            <CreateViewPlugin></CreateViewPlugin>
-                            <CreateNamespacePlugin></CreateNamespacePlugin>
-                            <DropNamespacePlugin></DropNamespacePlugin>
-                            <RenameCollectionPlugin></RenameCollectionPlugin>
-                          </>
-                        );
-                      }}
-                    ></WorkspacesPlugin>
-                  </div>
-                </CollectionTabsProvider>
-              </WorkspacesProvider>
+                    <div
+                      data-testid="compass-web-connected"
+                      className={connectedContainerStyles}
+                    >
+                      <WorkspacesPlugin
+                        initialWorkspaceTabs={initialWorkspaceTabs}
+                        openOnEmptyWorkspace={DEFAULT_TAB}
+                        onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                        renderSidebar={() => {
+                          return (
+                            <CompassSidebarPlugin
+                              showConnectionInfo={false}
+                            ></CompassSidebarPlugin>
+                          );
+                        }}
+                        renderModals={() => {
+                          return (
+                            <>
+                              <CreateViewPlugin></CreateViewPlugin>
+                              <CreateNamespacePlugin></CreateNamespacePlugin>
+                              <DropNamespacePlugin></DropNamespacePlugin>
+                              <RenameCollectionPlugin></RenameCollectionPlugin>
+                            </>
+                          );
+                        }}
+                      ></WorkspacesPlugin>
+                    </div>
+                  </CollectionTabsProvider>
+                </WorkspacesProvider>
+              </FieldStorePlugin>
             </CompassInstanceStorePlugin>
           </DataServiceProvider>
         </AppRegistryProvider>

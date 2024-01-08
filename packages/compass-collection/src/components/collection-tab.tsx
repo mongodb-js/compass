@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   useCollectionQueryBar,
   useCollectionScopedModals,
@@ -11,10 +11,6 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry(
-  'COMPASS-COLLECTION-TAB-UI'
-);
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -58,6 +54,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   collectionMetadata,
   onTabClick,
 }) => {
+  const { log, mongoLogId, track } = useLoggerAndTelemetry(
+    'COMPASS-COLLECTION-TAB-UI'
+  );
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -68,7 +67,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         name: activeSubTabName,
       });
     }
-  }, [currentTab]);
+  }, [currentTab, track]);
 
   const QueryBarPlugin = useCollectionQueryBar();
   const pluginTabs = useCollectionSubTabs();

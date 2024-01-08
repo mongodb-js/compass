@@ -15,8 +15,6 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
-app.appRegistry = globalAppRegistry;
-
 // this is so sub-processes (ie. the shell) will do the same
 process.env.NODE_OPTIONS ??= '';
 if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
@@ -48,25 +46,17 @@ document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
 
 /**
- * Set hadron-app as a global so plugins can use it.
- */
-import app from 'hadron-app';
-global.hadronApp = app;
-
-/**
  * The main entrypoint for the application!
  */
 const APP_VERSION = remote.app.getVersion() || '';
 
 import View from 'ampersand-view';
-import async from 'async';
 import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Action } from '@mongodb-js/hadron-plugin-manager';
 
 import { setupIntercom } from './intercom';
 
@@ -180,12 +170,15 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
+    const loggerProviderValue = {
+      createLogger: createLoggerAndTelemetry,
+      preferences: defaultPreferencesInstance,
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
-          <LoggerAndTelemetryProvider
-            value={{ createLogger: createLoggerAndTelemetry }}
-          >
+          <LoggerAndTelemetryProvider value={loggerProviderValue}>
             <AppRegistryProvider>
               <CompassHomePlugin
                 appName={remote.app.getName()}
@@ -211,63 +204,47 @@ const Application = View.extend({
 
 const state = new Application();
 
-app.extend({
-  client: null,
+const app = {
   init: async function () {
     await defaultPreferencesInstance.refreshPreferences();
+    await state.updateAppVersion();
+    state.preRender();
 
-    async.series([state.updateAppVersion.bind(state)], function (err) {
-      if (err) {
-        throw err;
-      }
-
-      Action.pluginActivationCompleted.listen(async () => {
-        state.preRender();
-        global.hadronApp.appRegistry.onActivated();
-        global.hadronApp.appRegistry.emit(
-          'application-initialized',
-          APP_VERSION,
-          process.env.HADRON_PRODUCT_NAME
-        );
-
-        try {
-          const user = await getActiveUser(defaultPreferencesInstance);
-          setupIntercom(user, defaultPreferencesInstance);
-        } catch (e) {
-          // noop
-        }
-        // Catch a data refresh coming from window-manager.
-        ipcRenderer?.on('app:refresh-data', () =>
-          global.hadronApp.appRegistry.emit('refresh-data')
-        );
-        // Catch a toggle sidebar coming from window-manager.
-        ipcRenderer?.on('app:toggle-sidebar', () =>
-          global.hadronApp.appRegistry.emit('toggle-sidebar')
-        );
-        ipcRenderer?.on('window:menu-share-schema-json', () => {
-          global.hadronApp.appRegistry.emit('menu-share-schema-json');
-        });
-        ipcRenderer?.on('compass:open-export', () => {
-          global.hadronApp.appRegistry.emit('open-active-namespace-export');
-        });
-        ipcRenderer?.on('compass:open-import', () => {
-          global.hadronApp.appRegistry.emit('open-active-namespace-import');
-        });
-        // As soon as dom is ready, render and set up the rest.
-        state.render();
-        marky.stop('Time to Connect rendered');
-        state.postRender();
-        marky.stop('Time to user can Click Connect');
-        if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
-          queueMicrotask(() => {
-            throw new Error('fake exception');
-          });
-        }
-      });
-      require('./setup-plugin-manager');
+    try {
+      const user = await getActiveUser(defaultPreferencesInstance);
+      setupIntercom(user, defaultPreferencesInstance);
+    } catch (e) {
+      // noop
+    }
+    // Catch a data refresh coming from window-manager.
+    ipcRenderer?.on('app:refresh-data', () =>
+      globalAppRegistry.emit('refresh-data')
+    );
+    // Catch a toggle sidebar coming from window-manager.
+    ipcRenderer?.on('app:toggle-sidebar', () =>
+      globalAppRegistry.emit('toggle-sidebar')
+    );
+    ipcRenderer?.on('window:menu-share-schema-json', () => {
+      globalAppRegistry.emit('menu-share-schema-json');
     });
+    ipcRenderer?.on('compass:open-export', () => {
+      globalAppRegistry.emit('open-active-namespace-export');
+    });
+    ipcRenderer?.on('compass:open-import', () => {
+      globalAppRegistry.emit('open-active-namespace-import');
+    });
+    // As soon as dom is ready, render and set up the rest.
+    state.render();
+    marky.stop('Time to Connect rendered');
+    state.postRender();
+    marky.stop('Time to user can Click Connect');
+    if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
+      queueMicrotask(() => {
+        throw new Error('fake exception');
+      });
+    }
   },
-});
+};
 
 Object.defineProperty(app, 'autoUpdate', {
   get: function () {
@@ -296,5 +273,4 @@ Object.defineProperty(app, 'state', {
   },
 });
 
-import './reflux-listen-to-external-store';
 app.init();

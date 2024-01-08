@@ -18,7 +18,7 @@ import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 
 import FormHelp from './form-help/form-help';
@@ -28,10 +28,6 @@ import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
 import { usePreference } from 'compass-preferences-model';
-
-const { log, mongoLogId } = createLoggerAndTelemetry(
-  'mongodb-compass:connections:connections'
-);
 
 type ConnectFn = typeof connect;
 
@@ -108,6 +104,7 @@ function Connections({
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;
 }): React.ReactElement {
+  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   const {
     state,
     cancelConnectionAttempt,

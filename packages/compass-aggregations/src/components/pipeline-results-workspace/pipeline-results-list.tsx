@@ -10,9 +10,10 @@ const containerStyles = css({
 });
 
 const PipelineResultsList: React.FunctionComponent<{
+  namespace: string;
   documents: HadronDocument[];
   view: ResultsViewType;
-}> = ({ documents, view }) => {
+}> = ({ namespace, documents, view }) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
     void navigator.clipboard.writeText(str);
@@ -27,6 +28,7 @@ const PipelineResultsList: React.FunctionComponent<{
 
   return (
     <DocumentView
+      namespace={namespace}
       isEditable={false}
       docs={documents}
       copyToClipboard={copyToClipboard}

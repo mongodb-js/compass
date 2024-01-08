@@ -1,3 +1,10 @@
 * text=auto eol=lf
+*.gz binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.exe binary
+*.ico binary
+*.icns binary
 /packages/bson-transpilers/lib/**/* linguist-generated=true
 packages/compass-crud/test/fixture-results/* linguist-generated=true

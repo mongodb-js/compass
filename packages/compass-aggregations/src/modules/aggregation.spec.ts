@@ -21,6 +21,7 @@ import HadronDocument from 'hadron-document';
 import { omit } from 'lodash';
 import { EJSON } from 'bson';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const getMockedStore = (
   aggregation: AggregateState,
@@ -35,7 +36,10 @@ const getMockedStore = (
     rootReducer,
     mockedState,
     applyMiddleware(
-      thunk.withExtraArgument({ preferences: defaultPreferencesInstance })
+      thunk.withExtraArgument({
+        preferences: defaultPreferencesInstance,
+        logger: createNoopLoggerAndTelemetry(),
+      })
     )
   );
 };

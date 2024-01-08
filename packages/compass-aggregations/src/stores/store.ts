@@ -6,7 +6,6 @@ import { toJSString } from 'mongodb-query-parser';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
-import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
@@ -36,6 +35,7 @@ import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -71,17 +71,12 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
 
 export type AggregationsPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export function activateAggregationsPlugin(
@@ -93,6 +88,7 @@ export function activateAggregationsPlugin(
     workspaces,
     instance,
     preferences,
+    logger,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -136,11 +132,6 @@ export function activateAggregationsPlugin(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry,
-        globalAppRegistry,
-      },
-      // TODO: move this to thunk extra arg
       dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -151,8 +142,6 @@ export function activateAggregationsPlugin(
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
         options.env ?? (instance.env as typeof ENVS[number]),
-      // options.fields is only used by mms, but always set to [] which is the initial value anyway
-      fields: options.fields ?? [],
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
@@ -171,22 +160,22 @@ export function activateAggregationsPlugin(
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // if the feature is enabled in preferences, the state of the
-          // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferences.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
         workspaces,
         instance,
         preferences,
+        logger,
       })
     )
   );
@@ -215,16 +204,6 @@ export function activateAggregationsPlugin(
    */
   on(localAppRegistry, 'refresh-data', () => {
     refreshInput();
-  });
-
-  /**
-   * When the schema fields change, update the state with the new
-   * fields.
-   *
-   * @param {Object} fields - The fields.
-   */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.autocompleteFields));
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
