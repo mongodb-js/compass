@@ -1,4 +1,4 @@
-import Analytics from 'analytics-node';
+import { Analytics } from '@segment/analytics-node';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -121,7 +121,7 @@ class CompassTelemetry {
   }
 
   private static _flushTelemetryAndIgnoreFailure() {
-    return this.analytics?.flush().catch(() => Promise.resolve());
+    return this.analytics?.closeAndFlush().catch(() => Promise.resolve());
   }
 
   private static async _init(app: typeof CompassApplication) {
@@ -143,7 +143,10 @@ class CompassTelemetry {
     }
 
     if (telemetryCapableEnvironment) {
-      this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
+      this.analytics = new Analytics({
+        writeKey: SEGMENT_API_KEY,
+        host: SEGMENT_HOST,
+      });
 
       app.addExitHandler(async () => {
         await this._flushTelemetryAndIgnoreFailure();
