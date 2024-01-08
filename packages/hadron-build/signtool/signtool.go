@@ -28,10 +28,10 @@ func main() {
 	}
 
 	cmd := exec.Command(
-		"npx",
-		"@mongodb-js/compass-signtool",
-		fileToSignPath,
-		"--client=remote",
+		"node",
+		"./cli.js",
+		"sign",
+		"--file="+fileToSignPath,
 		"--host="+os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
 		"--private-key="+os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
 		"--username="+os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),

@@ -16,19 +16,31 @@ const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
 const which = require('which');
 const plist = require('plist');
-const { sign: signtool } = require('@mongodb-js/compass-signtool');
+const { sign: signtool } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
   debug('Signing ... %s', src);
-  await signtool(src, 'local');
+  await signtool(src, {
+    client: 'local',
+    signingMethod: 'gpg',
+  });
   debug('Successfully signed %s', src);
+
+  // List files in the dirname(src) directory
+  // TODO: remove this debug code
+  const dir = path.dirname(src);
+  const files = await fs.promises.readdir(dir);
+  console.log('Files in %s:', dir);
+  console.log(files);
 }
 
 async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
 
-  await signtool(src, 'remote', {
+  await signtool(src, {
+    client: 'remote',
+    signingMethod: 'jsign',
     host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
     privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
     username: process.env.WINDOWS_SIGNING_SERVER_USERNAME,
