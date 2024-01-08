@@ -4,7 +4,7 @@ import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
-describe.only('Logging and Telemetry integration', function () {
+describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
     let logs: LogEntry[];
     let telemetry: Telemetry;
