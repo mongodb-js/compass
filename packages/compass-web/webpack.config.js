@@ -29,34 +29,22 @@ module.exports = async (env, args) => {
         '@mongodb-js/ssh-tunnel': false,
         ssh2: false,
 
-        // Dependencies for the unsupported connection types in data-service ->
-        // devtools-connect package
-        // TODO(COMPASS-7552): We should refactor the package in a way that
-        // sould allow us to change all these to `{ <name>: false }` instead of
-        // providing polyfills
-        // used for useSystemCA option
-        'system-ca': false,
-        // used for oidc
-        '@mongodb-js/oidc-plugin': localPolyfill('@mongodb-js/oidc-plugin'),
-        http: localPolyfill('http'),
-        zlib: false,
-        os: localPolyfill('os'),
+        // Used for randomBytes in a few places
         crypto: localPolyfill('crypto'),
-        // used for +srv
-        dns: false,
-        'os-dns-native': false,
-        'resolve-mongodb-srv': false,
-        // for socks proxy connection
-        socks: false,
-        // for csfle
-        'mongodb-client-encryption': false,
-        // for kerberos connection
-        kerberos: false,
+
+        // Replace 'devtools-connect' with a package that just directly connects
+        // using the driver (= web-compatible driver) logic, because devtools-connect
+        // contains a lot of logic that makes sense in a desktop application/CLI but
+        // not in a web environment (DNS resolution, OIDC, CSFLE/QE, etc.)
+        '@mongodb-js/devtools-connect': localPolyfill(
+          '@mongodb-js/devtools-connect'
+        ),
 
         // TODO(COMPASS-7407): compass-logging
         // hard to disable the whole thing while there are direct dependencies
         // on log-writer
         // 'mongodb-log-writer': localPolyfill('mongodb-log-writer'),
+        zlib: false,
         v8: false,
         electron: false,
         'hadron-ipc': false,
@@ -129,21 +117,6 @@ module.exports = async (env, args) => {
           // TODO(ticket): move mongodb-browser from mms to the monorepo and
           // package it too
           mongodb: require.resolve('@gribnoysup/mongodb-browser'),
-
-          // NB: We polyfill those in `@gribnoysup/mongodb-browser` already, but
-          // devtools-connect does its own dns resolution (for a good reason
-          // COMPASS-4768) for srv so we have to do it again. This is something
-          // that potentially mms will also need to adjust on their side if they
-          // ever want to support passing srv connections as-is (but they don't
-          // need to, they already have a resolved info for connection on their
-          // side)
-          dns: localPolyfill('dns'),
-          'os-dns-native': localPolyfill('os-dns-native'),
-
-          // We exclude it for the published distribution as it requires dns
-          // resolution to work which is not expected. Re-include for the
-          // sandbox
-          'resolve-mongodb-srv': require.resolve('resolve-mongodb-srv'),
         },
       },
     });
