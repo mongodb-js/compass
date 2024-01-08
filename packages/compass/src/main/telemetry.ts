@@ -172,7 +172,6 @@ class CompassTelemetry {
           event: 'Telemetry Disabled',
           properties: {},
         });
-        void this._flushTelemetryAndIgnoreFailure();
         this.state = 'disabled';
       }
     };
