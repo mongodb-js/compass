@@ -125,7 +125,7 @@ class CompassTelemetry {
     }
   }
 
-  private static _flushTelemetryAndIgnoreFailure() {
+  private static _closeAndFlush() {
     return this.analytics?.closeAndFlush().catch(() => Promise.resolve());
   }
 
@@ -155,7 +155,7 @@ class CompassTelemetry {
       });
 
       app.addExitHandler(async () => {
-        await this._flushTelemetryAndIgnoreFailure();
+        await this._closeAndFlush();
       });
     }
 
@@ -193,11 +193,6 @@ class CompassTelemetry {
 
     ipcMain?.respondTo('compass:track', (evt, meta: EventInfo) => {
       (process as EventEmitter).emit('compass:track', meta);
-    });
-
-    // only used in tests
-    ipcMain?.respondTo('compass:usage:flush', () => {
-      void this._flushTelemetryAndIgnoreFailure();
     });
   }
 

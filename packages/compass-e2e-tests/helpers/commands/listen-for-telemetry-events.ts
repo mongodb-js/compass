@@ -13,16 +13,7 @@ export async function listenForTelemetryEvents(
     return newEvents.find((entry) => entry.event === eventName);
   }
 
-  return async (eventName) => {
-    await browser.waitUntil(async () => {
-      await browser.execute(() => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { ipcRenderer } = require('electron');
-        ipcRenderer.send('compass:usage:flush');
-      });
-      return !!lookupNewEvent(eventName);
-    });
-
+  return (eventName) => {
     const ev = lookupNewEvent(eventName);
     const properties = { ...ev.properties };
     delete properties.compass_version;
