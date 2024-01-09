@@ -91,7 +91,7 @@
     "mongodb": "^6.3.0",
     "mongodb-instance-model": "^12.17.2",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^4.0.0",
+    "mongodb-query-parser": "^4.0.2",
     "mongodb-schema": "^12.1.0",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
