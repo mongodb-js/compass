@@ -33,6 +33,12 @@ async function signLinuxPackage(src) {
   const files = await fs.promises.readdir(dir);
   console.log('signLinuxPackage: Files in %s:', dir);
   console.log(files);
+
+  console.log('Doing something extremely stupid');
+  const packageDir = path.resolve(require.resolve('@mongodb-js/signing-utils'), '../../src');
+  const packageFiles = await fs.promises.readdir(packageDir);
+  console.log('signLinuxPackage: Files in %s', packageDir);
+  console.log(packageFiles);
 }
 
 async function signWindowsPackage(src) {
