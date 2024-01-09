@@ -29,7 +29,7 @@ async function signLinuxPackage(src) {
 
   try {
     const signatureFile = src + '.sig';
-    fs.access(signatureFile, fsConstants.R_OK);
+    fs.access(signatureFile, fs.constants.R_OK);
     console.log({ message: `successfully signed ${signatureFile}` });
   } catch (e) {
     console.log(`Failed to verify if signed file exists`, e);
