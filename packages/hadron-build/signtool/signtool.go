@@ -15,17 +15,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
 )
-
-func getSignScriptPath() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		log.Fatal("Could not get current file path")
-	}
-	return filepath.Join(filepath.Dir(filename), "cli.js")
-}
 
 func main() {
 	if len(os.Args) == 1 {
@@ -50,18 +40,19 @@ func main() {
 		}
 	}
 
-	args := []string{
-		getSignScriptPath(),
-		"sign",
-		"--file=" + fileToSignPath,
-		"--host=" + os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
-		"--private-key=" + os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
-		"--username=" + os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),
-		"--port=" + os.Getenv("WINDOWS_SIGNING_SERVER_PORT"),
-	}
-	fmt.Println("Running node command with args:", args)
+	script := fmt.Sprintf(`
+		require("@mongodb-js/signing-utils").sign("%s", {
+			client: "remote",
+			signingMethod: "jsign",
+			host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
+			username: process.env.WINDOWS_SIGNING_SERVER_USERNAME,
+			port: process.env.WINDOWS_SIGNING_SERVER_PORT,
+			privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
+	  	});
+	`, fileToSignPath)
 
-	cmd := exec.Command("node", args...)
+	cmd := exec.Command("node", "-e", script)
+	fmt.Println("Running command:", cmd.String())
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
