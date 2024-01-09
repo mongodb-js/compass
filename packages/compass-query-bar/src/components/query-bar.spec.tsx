@@ -133,7 +133,6 @@ describe('QueryBar Component', function () {
   describe('with ai enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
-        enableGenAIExperience: true,
         enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
