@@ -27,18 +27,25 @@ async function signLinuxPackage(src) {
   });
   debug('Successfully signed %s', src);
 
-  // List files in the dirname(src) directory
-  // TODO: remove this debug code
-  const dir = path.dirname(src);
-  const files = await fs.promises.readdir(dir);
-  console.log('signLinuxPackage: Files in %s:', dir);
-  console.log(files);
+  try {
+    signatureFile = src + '.sig';
+    fs.access(signatureFile, fsConstants.R_OK);
+    console.log({ message: `successfully signed ${signatureFile}` });
+  } catch (e) {
+    console.log(`Failed to verify if signed file exists`, e);
+  }
 
-  console.log('Doing something extremely stupid');
-  const packageDir = path.resolve(require.resolve('@mongodb-js/signing-utils'), '../../src');
-  const packageFiles = await fs.promises.readdir(packageDir);
-  console.log('signLinuxPackage: Files in %s', packageDir);
-  console.log(packageFiles);
+  // test
+  try {
+    // Signing non existant file
+    await signtool('/var/some.txt', {
+      client: 'local',
+      signingMethod: 'gpg'
+    });
+    console.log('This should never be logged');
+  } catch (e) {
+    console.log(`Failed to sign test file`, e);
+  }
 }
 
 async function signWindowsPackage(src) {
