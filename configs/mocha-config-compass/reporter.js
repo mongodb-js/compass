@@ -14,7 +14,7 @@ class Reporter {
 
     runner.on('suite', (suite) => {
       if (suite.parent?.root) {
-        suite.title = `${suiteName}/${suite.title}`;
+        suite.title = `${suiteName}__${suite.title}`;
       }
     });
 
