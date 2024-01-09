@@ -122,9 +122,16 @@ interface RenderLogEntry {
   args: unknown;
 }
 
+interface CompassOptions {
+  mode: 'electron' | 'web';
+  writeCoverage?: boolean;
+  needsCloseWelcomeModal?: boolean;
+}
+
 export class Compass {
   browser: CompassBrowser;
-  testPackagedApp: boolean;
+  mode: 'electron' | 'web';
+  writeCoverage: boolean;
   needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
   logs: LogEntry[];
@@ -134,10 +141,15 @@ export class Compass {
 
   constructor(
     browser: CompassBrowser,
-    { testPackagedApp = false, needsCloseWelcomeModal = false } = {}
+    {
+      mode,
+      writeCoverage = false,
+      needsCloseWelcomeModal = false,
+    }: CompassOptions
   ) {
     this.browser = browser;
-    this.testPackagedApp = testPackagedApp;
+    this.mode = mode;
+    this.writeCoverage = writeCoverage;
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
@@ -342,7 +354,7 @@ export class Compass {
     debug(`Writing application render process log to ${renderLogPath}`);
     await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
 
-    if (!this.testPackagedApp) {
+    if (this.writeCoverage) {
       // coverage
       debug('Writing coverage');
       const coverage: Coverage = await this.browser.executeAsync((done) => {
@@ -393,6 +405,7 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  // TODO: these are probably electron-only and not for compass-web
   noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
@@ -454,7 +467,9 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+async function startCompassElectron(
+  opts: StartCompassOptions = {}
+): Promise<Compass> {
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
@@ -674,8 +689,24 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   }
 
   const compass = new Compass(browser, {
-    testPackagedApp,
+    mode: 'electron',
+    writeCoverage: !testPackagedApp,
     needsCloseWelcomeModal,
+  });
+
+  await compass.recordLogs();
+
+  return compass;
+}
+
+export async function startBrowser() {
+  const browser: CompassBrowser = await remote({
+    capabilities: { browserName: 'chrome' },
+  });
+  const compass = new Compass(browser, {
+    mode: 'web',
+    writeCoverage: false,
+    needsCloseWelcomeModal: false,
   });
 
   await compass.recordLogs();
@@ -872,7 +903,7 @@ function augmentError(error: Error, stack: string) {
 export async function beforeTests(
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
-  const compass = await startCompass(opts);
+  const compass = await startCompassElectron(opts);
 
   const { browser } = compass;
 
