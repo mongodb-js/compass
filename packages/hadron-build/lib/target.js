@@ -28,7 +28,7 @@ async function signLinuxPackage(src) {
   debug('Successfully signed %s', src);
 
   try {
-    signatureFile = src + '.sig';
+    const signatureFile = src + '.sig';
     fs.access(signatureFile, fsConstants.R_OK);
     console.log({ message: `successfully signed ${signatureFile}` });
   } catch (e) {
