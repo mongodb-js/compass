@@ -65,6 +65,10 @@ tasks:
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
+  - name: spawn-host-for-windows-signing
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: spawn-host-for-windows-signing
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
@@ -101,11 +105,10 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: "'@mongodb-js/{webpack-config-compass,compass-signtool}'"
+          scope: '@mongodb-js/webpack-config-compass'
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
-      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -121,11 +124,10 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: "'@mongodb-js/{webpack-config-compass,compass-signtool}'"
+          scope: '@mongodb-js/webpack-config-compass'
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-readonly
-      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -141,11 +143,10 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: "'@mongodb-js/{webpack-config-compass,compass-signtool}'"
+          scope: '@mongodb-js/webpack-config-compass'
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-isolated
-      - func: spawn-host-for-windows-signing
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -413,3 +414,20 @@ tasks:
           mongodb_version: 'latest-alpha-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+task_groups:
+  - name: package-compass-for-windows
+    setup_group:
+      - task: spawn-host-for-windows-signing
+    tasks:
+      - package-compass
+  - name: package-compass-readonly-for-windows
+    setup_group:
+      - task: spawn-host-for-windows-signing
+    tasks:
+      - package-compass-readonly
+  - name: package-compass-isolated-for-windows
+    setup_group:
+      - task: spawn-host-for-windows-signing
+    tasks:
+      - package-compass-isolated

@@ -100,11 +100,11 @@ buildvariants:
 
       - name: test-electron
 
-      - name: package-compass
+      - name: package-compass-for-windows
 
-      - name: package-compass-readonly
+      - name: package-compass-readonly-for-windows
 
-      - name: package-compass-isolated
+      - name: package-compass-isolated-for-windows
 
       - name: test-packaged-app-40x-community
         depends_on: package-compass

@@ -312,21 +312,6 @@ functions:
         file: src/packages/compass/expansions.yml
 
   spawn-host-for-windows-signing:
-    # only spawn host for windows signing if the platform is windows
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        continue_on_err: true
-        script: |
-          set -e
-          eval $(.evergreen/print-compass-env.sh)
-          if [[ "$IS_WINDOWS" != "true" ]]; then
-            echo "Skipping host spawning for windows signing as $PLATFORM is not windows."
-            # exit with 1 so that the following commands are skipped
-            # and the task continue to run as specified in continue_on_err
-            exit 1
-          fi
     # spawn
     - command: host.create
       type: setup
