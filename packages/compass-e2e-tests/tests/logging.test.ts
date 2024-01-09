@@ -394,6 +394,8 @@ describe('Logging and Telemetry integration', function () {
     });
 
     it('tracks an event for identify call', function () {
+      console.log(telemetry.events());
+
       const identify = telemetry
         .events()
         .find((entry) => entry.type === 'identify');

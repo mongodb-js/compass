@@ -41,12 +41,14 @@ export async function startTelemetryServer(): Promise<Telemetry> {
   const key = '🔑';
   process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE = key;
   process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE = host;
+  process.env.HADRON_METRICS_SEGMENT_MAX_EVENTS_IN_BATCH = '1';
 
   async function stop() {
     srv.close();
     await once(srv, 'close');
     delete process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE;
     delete process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE;
+    delete process.env.HADRON_METRICS_SEGMENT_MAX_EVENTS_IN_BATCH;
   }
 
   function events(): any[] {
