@@ -65,9 +65,6 @@ tasks:
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
-  - name: spawn-host-for-windows-signing
-    commands:
-      - func: spawn-host-for-windows-signing
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
@@ -416,17 +413,20 @@ tasks:
 
 task_groups:
   - name: package-compass-for-windows
+    setup_group_can_fail_task: true
     setup_group:
-      - task: spawn-host-for-windows-signing
+      - func: spawn-host-for-windows-signing
     tasks:
       - package-compass
   - name: package-compass-readonly-for-windows
+    setup_group_can_fail_task: true
     setup_group:
-      - task: spawn-host-for-windows-signing
+      - func: spawn-host-for-windows-signing
     tasks:
       - package-compass-readonly
   - name: package-compass-isolated-for-windows
+    setup_group_can_fail_task: true
     setup_group:
-      - task: spawn-host-for-windows-signing
+      - func: spawn-host-for-windows-signing
     tasks:
       - package-compass-isolated

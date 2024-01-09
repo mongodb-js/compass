@@ -401,10 +401,7 @@ functions:
           WINDOWS_SIGNING_SERVER_PORT: ${WINDOWS_SIGNING_SERVER_PORT}
         script: |
           set -e
-          
           eval $(.evergreen/print-compass-env.sh)
-
-          echo "Packaging Compass for ${target_platform} ${target_arch}..."
           .evergreen/compass_package.sh
 
   publish:
