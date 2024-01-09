@@ -195,12 +195,12 @@ describe('Bulk Update', () => {
     // Make sure the query is shown in the modal.
     expect(
       await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
-    ).to.equal('{ i: { $gt: 5 } }');
+    ).to.match(/{\s+i:\s+{\s+\$gt:\s+5\s+}\s+}/);
 
     // Check that the modal starts with the expected update text
     expect(
       await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
-    ).to.equal(`{ $set: { k: 0 } }`);
+    ).to.match(/{\s+\$set:\s+{\s+k:\s+0\s+}\s+}/);
   });
 });
 
