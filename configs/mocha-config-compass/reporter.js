@@ -6,10 +6,17 @@ const path = require('path');
 const Spec = Mocha.reporters.Spec;
 const XUnit = Mocha.reporters.XUnit;
 
-class CompassMochaReporter {
+class Reporter {
   constructor(runner) {
     const suiteName = path.basename(process.cwd());
+
     new Spec(runner);
+
+    runner.on('suite', (suite) => {
+      if (suite.parent?.root) {
+        suite.title = `${suiteName}/${suite.title}`;
+      }
+    });
 
     new XUnit(runner, {
       reporterOptions: {
@@ -20,4 +27,4 @@ class CompassMochaReporter {
   }
 }
 
-module.exports = CompassMochaReporter;
+module.exports = Reporter;
