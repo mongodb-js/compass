@@ -1,0 +1,29 @@
+{
+  "left": {
+    "path": [],
+    "value": {}
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "foo": "bar"
+    }
+  },
+  "delta": {
+    "foo": ["bar"]
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "foo",
+      "right": {
+        "path": ["foo"],
+        "value": "bar"
+      },
+      "delta": null
+    }
+  ]
+}

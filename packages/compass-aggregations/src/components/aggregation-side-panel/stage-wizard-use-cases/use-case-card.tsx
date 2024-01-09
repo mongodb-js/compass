@@ -79,7 +79,7 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
       onKeyDown={handleKeyDown}
       {...props}
     >
-      <Body data-testid={`use-case-${id}`} className={cardBodyStyles}>
+      <Body as="div" data-testid={`use-case-${id}`} className={cardBodyStyles}>
         {title} <Badge>{stageOperator}</Badge>
       </Body>
     </KeylineCard>

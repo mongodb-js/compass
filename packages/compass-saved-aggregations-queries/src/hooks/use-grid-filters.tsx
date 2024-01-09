@@ -8,9 +8,7 @@ import {
   Option,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 import type { Item } from '../stores/aggregations-queries-items';
 
@@ -74,6 +72,7 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
+  const { track } = useLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
   const [search, setSearch] = useState('');
   const searchControls = useMemo(() => {
     return (
@@ -94,7 +93,7 @@ function useSearchFilter(): [React.ReactElement, string] {
         spellCheck={false}
       />
     );
-  }, [search]);
+  }, [search, track]);
 
   return [searchControls, search];
 }
@@ -237,12 +236,14 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       }
 
       if (key === 'data') {
-        if (item.type === 'query') {
+        if (item.type === 'query' || item.type === 'updatemany') {
           return JSON.stringify({
             filter: item.query.filter,
           });
-        } else {
+        } else if (item.type === 'aggregation') {
           return item.aggregation.pipelineText;
+        } else {
+          return [];
         }
       }
 

@@ -1,41 +1,20 @@
 import React, { useEffect } from 'react';
-import type { Store } from 'redux';
-import { connect, Provider } from 'react-redux';
-import {
-  returnToView,
-  selectDatabase,
-  type CollectionState,
-  editView,
-  selectTab,
-  renderScopedModals,
-  renderTabs,
-} from '../modules/collection-tab';
+import { connect } from 'react-redux';
+import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { log, mongoLogId, track } = createLoggerAndTelemetry(
-  'COMPASS-COLLECTION-TAB-UI'
-);
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import {
+  useCollectionQueryBar,
+  useCollectionScopedModals,
+  useCollectionSubTabs,
+} from './collection-tab-provider';
+import type { CollectionTabOptions } from '../stores/collection-tab';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
-
-const ConnectedCollectionHeader = connect(
-  (state: CollectionState) => {
-    return {
-      ...state.metadata,
-      editViewName: state.editViewName,
-      stats: state.stats,
-    };
-  },
-  {
-    onSelectDatabaseClick: selectDatabase,
-    onEditViewClick: editView,
-    onReturnToViewClick: returnToView,
-  }
-)(CollectionHeader);
 
 const collectionStyles = css({
   display: 'flex',
@@ -56,15 +35,28 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-const CollectionTab: React.FunctionComponent<{
+type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
-  renderScopedModals(): React.ReactElement[];
-  renderTabs(): { name: string; component: React.ReactElement }[];
+  collectionMetadata: CollectionMetadata;
   onTabClick(name: string): void;
-}> = ({ currentTab, renderScopedModals, renderTabs, onTabClick }) => {
-  const tabs = renderTabs();
-  const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+};
 
+const CollectionTabWithMetadata: React.FunctionComponent<
+  CollectionTabProps
+> = ({
+  namespace,
+  currentTab,
+  initialAggregation,
+  initialPipeline,
+  initialPipelineText,
+  initialQuery,
+  editViewName,
+  collectionMetadata,
+  onTabClick,
+}) => {
+  const { log, mongoLogId, track } = useLoggerAndTelemetry(
+    'COMPASS-COLLECTION-TAB-UI'
+  );
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -75,69 +67,110 @@ const CollectionTab: React.FunctionComponent<{
         name: activeSubTabName,
       });
     }
-  }, [currentTab]);
+  }, [currentTab, track]);
+
+  const QueryBarPlugin = useCollectionQueryBar();
+  const pluginTabs = useCollectionSubTabs();
+  const pluginModals = useCollectionScopedModals();
+
+  const pluginProps = {
+    ...collectionMetadata,
+    namespace: namespace,
+    aggregation: initialAggregation,
+    pipeline: initialPipeline,
+    pipelineText: initialPipelineText,
+    query: initialQuery,
+    editViewName: editViewName,
+  };
+
+  const tabs = pluginTabs.map(({ name, component: Component }) => {
+    // `pluginTabs` never change in runtime so it's safe to call the hook here
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    Component.useActivate(pluginProps);
+
+    return {
+      name,
+      component: <Component {...pluginProps} />,
+    };
+  });
+  const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (
-    <div className={collectionStyles} data-testid="collection">
-      <div className={collectionContainerStyles}>
-        <ConnectedCollectionHeader></ConnectedCollectionHeader>
-        <TabNavBar
-          data-testid="collection-tabs"
-          aria-label="Collection Tabs"
-          tabs={tabs.map((tab) => {
-            return tab.name;
+    <QueryBarPlugin {...pluginProps}>
+      <div className={collectionStyles} data-testid="collection">
+        <div className={collectionContainerStyles}>
+          <CollectionHeader
+            editViewName={editViewName}
+            {...collectionMetadata}
+          ></CollectionHeader>
+          <TabNavBar
+            data-testid="collection-tabs"
+            aria-label="Collection Tabs"
+            tabs={tabs.map((tab) => {
+              return tab.name;
+            })}
+            views={tabs.map((tab) => {
+              return (
+                <ErrorBoundary
+                  key={tab.name}
+                  onError={(error: Error, errorInfo: unknown) => {
+                    log.error(
+                      mongoLogId(1001000107),
+                      'Collection Workspace',
+                      'Rendering collection tab failed',
+                      { name: tab.name, error: error.stack, errorInfo }
+                    );
+                  }}
+                >
+                  {tab.component}
+                </ErrorBoundary>
+              );
+            })}
+            activeTabIndex={activeTabIndex}
+            onTabClicked={(id) => {
+              onTabClick(tabs[id].name);
+            }}
+          />
+        </div>
+        <div className={collectionModalContainerStyles}>
+          {pluginModals.map((ModalPlugin, idx) => {
+            return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
           })}
-          views={tabs.map((tab) => {
-            return (
-              <ErrorBoundary
-                key={tab.name}
-                onError={(error: Error, errorInfo: unknown) => {
-                  log.error(
-                    mongoLogId(1001000107),
-                    'Collection Workspace',
-                    'Rendering collection tab failed',
-                    { name: tab.name, error: error.stack, errorInfo }
-                  );
-                }}
-              >
-                {tab.component}
-              </ErrorBoundary>
-            );
-          })}
-          activeTabIndex={activeTabIndex}
-          onTabClicked={(id) => {
-            onTabClick(tabs[id].name);
-          }}
-        />
+        </div>
       </div>
-      <div className={collectionModalContainerStyles}>
-        {renderScopedModals()}
-      </div>
-    </div>
+    </QueryBarPlugin>
+  );
+};
+
+const CollectionTab = ({
+  collectionMetadata,
+  ...props
+}: Omit<CollectionTabProps, 'collectionMetadata'> & {
+  collectionMetadata: CollectionMetadata | null;
+}) => {
+  if (!collectionMetadata) {
+    return null;
+  }
+
+  return (
+    <CollectionTabWithMetadata
+      collectionMetadata={collectionMetadata}
+      {...props}
+    ></CollectionTabWithMetadata>
   );
 };
 
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
+      namespace: state.namespace,
       currentTab: state.currentTab,
+      collectionMetadata: state.metadata,
     };
   },
   {
-    renderScopedModals: renderScopedModals,
-    renderTabs: renderTabs,
     onTabClick: selectTab,
   }
-)(CollectionTab);
+)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
 
-const CollectionTabPlugin: React.FunctionComponent<{ store: Store }> = ({
-  store,
-}) => {
-  return (
-    <Provider store={store}>
-      <ConnectedCollectionTab></ConnectedCollectionTab>
-    </Provider>
-  );
-};
-
-export default CollectionTabPlugin;
+export default ConnectedCollectionTab;

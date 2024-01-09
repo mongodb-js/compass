@@ -62,6 +62,7 @@ jobs:
             - '**/*.spec.ts'
             - '**/*.test.tsx'
             - '**/*.spec.tsx'
+            - 'scripts/**'
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)

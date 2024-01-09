@@ -1,9 +1,6 @@
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { omit } from 'lodash';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { debug } = createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');
 
 export type ExplainStageHighlights = Record<string, any>;
 export type ExplainStageDetails = Record<string, any>;
@@ -103,8 +100,7 @@ export const executionStatsToTreeData = (
     return executionStages
       ? parseExplainTree(executionStages, { count: 0 })
       : undefined;
-  } catch (e) {
-    debug('Error while building the treeModel', e);
+  } catch {
     return undefined;
   }
 };

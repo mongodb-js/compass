@@ -1,22 +1,15 @@
 import React from 'react';
-import { Body, css, openToast } from '@mongodb-js/compass-components';
+import {
+  Body,
+  css,
+  openToast,
+  ToastBody,
+} from '@mongodb-js/compass-components';
 import path from 'path';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-import { ToastBody } from './toast-body';
-import { openFile } from '../utils/open-file';
-
-const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const importToastId = 'import-toast';
 const bloatedDocumentSignalToastId = 'import-toast-bloated-document';
 const toastMessageCharacterLimit = 180;
-
-function trackLogFileOpened(errors: Error[]) {
-  track('Import Error Log Opened', {
-    errorCount: errors.length,
-  });
-}
 
 export function showInProgressToast({
   fileName,
@@ -169,12 +162,12 @@ export function showCompletedWithErrorsToast({
   errors,
   docsWritten,
   docsProcessed,
-  errorLogFilePath,
+  actionHandler,
 }: {
-  errorLogFilePath?: string;
   errors: Error[];
   docsWritten: number;
   docsProcessed: number;
+  actionHandler?: () => void;
 }) {
   const statusMessage = getToastErrorsText(errors);
   openToast(importToastId, {
@@ -182,14 +175,7 @@ export function showCompletedWithErrorsToast({
     description: (
       <ToastBody
         statusMessage={statusMessage}
-        actionHandler={
-          errorLogFilePath
-            ? () => {
-                trackLogFileOpened(errors);
-                void openFile(errorLogFilePath);
-              }
-            : undefined
-        }
+        actionHandler={actionHandler}
         actionText="view log"
       />
     ),
@@ -198,11 +184,11 @@ export function showCompletedWithErrorsToast({
 }
 
 export function showCancelledToast({
-  errorLogFilePath,
   errors,
+  actionHandler,
 }: {
-  errorLogFilePath?: string;
   errors: Error[];
+  actionHandler?: () => void;
 }) {
   if (errors.length > 0) {
     const statusMessage = getToastErrorsText(errors);
@@ -211,14 +197,7 @@ export function showCancelledToast({
       description: (
         <ToastBody
           statusMessage={statusMessage}
-          actionHandler={
-            errorLogFilePath
-              ? () => {
-                  trackLogFileOpened(errors);
-                  void openFile(errorLogFilePath);
-                }
-              : undefined
-          }
+          actionHandler={actionHandler}
           actionText="view log"
         />
       ),

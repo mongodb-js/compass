@@ -11,7 +11,8 @@ import {
   userConfigChanged,
 } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-signin-store';
-import type { AtlasUserConfig, AtlasUserInfo } from './util';
+import type { AtlasUserInfo } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 
 let atlasServiceInstanceSingleton: AtlasService;
 
@@ -101,6 +102,14 @@ export class AtlasService {
     this.emitter.off(evt, listener);
     return this;
   }
+  removeListener<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  removeListener(evt: string, listener: (...args: any[]) => void): this {
+    this.emitter.off(evt, listener);
+    return this;
+  }
 
   emit<T extends keyof AtlasServiceEvents>(
     evt: T,
@@ -167,9 +176,9 @@ export class AtlasService {
 export { AtlasSignIn } from './components/atlas-signin';
 
 export { AtlasServiceError } from './util';
+export type { AtlasUserConfig } from './user-config-store';
 export type {
   AtlasUserInfo,
-  AtlasUserConfig,
   IntrospectInfo,
   Token,
   AIQuery,

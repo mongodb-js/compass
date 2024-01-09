@@ -14,12 +14,22 @@ import {
   updateFieldType,
   updateFieldName,
 } from '../../modules/create-index/fields';
-import { changeSchemaFields } from '../../modules/create-index/schema-fields';
 import { clearError } from '../../modules/create-index/error';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+
+type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
+  isVisible: boolean;
+  namespace: string;
+  error: string | null;
+  clearError: () => void;
+  inProgress: boolean;
+  createIndex: () => void;
+  closeCreateIndexModal: () => void;
+};
 
 function CreateIndexModal({
   isVisible,
@@ -30,15 +40,7 @@ function CreateIndexModal({
   createIndex,
   closeCreateIndexModal,
   ...props
-}: React.ComponentProps<typeof CreateIndexForm> & {
-  isVisible: boolean;
-  namespace: string;
-  error: string | null;
-  clearError: () => void;
-  inProgress: boolean;
-  createIndex: () => void;
-  closeCreateIndexModal: () => void;
-}) {
+}: CreateIndexModalProps) {
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
@@ -71,7 +73,7 @@ function CreateIndexModal({
       <ModalHeader title="Create Index" subtitle={namespace} />
 
       <ModalBody>
-        <CreateIndexForm {...props} />
+        <CreateIndexForm namespace={namespace} {...props} />
       </ModalBody>
 
       <ModalFooter>
@@ -87,18 +89,15 @@ function CreateIndexModal({
   );
 }
 
-const mapState = ({
+const mapState = (
+  { fields, inProgress, error, isVisible, namespace, serverVersion }: RootState,
+  // To make sure the derived type is correctly including plugin metadata passed
+  // by CollectionTab
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ownProps: Pick<CollectionTabPluginMetadata, 'namespace' | 'serverVersion'>
+) => ({
   fields,
   inProgress,
-  schemaFields,
-  error,
-  isVisible,
-  namespace,
-  serverVersion,
-}: RootState) => ({
-  fields,
-  inProgress,
-  schemaFields,
   error,
   isVisible,
   namespace,
@@ -106,7 +105,6 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  changeSchemaFields,
   clearError,
   createIndex,
   closeCreateIndexModal,
@@ -115,4 +113,5 @@ const mapDispatch = {
   updateFieldName,
   updateFieldType,
 };
+
 export default connect(mapState, mapDispatch)(CreateIndexModal);

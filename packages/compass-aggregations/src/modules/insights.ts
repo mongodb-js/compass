@@ -4,13 +4,25 @@ import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { cancellableWait } from '@mongodb-js/compass-utils';
 import type { PipelineBuilderThunkAction } from '.';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import type {
+  LoadGeneratedPipelineAction,
+  PipelineGeneratedFromQueryAction,
+} from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { getStageOperator, isOutputStage } from '../utils/stage';
+import { isAction } from '../utils/is-action';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
-  'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS';
+  'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;
+interface FetchExplainPlanSuccessAction {
+  type: typeof FETCH_EXPLAIN_PLAN_SUCCESS;
+  explainPlan: ExplainPlan;
+}
+export type InsightsAction = FetchExplainPlanSuccessAction;
 
 const INITIAL_STATE = { isCollectionScan: false };
 
@@ -18,17 +30,28 @@ const reducer: Reducer<{ isCollectionScan: boolean }> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (action.type === FETCH_EXPLAIN_PLAN_SUCCESS) {
+  if (
+    isAction<FetchExplainPlanSuccessAction>(action, FETCH_EXPLAIN_PLAN_SUCCESS)
+  ) {
     return {
       ...state,
       isCollectionScan: action.explainPlan.isCollectionScan,
     };
   }
   if (
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
-    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery ||
-    action.type === RESTORE_PIPELINE
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
+    isAction<LoadGeneratedPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadGeneratedPipeline
+    ) ||
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    ) ||
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)
   ) {
     return { ...INITIAL_STATE };
   }
@@ -48,7 +71,12 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const { id, namespace, dataService, maxTimeMS } = getState();
+    const {
+      id,
+      namespace,
+      dataService,
+      maxTimeMS: { current: maxTimeMS },
+    } = getState();
     const abortSignal = getAbortSignal(id);
     try {
       // Debounce action to allow for user typing to stop
@@ -84,9 +112,8 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
 };
 
 export const openCreateIndexModal = (): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState) => {
-    const { appRegistry } = getState();
-    (appRegistry as any).localAppRegistry.emit('open-create-index-modal');
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-index-modal');
   };
 };
 

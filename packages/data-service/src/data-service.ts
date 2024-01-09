@@ -153,13 +153,39 @@ export type UpdatePreview = {
   changes: UpdatePreviewChange[];
 };
 
+export type StreamProcessor = {
+  id: string;
+  name: string;
+  state:
+    | 'CREATING'
+    | 'CREATED'
+    | 'VALIDATING'
+    | 'PROVISIONING'
+    | 'RECEIVED_ON_DISPATCHER'
+    | 'STARTING'
+    | 'STARTED'
+    | 'STOPPING'
+    | 'STOPPED'
+    | 'RELEASING'
+    | 'DROPPING'
+    | 'DROPPED'
+    | 'FAILED';
+  pipeline: Document[];
+  lastStateChange: Date;
+  lastModified: Date;
+};
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
     event: K,
     listener: DataServiceEventMap[K]
   ): this;
-  off?<K extends keyof DataServiceEventMap>(
+  off<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  removeListener<K extends keyof DataServiceEventMap>(
     event: K,
     listener: DataServiceEventMap[K]
   ): this;
@@ -349,6 +375,14 @@ export interface DataService {
    * @param callback - The callback.
    */
   dropCollection(ns: string): Promise<boolean>;
+
+  /**
+   *
+   */
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>>;
 
   /**
    * Count the number of documents in the collection.
@@ -774,6 +808,34 @@ export interface DataService {
     update: UpdateFilter<Document>,
     options?: UpdateOptions
   ): Promise<UpdateResult>;
+
+  /*** Streams ***/
+
+  /**
+   * List all the named stream processors.
+   */
+  listStreamProcessors(filter?: Document): Promise<StreamProcessor[]>;
+
+  /**
+   * Start the specified stream processor
+   *
+   * @param name processor name
+   */
+  startStreamProcessor(name: string): Promise<void>;
+
+  /**
+   * Stop the specified stream processor
+   *
+   * @param name processor name
+   */
+  stopStreamProcessor(name: string): Promise<void>;
+
+  /**
+   * Drop the specified stream processor
+   *
+   * @param name processor name
+   */
+  dropStreamProcessor(name: string): Promise<void>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -939,6 +1001,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   off(...args: Parameters<DataService['on']>) {
+    this._emitter.off(...args);
+    return this;
+  }
+
+  removeListener(...args: Parameters<DataService['on']>) {
     this._emitter.off(...args);
     return this;
   }
@@ -1568,6 +1635,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       options.encryptedFields = encryptedFieldsInfo;
     }
     return await coll.drop(options);
+  }
+
+  @op(mongoLogId(1_001_000_276))
+  renameCollection(
+    ns: string,
+    newCollectionName: string
+  ): Promise<Collection<Document>> {
+    const db = this._database(ns, 'META');
+    return db.renameCollection(this._collectionName(ns), newCollectionName);
   }
 
   @op(mongoLogId(1_001_000_040), ([db], result) => {
@@ -2373,7 +2449,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
             async () => {
               const coll = this._collection(ns, 'CRUD');
               const docsToPreview = await coll
-                .find(filter, { session, maxTimeMS: remainingTimeoutMS() })
+                .find(filter, {
+                  session,
+                  maxTimeMS: remainingTimeoutMS(),
+                  // by using promoteValues: false we can spot BSON type changes
+                  // when diffing. ie. new Double(1) -> new Int32(1)
+                  promoteValues: false,
+                })
                 .sort({ _id: 1 })
                 .limit(sample)
                 .toArray();
@@ -2386,7 +2468,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
               const changedDocs = await coll
                 .find(
                   { _id: { $in: idsToPreview } },
-                  { session, maxTimeMS: remainingTimeoutMS() }
+                  {
+                    session,
+                    maxTimeMS: remainingTimeoutMS(),
+                    promoteValues: false,
+                  }
                 )
                 .sort({ _id: 1 })
                 .toArray();
@@ -2607,6 +2693,34 @@ class DataServiceImpl extends WithLogContext implements DataService {
         serializedState: await this._state.oidcPlugin.serialize(),
       },
     };
+  }
+
+  @op(mongoLogId(1_001_000_284))
+  async listStreamProcessors(filter?: Document): Promise<StreamProcessor[]> {
+    const adminDb = this._database('admin', 'CRUD');
+    const { streamProcessors } = await runCommand(adminDb, {
+      listStreamProcessors: 1,
+      filter,
+    });
+    return streamProcessors;
+  }
+
+  @op(mongoLogId(1_001_000_285))
+  async startStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { startStreamProcessor: name });
+  }
+
+  @op(mongoLogId(1_001_000_286))
+  async stopStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { stopStreamProcessor: name });
+  }
+
+  @op(mongoLogId(1_001_000_287))
+  async dropStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { dropStreamProcessor: name });
   }
 
   static {

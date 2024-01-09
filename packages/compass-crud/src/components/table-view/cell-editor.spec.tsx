@@ -1,9 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 import { ObjectId } from 'bson';
-import app from 'hadron-app';
 
 import {
   getNode,
@@ -18,15 +16,6 @@ import {
 import CellEditor from './cell-editor';
 
 describe.skip('<CellEditor />', function () {
-  before(function () {
-    global.hadronApp = app;
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
-  after(function () {
-    global.hadronApp.appRegistry = new AppRegistry();
-  });
-
   describe('#render', function () {
     let component;
     let rowNode;

@@ -6,7 +6,6 @@ import type { FeedURLOptions } from 'electron';
 import { app, dialog, BrowserWindow } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
 import autoUpdater, { supportsAutoupdater } from './auto-updater';
-import preferences from 'compass-preferences-model';
 import fetch from 'node-fetch';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
@@ -587,6 +586,7 @@ class CompassAutoUpdateManager {
       this.setState(AutoUpdateManagerState.ManualCheck);
     });
 
+    const { preferences } = compassApp;
     const supported = supportsAutoupdater();
     const enabled = !!preferences.getPreferences().autoUpdates;
 

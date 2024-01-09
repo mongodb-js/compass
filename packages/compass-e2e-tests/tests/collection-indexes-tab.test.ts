@@ -163,14 +163,16 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(
         `${Selectors.indexComponent('columnstore')} ${
-          Selectors.DropIndexButton
+          Selectors.IndexesTableDropIndexButton
         }`
       );
 
       const dropModal = await browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();
 
-      const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
+      const confirmInput = await browser.$(
+        Selectors.DropIndexModalConfirmButton
+      );
       await confirmInput.waitForDisplayed();
       await confirmInput.setValue('columnstore');
 

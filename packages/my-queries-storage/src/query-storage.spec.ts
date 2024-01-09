@@ -25,7 +25,7 @@ const queries = [
 
 const maxAllowedRecentQueries = 30;
 
-describe('QueryStorage', function () {
+describe('RecentQueryStorage', function () {
   let queryHistoryStorage: RecentQueryStorage;
 
   let tmpDir: string;
@@ -202,4 +202,38 @@ describe('QueryStorage', function () {
       }
     });
   }
+});
+
+describe('FavoriteQueryStorage', function () {
+  let queryFavoriteStorage: FavoriteQueryStorage;
+
+  let tmpDir: string;
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
+    queryFavoriteStorage = new FavoriteQueryStorage({
+      basepath: tmpDir,
+    });
+  });
+
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
+  });
+
+  it('should retrieve saved queries', async function () {
+    await queryFavoriteStorage.saveQuery({
+      _ns: 'test.test',
+      _name: 'my-query',
+      filter: { a: 1 },
+      update: { $set: { a: 2 } },
+    });
+
+    const loaded = await queryFavoriteStorage.loadAll();
+    expect(loaded.length).to.be.greaterThan(0);
+
+    const [query] = loaded;
+    expect(query._name).to.equal('my-query');
+    expect(query._ns).to.equal('test.test');
+    expect(query.filter).to.deep.equal({ a: 1 });
+    expect(query.update).to.deep.equal({ $set: { a: 2 } });
+  });
 });

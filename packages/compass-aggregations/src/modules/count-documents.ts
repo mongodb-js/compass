@@ -3,9 +3,12 @@ import type { AggregateOptions } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { isAction } from '../utils/is-action';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
@@ -43,31 +46,40 @@ export const INITIAL_STATE: State = {
 };
 
 const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case WorkspaceActionTypes.WorkspaceChanged:
-    case ConfirmNewPipelineActions.NewPipelineConfirmed:
-      return INITIAL_STATE;
-    case ActionTypes.CountStarted:
-      return {
-        loading: true,
-        count: state.count,
-        abortController: action.abortController,
-      };
-    case ActionTypes.CountFinished:
-      return {
-        loading: false,
-        abortController: undefined,
-        count: action.count,
-      };
-    case ActionTypes.CountFailed:
-      return {
-        ...state,
-        loading: false,
-        abortController: undefined,
-      };
-    default:
-      return state;
+  if (
+    isAction<WorkspaceChangedAction>(
+      action,
+      WorkspaceActionTypes.WorkspaceChanged
+    ) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
+  ) {
+    return INITIAL_STATE;
   }
+  if (isAction<CountStartedAction>(action, ActionTypes.CountStarted)) {
+    return {
+      loading: true,
+      count: state.count,
+      abortController: action.abortController,
+    };
+  }
+  if (isAction<CountFinishedAction>(action, ActionTypes.CountFinished)) {
+    return {
+      loading: false,
+      abortController: undefined,
+      count: action.count,
+    };
+  }
+  if (isAction<CountFailedAction>(action, ActionTypes.CountFailed)) {
+    return {
+      ...state,
+      loading: false,
+      abortController: undefined,
+    };
+  }
+  return state;
 };
 
 export const cancelCount = (): PipelineBuilderThunkAction<void> => {
@@ -80,10 +92,10 @@ export const cancelCount = (): PipelineBuilderThunkAction<void> => {
 };
 
 export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       dataService: { dataService },
       collationString: { value: collation },
     } = getState();
@@ -109,6 +121,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
 
       const [{ count }] = await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline: [...pipeline, { $count: 'count' }],

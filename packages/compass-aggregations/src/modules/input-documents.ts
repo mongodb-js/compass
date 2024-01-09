@@ -1,7 +1,8 @@
-import type { Document } from 'mongodb';
-import type { AnyAction } from 'redux';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import HadronDocument from 'hadron-document';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { PipelineBuilderThunkAction } from '.';
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
@@ -20,19 +21,24 @@ type DocumentsFetchStartedAction = {
 type DocumentsFetchFinishedAction = {
   type: ActionTypes.DocumentsFetchFinished;
   count: number | null;
-  documents: Document[];
+  documents: HadronDocument[];
   error: Error | null;
 };
 
-type State = {
+export type InputDocumentsAction =
+  | CollapseToggledAction
+  | DocumentsFetchFinishedAction
+  | DocumentsFetchStartedAction;
+
+export type InputDocumentsState = {
   count: number | null;
-  documents: Document[];
+  documents: HadronDocument[];
   error: Error | null;
   isExpanded: boolean;
   isLoading: boolean;
 };
 
-export const INITIAL_STATE: State = {
+export const INITIAL_STATE: InputDocumentsState = {
   count: null,
   documents: [],
   error: null,
@@ -40,16 +46,29 @@ export const INITIAL_STATE: State = {
   isLoading: false,
 };
 
-const reducer = (state = INITIAL_STATE, action: AnyAction) => {
-  if (action.type === ActionTypes.CollapseToggled) {
+const reducer = (
+  state: InputDocumentsState = INITIAL_STATE,
+  action: AnyAction
+): InputDocumentsState => {
+  if (isAction<CollapseToggledAction>(action, ActionTypes.CollapseToggled)) {
     return { ...state, isExpanded: !state.isExpanded };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchStarted) {
+  if (
+    isAction<DocumentsFetchStartedAction>(
+      action,
+      ActionTypes.DocumentsFetchStarted
+    )
+  ) {
     return { ...state, isLoading: true };
   }
 
-  if (action.type === ActionTypes.DocumentsFetchFinished) {
+  if (
+    isAction<DocumentsFetchFinishedAction>(
+      action,
+      ActionTypes.DocumentsFetchFinished
+    )
+  ) {
     return {
       ...state,
       count: action.count,
@@ -73,7 +92,7 @@ export const loadingInputDocuments = (): DocumentsFetchStartedAction => ({
 
 export const updateInputDocuments = (
   count: number | null,
-  documents: Document[],
+  documents: HadronDocument[],
   error: Error | null
 ): DocumentsFetchFinishedAction => ({
   type: ActionTypes.DocumentsFetchFinished,
@@ -85,11 +104,11 @@ export const updateInputDocuments = (
 export const refreshInputDocuments = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const {
       dataService: { dataService },
       namespace: ns,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       settings: { sampleSize },
     } = getState();
 
@@ -98,7 +117,9 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
     }
 
     const options = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS) as number | undefined,
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, maxTimeMS) as
+        | number
+        | undefined,
     };
 
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];
@@ -113,6 +134,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;
       const docs = data[1].status === 'fulfilled' ? data[1].value : [];
+      const hadronDocs = docs.map((doc: any) => new HadronDocument(doc));
 
       const error =
         data[0].status === 'rejected'
@@ -120,7 +142,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
           : data[1].status === 'rejected'
           ? data[1].reason
           : null;
-      dispatch(updateInputDocuments(count, docs, error));
+      dispatch(updateInputDocuments(count, hadronDocs, error));
     } catch (error) {
       dispatch(updateInputDocuments(null, [], error as Error));
     }

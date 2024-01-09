@@ -1,15 +1,18 @@
 import Sinon from 'sinon';
 import { PreferencesSandbox } from './preferences-sandbox';
-import preferences from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { expect } from 'chai';
 
 describe('PreferencesSandbox', function () {
   const sinonSandbox = Sinon.createSandbox();
 
-  let preferencesAccess: Sinon.SinonSpiedInstance<typeof preferences>;
+  let preferencesAccess: Sinon.SinonSpiedInstance<PreferencesAccess>;
 
   beforeEach(async function () {
-    preferencesAccess = sinonSandbox.spy(await preferences.createSandbox());
+    preferencesAccess = sinonSandbox.spy(
+      await createSandboxFromDefaultPreferences()
+    );
   });
 
   afterEach(function () {

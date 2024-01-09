@@ -19,4 +19,5 @@ export type Actions =
   | 'drop-collection'
   | 'open-in-new-tab'
   | 'duplicate-view'
-  | 'modify-view';
+  | 'modify-view'
+  | 'rename-collection';

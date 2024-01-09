@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import Document from '../src/';
+import Document, { DocumentEvents } from '../src/';
 import SharedExamples from './shared-examples';
 import { ObjectId, Long, Int32, Double } from 'bson';
+import Sinon from 'sinon';
 
 describe('Document', function () {
   describe('#get', function () {
@@ -2390,6 +2391,32 @@ describe('Document', function () {
             '}'
         );
       });
+    });
+  });
+
+  context('when a document is expanded/collapsed', function () {
+    it('expands/collapse all of the child elements and sub-elements and notifies about the expansion/collapse', function () {
+      const doc = {
+        a1: 'a1',
+        b1: {
+          b11: 'b1.1',
+          b12: 'b1.2',
+        },
+      };
+      const hadronDoc = new Document(doc);
+      const expandedSpy = Sinon.spy();
+      const collapsedSpy = Sinon.spy();
+      hadronDoc.on(DocumentEvents.Expanded, expandedSpy);
+      hadronDoc.on(DocumentEvents.Collapsed, collapsedSpy);
+
+      expect(hadronDoc.expanded).to.be.false;
+      hadronDoc.expand();
+      expect(hadronDoc.expanded).to.be.true;
+      expect(expandedSpy).to.be.calledOnce;
+
+      hadronDoc.collapse();
+      expect(hadronDoc.expanded).to.be.false;
+      expect(collapsedSpy).to.be.calledOnce;
     });
   });
 });

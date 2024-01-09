@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app } from 'electron';
+import { app, safeStorage } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -10,8 +10,13 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
-import preferences, {
+import type {
+  ParsedGlobalPreferencesResult,
+  PreferencesAccess,
+  UserStorage,
+} from 'compass-preferences-model';
+import {
+  getActiveUser,
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
@@ -21,7 +26,8 @@ import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
-const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
+const { debug, log, track, mongoLogId } =
+  createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -57,6 +63,8 @@ class CompassApplication {
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
+  public static preferences: PreferencesAccess;
+  private static userStorage: UserStorage;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -69,12 +77,17 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    await setupPreferencesAndUser(globalPreferences);
+    const { preferences, userStorage } = await setupPreferencesAndUser(
+      globalPreferences
+    );
+    this.preferences = preferences;
+    this.userStorage = userStorage;
     await this.setupLogging();
     // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
     await setupProtocolHandlers(
-      process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install'
+      process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install',
+      this.preferences
     );
 
     // needs to happen after setupProtocolHandlers
@@ -86,6 +99,24 @@ class CompassApplication {
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
 
+    try {
+      await ConnectionStorage.migrateToSafeStorage();
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_275),
+        'SafeStorage Migration',
+        'Failed to migrate connections',
+        { message: (e as Error).message }
+      );
+    }
+
+    if (process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true') {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
+
     if (mode === 'CLI') {
       return;
     }
@@ -93,7 +124,7 @@ class CompassApplication {
     void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
-    setupTheme();
+    setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
@@ -166,23 +197,30 @@ class CompassApplication {
       },
     } as const;
 
-    const { atlasServiceBackendPreset } = preferences.getPreferences();
+    const { atlasServiceBackendPreset } = this.preferences.getPreferences();
 
-    const atlasServiceConfig = defaultsDeep(
-      {
-        atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
-        atlasApiUnauthBaseUrl:
-          process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
-        atlasLogin: {
-          clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
-          issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
-        },
-        authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+    const envConfig = {
+      atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
+      atlasApiUnauthBaseUrl:
+        process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+      atlasLogin: {
+        clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
+        issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
       },
+      authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+    };
+    const atlasServiceConfig = defaultsDeep(
+      envConfig,
       config[atlasServiceBackendPreset]
-    );
+    ) as typeof envConfig & typeof config[keyof typeof config];
 
-    await AtlasService.init(atlasServiceConfig);
+    await AtlasService.init(atlasServiceConfig, {
+      preferences: this.preferences,
+      getUserId: async () =>
+        (
+          await getActiveUser(this.preferences, this.userStorage)
+        ).id,
+    });
 
     this.addExitHandler(() => {
       return AtlasService.onExit();
@@ -216,7 +254,7 @@ class CompassApplication {
       file,
       positionalArguments,
       maxTimeMS,
-    } = preferences.getPreferences();
+    } = this.preferences.getPreferences();
 
     debug('application launched');
     track('Application Launched', async () => {

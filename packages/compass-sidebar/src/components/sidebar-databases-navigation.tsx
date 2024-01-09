@@ -1,38 +1,95 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import type { Dispatch } from 'redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import type { Actions } from '@mongodb-js/compass-databases-navigation';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
+import type { Database } from '../modules/databases';
 import { toggleDatabaseExpanded } from '../modules/databases';
-import { withPreferences } from 'compass-preferences-model';
-import type { RootState } from '../modules';
+import { usePreference } from 'compass-preferences-model';
+import type { RootState, SidebarThunkAction } from '../modules';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
-function SidebarDatabasesNavigation(
-  dbNavigationProps: React.ComponentProps<typeof DatabasesNavigationTree> & {
-    readOnly?: boolean;
-    isDataLake?: boolean;
-    isWritable?: boolean;
-  }
-) {
-  const isReadOnly =
-    dbNavigationProps.readOnly ||
-    dbNavigationProps.isDataLake ||
-    !dbNavigationProps.isWritable;
+function findCollection(ns: string, databases: Database[]) {
+  const { database, collection } = toNS(ns);
+
   return (
-    <DatabasesNavigationTree {...dbNavigationProps} isReadOnly={isReadOnly} />
+    databases
+      .find((db) => db._id === database)
+      ?.collections.find((coll) => coll.name === collection) ?? null
+  );
+}
+
+function SidebarDatabasesNavigation({
+  isDataLake,
+  isWritable,
+  onNamespaceAction: _onNamespaceAction,
+  databases,
+  ...dbNavigationProps
+}: Omit<
+  React.ComponentProps<typeof DatabasesNavigationTree>,
+  'isReadOnly' | 'databases'
+> & {
+  databases: Database[];
+  isDataLake?: boolean;
+  isWritable?: boolean;
+}) {
+  const {
+    openCollectionsWorkspace,
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+  } = useOpenWorkspace();
+  const preferencesReadOnly = usePreference('readOnly');
+  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+  const onNamespaceAction = useCallback(
+    (ns: string, action: Actions) => {
+      switch (action) {
+        case 'select-database':
+          openCollectionsWorkspace(ns);
+          return;
+        case 'select-collection':
+          openCollectionWorkspace(ns);
+          return;
+        case 'open-in-new-tab':
+          openCollectionWorkspace(ns, { newTab: true });
+          return;
+        case 'modify-view': {
+          const coll = findCollection(ns, databases);
+          if (coll && coll.sourceName && coll.pipeline) {
+            openEditViewWorkspace(coll._id, {
+              sourceName: coll.sourceName,
+              sourcePipeline: coll.pipeline,
+              newTab: true,
+            });
+          }
+          return;
+        }
+        default:
+          _onNamespaceAction(ns, action);
+          return;
+      }
+    },
+    [
+      databases,
+      openCollectionsWorkspace,
+      openCollectionWorkspace,
+      openEditViewWorkspace,
+      _onNamespaceAction,
+    ]
+  );
+
+  return (
+    <DatabasesNavigationTree
+      {...dbNavigationProps}
+      databases={databases}
+      onNamespaceAction={onNamespaceAction}
+      isReadOnly={isReadOnly}
+    />
   );
 }
 
 function mapStateToProps(state: RootState) {
   const {
-    databases: {
-      filterRegex,
-      filteredDatabases,
-      expandedDbList,
-      activeNamespace,
-    },
+    databases: { filterRegex, filteredDatabases, expandedDbList },
     instance,
   } = state;
   const status = instance?.databasesStatus;
@@ -51,25 +108,26 @@ function mapStateToProps(state: RootState) {
     isReady,
     isDataLake,
     isWritable,
-    activeNamespace: toNS(activeNamespace).ns,
     databases: filteredDatabases,
     expanded,
   };
 }
 
-const onNamespaceAction = (namespace: string, action: Actions) => {
-  return (dispatch: Dispatch) => {
-    const emit = (...args: any[]) => dispatch(globalAppRegistryEmit(...args));
+const onNamespaceAction = (
+  namespace: string,
+  action: Actions
+): SidebarThunkAction<void> => {
+  return (_dispatch, getState, { globalAppRegistry }) => {
+    const emit = (action: string, ...rest: any[]) => {
+      globalAppRegistry.emit(action, ...rest);
+    };
     const ns = toNS(namespace);
     switch (action) {
-      case 'select-database':
-        emit('select-database', ns.database);
-        return;
-      case 'select-collection':
-        emit('sidebar-select-collection', ns);
-        return;
       case 'drop-database':
         emit('open-drop-database', ns.database);
+        return;
+      case 'rename-collection':
+        emit('open-rename-collection', ns);
         return;
       case 'drop-collection':
         emit('open-drop-collection', ns);
@@ -77,15 +135,17 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
       case 'create-collection':
         emit('open-create-collection', ns);
         return;
-      case 'open-in-new-tab':
-        emit('sidebar-open-collection-in-new-tab', ns);
+      case 'duplicate-view': {
+        const coll = findCollection(namespace, getState().databases.databases);
+        if (coll && coll.sourceName) {
+          emit('open-create-view', {
+            source: coll.sourceName,
+            pipeline: coll.pipeline,
+            duplicate: true,
+          });
+        }
         return;
-      case 'modify-view':
-        emit('sidebar-modify-view', ns);
-        return;
-      case 'duplicate-view':
-        emit('sidebar-duplicate-view', ns);
-        break;
+      }
       default:
       // no-op
     }
@@ -95,4 +155,4 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
-})(withPreferences(SidebarDatabasesNavigation, ['readOnly'], React));
+})(SidebarDatabasesNavigation);

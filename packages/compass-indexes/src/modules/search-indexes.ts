@@ -1,6 +1,5 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAction } from './../utils/is-action';
 import {
   openToast,
@@ -17,8 +16,6 @@ import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
 import { switchToSearchIndexes } from './index-view';
-
-const { debug, track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
 
@@ -415,7 +412,7 @@ export const createIndex = (
   indexName: string,
   indexDefinition: Document
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState) {
+  return async function (dispatch, getState, { logger: { track } }) {
     const { namespace, dataService } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
@@ -464,7 +461,7 @@ export const updateIndex = (
   indexName: string,
   indexDefinition: Document
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState) {
+  return async function (dispatch, getState, { logger: { track } }) {
     const {
       namespace,
       dataService,
@@ -516,7 +513,7 @@ const setError = (error: string | undefined): SetErrorAction => ({
 const fetchIndexes = (
   newStatus: SearchIndexesStatus
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { logger: { debug } }) => {
     const {
       isReadonlyView,
       isWritable,
@@ -606,7 +603,7 @@ export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState) {
+  return async function (dispatch, getState, { logger: { track } }) {
     const { namespace, dataService } = getState();
     if (!dataService) {
       return;
@@ -648,34 +645,19 @@ export const dropSearchIndex = (
   };
 };
 
-export const runAggregateSearchIndex = (
-  name: string
-): IndexesThunkAction<void> => {
-  return function (_dispatch, getState, { globalAppRegistry }) {
-    const {
-      searchIndexes: { indexes },
-      namespace,
-    } = getState();
-    const searchIndex = indexes.find((x) => x.name === name);
-    if (!searchIndex) {
-      return;
-    }
-    globalAppRegistry?.emit('search-indexes-run-aggregate', {
-      ns: namespace,
-      pipelineText: JSON.stringify([
-        {
-          $search: {
-            index: name,
-            text: {
-              query: 'string',
-              path: 'string',
-            },
-          },
+export function getInitialSearchIndexPipeline(name: string) {
+  return [
+    {
+      $search: {
+        index: name,
+        text: {
+          query: 'string',
+          path: 'string',
         },
-      ]),
-    });
-  };
-};
+      },
+    },
+  ];
+}
 
 function _sortIndexes(
   indexes: SearchIndex[],

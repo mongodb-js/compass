@@ -1,4 +1,3 @@
-import type { DataService } from 'mongodb-data-service';
 import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
@@ -8,6 +7,8 @@ import Stage from './stage';
 import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
+import type { DataService } from '../data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export const DEFAULT_PIPELINE = `[]`;
 
@@ -26,8 +27,12 @@ export class PipelineBuilder {
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
-  constructor(dataService: DataService, source = DEFAULT_PIPELINE) {
-    this.previewManager = new PipelinePreviewManager(dataService);
+  constructor(
+    dataService: DataService,
+    preferences: PreferencesAccess,
+    source = DEFAULT_PIPELINE
+  ) {
+    this.previewManager = new PipelinePreviewManager(dataService, preferences);
     this.changeSource(source);
     this.sourceToStages();
   }
@@ -85,7 +90,7 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      this.pipeline = parseShellBSON(this.source);
+      this.pipeline = parseShellBSON<Document[]>(this.source);
       // parseShellBSON will parse various values, not all of them are valid
       // aggregation pipelines
       if (!Array.isArray(this.pipeline)) {
@@ -238,7 +243,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.nonEmptyStages): Document[] {
-    return parseShellBSON(this.getPipelineStringFromStages(stages));
+    return parseShellBSON<Document[]>(this.getPipelineStringFromStages(stages));
   }
 
   /**

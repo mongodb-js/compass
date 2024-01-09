@@ -25,7 +25,7 @@ export type Item = {
   collection: string;
 } & (
   | {
-      type: 'query';
+      type: 'query' | 'updatemany';
       query: FavoriteQuery;
     }
   | {
@@ -68,9 +68,9 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
         return state;
       }
       const updatedItem =
-        item.type === 'query'
-          ? mapQueryToItem(action.payload as FavoriteQuery)
-          : mapAggregationToItem(action.payload as SavedPipeline);
+        'name' in action.payload
+          ? mapAggregationToItem(action.payload)
+          : mapQueryToItem(action.payload);
       return {
         ...state,
         items: [...state.items.filter((x) => x.id !== action.id), updatedItem],
@@ -125,7 +125,7 @@ const mapQueryToItem = (query: FavoriteQuery): Item => {
     lastModified: (query._dateModified ?? query._dateSaved).getTime(),
     database,
     collection,
-    type: 'query',
+    type: query.update ? 'updatemany' : 'query',
     query,
   };
 };

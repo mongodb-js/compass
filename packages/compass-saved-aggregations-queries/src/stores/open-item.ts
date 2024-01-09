@@ -1,10 +1,6 @@
 import type { ActionCreator, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
@@ -109,7 +105,7 @@ export type Actions =
   | LoadCollectionsErrorAction
   | LoadCollectionsSuccessAction;
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.OpenModal:
       return {
@@ -175,15 +171,9 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
 };
 
 const openModal =
-  (selectedItem: Item): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
+  (selectedItem: Item): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, _getState, { instance, dataService }) => {
     dispatch({ type: ActionTypes.OpenModal, selectedItem });
-
-    const { instance, dataService } = getState();
-
-    if (!instance || !dataService) {
-      return;
-    }
 
     dispatch({ type: ActionTypes.LoadDatabases });
 
@@ -207,14 +197,8 @@ const openItem =
     item: Item,
     database: string,
     collection: string
-  ): ThunkAction<void, RootState, void, Actions> =>
-  (dispatch, getState) => {
-    const { appRegistry } = getState();
-
-    if (!appRegistry) {
-      return;
-    }
-
+  ): SavedQueryAggregationThunkAction<void> =>
+  (_dispatch, _getState, { logger: { track }, workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -225,29 +209,27 @@ const openItem =
       }
     );
 
-    appRegistry.emit('my-queries-open-saved-item', {
-      ns: `${database}.${collection}`,
-      aggregation: item.type === 'aggregation' ? item.aggregation : null,
-      query: item.type === 'query' ? item.query : null,
+    workspaces.openCollectionWorkspace(`${database}.${collection}`, {
+      initialAggregation:
+        item.type === 'aggregation' ? item.aggregation : undefined,
+      initialQuery:
+        item.type === 'query' || item.type === 'updatemany'
+          ? item.query
+          : undefined,
+      newTab: true,
     });
   };
 
 export const openSavedItem =
-  (id: string): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
+  (id: string): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, getState, { instance, dataService }) => {
     const {
-      instance,
-      dataService,
       savedItems: { items },
     } = getState();
 
     const item = items.find((item) => item.id === id);
 
     if (!item) {
-      return;
-    }
-
-    if (!instance || !dataService) {
       return;
     }
 
@@ -260,7 +242,7 @@ export const openSavedItem =
     });
 
     if (!coll) {
-      dispatch(openModal(item));
+      void dispatch(openModal(item));
       return;
     }
 
@@ -268,7 +250,7 @@ export const openSavedItem =
   };
 
 export const openSelectedItem =
-  (): ThunkAction<void, RootState, void, Actions> => (dispatch, getState) => {
+  (): SavedQueryAggregationThunkAction<void> => (dispatch, getState) => {
     const {
       openItem: { selectedItem, selectedDatabase, selectedCollection },
     } = getState();
@@ -282,17 +264,11 @@ export const openSelectedItem =
   };
 
 export const selectDatabase =
-  (database: string): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
+  (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, getState, { instance, dataService }) => {
     const {
-      instance,
-      dataService,
       openItem: { selectedDatabase },
     } = getState();
-
-    if (!instance || !dataService) {
-      return;
-    }
 
     if (database === selectedDatabase) {
       return;

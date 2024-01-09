@@ -26,6 +26,7 @@ import {
   lighten,
 } from '@mongodb-js/compass-components';
 import { HackoladePromoBanner } from './promo-banner';
+import type { configureActions } from '../actions';
 
 const rootStyles = css`
   width: 100%;
@@ -278,8 +279,7 @@ const FieldList: React.FunctionComponent<{
   schema: any;
   analysisState: AnalysisState;
   actions: Record<string, any>;
-  store: Record<string, any>;
-}> = ({ schema, analysisState, actions, store }) => {
+}> = ({ schema, analysisState, actions }) => {
   const darkMode = useDarkMode();
 
   if (analysisState !== ANALYSIS_STATE_COMPLETE) {
@@ -307,12 +307,7 @@ const FieldList: React.FunctionComponent<{
     >
       <div data-testid="schema-field-list">
         {fields.map((field: any) => (
-          <Field
-            key={field.name}
-            actions={actions}
-            localAppRegistry={store.localAppRegistry}
-            {...field}
-          />
+          <Field key={field.name} actions={actions} {...field} />
         ))}
       </div>
     </div>
@@ -320,8 +315,7 @@ const FieldList: React.FunctionComponent<{
 };
 
 const Schema: React.FunctionComponent<{
-  actions: Record<string, any>;
-  store: Record<string, any>;
+  actions: ReturnType<typeof configureActions>;
   analysisState: AnalysisState;
   outdated?: boolean;
   isActiveTab?: boolean;
@@ -332,7 +326,6 @@ const Schema: React.FunctionComponent<{
   resultId?: string;
 }> = ({
   actions,
-  store,
   analysisState,
   outdated,
   isActiveTab,
@@ -363,7 +356,6 @@ const Schema: React.FunctionComponent<{
       <WorkspaceContainer
         toolbar={
           <SchemaToolbar
-            localAppRegistry={store.localAppRegistry}
             onAnalyzeSchemaClicked={onApplyClicked}
             onResetClicked={onResetClicked}
             analysisState={analysisState}
@@ -386,7 +378,6 @@ const Schema: React.FunctionComponent<{
             schema={schema}
             analysisState={analysisState}
             actions={actions}
-            store={store}
           />
         )}
       </WorkspaceContainer>

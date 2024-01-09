@@ -1,0 +1,463 @@
+{
+  "left": {
+    "path": [],
+    "value": {}
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "_id": "new ObjectId(\"642d766b7300158b1f22e972\")",
+      "double": "new Double(1.2)",
+      "string": "Hello, world!",
+      "object": {
+        "key": "value"
+      },
+      "array": [1, 2, 3],
+      "binData": "Binary.createFromBase64(\"AQID\", 0)",
+      "objectId": "new ObjectId(\"642d766c7300158b1f22e975\")",
+      "boolean": true,
+      "date": "2023-04-05T13:25:08.445Z",
+      "null": null,
+      "regex": "new BSONRegExp(\"pattern\", \"i\")",
+      "javascript": "new Code(\"function() {}\")",
+      "symbol": "new BSONSymbol(\"symbol\")",
+      "javascriptWithScope": "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})",
+      "int": "new Int32(12345)",
+      "timestamp": "new Timestamp({ t: 1680701109, i: 1 })",
+      "long": "new Long(\"123456789123456789\")",
+      "decimal": "new Decimal128(\"5.477284286264328586719275128128001E-4088\")",
+      "minKey": "new MinKey()",
+      "maxKey": "new MaxKey()",
+      "binaries": {
+        "generic": "Binary.createFromBase64(\"AQID\", 0)",
+        "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+        "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+        "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+        "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+        "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+        "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+        "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+      },
+      "dbRef": "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+    }
+  },
+  "delta": {
+    "_id": ["new ObjectId(\"642d766b7300158b1f22e972\")"],
+    "double": ["new Double(1.2)"],
+    "string": ["Hello, world!"],
+    "object": [
+      {
+        "key": "value"
+      }
+    ],
+    "array": [[1, 2, 3]],
+    "binData": ["Binary.createFromBase64(\"AQID\", 0)"],
+    "objectId": ["new ObjectId(\"642d766c7300158b1f22e975\")"],
+    "boolean": [true],
+    "date": ["2023-04-05T13:25:08.445Z"],
+    "null": [null],
+    "regex": ["new BSONRegExp(\"pattern\", \"i\")"],
+    "javascript": ["new Code(\"function() {}\")"],
+    "symbol": ["new BSONSymbol(\"symbol\")"],
+    "javascriptWithScope": [
+      "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
+    ],
+    "int": ["new Int32(12345)"],
+    "timestamp": ["new Timestamp({ t: 1680701109, i: 1 })"],
+    "long": ["new Long(\"123456789123456789\")"],
+    "decimal": [
+      "new Decimal128(\"5.477284286264328586719275128128001E-4088\")"
+    ],
+    "minKey": ["new MinKey()"],
+    "maxKey": ["new MaxKey()"],
+    "binaries": [
+      {
+        "generic": "Binary.createFromBase64(\"AQID\", 0)",
+        "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+        "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+        "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+        "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+        "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+        "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+        "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+        "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+      }
+    ],
+    "dbRef": [
+      "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+    ]
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "_id",
+      "right": {
+        "path": ["_id"],
+        "value": "new ObjectId(\"642d766b7300158b1f22e972\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "double",
+      "right": {
+        "path": ["double"],
+        "value": "new Double(1.2)"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "string",
+      "right": {
+        "path": ["string"],
+        "value": "Hello, world!"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "object",
+      "right": {
+        "path": ["object"],
+        "value": {
+          "key": "value"
+        }
+      },
+      "delta": null,
+      "properties": [
+        {
+          "implicitChangeType": "added",
+          "objectKey": "key",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["object", "key"],
+            "value": "value"
+          }
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "array",
+      "right": {
+        "path": ["array"],
+        "value": [1, 2, 3]
+      },
+      "delta": null,
+      "items": [
+        {
+          "implicitChangeType": "added",
+          "index": 0,
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["array", 0],
+            "value": 1
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "index": 1,
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["array", 1],
+            "value": 2
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "index": 2,
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["array", 2],
+            "value": 3
+          }
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "binData",
+      "right": {
+        "path": ["binData"],
+        "value": "Binary.createFromBase64(\"AQID\", 0)"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "objectId",
+      "right": {
+        "path": ["objectId"],
+        "value": "new ObjectId(\"642d766c7300158b1f22e975\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "boolean",
+      "right": {
+        "path": ["boolean"],
+        "value": true
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "date",
+      "right": {
+        "path": ["date"],
+        "value": "2023-04-05T13:25:08.445Z"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "null",
+      "right": {
+        "path": ["null"],
+        "value": null
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "regex",
+      "right": {
+        "path": ["regex"],
+        "value": "new BSONRegExp(\"pattern\", \"i\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "javascript",
+      "right": {
+        "path": ["javascript"],
+        "value": "new Code(\"function() {}\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "symbol",
+      "right": {
+        "path": ["symbol"],
+        "value": "new BSONSymbol(\"symbol\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "javascriptWithScope",
+      "right": {
+        "path": ["javascriptWithScope"],
+        "value": "new Code(\"function() {}\", {\"foo\":1,\"bar\":\"a\"})"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "int",
+      "right": {
+        "path": ["int"],
+        "value": "new Int32(12345)"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "timestamp",
+      "right": {
+        "path": ["timestamp"],
+        "value": "new Timestamp({ t: 1680701109, i: 1 })"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "long",
+      "right": {
+        "path": ["long"],
+        "value": "new Long(\"123456789123456789\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "decimal",
+      "right": {
+        "path": ["decimal"],
+        "value": "new Decimal128(\"5.477284286264328586719275128128001E-4088\")"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "minKey",
+      "right": {
+        "path": ["minKey"],
+        "value": "new MinKey()"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "maxKey",
+      "right": {
+        "path": ["maxKey"],
+        "value": "new MaxKey()"
+      },
+      "delta": null
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "binaries",
+      "right": {
+        "path": ["binaries"],
+        "value": {
+          "generic": "Binary.createFromBase64(\"AQID\", 0)",
+          "functionData": "Binary.createFromBase64(\"Ly84PQ==\", 1)",
+          "binaryOld": "Binary.createFromBase64(\"Ly84PQ==\", 2)",
+          "uuidOld": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)",
+          "uuid": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")",
+          "md5": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)",
+          "encrypted": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)",
+          "compressedTimeSeries": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)",
+          "custom": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+        }
+      },
+      "delta": null,
+      "properties": [
+        {
+          "implicitChangeType": "added",
+          "objectKey": "generic",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "generic"],
+            "value": "Binary.createFromBase64(\"AQID\", 0)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "functionData",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "functionData"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 1)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "binaryOld",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "binaryOld"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 2)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "uuidOld",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "uuidOld"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 3)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "uuid",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "uuid"],
+            "value": "new UUID(\"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa\")"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "md5",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "md5"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 5)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "encrypted",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "encrypted"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 6)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "compressedTimeSeries",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "compressedTimeSeries"],
+            "value": "Binary.createFromBase64(\"Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09\", 7)"
+          }
+        },
+        {
+          "implicitChangeType": "added",
+          "objectKey": "custom",
+          "delta": null,
+          "changeType": "added",
+          "right": {
+            "path": ["binaries", "custom"],
+            "value": "Binary.createFromBase64(\"Ly84PQ==\", 128)"
+          }
+        }
+      ]
+    },
+    {
+      "implicitChangeType": "unchanged",
+      "changeType": "added",
+      "objectKey": "dbRef",
+      "right": {
+        "path": ["dbRef"],
+        "value": "new DBRef(\"namespace\", new ObjectId(\"642d76b4b7ebfab15d3c4a78\"))"
+      },
+      "delta": null
+    }
+  ]
+}

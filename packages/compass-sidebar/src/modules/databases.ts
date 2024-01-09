@@ -1,9 +1,7 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { RootAction, SidebarThunkAction } from '.';
 import toNS from 'mongodb-ns';
-import type { RootAction, RootState } from '.';
-import type { Dispatch } from 'redux';
 
-type NS = ReturnType<typeof toNS>;
 /**
  * Databases actions.
  */
@@ -20,14 +18,6 @@ interface ChangeDatabasesAction {
   databases: Database[];
 }
 
-export const CHANGE_ACTIVE_NAMESPACE =
-  'sidebar/databases/CHANGE_ACTIVE_NAMESPACE' as const;
-interface ChangeActiveNamespaceAction {
-  type: typeof CHANGE_ACTIVE_NAMESPACE;
-  activeNamespace: string | NS;
-  activeDatabase: string;
-}
-
 export const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE' as const;
 interface ToggleDatabaseAction {
   type: typeof TOGGLE_DATABASE;
@@ -38,7 +28,6 @@ interface ToggleDatabaseAction {
 export type DatabasesAction =
   | ChangeFilterRegexAction
   | ChangeDatabasesAction
-  | ChangeActiveNamespaceAction
   | ToggleDatabaseAction;
 
 const NO_REGEX = null;
@@ -46,20 +35,20 @@ const NO_REGEX = null;
 export const NO_ACTIVE_NAMESPACE = '';
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
+
 export type Database = Pick<
   DatabaseRaw,
   '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
   collections: Pick<
     DatabaseRaw['collections'][number],
-    '_id' | 'name' | 'type'
+    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
 export interface DatabaseState {
   databases: Database[];
   filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
-  activeNamespace: string | NS;
   filterRegex: null | RegExp;
 }
 
@@ -70,7 +59,6 @@ export const INITIAL_STATE: DatabaseState = {
   databases: [],
   filteredDatabases: [],
   expandedDbList: Object.create(null),
-  activeNamespace: NO_ACTIVE_NAMESPACE,
   filterRegex: NO_REGEX,
 };
 
@@ -123,19 +111,6 @@ export default function reducer(
     };
   }
 
-  if (action.type === CHANGE_ACTIVE_NAMESPACE) {
-    return {
-      ...state,
-      activeNamespace: action.activeNamespace,
-      ...(action.activeDatabase && {
-        expandedDbList: {
-          ...state.expandedDbList,
-          [action.activeDatabase]: true,
-        },
-      }),
-    };
-  }
-
   if (action.type === CHANGE_DATABASES) {
     return {
       ...state,
@@ -158,46 +133,31 @@ export const changeDatabases = (databases: Database[]) => ({
   databases,
 });
 
-/**
- * The change active namespace action creator.
- *
- * @param {String} activeNamespace
- *
- * @returns {Object} The action.
- */
-export const changeActiveNamespace = (
-  activeNamespace: string | NS
-): ChangeActiveNamespaceAction => ({
-  type: CHANGE_ACTIVE_NAMESPACE,
-  activeNamespace,
-  activeDatabase: toNS(activeNamespace).database,
-});
-
 export const toggleDatabaseExpanded =
-  (id: string, forceExpand: boolean) =>
-  (dispatch: Dispatch<DatabasesAction>, getState: () => RootState) => {
-    const { appRegistry, databases } = getState();
-    const expanded = forceExpand ?? !databases.expandedDbList[id];
-    if (appRegistry.globalAppRegistry && expanded) {
+  (
+    id: string,
+    forceExpand: boolean
+  ): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, getState, { globalAppRegistry }) => {
+    const { database } = toNS(id);
+    const { databases } = getState();
+    const expanded = forceExpand ?? !databases.expandedDbList[database];
+    if (expanded) {
       // Fetch collections list on expand if we haven't done it yet (this is
       // relevant only for the code path that has global overlay disabled)
-      appRegistry.globalAppRegistry.emit('sidebar-expand-database', id);
+      globalAppRegistry.emit('sidebar-expand-database', database);
     }
-    dispatch({ type: TOGGLE_DATABASE, id, expanded });
+    dispatch({ type: TOGGLE_DATABASE, id: database, expanded });
   };
 
 export const changeFilterRegex =
-  (filterRegex: RegExp | null) =>
-  (
-    dispatch: Dispatch<DatabasesAction>,
-    getState: () => Pick<RootState, 'appRegistry'>
-  ) => {
-    const { appRegistry } = getState();
-    if (appRegistry.globalAppRegistry && filterRegex) {
+  (filterRegex: RegExp | null): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, _getState, { globalAppRegistry }) => {
+    if (filterRegex) {
       // When filtering, emit an event so that we can fetch all collections. This
       // is required as a workaround for the syncronous nature of the current
       // filtering feature
-      appRegistry.globalAppRegistry.emit('sidebar-filter-navigation-list');
+      globalAppRegistry.emit('sidebar-filter-navigation-list');
     }
     dispatch({
       type: CHANGE_FILTER_REGEX,

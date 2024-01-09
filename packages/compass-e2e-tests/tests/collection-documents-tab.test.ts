@@ -7,7 +7,10 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Element, ElementArray } from 'webdriverio';
-import { createNumbersCollection } from '../helpers/insert-data';
+import {
+  createNestedDocumentsCollection,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -62,8 +65,8 @@ async function getRecentQueries(
 }
 
 async function navigateToTab(browser: CompassBrowser, tabName: string) {
-  const tabSelector = Selectors.collectionTab(tabName);
-  const tabSelectedSelector = Selectors.collectionTab(tabName, true);
+  const tabSelector = Selectors.collectionSubTab(tabName);
+  const tabSelectedSelector = Selectors.collectionSubTab(tabName, true);
 
   const tabSelectedSelectorElement = await browser.$(tabSelectedSelector);
   // if the correct tab is already visible, do nothing
@@ -590,5 +593,60 @@ FindIterable<Document> result = collection.find(filter);`);
     expect(await unindexedQuerySignal.getText()).to.eq(
       'Query executed without index'
     );
+  });
+
+  describe('expanding and collapsing of documents', function () {
+    beforeEach(async function () {
+      await createNestedDocumentsCollection('nestedDocs', 10);
+      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+      await browser.navigateToCollectionTab('test', 'nestedDocs', 'Documents');
+    });
+
+    it('expands and collapses all fields in a document', async function () {
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+      const document = await browser.$(Selectors.DocumentListEntry);
+      await document.waitForDisplayed();
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.DocumentExpandButton);
+      const expandedHadronElements = await browser.$$(
+        Selectors.HadronDocumentElement
+      );
+      expect(expandedHadronElements).to.have.lengthOf(14);
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.DocumentExpandButton);
+      const collapsedHadronElements = await browser.$$(
+        Selectors.HadronDocumentElement
+      );
+      expect(collapsedHadronElements).to.have.lengthOf(4);
+    });
+
+    it('preserves the expanded state of a document when switching between tabs', async function () {
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+      const document = await browser.$(Selectors.DocumentListEntry);
+      await document.waitForDisplayed();
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.DocumentExpandButton);
+      const expandedHadronElements = await browser.$$(
+        Selectors.HadronDocumentElement
+      );
+      expect(expandedHadronElements).to.have.lengthOf(14);
+
+      await browser.navigateWithinCurrentCollectionTabs('Aggregations');
+      await browser.navigateWithinCurrentCollectionTabs('Documents');
+
+      const expandedHadronElementsPostSwitch = await browser.$$(
+        Selectors.HadronDocumentElement
+      );
+      expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+    });
   });
 });

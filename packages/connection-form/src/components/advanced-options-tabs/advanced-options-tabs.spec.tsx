@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import AdvancedOptionsTabs from './advanced-options-tabs';
+import { ConnectionFormPreferencesContext } from '../../hooks/use-connect-form-preferences';
 
 const testUrl = 'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true';
 
@@ -15,6 +16,7 @@ const tabs = [
   },
   { name: 'TLS/SSL', id: 'tls' },
   { name: 'Proxy/SSH', id: 'proxy' },
+  { name: 'In-Use Encryption', id: 'csfle' },
   { name: 'Advanced', id: 'advanced' },
 ];
 
@@ -104,5 +106,23 @@ describe('AdvancedOptionsTabs Component', function () {
     expect(
       screen.getAllByTestId('connection-tls-tab')[0].getAttribute('aria-label')
     ).to.equal('TLS/SSL (2 errors)');
+  });
+
+  it('should not render CSFLE when its set to false in the preferences', function () {
+    render(
+      <ConnectionFormPreferencesContext.Provider value={{ showCSFLE: false }}>
+        <AdvancedOptionsTabs
+          connectionOptions={{
+            connectionString: testUrl,
+          }}
+          errors={[]}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
+        />
+      </ConnectionFormPreferencesContext.Provider>
+    );
+
+    const csfleTabName = tabs.find((tab) => tab.id === 'csfle')?.name;
+    expect(csfleTabName).to.not.be.undefined;
+    expect(screen.queryByText(csfleTabName as string)).to.not.exist;
   });
 });

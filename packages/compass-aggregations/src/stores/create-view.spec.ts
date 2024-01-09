@@ -21,7 +21,12 @@ describe('CreateViewStore [Store]', function () {
   beforeEach(function () {
     ({ store, deactivate } = activateCreateViewPlugin(
       {},
-      { globalAppRegistry, dataService: ds, logger }
+      {
+        globalAppRegistry,
+        dataService: ds,
+        logger,
+        workspaces: {} as any,
+      }
     ));
   });
 

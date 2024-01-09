@@ -1,7 +1,6 @@
 import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
@@ -11,8 +10,6 @@ import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-
-const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
 export type RegularSortColumn = keyof typeof sortColumnToProps;
 type SortField = keyof Pick<
@@ -241,7 +238,7 @@ export const fetchIndexes = (): IndexesThunkAction<
   Promise<void>,
   RegularIndexesActions
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { logger: { debug } }) => {
     const {
       isReadonlyView,
       dataService,
@@ -345,7 +342,8 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
       void dispatch(fetchIndexes());
       return;
     }
-    localAppRegistry?.emit('toggle-drop-index-modal', true, index.name);
+
+    localAppRegistry?.emit('open-drop-index-modal', index.name);
   };
 };
 

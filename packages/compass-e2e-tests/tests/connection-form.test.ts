@@ -665,7 +665,7 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
-      connectionString
+      `${connectionString}&authSource=%24external`
     );
   });
 

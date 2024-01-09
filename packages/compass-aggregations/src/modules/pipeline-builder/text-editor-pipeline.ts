@@ -1,4 +1,5 @@
 import type { Reducer } from 'redux';
+import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -11,9 +12,11 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
@@ -46,7 +49,7 @@ type EditorPreviewFetchSkippedAction = {
 
 type EditorPreviewFetchSuccessAction = {
   type: EditorActionTypes.EditorPreviewFetchSuccess;
-  previewDocs: Document[];
+  previewDocs: HadronDocument[];
 };
 
 type EditorPreviewFetchErrorAction = {
@@ -54,13 +57,20 @@ type EditorPreviewFetchErrorAction = {
   serverError: MongoServerError;
 };
 
+export type TextEditorAction =
+  | EditorPreviewFetchAction
+  | EditorPreviewFetchErrorAction
+  | EditorPreviewFetchSuccessAction
+  | EditorPreviewFetchSkippedAction
+  | EditorValueChangeAction;
+
 export type TextEditorState = {
   pipelineText: string;
   pipeline: Document[];
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   isLoading: boolean;
-  previewDocs: Document[] | null;
+  previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
 };
 
@@ -91,8 +101,11 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     // On editor switch or reset, reset the parsed pipeline completely
     const pipeline = action.pipeline ?? [];
@@ -185,7 +198,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
 };
 
 export function canRunPipeline(
-  autoPreview: boolean,
+  autoPreview: boolean | undefined,
   syntaxErrors: PipelineParserError[]
 ) {
   return autoPreview && syntaxErrors.length === 0;
@@ -198,11 +211,11 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       autoPreview,
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       collationString,
       limit,
       largeLimit,
@@ -237,12 +250,13 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
       const options: PreviewOptions = {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+          preferences,
           maxTimeMS ?? DEFAULT_MAX_TIME_MS
         ),
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count,
+        totalDocumentCount: inputDocuments.count ?? undefined,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
@@ -253,7 +267,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
       dispatch({
         type: EditorActionTypes.EditorPreviewFetchSuccess,
-        previewDocs,
+        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -294,6 +308,34 @@ export const changeEditorValue = (
 
     void dispatch(loadPreviewForPipeline());
     void dispatch(fetchExplainForPipeline());
+  };
+};
+
+export const expandPreviewDocs = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { previewDocs },
+        },
+      },
+    } = getState();
+
+    previewDocs?.forEach((doc) => doc.expand());
+  };
+};
+
+export const collapsePreviewDocs = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { previewDocs },
+        },
+      },
+    } = getState();
+
+    previewDocs?.forEach((doc) => doc.collapse());
   };
 };
 

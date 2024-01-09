@@ -1,7 +1,7 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 import userEvent from '@testing-library/user-event';
 import {
   parseSchema,
@@ -9,35 +9,42 @@ import {
   type SchemaType,
 } from 'mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
-
-import configureActions from '../actions';
+import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
+import QueryBarPlugin from '@mongodb-js/compass-query-bar';
+
+const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
+  dataService: {
+    sample() {
+      return Promise.resolve([]);
+    },
+    getConnectionString() {
+      return { hosts: [] } as any;
+    },
+  },
+  instance: { on() {}, removeListener() {} } as any,
+});
+
+function renderField(
+  props: Partial<ComponentProps<typeof Field>>,
+  queryBarProps: Partial<ComponentProps<typeof QueryBarPlugin>> = {}
+) {
+  return render(
+    <MockQueryBarPlugin {...(queryBarProps as any)}>
+      <Field
+        enableMaps={false}
+        actions={configureActions()}
+        name="testFieldName"
+        path={['test']}
+        {...props}
+        types={props.types ?? []}
+      />
+    </MockQueryBarPlugin>
+  );
+}
 
 describe('Field', function () {
   let container: HTMLElement;
-  let testAppRegistry: AppRegistry;
-
-  beforeEach(function () {
-    testAppRegistry = new AppRegistry();
-    testAppRegistry.registerStore('Query.Store', {
-      getState() {
-        return {
-          queryBar: {
-            fields: {
-              filter: {
-                value: {},
-                string: '',
-                valid: true,
-              },
-            },
-          },
-        };
-      },
-      subscribe() {
-        return () => {};
-      },
-    } as any);
-  });
 
   describe('basic field name', function () {
     beforeEach(function () {
@@ -63,16 +70,7 @@ describe('Field', function () {
           values: ['testa', 'testb', 'testc'],
         },
       ];
-      render(
-        <Field
-          enableMaps={false}
-          actions={configureActions()}
-          localAppRegistry={testAppRegistry}
-          name="testFieldName"
-          path={['test']}
-          types={types}
-        />
-      );
+      renderField({ types, name: 'testFieldName', path: ['test'] });
       container = screen.getByTestId('schema-field');
     });
 
@@ -127,16 +125,7 @@ describe('Field', function () {
           values: ['testa'],
         },
       ];
-      render(
-        <Field
-          enableMaps={false}
-          actions={configureActions()}
-          localAppRegistry={testAppRegistry}
-          name="documentField"
-          path={['documentField']}
-          types={types}
-        />
-      );
+      renderField({ types, name: 'documentField', path: ['documentField'] });
       container = screen.getByTestId('schema-field');
     });
 
@@ -201,16 +190,7 @@ describe('Field', function () {
       },
     ];
     beforeEach(function () {
-      render(
-        <Field
-          enableMaps={false}
-          actions={configureActions()}
-          localAppRegistry={testAppRegistry}
-          name="arrayField"
-          path={['arrayField']}
-          types={types}
-        />
-      );
+      renderField({ types, name: 'arrayField', path: ['arrayField'] });
       container = screen.getByTestId('schema-field');
     });
 

@@ -1,12 +1,13 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
+import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
+import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
@@ -17,7 +18,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import preferencesAccess from 'compass-preferences-model';
+import { getDestinationNamespaceFromStage } from '../../utils/stage';
 
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
@@ -38,7 +39,12 @@ type OutputStageFetchFailedAction = {
   serverError: MongoServerError;
 };
 
-type OutputStageState = {
+export type OutputStageAction =
+  | OutputStageFetchStartedAction
+  | OutputStageFetchSuccededAction
+  | OutputStageFetchFailedAction;
+
+export type OutputStageState = {
   isLoading: boolean;
   serverError: MongoServerError | null;
   isComplete: boolean;
@@ -68,8 +74,11 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
       action,
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     ) ||
-    action.type === RESTORE_PIPELINE ||
-    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+    isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
+    isAction<NewPipelineConfirmedAction>(
+      action,
+      ConfirmNewPipelineActions.NewPipelineConfirmed
+    )
   ) {
     return { ...INITIAL_STATE };
   }
@@ -119,12 +128,16 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
 export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, globalAppRegistry }
+  ) => {
     const {
       autoPreview,
       dataService: { dataService },
       namespace,
-      maxTimeMS,
+      maxTimeMS: { current: maxTimeMS },
       collationString,
     } = getState();
 
@@ -132,7 +145,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       !dataService ||
       // Running output stage from preview is not allowed if "run pipeline"
       // feature is enabled
-      preferencesAccess.getPreferences().enableAggregationBuilderRunPipeline
+      preferences.getPreferences().enableAggregationBuilderRunPipeline
     ) {
       return;
     }
@@ -151,6 +164,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       const { signal } = new AbortController();
       await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline,
@@ -159,8 +173,14 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
       });
-      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
-    } catch (error) {
+      globalAppRegistry.emit(
+        'agg-pipeline-out-executed',
+        getDestinationNamespaceFromStage(
+          namespace,
+          pipeline[pipeline.length - 1]
+        )
+      );
+    } catch (error: any) {
       dispatch({
         type: OutputStageActionTypes.FetchFailed,
         serverError: error,
@@ -173,15 +193,21 @@ export const gotoOutputStageCollection =
   (): PipelineBuilderThunkAction<void> => {
     return (dispatch, getState) => {
       const {
+        namespace,
         pipelineBuilder: {
           textEditor: {
             pipeline: { pipeline },
           },
         },
       } = getState();
-      // $out or $merge is always last stage
-      const lastStageIndex = pipeline.length - 1;
-      dispatch(gotoOutResults(lastStageIndex));
+      const outNamespace = getDestinationNamespaceFromStage(
+        namespace,
+        // $out or $merge is always last stage
+        pipeline[pipeline.length - 1]
+      );
+      if (outNamespace) {
+        dispatch(gotoOutResults(outNamespace));
+      }
     };
   };
 

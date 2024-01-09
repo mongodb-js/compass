@@ -1,14 +1,11 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { DataService } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { BSONObject } from '../stores/crud-store';
-
-const { log, mongoLogId, debug } = createLoggerAndTelemetry(
-  'COMPASS-CANCELLABLE-QUERIES'
-);
+import type { DataService } from './data-service';
 
 export async function countDocuments(
   dataService: DataService,
+  preferences: PreferencesAccess,
   ns: string,
   filter: BSONObject,
   {
@@ -19,10 +16,13 @@ export async function countDocuments(
     hint,
   }: { signal: AbortSignal; skip?: number; limit?: number } & Parameters<
     typeof dataService.aggregate
-  >[2]
+  >[2],
+  onSkippedError: (err: any) => void = () => {
+    // noop
+  }
 ): Promise<number | null> {
   const opts = {
-    maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
+    maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, maxTimeMS),
     hint,
   };
 
@@ -57,7 +57,7 @@ export async function countDocuments(
     }
 
     // for all other errors we assume the query failed
-    debug('warning: unable to count documents', err);
+    onSkippedError(err);
     // The count queries can frequently time out on large collections.
     // The UI will just have to deal with null.
     result = null;
@@ -73,7 +73,10 @@ export async function fetchShardingKeys(
     maxTimeMS,
   }: {
     signal: AbortSignal;
-  } & Parameters<typeof dataService.find>[2]
+  } & Parameters<typeof dataService.find>[2],
+  onSkippedError: (err: any) => void = () => {
+    // noop
+  }
 ): Promise<BSONObject> {
   try {
     const docs = await dataService.find(
@@ -90,12 +93,7 @@ export async function fetchShardingKeys(
     }
 
     // for other errors assume that the query failed
-    log.warn(
-      mongoLogId(1_001_000_075),
-      'Documents',
-      'Failed to fetch sharding keys',
-      err
-    );
+    onSkippedError(err);
   }
 
   return {};

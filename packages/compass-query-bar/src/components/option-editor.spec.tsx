@@ -30,7 +30,12 @@ describe('OptionEditor', function () {
   describe('with autofix enabled', function () {
     it('fills the input with an empty object "{}" when empty on focus', async function () {
       render(
-        <OptionEditor hasAutofix onChange={() => {}} value=""></OptionEditor>
+        <OptionEditor
+          namespace="test.test"
+          insertEmptyDocOnFocus
+          onChange={() => {}}
+          value=""
+        ></OptionEditor>
       );
 
       expect(screen.getByRole('textbox').textContent).to.eq('');
@@ -45,7 +50,8 @@ describe('OptionEditor', function () {
     it('does not change input value when empty on focus', async function () {
       render(
         <OptionEditor
-          hasAutofix
+          namespace="test.test"
+          insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
         ></OptionEditor>
@@ -62,7 +68,12 @@ describe('OptionEditor', function () {
 
     it('should adjust pasted query if pasting over empty brackets with the cursor in the middle', async function () {
       render(
-        <OptionEditor hasAutofix onChange={() => {}} value=""></OptionEditor>
+        <OptionEditor
+          namespace="test.test"
+          insertEmptyDocOnFocus
+          onChange={() => {}}
+          value=""
+        ></OptionEditor>
       );
 
       userEvent.tab();
@@ -82,7 +93,12 @@ describe('OptionEditor', function () {
 
     it('should not modify user text whe pasting when cursor moved', async function () {
       render(
-        <OptionEditor hasAutofix onChange={() => {}} value=""></OptionEditor>
+        <OptionEditor
+          namespace="test.test"
+          insertEmptyDocOnFocus
+          onChange={() => {}}
+          value=""
+        ></OptionEditor>
       );
 
       userEvent.tab();
@@ -104,7 +120,12 @@ describe('OptionEditor', function () {
 
     it('should not modify user text when pasting in empty input', async function () {
       render(
-        <OptionEditor hasAutofix onChange={() => {}} value=""></OptionEditor>
+        <OptionEditor
+          namespace="test.test"
+          insertEmptyDocOnFocus
+          onChange={() => {}}
+          value=""
+        ></OptionEditor>
       );
 
       userEvent.tab();

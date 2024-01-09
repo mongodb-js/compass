@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import jsBeautify from 'js-beautify';
 import {
   InfoModal,
   css,
@@ -12,22 +11,18 @@ import {
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
-import { modalOpenChanged } from '../modules/modal-open';
 import {
   outputLanguageToCodeLanguage,
   codeLanguageToOutputLanguage,
 } from '../modules/languages';
 import type { OutputLanguage } from '../modules/languages';
-import {
-  getInputExpressionMode,
-  isQuery,
-  runTranspiler,
-} from '../modules/transpiler';
+import { isQueryExpression, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
-
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
-const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
+import { usePreference } from 'compass-preferences-model/provider';
+import { prettify } from '@mongodb-js/compass-editor';
+import { closeModal } from '../stores';
 
 type LanguageOption = {
   displayName: string;
@@ -101,21 +96,20 @@ function stageCountForTelemetry(inputExpression: InputExpression) {
 
 const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
-    modalOpenChanged: (isOpen: boolean) => void;
+    onModalClose: () => void;
   }
-> = ({ modalOpen, modalOpenChanged, inputExpression, uri, namespace }) => {
+> = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
   const [includeDrivers, setIncludeDrivers] = useState<boolean>(false);
   const [useBuilders, setUseBuilders] = useState<boolean>(false);
 
-  const mode = getInputExpressionMode(inputExpression);
+  const mode = inputExpression.exportMode;
+  const isQuery = isQueryExpression(inputExpression);
 
-  const onClose = () => {
-    modalOpenChanged(false);
-  };
-
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const [transpiledExpression, errorMessage] = useMemo(() => {
     try {
       const output = runTranspiler({
@@ -126,6 +120,7 @@ const ExportToLanguageModal: React.FunctionComponent<
         useBuilders,
         uri,
         namespace,
+        protectConnectionStrings,
       });
       return [output, null];
     } catch (e) {
@@ -139,33 +134,46 @@ const ExportToLanguageModal: React.FunctionComponent<
     outputLanguage,
     uri,
     useBuilders,
+    protectConnectionStrings,
   ]);
 
-  const includeUseBuilders = outputLanguage === 'java' && isQuery(mode);
+  const includeUseBuilders = outputLanguage === 'java' && isQuery;
 
-  const input =
-    'aggregation' in inputExpression
-      ? inputExpression.aggregation
-      : inputExpression.filter;
+  const input = isQuery ? inputExpression.filter : inputExpression.aggregation;
 
   const [wasOpen, setWasOpen] = useState(false);
 
   useEffect(() => {
+    const trackingEvent =
+      mode === 'Update Query'
+        ? 'Update Export Opened'
+        : mode === 'Delete Query'
+        ? 'Delete Export Opened'
+        : mode === 'Query'
+        ? 'Query Export Opened'
+        : 'Aggregation Export Opened';
+
     if (modalOpen && !wasOpen) {
-      track(
-        mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened',
-        {
-          ...stageCountForTelemetry(inputExpression),
-        }
-      );
+      track(trackingEvent, {
+        ...stageCountForTelemetry(inputExpression),
+      });
       track('Screen', { name: 'export_to_language_modal' });
     }
 
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression]);
+  }, [modalOpen, wasOpen, mode, inputExpression, track]);
 
   function trackCopiedOutput() {
-    track(mode === 'Query' ? 'Query Exported' : 'Aggregation Exported', {
+    const trackingEvent =
+      mode === 'Update Query'
+        ? 'Update Exported'
+        : mode === 'Delete Query'
+        ? 'Delete Exported'
+        : mode === 'Query'
+        ? 'Query Exported'
+        : 'Aggregation Exported';
+
+    track(trackingEvent, {
       language: outputLanguage,
       with_import_statements: includeImports,
       with_drivers_syntax: includeDrivers,
@@ -174,11 +182,15 @@ const ExportToLanguageModal: React.FunctionComponent<
     });
   }
 
+  const prettyInput = useMemo(() => {
+    return prettify(input, 'javascript-expression', { trailingComma: 'none' });
+  }, [input]);
+
   return (
     <InfoModal
       data-testid="export-to-language-modal"
       open={modalOpen}
-      onClose={onClose}
+      onClose={onModalClose}
       title={`Export ${mode} To Language`}
       size="large"
     >
@@ -206,12 +218,13 @@ const ExportToLanguageModal: React.FunctionComponent<
             data-testid="export-to-language-input"
             languageOptions={shellLanguageOptions}
             onChange={() => {
-              return;
+              // There is only one language option and we don't allow to change
+              // the value
             }}
             language="Shell"
             copyable={true}
           >
-            {mode === 'Query' ? jsBeautify(input, { indent_size: 2 }) : input}
+            {prettyInput}
           </Code>
         </div>
         <div
@@ -274,7 +287,12 @@ const ExportToLanguageModal: React.FunctionComponent<
   );
 };
 
-const mapStateToProps = (state: ExportToLanguageState) => ({
+const mapStateToProps = (
+  state: ExportToLanguageState,
+  // So that the connected component types are correctly derived
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _ownProps: { namespace: string }
+) => ({
   modalOpen: state.modalOpen,
   inputExpression: state.inputExpression,
   uri: state.uri,
@@ -282,7 +300,7 @@ const mapStateToProps = (state: ExportToLanguageState) => ({
 });
 
 const MappedExportToLanguageModal = connect(mapStateToProps, {
-  modalOpenChanged,
+  onModalClose: closeModal,
 })(ExportToLanguageModal);
 
 export default MappedExportToLanguageModal;

@@ -1,8 +1,10 @@
 import { EJSON } from 'bson';
 import { cloneDeep } from 'lodash';
-import type { ConnectionInfo } from './connection-info';
-import type { ConnectionSecrets } from './connection-secrets';
-import { extractSecrets, mergeSecrets } from './connection-secrets';
+import type {
+  ConnectionInfo,
+  ConnectionSecrets,
+} from '@mongodb-js/connection-info';
+import { extractSecrets, mergeSecrets } from '@mongodb-js/connection-info';
 import { Decrypter, Encrypter } from './encrypt';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 

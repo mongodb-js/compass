@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Document } from 'mongodb';
+import type HadronDocument from 'hadron-document';
 import {
   css,
   cx,
@@ -11,7 +11,6 @@ import {
   Button,
   palette,
 } from '@mongodb-js/compass-components';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
@@ -21,6 +20,7 @@ import {
   isOutputStage,
 } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
+import { gotoOutResults } from '../../modules/out-results-fn';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -98,10 +98,10 @@ const OutResultBanner: React.FunctionComponent<{
 };
 
 type PipelineResultsWorkspaceProps = {
-  documents: Document[];
+  namespace: string;
+  documents: HadronDocument[];
   isLoading?: boolean;
   isError?: boolean;
-  allDocsExpanded?: boolean;
   error?: string | null;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
@@ -115,9 +115,9 @@ type PipelineResultsWorkspaceProps = {
 export const PipelineResultsWorkspace: React.FunctionComponent<
   PipelineResultsWorkspaceProps
 > = ({
+  namespace,
   documents,
   isLoading,
-  allDocsExpanded,
   error,
   isError,
   isEmpty,
@@ -178,8 +178,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   } else {
     results = (
       <PipelineResultsList
+        namespace={namespace}
         documents={documents}
-        allDocsExpanded={allDocsExpanded}
         view={resultsViewType}
       />
     );
@@ -201,6 +201,7 @@ const mapState = (state: RootState) => {
   const stageOperator = getStageOperator(lastStage) ?? '';
 
   return {
+    namespace,
     documents,
     isLoading: loading,
     error,
@@ -218,12 +219,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onCancel: cancelAggregation,
   onRetry: retryAggregation,
-  onOutClick: (namespace: string) => {
-    return globalAppRegistryEmit(
-      'aggregations-open-result-namespace',
-      namespace
-    );
-  },
+  onOutClick: gotoOutResults,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);

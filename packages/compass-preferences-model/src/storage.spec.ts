@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import type { UserStorage } from './storage';
 import {
   getDefaultPreferences,
-  UserStorage,
   StoragePreferences,
   type User,
+  UserStorageImpl,
 } from './storage';
 import { expect } from 'chai';
 import { z } from '@mongodb-js/compass-user-data';
@@ -25,8 +26,10 @@ describe('storage', function () {
     let storedUser: User;
     let userStorage: UserStorage;
     before(async function () {
-      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
-      userStorage = new UserStorage(tmpDir);
+      tmpDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'compass-preferences-storage')
+      );
+      userStorage = new UserStorageImpl(tmpDir);
       storedUser = await userStorage.getOrCreate('');
     });
     after(async function () {
@@ -107,7 +110,9 @@ describe('storage', function () {
 
   describe('StoragePreferences', function () {
     beforeEach(async function () {
-      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
+      tmpDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'compass-preferences-storage')
+      );
     });
 
     afterEach(async function () {

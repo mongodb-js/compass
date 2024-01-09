@@ -218,6 +218,20 @@ export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
 
+// Rename Collection Modal
+export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
+export const RenameCollectionModalInput =
+  '[data-testid="rename-collection-name-input"]';
+export const RenameCollectionModalConfirmationScreen =
+  '[data-testid="rename-collection-confirmation-screen"]';
+export const RenameCollectionModalSuccessToast =
+  '[data-testid="toast-collection-rename-success"]';
+export const RenameCollectionModalSubmitButton =
+  '[data-testid="submit-button"]';
+export const RenameCollectionModalErrorBanner =
+  '[data-testid="rename-collection-modal-error"]';
+export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-label="Close modal"]`;
+
 // Database-Collection Sidebar
 export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
@@ -236,6 +250,8 @@ export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
+export const RenameCollectionButton =
+  '[data-testid="sidebar-collection-item-actions-rename-collection-action"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
@@ -373,8 +389,6 @@ export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
-export const InstanceTabs = '[data-testid="instance-tabs"]';
-export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
@@ -386,19 +400,6 @@ export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
 export const ServerStats = '.serverstats';
 
-export const instanceTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${InstanceTab}[name="${tabName}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
 export const databaseCard = (dbName: string): string => {
   return `${DatabaseCard}[data-id="${dbName}"]`;
 };
@@ -410,8 +411,6 @@ export const databaseCardClickable = (dbName: string): string => {
 };
 
 // Database screen
-export const DatabaseTabs = '[data-testid="database-tabs"]';
-export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
@@ -421,20 +420,6 @@ export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
   '[data-testid="collection-grid"] [data-testid="namespace-card-actions"] button';
-
-export const databaseTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${DatabaseTab}[name="${tabName}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
 
 export const collectionCard = (
   dbName: string,
@@ -456,7 +441,7 @@ export const collectionCardClickable = (
 };
 
 // Collection screen
-export const CollectionTab = '.test-tab-nav-bar-tab';
+export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
@@ -475,8 +460,11 @@ export const TooltipIndexesTotalSize =
   '[data-testid="tooltip-indexes-total-size"]';
 export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
-export const collectionTab = (tabName: string, selected?: boolean): string => {
-  const selector = `${CollectionTab}[name="${tabName}"]`;
+export const collectionSubTab = (
+  tabName: string,
+  selected?: boolean
+): string => {
+  const selector = `${CollectionTab} [name="${tabName}"]`;
 
   if (selected === true) {
     return `${selector}[aria-selected="true"]`;
@@ -520,6 +508,7 @@ export const ImportFileOption =
   '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
+export const DocumentExpandButton = '[data-testid="expand-document-button"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';
 export const SelectListView = '[data-testid="toolbar-view-list"]';
@@ -533,6 +522,8 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
+export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
+export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 
 // Insert Document modal
 
@@ -585,6 +576,31 @@ export const importPreviewFieldHeaderSelectMenu = (
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
+
+// Bulk Update Modal
+export const BulkUpdateModal = '[data-testid="bulk-update-modal"]';
+export const BulkUpdateReadonlyFilter = `${BulkUpdateModal} [data-testid="readonly-filter"]`;
+export const BulkUpdateUpdate = `${BulkUpdateModal} [data-testid="bulk-update-update"]`;
+export const BulkUpdateTitle = `${BulkUpdateModal} [data-testid="modal-title"]`;
+export const BulkUpdateUpdateButton = `${BulkUpdateModal} [data-testid="update-button"]`;
+export const BulkUpdateCancelButton = `${BulkUpdateModal} [data-testid="cancel-button"]`;
+export const BulkUpdatePreviewDocument = `${BulkUpdateModal} [data-testid="bulk-update-preview-document"]`;
+export const BulkUpdateSaveFavorite = `${BulkUpdateModal} [data-testid="inline-save-query-modal-opener"]`;
+export const BulkUpdateFavouriteNameInput = `${BulkUpdateModal} [data-testid="inline-save-query-modal-input"]`;
+export const BulkUpdateFavouriteSaveButton = `${BulkUpdateModal} [data-testid="inline-save-query-modal-submit"]`;
+export const BulkUpdateSuccessToast = `[data-testid="toast-bulk-update-toast"]`;
+export const BulkUpdateSuccessToastDismissButton = `[data-testid="toast-bulk-update-toast"] [data-testid="lg-toast-dismiss-button"]`;
+
+// Bulk Delete Modal
+export const BulkDeleteModal = '[data-testid="bulk-delete-modal"]';
+export const BulkDeleteModalReadonlyFilter = `${BulkDeleteModal} [data-testid="readonly-filter"]`;
+export const BulkDeleteModalTitle = `${BulkDeleteModal} [data-testid="modal-title"]`;
+export const BulkDeleteModalExportButton = `${BulkDeleteModal} [data-testid="export-button"]`;
+export const BulkDeleteModalPreviewTitle = `${BulkDeleteModal} [data-testid="preview-title"]`;
+export const BulkDeleteModalDeleteButton = `${BulkDeleteModal} [data-testid="delete-button"]`;
+export const BulkDeleteModalCancelButton = `${BulkDeleteModal} [data-testid="cancel-button"]`;
+export const BulkDeleteSuccessToast = `[data-testid="toast-bulk-delete-toast"]`;
+export const BulkDeleteSuccessToastDismissButton = `[data-testid="toast-bulk-delete-toast"] [data-testid="lg-toast-dismiss-button"]`;
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =
@@ -669,9 +685,15 @@ export const SavedItemMenu = '[data-testid="saved-item-actions"]';
 export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
 export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
 export const SavedItemMenuItemDelete = `${SavedItemMenu} [data-testid="saved-item-actions-delete-action"]`;
+export const FavouriteQueriesButton = `${QueryBarHistory} [data-testid="past-queries-favorites"] button`;
+export const FavouriteQueryListItem = `${QueryBarHistory} [data-testid="favorite-query-list-item"]`;
+export const FavouriteQueryTitle = `${QueryBarHistory} [data-testid="query-history-query-title"]`;
+
+export const QueryHistoryFavoritesButton = `[data-testid="past-queries-favorites"]`;
+export const QueryHistoryFavoriteItem = `[data-testid="favorite-query-list-item"]`;
 
 export const myQueriesItem = (title: string): string => {
-  return `[data-testid="my-queries-content"] [title="${title}"]`;
+  return `[data-testid="my-queries-list"] [title="${title}"]`;
 };
 
 export const MyQueriesList = '[data-testid="my-queries-list"]';
@@ -816,12 +838,18 @@ export const stageMoreOptions = (stageIndex: number): string => {
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+export const StagePreviewDocsExpand = `[data-testid="stage-option-menu-content"] [data-text="Expand documents"]`;
+export const StagePreviewDocsCollapse = `[data-testid="stage-option-menu-content"] [data-text="Collapse documents"]`;
 
 // Focus Mode
 export const FocusModeModal = '[data-testid="focus-mode-modal"]';
 export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
 export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
 export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
+export const focusModeOutputOptionBtn = (
+  location: 'stage-input' | 'stage-output'
+) =>
+  `${FocusModeModal} [data-testid="${location}"] [data-testid="pipeline-output-options-show-actions"]`;
 export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
 export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
 export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
@@ -856,6 +884,12 @@ export const AggregationAsTextPreviewMerge =
   '[data-testid="$merge-preview-banner"]';
 export const AggregationAsTextPreviewAtlasOperator =
   '[data-testid="stage-preview-missing-search-support"]';
+export const AggregationAsTextShowActionsBtn = `${AggregationAsTextPreview} [data-testid="pipeline-output-options-show-actions"]`;
+export const PipelineResultsShowActionsBtn = `[data-testid="pipeline-results-header"] [data-testid="pipeline-output-options-show-actions"]`;
+export const PipelineOutputOptionsMenu =
+  '[data-testid="pipeline-output-options"]';
+export const PipelineOutputOption = (optionText: 'expand' | 'collapse') =>
+  `${PipelineOutputOptionsMenu} [data-testid="pipeline-output-options-${optionText}-action"]`;
 
 // Aggregation Wizard
 export const AggregationSidePanelToggleButton =
@@ -981,10 +1015,11 @@ export const createIndexModalFieldTypeSelectMenu = (idx: number): string => {
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
 export const CreateIndexConfirmButton = `${CreateIndexModal} [data-testid="create-index-actions-create-index-button"]`;
 
+export const IndexesTableDropIndexButton =
+  '[data-testid="index-actions-delete-action"]';
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
-export const DropIndexModalConfirmName =
-  '[data-testid="confirm-drop-index-name"]';
-export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
+export const DropIndexModalConfirmNameInput = `${DropIndexModal} input`;
+export const DropIndexModalConfirmButton = `${DropIndexModal} button:first-of-type`;
 
 export const HiddenIndexBadge = (indexName: string) =>
   `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;
@@ -1069,10 +1104,44 @@ export const QueryBarAIGenerateQueryButton =
   '[data-testid="ai-generate-button"]';
 export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
-// Workspace tabs at the top
-export const SelectedWorkspaceTabButton =
-  '[data-testid=workspace-tab-button][aria-selected="true"]';
+// Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
+export const sidebarInstanceNavigationItem = (
+  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
+) => {
+  return `[data-testid="navigation-sidebar"] [aria-label="${tabName}"]`;
+};
+export const workspaceTab = (
+  title: string | null,
+  active: boolean | null = null
+) => {
+  const _active = active === null ? '' : `[aria-selected="${String(active)}"]`;
+  const _title =
+    title === null
+      ? ''
+      : ['My Queries', 'Performance', 'Databases'].includes(title)
+      ? `[title="${title}"]`
+      : `[data-namespace="${title}"]`;
+  return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
+};
+export const instanceWorkspaceTab = (
+  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
+  active: boolean | null = null
+) => {
+  return workspaceTab(tabName, active);
+};
+export const databaseWorkspaceTab = (
+  dbName: string,
+  active: boolean | null = null
+) => {
+  return workspaceTab(dbName, active);
+};
+export const collectionWorkspaceTab = (
+  namespace: string,
+  active: boolean | null = null
+) => {
+  return workspaceTab(namespace, active);
+};
 
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';
@@ -1125,6 +1194,10 @@ export const ConfirmationModalInput =
 export const ConfirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
+
+export const ConfirmationModalCancelButton = (
+  modalSelector = ConfirmationModal
+) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';

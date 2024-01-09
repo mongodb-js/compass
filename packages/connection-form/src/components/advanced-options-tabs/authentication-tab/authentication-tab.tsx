@@ -8,8 +8,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import { AuthMechanism } from 'mongodb';
-import { usePreference } from 'compass-preferences-model';
+import type { AuthMechanism } from 'mongodb';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -21,17 +20,10 @@ import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
-
-type AUTH_TABS =
-  | 'DEFAULT' // Username/Password (SCRAM-SHA-1 + SCRAM-SHA-256 + DEFAULT)
-  | 'MONGODB-X509'
-  | 'GSSAPI' // Kerberos
-  | 'PLAIN' // LDAP
-  | 'MONGODB-OIDC'
-  | 'MONGODB-AWS'; // AWS IAM
+import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 interface TabOption {
-  id: AUTH_TABS;
+  id: AuthMechanism;
   title: string;
   component: React.FC<{
     errors: ConnectionFormError[];
@@ -44,32 +36,32 @@ interface TabOption {
 const options: TabOption[] = [
   {
     title: 'Username/Password',
-    id: AuthMechanism.MONGODB_DEFAULT,
+    id: 'DEFAULT',
     component: AuthenticationDefault,
   },
   {
     title: 'OIDC (Preview)',
-    id: AuthMechanism.MONGODB_OIDC,
+    id: 'MONGODB-OIDC',
     component: AuthenticationOidc,
   },
   {
     title: 'X.509',
-    id: AuthMechanism.MONGODB_X509,
+    id: 'MONGODB-X509',
     component: AuthenticationX509,
   },
   {
     title: 'Kerberos',
-    id: AuthMechanism.MONGODB_GSSAPI,
+    id: 'GSSAPI',
     component: AuthenticationGSSAPI,
   },
   {
     title: 'LDAP',
-    id: AuthMechanism.MONGODB_PLAIN,
+    id: 'PLAIN',
     component: AuthenticationPlain,
   },
   {
     title: 'AWS IAM',
-    id: AuthMechanism.MONGODB_AWS,
+    id: 'MONGODB-AWS',
     component: AuthenticationAWS,
   },
 ];
@@ -84,7 +76,7 @@ const contentStyles = css({
 
 function getSelectedAuthTabForConnectionString(
   connectionStringUrl: ConnectionStringUrl
-): AUTH_TABS {
+): AuthMechanism {
   const authMechanismString = (
     connectionStringUrl.searchParams.get('authMechanism') || ''
   ).toUpperCase();
@@ -94,7 +86,7 @@ function getSelectedAuthTabForConnectionString(
     return matchingTab.id;
   }
 
-  return AuthMechanism.MONGODB_DEFAULT;
+  return 'DEFAULT';
 }
 
 function AuthenticationTab({
@@ -108,13 +100,22 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const enableOIDC = !!usePreference('enableOidc', React);
-  const enabledAuthOptions = useMemo(() => {
-    if (enableOIDC) {
-      return options;
-    }
-    return options.filter((option) => option.id !== 'MONGODB-OIDC');
-  }, [enableOIDC]);
+  // enableOIDC is the feature flag, showOIDC is the connection form preference.
+  const enableOIDC = !!useConnectionFormPreference('enableOidc');
+  const showOIDC = useConnectionFormPreference('showOIDCAuth');
+  const showKerberos = useConnectionFormPreference('showKerberosAuth');
+  const enabledAuthOptions = useMemo(
+    () =>
+      options.filter((option) => {
+        if (option.id === 'MONGODB-OIDC') {
+          return enableOIDC && showOIDC;
+        } else if (option.id === 'GSSAPI') {
+          return showKerberos;
+        }
+        return true;
+      }),
+    [enableOIDC, showKerberos, showOIDC]
+  );
 
   const selectedAuthTabId =
     getSelectedAuthTabForConnectionString(connectionStringUrl);
@@ -129,7 +130,7 @@ function AuthenticationTab({
       return updateConnectionFormField({
         type: 'update-auth-mechanism',
         authMechanism:
-          event.target.value === AuthMechanism.MONGODB_DEFAULT
+          event.target.value === 'DEFAULT'
             ? null
             : (event.target.value as AuthMechanism),
       });

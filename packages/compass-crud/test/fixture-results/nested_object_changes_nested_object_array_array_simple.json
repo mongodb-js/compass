@@ -1,0 +1,121 @@
+{
+  "left": {
+    "path": [],
+    "value": {
+      "foo": {
+        "bar": [[1]]
+      }
+    }
+  },
+  "right": {
+    "path": [],
+    "value": {
+      "foo": {
+        "bar": [["a"]]
+      }
+    }
+  },
+  "delta": {
+    "foo": {
+      "bar": {
+        "0": [["a"]],
+        "_t": "a",
+        "_0": [[1], 0, 0]
+      }
+    }
+  },
+  "implicitChangeType": "unchanged",
+  "changeType": "unchanged",
+  "properties": [
+    {
+      "implicitChangeType": "unchanged",
+      "objectKey": "foo",
+      "delta": {
+        "bar": {
+          "0": [["a"]],
+          "_t": "a",
+          "_0": [[1], 0, 0]
+        }
+      },
+      "changeType": "unchanged",
+      "left": {
+        "path": ["foo"],
+        "value": {
+          "bar": [[1]]
+        }
+      },
+      "right": {
+        "path": ["foo"],
+        "value": {
+          "bar": [["a"]]
+        }
+      },
+      "properties": [
+        {
+          "implicitChangeType": "unchanged",
+          "objectKey": "bar",
+          "delta": {
+            "0": [["a"]],
+            "_t": "a",
+            "_0": [[1], 0, 0]
+          },
+          "changeType": "unchanged",
+          "left": {
+            "path": ["foo", "bar"],
+            "value": [[1]]
+          },
+          "right": {
+            "path": ["foo", "bar"],
+            "value": [["a"]]
+          },
+          "items": [
+            {
+              "implicitChangeType": "unchanged",
+              "changeType": "added",
+              "index": "0",
+              "right": {
+                "path": ["foo", "bar", "0"],
+                "value": ["a"]
+              },
+              "delta": null,
+              "items": [
+                {
+                  "implicitChangeType": "added",
+                  "index": 0,
+                  "delta": null,
+                  "changeType": "added",
+                  "right": {
+                    "path": ["foo", "bar", "0", 0],
+                    "value": "a"
+                  }
+                }
+              ]
+            },
+            {
+              "implicitChangeType": "unchanged",
+              "index": 0,
+              "delta": null,
+              "changeType": "removed",
+              "left": {
+                "path": ["foo", "bar", 0],
+                "value": [1]
+              },
+              "items": [
+                {
+                  "implicitChangeType": "removed",
+                  "index": 0,
+                  "delta": null,
+                  "changeType": "removed",
+                  "left": {
+                    "path": ["foo", "bar", 0, 0],
+                    "value": 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

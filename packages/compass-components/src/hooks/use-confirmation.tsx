@@ -15,6 +15,7 @@ type ConfirmationProperties = Partial<
   >
 > & {
   description?: React.ReactNode;
+  signal?: AbortSignal;
   'data-testid'?: string;
 };
 
@@ -27,7 +28,8 @@ interface ConfirmationModalContextData {
 
 type ShowConfirmationEventDetail = {
   props: ConfirmationProperties;
-  callback: ConfirmationCallback;
+  resolve: ConfirmationCallback;
+  reject: (err?: any) => void;
 };
 
 interface ConfirmationEventMap {
@@ -55,10 +57,10 @@ interface GlobalConfirmation extends EventTarget {
 
 class GlobalConfirmation extends EventTarget {
   showConfirmation(props: ConfirmationProperties) {
-    return new Promise<boolean>((resolve) => {
+    return new Promise<boolean>((resolve, reject) => {
       this.dispatchEvent(
         new CustomEvent('show-confirmation', {
-          detail: { props, callback: resolve },
+          detail: { props, resolve, reject },
         })
       );
     });
@@ -101,10 +103,18 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
   // Event listener to use confirmation modal outside of react
   useEffect(() => {
     const listener = ({
-      detail: { callback, props },
+      detail: { resolve, reject, props },
     }: CustomEvent<ShowConfirmationEventDetail>) => {
       setConfirmationProps({ open: true, ...props });
-      callbackRef.current = callback;
+      const onAbort = () => {
+        setConfirmationProps({ open: false, ...props });
+        reject(props.signal?.reason);
+      };
+      callbackRef.current = (confirmed) => {
+        props.signal?.removeEventListener('abort', onAbort);
+        resolve(confirmed);
+      };
+      props.signal?.addEventListener('abort', onAbort);
     };
     globalConfirmation.addEventListener('show-confirmation', listener);
     return () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
-  MoreOptionsToggle,
+  OptionsToggle,
   PerformanceSignals,
   SignalPopover,
   css,
@@ -82,11 +82,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions',
-    React
+    'enableAggregationBuilderExtraOptions'
   );
-  const showInsights = usePreference('showInsights', React);
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const showInsights = usePreference('showInsights');
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
 
   return (
     <div className={containerStyles}>
@@ -153,7 +152,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         </Button>
       )}
       {enableAggregationBuilderExtraOptions && (
-        <MoreOptionsToggle
+        <OptionsToggle
           isExpanded={!!isOptionsVisible}
           aria-controls="pipeline-options"
           id="pipeline-toolbar-options"

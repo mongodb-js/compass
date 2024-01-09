@@ -9,15 +9,18 @@ import type {
   UpdatePreviewChange,
 } from './data-service';
 import { configuredKMSProviders } from './instance-detail-helper';
+import { createConnectionAttempt } from './connection-attempt';
+import type { ConnectionAttempt } from './connection-attempt';
 
 export type {
+  ConnectionAttempt,
   ConnectionOptions,
   ConnectionSshOptions,
   DataService,
   UpdatePreview,
   UpdatePreviewChange,
 };
-export { connect, configuredKMSProviders };
+export { connect, configuredKMSProviders, createConnectionAttempt };
 
 export type { ReauthenticationHandler } from './connect-mongo-client';
 export type { ExplainExecuteOptions } from './data-service';

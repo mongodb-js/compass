@@ -4,8 +4,8 @@ import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
-import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
@@ -17,7 +17,6 @@ import {
   mapStoreStagesToStageIdAndType,
 } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
 import {
@@ -28,137 +27,82 @@ import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
-import preferencesAccess from 'compass-preferences-model';
+import type { DataService } from '../modules/data-service';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
+import type { MongoDBInstance } from 'mongodb-instance-model';
+import type Database from 'mongodb-database-model';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-export type ConfigureStoreOptions = {
-  /**
-   * Data service implementation (required)
-   */
-  dataProvider: {
-    dataProvider: Pick<
-      DataService,
-      'isCancelError' | 'estimatedCount' | 'aggregate' | 'getConnectionString'
-    > &
-      // Optional methods for getting insights
-      Partial<Pick<DataService, 'explainAggregate'>>;
-    error?: Error;
-  };
-  /**
-   * Namespace to be used when running aggregations (required, only collection namespaces are supported)
-   */
-  namespace: string;
-} & Partial<{
-  /**
-   * Instance of local app registry, listens to `refresh-data` and
-   * `fields-changed` events and updates corresponding redux slices
-   * accordingly
-   */
-  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'getStore'>;
-  /**
-   * Instance of global app registry, listens to `refresh-data` and
-   * `import-finished` events and updates corresponding redux slices
-   * accordingly
-   */
-  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'getStore'>;
-  /**
-   * Should be provided if namespace is a view. Affects available stages
-   */
-  sourceName: string;
-  /**
-   * Current server version. Affects available stages
-   */
-  serverVersion: string;
-  /**
-   * Whether or not collection is a timeseries collection. Affects available
-   * stages
-   */
-  isTimeSeries: boolean;
-  /**
-   * Whether or not collection is part of ADF (ex ADL). Used only to provide
-   * correct explain plan verbosity
-   */
-  isDataLake: boolean;
-  /**
-   * Current connection env type. Affects available stages. Accepted values:
-   * "atlas" | "on-prem" | "adl"
-   */
-  env: typeof ENVS[number] | null;
-  /**
-   * Namespace field values that will be used in autocomplete
-   */
-  fields: { name: string }[];
-  /**
-   * Function that overrides default handling of opening resulting namespace
-   * of out stages ($out, $merge). When provided, will be called when user
-   * clicks
-   */
-  outResultsFn: (namespace: string) => void;
-  /**
-   * Stored pipeline metadata. Can be provided to preload stored pipeline
-   * right when the plugin is initialized
-   */
-  aggregation: SavedPipeline;
-  /**
-   * Namespace for the view that is being edited. Needs to be provided
-   * with the `sourcePipeline` options. Takes precedence over `pipeline`
-   * option
-   */
-  editViewName: string;
-  /**
-   * Pipeline definition for the view that is being edited. Needs to be
-   * provided with the `editViewName` option. Takes precedence over
-   * `pipeline` option
-   */
-  sourcePipeline: unknown[];
-  /**
-   * Initial pipeline that will be converted to a string to be used by the
-   * aggregation builder. Takes precedence over `pipelineText` option
-   */
-  pipeline: unknown[];
-  /**
-   * Initial pipeline text to be used by the aggregation builder
-   */
-  pipelineText: string;
-  /**
-   * List of all the collections in the current database. It is used inside
-   * the stage wizard to populate the dropdown for $lookup use-case.
-   */
-  collections: CollectionInfo[];
-  /**
-   * Storage service for saved aggregations
-   */
-  pipelineStorage: PipelineStorage;
-  /**
-   * Service for interacting with Atlas-only features
-   */
-  atlasService: AtlasService;
-  /**
-   * Whether or not search indexes are supported in the current environment
-   */
-  isSearchIndexesSupported: boolean;
-}>;
+export type ConfigureStoreOptions = CollectionTabPluginMetadata &
+  Partial<{
+    /**
+     * Current connection env type. Affects available stages. Accepted values:
+     * "atlas" | "on-prem" | "adl"
+     */
+    env: typeof ENVS[number] | null;
+    /**
+     * Namespace field values that will be used in autocomplete
+     */
+    fields: { name: string }[];
+    /**
+     * Function that overrides default handling of opening resulting namespace
+     * of out stages ($out, $merge). When provided, will be called when user
+     * clicks
+     */
+    outResultsFn: (namespace: string) => void;
+    /**
+     * List of all the collections in the current database. It is used inside
+     * the stage wizard to populate the dropdown for $lookup use-case.
+     */
+    collections: CollectionInfo[];
+    /**
+     * Storage service for saved aggregations
+     */
+    pipelineStorage: PipelineStorage;
+    /**
+     * Service for interacting with Atlas-only features
+     */
+    atlasService: AtlasService;
+  }>;
 
-const configureStore = (options: ConfigureStoreOptions) => {
-  if (!options.dataProvider?.dataProvider) {
+export type AggregationsPluginServices = {
+  dataService: DataService;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  workspaces: WorkspacesService;
+  instance: MongoDBInstance;
+  preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
+};
+
+export function activateAggregationsPlugin(
+  options: ConfigureStoreOptions,
+  {
+    dataService,
+    localAppRegistry,
+    globalAppRegistry,
+    workspaces,
+    instance,
+    preferences,
+    logger,
+  }: AggregationsPluginServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
+) {
+  if (options.editViewName && !options.pipeline) {
     throw new Error(
-      "Can't configure store for aggregation plugin without data serivce"
+      'Option `editViewName` can be used only if `pipeline` is provided'
     );
   }
 
-  if (options.editViewName && !options.sourcePipeline) {
-    throw new Error(
-      'Option `editViewName` can be used only if `sourcePipeline` is provided'
-    );
-  }
-
-  const editingView = !!(options.editViewName && options.sourcePipeline);
+  const editingView = !!(options.editViewName && options.pipeline);
 
   const initialPipelineSource =
-    (editingView
-      ? toJSString(options.sourcePipeline, '  ')
-      : options.pipeline
-      ? toJSString(options.pipeline)
-      : options.pipelineText) ?? undefined;
+    (options.pipeline ? toJSString(options.pipeline) : options.pipelineText) ??
+    undefined;
 
   const { collection } = toNS(options.namespace);
 
@@ -167,7 +111,8 @@ const configureStore = (options: ConfigureStoreOptions) => {
   }
 
   const pipelineBuilder = new PipelineBuilder(
-    options.dataProvider.dataProvider as DataService,
+    dataService,
+    preferences,
     initialPipelineSource
   );
 
@@ -181,20 +126,13 @@ const configureStore = (options: ConfigureStoreOptions) => {
 
   const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
-  const store = createStore(
+  const store: Store<RootState> & {
+    dispatch: PipelineBuilderThunkDispatch;
+  } = createStore(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry: options.localAppRegistry ?? null,
-        globalAppRegistry: options.globalAppRegistry ?? null,
-      },
-      // TODO: move this to thunk extra arg
-      dataService: {
-        error: options.dataProvider?.error ?? null,
-        dataService:
-          (options.dataProvider?.dataProvider as DataService) ?? null,
-      },
+      dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
@@ -203,19 +141,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
         // mms specifies options.env whereas we don't currently get this variable when
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
-        options.env ??
-        // TODO: for now this is how we get to the env in compass as opposed to in
-        // mms where it comes from options.env. Ideally options.env would be
-        // required so we can always get it from there, but that's something for a
-        // future task. In theory we already know the env by the time this code
-        // executes, so it should be doable.
-        (
-          options.globalAppRegistry?.getStore('App.InstanceStore') as
-            | Store
-            | undefined
-        )?.getState().instance.env,
-      // options.fields is only used by mms, but always set to [] which is the initial value anyway
-      fields: options.fields ?? [],
+        options.env ?? (instance.env as typeof ENVS[number]),
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
@@ -234,24 +160,36 @@ const configureStore = (options: ConfigureStoreOptions) => {
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // The panel is shown by default if THE FEATURE IS ENABLED IN
-          // PREFERENCES and initial state in localStorage is not set or
-          // `"true"` (not `"false"`)
-          preferencesAccess.getPreferences().enableStageWizard &&
-          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) !==
-            'false',
+          // The initial state, if the localStorage entry is not set,
+          // should be 'hidden'.
+          localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
+        workspaces,
+        instance,
+        preferences,
+        logger,
       })
     )
   );
 
-  atlasService.on('user-config-changed', (config) => {
+  store.dispatch(
+    preferencesMaxTimeMSChanged(preferences.getPreferences().maxTimeMS)
+  );
+  addCleanup(
+    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+      store.dispatch(preferencesMaxTimeMSChanged(newValue))
+    )
+  );
+
+  on(atlasService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }
@@ -261,57 +199,41 @@ const configureStore = (options: ConfigureStoreOptions) => {
     void store.dispatch(refreshInputDocuments());
   };
 
-  // Set the app registry if preset. This must happen first.
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
+  /**
+   * Refresh documents on data refresh.
+   */
+  on(localAppRegistry, 'refresh-data', () => {
+    refreshInput();
+  });
 
-    /**
-     * Refresh documents on data refresh.
-     */
-    localAppRegistry.on('refresh-data', () => {
+  on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
+    store.dispatch(generateAggregationFromQuery(data));
+  });
+
+  /**
+   * Refresh documents on global data refresh.
+   */
+  on(globalAppRegistry, 'refresh-data', () => {
+    refreshInput();
+  });
+
+  on(globalAppRegistry, 'import-finished', ({ ns }) => {
+    const { namespace } = store.getState();
+    if (ns === namespace) {
       refreshInput();
-    });
-
-    /**
-     * When the schema fields change, update the state with the new
-     * fields.
-     *
-     * @param {Object} fields - The fields.
-     */
-    localAppRegistry.on('fields-changed', (fields) => {
-      store.dispatch(fieldsChanged(fields.autocompleteFields));
-    });
-
-    localAppRegistry.on('generate-aggregation-from-query', (data) => {
-      store.dispatch(generateAggregationFromQuery(data));
-    });
-  }
-
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-
-    /**
-     * Refresh documents on global data refresh.
-     */
-    globalAppRegistry.on('refresh-data', () => {
-      refreshInput();
-    });
-
-    globalAppRegistry.on('import-finished', ({ ns }) => {
-      const { namespace } = store.getState();
-      if (ns === namespace) {
-        refreshInput();
-      }
-    });
-  }
+    }
+  });
 
   // If stored pipeline was passed through options and we are not editing,
   // restore pipeline
   if (!editingView && options.aggregation) {
-    store.dispatch(openStoredPipeline(options.aggregation, false));
+    store.dispatch(
+      openStoredPipeline(options.aggregation as SavedPipeline, false)
+    );
   }
 
-  handleDatabaseCollections(store, options);
+  addCleanup(handleDatabaseCollections(store, options, instance));
+
   if (options.fields) {
     store.dispatch(
       setCollectionFields(
@@ -326,54 +248,49 @@ const configureStore = (options: ConfigureStoreOptions) => {
 
   store.dispatch(updatePipelinePreview());
 
-  return store;
-};
-
-type DbModel = {
-  collections: Array<{
-    _id: string;
-    type: 'collection' | 'view';
-  }>;
-};
+  return {
+    store,
+    deactivate: cleanup,
+  };
+}
 
 const handleDatabaseCollections = (
-  store: ReturnType<typeof configureStore>,
-  options: Pick<
-    ConfigureStoreOptions,
-    'namespace' | 'globalAppRegistry' | 'collections'
-  >
-) => {
-  const { namespace, globalAppRegistry, collections } = options;
+  store: Store<RootState> & {
+    dispatch: PipelineBuilderThunkDispatch;
+  },
+  options: Pick<ConfigureStoreOptions, 'namespace' | 'collections'>,
+  instance: MongoDBInstance
+): (() => void) => {
+  const { namespace, collections } = options;
 
   // Give precedence to passed list of collection
   if (collections && collections.length > 0) {
     store.dispatch(setCollections(collections));
   }
 
-  if (globalAppRegistry) {
-    const instance = (
-      globalAppRegistry.getStore('App.InstanceStore') as Store | undefined
-    )?.getState().instance;
-    const ns = toNS(namespace);
-    const db = instance?.databases?.get(ns.database);
-    if (!db) {
-      return;
-    }
+  const ns = toNS(namespace);
+  const db = instance?.databases?.get(ns.database);
 
-    const onDatabaseCollectionStatusChange = (dbModel: DbModel) => {
-      const collections = dbModel.collections.map((x) => ({
-        name: toNS(x._id).collection,
-        type: x.type,
-      }));
-
-      store.dispatch(setCollections(collections ?? []));
+  if (!db) {
+    return () => {
+      /* nothing */
     };
-
-    onDatabaseCollectionStatusChange(db);
-    db.on('change:collectionsStatus', (model: DbModel) => {
-      onDatabaseCollectionStatusChange(model);
-    });
   }
-};
 
-export default configureStore;
+  const onDatabaseCollectionStatusChange = (dbModel: Database) => {
+    const collections = dbModel.collections.map((x) => ({
+      name: toNS(x._id).collection,
+      type: x.type,
+    }));
+
+    store.dispatch(setCollections(collections ?? []));
+  };
+
+  onDatabaseCollectionStatusChange(db);
+  db.on('change:collectionsStatus', onDatabaseCollectionStatusChange);
+  return () =>
+    db.removeListener(
+      'change:collectionsStatus',
+      onDatabaseCollectionStatusChange
+    );
+};

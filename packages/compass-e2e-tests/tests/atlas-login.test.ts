@@ -36,14 +36,10 @@ describe('Atlas Login', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let oidcMockProvider: OIDCMockProvider;
-  let originalDisableKeychainUsage: string | undefined;
   let getTokenPayload: OIDCMockProviderConfig['getTokenPayload'];
   let stopMockAtlasServer: () => Promise<void>;
 
   before(async function () {
-    originalDisableKeychainUsage =
-      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-
     // Start a mock server to pass an ai response.
     const { endpoint, stop } = await startMockAtlasServiceServer();
     stopMockAtlasServer = stop;
@@ -100,8 +96,6 @@ describe('Atlas Login', function () {
     process.env.COMPASS_CLIENT_ID_OVERRIDE = 'testServer';
     process.env.COMPASS_OIDC_ISSUER_OVERRIDE = oidcMockProvider.issuer;
     process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE = `${oidcMockProvider.issuer}/auth-portal-redirect`;
-    // To prevent oidc-plugin state from persisting
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   beforeEach(async function () {
@@ -109,7 +103,10 @@ describe('Atlas Login', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
 
-    compass = await beforeTests();
+    compass = await beforeTests({
+      // With this flag enabled, we are not persisting the data between tests
+      firstRun: true,
+    });
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -128,8 +125,6 @@ describe('Atlas Login', function () {
     delete process.env.COMPASS_CLIENT_ID_OVERRIDE;
     delete process.env.COMPASS_OIDC_ISSUER_OVERRIDE;
     delete process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE;
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
-      originalDisableKeychainUsage;
 
     await stopMockAtlasServer();
     delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;
@@ -165,13 +160,25 @@ describe('Atlas Login', function () {
 
       const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
 
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
+      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq(
+        'false',
+        'Expected TOS toggle to be unchecked'
+      );
 
       await browser.clickVisible(acceptTOSToggle);
 
       await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('true');
+      // We are not just waiting here, this is asserting that toggle was
+      // switched on, indicating that TOS was accepted
+      await browser.waitUntil(
+        async () => {
+          return (
+            (await acceptTOSToggle.getAttribute('aria-checked')) === 'true'
+          );
+        },
+        { timeoutMsg: 'Expected TOS toggle to be checked' }
+      );
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {

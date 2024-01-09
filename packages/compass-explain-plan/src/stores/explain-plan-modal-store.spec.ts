@@ -1,10 +1,10 @@
-import AppRegistry from 'hadron-app-registry';
-import type { ExplainPlanModalConfigureStoreOptions } from './explain-plan-modal-store';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import {
   closeExplainPlanModal,
-  configureStore as _configureStore,
   openExplainPlanModal,
 } from './explain-plan-modal-store';
+import type { ExplainPlanModalServices } from './';
+import { activatePlugin } from './';
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
 import Sinon from 'sinon';
@@ -51,7 +51,8 @@ const simplePlan = {
 
 describe('explain plan modal store', function () {
   const sandbox = Sinon.createSandbox();
-  let dataProvider: ExplainPlanModalConfigureStoreOptions['dataProvider'];
+  let deactivatePlugin: () => void;
+  let dataService: ExplainPlanModalServices['dataService'];
 
   function configureStore(explainPlan: Document | Error = simplePlan) {
     const explain = sandbox.stub().callsFake(() => {
@@ -61,25 +62,40 @@ describe('explain plan modal store', function () {
       return Promise.resolve(explainPlan);
     });
 
-    dataProvider = {
-      dataProvider: {
-        explainAggregate: explain,
-        explainFind: explain,
-        isCancelError() {
-          return false;
-        },
+    dataService = {
+      explainAggregate: explain,
+      explainFind: explain,
+      isCancelError() {
+        return false;
       },
     };
 
-    return _configureStore({
-      localAppRegistry,
-      dataProvider,
-      namespace: 'test.test',
-      isDataLake: false,
-    });
+    const { store, deactivate } = activatePlugin(
+      { namespace: 'test.test', isDataLake: false },
+      {
+        localAppRegistry,
+        dataService,
+        logger: {
+          log: { warn() {}, error() {} },
+          track() {},
+          mongoLogId() {},
+        } as any,
+        preferences: {
+          getPreferences() {
+            return { maxTimeMS: 0 };
+          },
+        } as any,
+      },
+      createActivateHelpers()
+    );
+
+    deactivatePlugin = deactivate;
+
+    return store;
   }
 
   afterEach(function () {
+    deactivatePlugin();
     sandbox.resetHistory();
   });
 
@@ -140,10 +156,9 @@ describe('explain plan modal store', function () {
         aggregation: { pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }] },
       })
     );
-    expect(dataProvider?.dataProvider?.explainAggregate).to.be.calledWith(
-      'test.test',
-      [{ $match: { foo: 1 } }]
-    );
+    expect(dataService?.explainAggregate).to.be.calledWith('test.test', [
+      { $match: { foo: 1 } },
+    ]);
   });
 
   it('should remove $merge stage before passing pipeline to explain', async function () {
@@ -155,9 +170,8 @@ describe('explain plan modal store', function () {
         },
       })
     );
-    expect(dataProvider?.dataProvider?.explainAggregate).to.be.calledWith(
-      'test.test',
-      [{ $match: { bar: 2 } }]
-    );
+    expect(dataService?.explainAggregate).to.be.calledWith('test.test', [
+      { $match: { bar: 2 } },
+    ]);
   });
 });

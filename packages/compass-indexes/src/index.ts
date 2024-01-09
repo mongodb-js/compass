@@ -1,67 +1,70 @@
-import type AppRegistry from 'hadron-app-registry';
+import CreateIndexModal from './components/create-index-modal';
+import { activatePlugin as activateCreateIndexPlugin } from './stores/create-index';
+import {
+  activatePlugin as activateDropIndexPlugin,
+  DropIndexComponent,
+} from './stores/drop-index';
+import { registerHadronPlugin } from 'hadron-app-registry';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { IndexesDataService } from './stores/store';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+} from './stores/store';
+import Indexes from './components/indexes/indexes';
+import type { DataServiceLocator } from 'mongodb-data-service/provider';
+import { dataServiceLocator } from 'mongodb-data-service/provider';
+import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
-import IndexesPlugin from './plugin';
-import CreateIndexPlugin from './create-index-plugin';
-import DropIndexPlugin from './drop-index-plugin';
-import configureStore from './stores';
-import configureCreateIndexStore from './stores/create-index';
-import configureDropIndexStore from './stores/drop-index';
+export const CompassIndexesHadronPlugin = registerHadronPlugin<
+  CollectionTabPluginMetadata,
+  {
+    dataService: () => IndexesDataService;
+    instance: () => MongoDBInstance;
+    logger: () => LoggerAndTelemetry;
+  }
+>(
+  {
+    name: 'CompassIndexes',
+    component: Indexes as React.FunctionComponent,
+    activate: activateIndexesPlugin,
+  },
+  {
+    dataService:
+      dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
+    instance: mongoDBInstanceLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
+  }
+);
 
-// Compass Plugin role definition.
-const ROLE = {
+export const CompassIndexesPlugin = {
   name: 'Indexes',
-  component: IndexesPlugin,
-  order: 6,
-  configureStore: configureStore,
-  configureActions: () => {
-    /* noop */
-  },
-  storeName: 'Indexes.Store',
-  actionName: 'Indexes.Actions',
+  component: CompassIndexesHadronPlugin,
 };
 
-const CREATE_INDEX_ROLE = {
-  name: 'Create Index',
-  component: CreateIndexPlugin,
-  configureStore: configureCreateIndexStore,
-  configureActions: () => {
-    /* noop */
+export const CreateIndexPlugin = registerHadronPlugin(
+  {
+    name: 'CreateIndex',
+    activate: activateCreateIndexPlugin,
+    component: CreateIndexModal,
   },
-  storeName: 'Indexes.CreateIndexStore',
-  actionName: 'Indexes.CreateIndexActions',
-};
+  {
+    dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
+  }
+);
 
-const DROP_INDEX_ROLE = {
-  name: 'Drop Index',
-  component: DropIndexPlugin,
-  configureStore: configureDropIndexStore,
-  configureActions: () => {
-    /* noop */
+export const DropIndexPlugin = registerHadronPlugin(
+  {
+    name: 'DropIndex',
+    activate: activateDropIndexPlugin,
+    component: DropIndexComponent,
   },
-  storeName: 'Indexes.DropIndexStore',
-  actionName: 'Indexes.DropIndexActions',
-};
-
-/**
- * Activate all the components in the Indexes package.
- * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
- **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
-  appRegistry.registerRole('Collection.ScopedModal', DROP_INDEX_ROLE);
-}
-
-/**
- * Deactivate all the components in the Indexes package.
- * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
-  appRegistry.deregisterRole('Collection.ScopedModal', DROP_INDEX_ROLE);
-}
-
-export default IndexesPlugin;
-export { activate, deactivate, configureStore };
-export { default as metadata } from '../package.json';
+  {
+    dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-INDEXES-UI'),
+  }
+);

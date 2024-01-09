@@ -15,12 +15,12 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
-  enableStageWizard: boolean;
   newExplainPlan: boolean;
   showInsights: boolean;
   enableAtlasSearchIndexManagement: boolean;
   enableBulkUpdateOperations: boolean;
   enableBulkDeleteOperations: boolean;
+  enableRenameCollectionModal: boolean;
 };
 
 export const featureFlags: Required<{
@@ -34,18 +34,6 @@ export const featureFlags: Required<{
     stage: 'released',
     description: {
       short: 'Enable OIDC Authentication',
-    },
-  },
-
-  /**
-   * Feature flag for enabling the use of Stage Wizard
-   * in the Pipeline Builder. Epic: COMPASS-5817
-   */
-  enableStageWizard: {
-    stage: 'released',
-    description: {
-      short: 'Stage Wizard',
-      long: 'Create aggregation stages using Wizard.',
     },
   },
 
@@ -81,7 +69,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6671
    */
   enableBulkUpdateOperations: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable bulk update operations.',
       long: 'Allows editing all documents given a query.',
@@ -92,10 +80,21 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6671
    */
   enableBulkDeleteOperations: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable bulk delete operations.',
       long: 'Allows deleting all documents given a query.',
+    },
+  },
+
+  /**
+   * Feature flag for the rename collection modal.
+   */
+  enableRenameCollectionModal: {
+    stage: 'development',
+    description: {
+      short: 'Enables renaming a collection',
+      long: 'Allows users to rename a collection from the sidebar',
     },
   },
 };

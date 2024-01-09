@@ -86,11 +86,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference(
-    'enableAtlasSearchIndexManagement',
-    React
+    'enableAtlasSearchIndexManagement'
   );
 
-  const showInsights = usePreference('showInsights', React) && !errorMessage;
+  const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -181,7 +180,17 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </SegmentedControlOption>
                     )}
                   >
-                    Search indexes are unavailable in your current connection.
+                    <p>
+                      The Atlas Search index management in Compass is only
+                      available for Atlas local deployments and M10+ clusters
+                      running MongoDB 6.0.7 or newer.
+                    </p>
+                    <p>
+                      For clusters running an earlier version of MongoDB or
+                      shared tier clusters you can manage your Atlas Search
+                      indexes from the Atlas web UI, with the CLI, or with the
+                      Administration API.
+                    </p>
                   </Tooltip>
                 )}
                 {isAtlasSearchSupported && (
@@ -300,4 +309,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(IndexesToolbar, ['readOnly'], React));
+)(withPreferences(IndexesToolbar, ['readOnly']));

@@ -12,6 +12,10 @@ const ALLOWED_COMMANDS = [
   'getParameter',
   'atlasVersion',
   'collMod',
+  'listStreamProcessors',
+  'startStreamProcessor',
+  'stopStreamProcessor',
+  'dropStreamProcessor',
 ] as const;
 
 export type ClientMockOptions = {

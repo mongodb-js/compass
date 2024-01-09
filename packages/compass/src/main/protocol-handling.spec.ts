@@ -2,12 +2,13 @@
 import sinon from 'sinon';
 import { app } from 'electron';
 import { expect } from 'chai';
-import preferences from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { setupProtocolHandlers } from './protocol-handling';
 
 describe('auto connect management', function () {
   let sandbox: sinon.SinonSandbox;
-  let preferencesSandbox: typeof preferences;
+  let preferencesSandbox: PreferencesAccess;
   const protocols = [
     { name: 'A', schemes: ['a', 'b'] },
     { name: 'C', schemes: ['c'] },
@@ -15,7 +16,7 @@ describe('auto connect management', function () {
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
-    preferencesSandbox = await preferences.createSandbox();
+    preferencesSandbox = await createSandboxFromDefaultPreferences();
     sandbox.stub(app, 'setAsDefaultProtocolClient');
     sandbox.stub(app, 'removeAsDefaultProtocolClient');
     sandbox.stub(process, 'platform').value('linux');

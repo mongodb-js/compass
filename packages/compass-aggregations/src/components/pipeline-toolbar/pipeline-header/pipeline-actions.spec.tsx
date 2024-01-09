@@ -8,7 +8,11 @@ import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
-import preferencesAccess from 'compass-preferences-model';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('PipelineActions', function () {
   afterEach(cleanup);
@@ -76,9 +80,7 @@ describe('PipelineActions', function () {
     it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal(
-        'fewer options'
-      );
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('options');
       expect(within(button).getByLabelText('Caret Down Icon')).to.exist;
 
       userEvent.click(button);
@@ -114,9 +116,7 @@ describe('PipelineActions', function () {
     it('toggle options action button', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal(
-        'more options'
-      );
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('options');
       expect(within(button).getByLabelText('Caret Right Icon')).to.exist;
 
       userEvent.click(button);
@@ -126,42 +126,34 @@ describe('PipelineActions', function () {
   });
 
   describe('extra options disabled', function () {
-    let enableAggregationBuilderExtraOptions: boolean;
+    let preferences: PreferencesAccess;
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
 
-    before(async function () {
-      enableAggregationBuilderExtraOptions =
-        preferencesAccess.getPreferences().enableAggregationBuilderExtraOptions;
-      await preferencesAccess.savePreferences({
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
         enableAggregationBuilderExtraOptions: false,
       });
-    });
-
-    after(async function () {
-      await preferencesAccess.savePreferences({
-        enableAggregationBuilderExtraOptions,
-      });
-    });
-
-    beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       render(
-        <PipelineActions
-          isOptionsVisible={false}
-          showAIEntry={false}
-          showRunButton={true}
-          showExportButton={true}
-          showExplainButton={true}
-          onRunAggregation={onRunAggregationSpy}
-          onToggleOptions={onToggleOptionsSpy}
-          onExportAggregationResults={() => {}}
-          onUpdateView={() => {}}
-          onExplainAggregation={() => {}}
-          onCollectionScanInsightActionButtonClick={() => {}}
-          onShowAIInputClick={() => {}}
-        />
+        <PreferencesProvider value={preferences}>
+          <PipelineActions
+            isOptionsVisible={false}
+            showAIEntry={false}
+            showRunButton={true}
+            showExportButton={true}
+            showExplainButton={true}
+            onRunAggregation={onRunAggregationSpy}
+            onToggleOptions={onToggleOptionsSpy}
+            onExportAggregationResults={() => {}}
+            onUpdateView={() => {}}
+            onExplainAggregation={() => {}}
+            onCollectionScanInsightActionButtonClick={() => {}}
+            onShowAIInputClick={() => {}}
+          />
+        </PreferencesProvider>
       );
     });
 
@@ -292,7 +284,7 @@ describe('PipelineActions', function () {
         pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
-      store.dispatch(changeStageDisabled(1, true));
+      store.dispatch(changeStageDisabled(1, true) as any);
 
       rerender();
 

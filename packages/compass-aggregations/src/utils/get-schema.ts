@@ -22,17 +22,28 @@ const toFieldSchemaWithPrefix = (prefix: string) => {
   });
 };
 
-const getSchemaForObject = (document: Document): DocumentSchema => {
+const getSchemaForObject = (
+  document: Document,
+  seen = new WeakSet()
+): DocumentSchema => {
   const schema: DocumentSchema = [];
+
+  if (seen.has(document)) {
+    return schema;
+  }
+
+  seen.add(document);
+
   for (const key in document) {
     const value = document[key];
+
     schema.push({
       name: key,
       type: TypeChecker.type(value),
     });
 
     if (Array.isArray(value)) {
-      const valueSchema = getSchemaForArray(value).map(
+      const valueSchema = getSchemaForArray(value, seen).map(
         toFieldSchemaWithPrefix(key)
       );
       schema.push(...valueSchema);
@@ -41,7 +52,7 @@ const getSchemaForObject = (document: Document): DocumentSchema => {
       value !== null &&
       !value._bsontype
     ) {
-      const valueSchema = getSchemaForObject(value).map(
+      const valueSchema = getSchemaForObject(value, seen).map(
         toFieldSchemaWithPrefix(key)
       );
       schema.push(...valueSchema);
@@ -50,18 +61,21 @@ const getSchemaForObject = (document: Document): DocumentSchema => {
   return schema;
 };
 
-const getSchemaForArray = (records: Document[]): DocumentSchema => {
+const getSchemaForArray = (
+  records: Document[],
+  seen = new WeakSet()
+): DocumentSchema => {
   const schema: DocumentSchema = [];
 
   for (const record of records) {
     if (Array.isArray(record)) {
-      schema.push(...getSchemaForArray(record));
+      schema.push(...getSchemaForArray(record, seen));
     } else if (
       typeof record === 'object' &&
       record !== null &&
       !record._bsontype
     ) {
-      schema.push(...getSchemaForObject(record));
+      schema.push(...getSchemaForObject(record, seen));
     }
   }
 

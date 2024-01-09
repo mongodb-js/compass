@@ -15,6 +15,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
+import type { ServerEnvironment } from '../../modules/env';
 
 const inputWidth = spacing[7] * 2;
 
@@ -41,7 +42,7 @@ type StageOperatorSelectProps = {
   isDisabled: boolean;
   stages: {
     name: string;
-    env: string;
+    env: ServerEnvironment[];
     description: string;
   }[];
 };
@@ -129,6 +130,5 @@ export default withPreferences(
       };
     }
   )(StageOperatorSelect),
-  ['readOnly'],
-  React
+  ['readOnly']
 );

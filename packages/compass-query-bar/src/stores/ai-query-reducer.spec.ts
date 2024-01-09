@@ -1,34 +1,37 @@
 import { expect } from 'chai';
-import { promises as fs } from 'fs';
-import os from 'os';
 import Sinon from 'sinon';
 
-import configureStore from './query-bar-store';
-import type { QueryBarStoreOptions } from './query-bar-store';
+import { configureStore } from './query-bar-store';
+import type {
+  QueryBarExtraArgs,
+  QueryBarStoreOptions,
+} from './query-bar-store';
 import {
   AIQueryActionTypes,
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 describe('aiQueryReducer', function () {
+  let preferences: PreferencesAccess;
   const sandbox = Sinon.createSandbox();
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
 
   afterEach(function () {
     sandbox.reset();
   });
 
-  let tmpDir: string;
-
-  before(async function () {
-    tmpDir = await fs.mkdtemp(os.tmpdir());
-  });
-
-  function createStore(opts: Partial<QueryBarStoreOptions> = {}) {
-    return configureStore({
-      basepath: tmpDir,
-      ...opts,
-    });
+  function createStore(
+    opts: Partial<QueryBarStoreOptions> = {},
+    services: QueryBarExtraArgs
+  ) {
+    return configureStore(opts, services);
   }
 
   describe('runAIQuery', function () {
@@ -46,13 +49,17 @@ describe('aiQueryReducer', function () {
           getConnectionString: sandbox.stub().returns({ hosts: [] }),
         };
 
-        const store = createStore({
-          namespace: 'database.collection',
-          dataProvider: {
-            dataProvider: mockDataService as any,
+        const store = createStore(
+          {
+            namespace: 'database.collection',
           },
-          atlasService: mockAtlasService as any,
-        });
+          {
+            dataService: mockDataService,
+            atlasService: mockAtlasService,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
+          } as any
+        );
 
         expect(store.getState().aiQuery.status).to.equal('ready');
 
@@ -88,7 +95,16 @@ describe('aiQueryReducer', function () {
             .rejects(new Error('500 Internal Server Error')),
         };
 
-        const store = createStore({ atlasService: mockAtlasService as any });
+        const store = createStore({}, {
+          atlasService: mockAtlasService,
+          dataService: {
+            sample() {
+              return Promise.resolve([]);
+            },
+          },
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
+        } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
@@ -105,7 +121,16 @@ describe('aiQueryReducer', function () {
           on: sandbox.stub(),
           getQueryFromUserInput: sandbox.stub().rejects(authError),
         };
-        const store = createStore({ atlasService: mockAtlasService as any });
+        const store = createStore({}, {
+          atlasService: mockAtlasService,
+          dataService: {
+            sample() {
+              return Promise.resolve([]);
+            },
+          },
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
+        } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({
           status: 'ready',
@@ -121,7 +146,7 @@ describe('aiQueryReducer', function () {
 
   describe('cancelAIQuery', function () {
     it('should unset the fetching id and set the status on the store', function () {
-      const store = createStore();
+      const store = createStore({}, {} as any);
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
 
       store.dispatch({

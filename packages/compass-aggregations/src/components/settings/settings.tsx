@@ -90,16 +90,15 @@ const inputControlStyles = css({
 
 const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[2] } });
 
-type SettingsProps = {
+export type SettingsProps = {
   isCommenting: boolean;
   isExpanded: boolean;
   largeLimit: number;
   limit: number;
   settings: {
     limit: number;
-    largeLimit: number;
     isCommentMode: boolean;
-    isDirty: number;
+    isDirty: boolean;
     sampleSize: number;
   };
   toggleSettingsIsExpanded: () => void;
@@ -122,8 +121,7 @@ function Settings({
   toggleSettingsIsExpanded,
 }: SettingsProps) {
   const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions',
-    React
+    'enableAggregationBuilderExtraOptions'
   );
   const darkMode = useDarkMode();
   const onSampleSizeChanged = useCallback(

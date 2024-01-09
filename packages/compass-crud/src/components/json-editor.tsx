@@ -21,6 +21,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const editorStyles = css({
   minHeight: spacing[5] + spacing[3],
@@ -49,6 +50,7 @@ const actionsGroupStyles = css({
 });
 
 export type JSONEditorProps = {
+  namespace: string;
   doc: Document;
   editable: boolean;
   isTimeSeries?: boolean;
@@ -58,10 +60,10 @@ export type JSONEditorProps = {
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   isExpanded?: boolean;
-  fields?: string[];
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
+  namespace,
   doc,
   editable,
   isTimeSeries = false,
@@ -70,7 +72,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   copyToClipboard,
   openInsertDocumentDialog,
   isExpanded = false,
-  fields = [],
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
@@ -155,8 +156,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }
   }, [isExpanded]);
 
+  const fields = useAutocompleteFields(namespace);
+
   const completer = useMemo(() => {
-    return createDocumentAutocompleter(fields);
+    return createDocumentAutocompleter(
+      fields.map((field) => {
+        return field.name;
+      })
+    );
   }, [fields]);
 
   const isEditable = editable && !deleting && !isTimeSeries;

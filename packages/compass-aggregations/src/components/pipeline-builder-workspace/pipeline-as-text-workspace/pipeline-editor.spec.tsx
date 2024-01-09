@@ -16,11 +16,11 @@ const renderPipelineEditor = (
   render(
     <Provider store={configureStore()}>
       <PipelineEditor
+        namespace="test.test"
         pipelineText="[{$match: {}}]"
         syntaxErrors={[]}
         serverError={null}
         serverVersion="4.2"
-        fields={[]}
         onChangePipelineText={() => {}}
         num_stages={1}
         {...props}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
@@ -39,6 +39,14 @@ type RegularIndexesTableProps = {
   error?: string | null;
 };
 
+const COLUMNS = [
+  'Name and Definition',
+  'Type',
+  'Size',
+  'Usage',
+  'Properties',
+] as const;
+
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
@@ -52,6 +60,63 @@ export const RegularIndexesTable: React.FunctionComponent<
   onDeleteIndex,
   error,
 }) => {
+  const data = useMemo(() => {
+    return indexes.map((index) => {
+      return {
+        key: index.name,
+        'data-testid': `row-${index.name}`,
+        fields: [
+          {
+            'data-testid': 'name-field',
+            children: index.name,
+          },
+          {
+            'data-testid': 'type-field',
+            children: <TypeField type={index.type} extra={index.extra} />,
+          },
+          {
+            'data-testid': 'size-field',
+            children: (
+              <SizeField size={index.size} relativeSize={index.relativeSize} />
+            ),
+          },
+          {
+            'data-testid': 'usage-field',
+            children: (
+              <UsageField usage={index.usageCount} since={index.usageSince} />
+            ),
+          },
+          {
+            'data-testid': 'property-field',
+            children: (
+              <PropertyField
+                cardinality={index.cardinality}
+                extra={index.extra}
+                properties={index.properties}
+              />
+            ),
+          },
+        ],
+        actions: index.name !== '_id_' &&
+          index.extra.status !== 'inprogress' && (
+            <IndexActions
+              index={index}
+              serverVersion={serverVersion}
+              onDeleteIndex={onDeleteIndex}
+              onHideIndex={onHideIndex}
+              onUnhideIndex={onUnhideIndex}
+            ></IndexActions>
+          ),
+        details: (
+          <IndexKeysBadge
+            keys={index.fields}
+            data-testid={`indexes-details-${index.name}`}
+          />
+        ),
+      };
+    });
+  }, [indexes, onDeleteIndex, onHideIndex, onUnhideIndex, serverVersion]);
+
   if (error) {
     // We don't render the table if there is an error. The toolbar takes care of
     // displaying it.
@@ -60,76 +125,14 @@ export const RegularIndexesTable: React.FunctionComponent<
 
   const canModifyIndex = isWritable && !readOnly;
 
-  const columns = [
-    'Name and Definition',
-    'Type',
-    'Size',
-    'Usage',
-    'Properties',
-  ] as const;
-
-  const data = indexes.map((index) => {
-    return {
-      key: index.name,
-      'data-testid': `row-${index.name}`,
-      fields: [
-        {
-          'data-testid': 'name-field',
-          children: index.name,
-        },
-        {
-          'data-testid': 'type-field',
-          children: <TypeField type={index.type} extra={index.extra} />,
-        },
-        {
-          'data-testid': 'size-field',
-          children: (
-            <SizeField size={index.size} relativeSize={index.relativeSize} />
-          ),
-        },
-        {
-          'data-testid': 'usage-field',
-          children: (
-            <UsageField usage={index.usageCount} since={index.usageSince} />
-          ),
-        },
-        {
-          'data-testid': 'property-field',
-          children: (
-            <PropertyField
-              cardinality={index.cardinality}
-              extra={index.extra}
-              properties={index.properties}
-            />
-          ),
-        },
-      ],
-      actions: index.name !== '_id_' && index.extra.status !== 'inprogress' && (
-        <IndexActions
-          index={index}
-          serverVersion={serverVersion}
-          onDeleteIndex={onDeleteIndex}
-          onHideIndex={onHideIndex}
-          onUnhideIndex={onUnhideIndex}
-        ></IndexActions>
-      ),
-      details: (
-        <IndexKeysBadge
-          keys={index.fields}
-          data-testid={`indexes-details-${index.name}`}
-        />
-      ),
-    };
-  });
-
   return (
     <IndexesTable
       data-testid="indexes"
       aria-label="Indexes"
       canModifyIndex={canModifyIndex}
-      columns={columns}
+      columns={COLUMNS}
       data={data}
-      onSortTable={(column, direction) => onSortTable(column, direction)}
+      onSortTable={onSortTable}
     />
   );
 };
@@ -155,4 +158,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(RegularIndexesTable, ['readOnly'], React));
+)(withPreferences(RegularIndexesTable, ['readOnly']));

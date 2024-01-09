@@ -1,69 +1,64 @@
 import React from 'react';
 
 import {
-  TextInput,
   InfoSprinkle,
   Label,
   css,
   spacing,
+  KeylineCard,
   fontFamilies,
+  useId,
 } from '@mongodb-js/compass-components';
-
-type QueryLabelProps = {
-  tooltip: string;
-  label: string;
-};
 
 const queryLabelStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
-  height: '17px', // align with the Preview label
 });
 
-const QueryLabel: React.FunctionComponent<QueryLabelProps> = ({
-  tooltip,
-  label,
-}) => {
-  return (
-    <div className={queryLabelStyles}>
-      <Label htmlFor="readonly-filter">{label}</Label>
-      <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
-    </div>
-  );
-};
-
-const textInputStyles = css({
-  input: {
-    fontFamily: fontFamilies.code,
-  },
+const readOnlyFilterStyles = css({
+  padding: spacing[2],
+  overflow: 'scroll',
   width: '100%',
+  whiteSpace: 'nowrap',
+  display: 'inline-block',
+  verticalAlign: 'middle',
+  lineHeight: `${spacing[3] + 2}px`,
+  '::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
+
+const codeStyles = css({
+  fontSize: 14,
+  fontFamily: fontFamilies.code,
 });
 
 type ReadonlyFilterProps = {
-  queryLabel: string;
+  queryLabel?: string;
   filterQuery: string;
 };
 
 export function ReadonlyFilter({
-  queryLabel,
+  queryLabel = 'Filter',
   filterQuery,
 }: ReadonlyFilterProps) {
+  const readOnlyFilterId = useId();
   return (
-    <TextInput
-      id="readonly-filter"
-      data-testid="readonly-filter"
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore the label can be any component, but it's weirdly typed to string
-      label={
-        <QueryLabel
-          label={queryLabel}
-          tooltip="Return to the Documents tab to edit this query."
-        />
-      }
-      disabled={true}
-      value={filterQuery}
-      className={textInputStyles}
-    />
+    <>
+      <div className={queryLabelStyles}>
+        <Label htmlFor={readOnlyFilterId}>{queryLabel}</Label>
+        <InfoSprinkle align="right">
+          Return to the Documents tab to edit this query.
+        </InfoSprinkle>
+      </div>
+      <KeylineCard
+        id={readOnlyFilterId}
+        data-testid="readonly-filter"
+        className={readOnlyFilterStyles}
+      >
+        <code className={codeStyles}>{filterQuery}</code>
+      </KeylineCard>
+    </>
   );
 }

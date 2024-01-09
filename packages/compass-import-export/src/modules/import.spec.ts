@@ -2,10 +2,12 @@ import { expect } from 'chai';
 import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
 import { configureStore } from '../stores/import-store';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const mockServices = {
   globalAppRegistry: {},
   dataService: {},
+  logger: createNoopLoggerAndTelemetry(),
 } as any;
 
 describe('import [module]', function () {

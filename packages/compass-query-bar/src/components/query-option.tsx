@@ -9,15 +9,14 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -77,12 +76,14 @@ export const documentEditorLabelContainerStyles = css(
   }
 );
 
+type QueryBarProperty = Exclude<QueryProperty, 'update'>;
+
 type QueryOptionProps = {
   id: string;
-  name: QueryProperty;
+  name: QueryBarProperty;
   value?: string;
   hasError: boolean;
-  onChange: (name: QueryProperty, value: string) => void;
+  onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
@@ -118,6 +119,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   onApply,
   insights,
 }) => {
+  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | undefined>(value);
   const editorCurrentValueRef = useRef<string | undefined>(value);
@@ -145,7 +147,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       track('Query Edited', { option_name: name });
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [name, editorInitialValueRef]);
+  }, [track, name]);
 
   return (
     <div
@@ -189,7 +191,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
-            hasAutofix={name === 'filter'}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>

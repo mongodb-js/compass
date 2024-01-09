@@ -1,69 +1,83 @@
-import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import throttle from 'lodash/throttle';
 import thunk from 'redux-thunk';
-import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
-import type { Location } from '../modules/location';
-import { changeLocation } from '../modules/location';
 import type { Database } from '../modules/databases';
-import { changeActiveNamespace, changeDatabases } from '../modules/databases';
-import { reset } from '../modules/reset';
+import { changeDatabases } from '../modules/databases';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { setDataService } from '../modules/data-service';
 import { toggleSidebar } from '../modules/is-expanded';
-import type { AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import type toNS from 'mongodb-ns';
-type NS = ReturnType<typeof toNS>;
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { setIsPerformanceTabSupported } from '../modules/is-performance-tab-supported';
+import type { MongoServerError } from 'mongodb';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-export function createSidebarStore({
-  globalAppRegistry,
-  instance,
-  dataService,
-  connectionInfo,
-}: {
-  globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
-  dataService: DataService;
-  connectionInfo: ConnectionInfo | null | undefined;
-}): {
-  store: Store<RootState, RootAction>;
-  deactivate: () => void;
-} {
-  const cleanup: (() => void)[] = [];
-  const store: Store<RootState, RootAction> = createStore(
+export function createSidebarStore(
+  {
+    globalAppRegistry,
+    instance,
+    dataService,
+    connectionInfo,
+    logger: { log, mongoLogId },
+  }: {
+    globalAppRegistry: AppRegistry;
+    instance: MongoDBInstance;
+    dataService: DataService;
+    connectionInfo: ConnectionInfo | null | undefined;
+    logger: LoggerAndTelemetry;
+  },
+  { on, cleanup, addCleanup }: ActivateHelpers
+) {
+  const store = createStore(
     reducer,
-    applyMiddleware(thunk)
+    applyMiddleware(thunk.withExtraArgument({ globalAppRegistry }))
   );
 
-  const onInstanceChangeNow = (instance: any /* MongoDBInstance */) => {
-    store.dispatch(
-      changeInstance({
-        refreshingStatus: instance.refreshingStatus,
-        databasesStatus: instance.databasesStatus,
-        csfleMode: instance.csfleMode,
-        build: instance.build.toJSON(),
-        dataLake: instance.dataLake.toJSON(),
-        genuineMongoDB: instance.genuineMongoDB.toJSON(),
-        topologyDescription: instance.topologyDescription.toJSON(),
-        isWritable: instance.isWritable,
-        env: instance.env,
-        isAtlas: instance.isAtlas,
-        isLocalAtlas: instance.isLocalAtlas,
-      })
-    );
-  };
+  const onInstanceChange = throttle(
+    () => {
+      store.dispatch(
+        changeInstance({
+          status: instance.status,
+          refreshingStatus: instance.refreshingStatus,
+          databasesStatus: instance.databasesStatus,
+          csfleMode: instance.csfleMode,
+          build: {
+            isEnterprise: instance.build.isEnterprise,
+            version: instance.build.version,
+          },
+          dataLake: {
+            isDataLake: instance.dataLake.isDataLake,
+            version: instance.dataLake.version,
+          },
+          genuineMongoDB: {
+            dbType: instance.genuineMongoDB.dbType,
+            isGenuine: instance.genuineMongoDB.isGenuine,
+          },
+          topologyDescription: {
+            servers: instance.topologyDescription.servers,
+            setName: instance.topologyDescription.setName,
+            type: instance.topologyDescription.type,
+          },
+          isWritable: instance.isWritable,
+          env: instance.env,
+          isAtlas: instance.isAtlas,
+          isLocalAtlas: instance.isLocalAtlas,
+        })
+      );
+    },
+    300,
+    { leading: true, trailing: true }
+  );
 
-  const onInstanceChange = throttle((instance) => {
-    onInstanceChangeNow(instance);
-  }, 300);
+  addCleanup(() => {
+    onInstanceChange.cancel();
+  });
 
   function getDatabaseInfo(db: Database) {
     return {
@@ -79,156 +93,97 @@ export function createSidebarStore({
       _id: coll._id,
       name: coll.name,
       type: coll.type,
+      sourceName: coll.sourceName,
+      pipeline: coll.pipeline,
     };
   }
 
-  const onDatabasesChange = throttle((databases: Database[]) => {
-    const dbs = databases.map((db) => {
-      return {
-        ...getDatabaseInfo(db),
-        collections: db.collections.map((coll) => {
-          return getCollectionInfo(coll);
-        }),
-      };
-    });
+  const onDatabasesChange = throttle(
+    () => {
+      const dbs = instance.databases.map((db) => {
+        return {
+          ...getDatabaseInfo(db),
+          collections: db.collections.map((coll) => {
+            return getCollectionInfo(coll);
+          }),
+        };
+      });
 
-    store.dispatch(changeDatabases(dbs));
-  }, 300);
-
-  store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-  function on(
-    eventEmitter: {
-      on(ev: string, l: (...args: any[]) => void): void;
-      removeListener(ev: string, l: (...args: any[]) => void): void;
+      store.dispatch(changeDatabases(dbs));
     },
-    ev: string,
-    listener: (...args: any[]) => void
-  ) {
-    eventEmitter.on(ev, listener);
-    cleanup.push(() => eventEmitter.removeListener(ev, listener));
-  }
-  const onAppRegistryEvent = (ev: string, listener: (...args: any[]) => void) =>
-    on(globalAppRegistry, ev, listener);
-  const onInstanceEvent = (ev: string, listener: (...args: any[]) => void) =>
-    on(instance, ev, listener);
+    300,
+    { leading: true, trailing: true }
+  );
+
+  addCleanup(() => {
+    onDatabasesChange.cancel();
+  });
 
   store.dispatch(setDataService(dataService));
   if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
   const connectionOptions = dataService.getConnectionOptions();
   store.dispatch(changeConnectionOptions(connectionOptions)); // stores ssh tunnel status
 
-  onInstanceChangeNow(instance);
-  onDatabasesChange(instance.databases);
+  onInstanceChange();
+  onDatabasesChange();
 
-  onInstanceEvent('change:csfleMode', () => {
-    onInstanceChange(instance);
-  });
+  on(instance, 'change:status', onInstanceChange);
+  on(instance, 'change:refreshingStatus', onInstanceChange);
+  on(instance, 'change:databasesStatus', onInstanceChange);
+  on(instance, 'change:csfleMode', onInstanceChange);
+  on(instance, 'change:topologyDescription', onInstanceChange);
+  on(instance, 'change:isWritable', onInstanceChange);
+  on(instance, 'change:env', onInstanceChange);
 
-  onInstanceEvent('change:refreshingStatus', () => {
-    // This will always fire when we start fetching the instance details which
-    // will cause a 300ms throttle before any instance details can update if
-    // we send it though the throttled update. That's long enough for the
-    // sidebar to display that we're connected to a standalone instance when
-    // we're really connected to dataLake.
-    onInstanceChangeNow(instance);
-  });
+  on(instance, 'change:databasesStatus', onDatabasesChange);
+  on(instance, 'add:databases', onDatabasesChange);
+  on(instance, 'remove:databases', onDatabasesChange);
+  on(instance, 'change:databases', onDatabasesChange);
+  on(instance, 'change:databases.collectionsStatus', onDatabasesChange);
 
-  onInstanceEvent('change:databasesStatus', () => {
-    onInstanceChange(instance);
-    onDatabasesChange(instance.databases);
-  });
-
-  onInstanceEvent('change:databases', () => {
-    onDatabasesChange(instance.databases);
-  });
-
-  onInstanceEvent('change:databases.collectionsStatus', () => {
-    onDatabasesChange(instance.databases);
-  });
-
-  on(instance.build as any, 'change:isEnterprise', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.build as any, 'change:version', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.dataLake as any, 'change:isDataLake', () => {
-    onInstanceChange(instance);
-  });
-
-  on(instance.dataLake as any, 'change:version', () => {
-    onInstanceChange(instance);
-  });
+  on(instance, 'add:collections', onDatabasesChange);
+  on(instance, 'remove:collections', onDatabasesChange);
+  on(instance, 'change:collections._id', onDatabasesChange);
+  on(instance, 'change:collections.status', onDatabasesChange);
 
   store.dispatch(
     toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
   );
 
   on(
-    instance.genuineMongoDB as any,
-    'change:isGenuine',
-    (model: unknown, isGenuine: boolean) => {
-      onInstanceChange(instance); // isGenuineMongoDB is part of instance state
+    instance,
+    'change:genuineMongoDB.isGenuine',
+    (_model: unknown, isGenuine: boolean) => {
       store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
   );
 
-  onInstanceEvent('change:topologyDescription', () => {
-    onInstanceChange(instance);
-  });
-
-  onInstanceEvent('change:isWritable', () => {
-    onInstanceChange(instance);
-  });
-
-  onInstanceEvent('change:env', () => {
-    onInstanceChange(instance);
-  });
-
-  onAppRegistryEvent(
-    'select-namespace',
-    ({ namespace }: { namespace: string | NS }) => {
-      store.dispatch(changeActiveNamespace(namespace));
-      store.dispatch(changeLocation('collection'));
-    }
-  );
-
-  onAppRegistryEvent(
-    'open-namespace-in-new-tab',
-    ({ namespace }: { namespace: string | NS }) => {
-      store.dispatch(changeActiveNamespace(namespace));
-      store.dispatch(changeLocation('collection'));
-    }
-  );
-
-  onAppRegistryEvent('select-database', (dbName: string) => {
-    store.dispatch(changeActiveNamespace(dbName));
-    store.dispatch(changeLocation('database'));
-  });
-
-  onAppRegistryEvent(
-    'open-instance-workspace',
-    (tabName: Location | null = null) => {
-      store.dispatch(changeActiveNamespace(''));
-      store.dispatch(changeLocation(tabName));
-    }
-  );
-
-  onAppRegistryEvent('data-service-disconnected', () => {
-    store.dispatch(reset());
-  });
-
-  onAppRegistryEvent('toggle-sidebar', () => {
+  on(globalAppRegistry, 'toggle-sidebar', () => {
     store.dispatch(toggleSidebar());
   });
 
+  // Checking if "Performance" tab is supported by running commands required for
+  // the "Performance" tab to function
+  void Promise.all([dataService.currentOp(), dataService.top()]).then(
+    () => {
+      store.dispatch(setIsPerformanceTabSupported(true));
+    },
+    (err) => {
+      log.info(
+        mongoLogId(1_001_000_278),
+        'Sidebar',
+        'Performance tab requied commands failed',
+        { error: (err as Error).message }
+      );
+      // Only disable performance tab if encountered Atlas error
+      const isSupported =
+        (err as MongoServerError).codeName === 'AtlasError' ? false : true;
+      store.dispatch(setIsPerformanceTabSupported(isSupported));
+    }
+  );
+
   return {
     store,
-    deactivate() {
-      for (const cleaner of cleanup) cleaner();
-    },
+    deactivate: cleanup,
   };
 }

@@ -2,7 +2,6 @@ import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
 import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import dataService from './data-service';
-import fields from './fields';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
 import pipelineBuilder from './pipeline-builder';
@@ -21,11 +20,9 @@ import comments from './comments';
 import autoPreview from './auto-preview';
 import id from './id';
 import savedPipeline from './saved-pipeline';
-import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
-import projections from './projections';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
@@ -40,6 +37,10 @@ import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type AppRegistry from 'hadron-app-registry';
 
 /**
  * The main application reducer.
@@ -48,11 +49,9 @@ import searchIndexes from './search-indexes';
  * be handled differently in the default reducer
  */
 const rootReducer = combineReducers({
-  appRegistry,
   comments,
   autoPreview,
   dataService,
-  fields,
   inputDocuments,
   namespace,
   env,
@@ -68,7 +67,6 @@ const rootReducer = combineReducers({
   largeLimit,
   maxTimeMS,
   savingPipeline,
-  projections,
   editViewName,
   sourceName,
   outResultsFn,
@@ -87,10 +85,16 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 export type PipelineBuilderExtraArgs = {
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
   atlasService: AtlasService;
+  workspaces: WorkspacesService;
+  preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -1,24 +1,32 @@
-import type Namespace from '../types/namespace';
+import toNS from 'mongodb-ns';
 
 export default function updateTitle(
   appName: string,
   connectionTitle?: string,
-  namespace?: Namespace
+  workspaceType?: string,
+  namespace?: string
 ): void {
-  if (!connectionTitle) {
-    document.title = `${appName}`;
-    return;
-  }
+  const ns = namespace ? toNS(namespace) : null;
 
-  if (!namespace || !namespace.database) {
+  if (connectionTitle) {
+    if (ns?.collection) {
+      document.title = `${appName} - ${connectionTitle}/${ns.database}.${ns.collection}`;
+      return;
+    }
+
+    if (ns?.database) {
+      document.title = `${appName} - ${connectionTitle}/${ns.database}`;
+      return;
+    }
+
+    if (workspaceType) {
+      document.title = `${appName} - ${connectionTitle}/${workspaceType}`;
+      return;
+    }
+
     document.title = `${appName} - ${connectionTitle}`;
     return;
   }
 
-  if (!namespace.collection) {
-    document.title = `${appName} - ${connectionTitle}/${namespace.database}`;
-    return;
-  }
-
-  document.title = `${appName} - ${connectionTitle}/${namespace.database}.${namespace.collection}`;
+  document.title = `${appName}`;
 }

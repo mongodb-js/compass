@@ -11,6 +11,9 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { DatabasesNavigationTree } from './databases-navigation-tree';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 const databases = [
   {
@@ -41,6 +44,61 @@ const TEST_VIRTUAL_PROPS = {
 
 describe('DatabasesNavigationTree', function () {
   afterEach(cleanup);
+
+  context('when the rename collection feature flag is enabled', () => {
+    let preferences: PreferencesAccess;
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableRenameCollectionModal: true });
+    });
+
+    it('shows the Rename Collection action', function () {
+      render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesNavigationTree
+            databases={databases}
+            expanded={{ bar: true }}
+            activeNamespace="bar.meow"
+            onDatabaseExpand={() => {}}
+            onNamespaceAction={() => {}}
+            {...TEST_VIRTUAL_PROPS}
+          />
+        </PreferencesProvider>
+      );
+
+      const collection = screen.getByTestId('sidebar-collection-bar.meow');
+      const showActionsButton = within(collection).getByTitle('Show actions');
+
+      expect(within(collection).getByTitle('Show actions')).to.exist;
+
+      userEvent.click(showActionsButton);
+
+      expect(screen.getByText('Rename collection')).to.exist;
+    });
+
+    it('should activate callback with `rename-collection` when corresponding action is clicked', function () {
+      const spy = Sinon.spy();
+      render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesNavigationTree
+            databases={databases}
+            expanded={{ bar: true }}
+            activeNamespace="bar.meow"
+            onNamespaceAction={spy}
+            onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
+          />
+        </PreferencesProvider>
+      );
+
+      const collection = screen.getByTestId('sidebar-collection-bar.meow');
+
+      userEvent.click(within(collection).getByTitle('Show actions'));
+      userEvent.click(screen.getByText('Rename collection'));
+
+      expect(spy).to.be.calledOnceWithExactly('bar.meow', 'rename-collection');
+    });
+  });
 
   it('should render databases', function () {
     render(
@@ -166,6 +224,7 @@ describe('DatabasesNavigationTree', function () {
       userEvent.click(showActionsButton);
 
       expect(screen.getByText('Open in new tab')).to.exist;
+      expect(() => screen.getByText('Rename collection')).to.throw;
       expect(screen.getByText('Drop collection')).to.exist;
     });
 
@@ -192,6 +251,9 @@ describe('DatabasesNavigationTree', function () {
       expect(screen.getByText('Drop view')).to.exist;
       expect(screen.getByText('Duplicate view')).to.exist;
       expect(screen.getByText('Modify view')).to.exist;
+
+      // views cannot be renamed
+      expect(() => screen.getByText('Rename collection')).to.throw;
     });
   });
 

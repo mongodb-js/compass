@@ -16,8 +16,6 @@ describe('PipelineToolbar', function () {
           store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
-            onChangePipelineOutputOption={() => {}}
-            pipelineOutputOption="collapse"
             isBuilderView
             showExportButton
             showRunButton
@@ -56,7 +54,7 @@ describe('PipelineToolbar', function () {
       ).to.exist;
       expect(
         within(header).getByTestId('pipeline-toolbar-options-button'),
-        'shows more options button'
+        'shows options button'
       ).to.exist;
     });
 
@@ -129,8 +127,6 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore()}>
           <PipelineToolbar
-            onChangePipelineOutputOption={() => {}}
-            pipelineOutputOption="collapse"
             isBuilderView
             showExplainButton
             showExportButton

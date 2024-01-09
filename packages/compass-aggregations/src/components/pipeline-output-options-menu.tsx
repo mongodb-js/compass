@@ -9,13 +9,11 @@ const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [
 ];
 
 export const PipelineOutputOptionsMenu: React.FunctionComponent<{
-  option: PipelineOutputOption;
   onChangeOption: (option: PipelineOutputOption) => void;
   buttonText?: string;
-}> = ({ option, onChangeOption, buttonText }) => {
+}> = ({ onChangeOption, buttonText }) => {
   return (
     <DropdownMenuButton<PipelineOutputOption>
-      activeAction={option}
       data-testid="pipeline-output-options"
       actions={pipelineOptionsActions}
       onAction={onChangeOption}

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import {
   Icon,
   InteractivePopover,
@@ -64,6 +64,10 @@ const QueryHistoryButtonPopover = ({
     [onOpenPopover]
   );
 
+  const closePopover = useCallback(() => {
+    setIsOpen(false);
+  }, [setIsOpen]);
+
   return (
     <InteractivePopover
       className={queryHistoryPopoverStyles}
@@ -90,7 +94,10 @@ const QueryHistoryButtonPopover = ({
       open={isOpen}
       setOpen={setOpen}
     >
-      <QueryHistory />
+      <QueryHistory
+        onUpdateRecentChoosen={closePopover}
+        onUpdateFavoriteChoosen={closePopover}
+      />
     </InteractivePopover>
   );
 };

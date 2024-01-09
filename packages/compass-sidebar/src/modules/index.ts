@@ -1,58 +1,42 @@
+import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-
-import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { DatabaseState, DatabasesAction } from './databases';
-import databases, {
-  INITIAL_STATE as DATABASES_INITIAL_STATE,
-} from './databases';
+import databases from './databases';
 import type { InstanceAction, InstanceState } from './instance';
-import instance, { INITIAL_STATE as INSTANCE_INITIAL_STATE } from './instance';
+import instance from './instance';
 import type {
   IsDetailsExpandedState,
   ToggleIsDetailsExpandedAction,
 } from './is-details-expanded';
-import isDetailsExpanded, {
-  INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE,
-} from './is-details-expanded';
-import type { ResetAction } from './reset';
-import { RESET } from './reset';
+import isDetailsExpanded from './is-details-expanded';
 import type {
   IsGenuineMongoDBVisibleAction,
   IsGenuineMongoDBVisibleState,
 } from './is-genuine-mongodb-visible';
-import isGenuineMongoDBVisible, {
-  INITIAL_STATE as IS_VISIBLE_IS,
-} from './is-genuine-mongodb-visible';
+import isGenuineMongoDBVisible from './is-genuine-mongodb-visible';
 import type {
   ConnectionInfoAction,
   ConnectionInfoState,
 } from './connection-info';
-import connectionInfo, {
-  INITIAL_STATE as CONNECTION_INFO_IS,
-} from './connection-info';
+import connectionInfo from './connection-info';
 import type {
   ConnectionOptionsAction,
   ConnectionOptionsState,
 } from './connection-options';
-import connectionOptions, {
-  INITIAL_STATE as CONNECTION_OPTIONS_IS,
-} from './connection-options';
-import type { LocationAction, LocationState } from './location';
-import location, { INITIAL_STATE as LOCATION_IS } from './location';
+import connectionOptions from './connection-options';
 import type { IsExpandedAction, IsExpandedState } from './is-expanded';
-import isExpanded, { INITIAL_STATE as IS_EXPANDED_IS } from './is-expanded';
+import isExpanded from './is-expanded';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { DataServiceAction, DataServiceState } from './data-service';
-import dataService, {
-  INITIAL_STATE as DATA_SERVICE_IS,
-  SET_CSFLE_ENABLED,
-} from './data-service';
+import dataService from './data-service';
+import type {
+  IsPerformanceTabSupportedState,
+  SetIsPerformanceTabSupportedAction,
+} from './is-performance-tab-supported';
+import isPerformanceTabSupported from './is-performance-tab-supported';
+import type { ThunkAction } from 'redux-thunk';
 
 export interface RootState {
-  appRegistry: {
-    globalAppRegistry: AppRegistry | null;
-    localAppRegistry: AppRegistry | null;
-  };
   dataService: DataServiceState;
   connectionInfo: ConnectionInfoState;
   connectionOptions: ConnectionOptionsState;
@@ -60,8 +44,8 @@ export interface RootState {
   instance: InstanceState;
   isDetailsExpanded: IsDetailsExpandedState;
   isGenuineMongoDBVisible: IsGenuineMongoDBVisibleState;
-  location: LocationState;
   isExpanded: IsExpandedState;
+  isPerformanceTabSupported: IsPerformanceTabSupportedState;
 }
 
 export type RootAction =
@@ -71,16 +55,21 @@ export type RootAction =
   | InstanceAction
   | ToggleIsDetailsExpandedAction
   | IsGenuineMongoDBVisibleAction
-  | LocationAction
   | IsExpandedAction
-  | ResetAction
-  | DataServiceAction;
+  | DataServiceAction
+  | SetIsPerformanceTabSupportedAction;
+
+export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  { globalAppRegistry: AppRegistry },
+  A
+>;
 
 /**
  * The reducer.
  */
 const reducer = combineReducers<RootState, RootAction>({
-  appRegistry,
   databases,
   dataService,
   connectionInfo,
@@ -88,42 +77,8 @@ const reducer = combineReducers<RootState, RootAction>({
   instance,
   isDetailsExpanded,
   isGenuineMongoDBVisible,
-  location,
   isExpanded,
+  isPerformanceTabSupported,
 });
 
-/**
- * The root reducer.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const rootReducer = (
-  state: RootState | undefined,
-  action: RootAction
-): RootState => {
-  if (action.type === RESET || !state) {
-    return {
-      appRegistry: { globalAppRegistry: null, localAppRegistry: null },
-      ...state,
-      dataService: DATA_SERVICE_IS,
-      connectionInfo: CONNECTION_INFO_IS,
-      connectionOptions: CONNECTION_OPTIONS_IS,
-      databases: DATABASES_INITIAL_STATE,
-      instance: INSTANCE_INITIAL_STATE,
-      isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
-      isGenuineMongoDBVisible: IS_VISIBLE_IS,
-      location: LOCATION_IS,
-      isExpanded: IS_EXPANDED_IS,
-    };
-  }
-  if (action.type === SET_CSFLE_ENABLED) {
-    const { globalAppRegistry } = state.appRegistry;
-    queueMicrotask(() => globalAppRegistry?.emit('refresh-data'));
-  }
-  return reducer(state, action);
-};
-
-export default rootReducer;
+export default reducer;

@@ -1,14 +1,8 @@
 import { EJSON, ObjectId } from 'bson';
 import { combineReducers } from 'redux';
-import type { Dispatch } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Action, AnyAction, Dispatch } from 'redux';
 import { isCollationValid } from 'mongodb-query-parser';
 import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
-
-import dataService from '../data-service';
-import appRegistry, {
-  localAppRegistryEmit,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, { clearError, handleError } from './error';
 import inProgress, { toggleInProgress } from '../in-progress';
 import isVisible, { toggleIsVisible } from '../is-visible';
@@ -17,22 +11,24 @@ import type { IndexField } from '../create-index/fields';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
 import type { InProgressIndex } from '../regular-indexes';
-
-import schemaFields from '../create-index/schema-fields';
 import { resetForm } from '../reset-form';
-
 import options from './options';
 import { hasColumnstoreIndex } from '../../utils/columnstore-indexes';
+import type { ThunkAction } from 'redux-thunk';
+import type { CreateIndexPluginServices } from '../../stores/create-index';
 
-const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
+type CreateIndexThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  CreateIndexPluginServices,
+  A
+>;
 
 /**
  * The main reducer.
  */
 const reducer = combineReducers({
   // global stuff
-  dataService,
-  appRegistry,
   namespace,
   serverVersion,
 
@@ -40,9 +36,8 @@ const reducer = combineReducers({
   inProgress,
   isVisible,
 
-  // fields realted
+  // form fields realted
   fields,
-  schemaFields,
 
   // validation
   error,
@@ -107,8 +102,12 @@ const prepareIndex = ({
  *
  * @returns {Function} The thunk function.
  */
-export const createIndex = () => {
-  return async (dispatch: Dispatch, getState: () => RootState) => {
+export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, localAppRegistry, logger: { track } }
+  ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
 
@@ -227,9 +226,7 @@ export const createIndex = () => {
     const ns = state.namespace;
     const inProgressIndex = prepareIndex({ ns, name: options.name, spec });
 
-    dispatch(
-      localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
-    );
+    localAppRegistry.emit('in-progress-indexes-added', inProgressIndex);
 
     const trackEvent = {
       unique: options.unique,
@@ -245,28 +242,20 @@ export const createIndex = () => {
     };
 
     try {
-      await state.dataService?.createIndex(
-        ns,
-        spec as IndexSpecification,
-        options
-      );
+      await dataService.createIndex(ns, spec as IndexSpecification, options);
       track('Index Created', trackEvent);
       dispatch(resetForm());
       dispatch(toggleInProgress(false));
       dispatch(toggleIsVisible(false));
-      dispatch(
-        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndex.id)
-      );
-      dispatch(localAppRegistryEmit('refresh-regular-indexes'));
+      localAppRegistry.emit('in-progress-indexes-removed', inProgressIndex.id);
+      localAppRegistry.emit('refresh-regular-indexes');
     } catch (err) {
       dispatch(toggleInProgress(false));
       dispatch(handleError((err as Error).message));
-      dispatch(
-        localAppRegistryEmit('in-progress-indexes-failed', {
-          inProgressIndexId: inProgressIndex.id,
-          error: (err as Error).message,
-        })
-      );
+      localAppRegistry.emit('in-progress-indexes-failed', {
+        inProgressIndexId: inProgressIndex.id,
+        error: (err as Error).message,
+      });
     }
   };
 };

@@ -1,6 +1,5 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { cloneDeep } from 'lodash';
-import preferences from 'compass-preferences-model';
 
 export type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
@@ -39,15 +38,18 @@ export function handleUpdateOIDCParam<K extends keyof OIDCOptions>({
   };
 }
 
-export function adjustOIDCConnectionOptionsBeforeConnect(
+export function adjustOIDCConnectionOptionsBeforeConnect({
+  browserCommandForOIDCAuth,
+  notifyDeviceFlow,
+}: {
+  browserCommandForOIDCAuth?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
     userCode: string;
-  }) => void
-): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
+  }) => void;
+}): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
   return (connectionOptions) => {
-    const browserCommand =
-      preferences.getPreferences().browserCommandForOIDCAuth;
+    const browserCommand = browserCommandForOIDCAuth;
 
     return {
       ...cloneDeep(connectionOptions),

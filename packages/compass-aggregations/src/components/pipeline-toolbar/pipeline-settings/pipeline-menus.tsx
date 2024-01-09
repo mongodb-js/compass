@@ -11,22 +11,22 @@ import {
 } from '../../../modules/saving-pipeline';
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
+
 type SaveMenuProps = {
   disabled?: boolean;
   pipelineName: string;
-  isCreateViewAvailable: boolean;
+  isSaveEnabled: boolean;
+  isCreateViewEnabled: boolean;
   onSave: (name: string) => void;
   onSaveAs: (name: string) => void;
   onCreateView: () => void;
 };
-const saveMenuActions: MenuAction<SaveMenuActions>[] = [
-  { action: 'save', label: 'Save' },
-  { action: 'saveAs', label: 'Save as' },
-];
+
 export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   disabled,
   pipelineName,
-  isCreateViewAvailable,
+  isSaveEnabled,
+  isCreateViewEnabled,
   onSave,
   onSaveAs,
   onCreateView,
@@ -41,24 +41,31 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
         return onCreateView();
     }
   };
-  const actions = useMemo(
-    () =>
-      saveMenuActions.concat(
-        isCreateViewAvailable
-          ? [
-              {
-                action: 'createView',
-                label: 'Create view',
-              },
-            ]
-          : []
-      ),
-    [isCreateViewAvailable]
-  );
+  const menuActions = useMemo(() => {
+    const actions: MenuAction<SaveMenuActions>[] = [];
+    if (isSaveEnabled) {
+      actions.push(
+        { action: 'save' as const, label: 'Save' },
+        { action: 'saveAs' as const, label: 'Save as' }
+      );
+    }
+    if (isCreateViewEnabled) {
+      actions.push({
+        action: 'createView',
+        label: 'Create view',
+      });
+    }
+    return actions;
+  }, [isSaveEnabled, isCreateViewEnabled]);
+
+  if (menuActions.length === 0) {
+    return null;
+  }
+
   return (
     <DropdownMenuButton<SaveMenuActions>
       data-testid="save-menu"
-      actions={actions}
+      actions={menuActions}
       onAction={onAction}
       buttonText="Save"
       buttonProps={{
@@ -76,7 +83,7 @@ const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 const mapSaveMenuState = (state: RootState) => {
   return {
     pipelineName: state.name,
-    isCreateViewAvailable: semver.gte(
+    isCreateViewEnabled: semver.gte(
       state.serverVersion,
       VIEWS_MIN_SERVER_VERSION
     ),
@@ -92,7 +99,7 @@ const mapSaveMenuDispatch = {
       ? savingPipelineOpen()
       : savingPipelineOpen({ name, isSaveAs: true });
   },
-  onCreateView: () => openCreateView(),
+  onCreateView: openCreateView,
 };
 export const SaveMenu = connect(
   mapSaveMenuState,

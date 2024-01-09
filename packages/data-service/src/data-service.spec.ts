@@ -3,8 +3,9 @@ import { ObjectId } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { MongoServerError } from 'mongodb';
+import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
+import { Int32 } from 'bson';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 import type { DataService } from './data-service';
@@ -541,6 +542,43 @@ describe('DataService', function () {
       it('returns the update result', async function () {
         const result = await dataService.updateCollection(testNamespace);
         expect(result.ok).to.equal(1);
+      });
+    });
+
+    describe('#renameCollection', function () {
+      beforeEach(async function () {
+        for (const collectionName of [
+          'initialCollection',
+          'renamedCollection',
+        ]) {
+          await dataService
+            .dropCollection(`${testDatabaseName}.${collectionName}`)
+            .catch(() => null);
+        }
+        await dataService.createCollection(
+          `${testDatabaseName}.initialCollection`,
+          {}
+        );
+      });
+      it('renames the collection', async function () {
+        await dataService.renameCollection(
+          `${testDatabaseName}.initialCollection`,
+          'renamedCollection'
+        );
+
+        const [collection] = await dataService.listCollections(
+          testDatabaseName,
+          { name: 'renamedCollection' }
+        );
+        expect(collection).to.exist;
+      });
+
+      it('returns the collection object', async function () {
+        const result = await dataService.renameCollection(
+          `${testDatabaseName}.initialCollection`,
+          'renamedCollection'
+        );
+        expect(result).to.be.instanceOf(Collection);
       });
     });
 
@@ -1281,9 +1319,10 @@ describe('DataService', function () {
 
         expect(changeset.changes).to.have.length(1);
         expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
+        expect(changeset.changes[0].after.counter._bsontype).to.equal('Int32');
         expect(changeset.changes[0].after).to.deep.equal({
           _id: sampleDocument._id,
-          counter: 1,
+          counter: new Int32(1),
         });
       });
 
@@ -1882,6 +1921,98 @@ describe('DataService', function () {
         expect(
           await dataService.dropSearchIndex('test.test', 'my-index')
         ).to.be.undefined;
+      });
+    });
+
+    describe('#listStreamProcessors', function () {
+      it('returns stream processors from listStreamProcessors command', async function () {
+        const streamProcessors = [
+          { id: new ObjectId().toHexString(), name: 'foo' },
+          { id: new ObjectId().toHexString(), name: 'bar' },
+        ];
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            listStreamProcessors: { ok: 1, streamProcessors },
+          },
+        });
+        const result = await dataService.listStreamProcessors();
+        expect(result).to.deep.eq(streamProcessors);
+      });
+
+      it('rejects when listStreamProcessors command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            listStreamProcessors: new Error('unknown error'),
+          },
+        });
+        const result = dataService.listStreamProcessors();
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#startStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            startStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.startStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when startStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            startStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.startStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#stopStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            stopStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.stopStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when stopStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            stopStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.stopStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#dropStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            dropStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.dropStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when dropStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            dropStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.dropStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
       });
     });
   });

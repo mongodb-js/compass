@@ -1,22 +1,24 @@
 import {
   css,
   palette,
-  withDarkMode,
   Link,
   spacing,
   H3,
   cx,
   SignalPopover,
   PerformanceSignals,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import React, { Component } from 'react';
+import React from 'react';
 import toNS from 'mongodb-ns';
-import { withPreferences } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model';
 import CollectionHeaderActions from '../collection-header-actions';
 import CollectionStats from '../collection-stats';
 import type { CollectionState } from '../../modules/collection-tab';
 import { CollectionBadge } from './badges';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { connect } from 'react-redux';
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
@@ -98,11 +100,6 @@ const collectionHeaderTitleCollectionDarkStyles = css({
 });
 
 type CollectionHeaderProps = {
-  darkMode?: boolean;
-  showInsights: boolean;
-  onSelectDatabaseClick(): void;
-  onEditViewClick(): void;
-  onReturnToViewClick(): void;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
@@ -137,112 +134,122 @@ const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
   return Array.from(insights);
 };
 
-class CollectionHeader extends Component<CollectionHeaderProps> {
-  onEditViewClicked = (): void => {
-    this.props.onEditViewClick();
-  };
+export const CollectionHeader: React.FunctionComponent<
+  CollectionHeaderProps
+> = ({
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  isClustered,
+  isFLE,
+  isAtlas,
+  sourceName,
+  editViewName,
+  sourcePipeline,
+  stats,
+}) => {
+  const darkMode = useDarkMode();
+  const showInsights = usePreference('showInsights');
+  const {
+    openCollectionsWorkspace,
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+  } = useOpenWorkspace();
 
-  onReturnToViewClicked = (): void => {
-    this.props.onReturnToViewClick();
-  };
+  const ns = toNS(namespace);
+  const database = ns.database;
+  const collection = ns.collection;
+  const insights =
+    showInsights && sourcePipeline?.length
+      ? getInsightsForPipeline(sourcePipeline, isAtlas)
+      : [];
 
-  handleDBClick = (): void => {
-    this.props.onSelectDatabaseClick();
-  };
-
-  /**
-   * Render CollectionHeader component.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  render(): React.ReactElement {
-    const ns = toNS(this.props.namespace);
-    const database = ns.database;
-    const collection = ns.collection;
-    const insights =
-      this.props.showInsights && this.props.sourcePipeline?.length
-        ? getInsightsForPipeline(this.props.sourcePipeline, this.props.isAtlas)
-        : [];
-
-    return (
+  return (
+    <div
+      className={cx(
+        collectionHeaderStyles,
+        darkMode ? collectionHeaderDarkStyles : collectionHeaderLightStyles
+      )}
+      data-testid="collection-header"
+    >
       <div
-        className={cx(
-          collectionHeaderStyles,
-          this.props.darkMode
-            ? collectionHeaderDarkStyles
-            : collectionHeaderLightStyles
-        )}
-        data-testid="collection-header"
+        title={`${database}.${collection}`}
+        className={collectionHeaderTitleStyles}
+        data-testid="collection-header-title"
       >
         <div
-          title={`${database}.${collection}`}
-          className={collectionHeaderTitleStyles}
-          data-testid="collection-header-title"
+          data-testid="collection-header-namespace"
+          className={collectionHeaderNamespaceStyles}
         >
-          <div
-            data-testid="collection-header-namespace"
-            className={collectionHeaderNamespaceStyles}
+          <Link
+            data-testid="collection-header-title-db"
+            as="button"
+            className={cx(
+              collectionHeaderDBLinkStyles,
+              darkMode ? dbLinkDarkStyles : dbLinkLightStyles
+            )}
+            hideExternalIcon={true}
+            onClick={() => {
+              openCollectionsWorkspace(ns.database);
+            }}
           >
-            <Link
-              data-testid="collection-header-title-db"
-              as="button"
-              className={cx(
-                collectionHeaderDBLinkStyles,
-                this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
-              )}
-              hideExternalIcon={true}
-              onClick={() => this.handleDBClick()}
-            >
-              <H3
-                className={cx(
-                  collectionHeaderDBNameStyles,
-                  this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
-                )}
-              >
-                {database}
-              </H3>
-            </Link>
             <H3
-              data-testid="collection-header-title-collection"
               className={cx(
-                collectionHeaderCollectionStyles,
-                this.props.darkMode
-                  ? collectionHeaderTitleCollectionDarkStyles
-                  : collectionHeaderTitleCollectionLightStyles
+                collectionHeaderDBNameStyles,
+                darkMode ? dbLinkDarkStyles : dbLinkLightStyles
               )}
             >
-              {`.${collection}`}
+              {database}
             </H3>
-          </div>
-          {this.props.isReadonly && <CollectionBadge type="readonly" />}
-          {this.props.isTimeSeries && <CollectionBadge type="timeseries" />}
-          {this.props.isClustered && <CollectionBadge type="clustered" />}
-          {this.props.isFLE && <CollectionBadge type="fle" />}
-          {this.props.isReadonly && this.props.sourceName && (
-            <CollectionBadge type="view" />
-          )}
-          {!!insights.length && <SignalPopover signals={insights} />}
-          <CollectionHeaderActions
-            editViewName={this.props.editViewName}
-            isReadonly={this.props.isReadonly}
-            onEditViewClicked={this.onEditViewClicked}
-            onReturnToViewClicked={this.onReturnToViewClicked}
-            sourceName={this.props.sourceName}
-          />
+          </Link>
+          <H3
+            data-testid="collection-header-title-collection"
+            className={cx(
+              collectionHeaderCollectionStyles,
+              darkMode
+                ? collectionHeaderTitleCollectionDarkStyles
+                : collectionHeaderTitleCollectionLightStyles
+            )}
+          >
+            {`.${collection}`}
+          </H3>
         </div>
-        {!this.props.isReadonly && !this.props.editViewName && (
-          <CollectionStats
-            isTimeSeries={this.props.isTimeSeries}
-            stats={this.props.stats}
-          />
-        )}
+        {isReadonly && <CollectionBadge type="readonly" />}
+        {isTimeSeries && <CollectionBadge type="timeseries" />}
+        {isClustered && <CollectionBadge type="clustered" />}
+        {isFLE && <CollectionBadge type="fle" />}
+        {isReadonly && sourceName && <CollectionBadge type="view" />}
+        {!!insights.length && <SignalPopover signals={insights} />}
+        <CollectionHeaderActions
+          editViewName={editViewName}
+          isReadonly={isReadonly}
+          onEditViewClicked={() => {
+            if (sourceName && sourcePipeline) {
+              openEditViewWorkspace(namespace, {
+                sourceName,
+                sourcePipeline,
+              });
+            }
+          }}
+          onReturnToViewClicked={() => {
+            if (editViewName) {
+              openCollectionWorkspace(editViewName);
+            }
+          }}
+          sourceName={sourceName}
+        />
       </div>
-    );
-  }
-}
+      {!isReadonly && !editViewName && (
+        <CollectionStats isTimeSeries={isTimeSeries} stats={stats} />
+      )}
+    </div>
+  );
+};
 
-export default withPreferences(
-  withDarkMode(CollectionHeader),
-  ['showInsights'],
-  React
-);
+const ConnectedCollectionHeader = connect((state: CollectionState) => {
+  return {
+    stats: state.stats,
+  };
+})(CollectionHeader);
+
+export default ConnectedCollectionHeader;

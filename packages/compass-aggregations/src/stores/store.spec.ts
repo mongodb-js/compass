@@ -6,42 +6,8 @@ import type { Store } from 'redux';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
-const fakeAppInstanceStore = {
-  getState: function () {
-    return {
-      instance: {
-        env: 'atlas',
-      },
-    };
-  },
-} as any;
-
 describe('Aggregation Store', function () {
   describe('#configureStore', function () {
-    context('when providing an app registry', function () {
-      let store: Store;
-      const localAppRegistry = new AppRegistry();
-      const globalAppRegistry = new AppRegistry();
-
-      beforeEach(function () {
-        globalAppRegistry.registerStore(
-          'App.InstanceStore',
-          fakeAppInstanceStore
-        );
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-        });
-      });
-
-      it('sets the app registry state', function () {
-        expect(store.getState().appRegistry).to.deep.equal({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-        });
-      });
-    });
-
     context('when providing a serverVersion', function () {
       let store: Store;
 
@@ -106,13 +72,11 @@ describe('Aggregation Store', function () {
             isTimeSeries: false,
             editViewName: null,
             sourceName: null,
-            appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             savedPipeline: INITIAL_STATE.savedPipeline,
-            fields: INITIAL_STATE.fields,
             inputDocuments: {
               ...INITIAL_STATE.inputDocuments,
               isLoading: true,
@@ -128,7 +92,6 @@ describe('Aggregation Store', function () {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             savingPipeline: INITIAL_STATE.savingPipeline,
-            projections: INITIAL_STATE.projections,
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,
@@ -150,72 +113,9 @@ describe('Aggregation Store', function () {
     const globalAppRegistry = new AppRegistry();
 
     beforeEach(function () {
-      globalAppRegistry.registerStore(
-        'App.InstanceStore',
-        fakeAppInstanceStore
-      );
-      store = configureStore({
+      store = configureStore(undefined, undefined, {
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
-      });
-    });
-
-    context('when the fields change', function () {
-      it('updates the fields', function (done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().fields).to.deep.equal([
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ]);
-          done();
-        });
-
-        localAppRegistry.emit('fields-changed', {
-          fields: {
-            harry: {
-              name: 'harry',
-              path: ['harry'],
-              count: 1,
-              type: 'Number',
-            },
-            potter: {
-              name: 'potter',
-              path: ['potter'],
-              count: 1,
-              type: 'Boolean',
-            },
-          },
-          topLevelFields: ['harry', 'potter'],
-          autocompleteFields: [
-            {
-              name: 'harry',
-              value: 'harry',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'potter',
-              value: 'potter',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ],
-        });
       });
     });
 

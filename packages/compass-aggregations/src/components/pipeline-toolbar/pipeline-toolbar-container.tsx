@@ -19,8 +19,12 @@ const containerDisplayStyles = css({
   `,
 });
 
+export const smallPipelineToolbar = () => {
+  return `@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`;
+};
+
 export const hiddenOnNarrowPipelineToolbarStyles = css({
-  [`@container ${WorkspaceContainer.containerQueryName} (width < 900px)`]: {
+  [smallPipelineToolbar()]: {
     display: 'none',
   },
 });

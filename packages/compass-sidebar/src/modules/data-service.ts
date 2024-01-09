@@ -1,5 +1,5 @@
 import type { DataService } from 'mongodb-data-service';
-import type { RootAction } from '.';
+import type { RootAction, SidebarThunkAction } from '.';
 
 export const SET_DATASERVICE = 'sidebar/SET_DATASERVICE' as const;
 interface SetDataServiceAction {
@@ -38,7 +38,11 @@ export const setDataService = (
 
 export const setConnectionIsCSFLEEnabled = (
   enable: boolean
-): SetCSFLEEnabledAction => ({
-  type: SET_CSFLE_ENABLED,
-  enable,
-});
+): SidebarThunkAction<void, SetCSFLEEnabledAction> => {
+  return (dispatch, _getState, { globalAppRegistry }) => {
+    dispatch({ type: SET_CSFLE_ENABLED, enable });
+    queueMicrotask(() => {
+      globalAppRegistry?.emit('refresh-data');
+    });
+  };
+};

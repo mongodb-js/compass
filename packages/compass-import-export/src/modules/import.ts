@@ -1,15 +1,8 @@
-/**
- * # Import
- *
- * @see startImport() for the primary entrypoint.
- */
-
 import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 import type { Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
 import type { ProcessStatus } from '../constants/process-status';
@@ -40,13 +33,10 @@ import {
   showStartingToast,
 } from '../components/import-toast';
 import type { ImportThunkAction } from '../stores/import-store';
+import { openFile } from '../utils/open-file';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
-
-const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
-  'COMPASS-IMPORT-EXPORT-UI'
-);
 
 /**
  * ## Action names
@@ -196,7 +186,12 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, globalAppRegistry: appRegistry }
+    {
+      dataService,
+      globalAppRegistry: appRegistry,
+      workspaces,
+      logger: { log, mongoLogId, track, debug },
+    }
   ) => {
     const startTime = Date.now();
 
@@ -229,7 +224,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     const errors: ErrorJSON[] = [];
 
-    let errorLogFilePath;
+    let errorLogFilePath: string | undefined;
     let errorLogWriteStream: fs.WriteStream | undefined;
     try {
       errorLogFilePath = await getErrorLogPath(fileName);
@@ -390,17 +385,26 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       docsProcessed: result.docsProcessed,
     });
 
+    const openErrorLogFilePathActionHandler = errorLogFilePath
+      ? () => {
+          if (errorLogFilePath) {
+            track('Import Error Log Opened', {
+              errorCount: errors.length,
+            });
+            void openFile(errorLogFilePath);
+          }
+        }
+      : undefined;
+
     if (result.aborted) {
       showCancelledToast({
         errors,
-        errorLogFilePath: errorLogFilePath,
+        actionHandler: openErrorLogFilePathActionHandler,
       });
     } else {
       const onReviewDocumentsClick = appRegistry
         ? () => {
-            appRegistry.emit('import-export-open-collection-in-new-tab', {
-              ns,
-            });
+            workspaces.openCollectionWorkspace(ns, { newTab: true });
           }
         : undefined;
 
@@ -417,7 +421,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           docsWritten: result.docsWritten,
           errors,
           docsProcessed: result.docsProcessed,
-          errorLogFilePath: errorLogFilePath,
+          actionHandler: openErrorLogFilePathActionHandler,
         });
       } else {
         showCompletedToast({
@@ -459,7 +463,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
  * @api public
  */
 export const cancelImport = (): ImportThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { debug } }) => {
     const {
       import: { abortController, analyzeAbortController },
     } = getState();
@@ -487,7 +491,7 @@ export const cancelImport = (): ImportThunkAction<void> => {
 };
 
 export const skipCSVAnalyze = (): ImportThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { debug } }) => {
     const {
       import: { analyzeAbortController },
     } = getState();
@@ -509,7 +513,7 @@ const loadTypes = (
   fields: FieldFromCSV[],
   values: string[][]
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
     const {
       fileName,
       delimiter,
@@ -590,7 +594,7 @@ const loadTypes = (
 };
 
 const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
     const { fileName, delimiter, newline } = getState().import;
 
     const input = fs.createReadStream(fileName);
@@ -700,7 +704,7 @@ export const setFieldType = (path: string, bsonType: string) => {
 export const selectImportFileName = (
   fileName: string
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch) => {
+  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
     try {
       const exists = await checkFileExists(fileName);
       if (!exists) {
@@ -714,8 +718,6 @@ export const selectImportFileName = (
       if (detected.type === 'unknown') {
         throw new Error('Cannot determine the file type');
       }
-
-      debug('get detection results', detected);
 
       // This is temporary. The store should just work with one fileType var
       const fileIsMultilineJSON = detected.type === 'jsonl';
@@ -737,7 +739,6 @@ export const selectImportFileName = (
         await dispatch(loadCSVPreviewDocs());
       }
     } catch (err: any) {
-      debug('dispatching error', err?.stack);
       log.info(
         mongoLogId(1_001_000_189),
         'Import',
@@ -769,7 +770,7 @@ export const selectImportFileName = (
 export const setDelimiter = (
   delimiter: Delimiter
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { logger: { debug } }) => {
     const { fileName, fileType, fileIsMultilineJSON } = getState().import;
     dispatch({
       type: SET_DELIMITER,
@@ -832,7 +833,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { track } }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({

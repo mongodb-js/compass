@@ -2,12 +2,13 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
 
-import preferences, { type User } from 'compass-preferences-model';
+import type { PreferencesAccess, User } from 'compass-preferences-model';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
 export async function setupIntercom(
   user: User,
+  preferences: PreferencesAccess,
   intercomScript: IntercomScript = new IntercomScript()
 ): Promise<void> {
   if (typeof window === 'undefined') {

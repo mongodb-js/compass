@@ -16,13 +16,13 @@ import nodeFetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type {
-  AtlasUserConfig,
   AIAggregation,
   AIFeatureEnablement,
   AIQuery,
   IntrospectInfo,
   AtlasUserInfo,
 } from './util';
+import type { AtlasUserConfig } from './user-config-store';
 import {
   validateAIQueryResponse,
   validateAIAggregationResponse,
@@ -35,11 +35,11 @@ import {
   createLoggerAndTelemetry,
   mongoLogId,
 } from '@mongodb-js/compass-logging';
-import preferences from 'compass-preferences-model';
-import { SecretStore, SECRET_STORE_KEY } from './secret-store';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { SecretStore } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import { isAIFeatureEnabled } from 'compass-preferences-model';
 import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
@@ -58,7 +58,7 @@ function isServerError(
   return Boolean(err.error && err.errorCode && err.detail);
 }
 
-function throwIfNetworkTrafficDisabled() {
+function throwIfNetworkTrafficDisabled(preferences: PreferencesAccess) {
   if (!preferences.getPreferences().networkTraffic) {
     throw new Error('Network traffic is not allowed');
   }
@@ -89,8 +89,11 @@ export async function throwIfNotOk(
   }
 }
 
-function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (!isAIFeatureEnabled()) {
+function throwIfAINotEnabled(
+  atlasService: typeof AtlasService,
+  preferences: PreferencesAccess
+) {
+  if (!isAIFeatureEnabled(preferences.getPreferences())) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -142,8 +145,6 @@ export class AtlasService {
 
   private static currentUser: AtlasUserInfo | null = null;
 
-  private static getActiveCompassUser: typeof getActiveUser = getActiveUser;
-
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
   private static fetch = (
@@ -167,10 +168,12 @@ export class AtlasService {
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
     | undefined = ipcMain;
 
+  private static getUserId: () => Promise<string>;
+  private static preferences: PreferencesAccess;
   private static config: AtlasServiceConfig;
 
   private static openExternal(url: string) {
-    const { browserCommandForOIDCAuth } = preferences.getPreferences();
+    const { browserCommandForOIDCAuth } = this.preferences.getPreferences();
     if (browserCommandForOIDCAuth) {
       // NB: While it's possible to pass `openBrowser.command` option directly
       // to oidc-plugin properties, it's not possible to do dynamically. To
@@ -229,7 +232,15 @@ export class AtlasService {
     );
   }
 
-  static init(config: AtlasServiceConfig): Promise<void> {
+  static init(
+    config: AtlasServiceConfig,
+    {
+      preferences,
+      getUserId,
+    }: { preferences: PreferencesAccess; getUserId: () => Promise<string> }
+  ): Promise<void> {
+    this.preferences = preferences;
+    this.getUserId = getUserId;
     this.config = config;
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
@@ -251,7 +262,7 @@ export class AtlasService {
         'Atlas service initialized',
         { config: this.config }
       );
-      const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
+      const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
       await this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
@@ -272,11 +283,19 @@ export class AtlasService {
     })());
   }
 
+  private static throwIfNetworkTrafficDisabled() {
+    throwIfNetworkTrafficDisabled(this.preferences);
+  }
+
+  private static throwIfAINotEnabled() {
+    throwIfAINotEnabled(this, this.preferences);
+  }
+
   private static async requestOAuthToken({
     signal,
   }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
+    this.throwIfNetworkTrafficDisabled();
 
     if (!this.plugin) {
       throw new Error(
@@ -340,7 +359,7 @@ export class AtlasService {
     try {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
-        throwIfNetworkTrafficDisabled();
+        this.throwIfNetworkTrafficDisabled();
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
@@ -436,7 +455,7 @@ export class AtlasService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
+    this.throwIfNetworkTrafficDisabled();
 
     this.currentUser ??= await (async () => {
       const token = await this.maybeGetToken({ signal });
@@ -492,7 +511,7 @@ export class AtlasService {
     tokenType?: 'accessToken' | 'refreshToken';
   } = {}) {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
+    this.throwIfNetworkTrafficDisabled();
 
     const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
@@ -527,7 +546,7 @@ export class AtlasService {
     tokenType?: 'accessToken' | 'refreshToken';
   } = {}): Promise<void> {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
+    this.throwIfNetworkTrafficDisabled();
 
     const url = new URL(`${this.config.atlasLogin.issuer}/v1/revoke`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
@@ -553,9 +572,9 @@ export class AtlasService {
   }
 
   static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    throwIfNetworkTrafficDisabled();
+    this.throwIfNetworkTrafficDisabled();
 
-    const userId = (await this.getActiveCompassUser()).id;
+    const userId = await this.getUserId();
     const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
     log.info(
@@ -578,7 +597,7 @@ export class AtlasService {
 
   static async setupAIAccess(): Promise<void> {
     try {
-      throwIfNetworkTrafficDisabled();
+      this.throwIfNetworkTrafficDisabled();
 
       const featureResponse = await this.getAIFeatureEnablement();
 
@@ -595,7 +614,7 @@ export class AtlasService {
         }
       );
 
-      await preferences.savePreferences({
+      await this.preferences.savePreferences({
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: isAIFeatureEnabled,
         },
@@ -627,8 +646,8 @@ export class AtlasService {
     signal?: AbortSignal;
   }): Promise<AIAggregation> {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
-    throwIfAINotEnabled(this);
+    this.throwIfNetworkTrafficDisabled();
+    this.throwIfAINotEnabled();
 
     let msgBody = JSON.stringify({
       userInput,
@@ -714,8 +733,8 @@ export class AtlasService {
     signal?: AbortSignal;
   }): Promise<AIQuery> {
     throwIfAborted(signal);
-    throwIfNetworkTrafficDisabled();
-    throwIfAINotEnabled(this);
+    this.throwIfNetworkTrafficDisabled();
+    this.throwIfAINotEnabled();
 
     let msgBody = JSON.stringify({
       userInput,
@@ -791,10 +810,7 @@ export class AtlasService {
       return;
     }
     try {
-      await this.secretStore.setItem(
-        SECRET_STORE_KEY,
-        await this.plugin.serialize()
-      );
+      await this.secretStore.setState(await this.plugin.serialize());
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),

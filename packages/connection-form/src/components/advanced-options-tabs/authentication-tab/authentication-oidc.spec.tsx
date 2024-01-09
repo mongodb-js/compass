@@ -9,13 +9,15 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import preferences from 'compass-preferences-model';
 
 import ConnectionForm from '../../../';
 
 const deviceAuthFlowText = 'Enable Device Authentication Flow';
 
-async function renderConnectionForm(connectSpy) {
+async function renderConnectionForm(
+  connectSpy,
+  { showOIDCDeviceAuthFlow }: { showOIDCDeviceAuthFlow: boolean }
+) {
   render(
     <ConnectionForm
       initialConnectionInfo={{
@@ -27,6 +29,7 @@ async function renderConnectionForm(connectSpy) {
       onConnectClicked={(connectionInfo) => {
         connectSpy(connectionInfo.connectionOptions);
       }}
+      preferences={{ enableOidc: true, showOIDCDeviceAuthFlow }}
     />
   );
 
@@ -53,25 +56,12 @@ const openAuthOIDC = async () => {
 const openOptionsAccordion = () =>
   fireEvent.click(screen.getByText('OIDC Options'));
 
-describe('AuthenticationOIDC Connection Form', function () {
+describe('Authentication OIDC Connection Form', function () {
   let expectToConnectWith;
-  let sandbox: sinon.SinonSandbox;
-  let getPreferencesStub: sinon.SinonStub;
   let connectSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     connectSpy = sinon.spy();
-
-    sandbox = sinon.createSandbox();
-    getPreferencesStub = sinon.stub();
-    getPreferencesStub.returns({
-      enableOidc: true,
-    });
-    // TODO(COMPASS-6803): Remove feature flag, remove this sandbox.
-    sandbox
-      .stub(preferences, 'getPreferences')
-      .callsFake(() => getPreferencesStub());
-
     expectToConnectWith = async (
       expected: ConnectionOptions | ((ConnectionOptions) => void)
     ): Promise<void> => {
@@ -93,14 +83,14 @@ describe('AuthenticationOIDC Connection Form', function () {
       }
     };
   });
+
   afterEach(function () {
-    sandbox.restore();
     cleanup();
   });
 
   describe('when rendered', function () {
     beforeEach(async function () {
-      await renderConnectionForm(connectSpy);
+      await renderConnectionForm(connectSpy, { showOIDCDeviceAuthFlow: false });
     });
 
     it('handles principal (username) changes', async function () {
@@ -110,7 +100,7 @@ describe('AuthenticationOIDC Connection Form', function () {
 
       await expectToConnectWith({
         connectionString:
-          'mongodb://goodSandwich@localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://goodSandwich@localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
       });
     });
 
@@ -121,7 +111,7 @@ describe('AuthenticationOIDC Connection Form', function () {
 
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           redirectURI: 'goodSandwiches',
         },
@@ -132,7 +122,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           enableUntrustedEndpoints: true,
         },
@@ -144,7 +134,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {},
       });
     });
@@ -156,19 +146,14 @@ describe('AuthenticationOIDC Connection Form', function () {
 
   describe('when rendered and the showOIDCDeviceAuthFlow setting is enabled', function () {
     beforeEach(async function () {
-      getPreferencesStub.returns({
-        enableOidc: true,
-        showOIDCDeviceAuthFlow: true,
-      });
-
-      await renderConnectionForm(connectSpy);
+      await renderConnectionForm(connectSpy, { showOIDCDeviceAuthFlow: true });
     });
 
     it('handles the enable device authentication flow checkbox', async function () {
       fireEvent.click(screen.getByText(deviceAuthFlowText));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           allowedFlows: ['auth-code', 'device-auth'],
         },
@@ -180,7 +165,7 @@ describe('AuthenticationOIDC Connection Form', function () {
       fireEvent.click(screen.getByText(deviceAuthFlowText));
       await expectToConnectWith({
         connectionString:
-          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
         oidc: {
           allowedFlows: ['auth-code'],
         },

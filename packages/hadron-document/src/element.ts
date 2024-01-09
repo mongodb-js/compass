@@ -66,6 +66,7 @@ export class Element extends EventEmitter {
   currentTypeValid?: boolean;
   invalidTypeMessage?: string;
   decrypted: boolean;
+  expanded = false;
 
   /**
    * Cancel any modifications to the element.
@@ -88,8 +89,8 @@ export class Element extends EventEmitter {
    *
    * @param key - The key.
    * @param value - The value.
-   * @param added - Is the element a new 'addition'?
    * @param parent - The parent element.
+   * @param added - Is the element a new 'addition'?
    */
   constructor(
     key: string | number,
@@ -717,6 +718,42 @@ export class Element extends EventEmitter {
     }
     this.setValid();
     this._bubbleUp(Events.Reverted, this);
+  }
+
+  /**
+   * Expands the target element and optionally its children as well.
+   * Document.expand is when we would want to expand the children otherwise we
+   * will most expand the element itself.
+   */
+  expand(expandChildren = false): void {
+    if (!this._isExpandable(this.originalExpandableValue)) {
+      return;
+    }
+
+    this.expanded = true;
+    if (expandChildren && this.elements) {
+      for (const element of this.elements) {
+        element.expand(expandChildren);
+      }
+    }
+    this.emit(ElementEvents.Expanded, this);
+  }
+
+  /**
+   * Collapses only the target element
+   */
+  collapse(): void {
+    if (!this._isExpandable(this.originalExpandableValue)) {
+      return;
+    }
+
+    this.expanded = false;
+    if (this.elements) {
+      for (const element of this.elements) {
+        element.collapse();
+      }
+    }
+    this.emit(ElementEvents.Collapsed, this);
   }
 
   /**

@@ -5,6 +5,8 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import { closeExport, exportReducer, openExport } from '../modules/export';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(
@@ -22,6 +24,8 @@ export type RootExportState = ReturnType<
 export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'findCursor' | 'aggregateCursor'>;
+  preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -33,9 +37,14 @@ export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService }: ExportPluginServices
+  { globalAppRegistry, dataService, preferences, logger }: ExportPluginServices
 ) {
-  const store = configureStore({ globalAppRegistry, dataService });
+  const store = configureStore({
+    globalAppRegistry,
+    dataService,
+    preferences,
+    logger,
+  });
 
   const onOpenExport = ({
     namespace,
