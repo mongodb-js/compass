@@ -125,7 +125,9 @@ post:
   - command: attach.results
     params:
       file_location: src/packages/compass-e2e-tests/.log/report.json
-
+  - command: attach.xunit_results
+    params:
+      file: src/.logs/*.xml
 functions:
   clone:
     - command: git.get_project
