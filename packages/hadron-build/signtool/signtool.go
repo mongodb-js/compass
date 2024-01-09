@@ -10,11 +10,22 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 )
+
+func getSignScriptPath() string {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		log.Fatal("Could not get current file path")
+	}
+	return filepath.Join(filepath.Dir(filename), "cli.js")
+}
 
 func main() {
 	if len(os.Args) == 1 {
@@ -39,28 +50,29 @@ func main() {
 		}
 	}
 
-	cmd := exec.Command(
-		"node",
-		"cli.js",
+	args := []string{
+		getSignScriptPath(),
 		"sign",
-		"--file="+fileToSignPath,
-		"--host="+os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
-		"--private-key="+os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
-		"--username="+os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),
-		"--port="+os.Getenv("WINDOWS_SIGNING_SERVER_PORT"),
-	)
+		"--file=" + fileToSignPath,
+		"--host=" + os.Getenv("WINDOWS_SIGNING_SERVER_HOSTNAME"),
+		"--private-key=" + os.Getenv("WINDOWS_SIGNING_SERVER_PRIVATE_KEY"),
+		"--username=" + os.Getenv("WINDOWS_SIGNING_SERVER_USERNAME"),
+		"--port=" + os.Getenv("WINDOWS_SIGNING_SERVER_PORT"),
+	}
+	fmt.Println("Running node command with args:", args)
 
-	fmt.Println("Running command:", cmd.String())
+	cmd := exec.Command("node", args...)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
-	// Run the command
 	err := cmd.Run()
+
 	if err != nil {
 		fmt.Println("Error signing the file:", err)
+		fmt.Println("Stderr:", stderr.String())
 		return
 	}
-
 	fmt.Println("File signed successfully.")
 }

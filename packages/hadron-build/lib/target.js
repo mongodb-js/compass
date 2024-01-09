@@ -31,7 +31,7 @@ async function signLinuxPackage(src) {
   // TODO: remove this debug code
   const dir = path.dirname(src);
   const files = await fs.promises.readdir(dir);
-  console.log('Files in %s:', dir);
+  console.log('signLinuxPackage: Files in %s:', dir);
   console.log(files);
 }
 
