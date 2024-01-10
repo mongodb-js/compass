@@ -26,26 +26,6 @@ async function signLinuxPackage(src) {
     signingMethod: 'gpg',
   });
   debug('Successfully signed %s', src);
-
-  try {
-    const signatureFile = src + '.sig';
-    await fs.promises.access(signatureFile, fs.constants.R_OK);
-    console.log({ message: `successfully signed ${signatureFile}` });
-  } catch (e) {
-    console.log(`Failed to verify if signed file exists`, e);
-  }
-
-  // test
-  try {
-    // Signing non existant file
-    await signtool('/var/some.txt', {
-      client: 'local',
-      signingMethod: 'gpg'
-    });
-    console.log('This should never be logged');
-  } catch (e) {
-    console.log(`Failed to sign test file`, e);
-  }
 }
 
 async function signWindowsPackage(src) {
@@ -57,7 +37,7 @@ async function signWindowsPackage(src) {
     host: process.env.WINDOWS_SIGNING_SERVER_HOSTNAME,
     privateKey: process.env.WINDOWS_SIGNING_SERVER_PRIVATE_KEY,
     username: process.env.WINDOWS_SIGNING_SERVER_USERNAME,
-    port: process.env.WINDOWS_SIGNING_SERVER_PORT
+    port: process.env.WINDOWS_SIGNING_SERVER_PORT,
   });
   debug('Successfully signed %s', src);
 }

@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@electron/rebuild": "^3.4.1",
-    "@mongodb-js/signing-utils": "^0.2.0",
+    "@mongodb-js/signing-utils": "file:signing-utils-0.2.1.zip",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
     "@mongodb-js/dl-center": "^1.0.1",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
