@@ -122,9 +122,6 @@ post:
       remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
       content_type: text/markdown
       optional: true
-  - command: attach.results
-    params:
-      file_location: src/packages/compass-e2e-tests/.log/report.json
   - command: attach.xunit_results
     params:
       file: src/.logs/*.xml
