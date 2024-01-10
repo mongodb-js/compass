@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import {
   FormModal,
@@ -51,6 +51,8 @@ class CreateDatabaseModal extends PureComponent<
     data: {} as Partial<CreateNamespaceOptions>,
   };
 
+  errorBannerRef = createRef<HTMLDivElement>();
+
   /**
    * Called when the error message close icon is clicked.
    */
@@ -76,9 +78,11 @@ class CreateDatabaseModal extends PureComponent<
     }
 
     return (
-      <Banner variant="danger" dismissible onClose={this.props.clearError}>
-        {this.props.error.message}
-      </Banner>
+      <div ref={this.errorBannerRef}>
+        <Banner variant="danger" dismissible onClose={this.props.clearError}>
+          {this.props.error.message}
+        </Banner>
+      </div>
     );
   }
 
@@ -136,6 +140,10 @@ class CreateDatabaseModal extends PureComponent<
         {this.renderError()}
       </FormModal>
     );
+  }
+
+  componentDidUpdate() {
+    this.errorBannerRef.current?.scrollIntoView();
   }
 }
 
