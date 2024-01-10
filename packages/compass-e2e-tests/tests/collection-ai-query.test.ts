@@ -43,9 +43,7 @@ describe('Collection ai query', function () {
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
-      extraSpawnArgs: ['--enableGenAIExperience'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
   });
 
