@@ -13,8 +13,18 @@ export async function listenForTelemetryEvents(
     return newEvents.find((entry) => entry.event === eventName);
   }
 
-  return (eventName) => {
-    const ev = lookupNewEvent(eventName);
+  return async (eventName) => {
+    let ev: { properties?: any } | undefined;
+
+    await browser.waitUntil(() => {
+      ev = lookupNewEvent(eventName);
+      return !!ev;
+    });
+
+    if (!ev) {
+      return;
+    }
+
     const properties = { ...ev.properties };
     delete properties.compass_version;
     delete properties.compass_full_version;
