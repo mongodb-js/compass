@@ -153,6 +153,12 @@ async function main() {
   const mocha = new Mocha({
     timeout: 240_000, // kinda arbitrary, but longer than waitforTimeout set in helpers/compass.ts so the test can fail before it times out
     bail,
+    reporter: path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'configs/mocha-config-compass/reporter.js'
+    ),
   });
 
   tests.forEach((testPath: string) => {
@@ -196,14 +202,7 @@ async function main() {
     });
   });
 
-  // write a report.json to be uploaded to evergreen
-  debug('Writing report.json');
-  const result = await resultLogger.done(failures);
-  const reportPath = path.join(LOG_PATH, 'report.json');
-  const jsonReport = JSON.stringify(result, null, 2);
-  await fs.promises.writeFile(reportPath, jsonReport);
-
-  debug('done');
+  await resultLogger.done(failures);
 }
 
 process.once('SIGINT', () => {
