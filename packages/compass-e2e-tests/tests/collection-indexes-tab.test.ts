@@ -40,8 +40,12 @@ describe('Collection indexes tab', function () {
     const element = await browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
-    const indexes = await browser.$$(Selectors.indexComponent('_id_'));
-    expect(indexes).to.have.lengthOf(1);
+    // This seems to sometimes render an empty list momentarily before it has
+    // the list loaded and browser.$$ doesn't wait.
+    await browser.waitUntil(async function () {
+      const indexes = await browser.$$(Selectors.indexComponent('_id_'));
+      return indexes.length === 1;
+    });
 
     const indexFieldNameElement = await browser.$(
       `${Selectors.indexComponent('_id_')} ${Selectors.IndexFieldName}`
