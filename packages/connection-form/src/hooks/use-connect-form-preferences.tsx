@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 
 // Not all of these preference map to Compass preferences.
 export type ConnectionFormPreferences = {
+  showFavoriteActions: boolean;
   protectConnectionStrings: boolean;
   forceConnectionOptions: [key: string, value: string][];
   showKerberosPasswordField: boolean;
@@ -15,6 +16,7 @@ export type ConnectionFormPreferences = {
 };
 
 const defaultPreferences = {
+  showFavoriteActions: true,
   protectConnectionStrings: false,
   forceConnectionOptions: [],
   showKerberosPasswordField: false,
