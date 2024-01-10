@@ -14,7 +14,6 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
-  enableGenAIExperience: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
@@ -27,18 +26,6 @@ export type FeatureFlags = {
 export const featureFlags: Required<{
   [K in keyof FeatureFlags]: FeatureFlagDefinition;
 }> = {
-  /**
-   * Feature flag for enabling the natural text input on the query bar.
-   * Epic: COMPASS-6866
-   */
-  enableGenAIExperience: {
-    stage: 'released',
-    description: {
-      short: 'Compass AI Features',
-      long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
-    },
-  },
-
   /**
    * Feature flag for enabling OIDC authentication.
    * Epic: COMPASS-5955
