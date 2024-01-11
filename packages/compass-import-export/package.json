@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.22.1",
+  "version": "7.22.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -60,11 +60,11 @@
     "@mongodb-js/compass-editor": "^0.20.1",
     "@mongodb-js/compass-logging": "^1.2.10",
     "@mongodb-js/compass-utils": "^0.5.9",
-    "@mongodb-js/compass-workspaces": "^0.4.1",
+    "@mongodb-js/compass-workspaces": "^0.4.2",
     "bson": "^6.2.0",
-    "compass-preferences-model": "^2.17.1",
+    "compass-preferences-model": "^2.17.2",
     "electron": "^28.1.0",
-    "hadron-app-registry": "^9.1.4",
+    "hadron-app-registry": "^9.1.5",
     "hadron-document": "^8.4.6",
     "mongodb-data-service": "^22.17.2",
     "react": "^17.0.2"
@@ -74,11 +74,11 @@
     "@mongodb-js/compass-editor": "^0.20.1",
     "@mongodb-js/compass-logging": "^1.2.10",
     "@mongodb-js/compass-utils": "^0.5.9",
-    "@mongodb-js/compass-workspaces": "^0.4.1",
+    "@mongodb-js/compass-workspaces": "^0.4.2",
     "bson": "^6.2.0",
-    "compass-preferences-model": "^2.17.1",
+    "compass-preferences-model": "^2.17.2",
     "electron": "^28.1.0",
-    "hadron-app-registry": "^9.1.4",
+    "hadron-app-registry": "^9.1.5",
     "hadron-document": "^8.4.6",
     "mongodb-data-service": "^22.17.2"
   },

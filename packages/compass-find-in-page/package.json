@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
   "description": "cmd-f UI for Compass",
-  "version": "4.21.1",
+  "version": "4.21.2",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -57,7 +57,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.21.1",
-    "hadron-app-registry": "^9.1.4",
+    "hadron-app-registry": "^9.1.5",
     "hadron-ipc": "^3.2.8",
     "react": "^17.0.2"
   },
@@ -93,7 +93,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.21.1",
-    "hadron-app-registry": "^9.1.4",
+    "hadron-app-registry": "^9.1.5",
     "hadron-ipc": "^3.2.8"
   }
 }
