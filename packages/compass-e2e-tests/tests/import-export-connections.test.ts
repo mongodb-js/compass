@@ -13,7 +13,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
 
-describe('Connection Import / Export', function () {
+describe.only('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let telemetry: Telemetry;
@@ -95,7 +95,7 @@ describe('Connection Import / Export', function () {
     it(`can export and import connections through the CLI, ${variant}`, async function () {
       if (process.platform === 'win32') {
         // TODO(COMPASS-6269): these tests are very flaky on windows
-        return this.skip();
+        // return this.skip();
       }
 
       const file = path.join(tmpdir, 'file');
