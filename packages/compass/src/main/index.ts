@@ -75,6 +75,15 @@ async function main(): Promise<void> {
     preferenceParseErrors.length > 0 &&
     !preferences.ignoreAdditionalCommandLineFlags;
 
+  if (
+    preferenceParseErrors.length > 0 &&
+    !errorOutDueToAdditionalCommandLineFlags
+  ) {
+    process.stderr.write(
+      'Continuing on with parse errors because --ignore-additional-command-line-flags was set\n'
+    );
+  }
+
   const importExportOptions = {
     exportConnections: preferences.exportConnections,
     importConnections: preferences.importConnections,
@@ -101,6 +110,9 @@ async function main(): Promise<void> {
     process.on('uncaughtException', handleUncaughtException);
   } else {
     if (errorOutDueToAdditionalCommandLineFlags) {
+      process.stderr.write(
+        'Exiting because there are parse errors and --ignore-additional-command-line-flags was not set\n'
+      );
       return app.exit(1);
     }
     process.on('uncaughtException', (err) => {
