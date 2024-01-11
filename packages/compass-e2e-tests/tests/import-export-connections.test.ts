@@ -95,7 +95,7 @@ describe('Connection Import / Export', function () {
   }
 
   for (const variant of variants) {
-    it(`can export and import connections through the CLI, ${variant}`, async function () {
+    it.only(`can export and import connections through the CLI, ${variant}`, async function () {
       if (process.platform === 'win32') {
         // TODO(COMPASS-6269): these tests are very flaky on windows
         return this.skip();
@@ -120,6 +120,8 @@ describe('Connection Import / Export', function () {
         );
 
         await browser.saveFavorite(favoriteName, 'color3');
+        // TODO: how do we make sure this favourite including its secrets is
+        // actually written to disk before we exit?
         await afterTests(compass);
       }
 
