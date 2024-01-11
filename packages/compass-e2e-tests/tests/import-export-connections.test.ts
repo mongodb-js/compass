@@ -206,7 +206,7 @@ describe('Connection Import / Export', function () {
       // it takes to save a favorite in e2e tests, and so the result of that
       // initial load would override the favorite saving (from the point of view
       // of the connection sidebar at least). Add a timeout to make this less flaky. :(
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       await browser.saveFavorite(favoriteName, 'color3');
     });
