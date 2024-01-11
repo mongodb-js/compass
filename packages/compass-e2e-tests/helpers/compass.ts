@@ -448,7 +448,13 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       `--user-data-dir=${String(defaultUserDataDir)}`,
       ...args,
     ],
-    { timeout }
+    {
+      timeout,
+      env: {
+        ...process.env,
+        DE: 'generic', // for xdg-settings: unknown desktop environment
+      },
+    }
   );
   debug('Ran compass with args', { args, stdout, stderr });
   return { stdout, stderr };

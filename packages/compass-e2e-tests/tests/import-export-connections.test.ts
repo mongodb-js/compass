@@ -79,11 +79,14 @@ describe('Connection Import / Export', function () {
     await browser.selectFavorite(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-    expect(await browser.getConnectFormConnectionString(true)).to.equal(
-      variant === 'protected'
-        ? connectionStringWithoutCredentials
-        : connectionString
-    );
+    await browser.waitUntil(async () => {
+      const cs = await browser.getConnectFormConnectionString(true);
+      const expected =
+        variant === 'protected'
+          ? connectionStringWithoutCredentials
+          : connectionString;
+      return cs === expected;
+    });
     await browser.selectFavorite(favoriteName);
     await browser.selectConnectionMenuItem(
       favoriteName,
@@ -203,7 +206,7 @@ describe('Connection Import / Export', function () {
       // it takes to save a favorite in e2e tests, and so the result of that
       // initial load would override the favorite saving (from the point of view
       // of the connection sidebar at least). Add a timeout to make this less flaky. :(
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       await browser.saveFavorite(favoriteName, 'color3');
     });
