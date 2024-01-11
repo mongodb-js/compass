@@ -26,6 +26,7 @@ const noop = (): any => {
 };
 
 const saveAndConnectText = 'Save & Connect';
+const favoriteText = 'FAVORITE';
 
 function renderForm(props: Partial<ConnectionFormProps> = {}) {
   return render(
@@ -230,6 +231,17 @@ describe('ConnectionForm Component', function () {
     );
   });
 
+  context('when preferences.showFavoriteActions === false', function () {
+    it('should not render the favorite button', function () {
+      renderForm({
+        preferences: {
+          showFavoriteActions: false,
+        },
+      });
+      expect(screen.queryByText(favoriteText)).to.not.exist;
+    });
+  });
+
   it('should render an error with an invalid connection string', function () {
     render(
       <ConnectionForm
@@ -247,22 +259,7 @@ describe('ConnectionForm Component', function () {
       .visible;
   });
 
-  it('should not show to save a connection when onSaveConnectionClicked doesnt exist', function () {
-    render(
-      <ConnectionForm
-        onConnectClicked={noop}
-        initialConnectionInfo={{
-          id: 'test',
-          connectionOptions: {
-            connectionString: 'pineapples',
-          },
-        }}
-      />
-    );
-    expect(screen.queryByText('FAVORITE')).to.not.exist;
-  });
-
-  it('should show a button to save a connection when onSaveConnectionClicked exists', function () {
+  it('should show a button to save a connection', function () {
     render(
       <ConnectionForm
         onConnectClicked={noop}
@@ -275,7 +272,7 @@ describe('ConnectionForm Component', function () {
         onSaveConnectionClicked={noop}
       />
     );
-    expect(screen.getByText('FAVORITE').closest('button')).to.be.visible;
+    expect(screen.getByText(favoriteText).closest('button')).to.be.visible;
   });
 
   it('should show the saved connection modal when the favorite button is clicked', function () {
@@ -294,7 +291,7 @@ describe('ConnectionForm Component', function () {
 
     expect(screen.queryByText('Save connection to favorites')).to.not.exist;
 
-    fireEvent.click(screen.getByText('FAVORITE').closest('button'));
+    fireEvent.click(screen.getByText(favoriteText).closest('button'));
 
     expect(screen.getByText('Save connection to favorites')).to.be.visible;
   });
@@ -312,6 +309,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'mongodb://localhost:27017',
           },
         }}
+        onSaveConnectionClicked={noop}
       />
     );
 
@@ -364,26 +362,5 @@ describe('ConnectionForm Component', function () {
     );
 
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
-  });
-
-  it('should not show any save buttons when there is no save handler passed', function () {
-    render(
-      <ConnectionForm
-        onConnectClicked={noop}
-        initialConnectionInfo={{
-          id: 'test',
-          connectionOptions: {
-            connectionString: 'pineapples',
-          },
-        }}
-        onSaveConnectionClicked={undefined}
-      />
-    );
-
-    const saveAndConnectButton = screen.queryByText(saveAndConnectText);
-    expect(saveAndConnectButton).to.not.exist;
-
-    const saveButton = screen.queryByText('Save');
-    expect(saveButton).to.not.exist;
   });
 });
