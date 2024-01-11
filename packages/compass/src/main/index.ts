@@ -133,7 +133,13 @@ async function main(): Promise<void> {
   try {
     await CompassApplication.init(mode, globalPreferences);
   } catch (e) {
-    await handleUncaughtException(e as Error);
+    if (mode === 'CLI') {
+      process.stderr.write('Exiting due to try/catch:\n');
+      // eslint-disable-next-line no-console
+      console.error(e);
+    } else {
+      await handleUncaughtException(e as Error);
+    }
     await CompassApplication.runExitHandlers().finally(() => app.exit(1));
     return;
   }
