@@ -65,15 +65,16 @@ async function main(): Promise<void> {
     return app.exit(0);
   }
 
-  if (preferenceParseErrors.length > 0) {
+  const errorOutDueToAdditionalCommandLineFlags =
+    preferenceParseErrors.length > 0 &&
+    !preferences.ignoreAdditionalCommandLineFlags;
+
+  if (errorOutDueToAdditionalCommandLineFlags) {
     process.stderr.write(chalk.yellow(preferenceParseErrorsString) + '\n');
     process.stderr.write(
       'Use --ignore-additional-command-line-flags to allow passing additional options to Chromium/Electron\n'
     );
   }
-  const errorOutDueToAdditionalCommandLineFlags =
-    preferenceParseErrors.length > 0 &&
-    !preferences.ignoreAdditionalCommandLineFlags;
 
   if (
     preferenceParseErrors.length > 0 &&
