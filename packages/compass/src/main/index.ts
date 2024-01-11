@@ -116,6 +116,13 @@ async function main(): Promise<void> {
       return app.exit(1);
     }
     process.on('uncaughtException', (err) => {
+      process.stderr.write('Exiting due to uncaughtException:\n');
+      // eslint-disable-next-line no-console
+      console.error(err);
+      CompassApplication.runExitHandlers().finally(() => app.exit(1));
+    });
+    process.on('unhandledRejection', (err) => {
+      process.stderr.write('Exiting due to unhandledRejection:\n');
       // eslint-disable-next-line no-console
       console.error(err);
       CompassApplication.runExitHandlers().finally(() => app.exit(1));
