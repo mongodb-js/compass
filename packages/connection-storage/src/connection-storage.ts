@@ -218,16 +218,16 @@ export class ConnectionStorage {
     connectionSecrets: storedConnectionSecrets,
   }: ConnectionProps): ConnectionInfo {
     let secrets: ConnectionSecrets | undefined = undefined;
-    //try {
-    secrets = this.decryptSecrets(storedConnectionSecrets);
-    //} catch (e) {
-    //  log.error(
-    //    mongoLogId(1_001_000_208),
-    //    'Connection Storage',
-    //    'Failed to decrypt secrets',
-    //    { message: (e as Error).message }
-    //  );
-    //}
+    try {
+      secrets = this.decryptSecrets(storedConnectionSecrets);
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_208),
+        'Connection Storage',
+        'Failed to decrypt secrets',
+        { message: (e as Error).message }
+      );
+    }
     const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
     return deleteCompassAppNameParam(connectionInfo);
   }
@@ -329,16 +329,16 @@ export class ConnectionStorage {
         extractSecrets(connectionInfo);
 
       let connectionSecrets: string | undefined = undefined;
-      //try {
-      connectionSecrets = this.encryptSecrets(secrets);
-      //} catch (e) {
-      //  log.error(
-      //    mongoLogId(1_001_000_202),
-      //    'Connection Storage',
-      //    'Failed to encrypt secrets',
-      //    { message: (e as Error).message }
-      //  );
-      //}
+      try {
+        connectionSecrets = this.encryptSecrets(secrets);
+      } catch (e) {
+        log.error(
+          mongoLogId(1_001_000_202),
+          'Connection Storage',
+          'Failed to encrypt secrets',
+          { message: (e as Error).message }
+        );
+      }
       await this.userData.write(connectionInfo.id, {
         _id: connectionInfo.id,
         connectionInfo: connectionInfoWithoutSecrets,

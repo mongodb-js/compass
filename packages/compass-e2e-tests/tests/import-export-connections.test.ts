@@ -13,7 +13,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
 
-describe.only('Connection Import / Export', function () {
+describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let telemetry: Telemetry;
@@ -221,8 +221,6 @@ describe.only('Connection Import / Export', function () {
 
     for (const variant of variants) {
       it(`supports exporting and importing connections in ${variant} mode`, async function () {
-        // TODO: wait for the secrets to be loaded before exporting
-
         {
           // Make sure file exists so that the file picker works. We could also do work
           // similar to what we do for collection data export, where we add special listeners

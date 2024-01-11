@@ -156,8 +156,6 @@ async function main(): Promise<void> {
         );
       }
 
-      // TODO: how do we make sure the secrets are loaded before continuing on to import/export?
-
       if (importExportOptions.exportConnections) {
         await doExportConnections(
           importExportOptions.exportConnections,
