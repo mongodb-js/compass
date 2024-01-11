@@ -76,15 +76,6 @@ async function main(): Promise<void> {
     );
   }
 
-  if (
-    preferenceParseErrors.length > 0 &&
-    !errorOutDueToAdditionalCommandLineFlags
-  ) {
-    process.stderr.write(
-      'Continuing on with parse errors because --ignore-additional-command-line-flags was set\n'
-    );
-  }
-
   const importExportOptions = {
     exportConnections: preferences.exportConnections,
     importConnections: preferences.importConnections,
