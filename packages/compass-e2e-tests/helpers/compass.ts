@@ -110,8 +110,8 @@ let i = 0;
 let j = 0;
 
 interface Coverage {
-  main: string;
-  renderer: string;
+  main?: string;
+  renderer?: string;
 }
 
 interface RenderLogEntry {
@@ -354,14 +354,18 @@ export class Compass {
           });
         })();
       });
-      await fs.writeFile(
-        path.join(COVERAGE_PATH, `main.${this.name}.log`),
-        coverage.main
-      );
-      await fs.writeFile(
-        path.join(COVERAGE_PATH, `renderer.${this.name}.log`),
-        coverage.renderer
-      );
+      if (coverage.main) {
+        await fs.writeFile(
+          path.join(COVERAGE_PATH, `main.${this.name}.log`),
+          coverage.main
+        );
+      }
+      if (coverage.renderer) {
+        await fs.writeFile(
+          path.join(COVERAGE_PATH, `renderer.${this.name}.log`),
+          coverage.renderer
+        );
+      }
     }
 
     debug('Stopping Compass application');
