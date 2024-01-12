@@ -40,7 +40,7 @@ describe('protectConnectionStrings', function () {
 
   after(async function () {
     await browser.setFeature('protectConnectionStrings', false);
-    await afterTests(compass, this.currentTest);
+    await afterTests(compass, undefined, 'protectConnectionStrings');
   });
 
   afterEach(async function () {

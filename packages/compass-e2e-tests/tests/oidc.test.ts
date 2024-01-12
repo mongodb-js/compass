@@ -366,8 +366,7 @@ describe('OIDC integration', function () {
 
     {
       // Restart Compass
-      await afterTest(compass);
-      await afterTests(compass);
+      await afterTests(compass, this.currentTest, 'restart');
       compass = await beforeTests();
       browser = compass.browser;
     }

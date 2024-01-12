@@ -640,7 +640,7 @@ describe('SRV connectivity', function () {
       );
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
-      await afterTests(compass);
+      await afterTests(compass, this.currentTest, 'no-connect');
     }
 
     const { logs } = compass;
@@ -706,7 +706,7 @@ describe('System CA access', function () {
       expect(result).to.have.property('ok', 1);
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
-      await afterTests(compass);
+      await afterTests(compass, this.currentTest, 'no-connect');
     }
 
     const { logs } = compass;
@@ -745,7 +745,7 @@ describe('FLE2', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await afterTests(compass, undefined, 'FLE2');
   });
 
   it('can connect using local KMS', async function () {

@@ -13,6 +13,16 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
 
+function waitForConnections() {
+  // The connection list UI does not handle concurrent modifications to the
+  // connections list well. Unfortunately, this includes the initial load,
+  // which can realistically take longer than the startup time + the time
+  // it takes to save a favorite in e2e tests, and so the result of that
+  // initial load would override the favorite saving (from the point of view
+  // of the connection sidebar at least). Add a timeout to make this less flaky. :(
+  return new Promise((resolve) => setTimeout(resolve, 5000));
+}
+
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
@@ -79,19 +89,19 @@ describe('Connection Import / Export', function () {
     await browser.selectFavorite(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-    await browser.waitUntil(async () => {
-      const cs = await browser.getConnectFormConnectionString(true);
-      const expected =
-        variant === 'protected'
-          ? connectionStringWithoutCredentials
-          : connectionString;
-      return cs === expected;
-    });
+    const cs = await browser.getConnectFormConnectionString(true);
+    const expected =
+      variant === 'protected'
+        ? connectionStringWithoutCredentials
+        : connectionString;
+    expect(cs).to.equal(expected);
     await browser.selectFavorite(favoriteName);
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.RemoveConnectionItem
     );
+
+    await waitForConnections();
   }
 
   for (const variant of variants) {
@@ -119,8 +129,11 @@ describe('Connection Import / Export', function () {
           connectionString
         );
 
+        await waitForConnections();
         await browser.saveFavorite(favoriteName, 'color3');
-        await afterTests(compass);
+        await waitForConnections();
+
+        await afterTests(compass, this.currentTest, 'favorite');
       }
 
       debug('Exporting connection via CLI');
@@ -154,7 +167,8 @@ describe('Connection Import / Export', function () {
           favoriteName,
           Selectors.RemoveConnectionItem
         );
-        await afterTests(compass);
+        await waitForConnections();
+        await afterTests(compass, this.currentTest, 'remove');
       }
 
       debug('Importing connection via CLI');
@@ -181,7 +195,7 @@ describe('Connection Import / Export', function () {
         const compass = await beforeTests();
         const { browser } = compass;
         await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
-        await afterTests(compass);
+        await afterTests(compass, this.currentTest, 'verify');
       }
     });
   }
@@ -200,15 +214,12 @@ describe('Connection Import / Export', function () {
         connectionString
       );
 
-      // The connection list UI does not handle concurrent modifications to the
-      // connections list well. Unfortunately, this includes the initial load,
-      // which can realistically take longer than the startup time + the time
-      // it takes to save a favorite in e2e tests, and so the result of that
-      // initial load would override the favorite saving (from the point of view
-      // of the connection sidebar at least). Add a timeout to make this less flaky. :(
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await waitForConnections();
 
       await browser.saveFavorite(favoriteName, 'color3');
+
+      // again: make sure the new favourite is there
+      await waitForConnections();
     });
 
     afterEach(async function () {
@@ -216,7 +227,7 @@ describe('Connection Import / Export', function () {
     });
 
     after(async function () {
-      await afterTests(compass);
+      await afterTests(compass, undefined, 'import-export-connections');
     });
 
     for (const variant of variants) {

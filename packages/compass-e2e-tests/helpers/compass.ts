@@ -5,6 +5,7 @@ import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
+import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
@@ -318,7 +319,7 @@ export class Compass {
     }
   }
 
-  async stop(test?: Mocha.Hook | Mocha.Test): Promise<void> {
+  async stop(test?: Mocha.Hook | Mocha.Test, step?: string): Promise<void> {
     // TODO: we don't have main logs to write :(
     /*
     const mainLogs = [];
@@ -333,7 +334,11 @@ export class Compass {
     const nowFormatted = formattedDate();
 
     // name the log files after the closest test if possible to make it easier to find
-    const name = test ? pathName(test.fullTitle()) : nowFormatted;
+    let name = test ? pathName(test.fullTitle()) : nowFormatted;
+
+    if (step) {
+      name = `${name}-${step}`;
+    }
 
     const renderLogPath = path.join(
       LOG_PATH,
@@ -429,6 +434,26 @@ async function getCompassExecutionParameters(): Promise<{
   return { testPackagedApp, binary };
 }
 
+function execFileIgnoreError(
+  path: string,
+  args: readonly string[],
+  opts: ExecFileOptions
+): Promise<{
+  error: ExecFileException | null;
+  stdout: string;
+  stderr: string;
+}> {
+  return new Promise((resolve) => {
+    execFile(path, args, opts, function (error, stdout, stderr) {
+      resolve({
+        error,
+        stdout,
+        stderr,
+      });
+    });
+  });
+}
+
 export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
@@ -438,7 +463,12 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     args,
     timeout,
   });
-  const { stdout, stderr } = await promisify(execFile)(
+  // For whatever reason, running the compass CLI frequently completes what it
+  // was set to do and then exits the process with error code 1 and no other
+  // output. So while figuring out what's going on, don't ever throw but do log
+  // the error. Assertions that follow runCompassOnce() can then check if it did
+  // what it was supposed to do and fail if it didn't.
+  const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
       COMPASS_PATH,
@@ -452,11 +482,12 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       timeout,
       env: {
         ...process.env,
-        DE: 'generic', // for xdg-settings: unknown desktop environment
+        // prevent xdg-settings: unknown desktop environment error logs
+        DE: 'generic',
       },
     }
   );
-  debug('Ran compass with args', { args, stdout, stderr });
+  debug('Ran compass with args', { args, error, stdout, stderr });
   return { stdout, stderr };
 }
 
@@ -894,7 +925,8 @@ export async function beforeTests(
 
 export async function afterTests(
   compass?: Compass,
-  test?: Mocha.Hook | Mocha.Test
+  test?: Mocha.Hook | Mocha.Test,
+  step?: string
 ): Promise<void> {
   if (!compass) {
     return;
@@ -916,7 +948,7 @@ export async function afterTests(
 
   const closePromise = (async function close(): Promise<void> {
     try {
-      await compass.stop(test);
+      await compass.stop(test, step);
     } catch (err) {
       debug('An error occurred while stopping compass:');
       debug(err);

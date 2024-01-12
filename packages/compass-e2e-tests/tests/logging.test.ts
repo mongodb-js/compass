@@ -19,7 +19,7 @@ describe('Logging and Telemetry integration', function () {
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
       } finally {
-        await afterTests(compass);
+        await afterTests(compass, undefined, 'before-hook-example');
         await telemetry.stop();
       }
 
@@ -389,7 +389,7 @@ describe('Logging and Telemetry integration', function () {
     });
 
     after(async function name() {
-      await afterTests(compass);
+      await afterTests(compass, undefined, 'after-subsequent-run');
       await telemetry.stop();
     });
 
@@ -415,12 +415,12 @@ describe('Logging and Telemetry integration', function () {
         delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
       }
 
-      await afterTests(compass);
+      await afterTests(compass, undefined, 'before-uncaught-exceptions');
     });
 
     after(async function () {
       // clean up if it failed during the before hook
-      await afterTests(compass, this.currentTest);
+      await afterTests(compass, undefined, 'after-uncaught-exceptions');
     });
 
     it('provides logging information for uncaught exceptions', function () {
