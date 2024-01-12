@@ -912,7 +912,7 @@ export async function init(
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = await startCompass(name ?? formattedDate(), opts);
+  const compass = await startCompass(pathName(name ?? formattedDate()), opts);
 
   const { browser } = compass;
 
