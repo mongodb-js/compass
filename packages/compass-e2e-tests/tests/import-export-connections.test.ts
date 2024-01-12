@@ -13,6 +13,16 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
 
+function waitForConnections() {
+  // The connection list UI does not handle concurrent modifications to the
+  // connections list well. Unfortunately, this includes the initial load,
+  // which can realistically take longer than the startup time + the time
+  // it takes to save a favorite in e2e tests, and so the result of that
+  // initial load would override the favorite saving (from the point of view
+  // of the connection sidebar at least). Add a timeout to make this less flaky. :(
+  return new Promise((resolve) => setTimeout(resolve, 5000));
+}
+
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
@@ -91,8 +101,7 @@ describe('Connection Import / Export', function () {
       Selectors.RemoveConnectionItem
     );
 
-    // make sure the favourite is gone
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await waitForConnections();
   }
 
   for (const variant of variants) {
@@ -120,13 +129,9 @@ describe('Connection Import / Export', function () {
           connectionString
         );
 
-        // same comment as for before() in ui tests
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
+        await waitForConnections();
         await browser.saveFavorite(favoriteName, 'color3');
-
-        // again: make sure the favourite is there
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await waitForConnections();
 
         await afterTests(compass, this.currentTest, 'favorite');
       }
@@ -162,8 +167,7 @@ describe('Connection Import / Export', function () {
           favoriteName,
           Selectors.RemoveConnectionItem
         );
-        // make sure it is really gone
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await waitForConnections();
         await afterTests(compass, this.currentTest, 'remove');
       }
 
@@ -210,18 +214,12 @@ describe('Connection Import / Export', function () {
         connectionString
       );
 
-      // The connection list UI does not handle concurrent modifications to the
-      // connections list well. Unfortunately, this includes the initial load,
-      // which can realistically take longer than the startup time + the time
-      // it takes to save a favorite in e2e tests, and so the result of that
-      // initial load would override the favorite saving (from the point of view
-      // of the connection sidebar at least). Add a timeout to make this less flaky. :(
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await waitForConnections();
 
       await browser.saveFavorite(favoriteName, 'color3');
 
       // again: make sure the new favourite is there
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await waitForConnections();
     });
 
     afterEach(async function () {
