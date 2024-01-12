@@ -63,7 +63,7 @@ describe('CSFLE / QE', function () {
 
     after(async function () {
       if (compass) {
-        await afterTests(compass, this.currentTest);
+        await afterTests(compass, undefined, 'CSFLE / QE');
       }
     });
 

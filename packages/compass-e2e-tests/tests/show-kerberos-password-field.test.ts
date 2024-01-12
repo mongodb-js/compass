@@ -19,7 +19,7 @@ describe('showKerberosPasswordField', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await afterTests(compass, undefined, 'showKerberosPasswordField');
   });
 
   afterEach(async function () {

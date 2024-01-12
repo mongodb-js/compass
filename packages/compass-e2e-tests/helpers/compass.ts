@@ -318,7 +318,7 @@ export class Compass {
     }
   }
 
-  async stop(test?: Mocha.Hook | Mocha.Test): Promise<void> {
+  async stop(test?: Mocha.Hook | Mocha.Test, step?: string): Promise<void> {
     // TODO: we don't have main logs to write :(
     /*
     const mainLogs = [];
@@ -333,7 +333,11 @@ export class Compass {
     const nowFormatted = formattedDate();
 
     // name the log files after the closest test if possible to make it easier to find
-    const name = test ? pathName(test.fullTitle()) : nowFormatted;
+    let name = test ? pathName(test.fullTitle()) : nowFormatted;
+
+    if (step) {
+      name = `${name}-${step}`;
+    }
 
     const renderLogPath = path.join(
       LOG_PATH,
@@ -894,7 +898,8 @@ export async function beforeTests(
 
 export async function afterTests(
   compass?: Compass,
-  test?: Mocha.Hook | Mocha.Test
+  test?: Mocha.Hook | Mocha.Test,
+  step?: string
 ): Promise<void> {
   if (!compass) {
     return;
@@ -916,7 +921,7 @@ export async function afterTests(
 
   const closePromise = (async function close(): Promise<void> {
     try {
-      await compass.stop(test);
+      await compass.stop(test, step);
     } catch (err) {
       debug('An error occurred while stopping compass:');
       debug(err);

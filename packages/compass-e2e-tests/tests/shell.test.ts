@@ -18,7 +18,7 @@ describe('Shell', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await afterTests(compass, undefined, 'shell');
     await telemetry.stop();
   });
 

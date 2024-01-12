@@ -166,7 +166,7 @@ describe.skip('Search Indexes', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await afterTests(compass, undefined, 'search-indexes');
   });
 
   beforeEach(async function () {

@@ -120,7 +120,7 @@ describe('Connection Import / Export', function () {
         );
 
         await browser.saveFavorite(favoriteName, 'color3');
-        await afterTests(compass);
+        await afterTests(compass, this.currentTest, 'favorite');
       }
 
       debug('Exporting connection via CLI');
@@ -154,7 +154,7 @@ describe('Connection Import / Export', function () {
           favoriteName,
           Selectors.RemoveConnectionItem
         );
-        await afterTests(compass);
+        await afterTests(compass, this.currentTest, 'remove');
       }
 
       debug('Importing connection via CLI');
@@ -181,7 +181,7 @@ describe('Connection Import / Export', function () {
         const compass = await beforeTests();
         const { browser } = compass;
         await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
-        await afterTests(compass);
+        await afterTests(compass, this.currentTest, 'verify');
       }
     });
   }
@@ -216,7 +216,7 @@ describe('Connection Import / Export', function () {
     });
 
     after(async function () {
-      await afterTests(compass);
+      await afterTests(compass, undefined, 'import-export-connections');
     });
 
     for (const variant of variants) {
