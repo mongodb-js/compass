@@ -569,6 +569,13 @@ functions:
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
         optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${linux_tar_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_sign_filename}
+        content_type: application/pgp-signature
+        optional: true
 
   get-all-artifacts:
     - command: shell.exec

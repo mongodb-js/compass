@@ -20,8 +20,8 @@ const plist = require('plist');
 const { sign: signtool } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
 
-async function signDebPackage(src) {
-  debug('Signing deb ... %s', src);
+async function signLinuxArtifact(src) {
+  debug('Signing linux ... %s', src);
   await signtool(src, {
     client: 'local',
     signingOptions: {
@@ -658,6 +658,8 @@ class Target {
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
     this.linux_deb_sign_filename = `${this.linux_deb_filename}.sig`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.linux_tar_sign_filename = `${this.linux_tar_filename}.sig`;
 
     const rhelVersion = [
       this.semver.major,
@@ -668,7 +670,6 @@ class Target {
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
-    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
 
     this.assets = [
@@ -689,6 +690,10 @@ class Target {
       {
         name: this.linux_tar_filename,
         path: this.dest(this.linux_tar_filename)
+      },
+      {
+        name: this.linux_tar_sign_filename,
+        path: this.dest(this.linux_tar_sign_filename)
       },
       {
         name: this.rhel_tar_filename,
@@ -757,7 +762,7 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          return signDebPackage(this.dest(this.linux_deb_filename));
+          return signLinuxArtifact(this.dest(this.linux_deb_filename));
         });
       });
     };
@@ -769,7 +774,12 @@ class Target {
         this.dest(this.app_archive_name)
       );
 
-      return tarGz(this.appPath, this.dest(this.app_archive_name));
+      return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
+        if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+          return;
+        }
+        return signLinuxArtifact(this.dest(this.app_archive_name));
+      });
     };
 
     this.createInstaller = () => {
