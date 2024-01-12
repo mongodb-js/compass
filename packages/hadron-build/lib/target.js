@@ -17,12 +17,13 @@ const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
-const { sign: signtool } = require('@mongodb-js/signing-utils');
+const { signtool } = require('./signtool');
+const { sign: garasign } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
 
 async function signLinuxArtifact(src) {
   debug('Signing linux ... %s', src);
-  await signtool(src, {
+  await garasign(src, {
     client: 'local',
     signingOptions: {
       method: 'gpg',
