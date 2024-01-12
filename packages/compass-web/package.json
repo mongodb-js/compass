@@ -24,14 +24,14 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
     ".": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
