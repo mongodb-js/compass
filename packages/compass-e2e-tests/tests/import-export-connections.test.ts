@@ -106,11 +106,6 @@ describe('Connection Import / Export', function () {
 
   for (const variant of variants) {
     it(`can export and import connections through the CLI, ${variant}`, async function () {
-      if (process.platform === 'win32') {
-        // TODO(COMPASS-6269): these tests are very flaky on windows
-        return this.skip();
-      }
-
       const file = path.join(tmpdir, 'file');
       const passphraseArgs =
         variant === 'encrypted'
