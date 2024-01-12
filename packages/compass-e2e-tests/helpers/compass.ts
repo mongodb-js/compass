@@ -463,6 +463,11 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     args,
     timeout,
   });
+  // For whatever reason, running the compass CLI frequently completes what it
+  // was set to do and then exits the process with error code 1 and no other
+  // output. So while figuring out what's going on, don't ever throw but do log
+  // the error. Assertions that follow runCompassOnce() can then check if it did
+  // what it was supposed to do and fail if it didn't.
   const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
@@ -477,7 +482,8 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       timeout,
       env: {
         ...process.env,
-        DE: 'generic', // for xdg-settings: unknown desktop environment
+        // prevent xdg-settings: unknown desktop environment error logs
+        DE: 'generic',
       },
     }
   );
