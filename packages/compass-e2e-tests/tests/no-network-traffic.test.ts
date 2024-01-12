@@ -64,7 +64,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     try {
       await browser.connectWithConnectionString();
     } finally {
-      await afterTests(compass, this.currentTest);
+      await afterTests(compass, this.currentTest, 'connect');
     }
 
     const straceLog = await fs.readFile(outfile, 'utf8');
