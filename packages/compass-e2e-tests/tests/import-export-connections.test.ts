@@ -119,7 +119,14 @@ describe('Connection Import / Export', function () {
           connectionString
         );
 
+        // same comment as for before() in ui tests
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
         await browser.saveFavorite(favoriteName, 'color3');
+
+        // again: make sure the favourite is there
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
         await afterTests(compass, this.currentTest, 'favorite');
       }
 
@@ -209,6 +216,9 @@ describe('Connection Import / Export', function () {
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       await browser.saveFavorite(favoriteName, 'color3');
+
+      // again: make sure the new favourite is there
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     });
 
     afterEach(async function () {
