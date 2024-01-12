@@ -2,9 +2,9 @@ import chai from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -18,7 +18,7 @@ describe('Collection indexes tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -29,11 +29,11 @@ describe('Collection indexes tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('lists indexes', async function () {

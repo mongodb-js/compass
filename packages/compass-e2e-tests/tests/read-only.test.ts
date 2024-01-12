@@ -1,4 +1,4 @@
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -24,7 +24,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('hides and shows the plus icon on the siderbar to create a database', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', true);
@@ -56,13 +56,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -105,13 +104,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -145,13 +143,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the create collection button on the instance tab', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -186,13 +183,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the add data button on the documents tab', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -221,13 +217,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isAddDataButtonExisting).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the $out aggregation stage', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -279,13 +274,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(options).to.not.include('$out');
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('shows and hides the create index button', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await createNumbersCollection();
@@ -317,13 +311,13 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(isIndexListExisting).to.be.equal(true);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await screenshotIfFailed(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('enables and disables validation actions', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
@@ -380,8 +374,8 @@ describe('readOnly: true / Read-Only Edition', function () {
       ).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await screenshotIfFailed(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 });

@@ -1,7 +1,12 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { afterTest } from '../helpers/compass';
-import { beforeTests, afterTests, runCompassOnce } from '../helpers/compass';
+import { screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  runCompassOnce,
+  subtestTitle,
+} from '../helpers/compass';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -122,18 +127,22 @@ describe('Connection Import / Export', function () {
       debug('Favoriting connection');
       {
         // Open compass, create and save favorite
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await browser.setValueVisible(
-          Selectors.ConnectionStringInput,
-          connectionString
+        const compass = await init(
+          subtestTitle(this.test, 'Favoriting connection')
         );
+        try {
+          const { browser } = compass;
+          await browser.setValueVisible(
+            Selectors.ConnectionStringInput,
+            connectionString
+          );
 
-        await waitForConnections();
-        await browser.saveFavorite(favoriteName, 'color3');
-        await waitForConnections();
-
-        await afterTests(compass, this.currentTest, 'favorite');
+          await waitForConnections();
+          await browser.saveFavorite(favoriteName, 'color3');
+          await waitForConnections();
+        } finally {
+          await cleanup(compass);
+        }
       }
 
       debug('Exporting connection via CLI');
@@ -160,15 +169,20 @@ describe('Connection Import / Export', function () {
       debug('Removing connection');
       {
         // Open compass, delete favorite
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await browser.selectFavorite(favoriteName);
-        await browser.selectConnectionMenuItem(
-          favoriteName,
-          Selectors.RemoveConnectionItem
+        const compass = await init(
+          subtestTitle(this.test, 'Removing connection')
         );
-        await waitForConnections();
-        await afterTests(compass, this.currentTest, 'remove');
+        try {
+          const { browser } = compass;
+          await browser.selectFavorite(favoriteName);
+          await browser.selectConnectionMenuItem(
+            favoriteName,
+            Selectors.RemoveConnectionItem
+          );
+          await waitForConnections();
+        } finally {
+          await cleanup(compass);
+        }
       }
 
       debug('Importing connection via CLI');
@@ -192,10 +206,15 @@ describe('Connection Import / Export', function () {
       debug('Verifying imported connection');
       {
         // Open compass, verify favorite exists
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
-        await afterTests(compass, this.currentTest, 'verify');
+        const compass = await init(
+          subtestTitle(this.test, 'Verifying imported connection')
+        );
+        try {
+          const { browser } = compass;
+          await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
+        } finally {
+          await cleanup(compass);
+        }
       }
     });
   }
@@ -207,7 +226,7 @@ describe('Connection Import / Export', function () {
 
     before(async function () {
       // Open compass, create and save favorite
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
       await browser.setValueVisible(
         Selectors.ConnectionStringInput,
@@ -223,11 +242,11 @@ describe('Connection Import / Export', function () {
     });
 
     afterEach(async function () {
-      await afterTest(compass, this.currentTest);
+      await screenshotIfFailed(compass, this.currentTest);
     });
 
     after(async function () {
-      await afterTests(compass, undefined, 'import-export-connections');
+      await cleanup(compass);
     });
 
     for (const variant of variants) {

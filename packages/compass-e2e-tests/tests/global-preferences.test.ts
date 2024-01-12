@@ -1,10 +1,5 @@
 import { expect } from 'chai';
-import {
-  beforeTests,
-  afterTests,
-  afterTest,
-  runCompassOnce,
-} from '../helpers/compass';
+import { init, cleanup, runCompassOnce } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -50,7 +45,7 @@ describe('Global preferences', function () {
   });
 
   it('allows setting preferences through the CLI', async function () {
-    const compass = await beforeTests({
+    const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-enable-maps'],
     });
     try {
@@ -77,14 +72,13 @@ describe('Global preferences', function () {
         expect(bannerText).to.equal(null);
       }
     } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('allows setting preferences through the global configuration file (YAML)', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'enableMaps: false\n');
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     try {
       const browser = compass.browser;
       await browser.openSettingsModal('Privacy');
@@ -109,14 +103,13 @@ describe('Global preferences', function () {
         expect(bannerText).to.equal(null);
       }
     } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('allows setting preferences through the global configuration file (EJSON)', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), '{"enableMaps": false}\n');
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     try {
       const browser = compass.browser;
       await browser.openSettingsModal('Privacy');
@@ -141,14 +134,13 @@ describe('Global preferences', function () {
         expect(bannerText).to.equal(null);
       }
     } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('allows setting networkTraffic: false and reflects that in the settings modal', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'networkTraffic: false\n');
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     try {
       const browser = compass.browser;
       await browser.openSettingsModal('Privacy');
@@ -162,14 +154,13 @@ describe('Global preferences', function () {
         'This setting cannot be modified as it has been set in the global Compass configuration file.'
       );
     } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
   it('allows setting readOnly: true and reflects that in the settings modal', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     try {
       const browser = compass.browser;
       await browser.openSettingsModal('Privacy');
@@ -202,8 +193,7 @@ describe('Global preferences', function () {
         expect(isShellSectionExisting).to.be.equal(false);
       }
     } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 
@@ -220,7 +210,7 @@ describe('Global preferences', function () {
   });
 
   it('redacts command line options after parsing', async function () {
-    const compass = await beforeTests({
+    const compass = await init(this.test?.title, {
       extraSpawnArgs: ['mongodb://usr:53cr3t@localhost:0/'],
     });
     try {
@@ -234,7 +224,7 @@ describe('Global preferences', function () {
         expect(JSON.stringify(proc)).to.not.include('53cr3t');
       }
     } finally {
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
   });
 });
