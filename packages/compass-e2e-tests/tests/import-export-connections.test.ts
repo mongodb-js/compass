@@ -79,19 +79,20 @@ describe('Connection Import / Export', function () {
     await browser.selectFavorite(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-    await browser.waitUntil(async () => {
-      const cs = await browser.getConnectFormConnectionString(true);
-      const expected =
-        variant === 'protected'
-          ? connectionStringWithoutCredentials
-          : connectionString;
-      return cs === expected;
-    });
+    const cs = await browser.getConnectFormConnectionString(true);
+    const expected =
+      variant === 'protected'
+        ? connectionStringWithoutCredentials
+        : connectionString;
+    expect(cs).to.equal(expected);
     await browser.selectFavorite(favoriteName);
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.RemoveConnectionItem
     );
+
+    // make sure the favourite is gone
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
   for (const variant of variants) {
@@ -161,6 +162,8 @@ describe('Connection Import / Export', function () {
           favoriteName,
           Selectors.RemoveConnectionItem
         );
+        // make sure it is really gone
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         await afterTests(compass, this.currentTest, 'remove');
       }
 
