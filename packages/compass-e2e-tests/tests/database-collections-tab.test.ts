@@ -18,12 +18,12 @@ describe('Database collections tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await init();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
-    await cleanup(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   beforeEach(async function () {

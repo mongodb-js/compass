@@ -374,7 +374,6 @@ describe('readOnly: true / Read-Only Edition', function () {
       ).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
-      await screenshotIfFailed(compass, this.currentTest);
       await cleanup(compass);
     }
   });
