@@ -80,6 +80,10 @@ variables:
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
+    GARASIGN_USERNAME: ${garasign_username}
+    GARASIGN_PASSWORD: ${garasign_password}
+    ARTIFACTORY_USERNAME: ${artifactory_username}
+    ARTIFACTORY_PASSWORD: ${artifactory_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -550,6 +554,13 @@ functions:
         local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${linux_deb_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_sign_filename}
+        content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
