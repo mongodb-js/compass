@@ -5,6 +5,7 @@ import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
+import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
@@ -433,6 +434,26 @@ async function getCompassExecutionParameters(): Promise<{
   return { testPackagedApp, binary };
 }
 
+function execFileIgnoreError(
+  path: string,
+  args: readonly string[],
+  opts: ExecFileOptions
+): Promise<{
+  error: ExecFileException | null;
+  stdout: string;
+  stderr: string;
+}> {
+  return new Promise((resolve) => {
+    execFile(path, args, opts, function (error, stdout, stderr) {
+      resolve({
+        error,
+        stdout,
+        stderr,
+      });
+    });
+  });
+}
+
 export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
@@ -442,7 +463,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     args,
     timeout,
   });
-  const { stdout, stderr } = await promisify(execFile)(
+  const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
       COMPASS_PATH,
@@ -460,7 +481,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       },
     }
   );
-  debug('Ran compass with args', { args, stdout, stderr });
+  debug('Ran compass with args', { args, error, stdout, stderr });
   return { stdout, stderr };
 }
 
