@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
 
@@ -15,8 +15,8 @@ describe('Time to first query', function () {
     // get added to the time it took to run the first query
     if (compass) {
       // even though this is after (not afterEach) currentTest points to the last test
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
+      await screenshotIfFailed(compass, this.currentTest);
+      await cleanup(compass);
       compass = undefined;
     }
   });
@@ -33,7 +33,7 @@ describe('Time to first query', function () {
     this.retries(5);
 
     // start compass inside the test so that the time is measured together
-    compass = await beforeTests({ firstRun: true });
+    compass = await init(this.test?.fullTitle(), { firstRun: true });
 
     const { browser } = compass;
 
@@ -53,7 +53,7 @@ describe('Time to first query', function () {
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
     // start compass inside the test so that the time is measured together
 
-    compass = await beforeTests({ firstRun: false });
+    compass = await init(this.test?.fullTitle(), { firstRun: false });
 
     const { browser } = compass;
 
