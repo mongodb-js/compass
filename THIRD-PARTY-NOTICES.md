@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sat Jan 13 2024.
+This document was automatically generated on Sun Jan 14 2024.
 
 ## List of dependencies
 
