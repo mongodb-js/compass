@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -14,14 +14,14 @@ describe('Bulk Update', () => {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
+    compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableBulkUpdateOperations'],
     });
     browser = compass.browser;
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
@@ -32,7 +32,7 @@ describe('Bulk Update', () => {
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('updates documents matching a filter', async function () {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
@@ -105,7 +105,7 @@ describe('Collection Rename Modal', () => {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
 
     await setFeature(browser, 'enableRenameCollectionModal', true);
@@ -121,12 +121,12 @@ describe('Collection Rename Modal', () => {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
     await dropDatabase(databaseName);
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   describe('from the sidebar', () => {

@@ -179,7 +179,7 @@
     "@electron/rebuild": "^3.4.1",
     "@electron/remote": "^2.1.1",
     "@mongodb-js/atlas-service": "^0.14.3",
-    "@mongodb-js/compass-home": "^6.25.1",
+    "@mongodb-js/compass-home": "^6.25.2",
     "@mongodb-js/compass-logging": "^1.2.11",
     "@mongodb-js/connection-storage": "^0.7.7",
     "@mongodb-js/eslint-config-compass": "^1.0.15",

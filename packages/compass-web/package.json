@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -24,19 +24,19 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
     ".": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
+    "postcompile": "tsc -p tsconfig-build.json --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
@@ -73,7 +73,7 @@
     "@mongodb-js/compass-query-bar": "^8.24.3",
     "@mongodb-js/compass-schema": "^6.24.3",
     "@mongodb-js/compass-schema-validation": "^6.23.3",
-    "@mongodb-js/compass-sidebar": "^5.23.1",
+    "@mongodb-js/compass-sidebar": "^5.23.2",
     "@mongodb-js/compass-workspaces": "^0.4.3",
     "@mongodb-js/eslint-config-compass": "^1.0.15",
     "@mongodb-js/mocha-config-compass": "^1.3.6",

@@ -1,8 +1,8 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   runCompassOnce,
   serverSatisfies,
 } from '../helpers/compass';
@@ -139,7 +139,7 @@ describe('OIDC integration', function () {
     oidcMockProviderEndpointAccesses = {};
     getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
     overrideRequestHandler = () => {};
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -151,8 +151,8 @@ describe('OIDC integration', function () {
     await browser.setFeature('browserCommandForOIDCAuth', undefined);
     await browser.setFeature('persistOIDCTokens', undefined);
     await browser.setFeature('enableShell', true);
-    await afterTest(compass, this.currentTest);
-    await afterTests(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   after(async function () {
@@ -366,8 +366,8 @@ describe('OIDC integration', function () {
 
     {
       // Restart Compass
-      await afterTests(compass, this.currentTest, 'restart');
-      compass = await beforeTests();
+      await cleanup(compass);
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
     }
 

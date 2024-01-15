@@ -1,5 +1,5 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
 import { ConnectionString } from 'mongodb-connection-string-url';
@@ -9,14 +9,18 @@ describe('forceConnectionOptions', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests({
+    compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--forceConnectionOptions.appName=testAppName'],
     });
     browser = compass.browser;
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
+  });
+
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('forces the value of a specific connection option', async function () {
