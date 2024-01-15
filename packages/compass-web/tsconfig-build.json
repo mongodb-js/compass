@@ -1,0 +1,8 @@
+// We include sandbox code in default tsconfig, but it affects emitted file
+// paths. This is a special tsconfig for postcompile task so that the
+// declarations emitted are only for files we actually want to publish
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*"],
+  "exclude": ["./src/**/*.spec.*"]
+}
