@@ -10,11 +10,8 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
-import path from 'path';
 
 import delay from '../helpers/delay';
-
-import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
@@ -120,9 +117,7 @@ describe('CSFLE / QE', function () {
       }
 
       await delay(10000);
-      await browser.saveScreenshot(
-        path.join(LOG_PATH, 'saved-connections-after-disconnect.png')
-      );
+      await browser.screenshot('saved-connections-after-disconnect.png');
 
       await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
       await browser.waitUntil(async () => {

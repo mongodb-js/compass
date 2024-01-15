@@ -1,9 +1,7 @@
 import { expect } from 'chai';
-import path from 'path';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { LOG_PATH } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
@@ -64,7 +62,7 @@ describe('Instance databases tab', function () {
     // even after scrolling it into view.
     await browser.clickVisible(Selectors.databaseCardClickable('test'), {
       scroll: true,
-      screenshot: path.join(LOG_PATH, 'database-card.png'),
+      screenshot: 'database-card.png',
     });
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
