@@ -79,6 +79,9 @@ export async function addCollection(
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
       await span.click();
+
+      // make sure the menu disappears before moving on to the next thing
+      await menu.waitForDisplayed({ reverse: true });
     }
 
     // scroll to the locale one so the screenshot will include it.

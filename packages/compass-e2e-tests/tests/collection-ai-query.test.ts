@@ -3,7 +3,7 @@ import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -43,9 +43,7 @@ describe('Collection ai query', function () {
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
-      extraSpawnArgs: ['--enableGenAIExperience'],
-    });
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -61,13 +59,13 @@ describe('Collection ai query', function () {
     delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE;
     delete process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN;
 
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
     clearRequests();
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   describe('when the ai model response is valid', function () {

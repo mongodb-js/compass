@@ -4,9 +4,9 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   outputFilename,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -42,17 +42,17 @@ describe('Collection export', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   describe('with the numbers collection', function () {

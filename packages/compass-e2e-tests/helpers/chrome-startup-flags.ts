@@ -51,6 +51,9 @@ const CI_FLAGS = [
   // Evergren RHEL ci runs everything as root, and chrome will not start as
   // root without this flag
   '--no-sandbox',
+  // Seeing gpu init related errors on at least RHEL, especially when starting
+  // the CLI
+  '--disable-gpu',
 ];
 
 // These flags are used to start Chrome driver based on the Compass requirements.

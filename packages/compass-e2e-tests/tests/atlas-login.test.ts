@@ -1,8 +1,8 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   Selectors,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -103,7 +103,7 @@ describe('Atlas Login', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
 
-    compass = await beforeTests({
+    compass = await init(this.test?.fullTitle(), {
       // With this flag enabled, we are not persisting the data between tests
       firstRun: true,
     });
@@ -116,8 +116,8 @@ describe('Atlas Login', function () {
 
   afterEach(async function () {
     await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    await afterTest(compass, this.currentTest);
-    await afterTests(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   after(async function () {

@@ -3,9 +3,9 @@ import type { Element } from 'webdriverio';
 import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   outputFilename,
   serverSatisfies,
 } from '../helpers/compass';
@@ -150,7 +150,7 @@ describe('Collection aggregations tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -176,11 +176,11 @@ describe('Collection aggregations tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('supports the right stages for the environment', async function () {

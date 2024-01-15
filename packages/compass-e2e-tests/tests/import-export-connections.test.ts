@@ -1,7 +1,12 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { afterTest } from '../helpers/compass';
-import { beforeTests, afterTests, runCompassOnce } from '../helpers/compass';
+import { screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  runCompassOnce,
+  subtestTitle,
+} from '../helpers/compass';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -12,6 +17,16 @@ import { UUID } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
+
+function waitForConnections() {
+  // The connection list UI does not handle concurrent modifications to the
+  // connections list well. Unfortunately, this includes the initial load,
+  // which can realistically take longer than the startup time + the time
+  // it takes to save a favorite in e2e tests, and so the result of that
+  // initial load would override the favorite saving (from the point of view
+  // of the connection sidebar at least). Add a timeout to make this less flaky. :(
+  return new Promise((resolve) => setTimeout(resolve, 5000));
+}
 
 describe('Connection Import / Export', function () {
   let tmpdir: string;
@@ -79,25 +94,23 @@ describe('Connection Import / Export', function () {
     await browser.selectFavorite(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+    const cs = await browser.getConnectFormConnectionString(true);
+    const expected =
       variant === 'protected'
         ? connectionStringWithoutCredentials
-        : connectionString
-    );
+        : connectionString;
+    expect(cs).to.equal(expected);
     await browser.selectFavorite(favoriteName);
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.RemoveConnectionItem
     );
+
+    await waitForConnections();
   }
 
   for (const variant of variants) {
     it(`can export and import connections through the CLI, ${variant}`, async function () {
-      if (process.platform === 'win32') {
-        // TODO(COMPASS-6269): these tests are very flaky on windows
-        return this.skip();
-      }
-
       const file = path.join(tmpdir, 'file');
       const passphraseArgs =
         variant === 'encrypted'
@@ -109,15 +122,22 @@ describe('Connection Import / Export', function () {
       debug('Favoriting connection');
       {
         // Open compass, create and save favorite
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await browser.setValueVisible(
-          Selectors.ConnectionStringInput,
-          connectionString
+        const compass = await init(
+          subtestTitle(this.test, 'Favoriting connection')
         );
+        try {
+          const { browser } = compass;
+          await browser.setValueVisible(
+            Selectors.ConnectionStringInput,
+            connectionString
+          );
 
-        await browser.saveFavorite(favoriteName, 'color3');
-        await afterTests(compass);
+          await waitForConnections();
+          await browser.saveFavorite(favoriteName, 'color3');
+          await waitForConnections();
+        } finally {
+          await cleanup(compass);
+        }
       }
 
       debug('Exporting connection via CLI');
@@ -144,14 +164,20 @@ describe('Connection Import / Export', function () {
       debug('Removing connection');
       {
         // Open compass, delete favorite
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await browser.selectFavorite(favoriteName);
-        await browser.selectConnectionMenuItem(
-          favoriteName,
-          Selectors.RemoveConnectionItem
+        const compass = await init(
+          subtestTitle(this.test, 'Removing connection')
         );
-        await afterTests(compass);
+        try {
+          const { browser } = compass;
+          await browser.selectFavorite(favoriteName);
+          await browser.selectConnectionMenuItem(
+            favoriteName,
+            Selectors.RemoveConnectionItem
+          );
+          await waitForConnections();
+        } finally {
+          await cleanup(compass);
+        }
       }
 
       debug('Importing connection via CLI');
@@ -175,10 +201,15 @@ describe('Connection Import / Export', function () {
       debug('Verifying imported connection');
       {
         // Open compass, verify favorite exists
-        const compass = await beforeTests();
-        const { browser } = compass;
-        await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
-        await afterTests(compass);
+        const compass = await init(
+          subtestTitle(this.test, 'Verifying imported connection')
+        );
+        try {
+          const { browser } = compass;
+          await verifyAndRemoveImportedFavorite(browser, favoriteName, variant);
+        } finally {
+          await cleanup(compass);
+        }
       }
     });
   }
@@ -190,30 +221,27 @@ describe('Connection Import / Export', function () {
 
     before(async function () {
       // Open compass, create and save favorite
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
       await browser.setValueVisible(
         Selectors.ConnectionStringInput,
         connectionString
       );
 
-      // The connection list UI does not handle concurrent modifications to the
-      // connections list well. Unfortunately, this includes the initial load,
-      // which can realistically take longer than the startup time + the time
-      // it takes to save a favorite in e2e tests, and so the result of that
-      // initial load would override the favorite saving (from the point of view
-      // of the connection sidebar at least). Add a timeout to make this less flaky. :(
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await waitForConnections();
 
       await browser.saveFavorite(favoriteName, 'color3');
+
+      // again: make sure the new favourite is there
+      await waitForConnections();
     });
 
     afterEach(async function () {
-      await afterTest(compass, this.currentTest);
+      await screenshotIfFailed(compass, this.currentTest);
     });
 
     after(async function () {
-      await afterTests(compass);
+      await cleanup(compass);
     });
 
     for (const variant of variants) {

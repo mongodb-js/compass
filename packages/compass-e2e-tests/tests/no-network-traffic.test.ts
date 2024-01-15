@@ -1,4 +1,4 @@
-import { beforeTests, afterTests } from '../helpers/compass';
+import { init, cleanup } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -42,7 +42,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       return wrapperFile;
     }
 
-    const compass = await beforeTests({
+    const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
     });
@@ -64,7 +64,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     try {
       await browser.connectWithConnectionString();
     } finally {
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     }
 
     const straceLog = await fs.readFile(outfile, 'utf8');

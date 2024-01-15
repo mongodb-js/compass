@@ -94,7 +94,7 @@ type ConnectionFormPropsWithoutPreferences = {
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
@@ -191,7 +191,10 @@ function ConnectionForm({
     },
     [onSaveConnectionClicked, setErrors]
   );
-  const showSaveActions = !!onSaveConnectionClicked;
+
+  const showFavoriteActions = useConnectionFormPreference(
+    'showFavoriteActions'
+  );
 
   return (
     <ConfirmationModalArea>
@@ -208,7 +211,7 @@ function ConnectionForm({
         <div className={formContentContainerStyles}>
           <H3 className={formHeaderStyles}>
             {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-            {showSaveActions && (
+            {showFavoriteActions && (
               <IconButton
                 type="button"
                 aria-label="Save Connection"
@@ -225,7 +228,7 @@ function ConnectionForm({
           <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
-          {showSaveActions && (
+          {showFavoriteActions && (
             <IconButton
               aria-label="Save Connection"
               data-testid="edit-favorite-icon-button"
@@ -276,7 +279,6 @@ function ConnectionForm({
           <ConnectionFormActions
             errors={connectionStringInvalidError ? [] : errors}
             warnings={connectionStringInvalidError ? [] : warnings}
-            showSaveActions={showSaveActions}
             saveButton={
               isDirty || !initialConnectionInfo.favorite
                 ? 'enabled'
@@ -302,7 +304,7 @@ function ConnectionForm({
           />
         </div>
       </form>
-      {showSaveActions && (
+      {showFavoriteActions && (
         <SaveConnectionModal
           open={saveConnectionModal !== 'hidden'}
           saveText={

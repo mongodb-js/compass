@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -44,7 +44,7 @@ describe('CSFLE / QE', function () {
         return this.skip();
       }
 
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
     });
 
@@ -57,13 +57,13 @@ describe('CSFLE / QE', function () {
 
     afterEach(async function () {
       if (compass) {
-        await afterTest(compass, this.currentTest);
+        await screenshotIfFailed(compass, this.currentTest);
       }
     });
 
     after(async function () {
       if (compass) {
-        await afterTests(compass, this.currentTest);
+        await cleanup(compass);
       }
     });
 
@@ -156,7 +156,7 @@ describe('CSFLE / QE', function () {
       let browser: CompassBrowser;
 
       before(async function () {
-        compass = await beforeTests();
+        compass = await init(this.test?.fullTitle());
         browser = compass.browser;
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
@@ -167,7 +167,7 @@ describe('CSFLE / QE', function () {
 
       after(async function () {
         if (compass) {
-          await afterTests(compass, this.currentTest);
+          await cleanup(compass);
         }
       });
 
@@ -180,7 +180,7 @@ describe('CSFLE / QE', function () {
 
       afterEach(async function () {
         if (compass) {
-          await afterTest(compass, this.currentTest);
+          await screenshotIfFailed(compass, this.currentTest);
         }
       });
 
@@ -242,7 +242,7 @@ describe('CSFLE / QE', function () {
       let plainMongo: MongoClient;
 
       before(async function () {
-        compass = await beforeTests();
+        compass = await init(this.test?.fullTitle());
         browser = compass.browser;
       });
 
@@ -307,13 +307,13 @@ describe('CSFLE / QE', function () {
 
       after(async function () {
         if (compass) {
-          await afterTests(compass, this.currentTest);
+          await cleanup(compass);
         }
       });
 
       afterEach(async function () {
         if (compass) {
-          await afterTest(compass, this.currentTest);
+          await screenshotIfFailed(compass, this.currentTest);
         }
         await plainMongo.db(databaseName).dropDatabase();
         await plainMongo.close();
@@ -837,19 +837,19 @@ describe('CSFLE / QE', function () {
         return this.skip();
       }
 
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
     });
 
     afterEach(async function () {
       if (compass) {
-        await afterTest(compass, this.currentTest);
+        await screenshotIfFailed(compass, this.currentTest);
       }
     });
 
     after(async function () {
       if (compass) {
-        await afterTests(compass, this.currentTest);
+        await cleanup(compass);
       }
     });
 

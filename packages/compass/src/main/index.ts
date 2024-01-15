@@ -65,15 +65,16 @@ async function main(): Promise<void> {
     return app.exit(0);
   }
 
-  if (preferenceParseErrors.length > 0) {
+  const errorOutDueToAdditionalCommandLineFlags =
+    preferenceParseErrors.length > 0 &&
+    !preferences.ignoreAdditionalCommandLineFlags;
+
+  if (errorOutDueToAdditionalCommandLineFlags) {
     process.stderr.write(chalk.yellow(preferenceParseErrorsString) + '\n');
     process.stderr.write(
       'Use --ignore-additional-command-line-flags to allow passing additional options to Chromium/Electron\n'
     );
   }
-  const errorOutDueToAdditionalCommandLineFlags =
-    preferenceParseErrors.length > 0 &&
-    !preferences.ignoreAdditionalCommandLineFlags;
 
   const importExportOptions = {
     exportConnections: preferences.exportConnections,
@@ -101,9 +102,19 @@ async function main(): Promise<void> {
     process.on('uncaughtException', handleUncaughtException);
   } else {
     if (errorOutDueToAdditionalCommandLineFlags) {
+      process.stderr.write(
+        'Exiting because there are parse errors and --ignore-additional-command-line-flags was not set\n'
+      );
       return app.exit(1);
     }
     process.on('uncaughtException', (err) => {
+      process.stderr.write('Exiting due to uncaughtException:\n');
+      // eslint-disable-next-line no-console
+      console.error(err);
+      CompassApplication.runExitHandlers().finally(() => app.exit(1));
+    });
+    process.on('unhandledRejection', (err) => {
+      process.stderr.write('Exiting due to unhandledRejection:\n');
       // eslint-disable-next-line no-console
       console.error(err);
       CompassApplication.runExitHandlers().finally(() => app.exit(1));
@@ -113,7 +124,13 @@ async function main(): Promise<void> {
   try {
     await CompassApplication.init(mode, globalPreferences);
   } catch (e) {
-    await handleUncaughtException(e as Error);
+    if (mode === 'CLI') {
+      process.stderr.write('Exiting due to try/catch:\n');
+      // eslint-disable-next-line no-console
+      console.error(e);
+    } else {
+      await handleUncaughtException(e as Error);
+    }
     await CompassApplication.runExitHandlers().finally(() => app.exit(1));
     return;
   }

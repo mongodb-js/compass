@@ -133,7 +133,6 @@ describe('QueryBar Component', function () {
   describe('with ai enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
-        enableGenAIExperience: true,
         enableGenAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
@@ -177,44 +176,6 @@ describe('QueryBar Component', function () {
         expect(screen.queryByTestId('ai-experience-query-entry-button')).to.not
           .exist;
       });
-    });
-  });
-
-  describe('with enableGenAIExperience ai disabled', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        enableGenAIExperience: false,
-        enableGenAIFeatures: true,
-        cloudFeatureRolloutAccess: {
-          GEN_AI_COMPASS: true,
-        },
-      });
-      renderQueryBar({
-        queryOptionsLayout: ['filter'],
-      });
-    });
-
-    it('does not render the ask ai button', function () {
-      expect(screen.queryByText('Ask AI')).to.not.exist;
-    });
-  });
-
-  describe('with enableGenAIFeatures ai disabled', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        enableGenAIExperience: true,
-        enableGenAIFeatures: false,
-        cloudFeatureRolloutAccess: {
-          GEN_AI_COMPASS: true,
-        },
-      });
-      renderQueryBar({
-        queryOptionsLayout: ['filter'],
-      });
-    });
-
-    it('does not render the ask ai button', function () {
-      expect(screen.queryByText('Ask AI')).to.not.exist;
     });
   });
 

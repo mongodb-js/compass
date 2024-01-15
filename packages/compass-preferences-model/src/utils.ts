@@ -49,35 +49,25 @@ export async function getActiveUser(
 export function isAIFeatureEnabled(
   preferences: Pick<
     AllPreferences,
-    | 'enableGenAIFeatures'
-    | 'enableGenAIExperience'
-    | 'cloudFeatureRolloutAccess'
+    'enableGenAIFeatures' | 'cloudFeatureRolloutAccess'
   >
 ) {
   const {
     // a "kill switch" property from configuration file to be able to disable
     // feature in global config
     enableGenAIFeatures,
-    // feature flag
-    enableGenAIExperience,
     // based on mms backend rollout response
     cloudFeatureRolloutAccess,
   } = preferences;
-  return (
-    enableGenAIFeatures &&
-    enableGenAIExperience &&
-    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
-  );
+  return enableGenAIFeatures && !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
 }
 
 export function useIsAIFeatureEnabled() {
   const enableGenAIFeatures = usePreference('enableGenAIFeatures');
-  const enableGenAIExperience = usePreference('enableGenAIExperience');
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,
-    enableGenAIExperience,
     cloudFeatureRolloutAccess,
   });
 }

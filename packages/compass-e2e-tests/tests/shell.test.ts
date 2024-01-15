@@ -1,7 +1,7 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { expect } from 'chai';
@@ -13,18 +13,18 @@ describe('Shell', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
     await browser.setFeature('enableShell', true);
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('has an info modal', async function () {

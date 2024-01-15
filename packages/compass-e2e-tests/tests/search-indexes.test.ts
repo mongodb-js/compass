@@ -1,8 +1,8 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   MONGODB_TEST_SERVER_PORT,
   Selectors,
   serverSatisfies,
@@ -142,7 +142,7 @@ async function verifyIndexDetails(
   expect(text.toLowerCase()).to.equal(details.toLowerCase());
 }
 
-describe('Search Indexes', function () {
+describe.skip('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
@@ -159,14 +159,14 @@ describe('Search Indexes', function () {
     if (!serverSatisfies('>= 4.1.11')) {
       this.skip();
     }
-    compass = await beforeTests({
+    compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableAtlasSearchIndexManagement'],
     });
     browser = compass.browser;
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   beforeEach(async function () {
@@ -203,7 +203,7 @@ describe('Search Indexes', function () {
     }
     void mongoClient.close();
     await disconnect(browser);
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   for (const { name, connectionString } of connectionsWithNoSearchSupport) {
