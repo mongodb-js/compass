@@ -1,8 +1,5 @@
-import path from 'path';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
-
-import { LOG_PATH } from '../compass';
 
 export type AddCollectionOptions = {
   capped?: {
@@ -82,12 +79,8 @@ export async function addCollection(
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
       await span.scrollIntoView();
-      await browser.saveScreenshot(
-        path.join(
-          LOG_PATH,
-          'screenshots',
-          `custom-collation-${key}-${value.toString()}.png`
-        )
+      await browser.screenshot(
+        `custom-collation-${key}-${value.toString()}.png`
       );
       await span.click();
 
