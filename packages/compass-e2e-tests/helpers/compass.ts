@@ -106,8 +106,6 @@ export const serverSatisfies = (
 
 // For the user data dirs
 let i = 0;
-// For the screenshots
-let j = 0;
 
 interface Coverage {
   main?: string;
@@ -376,18 +374,6 @@ export class Compass {
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
     this.logs = compassLog.structured;
-  }
-
-  async capturePage(
-    filename = `screenshot-${formattedDate()}-${++j}.png`
-  ): Promise<boolean> {
-    try {
-      await this.browser.saveScreenshot(path.join(SCREENSHOTS_PATH, filename));
-      return true;
-    } catch (err) {
-      console.warn((err as Error).stack);
-      return false;
-    }
   }
 }
 
@@ -987,9 +973,11 @@ export async function screenshotIfFailed(
   if (test) {
     if (test.state === undefined) {
       // if there's no state, then it is probably because the before() hook failed
-      await compass.capturePage(screenshotPathName(`${test.fullTitle()}-hook`));
+      await compass.browser.screenshot(
+        screenshotPathName(`${test.fullTitle()}-hook`)
+      );
     } else if (test.state === 'failed') {
-      await compass.capturePage(screenshotPathName(test.fullTitle()));
+      await compass.browser.screenshot(screenshotPathName(test.fullTitle()));
     }
   }
 }
