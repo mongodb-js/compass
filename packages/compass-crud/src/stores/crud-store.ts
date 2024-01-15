@@ -2081,8 +2081,6 @@ export function activateDocumentsPlugin(
   // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
 
-  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
-
   on(
     localAppRegistry,
     'favorites-open-bulk-update-favorite',
