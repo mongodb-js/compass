@@ -31,12 +31,12 @@
   "compass:exports": {
     ".": "./src/index.tsx"
   },
-  "types": "./dist/src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
+    "postcompile": "tsc -p tsconfig-build.json --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
