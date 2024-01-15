@@ -78,6 +78,10 @@ export async function addCollection(
       await menu.waitForDisplayed();
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
+      await span.scrollIntoView();
+      await browser.saveScreenshot(
+        `custom-collation-${key}-${value.toString()}.png`
+      );
       await span.click();
 
       // make sure the menu disappears before moving on to the next thing
