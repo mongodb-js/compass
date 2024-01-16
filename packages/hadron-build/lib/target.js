@@ -783,10 +783,7 @@ class Target {
       );
 
       return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
-        if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
-          return;
-        }
-        return signLocallyWithGpg(this.dest(this.app_archive_name));
+        return sign(this.dest(this.app_archive_name));
       });
     };
 

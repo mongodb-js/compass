@@ -1,6 +1,6 @@
 const path = require('path');
 const debug = require('debug')('hadron-build:target');
-const { sign: garasign } = require('@mongodb-js/signing-utils');
+const { sign: _garasign } = require('@mongodb-js/signing-utils');
 
 const canSign = () => (
   process.env.GARASIGN_USERNAME &&
@@ -12,8 +12,8 @@ const canSign = () => (
 /**
  * When using gpg to sign a file, it creates a signature file
  * with same name as the original file and adds `.sig` to it.
- * 
- * @param {string} filename 
+ *
+ * @param {string} filename
  * @returns string
  */
 function getSignedFilename(filename) {
@@ -53,7 +53,7 @@ function signArchive(target, cb) {
  * @param {string} src
  * @returns {Promise<void>}
  */
-async function sign(src) {
+async function sign(src, garasign = _garasign) {
   const variant = process.env.EVERGREEN_BUILD_VARIANT;
   debug('Signing on %s ... %s', variant, src);
 
