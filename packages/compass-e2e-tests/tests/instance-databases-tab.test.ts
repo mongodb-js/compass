@@ -1,9 +1,7 @@
 import { expect } from 'chai';
-import path from 'path';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { LOG_PATH } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
@@ -15,7 +13,7 @@ describe('Instance databases tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -27,11 +25,11 @@ describe('Instance databases tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('contains a list of databases', async function () {
@@ -64,7 +62,7 @@ describe('Instance databases tab', function () {
     // even after scrolling it into view.
     await browser.clickVisible(Selectors.databaseCardClickable('test'), {
       scroll: true,
-      screenshot: path.join(LOG_PATH, 'database-card.png'),
+      screenshot: 'database-card.png',
     });
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(

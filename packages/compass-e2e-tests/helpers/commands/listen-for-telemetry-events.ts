@@ -14,16 +14,17 @@ export async function listenForTelemetryEvents(
   }
 
   return async (eventName) => {
-    await browser.waitUntil(async () => {
-      await browser.execute(() => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { ipcRenderer } = require('electron');
-        ipcRenderer.send('compass:usage:flush');
-      });
-      return !!lookupNewEvent(eventName);
+    let ev: { properties?: any } | undefined;
+
+    await browser.waitUntil(() => {
+      ev = lookupNewEvent(eventName);
+      return !!ev;
     });
 
-    const ev = lookupNewEvent(eventName);
+    if (!ev) {
+      return;
+    }
+
     const properties = { ...ev.properties };
     delete properties.compass_version;
     delete properties.compass_full_version;

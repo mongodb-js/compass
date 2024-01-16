@@ -1,6 +1,6 @@
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
@@ -15,7 +15,7 @@ describe('Collection schema tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -26,11 +26,11 @@ describe('Collection schema tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('analyzes a schema', async function () {
@@ -78,7 +78,7 @@ describe('Collection schema tab', function () {
       );
       const fieldNames = (
         await Promise.all(schemaFieldNameElement.map((el) => el.getText()))
-      ).map((text) => text.trim());
+      ).map((text: string) => text.trim());
       expect(fieldNames).to.deep.equal(['_id', 'location']);
 
       const schemaFieldTypeListElement = await browser.$$(
@@ -86,7 +86,7 @@ describe('Collection schema tab', function () {
       );
       const fieldTypes = (
         await Promise.all(schemaFieldTypeListElement.map((el) => el.getText()))
-      ).map((text) => text.trim());
+      ).map((text: string) => text.trim());
       expect(fieldTypes).to.deep.equal([
         'objectid',
         enableMaps ? 'coordinates' : 'document',

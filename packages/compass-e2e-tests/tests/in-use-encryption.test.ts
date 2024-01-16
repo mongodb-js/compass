@@ -1,20 +1,17 @@
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
-import path from 'path';
 
 import delay from '../helpers/delay';
-
-import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
@@ -44,7 +41,7 @@ describe('CSFLE / QE', function () {
         return this.skip();
       }
 
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
     });
 
@@ -57,13 +54,13 @@ describe('CSFLE / QE', function () {
 
     afterEach(async function () {
       if (compass) {
-        await afterTest(compass, this.currentTest);
+        await screenshotIfFailed(compass, this.currentTest);
       }
     });
 
     after(async function () {
       if (compass) {
-        await afterTests(compass, this.currentTest);
+        await cleanup(compass);
       }
     });
 
@@ -120,9 +117,7 @@ describe('CSFLE / QE', function () {
       }
 
       await delay(10000);
-      await browser.saveScreenshot(
-        path.join(LOG_PATH, 'saved-connections-after-disconnect.png')
-      );
+      await browser.screenshot('saved-connections-after-disconnect.png');
 
       await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
       await browser.waitUntil(async () => {
@@ -156,7 +151,7 @@ describe('CSFLE / QE', function () {
       let browser: CompassBrowser;
 
       before(async function () {
-        compass = await beforeTests();
+        compass = await init(this.test?.fullTitle());
         browser = compass.browser;
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
@@ -167,7 +162,7 @@ describe('CSFLE / QE', function () {
 
       after(async function () {
         if (compass) {
-          await afterTests(compass, this.currentTest);
+          await cleanup(compass);
         }
       });
 
@@ -180,7 +175,7 @@ describe('CSFLE / QE', function () {
 
       afterEach(async function () {
         if (compass) {
-          await afterTest(compass, this.currentTest);
+          await screenshotIfFailed(compass, this.currentTest);
         }
       });
 
@@ -242,7 +237,7 @@ describe('CSFLE / QE', function () {
       let plainMongo: MongoClient;
 
       before(async function () {
-        compass = await beforeTests();
+        compass = await init(this.test?.fullTitle());
         browser = compass.browser;
       });
 
@@ -307,13 +302,13 @@ describe('CSFLE / QE', function () {
 
       after(async function () {
         if (compass) {
-          await afterTests(compass, this.currentTest);
+          await cleanup(compass);
         }
       });
 
       afterEach(async function () {
         if (compass) {
-          await afterTest(compass, this.currentTest);
+          await screenshotIfFailed(compass, this.currentTest);
         }
         await plainMongo.db(databaseName).dropDatabase();
         await plainMongo.close();
@@ -837,19 +832,19 @@ describe('CSFLE / QE', function () {
         return this.skip();
       }
 
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
       browser = compass.browser;
     });
 
     afterEach(async function () {
       if (compass) {
-        await afterTest(compass, this.currentTest);
+        await screenshotIfFailed(compass, this.currentTest);
       }
     });
 
     after(async function () {
       if (compass) {
-        await afterTests(compass, this.currentTest);
+        await cleanup(compass);
       }
     });
 

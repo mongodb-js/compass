@@ -1,5 +1,5 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
 import { expect } from 'chai';
@@ -33,18 +33,18 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('protectConnectionStrings', false);
   });
 
   after(async function () {
     await browser.setFeature('protectConnectionStrings', false);
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('hides connection string credentials from users', async function () {

@@ -5,10 +5,12 @@ import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
+import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
+import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
@@ -38,7 +40,7 @@ export const COMPASS_PATH = path.dirname(
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
-const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
+export const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
 let MONGODB_VERSION = '';
@@ -105,14 +107,10 @@ export const serverSatisfies = (
 
 // For the user data dirs
 let i = 0;
-// For the screenshots
-let j = 0;
-// For the coverage
-let k = 0;
 
 interface Coverage {
-  main: string;
-  renderer: string;
+  main?: string;
+  renderer?: string;
 }
 
 interface RenderLogEntry {
@@ -129,6 +127,7 @@ interface CompassOptions {
 }
 
 export class Compass {
+  name: string;
   browser: CompassBrowser;
   mode: 'electron' | 'web';
   writeCoverage: boolean;
@@ -140,6 +139,7 @@ export class Compass {
   appName?: string;
 
   constructor(
+    name: string,
     browser: CompassBrowser,
     {
       mode,
@@ -147,6 +147,7 @@ export class Compass {
       needsCloseWelcomeModal = false,
     }: CompassOptions
   ) {
+    this.name = name;
     this.browser = browser;
     this.mode = mode;
     this.writeCoverage = writeCoverage;
@@ -330,26 +331,21 @@ export class Compass {
     }
   }
 
-  async stop(test?: Mocha.Hook | Mocha.Test): Promise<void> {
+  async stop(): Promise<void> {
     // TODO: we don't have main logs to write :(
     /*
     const mainLogs = [];
     const mainLogPath = path.join(
       LOG_PATH,
-      `electron-main.${nowFormatted}.log`
+      `electron-main.${name}.log`
     );
     debug(`Writing application main process log to ${mainLogPath}`);
     await fs.writeFile(mainLogPath, mainLogs.join('\n'));
     */
 
-    const nowFormatted = formattedDate();
-
-    // name the log files after the closest test if possible to make it easier to find
-    const name = test ? pathName(test.fullTitle()) : nowFormatted;
-
     const renderLogPath = path.join(
       LOG_PATH,
-      `electron-render.${nowFormatted}.json`
+      `electron-render.${this.name}.json`
     );
     debug(`Writing application render process log to ${renderLogPath}`);
     await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
@@ -369,37 +365,28 @@ export class Compass {
           });
         })();
       });
-      const stopIndex = ++k;
-      await fs.writeFile(
-        path.join(COVERAGE_PATH, `main.${stopIndex}.log`),
-        coverage.main
-      );
-      await fs.writeFile(
-        path.join(COVERAGE_PATH, `renderer.${stopIndex}.log`),
-        coverage.renderer
-      );
+      if (coverage.main) {
+        await fs.writeFile(
+          path.join(COVERAGE_PATH, `main.${this.name}.log`),
+          coverage.main
+        );
+      }
+      if (coverage.renderer) {
+        await fs.writeFile(
+          path.join(COVERAGE_PATH, `renderer.${this.name}.log`),
+          coverage.renderer
+        );
+      }
     }
 
     debug('Stopping Compass application');
     await this.browser.deleteSession();
 
     const compassLog = await getCompassLog(this.logPath ?? '');
-    const compassLogPath = path.join(LOG_PATH, `compass-log.${name}.log`);
+    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
     this.logs = compassLog.structured;
-  }
-
-  async capturePage(
-    imgPathName = `screenshot-${formattedDate()}-${++j}.png`
-  ): Promise<boolean> {
-    try {
-      await this.browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
-      return true;
-    } catch (err) {
-      console.warn((err as Error).stack);
-      return false;
-    }
   }
 }
 
@@ -442,6 +429,26 @@ async function getCompassExecutionParameters(): Promise<{
   return { testPackagedApp, binary };
 }
 
+function execFileIgnoreError(
+  path: string,
+  args: readonly string[],
+  opts: ExecFileOptions
+): Promise<{
+  error: ExecFileException | null;
+  stdout: string;
+  stderr: string;
+}> {
+  return new Promise((resolve) => {
+    execFile(path, args, opts, function (error, stdout, stderr) {
+      resolve({
+        error,
+        stdout,
+        stderr,
+      });
+    });
+  });
+}
+
 export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
@@ -451,7 +458,12 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     args,
     timeout,
   });
-  const { stdout, stderr } = await promisify(execFile)(
+  // For whatever reason, running the compass CLI frequently completes what it
+  // was set to do and then exits the process with error code 1 and no other
+  // output. So while figuring out what's going on, don't ever throw but do log
+  // the error. Assertions that follow runCompassOnce() can then check if it did
+  // what it was supposed to do and fail if it didn't.
+  const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
       COMPASS_PATH,
@@ -461,13 +473,21 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       `--user-data-dir=${String(defaultUserDataDir)}`,
       ...args,
     ],
-    { timeout }
+    {
+      timeout,
+      env: {
+        ...process.env,
+        // prevent xdg-settings: unknown desktop environment error logs
+        DE: 'generic',
+      },
+    }
   );
-  debug('Ran compass with args', { args, stdout, stderr });
+  debug('Ran compass with args', { args, error, stdout, stderr });
   return { stdout, stderr };
 }
 
 async function startCompassElectron(
+  name: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
@@ -688,7 +708,7 @@ async function startCompassElectron(
     throw err;
   }
 
-  const compass = new Compass(browser, {
+  const compass = new Compass(name, browser, {
     mode: 'electron',
     writeCoverage: !testPackagedApp,
     needsCloseWelcomeModal,
@@ -699,11 +719,11 @@ async function startCompassElectron(
   return compass;
 }
 
-export async function startBrowser() {
+export async function startBrowser(name: string) {
   const browser: CompassBrowser = await remote({
     capabilities: { browserName: 'chrome' },
   });
-  const compass = new Compass(browser, {
+  const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
     needsCloseWelcomeModal: false,
@@ -718,7 +738,9 @@ export async function startBrowser() {
  * @param {string} logPath The compass application log path
  * @returns {Promise<CompassLog>}
  */
-async function getCompassLog(logPath: string): Promise<any> {
+async function getCompassLog(
+  logPath: string
+): Promise<{ raw: Buffer; structured: any[] }> {
   const names = await fs.readdir(logPath);
   const logNames = names.filter((name) => name.endsWith('_log.gz'));
 
@@ -782,13 +804,15 @@ export async function rebuildNativeModules(
     await fs.readFile(fullElectronPath, 'utf8')
   ).version;
 
-  await rebuild({
+  const rebuildOpts: RebuildOptions = {
     ...rebuildConfig,
     electronVersion,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
     projectRootPath: path.resolve(compassPath, '..', '..'),
-  });
+  };
+
+  await rebuild(rebuildOpts);
 }
 
 export async function compileCompassAssets(
@@ -811,13 +835,15 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
       metadata = require('mongodb-compass/dist/target.json');
     }
     // Double-checking that Compass app path exists, not only the metadata
-    await fs.stat(metadata.appPath);
+    await fs.stat(metadata.appPath as string);
     debug('Existing Compass found', metadata);
     return metadata;
-  } catch (e: any) {
+  } catch (e: unknown) {
     debug('Existing Compass build not found', e);
     throw new Error(
-      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${e.message}`
+      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${
+        (e as Error).message
+      }`
     );
   }
 }
@@ -900,10 +926,18 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
-export async function beforeTests(
+export async function init(
+  name?: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
-  const compass = await startCompassElectron(opts);
+  // Unfortunately mocha's type is that this.test inside a test or hook is
+  // optional even though it always exists. So we have a lot of
+  // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
+  // of dates in filenames in reality.
+  const compass = await startCompassElectron(
+    pathName(name ?? formattedDate()),
+    opts
+  );
 
   const { browser } = compass;
 
@@ -917,18 +951,9 @@ export async function beforeTests(
   return compass;
 }
 
-export async function afterTests(
-  compass?: Compass,
-  test?: Mocha.Hook | Mocha.Test
-): Promise<void> {
+export async function cleanup(compass?: Compass): Promise<void> {
   if (!compass) {
     return;
-  }
-
-  if (test && test.state === undefined) {
-    // if there's no state, then it is probably because the before() hook failed
-    const filename = screenshotPathName(`${test.fullTitle()}-hook`);
-    await compass.capturePage(filename);
   }
 
   let timeoutId;
@@ -941,7 +966,7 @@ export async function afterTests(
 
   const closePromise = (async function close(): Promise<void> {
     try {
-      await compass.stop(test);
+      await compass.stop();
     } catch (err) {
       debug('An error occurred while stopping compass:');
       debug(err);
@@ -976,12 +1001,23 @@ export function outputFilename(filename: string): string {
   return path.join(OUTPUT_PATH, filename);
 }
 
-export async function afterTest(
+export async function screenshotIfFailed(
   compass: Compass,
   test?: Mocha.Hook | Mocha.Test
 ): Promise<void> {
-  if (test && test.state === 'failed') {
-    await compass.capturePage(screenshotPathName(test.fullTitle()));
+  // NOTE: you cannot use this inside a test because the test wouldn't be marked
+  // as failed yet. It is made for use inside an afterEach() to go with the
+  // pattern where we init() compass in a before() hook and cleanup() in an
+  // after() hook.
+  if (test) {
+    if (test.state === undefined) {
+      // if there's no state, then it is probably because the before() hook failed
+      await compass.browser.screenshot(
+        screenshotPathName(`${test.fullTitle()}-hook`)
+      );
+    } else if (test.state === 'failed') {
+      await compass.browser.screenshot(screenshotPathName(test.fullTitle()));
+    }
   }
 }
 
@@ -1012,4 +1048,15 @@ function redact(value: string): string {
   value = redactConnectionString(value, { replacementString: '<redacted>' });
 
   return value;
+}
+
+export function subtestTitle(
+  test: Mocha.Runnable | undefined,
+  step: string
+): string {
+  // Sometimes we start and stop compass multiple times in the same test. In
+  // that case it is handy to give them unique names. That's what this function
+  // is for.
+  const title = test?.fullTitle() ?? formattedDate();
+  return `${title}_${step}`;
 }

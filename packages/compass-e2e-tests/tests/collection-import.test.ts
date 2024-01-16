@@ -3,7 +3,7 @@ import chai from 'chai';
 import { promises as fs } from 'fs';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -93,7 +93,7 @@ describe('Collection import', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -104,12 +104,12 @@ describe('Collection import', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('supports single JSON objects', async function () {

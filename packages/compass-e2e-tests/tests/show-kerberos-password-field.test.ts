@@ -1,5 +1,5 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -10,7 +10,7 @@ describe('showKerberosPasswordField', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -19,12 +19,12 @@ describe('showKerberosPasswordField', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
     await browser.setFeature('showKerberosPasswordField', false);
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('hides the kerberos password field in the connection form', async function () {

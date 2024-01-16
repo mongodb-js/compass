@@ -199,13 +199,6 @@ export function activateAggregationsPlugin(
     void store.dispatch(refreshInputDocuments());
   };
 
-  /**
-   * Refresh documents on data refresh.
-   */
-  on(localAppRegistry, 'refresh-data', () => {
-    refreshInput();
-  });
-
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
     store.dispatch(generateAggregationFromQuery(data));
   });

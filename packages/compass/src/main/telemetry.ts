@@ -1,4 +1,4 @@
-import Analytics from 'analytics-node';
+import { Analytics } from '@segment/analytics-node';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -19,6 +19,11 @@ const SEGMENT_API_KEY =
 const SEGMENT_HOST =
   process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE ||
   process.env.HADRON_METRICS_SEGMENT_HOST;
+const SEGMENT_MAX_EVENTS_IN_BATCH = process.env
+  .HADRON_METRICS_SEGMENT_MAX_EVENTS_IN_BATCH
+  ? parseInt(process.env.HADRON_METRICS_SEGMENT_MAX_EVENTS_IN_BATCH)
+  : undefined;
+
 const IS_CI =
   process.env.IS_CI || process.env.CI || process.env.EVERGREEN_BUILD_VARIANT;
 const telemetryCapableEnvironment = !!(
@@ -120,8 +125,8 @@ class CompassTelemetry {
     }
   }
 
-  private static _flushTelemetryAndIgnoreFailure() {
-    return this.analytics?.flush().catch(() => Promise.resolve());
+  private static _closeAndFlush() {
+    return this.analytics?.closeAndFlush().catch(() => Promise.resolve());
   }
 
   private static async _init(app: typeof CompassApplication) {
@@ -143,10 +148,14 @@ class CompassTelemetry {
     }
 
     if (telemetryCapableEnvironment) {
-      this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
+      this.analytics = new Analytics({
+        writeKey: SEGMENT_API_KEY,
+        host: SEGMENT_HOST,
+        maxEventsInBatch: SEGMENT_MAX_EVENTS_IN_BATCH,
+      });
 
       app.addExitHandler(async () => {
-        await this._flushTelemetryAndIgnoreFailure();
+        await this._closeAndFlush();
       });
     }
 
@@ -169,7 +178,6 @@ class CompassTelemetry {
           event: 'Telemetry Disabled',
           properties: {},
         });
-        void this._flushTelemetryAndIgnoreFailure();
         this.state = 'disabled';
       }
     };
@@ -185,11 +193,6 @@ class CompassTelemetry {
 
     ipcMain?.respondTo('compass:track', (evt, meta: EventInfo) => {
       (process as EventEmitter).emit('compass:track', meta);
-    });
-
-    // only used in tests
-    ipcMain?.respondTo('compass:usage:flush', () => {
-      void this._flushTelemetryAndIgnoreFailure();
     });
   }
 

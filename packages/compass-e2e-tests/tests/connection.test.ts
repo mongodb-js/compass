@@ -7,9 +7,9 @@ import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -254,16 +254,16 @@ describe('Connection screen', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(function () {
-    return afterTests(compass, this.currentTest);
+    return cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
     await disconnect(browser); // disconnect AFTER potentially taking a screenshot
   });
 
@@ -628,7 +628,7 @@ describe('Connection screen', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
     try {
@@ -640,7 +640,7 @@ describe('SRV connectivity', function () {
       );
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
-      await afterTests(compass);
+      await cleanup(compass);
     }
 
     const { logs } = compass;
@@ -689,7 +689,7 @@ describe('SRV connectivity', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('System CA access', function () {
   it('allows using the system certificate store for connections', async function () {
-    const compass = await beforeTests();
+    const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
     try {
@@ -705,8 +705,8 @@ describe('System CA access', function () {
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     } finally {
-      // make sure the browser gets closed otherwise if this fails the process wont exit
-      await afterTests(compass);
+      // make sure the browser gets closed otherwise if this fails the process won't exit
+      await cleanup(compass);
     }
 
     const { logs } = compass;
@@ -740,12 +740,16 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+  });
+
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   it('can connect using local KMS', async function () {
