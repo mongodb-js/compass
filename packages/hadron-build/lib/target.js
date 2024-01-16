@@ -782,9 +782,7 @@ class Target {
         this.dest(this.app_archive_name)
       );
 
-      return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
-        return sign(this.dest(this.app_archive_name));
-      });
+      return tarGz(this.appPath, this.dest(this.app_archive_name));
     };
 
     this.createInstaller = () => {
