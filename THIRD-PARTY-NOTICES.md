@@ -176,7 +176,7 @@ This document was automatically generated on Tue Jan 16 2024.
 | **[antlr4](#c5ad356fae2f067425b6c90b7251290842a1f2dec296bbd5afd5ccc32dcf3acc)**                                             | 4.7.2        | BSD-3-Clause                        |
 | **[array-flatten](#832052c97b92484a7685d432fbdac9cb8d6cd26a0de715df336780d91762bfc9)**                                      | 1.1.1        | MIT                                 |
 | **[array-next](#2eca7126c828f7c4b047e8bc3982acc390adc906c9e1fd2ab512d7ade811a40d)**                                         | 0.0.1        | MIT                                 |
-| **[asn1](#5363ee1aa0a9a8fd1531804a5ce1572535002c9149fe851f53f26dfecfa36c81)**                                               | 0.2.4        | MIT                                 |
+| **[asn1](#c03a7b8eb9b75e350660b88148698446ab536a4ea01c5f321c14036a86aac2ef)**                                               | 0.2.6        | MIT                                 |
 | **[aws4](#10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573)**                                               | 1.11.0       | MIT                                 |
 | **[balanced-match](#6e49452be6da3ff39a94487487f3deac4037af19d9c97eddf6794b8080252f20)**                                     | 1.0.2        | MIT                                 |
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1        | MIT                                 |
@@ -218,7 +218,7 @@ This document was automatically generated on Tue Jan 16 2024.
 | **[cookie-signature](#28f6116b52488ac66a14424869fc346f611bea6c894e7d0f7f2ca701deb8e49c)**                                   | 1.0.6        | MIT                                 |
 | **[cookie](#9bf3d499045a2314903d567785cc2592bafc25b36c343a6fa843d86c5722ca74)**                                             | 0.5.0        | MIT                                 |
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3       | MIT                                 |
-| **[cpu-features](#8957e32154855b96327732ca511c702dcd9a73f017e3f95ad1631aeafcb8d2c9)**                                       | 0.0.7        | MIT                                 |
+| **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9        | MIT                                 |
 | **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**                                              | 1.0.5        | MIT                                 |
 | **[cross-fetch](#f948e64edfba7772a41d87641b0b5a2f7b23e88f1ae4c62fa9c425b76bd56670)**                                        | 3.1.6        | MIT                                 |
 | **[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**                                        | 7.0.3        | MIT                                 |
@@ -538,7 +538,7 @@ This document was automatically generated on Tue Jan 16 2024.
 | **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**                                         | 0.5.7        | BSD-3-Clause                        |
 | **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**                                    | 3.0.3        | MIT                                 |
 | **[sprintf](#c63a6bebfa83da6f3839f612c84417ced9cf8c00fbd6a4ca387a7e546f569deb)**                                            | 0.1.3        | BSD-3-Clause                        |
-| **[ssh2](#95d9a21dd6ddfaf052cd4ba91d8918f35d938053b60b69991db563aeca141654)**                                               | 1.12.0       | MIT                                 |
+| **[ssh2](#caa88a7f6fedc946b33fe4cdcd84104598cca8b841b593d1ffb031578cd3d8c9)**                                               | 1.15.0       | MIT                                 |
 | **[statuses](#a347e5a1994ef74647a2af80f58030a572f71173d5c1dfc0ce6eb55f4005b17d)**                                           | 2.0.1        | MIT                                 |
 | **[stream-chain](#dbe4594ad347bd2850f84bc41ea7ed1f0bebb82c38b9e7e0f6820d1c071e534c)**                                       | 2.2.5        | BSD-3-Clause                        |
 | **[stream-json](#ff32de703b38cb80287bf73b31ddc47fb97277eadcfb231017f31a06824e41e0)**                                        | 1.7.5        | BSD-3-Clause                        |
@@ -18176,9 +18176,9 @@ License files:
 
 License tags: MIT
 
-<a id="5363ee1aa0a9a8fd1531804a5ce1572535002c9149fe851f53f26dfecfa36c81"></a>
+<a id="c03a7b8eb9b75e350660b88148698446ab536a4ea01c5f321c14036a86aac2ef"></a>
 
-### [asn1](https://www.npmjs.com/package/asn1) (version 0.2.4)
+### [asn1](https://www.npmjs.com/package/asn1) (version 0.2.6)
 
 License tags: MIT
 
@@ -19673,9 +19673,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="8957e32154855b96327732ca511c702dcd9a73f017e3f95ad1631aeafcb8d2c9"></a>
+<a id="fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c"></a>
 
-### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.7)
+### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.9)
 
 License tags: MIT
 
@@ -39265,9 +39265,9 @@ License files:
 
 License tags: BSD-3-Clause
 
-<a id="95d9a21dd6ddfaf052cd4ba91d8918f35d938053b60b69991db563aeca141654"></a>
+<a id="caa88a7f6fedc946b33fe4cdcd84104598cca8b841b593d1ffb031578cd3d8c9"></a>
 
-### [ssh2](https://www.npmjs.com/package/ssh2) (version 1.12.0)
+### [ssh2](https://www.npmjs.com/package/ssh2) (version 1.15.0)
 
 License tags: MIT
 
