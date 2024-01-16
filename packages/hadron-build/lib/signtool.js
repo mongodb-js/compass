@@ -22,14 +22,17 @@ function getSignedFilename(filename) {
 
 /**
  * Currently, windows and macos zip are created from `zip` step
- * of the release process. For linux, we create the archive when
- * creating corresponding deb/rpm file. And here, we sign all of
- * them togther.
+ * of the release process and we sign them here. For linux, we
+ * create and sign the archive when creating corresponding deb/rpm file.
  *
  * @param {import('./Target')} target
  */
 function signArchive(target, cb) {
-  const { app_archive_name } = target;
+  const { app_archive_name, platform } = target;
+  if (platform === 'linux') {
+    debug('linux archive is signed when creating deb/rpm');
+    return cb();
+  }
   sign(app_archive_name).then(cb).catch(cb);
 }
 
