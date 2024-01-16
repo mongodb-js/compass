@@ -69,7 +69,11 @@ export const KeyEditor: React.FunctionComponent<{
   onEditStart,
 }) => {
   const darkMode = useDarkMode();
-  const width = `${Math.max(value.length, 1)}ch`;
+  // On Safari if a text is 5 mono-characters wide and is supposed to overflow /
+  // get ellipse'd only when shorter than that, it would still overflow and get
+  // ellipse'd under normal conditions, for unknown reasons. For that, we add a
+  // small amount to the width to tackle this issue.
+  const width = `${Math.max(value.length, 1)}.5ch`;
 
   return (
     <>
