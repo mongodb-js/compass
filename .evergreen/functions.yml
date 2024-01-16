@@ -319,7 +319,7 @@ functions:
         distro: ubuntu2004-large
         security_group_ids:
           - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
-    # write host info (this file will be read by sigingtool when connection to ssh server)
+    # write host info (this file will be read by signingtool when connection to ssh server)
     - command: host.list
       params:
         num_hosts: 1

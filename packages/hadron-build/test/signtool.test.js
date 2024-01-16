@@ -4,35 +4,51 @@ const { sign, getSignedFilename } = require('../lib/signtool');
 const expect = chai.expect;
 
 describe('hadron-build::signtool', () => {
+  const CURRENT_SIGING_VARS = {
+    GARASIGN_USERNAME: process.env.GARASIGN_USERNAME,
+    GARASIGN_PASSWORD: process.env.GARASIGN_PASSWORD,
+    ARTIFACTORY_USERNAME: process.env.ARTIFACTORY_USERNAME,
+    ARTIFACTORY_PASSWORD: process.env.ARTIFACTORY_PASSWORD,
+  };
+  function setEnvVars(obj) {
+    Object.keys(obj).forEach((key) => {
+      if (obj[key]) {
+        process.env[key] = obj[key];
+      } else {
+        delete process.env[key];
+      }
+    });
+  }
+
   describe('sign', () => {
     let garasign;
     beforeEach(function() {
       garasign = spy();
     });
-    it('does not sign when credentials are not set', async() => {
-      await sign('test/fixtures/foo', garasign);
-      expect(garasign.called).to.be.false;
+    context('when credentials are not set', function() {
+      beforeEach(function() {
+        setEnvVars(Object.fromEntries(Object.keys(CURRENT_SIGING_VARS).map((key) => [key, false])));
+      });
+      afterEach(function() {
+        setEnvVars(CURRENT_SIGING_VARS);
+      });
+      it('does not sign when credentials are not set', async() => {
+        await sign('test/fixtures/foo', garasign);
+        expect(garasign.called).to.be.false;
+      });
     });
 
     context('when credentials are set', function() {
       beforeEach(function() {
-        process.env.GARASIGN_USERNAME = 'username';
-        process.env.GARASIGN_PASSWORD = 'password';
-        process.env.ARTIFACTORY_USERNAME = 'username';
-        process.env.ARTIFACTORY_PASSWORD = 'password';
+        // Set all the signing vars to a defined value
+        setEnvVars(Object.fromEntries(Object.keys(CURRENT_SIGING_VARS).map((key) => [key, key])));
       });
-
       afterEach(function() {
-        [
-          'GARASIGN_USERNAME',
-          'GARASIGN_PASSWORD',
-          'ARTIFACTORY_USERNAME',
-          'ARTIFACTORY_PASSWORD',
-          'EVERGREEN_BUILD_VARIANT'
-        ].forEach((key) => delete process.env[key]);
+        setEnvVars(CURRENT_SIGING_VARS);
       });
 
       it('signs ubuntu artifacts locally using gpg', async() => {
+        const initialPlatform = process.env.EVERGREEN_BUILD_VARIANT;
         process.env.EVERGREEN_BUILD_VARIANT = 'ubuntu';
         await sign('test/fixtures/foo', garasign);
 
@@ -41,9 +57,11 @@ describe('hadron-build::signtool', () => {
           client: 'local',
           signingMethod: 'gpg',
         }]);
+        setEnvVars({EVERGREEN_BUILD_VARIANT: initialPlatform});
       });
 
       it('signs windows exe remotely using jsign', async() => {
+        const initialPlatform = process.env.EVERGREEN_BUILD_VARIANT;
         process.env.EVERGREEN_BUILD_VARIANT = 'windows';
         await sign('test/fixtures/foo.exe', garasign);
 
@@ -57,6 +75,7 @@ describe('hadron-build::signtool', () => {
           privateKey: undefined,
           username: undefined,
         }]);
+        setEnvVars({EVERGREEN_BUILD_VARIANT: initialPlatform});
       });
 
       it('signs windows msi remotely using jsign', async() => {
