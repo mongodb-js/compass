@@ -33,7 +33,7 @@ function signArchive(target, cb) {
     debug('linux archive is signed when creating deb/rpm');
     return cb();
   }
-  sign(app_archive_name).then(cb).catch(cb);
+  sign(target.dest(app_archive_name)).then(cb).catch(cb);
 }
 
 /**
@@ -45,12 +45,12 @@ function signArchive(target, cb) {
  * |----------|--------|--------|----------------|--------------|
  * | macOS    | no     | remote | gpg            | zip          |
  * | ubuntu   | yes    | local  | gpg            | zip, deb     |
- * | rhel     | yes †  | remote | gpg            | zip, rpm     |
+ * | rhel     | yes ‡  | remote | gpg            | zip, rpm     |
  * | windows  | no     | remote | jsign          | msi, exe     |
  * | windows  | no     | remote | gpg            | zip, nupkg   |
  * |----------|--------|--------|----------------|--------------|
  *
- * † On rhel we have docker, but currently we are using rhel7.6
+ * ‡ On rhel we have docker, but currently we are using rhel7.6
  *  for packaging and docker does not support login using --password-stdin
  *
  * @param {string} src
