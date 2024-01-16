@@ -410,3 +410,23 @@ tasks:
           mongodb_version: 'latest-alpha-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+task_groups:
+  - name: start-signing-server-and-package-compass
+    setup_group_can_fail_task: true
+    setup_group:
+      - func: spawn-signing-server
+    tasks:
+      - package-compass
+  - name: start-signing-server-and-package-compass-readonly
+    setup_group_can_fail_task: true
+    setup_group:
+      - func: spawn-signing-server
+    tasks:
+      - package-compass-readonly
+  - name: start-signing-server-and-package-compass-isolated
+    setup_group_can_fail_task: true
+    setup_group:
+      - func: spawn-signing-server
+    tasks:
+      - package-compass-isolated

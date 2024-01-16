@@ -80,6 +80,10 @@ variables:
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
+    GARASIGN_USERNAME: ${garasign_username}
+    GARASIGN_PASSWORD: ${garasign_password}
+    ARTIFACTORY_USERNAME: ${artifactory_username}
+    ARTIFACTORY_PASSWORD: ${artifactory_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -306,6 +310,85 @@ functions:
         # and be able to find the binary that is used for the tests
         file: src/packages/compass/expansions.yml
 
+  spawn-signing-server:
+    # spawn
+    - command: host.create
+      type: setup
+      params:
+        provider: ec2
+        distro: ubuntu2004-large
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    # write host info (this file will be read by sigingtool when connection to ssh server)
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: spawned_hosts.json
+        timeout_seconds: 1200
+        wait: true
+    # copy ssh key (this key will be used to connect to ssh server)
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    # wait for host to be ready
+    - command: shell.exec
+      params:
+        exec_as_string: true
+        shell: bash
+        script: |
+          set -e
+          user=ubuntu
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+          identity_file=$(echo ~/.ssh/mcipacker.pem)
+
+          attempts=0
+          connection_attempts=25
+
+          ## Check for remote connectivity
+          while ! ssh \
+            -i "$identity_file" \
+            -o ConnectTimeout=10 \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s" "$user" "$hostname")" \
+            exit
+          do
+            if [ "$attempts" -ge "$connection_attempts" ]; then
+              echo "SSH connection failed after $connection_attempts attempts. Exiting..."
+              exit 1
+            fi
+            printf "SSH connection attempt %d/%d failed. Retrying...\n" "$((attempts++))" "$connection_attempts"
+            ## sleep for Permission denied (publickey) errors
+            sleep 20
+          done
+          echo "SSH connection established after $attempts attempts"
+    
+          # Write the host info so that it can be used by the signing tool
+          if [[ $OSTYPE == "cygwin" ]]; then
+            identity_file=$(cygpath -wa "$identity_file")
+          else
+            identity_file=$(eval echo "$identity_file")
+          fi
+          cat <<EOL > signing_host_info.yml
+          SIGNING_SERVER_HOSTNAME: $hostname
+          SIGNING_SERVER_PRIVATE_KEY: $identity_file
+          SIGNING_SERVER_USERNAME: $user
+          SIGNING_SERVER_PORT: 22
+          EOL
+    # Update the expansions
+    - command: expansions.update
+      params:
+        file: signing_host_info.yml
+
   package:
     - command: shell.exec
       params:
@@ -316,6 +399,10 @@ functions:
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
+          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
+          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
+          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
         script: |
           set -e
 
@@ -507,8 +594,22 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${windows_zip_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_sign_filename}
+        content_type: application/pgp-signature
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${windows_nupkg_full_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_sign_filename}
+        content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
@@ -533,9 +634,23 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${osx_zip_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_sign_filename}
+        content_type: application/pgp-signature
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${linux_rpm_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_sign_filename}
+        content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
@@ -547,6 +662,13 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${rhel_tar_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_sign_filename}
+        content_type: application/pgp-signature
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
@@ -554,9 +676,23 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${linux_deb_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_sign_filename}
+        content_type: application/pgp-signature
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/packages/compass/dist/${linux_tar_sign_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_sign_filename}
+        content_type: application/pgp-signature
         optional: true
 
   get-all-artifacts:

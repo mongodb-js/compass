@@ -100,50 +100,50 @@ buildvariants:
 
       - name: test-electron
 
-      - name: package-compass
+      - name: start-signing-server-and-package-compass
 
-      - name: package-compass-readonly
+      - name: start-signing-server-and-package-compass-readonly
 
-      - name: package-compass-isolated
+      - name: start-signing-server-and-package-compass-isolated
 
       - name: test-packaged-app-40x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-40x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-42x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-42x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-44x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-44x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-5x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-5x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-latest
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
   - name: rhel
     display_name: RHEL 7.6 (Test and Package)
@@ -155,47 +155,47 @@ buildvariants:
 
       - name: test-electron
 
-      - name: package-compass
+      - name: start-signing-server-and-package-compass
 
-      - name: package-compass-readonly
+      - name: start-signing-server-and-package-compass-readonly
 
-      - name: package-compass-isolated
+      - name: start-signing-server-and-package-compass-isolated
 
       - name: test-packaged-app-40x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-40x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-42x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-42x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-44x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-44x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-5x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-5x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-community
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-enterprise
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
   - name: macos
     display_name: MacOS x64 11.00 (Test and Package)
@@ -208,27 +208,27 @@ buildvariants:
       - name: test-electron
         run_on: macos-1100-gui
 
-      - name: package-compass
+      - name: start-signing-server-and-package-compass
 
-      - name: package-compass-readonly
+      - name: start-signing-server-and-package-compass-readonly
 
-      - name: package-compass-isolated
+      - name: start-signing-server-and-package-compass-isolated
 
       - name: test-packaged-app-60x-community
         run_on: macos-1100-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-enterprise
         run_on: macos-1100-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-community
         run_on: macos-1100-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-enterprise
         run_on: macos-1100-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
   - name: macos-arm
     display_name: MacOS arm64 11.00 (Test and Package)
@@ -241,24 +241,24 @@ buildvariants:
       - name: test-electron
         run_on: macos-1100-arm64-gui
 
-      - name: package-compass
+      - name: start-signing-server-and-package-compass
 
-      - name: package-compass-readonly
+      - name: start-signing-server-and-package-compass-readonly
 
-      - name: package-compass-isolated
+      - name: start-signing-server-and-package-compass-isolated
 
       - name: test-packaged-app-60x-community
         run_on: macos-1100-arm64-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-60x-enterprise
         run_on: macos-1100-arm64-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-community
         run_on: macos-1100-arm64-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass
 
       - name: test-packaged-app-70x-enterprise
         run_on: macos-1100-arm64-gui
-        depends_on: package-compass
+        depends_on: start-signing-server-and-package-compass

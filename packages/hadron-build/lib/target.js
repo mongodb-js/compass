@@ -14,23 +14,10 @@ const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-cod
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
-const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
-const { signtool } = require('./signtool');
+const { sign, getSignedFilename } = require('./signtool');
 const tarGz = require('./tar-gz');
-
-async function signLinuxPackage(src) {
-  debug('Signing ... %s', src);
-  await mongodbNotaryServiceClient(src);
-  debug('Successfully signed %s', src);
-}
-
-async function signWindowsPackage(src) {
-  debug('Signing ... %s', src);
-  await signtool(src);
-  debug('Successfully signed %s', src);
-}
 
 function _canBuildInstaller(ext) {
   var bin = null;
@@ -344,6 +331,11 @@ class Target {
     this.windows_nupkg_full_label =
       this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
+    this.windows_zip_sign_label =
+      this.windows_zip_sign_filename = getSignedFilename(this.windows_zip_filename);
+    this.windows_nupkg_full_sign_label =
+      this.windows_nupkg_full_sign_filename = getSignedFilename(this.windows_nupkg_full_filename);
+
     this.assets = [
       {
         name: this.windows_setup_label,
@@ -361,12 +353,20 @@ class Target {
         downloadCenter: true
       },
       {
+        name: this.windows_zip_sign_label,
+        path: this.dest(this.windows_zip_sign_label),
+      },
+      {
         name: this.windows_releases_label,
         path: this.dest(this.windows_releases_label)
       },
       {
         name: this.windows_nupkg_full_label,
         path: this.dest(this.windows_nupkg_full_label)
+      },
+      {
+        name: this.windows_nupkg_full_sign_label,
+        path: this.dest(this.windows_nupkg_full_sign_label)
       }
     ];
 
@@ -413,8 +413,7 @@ class Target {
 
     this.createInstaller = async() => {
       // sign the main application .exe
-      await signWindowsPackage(
-        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
+      await sign(path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
@@ -453,12 +452,15 @@ class Target {
       await msiCreator.compile();
 
       // sign the MSI
-      await signWindowsPackage(this.dest(this.packagerOptions.name + '.msi'));
+      await sign(this.dest(this.packagerOptions.name + '.msi'));
 
       await fs.promises.rename(
         this.dest(this.packagerOptions.name + '.msi'),
         this.dest(this.windows_msi_label),
       );
+
+      // sign the nupkg
+      await sign(this.dest(this.windows_nupkg_full_filename));
     };
   }
 
@@ -499,6 +501,8 @@ class Target {
       this.osx_dmg_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`;
     this.osx_zip_label =
       this.osx_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
+    this.osx_zip_sign_label =
+      this.osx_zip_sign_filename = getSignedFilename(this.osx_zip_filename);
 
     this.assets = [
       {
@@ -509,6 +513,10 @@ class Target {
       {
         name: this.osx_zip_label,
         path: this.dest(this.osx_zip_label)
+      },
+      {
+        name: this.osx_zip_sign_label,
+        path: this.dest(this.osx_zip_sign_label)
       }
     ];
 
@@ -646,6 +654,9 @@ class Target {
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.linux_deb_sign_filename = getSignedFilename(this.linux_deb_filename);
+    this.linux_tar_sign_filename = getSignedFilename(this.linux_tar_filename);
 
     const rhelVersion = [
       this.semver.major,
@@ -656,8 +667,10 @@ class Target {
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
-    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
+
+    this.linux_rpm_sign_filename = getSignedFilename(this.linux_rpm_filename);
+    this.rhel_tar_sign_filename = getSignedFilename(this.rhel_tar_filename);
 
     this.assets = [
       {
@@ -666,17 +679,33 @@ class Target {
         downloadCenter: true
       },
       {
+        name: this.linux_deb_sign_filename,
+        path: this.dest(this.linux_deb_sign_filename),
+      },
+      {
         name: this.linux_rpm_filename,
         path: this.dest(this.linux_rpm_filename),
         downloadCenter: true
+      },
+      {
+        name: this.linux_rpm_sign_filename,
+        path: this.dest(this.linux_rpm_sign_filename),
       },
       {
         name: this.linux_tar_filename,
         path: this.dest(this.linux_tar_filename)
       },
       {
+        name: this.linux_tar_sign_filename,
+        path: this.dest(this.linux_tar_sign_filename)
+      },
+      {
         name: this.rhel_tar_filename,
         path: this.dest(this.rhel_tar_filename)
+      },
+      {
+        name: this.rhel_tar_sign_filename,
+        path: this.dest(this.rhel_tar_sign_filename)
       }
     ];
 
@@ -731,7 +760,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return signLinuxPackage(this.dest(this.linux_rpm_filename));
+          return sign(this.dest(this.linux_rpm_filename));
         });
       });
     };
@@ -741,12 +770,7 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          // We do not sign debs because it doesn't work, see
-          // this thread for context:
-          //   https://mongodb.slack.com/archives/G2L10JAV7/p1623169331107600
-          //
-          // return sign(this.dest(this.linux_deb_filename));
-          return this.dest(this.linux_deb_filename);
+          return sign(this.dest(this.linux_deb_filename));
         });
       });
     };
