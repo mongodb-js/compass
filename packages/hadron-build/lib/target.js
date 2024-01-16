@@ -18,10 +18,20 @@ const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-c
 const which = require('which');
 const plist = require('plist');
 const { signtool } = require('./signtool');
+const { sign: garasign } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
 
-async function signLinuxPackage(src) {
-  debug('Signing ... %s', src);
+async function signLocallyWithGpg(src) {
+  debug('Signing locally with gpg ... %s', src);
+  await garasign(src, {
+    client: 'local',
+    signingMethod: 'gpg',
+  });
+  debug('Successfully signed %s', src);
+}
+
+async function signRpmPackage(src) {
+  debug('Signing rpm .. %s', src);
   await mongodbNotaryServiceClient(src);
   debug('Successfully signed %s', src);
 }
@@ -646,6 +656,9 @@ class Target {
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
+    this.linux_deb_sign_filename = `${this.linux_deb_filename}.sig`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.linux_tar_sign_filename = `${this.linux_tar_filename}.sig`;
 
     const rhelVersion = [
       this.semver.major,
@@ -656,7 +669,6 @@ class Target {
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
-    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
 
     this.assets = [
@@ -666,6 +678,10 @@ class Target {
         downloadCenter: true
       },
       {
+        name: this.linux_deb_sign_filename,
+        path: this.dest(this.linux_deb_sign_filename),
+      },
+      {
         name: this.linux_rpm_filename,
         path: this.dest(this.linux_rpm_filename),
         downloadCenter: true
@@ -673,6 +689,10 @@ class Target {
       {
         name: this.linux_tar_filename,
         path: this.dest(this.linux_tar_filename)
+      },
+      {
+        name: this.linux_tar_sign_filename,
+        path: this.dest(this.linux_tar_sign_filename)
       },
       {
         name: this.rhel_tar_filename,
@@ -731,7 +751,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return signLinuxPackage(this.dest(this.linux_rpm_filename));
+          return signRpmPackage(this.dest(this.linux_rpm_filename));
         });
       });
     };
@@ -741,12 +761,7 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          // We do not sign debs because it doesn't work, see
-          // this thread for context:
-          //   https://mongodb.slack.com/archives/G2L10JAV7/p1623169331107600
-          //
-          // return sign(this.dest(this.linux_deb_filename));
-          return this.dest(this.linux_deb_filename);
+          return signLocallyWithGpg(this.dest(this.linux_deb_filename));
         });
       });
     };
@@ -758,7 +773,12 @@ class Target {
         this.dest(this.app_archive_name)
       );
 
-      return tarGz(this.appPath, this.dest(this.app_archive_name));
+      return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
+        if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+          return;
+        }
+        return signLocallyWithGpg(this.dest(this.app_archive_name));
+      });
     };
 
     this.createInstaller = () => {
