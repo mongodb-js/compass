@@ -1,25 +1,22 @@
 // eslint-disable-next-line strict
 'use strict';
 const chalk = require('chalk');
-const childProcess = require('child_process');
-const download = require('download');
 const fs = require('fs');
 const _ = require('lodash');
 const semver = require('semver');
 const path = require('path');
-const { promisify } = require('util');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
-const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
 const { signtool } = require('./signtool');
 const { sign: garasign } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
+const { notarize } = require('./notary-service');
 
 async function signLocallyWithGpg(src) {
   debug('Signing locally with gpg ... %s', src);
@@ -564,7 +561,6 @@ class Target {
     };
 
     this.createInstaller = async() => {
-      const appDirectoryName = `${this.productName}.app`;
       const appPath = this.appPath;
 
       {
@@ -582,58 +578,32 @@ class Target {
         await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
       }
 
-      if (process.env.MACOS_NOTARY_KEY &&
-          process.env.MACOS_NOTARY_SECRET &&
-          process.env.MACOS_NOTARY_CLIENT_URL &&
-          process.env.MACOS_NOTARY_API_URL) {
-        debug(`Signing and notarizing "${appPath}"`);
-        // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
-        debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
-        await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
-          extract: true,
-          strip: 1 // remove leading platform + arch directory
-        });
-        await fs.promises.chmod('macnotary/macnotary', 0o755); // ensure +x is set
+      const isNotarizationPossible = process.env.MACOS_NOTARY_KEY &&
+        process.env.MACOS_NOTARY_SECRET &&
+        process.env.MACOS_NOTARY_CLIENT_URL &&
+        process.env.MACOS_NOTARY_API_URL;
 
-        debug(`running "zip -y -r '${appDirectoryName}.zip' '${appDirectoryName}'"`);
-        await execFile('zip', ['-y', '-r', `${appDirectoryName}.zip`, appDirectoryName], {
-          cwd: path.dirname(appPath)
-        });
-        debug(`sending file to notary service (bundle id = ${this.bundleId})`);
-        const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
-          '-t', 'app',
-          '-m', 'notarizeAndSign',
-          '-u', process.env.MACOS_NOTARY_API_URL,
-          '-b', this.bundleId,
-          '-f', `${appDirectoryName}.zip`,
-          '-o', `${appDirectoryName}.signed.zip`,
-          '--verify',
-          ...(this.macosEntitlements ? ['-e', this.macosEntitlements] : [])
-        ], {
-          cwd: path.dirname(appPath),
-          encoding: 'utf8'
-        });
-        debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
-        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
-        debug('removing existing directory contents');
-        await execFile('rm', ['-r', appDirectoryName], {
-          cwd: path.dirname(appPath)
-        });
-        debug(`unzipping with "unzip -u '${appDirectoryName}.signed.zip'"`);
-        await execFile('unzip', ['-u', `${appDirectoryName}.signed.zip`], {
-          cwd: path.dirname(appPath),
-          encoding: 'utf8'
-        });
-        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
-        debug(`removing '${appDirectoryName}.signed.zip' and '${appDirectoryName}.zip'`);
-        await fs.promises.unlink(`${appPath}.signed.zip`);
-        await fs.promises.unlink(`${appPath}.zip`);
+      const notarizationOptions = {
+        bundleId: this.bundleId,
+        macosEntitlements: this.macosEntitlements
+      };
+
+      if (isNotarizationPossible) {
+        await notarize(appPath, notarizationOptions);
       } else {
         console.error(chalk.yellow.bold(
-          'WARNING: macos notary service credentials not set -- skipping signing and notarization!'));
+          'WARNING: macos notary service credentials not set -- skipping signing and notarization of .app!'));
       }
+
       const createDMG = require('electron-installer-dmg');
       await createDMG(this.installerOptions);
+
+      if (isNotarizationPossible) {
+        await notarize(this.installerOptions.dmgPath, notarizationOptions);
+      } else {
+        console.error(chalk.yellow.bold(
+          'WARNING: macos notary service credentials not set -- skipping signing and notarization of .dmg!'));
+      }
     };
   }
 
