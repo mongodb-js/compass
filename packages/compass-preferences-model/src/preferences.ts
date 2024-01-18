@@ -857,6 +857,20 @@ export const allPreferencesProps: Required<{
   ...nonUserPreferences,
 };
 
+export function getDefaultsForAllPreferences() {
+  return Object.fromEntries(
+    Object.entries(allPreferencesProps).map(
+      ([preferenceName, { validator }]) => {
+        return [preferenceName, validator.parse(undefined)];
+      }
+    )
+  ) as {
+    [K in keyof Required<typeof allPreferencesProps>]: z.output<
+      Required<typeof allPreferencesProps>[K]['validator']
+    >;
+  };
+}
+
 export function getSettingDescription<
   Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
 >(

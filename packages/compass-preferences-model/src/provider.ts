@@ -1,18 +1,68 @@
 import { createContext, useContext } from 'react';
-import type { PreferencesAccess } from './';
-import { defaultPreferencesInstance } from '.';
+import type {
+  AllPreferences,
+  PreferenceStateInformation,
+  PreferencesAccess,
+  UserConfigurablePreferences,
+} from './';
+import { getDefaultsForAllPreferences } from './preferences';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
+export class SimplePreferenceService implements PreferencesAccess {
+  private allPreferences: AllPreferences;
+  constructor(preferencesOverrides?: Partial<AllPreferences>) {
+    this.allPreferences = {
+      ...getDefaultsForAllPreferences(),
+      ...preferencesOverrides,
+    };
+  }
+
+  savePreferences() {
+    return Promise.resolve(this.allPreferences);
+  }
+
+  refreshPreferences() {
+    return Promise.resolve(this.allPreferences);
+  }
+
+  getPreferences() {
+    return this.allPreferences;
+  }
+
+  ensureDefaultConfigurableUserPreferences() {
+    return Promise.resolve();
+  }
+
+  getConfigurableUserPreferences() {
+    return Promise.resolve({} as UserConfigurablePreferences);
+  }
+
+  getPreferenceStates() {
+    return Promise.resolve({} as PreferenceStateInformation);
+  }
+
+  onPreferenceValueChanged() {
+    return () => {
+      // noop
+    };
+  }
+
+  createSandbox() {
+    return Promise.resolve(this);
+  }
+}
+
 const PreferencesContext = createContext<PreferencesAccess>(
-  // should be `defaultPreferencesInstance`, only using undefined here
-  // to avoid the circular dependency with index.ts
-  undefined as unknown as PreferencesAccess
+  // Our context starts with our simple preference service but we expect
+  // different runtimes to provide their own service implementation at some
+  // point.
+  new SimplePreferenceService()
 );
 
 export const PreferencesProvider = PreferencesContext.Provider;
 
 export function preferencesLocator(): PreferencesAccess {
-  return useContext(PreferencesContext) ?? defaultPreferencesInstance;
+  return useContext(PreferencesContext);
 }
 export type { PreferencesAccess };
