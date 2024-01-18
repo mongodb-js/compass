@@ -1,3 +1,5 @@
+// eslint-disable-next-line strict
+'use strict';
 const download = require('download');
 const path = require('path');
 const { promises: fs } = require('fs');
@@ -45,11 +47,14 @@ async function notarize(src, notarizeOptions) {
   const unsignedArchive = `${fileName}.zip`;
   const signedArchive = `${fileName}.signed.zip`;
 
+  const execOpts = {
+    cwd: path.dirname(src),
+    encoding: 'utf8',
+  };
+
   // Step:1 - zip up the file/folder to unsignedArchive
   debug(`running "zip -y -r '${unsignedArchive}' '${fileName}'"`);
-  await execFile('zip', ['-y', '-r', unsignedArchive, fileName], {
-    cwd: path.dirname(src)
-  });
+  await execFile('zip', ['-y', '-r', unsignedArchive, fileName], execOpts);
 
   try {
     // Step:2 - send the zip to notary service and save the result to signedArchive
@@ -63,30 +68,20 @@ async function notarize(src, notarizeOptions) {
       '-o', signedArchive,
       '--verify',
       ...(notarizeOptions.macosEntitlements ? ['-e', notarizeOptions.macosEntitlements] : [])
-    ], {
-      cwd: path.dirname(src),
-      encoding: 'utf8'
-    });
+    ], execOpts);
     debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
-    debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
+    debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
 
     // Step:3 - remove existing src, unzip signedArchive to src
     debug('removing existing directory contents');
-    await execFile('rm', ['-r', fileName], {
-      cwd: path.dirname(src)
-    });
+    await execFile('rm', ['-r', fileName], execOpts);
     debug(`unzipping with "unzip -u ${signedArchive}"`);
-    await execFile('unzip', ['-u', signedArchive], {
-      cwd: path.dirname(src),
-      encoding: 'utf8'
-    });
+    await execFile('unzip', ['-u', signedArchive], execOpts);
   } finally {
     // cleanup - remove signedArchive and unsignedArchive
-    debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
+    debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
     debug(`removing ${signedArchive} and ${unsignedArchive}`);
-    await execFile('rm', ['-r', signedArchive, unsignedArchive], {
-      cwd: path.dirname(src),
-    }).catch(err => {
+    await execFile('rm', ['-r', signedArchive, unsignedArchive], execOpts).catch(err => {
       debug('error cleaning up', err);
     });
   }
