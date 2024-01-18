@@ -65,38 +65,21 @@ async function sign(src, garasign = _garasign) {
     return;
   }
 
-  const remoteServerOptions = {
+  const clientOptions = variant === 'ubuntu' ? {
+    client: 'local'
+  } : {
+    client: 'remote',
     host: process.env.SIGNING_SERVER_HOSTNAME,
     username: process.env.SIGNING_SERVER_USERNAME,
     port: process.env.SIGNING_SERVER_PORT,
     privateKey: process.env.SIGNING_SERVER_PRIVATE_KEY,
   };
 
-  if (variant === 'ubuntu') {
-    debug('Signing options', { client: 'local', signingMethod: 'gpg' });
-    return await garasign(src, {
-      client: 'local',
-      signingMethod: 'gpg',
-    });
-  }
+  const signingMethod = path.extname(src) === '.exe' || path.extname(src) === '.msi' ? 'jsign' : 'gpg';
 
-  if (
-    variant === 'windows' &&
-    (path.extname(src) === '.exe' || path.extname(src) === '.msi')
-  ) {
-    debug('Signing options', { client: 'remote', signingMethod: 'jsign' });
-    return await garasign(src, {
-      ...remoteServerOptions,
-      client: 'remote',
-      signingMethod: 'jsign',
-    });
-  }
-
-  debug('Signing options', { client: 'remote', signingMethod: 'gpg' });
   return await garasign(src, {
-    ...remoteServerOptions,
-    client: 'remote',
-    signingMethod: 'gpg',
+    ...clientOptions,
+    signingMethod,
   });
 }
 
