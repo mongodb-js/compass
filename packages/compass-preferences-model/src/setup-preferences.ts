@@ -112,7 +112,7 @@ const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
       preferences()?.onPreferencesChanged?.(
         (preferences: Partial<AllPreferences>) => {
           if (Object.keys(preferences).includes(preferenceName)) {
-            return callback(preferences[preferenceName]);
+            return callback((preferences as AllPreferences)[preferenceName]);
           }
         }
       ) ??
