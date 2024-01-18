@@ -37,50 +37,31 @@ function signArchive(target, cb) {
 }
 
 /**
- *
- * For signing a file, we have following options with the current CI setup:
- *
- * |----------|--------|--------|----------------|--------------|
- * | platform | docker | client | signing method | filetype     |
- * |----------|--------|--------|----------------|--------------|
- * | macOS    | no     | remote | gpg            | zip          |
- * | ubuntu   | yes    | local  | gpg            | zip, deb     |
- * | rhel     | yes ‡  | remote | gpg            | zip, rpm     |
- * | windows  | no     | remote | jsign          | msi, exe     |
- * | windows  | no     | remote | gpg            | zip, nupkg   |
- * |----------|--------|--------|----------------|--------------|
- *
- * ‡ On rhel we have docker, but currently we are using rhel7.6
- *  for packaging and docker does not support login using --password-stdin
+ * We are signing the file using `gpg` or `jsign` depending on the
+ * file extension. If the extension is `.exe` or `.msi`, we use `jsign`
+ * otherwise we use `gpg`.
  *
  * @param {string} src
  * @returns {Promise<void>}
  */
 async function sign(src, garasign = _garasign) {
-  const variant = process.env.EVERGREEN_BUILD_VARIANT;
-  debug('Signing on %s ... %s', variant, src);
+  debug('Signing %s ...', src);
 
   if (!canSign()) {
     debug('Skipping signing. Missing credentials.');
     return;
   }
 
-  const clientOptions = variant === 'ubuntu' ? {
-    client: 'local'
-  } : {
+  const clientOptions = {
     client: 'remote',
     host: process.env.SIGNING_SERVER_HOSTNAME,
     username: process.env.SIGNING_SERVER_USERNAME,
     port: process.env.SIGNING_SERVER_PORT,
     privateKey: process.env.SIGNING_SERVER_PRIVATE_KEY,
+    signingMethod: path.extname(src) === '.exe' || path.extname(src) === '.msi' ? 'jsign' : 'gpg'
   };
 
-  const signingMethod = path.extname(src) === '.exe' || path.extname(src) === '.msi' ? 'jsign' : 'gpg';
-
-  return await garasign(src, {
-    ...clientOptions,
-    signingMethod,
-  });
+  return await garasign(src, clientOptions);
 }
 
 module.exports = { sign, signArchive, getSignedFilename };

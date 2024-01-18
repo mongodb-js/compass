@@ -105,6 +105,7 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
+      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -124,6 +125,7 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-readonly
+      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
@@ -133,65 +135,6 @@ tasks:
           compass_distribution: compass-readonly
 
   - name: package-compass-isolated
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass-isolated
-      - func: save-all-artifacts
-        vars:
-          compass_distribution: compass-isolated
-
-  - name: start-signing-server-and-package-compass
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: spawn-signing-server
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass
-      - func: save-all-artifacts
-        vars:
-          compass_distribution: compass
-
-  - name: start-signing-server-and-package-compass-readonly
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-      - func: spawn-signing-server
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass-readonly
-      - func: save-all-artifacts
-        vars:
-          compass_distribution: compass-readonly
-
-  - name: start-signing-server-and-package-compass-isolated
     tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare

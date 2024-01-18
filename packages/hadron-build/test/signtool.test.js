@@ -47,19 +47,6 @@ describe('hadron-build::signtool', () => {
         setEnvVars(CURRENT_SIGING_VARS);
       });
 
-      it('signs ubuntu artifacts locally using gpg', async() => {
-        const initialPlatform = process.env.EVERGREEN_BUILD_VARIANT;
-        process.env.EVERGREEN_BUILD_VARIANT = 'ubuntu';
-        await sign('test/fixtures/foo', garasign);
-
-        expect(garasign.calledOnce).to.be.true;
-        expect(garasign.firstCall.args).to.deep.equal(['test/fixtures/foo', {
-          client: 'local',
-          signingMethod: 'gpg',
-        }]);
-        setEnvVars({EVERGREEN_BUILD_VARIANT: initialPlatform});
-      });
-
       it('signs windows exe remotely using jsign', async() => {
         const initialPlatform = process.env.EVERGREEN_BUILD_VARIANT;
         process.env.EVERGREEN_BUILD_VARIANT = 'windows';
