@@ -1,7 +1,7 @@
 const download = require('download');
 const path = require('path');
 const { promises: fs } = require('fs');
-const debug = require('debug')('hadron-build:target');
+const debug = require('debug')('hadron-build:macos-notarization');
 const { promisify } = require('util');
 const childProcess = require('child_process');
 const execFile = promisify(childProcess.execFile);
@@ -9,7 +9,9 @@ const execFile = promisify(childProcess.execFile);
 async function setupMacosNotary() {
   try {
     await fs.access('macnotary/macnotary');
+    debug('macnotary already downloaded');
   } catch (err) {
+    debug('downloading macnotary');
     await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
       extract: true,
       strip: 1 // remove leading platform + arch directory
@@ -49,39 +51,46 @@ async function notarize(src, notarizeOptions) {
     cwd: path.dirname(src)
   });
 
-  // Step:2 - send the zip to notary service and save the result to signedArchive
-  debug(`sending file to notary service (bundle id = ${notarizeOptions.bundleId})`);
-  const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
-    '-t', 'app',
-    '-m', 'notarizeAndSign',
-    '-u', process.env.MACOS_NOTARY_API_URL,
-    '-b', notarizeOptions.bundleId,
-    '-f', unsignedArchive,
-    '-o', signedArchive,
-    '--verify',
-    ...(notarizeOptions.macosEntitlements ? ['-e', notarizeOptions.macosEntitlements] : [])
-  ], {
-    cwd: path.dirname(src),
-    encoding: 'utf8'
-  });
-  debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
-  debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
+  try {
+    // Step:2 - send the zip to notary service and save the result to signedArchive
+    debug(`sending file to notary service (bundle id = ${notarizeOptions.bundleId})`);
+    const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
+      '-t', 'app',
+      '-m', 'notarizeAndSign',
+      '-u', process.env.MACOS_NOTARY_API_URL,
+      '-b', notarizeOptions.bundleId,
+      '-f', unsignedArchive,
+      '-o', signedArchive,
+      '--verify',
+      ...(notarizeOptions.macosEntitlements ? ['-e', notarizeOptions.macosEntitlements] : [])
+    ], {
+      cwd: path.dirname(src),
+      encoding: 'utf8'
+    });
+    debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
+    debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
 
-  // Step:3 - clean up. remove existing src, unzip signedArchive to src, remove signedArchive and unsignedArchive
-  debug('removing existing directory contents');
-  await execFile('rm', ['-r', fileName], {
-    cwd: path.dirname(src)
-  });
-  debug(`unzipping with "unzip -u ${signedArchive}"`);
-  await execFile('unzip', ['-u', signedArchive], {
-    cwd: path.dirname(src),
-    encoding: 'utf8'
-  });
-  debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
-  debug(`removing ${signedArchive} and ${unsignedArchive}`);
-  await execFile('rm', ['-r', signedArchive, unsignedArchive], {
-    cwd: path.dirname(src)
-  });
+    // Step:3 - remove existing src, unzip signedArchive to src
+    debug('removing existing directory contents');
+    await execFile('rm', ['-r', fileName], {
+      cwd: path.dirname(src)
+    });
+    debug(`unzipping with "unzip -u ${signedArchive}"`);
+    await execFile('unzip', ['-u', signedArchive], {
+      cwd: path.dirname(src),
+      encoding: 'utf8'
+    });
+  } finally {
+    // cleanup - remove signedArchive and unsignedArchive
+    debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(src), encoding: 'utf8' })).stdout);
+    debug(`removing ${signedArchive} and ${unsignedArchive}`);
+    await execFile('rm', ['-r', signedArchive, unsignedArchive], {
+      cwd: path.dirname(src),
+    }).catch(err => {
+      debug('error cleaning up', err);
+    });
+  }
+
 }
 
 module.exports = { notarize };

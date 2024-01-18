@@ -16,7 +16,7 @@ const plist = require('plist');
 const { signtool } = require('./signtool');
 const { sign: garasign } = require('@mongodb-js/signing-utils');
 const tarGz = require('./tar-gz');
-const { notarize } = require('./notary-service');
+const { notarize } = require('./mac-notary-service');
 
 async function signLocallyWithGpg(src) {
   debug('Signing locally with gpg ... %s', src);
