@@ -4,6 +4,7 @@ import {
   type FeatureFlags,
   featureFlags,
 } from './feature-flags';
+import { parseRecord } from './parse-record';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
