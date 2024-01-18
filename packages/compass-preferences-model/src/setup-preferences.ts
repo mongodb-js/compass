@@ -5,8 +5,8 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
-  PreferenceSandboxProperties,
-} from './preferences';
+} from './preferences-schema';
+import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import type { PreferencesAccess } from '.';
@@ -112,7 +112,7 @@ const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
       preferences()?.onPreferencesChanged?.(
         (preferences: Partial<AllPreferences>) => {
           if (Object.keys(preferences).includes(preferenceName)) {
-            return callback((preferences as AllPreferences)[preferenceName]);
+            return callback(preferences[preferenceName]);
           }
         }
       ) ??

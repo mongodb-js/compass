@@ -5,7 +5,7 @@ import type {
   PreferencesAccess,
   UserConfigurablePreferences,
 } from './';
-import { getDefaultsForAllPreferences } from './preferences';
+import { getDefaultsForAllPreferences } from './preferences-schema';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
