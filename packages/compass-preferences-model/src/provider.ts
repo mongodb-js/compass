@@ -9,7 +9,7 @@ import { getDefaultsForAllPreferences } from './preferences-schema';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
-export class SimplePreferenceService implements PreferencesAccess {
+export class ReadOnlyPreferenceService implements PreferencesAccess {
   private allPreferences: AllPreferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
     this.allPreferences = {
@@ -49,7 +49,7 @@ export class SimplePreferenceService implements PreferencesAccess {
   }
 
   createSandbox() {
-    return Promise.resolve(this);
+    return Promise.reject('Method not supported');
   }
 }
 
@@ -57,7 +57,7 @@ const PreferencesContext = createContext<PreferencesAccess>(
   // Our context starts with our simple preference service but we expect
   // different runtimes to provide their own service implementation at some
   // point.
-  new SimplePreferenceService()
+  new ReadOnlyPreferenceService()
 );
 
 export const PreferencesProvider = PreferencesContext.Provider;
