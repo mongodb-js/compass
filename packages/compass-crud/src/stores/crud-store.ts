@@ -234,31 +234,6 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
 const COUNT_MAX_TIME_MS_CAP = 5000;
 
 /**
- * Set the data provider.
- *
- * @param {Store} store - The store.
- * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
- */
-export const setDataProvider = (
-  store: CrudStoreImpl,
-  error: Error | null | undefined,
-  provider: DataService
-) => {
-  store.setDataService(error, provider);
-};
-
-/**
- * Set the isReadonly flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isReadonly - If the collection is readonly.
- */
-export const setIsReadonly = (store: CrudStoreImpl, isReadonly: boolean) => {
-  store.onReadonlyChanged(isReadonly);
-};
-
-/**
  * Set the isEditable flag in the store.
  *
  * @param {Store} store - The store.
@@ -269,30 +244,7 @@ export const setIsEditable = (store: CrudStoreImpl, hasProjection: boolean) => {
     isReadonly: store.state.isReadonly,
     hasProjection,
   });
-  store.onIsEditableChanged(isEditable);
-};
-
-/**
- * Set the isTimeSeries flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
- */
-export const setIsTimeSeries = (
-  store: CrudStoreImpl,
-  isTimeSeries: boolean
-) => {
-  store.onTimeSeriesChanged(isTimeSeries);
-};
-
-/**
- * Set the namespace in the store.
- *
- * @param {Store} store - The store.
- * @param {String} ns - The namespace in "db.collection" format.
- */
-export const setNamespace = (store: CrudStoreImpl, ns: string) => {
-  store.onCollectionChanged(ns);
+  store.setState({ isEditable });
 };
 
 /**
@@ -442,11 +394,13 @@ class CrudStoreImpl
   favoriteQueriesStorage: FavoriteQueryStorage;
   recentQueriesStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
+  instance: MongoDBInstance;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
     services: Pick<
       DocumentsPluginServices,
+      | 'instance'
       | 'dataService'
       | 'localAppRegistry'
       | 'globalAppRegistry'
@@ -465,41 +419,51 @@ class CrudStoreImpl
     this.globalAppRegistry = services.globalAppRegistry;
     this.preferences = services.preferences;
     this.logger = services.logger;
+    this.instance = services.instance;
   }
 
   getInitialState(): CrudState {
+    const queryState = this.getInitialQueryState();
+    const isDataLake = !!this.instance.dataLake.isDataLake;
+    const isReadonly = !!this.options.isReadonly;
+
     return {
-      ns: '',
-      collection: '',
+      ns: this.options.namespace,
+      collection: toNS(this.options.namespace).collection,
       abortController: null,
       error: null,
       docs: [],
       start: 0,
-      version: '3.4.0',
+      version: this.instance.build.version,
       end: 0,
       page: 0,
-      isEditable: true,
+      isEditable: isListEditable({
+        isDataLake,
+        isReadonly,
+        hasProjection: this.hasProjection(queryState),
+      }),
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
       bulkDelete: this.getInitialBulkDeleteState(),
       table: this.getInitialTableState(),
-      query: this.getInitialQueryState(),
-      isDataLake: false,
-      isReadonly: false,
-      isTimeSeries: false,
+      query: queryState,
+      isDataLake,
+      isReadonly,
+      isTimeSeries: !!this.options.isTimeSeries,
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
       outdated: false,
       shardKeys: null,
       resultId: resultId(),
-      isWritable: false,
-      instanceDescription: '',
+      isWritable: this.instance.isWritable,
+      instanceDescription: this.instance.description,
       isCollectionScan: false,
-      isSearchIndexesSupported: false,
-      isUpdatePreviewSupported: false,
+      isSearchIndexesSupported: this.options.isSearchIndexesSupported,
+      isUpdatePreviewSupported:
+        this.instance.topologyDescription.type !== 'Single',
     };
   }
 
@@ -580,65 +544,6 @@ class CrudStoreImpl
    */
   modeForTelemetry() {
     return this.state.view.toLowerCase();
-  }
-
-  /**
-   * Set if the collection is readonly.
-   *
-   * @param {Boolean} isReadonly - If the collection is readonly.
-   */
-  onReadonlyChanged(isReadonly: boolean) {
-    this.setState({ isReadonly });
-  }
-
-  /**
-   * Set if the connection supports search index management.
-   */
-  setIsSearchIndexesSupported(isSearchIndexesSupported: boolean) {
-    this.setState({ isSearchIndexesSupported });
-  }
-
-  /**
-   * Set if the collection is readonly.
-   *
-   * @param {Boolean} isEditable - If Compass is readonly
-   */
-  onIsEditableChanged(isEditable: boolean) {
-    this.setState({ isEditable });
-  }
-
-  /**
-   * Set if the collection is a time-series collection.
-   *
-   * @param {Boolean} isTimeSeries - If the collection is time-series.
-   */
-  onTimeSeriesChanged(isTimeSeries: boolean) {
-    this.setState({ isTimeSeries });
-  }
-
-  /**
-   * Plugin lifecycle method that is called when the namespace changes in
-   * Compass. Trigger with new namespace and cleared path/types.
-   *
-   * @param {String} ns - The new namespace.
-   */
-  onCollectionChanged(ns: string) {
-    // If the existing collection's bulk update operations are still in progress
-    // they will complete after we reset the state and change it for the
-    // previous collection
-    if (this.state.bulkUpdate.previewAbortController) {
-      this.state.bulkUpdate.previewAbortController.abort();
-    }
-
-    const nsobj = toNS(ns);
-    this.setState({
-      ns: ns,
-      collection: nsobj.collection,
-      table: this.getInitialTableState(),
-      query: this.getInitialQueryState(),
-      bulkUpdate: this.getInitialBulkUpdateState(),
-      bulkDelete: this.getInitialBulkDeleteState(),
-    });
   }
 
   /**
@@ -1578,8 +1483,6 @@ class CrudStoreImpl
    * @param {String} view - The new view.
    */
   viewChanged(view: CrudState['view']) {
-    this.globalAppRegistry.emit('document-view-changed', view);
-    this.localAppRegistry.emit('document-view-changed', view);
     this.setState({ view: view });
   }
 
@@ -1885,18 +1788,6 @@ class CrudStoreImpl
     return !!(query.project && Object.keys(query.project).length > 0);
   }
 
-  /**
-   * Set the data service on the store.
-   *
-   * @param {Error} error - The error connecting.
-   * @param {DataService} dataService - The data service.
-   */
-  setDataService(error: Error | undefined | null, dataService: DataService) {
-    if (!error) {
-      this.dataService = dataService;
-    }
-  }
-
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal');
   }
@@ -2069,6 +1960,7 @@ export function activateDocumentsPlugin(
     new CrudStoreImpl(
       { ...options, actions },
       {
+        instance,
         dataService,
         localAppRegistry,
         globalAppRegistry,
@@ -2094,18 +1986,6 @@ export function activateDocumentsPlugin(
     }
   );
 
-  // Set global app registry to get status actions.
-  const instanceState: Partial<CrudState> = {
-    isWritable: instance.isWritable,
-    instanceDescription: instance.description,
-    version: instance.build.version,
-    isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
-  };
-  if (instance.dataLake.isDataLake) {
-    instanceState.isDataLake = true;
-  }
-  store.setState(instanceState);
-
   // these can change later
   on(instance, 'change:isWritable', () => {
     store.setState({ isWritable: instance.isWritable });
@@ -2125,20 +2005,10 @@ export function activateDocumentsPlugin(
     }
   });
 
-  if (options.isReadonly !== null && options.isReadonly !== undefined) {
-    setIsReadonly(store, options.isReadonly);
-  }
-
-  if (options.namespace) {
-    setNamespace(store, options.namespace);
-  }
-
-  if (options.isTimeSeries) {
-    setIsTimeSeries(store, options.isTimeSeries);
-  }
-
   if (!options.noRefreshOnConfigure) {
-    void store.refreshDocuments();
+    queueMicrotask(() => {
+      void store.refreshDocuments();
+    });
   }
 
   if ((options.query as any)?.update) {
@@ -2147,10 +2017,10 @@ export function activateDocumentsPlugin(
       ?.update;
     const updateText = initialUpdate ? toJSString(initialUpdate) : undefined;
 
-    void store.openBulkUpdateModal(updateText);
+    queueMicrotask(() => {
+      void store.openBulkUpdateModal(updateText);
+    });
   }
-
-  store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
 
   const gridStore = configureGridStore({ actions });
   store.gridStore = gridStore;
