@@ -13,8 +13,8 @@ ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
     - '*':
         reason: None Given
-        expires: 2024-02-09T14:01:23.838Z
-        created: 2024-01-10T14:01:23.846Z
+        expires: 2024-07-17T18:27:24.346Z
+        created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AXIOS-6032459:
     - '*':
         reason: Not applicable to axios usage inside node-analytics package
