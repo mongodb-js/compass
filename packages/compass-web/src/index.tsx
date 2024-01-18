@@ -108,15 +108,17 @@ const CompassWeb = ({
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
-  const preferencesAccess = new SimplePreferenceService({
-    maxTimeMS: 10_000,
-    enableExplainPlan: true,
-    enableAggregationBuilderRunPipeline: true,
-    enableAggregationBuilderExtraOptions: true,
-    enableImportExport: false,
-    enableSavedAggregationsQueries: false,
-    ...initialPreferences,
-  });
+  const preferencesAccess = useRef(
+    new SimplePreferenceService({
+      maxTimeMS: 10_000,
+      enableExplainPlan: true,
+      enableAggregationBuilderRunPipeline: true,
+      enableAggregationBuilderExtraOptions: true,
+      enableImportExport: false,
+      enableSavedAggregationsQueries: false,
+      ...initialPreferences,
+    })
+  );
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
   const dataService = useRef<DataService>();
@@ -160,7 +162,7 @@ const CompassWeb = ({
 
   return (
     <CompassComponentsProvider darkMode={darkMode}>
-      <PreferencesProvider value={preferencesAccess}>
+      <PreferencesProvider value={preferencesAccess.current}>
         <AppRegistryProvider>
           <DataServiceProvider value={dataService.current}>
             <CompassInstanceStorePlugin>
