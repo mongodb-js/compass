@@ -233,6 +233,7 @@ export const RenameCollectionModalErrorBanner =
 export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-label="Close modal"]`;
 
 // Database-Collection Sidebar
+export const Sidebar = '[data-testid="navigation-sidebar"]';
 export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
 export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;

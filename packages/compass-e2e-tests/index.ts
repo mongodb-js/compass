@@ -21,6 +21,7 @@ import ResultLogger from './helpers/result-logger';
 const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
+  '--test-compass-web',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',
@@ -61,6 +62,7 @@ function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
+  debug('Getting mongodb server info');
   updateMongoDBServerInfo();
 }
 
@@ -103,13 +105,24 @@ function cleanup() {
 async function main() {
   setup();
 
-  const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
+
+  // These are mutually exclusive since compass-web is always going to browse to
+  // the running webserver.
+  const shouldTestPackagedApp =
+    process.argv.includes('--test-packaged-app') && !shouldTestCompassWeb;
+
   // Skip this step if you are running tests consecutively and don't need to
-  // rebuild modules all the time
-  const noNativeModules = process.argv.includes('--no-native-modules');
+  // rebuild modules all the time. Also no need to ever recompile when testing
+  // compass-web.
+  const noNativeModules =
+    process.argv.includes('--no-native-modules') || shouldTestCompassWeb;
+
   // Skip this step if you want to run tests against your own compilation (e.g,
-  // a dev build or a build running in watch mode that autorecompiles)
-  const noCompile = process.argv.includes('--no-compile');
+  // a dev build or a build running in watch mode that autorecompiles). Also no
+  // need to recompile when testing compass-web.
+  const noCompile =
+    process.argv.includes('--no-compile') || shouldTestCompassWeb;
 
   if (shouldTestPackagedApp) {
     process.env.TEST_PACKAGED_APP = '1';

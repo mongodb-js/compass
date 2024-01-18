@@ -1,3 +1,4 @@
+import { TEST_COMPASS_WEB } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -8,13 +9,18 @@ export async function waitForConnectionResult(
 ): Promise<undefined | string> {
   let selector: string;
   if (connectionStatus === 'either') {
+    // TODO: compass-web
     // For the rare cases where we don't care whether it fails or succeeds
     selector = `${Selectors.DatabasesTable},${Selectors.ConnectionFormErrorMessage}`;
   } else if (connectionStatus === 'success') {
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
-    selector = Selectors.MyQueriesList;
+    // TODO: the web selector might actually work for both cases
+    selector = TEST_COMPASS_WEB
+      ? '[data-testid="workspace-tab-button"][title=Databases]'
+      : Selectors.MyQueriesList;
   } else {
+    // TODO: compass-web
     selector = Selectors.ConnectionFormErrorMessage;
   }
   const element = await browser.$(selector);

@@ -1,6 +1,11 @@
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
@@ -15,6 +20,9 @@ describe('Collection schema tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -26,6 +34,10 @@ describe('Collection schema tab', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
   });
 

@@ -47,6 +47,9 @@ let MONGODB_VERSION = '';
 let MONGODB_USE_ENTERPRISE =
   (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
 
+// should we test compass-web (true) or compass electron (false)?
+export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
@@ -494,6 +497,7 @@ async function startCompassElectron(
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
+  // TODO: also do this for compass-web
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
   if (defaultUserDataDir && opts.firstRun) {
@@ -509,6 +513,7 @@ async function startCompassElectron(
     needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
   }
 
+  // TODO: also do this for compass-web
   // Calculate the userDataDir once so it will be the same between runs. That
   // way we can test first run vs second run experience.
   if (!defaultUserDataDir) {
@@ -523,11 +528,13 @@ async function startCompassElectron(
   );
   const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
+  // TODO: also do this for compass-web
   // Ensure that the user data dir exists
   await fs.mkdir(defaultUserDataDir, { recursive: true });
 
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
+  // TODO: also do this for compass-web
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
@@ -585,12 +592,14 @@ async function startCompassElectron(
     return [...this];
   };
 
+  // TODO: also for compass-web
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
     logLevel: 'info' as const,
     outputDir: webdriverLogPath,
   };
 
+  // TODO: also for compass-web
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
     // default is 3000ms
@@ -609,13 +618,16 @@ async function startCompassElectron(
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else
   process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  // TODO: we should probably do this for compass-web too
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
+  // TODO: we should probably do this for compass-web too
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
   // we disable the cues completely for the e2e tests
+  // TODO: also for compass-web
   process.env.DISABLE_GUIDE_CUES = 'true';
 
   const options = {
@@ -719,17 +731,24 @@ async function startCompassElectron(
   return compass;
 }
 
-export async function startBrowser(name: string) {
+export async function startBrowser(
+  name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  opts: StartCompassOptions = {}
+) {
   const browser: CompassBrowser = await remote({
     capabilities: { browserName: 'chrome' },
+    // TODO: copy all the relevant config from our electron-based config like wdio timeouts
   });
+  await browser.navigateTo('http://localhost:8080/');
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
 
-  await compass.recordLogs();
+  // TODO: we need to figure out how to do this for compass-web
+  //await compass.recordLogs();
 
   return compass;
 }
@@ -930,14 +949,15 @@ export async function init(
   name?: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  name = pathName(name ?? formattedDate());
+
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = await startCompassElectron(
-    pathName(name ?? formattedDate()),
-    opts
-  );
+  const compass = TEST_COMPASS_WEB
+    ? await startBrowser(name, opts)
+    : await startCompassElectron(name, opts);
 
   const { browser } = compass;
 

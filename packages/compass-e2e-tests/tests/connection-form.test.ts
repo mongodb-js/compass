@@ -2,7 +2,12 @@ import path from 'path';
 import { expect } from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -15,11 +20,19 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
   });
 

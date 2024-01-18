@@ -8,6 +8,7 @@ import {
   screenshotIfFailed,
   outputFilename,
   serverSatisfies,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -150,6 +151,10 @@ describe('Collection aggregations tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -176,6 +181,9 @@ describe('Collection aggregations tab', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
     await cleanup(compass);
   });
 

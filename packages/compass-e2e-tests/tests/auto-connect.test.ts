@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { init, cleanup } from '../helpers/compass';
+import { init, cleanup, TEST_COMPASS_WEB } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
@@ -13,6 +13,12 @@ const connectionStringInvalid = 'http://example.com';
 describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
+
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
 
   beforeEach(async function () {
     tmpdir = path.join(

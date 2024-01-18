@@ -1,5 +1,10 @@
 import { expect } from 'chai';
-import { init, cleanup, runCompassOnce } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  runCompassOnce,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -26,6 +31,12 @@ async function getCheckboxAndBannerState(
 describe('Global preferences', function () {
   let tmpdir: string;
   let i = 0;
+
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
 
   beforeEach(async function () {
     tmpdir = path.join(

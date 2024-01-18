@@ -3,7 +3,12 @@ import chai from 'chai';
 import { promises as fs } from 'fs';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -92,6 +97,10 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -104,6 +113,10 @@ describe('Collection import', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
     await telemetry.stop();
   });
