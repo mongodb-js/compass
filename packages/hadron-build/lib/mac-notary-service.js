@@ -90,7 +90,6 @@ async function notarize(src, notarizeOptions) {
       debug('error cleaning up', err);
     });
   }
-
 }
 
 module.exports = { notarize };
