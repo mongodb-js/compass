@@ -20,6 +20,11 @@ ignore:
         reason: Not applicable to axios usage inside node-analytics package
         expires: 2024-10-30T10:18:43.435Z
         created: 2023-10-30T10:18:43.435Z
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: This is a resource exhaustion vulnerability. The package is only used in our tooling and won't impact anything so we can ignore it.
+        expires: 2024-02-17T17:46:28.517Z
+        created: 2024-01-18T17:46:28.523Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
