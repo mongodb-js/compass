@@ -86,6 +86,7 @@ export type CliOnlyPreferences = {
   version?: boolean;
   help?: boolean;
   showExampleConfig?: boolean;
+  trustedConnectionString?: boolean;
 };
 
 export type NonUserPreferences = {
@@ -787,6 +788,22 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Show Example Config File',
     },
     validator: z.boolean().optional(),
+    type: 'boolean',
+  },
+  /**
+   * Allows the automatic initiation of the connection establishment process
+   * when launching Compass from the command line to indicate that the connection string comes from a trusted source,
+   * even if the provided connection string contains disallowed connection options.
+   */
+  trustedConnectionString: {
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Always allow to Automatically Connect',
+      long: 'Allow automatic connection establishment when launching Compass, even if the provided connection string contains connection options that would not be accepted when coming from an untrusted source',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 };

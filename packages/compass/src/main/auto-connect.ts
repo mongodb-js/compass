@@ -1,9 +1,19 @@
 import type { AllPreferences } from 'compass-preferences-model';
 import type { BrowserWindow } from 'electron';
+import { dialog } from 'electron';
+import { hasDisallowedConnectionStringOptions } from './validate-connection-string';
+import COMPASS_ICON from './icon';
 
-export type AutoConnectPreferences = Pick<
-  AllPreferences,
-  'file' | 'positionalArguments' | 'passphrase' | 'username' | 'password'
+export type AutoConnectPreferences = Partial<
+  Pick<
+    AllPreferences,
+    | 'file'
+    | 'positionalArguments'
+    | 'passphrase'
+    | 'username'
+    | 'password'
+    | 'trustedConnectionString'
+  >
 > & { shouldAutoConnect: boolean };
 
 let autoConnectWindow: BrowserWindow['id'] | undefined = undefined;
@@ -17,6 +27,21 @@ export function resetForTesting(): void {
   browserWindowStates.clear();
 }
 
+async function hasUserConfirmedConnectionAttempt(
+  connectionString: string
+): Promise<boolean> {
+  const answer = await dialog.showMessageBox({
+    type: 'info',
+    title: 'Connect to a MongoDB deployment',
+    icon: COMPASS_ICON,
+    message: 'Are you sure that you want to proceed?',
+    detail: `This MongoDB connection string contains options that are typically not set by default and may present a security risk. Are you sure that you want to connect to this cluster?\n\n${connectionString}`,
+    buttons: ['Connect', 'Cancel'],
+    defaultId: 1,
+  });
+  return answer.response === 0;
+}
+
 export function registerMongoDbUrlForBrowserWindow(
   bw: Pick<BrowserWindow, 'id'> | undefined | null,
   url: string
@@ -27,12 +52,39 @@ export function registerMongoDbUrlForBrowserWindow(
   browserWindowStates.set(bw.id, { url });
 }
 
-export function getWindowAutoConnectPreferences(
+export const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
+
+const shouldPreventAutoConnect = async ({
+  connectionString,
+  trustedConnectionString,
+}: {
+  connectionString?: string;
+  trustedConnectionString?: boolean;
+}) => {
+  if (!connectionString) {
+    return false;
+  }
+
+  const needsConfirm = hasDisallowedConnectionStringOptions(connectionString);
+  if (connectionString && trustedConnectionString === false && needsConfirm) {
+    process.stderr.write(
+      `The "${connectionString}" connection string contains options that are typically not set by default and may present a security risk. You are required to confirm this connection attempt. Set --trustedConnectionString to allow connecting to any connection string without confirmation. Do not use this flag if you do not trust the source of the connection string.\n`
+    );
+  }
+
+  return (
+    !trustedConnectionString &&
+    needsConfirm &&
+    !(await hasUserConfirmedConnectionAttempt(connectionString))
+  );
+};
+
+export async function getWindowAutoConnectPreferences(
   bw: Pick<BrowserWindow, 'id'> | undefined | null,
   preferences: {
     getPreferences(): Omit<AutoConnectPreferences, 'shouldAutoConnect'>;
   }
-): AutoConnectPreferences {
+): Promise<AutoConnectPreferences> {
   if (!bw) {
     return { shouldAutoConnect: false };
   }
@@ -55,18 +107,49 @@ export function getWindowAutoConnectPreferences(
     return { shouldAutoConnect: false };
   }
 
-  if (windowState?.url) {
-    return { positionalArguments: [windowState.url], shouldAutoConnect: true };
+  // Do not auto-connect if open-url contains disallowed options
+  // and the user canceled such connection attempt.
+  if (
+    await shouldPreventAutoConnect({
+      connectionString: windowState?.url,
+    })
+  ) {
+    return { shouldAutoConnect: false };
   }
 
-  const { file, positionalArguments, passphrase, username, password } =
-    preferences.getPreferences();
+  if (windowState?.url) {
+    return Promise.resolve({
+      positionalArguments: [windowState.url],
+      shouldAutoConnect: true,
+    });
+  }
+
+  const {
+    file,
+    positionalArguments,
+    passphrase,
+    username,
+    password,
+    trustedConnectionString,
+  } = preferences.getPreferences();
 
   // The about: accounts for webdriverio in the e2e tests appending the argument for every run
   if (
     !file &&
     (!positionalArguments?.length ||
       positionalArguments?.every((arg) => arg.startsWith('about:')))
+  ) {
+    return { shouldAutoConnect: false };
+  }
+
+  // Do not auto-connect if the connection string from cli contains disallowed options
+  // and the user canceled such connection attempt.
+  if (
+    !file &&
+    (await shouldPreventAutoConnect({
+      connectionString: getConnectionStringFromArgs(positionalArguments),
+      trustedConnectionString: !!trustedConnectionString,
+    }))
   ) {
     return { shouldAutoConnect: false };
   }
