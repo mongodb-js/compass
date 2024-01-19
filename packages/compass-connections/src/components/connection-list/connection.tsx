@@ -299,6 +299,7 @@ function Connection({
         />
         <H3
           className={connectionTitleStyles}
+          as="h3"
           style={{ color: titleColor }}
           data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
           title={connectionTitle}

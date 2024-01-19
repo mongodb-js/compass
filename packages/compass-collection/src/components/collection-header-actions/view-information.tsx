@@ -35,6 +35,7 @@ const ViewInformation: React.FunctionComponent<ViewInformationProps> = ({
   return (
     <Subtitle
       data-testid="collection-view-on"
+      as="h6"
       className={cx(
         collectionHeaderActionsReadonlyStyles,
         darkMode
