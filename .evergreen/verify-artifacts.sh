@@ -2,11 +2,6 @@
 
 set -e
 
-if [ "$IS_WINDOWS" = true ]; then
-  echo "Skipping verification for Windows artifacts: $WINDOWS_ZIP_NAME, $WINDOWS_NUPKG_NAME, $WINDOWS_EXE_NAME, $WINDOWS_MSI_NAME"
-  exit 0
-fi
-
 ARTIFACTS_DIR="packages/compass/dist"
 echo "Verifying artifacts at $ARTIFACTS_DIR"
 ls -l $ARTIFACTS_DIR
@@ -26,6 +21,19 @@ trap_handler() {
 
 
 trap trap_handler ERR EXIT
+
+# For Windows
+if [ "$IS_WINDOWS" = true ]; then
+  echo "Verifying $WINDOWS_EXE_NAME"
+  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_EXE_NAME
+
+  echo "Verifying $WINDOWS_MSI_NAME"
+  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_MSI_NAME
+
+  echo "Skipping verification for Windows artifacts using gpg: $WINDOWS_ZIP_NAME, $WINDOWS_NUPKG_NAME"
+  exit 0
+fi
+
 
 echo "Importing Compass public key"
 curl https://pgp.mongodb.com/compass.asc | gpg --import > "$TMP_FILE" 2>&1
