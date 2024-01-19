@@ -1,21 +1,44 @@
+import type { z } from 'zod';
 import { createContext, useContext } from 'react';
 import type {
   AllPreferences,
-  PreferenceStateInformation,
   PreferencesAccess,
   UserConfigurablePreferences,
 } from './';
-import { getInitialValuesForAllPreferences } from './preferences-schema';
+import {
+  allPreferencesProps,
+  makeComputePreferencesValuesAndStates,
+} from './preferences-schema';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
 export class ReadOnlyPreferenceService implements PreferencesAccess {
   private allPreferences: AllPreferences;
+
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
     this.allPreferences = {
-      ...getInitialValuesForAllPreferences(),
+      ...this.initialPreferenceValuesAndStates.values,
       ...preferencesOverrides,
     };
+  }
+
+  private get initialPreferenceValuesAndStates() {
+    const preferencesDefaults = Object.fromEntries(
+      Object.entries(allPreferencesProps).map(
+        ([preferenceName, { validator }]) => {
+          return [preferenceName, validator.parse(undefined)];
+        }
+      )
+    ) as {
+      [K in keyof Required<typeof allPreferencesProps>]: z.output<
+        Required<typeof allPreferencesProps>[K]['validator']
+      >;
+    };
+
+    const computeValuesAndStates =
+      makeComputePreferencesValuesAndStates(preferencesDefaults);
+
+    return computeValuesAndStates();
   }
 
   savePreferences() {
@@ -27,7 +50,9 @@ export class ReadOnlyPreferenceService implements PreferencesAccess {
   }
 
   getPreferences() {
-    return this.allPreferences;
+    return {
+      ...this.allPreferences,
+    };
   }
 
   ensureDefaultConfigurableUserPreferences() {
@@ -35,11 +60,19 @@ export class ReadOnlyPreferenceService implements PreferencesAccess {
   }
 
   getConfigurableUserPreferences() {
-    return Promise.resolve({} as UserConfigurablePreferences);
+    const preferences = this.getPreferences();
+    return Promise.resolve(
+      Object.fromEntries(
+        Object.entries(preferences).filter(
+          ([key]) =>
+            allPreferencesProps[key as keyof AllPreferences].ui === true
+        )
+      ) as UserConfigurablePreferences
+    );
   }
 
   getPreferenceStates() {
-    return Promise.resolve({} as PreferenceStateInformation);
+    return Promise.resolve(this.initialPreferenceValuesAndStates.states);
   }
 
   onPreferenceValueChanged() {
