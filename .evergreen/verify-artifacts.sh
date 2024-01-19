@@ -25,10 +25,10 @@ trap trap_handler ERR EXIT
 # For Windows
 if [ "$IS_WINDOWS" = true ]; then
   echo "Verifying $WINDOWS_EXE_NAME"
-  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_EXE_NAME
+  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_EXE_NAME > "$TMP_FILE" 2>&1
 
   echo "Verifying $WINDOWS_MSI_NAME"
-  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_MSI_NAME
+  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$WINDOWS_MSI_NAME > "$TMP_FILE" 2>&1
 
   echo "Skipping verification for Windows artifacts using gpg: $WINDOWS_ZIP_NAME, $WINDOWS_NUPKG_NAME"
   exit 0
