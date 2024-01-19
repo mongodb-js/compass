@@ -57,7 +57,7 @@
     "@mongodb-js/compass-user-data": "^0.1.14",
     "@mongodb-js/compass-utils": "^0.5.10",
     "bson": "^6.2.0",
-    "electron": "^28.1.0",
+    "electron": "^28.1.4",
     "hadron-ipc": "^3.2.9",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
