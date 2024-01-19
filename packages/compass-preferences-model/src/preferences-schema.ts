@@ -172,99 +172,6 @@ export type PreferenceStateInformation = Partial<
   Record<keyof AllPreferences, PreferenceState>
 >;
 
-/** Helper for defining how to derive value/state for networkTraffic-affected preferences */
-function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
-  property: K
-): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && v('networkTraffic'),
-    state:
-      s(property) ??
-      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
-  });
-}
-
-/** Helper for defining how to derive value/state for feature-restricting preferences */
-function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
-  property: K
-): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value:
-      v(property) &&
-      v('enableShell') &&
-      !v('maxTimeMS') &&
-      !v('protectConnectionStrings') &&
-      !v('readOnly'),
-    state:
-      s(property) ??
-      (v('protectConnectionStrings')
-        ? s('protectConnectionStrings') ?? 'derived'
-        : undefined) ??
-      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
-      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
-      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
-  });
-}
-
-/** Helper for defining how to derive value/state for readOnly-affected preferences */
-function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
-  property: K
-): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && !v('readOnly'),
-    state:
-      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
-  });
-}
-
-// Helper to convert feature flag definitions to preference definitions
-function featureFlagToPreferenceDefinition(
-  featureFlag: FeatureFlagDefinition
-): PreferenceDefinition<keyof FeatureFlags> {
-  return {
-    cli: true,
-    global: true,
-    ui: true,
-    description: featureFlag.description,
-    // if a feature flag is 'released' it will always return true
-    // regardless of any persisted value.
-    deriveValue:
-      featureFlag.stage === 'released'
-        ? () => ({ value: true, state: 'hardcoded' })
-        : undefined,
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  };
-}
-
-export function getDefaultsForAllPreferences() {
-  return Object.fromEntries(
-    Object.entries(allPreferencesProps).map(
-      ([preferenceName, { validator }]) => {
-        return [preferenceName, validator.parse(undefined)];
-      }
-    )
-  ) as {
-    [K in keyof Required<typeof allPreferencesProps>]: z.output<
-      Required<typeof allPreferencesProps>[K]['validator']
-    >;
-  };
-}
-
-export function getSettingDescription<
-  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
->(
-  name: Name
-): Pick<PreferenceDefinition<Name>, 'description'> & { type: unknown } {
-  const { description, type } = allPreferencesProps[
-    name
-  ] as PreferenceDefinition<Name>;
-  return {
-    description,
-    type,
-  };
-}
-
 // Preference definitions
 const featureFlagsProps: Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -889,3 +796,142 @@ export const allPreferencesProps: Required<{
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
 };
+
+/** Helper for defining how to derive value/state for networkTraffic-affected preferences */
+function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && v('networkTraffic'),
+    state:
+      s(property) ??
+      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+  });
+}
+
+/** Helper for defining how to derive value/state for feature-restricting preferences */
+function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value:
+      v(property) &&
+      v('enableShell') &&
+      !v('maxTimeMS') &&
+      !v('protectConnectionStrings') &&
+      !v('readOnly'),
+    state:
+      s(property) ??
+      (v('protectConnectionStrings')
+        ? s('protectConnectionStrings') ?? 'derived'
+        : undefined) ??
+      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
+      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
+      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
+  });
+}
+
+/** Helper for defining how to derive value/state for readOnly-affected preferences */
+function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && !v('readOnly'),
+    state:
+      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
+  });
+}
+
+// Helper to convert feature flag definitions to preference definitions
+function featureFlagToPreferenceDefinition(
+  featureFlag: FeatureFlagDefinition
+): PreferenceDefinition<keyof FeatureFlags> {
+  return {
+    cli: true,
+    global: true,
+    ui: true,
+    description: featureFlag.description,
+    // if a feature flag is 'released' it will always return true
+    // regardless of any persisted value.
+    deriveValue:
+      featureFlag.stage === 'released'
+        ? () => ({ value: true, state: 'hardcoded' })
+        : undefined,
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  };
+}
+
+export function makeComputePreferencesValuesAndStates(
+  values: AllPreferences,
+  states: Partial<Record<string, PreferenceState>> = {}
+) {
+  return function _computePreferenceValuesAndStates() {
+    const originalValues = { ...values };
+    const originalStates = { ...states };
+
+    function deriveValue<K extends keyof AllPreferences>(
+      key: K
+    ): {
+      value: AllPreferences[K];
+      state: PreferenceState;
+    } {
+      const descriptor = allPreferencesProps[key];
+      if (!descriptor.deriveValue) {
+        return { value: originalValues[key], state: originalStates[key] };
+      }
+      return (descriptor.deriveValue as DeriveValueFunction<AllPreferences[K]>)(
+        // `as unknown` to work around TS bug(?) https://twitter.com/addaleax/status/1572191664252551169
+        (k) =>
+          (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
+        (k) =>
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+      );
+    }
+
+    for (const key of Object.keys(allPreferencesProps)) {
+      // awkward IIFE to make typescript understand that `key` is the *same* key
+      // in each loop iteration
+      (<K extends keyof AllPreferences>(key: K) => {
+        const result = deriveValue(key);
+        values[key] = result.value;
+        if (result.state !== undefined) states[key] = result.state;
+      })(key as keyof AllPreferences);
+    }
+
+    return { values, states };
+  };
+}
+
+export function getInitialValuesForAllPreferences() {
+  const preferencesDefaults = Object.fromEntries(
+    Object.entries(allPreferencesProps).map(
+      ([preferenceName, { validator }]) => {
+        return [preferenceName, validator.parse(undefined)];
+      }
+    )
+  ) as {
+    [K in keyof Required<typeof allPreferencesProps>]: z.output<
+      Required<typeof allPreferencesProps>[K]['validator']
+    >;
+  };
+
+  const computeValuesAndStates =
+    makeComputePreferencesValuesAndStates(preferencesDefaults);
+
+  return computeValuesAndStates().values;
+}
+
+export function getSettingDescription<
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+>(
+  name: Name
+): Pick<PreferenceDefinition<Name>, 'description'> & { type: unknown } {
+  const { description, type } = allPreferencesProps[
+    name
+  ] as PreferenceDefinition<Name>;
+  return {
+    description,
+    type,
+  };
+}

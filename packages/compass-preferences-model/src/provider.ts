@@ -5,7 +5,7 @@ import type {
   PreferencesAccess,
   UserConfigurablePreferences,
 } from './';
-import { getDefaultsForAllPreferences } from './preferences-schema';
+import { getInitialValuesForAllPreferences } from './preferences-schema';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 
@@ -13,7 +13,7 @@ export class ReadOnlyPreferenceService implements PreferencesAccess {
   private allPreferences: AllPreferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
     this.allPreferences = {
-      ...getDefaultsForAllPreferences(),
+      ...getInitialValuesForAllPreferences(),
       ...preferencesOverrides,
     };
   }
