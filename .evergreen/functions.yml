@@ -570,6 +570,29 @@ functions:
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
+  
+  verify-artifacts:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          # These are set in the apply-compass-target-expansion func
+          WINDOWS_EXE_NAME: ${windows_setup_filename}
+          WINDOWS_MSI_NAME: ${windows_msi_filename}
+          WINDOWS_ZIP_NAME: ${windows_zip_filename}
+          WINDOWS_NUPKG_NAME: ${windows_nupkg_full_filename}
+          OSX_DMG_NAME: ${osx_dmg_filename}
+          OSX_ZIP_NAME: ${osx_zip_filename}
+          RHEL_RPM_NAME: ${linux_rpm_filename}
+          RHEL_TAR_NAME: ${rhel_tar_filename}
+          LINUX_DEB_NAME: ${linux_deb_filename}
+          LINUX_TAR_NAME: ${linux_tar_filename}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/verify-artifacts.sh
 
   save-all-artifacts:
     - command: s3.put
