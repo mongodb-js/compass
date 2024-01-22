@@ -66,7 +66,6 @@
     "resolve-mongodb-srv": "^1.1.2",
     "semver": "^7.5.4",
     "ts-node": "^10.9.1",
-    "wait-port": "^1.1.0",
     "webdriverio": "^8.28.8",
     "xvfb-maybe": "^0.2.1"
   }
