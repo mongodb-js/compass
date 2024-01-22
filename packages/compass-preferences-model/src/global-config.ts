@@ -7,7 +7,7 @@ import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
-import type { z } from '@mongodb-js/compass-user-data';
+import type { z } from 'zod';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
