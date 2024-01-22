@@ -1,5 +1,5 @@
-export type { THEMES } from './preferences';
-export { getSettingDescription } from './preferences';
+export type { THEMES } from './preferences-schema';
+export { getSettingDescription } from './preferences-schema';
 export { featureFlags } from './feature-flags';
 
 import type {
@@ -7,8 +7,8 @@ import type {
   UserConfigurablePreferences,
   PreferenceStateInformation,
   AllPreferences,
-  Preferences,
-} from './preferences';
+} from './preferences-schema';
+import type { Preferences } from './preferences';
 export type {
   UserPreferences,
   UserConfigurablePreferences,

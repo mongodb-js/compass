@@ -9,7 +9,7 @@ import {
   UserStorageImpl,
 } from './storage';
 import { expect } from 'chai';
-import { z } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {

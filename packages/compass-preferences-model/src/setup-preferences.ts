@@ -5,8 +5,8 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
-  PreferenceSandboxProperties,
-} from './preferences';
+} from './preferences-schema';
+import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import type { PreferencesAccess } from '.';
