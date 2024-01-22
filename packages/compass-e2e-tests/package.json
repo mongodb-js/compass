@@ -29,7 +29,7 @@
     "server-info": "ts-node ./scripts/server-info.ts"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.4.1",
+    "@electron/rebuild": "^3.5.0",
     "@mongodb-js/compass-test-server": "^0.1.11",
     "@mongodb-js/eslint-config-compass": "^1.0.15",
     "@mongodb-js/oidc-mock-provider": "^0.4.1",
@@ -47,7 +47,7 @@
     "cross-spawn": "^7.0.3",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^28.1.0",
+    "electron": "^28.1.4",
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
     "glob": "^10.2.5",
