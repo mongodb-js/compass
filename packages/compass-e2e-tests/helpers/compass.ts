@@ -366,14 +366,23 @@ export class Compass {
       }
     }
 
+    const copyCompassLog = async () => {
+      const compassLog = await getCompassLog(this.logPath ?? '');
+      const compassLogPath = path.join(
+        LOG_PATH,
+        `compass-log.${this.name}.log`
+      );
+      debug(`Writing Compass application log to ${compassLogPath}`);
+      await fs.writeFile(compassLogPath, compassLog.raw);
+      return compassLog;
+    };
+
+    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+    await copyCompassLog();
     debug('Stopping Compass application');
     await this.browser.deleteSession();
 
-    const compassLog = await getCompassLog(this.logPath ?? '');
-    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
-    debug(`Writing Compass application log to ${compassLogPath}`);
-    await fs.writeFile(compassLogPath, compassLog.raw);
-    this.logs = compassLog.structured;
+    this.logs = (await copyCompassLog()).structured;
   }
 }
 
