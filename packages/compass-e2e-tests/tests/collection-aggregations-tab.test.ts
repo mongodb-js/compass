@@ -1,5 +1,4 @@
 import chai from 'chai';
-import type { Element } from 'webdriverio';
 import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
@@ -29,7 +28,7 @@ const STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY = 'has_seen_stage_wizard_guide_cue';
 
 async function waitForAnyText(
   browser: CompassBrowser,
-  element: Element<'async'>
+  element: WebdriverIO.Element
 ) {
   await browser.waitUntil(async () => {
     const text = await element.getText();
@@ -481,7 +480,7 @@ describe('Collection aggregations tab', function () {
     const confirmDuplicateButton = await browser.$(
       Selectors.DuplicateViewModalConfirmButton
     );
-    confirmDuplicateButton.waitForEnabled();
+    await confirmDuplicateButton.waitForEnabled();
 
     await browser.screenshot('duplicate-view-modal.png');
 

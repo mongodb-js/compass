@@ -10,7 +10,9 @@ export async function getStageOperators(
     Selectors.stageOperatorOptions(index)
   );
   const options: string[] = await Promise.all(
-    stageOperatorOptionsElements.map((element) => element.getText())
+    stageOperatorOptionsElements.map((element) =>
+      element.getText()
+    ) as unknown as Promise<string>[] // TODO
   );
 
   const actualOptions = options.map((option) => option.split('\n')[0]);

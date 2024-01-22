@@ -3,11 +3,11 @@ import * as Selectors from '../selectors';
 
 async function getOutputText(browser: CompassBrowser): Promise<string[]> {
   const elements = await browser.$$(Selectors.ShellOutput);
-  return Promise.all(
-    elements.map((element) => {
-      return element.getText();
-    })
-  );
+  const promises = elements.map(async (element) => {
+    return await element.getText();
+  });
+  const result = await Promise.all(promises as unknown as Promise<string>[]); // TODO: something weird happening
+  return result;
 }
 
 export async function shellEval(

@@ -56,10 +56,10 @@ export async function navigateWithinCurrentCollectionTabs(
     | 'Indexes'
     | 'Validation' = 'Documents'
 ): Promise<void> {
-  const tab = browser.$(Selectors.collectionSubTab(tabName));
-  const selectedTab = browser.$(Selectors.collectionSubTab(tabName, true));
+  const tab = Selectors.collectionSubTab(tabName);
+  const selectedTab = Selectors.collectionSubTab(tabName, true);
 
-  if (await selectedTab.isExisting()) {
+  if (await browser.$(selectedTab).isExisting()) {
     return;
   }
 

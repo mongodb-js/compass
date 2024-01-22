@@ -9,7 +9,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // these tests against real atlas, depending on how we implement that.
     await browser.refresh();
     const element = await browser.$(Selectors.ConnectSection);
-    await element.waitForConnectionScreen();
+    await element.waitForDisplayed();
     return;
   }
 

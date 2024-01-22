@@ -174,7 +174,7 @@ describe('Atlas Login', function () {
         'Expected TOS toggle to be unchecked'
       );
 
-      await browser.clickVisible(acceptTOSToggle);
+      await browser.clickVisible(Selectors.AcceptTOSToggle);
 
       await browser.clickVisible(Selectors.AgreeAndContinueButton);
 
@@ -254,7 +254,7 @@ describe('Atlas Login', function () {
       };
 
       const generateQueryButton = browser.$('button*=Generate query');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate query');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -269,7 +269,7 @@ describe('Atlas Login', function () {
 
     it('should not show AI input if declined TOS', async function () {
       const generateQueryButton = browser.$('button*=Generate query');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate query');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -282,7 +282,7 @@ describe('Atlas Login', function () {
 
     it('should hide AI input if declined TOS after sign in', async function () {
       const generateQueryButton = browser.$('button*=Generate query');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate query');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -311,8 +311,7 @@ describe('Atlas Login', function () {
     });
 
     it('should allow to sign in and accept TOS when clicking AI CTA', async function () {
-      const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate aggregation');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -329,7 +328,7 @@ describe('Atlas Login', function () {
       };
 
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate aggregation');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -344,7 +343,7 @@ describe('Atlas Login', function () {
 
     it('should not show AI input if declined TOS', async function () {
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate aggregation');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -357,7 +356,7 @@ describe('Atlas Login', function () {
 
     it('should hide AI input if declined TOS after sign in', async function () {
       const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
+      await browser.clickVisible('button*=Generate aggregation');
 
       await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
 
@@ -366,7 +365,7 @@ describe('Atlas Login', function () {
       await browser.openSettingsModal('Feature Preview');
 
       const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
-      await browser.clickVisible(acceptTOSToggle);
+      await browser.clickVisible(Selectors.AcceptTOSToggle);
 
       expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
 

@@ -661,7 +661,7 @@ async function startCompassElectron(
   let browser: CompassBrowser;
 
   try {
-    browser = await remote(options);
+    browser = (await remote(options)) as CompassBrowser; // giving up for now..
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
@@ -736,10 +736,12 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
-  const browser: CompassBrowser = await remote({
-    capabilities: { browserName: 'chrome' },
+  const browser: CompassBrowser = (await remote({
+    capabilities: {
+      browserName: 'firefox',
+    },
     // TODO: copy all the relevant config from our electron-based config like wdio timeouts
-  });
+  })) as CompassBrowser;
   await browser.navigateTo('http://localhost:8080/');
   const compass = new Compass(name, browser, {
     mode: 'web',

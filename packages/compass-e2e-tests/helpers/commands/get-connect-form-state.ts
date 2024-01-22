@@ -345,7 +345,7 @@ async function getMultipleValues(
     await Promise.all(
       elements.map((element) => {
         return element.getValue();
-      })
+      }) as unknown as Promise<string>[] // TODO: weirdness
     )
   ).filter((result) => result !== '');
 

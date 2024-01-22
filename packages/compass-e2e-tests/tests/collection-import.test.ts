@@ -654,7 +654,9 @@ describe('Collection import', function () {
     // extract all the type fields and check them
     const fieldNameElements = await browser.$$(Selectors.ImportFieldLabel);
     const fieldNames = await Promise.all(
-      fieldNameElements.map((el) => el.getText())
+      fieldNameElements.map((el) =>
+        el.getText()
+      ) as unknown as Promise<string>[] // TODO
     );
 
     try {
@@ -1224,7 +1226,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
@@ -1295,7 +1297,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();

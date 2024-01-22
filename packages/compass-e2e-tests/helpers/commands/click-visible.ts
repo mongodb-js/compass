@@ -1,5 +1,5 @@
 import type { CompassBrowser } from '../compass-browser';
-import type { ChainablePromiseElement, Element } from 'webdriverio';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 interface ClickOptions {
   scroll?: boolean;
@@ -8,7 +8,7 @@ interface ClickOptions {
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<Promise<Element<'async'>>>,
+  selector: string | ChainablePromiseElement<Promise<WebdriverIO.Element>>,
   options?: ClickOptions
 ): Promise<void> {
   function getElement() {

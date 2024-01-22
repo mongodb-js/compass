@@ -11,7 +11,6 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import type { Element, ElementArray } from 'webdriverio';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
@@ -48,13 +47,13 @@ async function getRecentQueries(
   });
 
   return Promise.all(
-    (queryTags as unknown as ElementArray).map(async (queryTag) => {
+    (queryTags ?? []).map(async (queryTag: WebdriverIO.Element) => {
       const attributeTags = await queryTag.$$(
         '[data-testid="query-history-query-attribute"]'
       );
       const attributes: RecentQuery = {};
       await Promise.all(
-        attributeTags.map(async (attributeTag: Element<'async'>) => {
+        attributeTags.map(async (attributeTag: WebdriverIO.Element) => {
           const labelTag = await attributeTag.$(
             '[data-testid="query-history-query-label"]'
           );
@@ -62,7 +61,7 @@ async function getRecentQueries(
           const key = await labelTag.getText();
           const value = await preTag.getText();
           attributes[key] = value;
-        })
+        }) as unknown as Promise<RecentQuery>[]
       );
       return attributes;
     })
@@ -85,7 +84,10 @@ async function navigateToTab(browser: CompassBrowser, tabName: string) {
   await tabSelectedSelectorElement.waitForDisplayed();
 }
 
-async function waitForJSON(browser: CompassBrowser, element: Element<'async'>) {
+async function waitForJSON(
+  browser: CompassBrowser,
+  element: WebdriverIO.Element
+) {
   // Sometimes the line numbers end up in the text for some reason. Probably
   // because we get the text before the component is properly initialised.
   await browser.waitUntil(async () => {

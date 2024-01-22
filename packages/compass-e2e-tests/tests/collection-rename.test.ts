@@ -242,7 +242,7 @@ describe('Collection Rename Modal', () => {
       const modal = new RenameCollectionModal(browser);
       await modal.isVisible();
 
-      await browser.clickVisible(modal.dismissButton);
+      await modal.dismissButton.click(); // TODO: clickVisible does not exist on an element
       await modal.isNotVisible();
     });
 
@@ -261,7 +261,7 @@ describe('Collection Rename Modal', () => {
 
       await modal.enterNewCollectionName('new-name');
 
-      await browser.clickVisible(modal.dismissButton);
+      await modal.dismissButton.click(); // TODO: clickVisible does not exist on an element
       await modal.isNotVisible();
 
       // re-open the modal
@@ -395,7 +395,7 @@ describe('Collection Rename Modal', () => {
 
       const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
       await browser.debug();
-      await button.clickVisible();
+      await button.click(); // TODO: clickVisible() does not exist on an element
 
       await browser.$(Selectors.QueryHistoryFavoriteItem).waitForDisplayed();
 

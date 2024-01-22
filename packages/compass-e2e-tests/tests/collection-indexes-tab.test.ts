@@ -132,9 +132,7 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed();
 
       // Select i filed name from Combobox.
-      const fieldNameSelect = await browser.$(
-        Selectors.createIndexModalFieldNameSelectInput(0)
-      );
+      const fieldNameSelect = Selectors.createIndexModalFieldNameSelectInput(0);
 
       await browser.setValueVisible(fieldNameSelect, '$**');
       await browser.keys(['Enter']);
