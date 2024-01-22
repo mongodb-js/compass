@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
 import type { ParsedGlobalPreferencesResult } from './global-config';
 import type {
   AllPreferences,
@@ -10,15 +13,23 @@ import {
   allPreferencesProps,
   makeComputePreferencesValuesAndStates,
 } from './preferences-schema';
-import {
-  SandboxPreferences,
-  StoragePreferences,
-  type BasePreferencesStorage,
-} from './storage';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { z } from 'zod';
+import { InMemoryStorage, type BasePreferencesStorage } from './storage';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
+export interface PreferencesAccess {
+  savePreferences(
+    attributes: Partial<UserPreferences>
+  ): Promise<AllPreferences>;
+  refreshPreferences(): Promise<AllPreferences>;
+  getPreferences(): AllPreferences;
+  ensureDefaultConfigurableUserPreferences(): Promise<void>;
+  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
+  getPreferenceStates(): Promise<PreferenceStateInformation>;
+  onPreferenceValueChanged<K extends keyof AllPreferences>(
+    preferenceName: K,
+    callback: (value: AllPreferences[K]) => void
+  ): () => void;
+  createSandbox(): Promise<PreferencesAccess>;
+}
 
 type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<AllPreferences>
@@ -32,6 +43,7 @@ type PreferenceSandboxPropertiesImpl = {
 };
 
 export class Preferences {
+  private _logger: LoggerAndTelemetry;
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _preferencesStorage: BasePreferencesStorage;
   private _globalPreferences: {
@@ -40,14 +52,17 @@ export class Preferences {
     hardcoded: Partial<AllPreferences>;
   };
 
-  constructor(
-    basepath?: string,
-    globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
-    isSandbox?: boolean
-  ) {
-    this._preferencesStorage = isSandbox
-      ? new SandboxPreferences()
-      : new StoragePreferences(basepath);
+  constructor({
+    logger,
+    globalPreferences,
+    preferencesStorage = new InMemoryStorage(),
+  }: {
+    logger: LoggerAndTelemetry;
+    preferencesStorage: BasePreferencesStorage;
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>;
+  }) {
+    this._logger = logger;
+    this._preferencesStorage = preferencesStorage;
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -58,8 +73,8 @@ export class Preferences {
     };
 
     if (Object.keys(this._globalPreferences.hardcoded).length > 0) {
-      log.info(
-        mongoLogId(1_001_000_159),
+      this._logger.log.info(
+        this._logger.mongoLogId(1_001_000_159),
         'preferences',
         'Created Preferences object with hardcoded options',
         { options: this._globalPreferences.hardcoded }
@@ -82,12 +97,17 @@ export class Preferences {
 
   // Create a
   static async CreateSandbox(
-    props: PreferenceSandboxProperties | undefined
+    props: PreferenceSandboxProperties | undefined,
+    logger: LoggerAndTelemetry
   ): Promise<Preferences> {
     const { user, global } = props
       ? (JSON.parse(props) as PreferenceSandboxPropertiesImpl)
       : { user: {}, global: {} };
-    const instance = new Preferences(undefined, global, true);
+    const instance = new Preferences({
+      logger,
+      globalPreferences: global,
+      preferencesStorage: new InMemoryStorage(),
+    });
     await instance.savePreferences(user);
     return instance;
   }
@@ -116,8 +136,8 @@ export class Preferences {
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_157),
+      this._logger.log.error(
+        this._logger.mongoLogId(1_001_000_157),
         'preferences',
         'Failed to save preferences, error while saving models',
         {

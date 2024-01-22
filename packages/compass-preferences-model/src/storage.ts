@@ -1,13 +1,17 @@
+import { z } from 'zod';
 import { UUID } from 'bson';
+import { UserData } from '@mongodb-js/compass-user-data';
+
 import {
-  getDefaultStoredPreferences,
+  getDefaultsForStoredPreferences,
+  getInitialValuesForStoredPreferences,
   getPreferencesValidator,
 } from './preferences-schema';
 import type {
+  AllPreferences,
   StoredPreferences,
   StoredPreferencesValidator,
 } from './preferences-schema';
-import { UserData, z } from '@mongodb-js/compass-user-data';
 
 export interface BasePreferencesStorage {
   setup(): Promise<void>;
@@ -15,8 +19,15 @@ export interface BasePreferencesStorage {
   updatePreferences(attributes: Partial<StoredPreferences>): Promise<void>;
 }
 
-export class SandboxPreferences implements BasePreferencesStorage {
-  private preferences = getDefaultStoredPreferences();
+export class InMemoryStorage implements BasePreferencesStorage {
+  private preferences = getInitialValuesForStoredPreferences();
+
+  constructor(preferencesOverrides?: Partial<AllPreferences>) {
+    this.preferences = {
+      ...this.preferences,
+      ...preferencesOverrides,
+    };
+  }
 
   getPreferences() {
     return this.preferences;
@@ -35,11 +46,11 @@ export class SandboxPreferences implements BasePreferencesStorage {
   }
 }
 
-export class StoragePreferences implements BasePreferencesStorage {
+export class PersistentStorage implements BasePreferencesStorage {
   private readonly file = 'General';
-  private readonly defaultPreferences = getDefaultStoredPreferences();
+  private readonly defaultPreferences = getDefaultsForStoredPreferences();
   private readonly userData: UserData<StoredPreferencesValidator>;
-  private preferences: StoredPreferences = getDefaultStoredPreferences();
+  private preferences: StoredPreferences = getDefaultsForStoredPreferences();
 
   constructor(basePath?: string) {
     this.userData = new UserData(getPreferencesValidator(), {

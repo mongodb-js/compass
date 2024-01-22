@@ -922,7 +922,7 @@ export function getPreferencesValidator() {
   return z.object(preferencesPropsValidator);
 }
 
-export function getDefaultStoredPreferences(): StoredPreferences {
+export function getDefaultsForStoredPreferences(): StoredPreferences {
   return Object.fromEntries(
     Object.entries(storedUserPreferencesProps)
       .map(([key, value]) => [key, value.validator.parse(undefined)])
@@ -930,9 +930,9 @@ export function getDefaultStoredPreferences(): StoredPreferences {
   );
 }
 
-export function getInitialValuesForAllPreferences() {
+export function getInitialValuesForStoredPreferences() {
   const computeValuesAndStates = makeComputePreferencesValuesAndStates(
-    getDefaultStoredPreferences()
+    getDefaultsForStoredPreferences()
   );
 
   return computeValuesAndStates().values;

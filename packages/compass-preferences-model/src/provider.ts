@@ -1,78 +1,42 @@
-import type { z } from 'zod';
 import { createContext, useContext } from 'react';
-import type {
-  AllPreferences,
-  PreferencesAccess,
-  UserConfigurablePreferences,
-} from './';
-import {
-  allPreferencesProps,
-  makeComputePreferencesValuesAndStates,
-} from './preferences-schema';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { Preferences, type PreferencesAccess } from './preferences';
+import { type AllPreferences } from './preferences-schema';
+import { InMemoryStorage } from './storage';
 export { usePreference, withPreferences } from './react';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
-
-export class ReadOnlyPreferenceService implements PreferencesAccess {
-  private allPreferences: AllPreferences;
-
+``;
+export class ReadOnlyPreferenceAccess implements PreferencesAccess {
+  private _preferences: Preferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
-    this.allPreferences = {
-      ...this.initialPreferenceValuesAndStates.values,
-      ...preferencesOverrides,
-    };
-  }
-
-  private get initialPreferenceValuesAndStates() {
-    const preferencesDefaults = Object.fromEntries(
-      Object.entries(allPreferencesProps).map(
-        ([preferenceName, { validator }]) => {
-          return [preferenceName, validator.parse(undefined)];
-        }
-      )
-    ) as {
-      [K in keyof Required<typeof allPreferencesProps>]: z.output<
-        Required<typeof allPreferencesProps>[K]['validator']
-      >;
-    };
-
-    const computeValuesAndStates =
-      makeComputePreferencesValuesAndStates(preferencesDefaults);
-
-    return computeValuesAndStates();
+    this._preferences = new Preferences({
+      logger: createNoopLoggerAndTelemetry(),
+      preferencesStorage: new InMemoryStorage(preferencesOverrides),
+    });
   }
 
   savePreferences() {
-    return Promise.resolve(this.allPreferences);
+    return Promise.resolve(this._preferences.getPreferences());
   }
 
   refreshPreferences() {
-    return Promise.resolve(this.allPreferences);
+    return Promise.resolve(this._preferences.getPreferences());
   }
 
   getPreferences() {
-    return {
-      ...this.allPreferences,
-    };
+    return this._preferences.getPreferences();
   }
 
   ensureDefaultConfigurableUserPreferences() {
-    return Promise.resolve();
+    return this._preferences.ensureDefaultConfigurableUserPreferences();
   }
 
   getConfigurableUserPreferences() {
-    const preferences = this.getPreferences();
-    return Promise.resolve(
-      Object.fromEntries(
-        Object.entries(preferences).filter(
-          ([key]) =>
-            allPreferencesProps[key as keyof AllPreferences].ui === true
-        )
-      ) as UserConfigurablePreferences
-    );
+    return Promise.resolve(this._preferences.getConfigurableUserPreferences());
   }
 
   getPreferenceStates() {
-    return Promise.resolve(this.initialPreferenceValuesAndStates.states);
+    return Promise.resolve(this._preferences.getPreferenceStates());
   }
 
   onPreferenceValueChanged() {
@@ -82,17 +46,14 @@ export class ReadOnlyPreferenceService implements PreferencesAccess {
   }
 
   createSandbox() {
-    return Promise.resolve(
-      new ReadOnlyPreferenceService(this.getPreferences())
-    );
+    return Promise.resolve(new ReadOnlyPreferenceAccess(this.getPreferences()));
   }
 }
 
 const PreferencesContext = createContext<PreferencesAccess>(
-  // Our context starts with our simple preference service but we expect
-  // different runtimes to provide their own service implementation at some
-  // point.
-  new ReadOnlyPreferenceService()
+  // Our context starts with our read-only preference access but we expect
+  // different runtimes to provide their own access implementation at render.
+  new ReadOnlyPreferenceAccess()
 );
 
 export const PreferencesProvider = PreferencesContext.Provider;

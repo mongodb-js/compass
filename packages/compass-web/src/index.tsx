@@ -44,7 +44,7 @@ import {
 } from '@mongodb-js/compass-databases-collections';
 import {
   PreferencesProvider,
-  ReadOnlyPreferenceService,
+  ReadOnlyPreferenceAccess,
 } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
@@ -109,7 +109,7 @@ const CompassWeb = ({
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
   const preferencesAccess = useRef(
-    new ReadOnlyPreferenceService({
+    new ReadOnlyPreferenceAccess({
       maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
