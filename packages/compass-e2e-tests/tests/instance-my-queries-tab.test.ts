@@ -132,7 +132,7 @@ describe('Instance my queries tab', function () {
     const confirmRenameButton = await browser.$(
       Selectors.RenameSavedItemModalSubmit
     );
-    confirmRenameButton.waitForEnabled();
+    await confirmRenameButton.waitForEnabled();
 
     await browser.screenshot('rename-saved-item-modal.png');
 
@@ -158,7 +158,7 @@ describe('Instance my queries tab', function () {
     const confirmOpenButton = await browser.$(
       Selectors.OpenSavedItemModalConfirmButton
     );
-    confirmOpenButton.waitForEnabled();
+    await confirmOpenButton.waitForEnabled();
 
     await browser.screenshot('open-saved-item-modal.png');
 
@@ -184,7 +184,7 @@ describe('Instance my queries tab', function () {
     const confirmDeleteButton = await browser.$(
       Selectors.ConfirmationModalConfirmButton()
     );
-    confirmDeleteButton.waitForEnabled();
+    await confirmDeleteButton.waitForEnabled();
 
     await browser.screenshot('delete-saved-item-modal.png');
 
