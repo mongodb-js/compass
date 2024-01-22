@@ -28,6 +28,7 @@ const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
+const { signArchive } = require('./../lib/signtool');
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -541,6 +542,7 @@ exports.run = (argv, done) => {
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),
     task('create application zip', createApplicationZip),
+    task('sign zip', signArchive),
     task('store build configuration as json', writeConfigToJson)
   ].filter(Boolean));
 

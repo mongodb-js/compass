@@ -51,7 +51,7 @@
   },
   "optionalDependencies": {
     "@electron/remote": "^2.1.1",
-    "electron": "^28.1.0"
+    "electron": "^28.1.4"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.15",
