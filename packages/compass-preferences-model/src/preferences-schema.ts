@@ -172,6 +172,12 @@ export type PreferenceStateInformation = Partial<
   Record<keyof AllPreferences, PreferenceState>
 >;
 
+export type StoredPreferencesValidator = ReturnType<
+  typeof getPreferencesValidator
+>;
+
+export type StoredPreferences = z.output<StoredPreferencesValidator>;
+
 // Preference definitions
 const featureFlagsProps: Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -903,21 +909,31 @@ export function makeComputePreferencesValuesAndStates(
   };
 }
 
-export function getInitialValuesForAllPreferences() {
-  const preferencesDefaults = Object.fromEntries(
-    Object.entries(allPreferencesProps).map(
-      ([preferenceName, { validator }]) => {
-        return [preferenceName, validator.parse(undefined)];
-      }
-    )
+export function getPreferencesValidator() {
+  const preferencesPropsValidator = Object.fromEntries(
+    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
+      key,
+      validator,
+    ])
   ) as {
-    [K in keyof Required<typeof allPreferencesProps>]: z.output<
-      Required<typeof allPreferencesProps>[K]['validator']
-    >;
+    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
   };
 
-  const computeValuesAndStates =
-    makeComputePreferencesValuesAndStates(preferencesDefaults);
+  return z.object(preferencesPropsValidator);
+}
+
+export function getDefaultStoredPreferences(): StoredPreferences {
+  return Object.fromEntries(
+    Object.entries(storedUserPreferencesProps)
+      .map(([key, value]) => [key, value.validator.parse(undefined)])
+      .filter(([, value]) => value !== undefined)
+  );
+}
+
+export function getInitialValuesForAllPreferences() {
+  const computeValuesAndStates = makeComputePreferencesValuesAndStates(
+    getDefaultStoredPreferences()
+  );
 
   return computeValuesAndStates().values;
 }

@@ -1,30 +1,14 @@
 import { UUID } from 'bson';
-import { storedUserPreferencesProps } from './preferences-schema';
+import {
+  getDefaultStoredPreferences,
+  getPreferencesValidator,
+} from './preferences-schema';
+import type {
+  StoredPreferences,
+  StoredPreferencesValidator,
+} from './preferences-schema';
 import { UserData, z } from '@mongodb-js/compass-user-data';
 
-type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
-export type StoredPreferences = z.output<PreferencesValidator>;
-
-export const getDefaultPreferences = (): StoredPreferences => {
-  return Object.fromEntries(
-    Object.entries(storedUserPreferencesProps)
-      .map(([key, value]) => [key, value.validator.parse(undefined)])
-      .filter(([, value]) => value !== undefined)
-  );
-};
-
-const getPreferencesValidator = () => {
-  const preferencesPropsValidator = Object.fromEntries(
-    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
-      key,
-      validator,
-    ])
-  ) as {
-    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
-  };
-
-  return z.object(preferencesPropsValidator);
-};
 export interface BasePreferencesStorage {
   setup(): Promise<void>;
   getPreferences(): StoredPreferences;
@@ -32,7 +16,7 @@ export interface BasePreferencesStorage {
 }
 
 export class SandboxPreferences implements BasePreferencesStorage {
-  private preferences = getDefaultPreferences();
+  private preferences = getDefaultStoredPreferences();
 
   getPreferences() {
     return this.preferences;
@@ -53,9 +37,9 @@ export class SandboxPreferences implements BasePreferencesStorage {
 
 export class StoragePreferences implements BasePreferencesStorage {
   private readonly file = 'General';
-  private readonly defaultPreferences = getDefaultPreferences();
-  private readonly userData: UserData<PreferencesValidator>;
-  private preferences: StoredPreferences = getDefaultPreferences();
+  private readonly defaultPreferences = getDefaultStoredPreferences();
+  private readonly userData: UserData<StoredPreferencesValidator>;
+  private preferences: StoredPreferences = getDefaultStoredPreferences();
 
   constructor(basePath?: string) {
     this.userData = new UserData(getPreferencesValidator(), {
@@ -93,7 +77,9 @@ export class StoragePreferences implements BasePreferencesStorage {
     };
   }
 
-  async updatePreferences(attributes: Partial<z.input<PreferencesValidator>>) {
+  async updatePreferences(
+    attributes: Partial<z.input<StoredPreferencesValidator>>
+  ) {
     await this.userData.write(this.file, {
       ...(await this.readPreferences()),
       ...attributes,
