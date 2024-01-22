@@ -82,7 +82,9 @@ export class ReadOnlyPreferenceService implements PreferencesAccess {
   }
 
   createSandbox() {
-    return Promise.reject('Method not supported');
+    return Promise.resolve(
+      new ReadOnlyPreferenceService(this.getPreferences())
+    );
   }
 }
 
