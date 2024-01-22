@@ -6,7 +6,10 @@ ARTIFACTS_DIR="packages/compass/dist"
 echo "Verifying artifacts at $ARTIFACTS_DIR"
 ls -l $ARTIFACTS_DIR
 
+# Use tmp directory for all gpg operations
+GPG_HOME=$(mktemp -d)
 TMP_FILE=$(mktemp)
+
 trap_handler() {
   local code=$?
   if [ $code -eq 0 ]; then
@@ -16,6 +19,7 @@ trap_handler() {
     cat "$TMP_FILE"
   fi
   rm -f "$TMP_FILE"
+  rm -rf "$GPG_HOME"
   exit $code
 }
 
@@ -23,7 +27,7 @@ trap trap_handler ERR EXIT
 
 verify_using_gpg() {
   echo "Verifying $1 using gpg"
-  gpg --verify $ARTIFACTS_DIR/$1.sig $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+  gpg --homedir $GPG_HOME --verify $ARTIFACTS_DIR/$1.sig $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
 verify_using_powershell() {
@@ -36,30 +40,28 @@ verify_using_codesign() {
   codesign -dv --verbose=4 $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
-# For Windows
+setup_gpg() {
+  echo "Importing Compass public key"
+  curl https://pgp.mongodb.com/compass.asc | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
+}
+
 if [ "$IS_WINDOWS" = true ]; then
   verify_using_powershell $WINDOWS_EXE_NAME
   verify_using_powershell $WINDOWS_MSI_NAME
-
   echo "Skipping verification for Windows artifacts using gpg: $WINDOWS_ZIP_NAME, $WINDOWS_NUPKG_NAME"
-  exit 0
-fi
-
-
-echo "Importing Compass public key"
-curl https://pgp.mongodb.com/compass.asc | gpg --import > "$TMP_FILE" 2>&1
-
-if [ "$IS_UBUNTU" = true ]; then
+elif [ "$IS_UBUNTU" = true ]; then
+  setup_gpg
   verify_using_gpg $LINUX_DEB_NAME
   verify_using_gpg $LINUX_TAR_NAME
-fi
-
-if [ "$IS_RHEL" = true ]; then
+elif [ "$IS_RHEL" = true ]; then
+  setup_gpg
   verify_using_gpg $RHEL_RPM_NAME
   verify_using_gpg $RHEL_TAR_NAME
-fi
-
-if [ "$IS_OSX" = true ]; then
+elif [ "$IS_OSX" = true ]; then
+  setup_gpg
   verify_using_gpg $OSX_ZIP_NAME
   verify_using_codesign $OSX_DMG_NAME
+else
+  echo "Unknown OS, failed to verify file signing"
+  exit 1
 fi
