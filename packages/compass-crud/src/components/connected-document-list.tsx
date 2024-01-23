@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import DocumentList from './document-list';
 

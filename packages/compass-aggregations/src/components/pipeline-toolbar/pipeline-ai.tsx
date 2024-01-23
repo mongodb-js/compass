@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import {
   changeAIPromptText,

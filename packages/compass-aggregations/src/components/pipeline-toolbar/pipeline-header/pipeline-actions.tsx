@@ -25,7 +25,7 @@ import { openCreateIndexModal } from '../../../modules/insights';
 import {
   usePreference,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({
