@@ -172,6 +172,12 @@ export type PreferenceStateInformation = Partial<
   Record<keyof AllPreferences, PreferenceState>
 >;
 
+export type StoredPreferencesValidator = ReturnType<
+  typeof getPreferencesValidator
+>;
+
+export type StoredPreferences = z.output<StoredPreferencesValidator>;
+
 // Preference definitions
 const featureFlagsProps: Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -860,6 +866,76 @@ function featureFlagToPreferenceDefinition(
     validator: z.boolean().default(false),
     type: 'boolean',
   };
+}
+
+export function makeComputePreferencesValuesAndStates(
+  values: AllPreferences,
+  states: Partial<Record<string, PreferenceState>> = {}
+) {
+  return function _computePreferenceValuesAndStates() {
+    const originalValues = { ...values };
+    const originalStates = { ...states };
+
+    function deriveValue<K extends keyof AllPreferences>(
+      key: K
+    ): {
+      value: AllPreferences[K];
+      state: PreferenceState;
+    } {
+      const descriptor = allPreferencesProps[key];
+      if (!descriptor.deriveValue) {
+        return { value: originalValues[key], state: originalStates[key] };
+      }
+      return (descriptor.deriveValue as DeriveValueFunction<AllPreferences[K]>)(
+        // `as unknown` to work around TS bug(?) https://twitter.com/addaleax/status/1572191664252551169
+        (k) =>
+          (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
+        (k) =>
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+      );
+    }
+
+    for (const key of Object.keys(allPreferencesProps)) {
+      // awkward IIFE to make typescript understand that `key` is the *same* key
+      // in each loop iteration
+      (<K extends keyof AllPreferences>(key: K) => {
+        const result = deriveValue(key);
+        values[key] = result.value;
+        if (result.state !== undefined) states[key] = result.state;
+      })(key as keyof AllPreferences);
+    }
+
+    return { values, states };
+  };
+}
+
+export function getPreferencesValidator() {
+  const preferencesPropsValidator = Object.fromEntries(
+    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
+      key,
+      validator,
+    ])
+  ) as {
+    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+  };
+
+  return z.object(preferencesPropsValidator);
+}
+
+export function getDefaultsForStoredPreferences(): StoredPreferences {
+  return Object.fromEntries(
+    Object.entries(storedUserPreferencesProps)
+      .map(([key, value]) => [key, value.validator.parse(undefined)])
+      .filter(([, value]) => value !== undefined)
+  );
+}
+
+export function getInitialValuesForStoredPreferences() {
+  const computeValuesAndStates = makeComputePreferencesValuesAndStates(
+    getDefaultsForStoredPreferences()
+  );
+
+  return computeValuesAndStates().values;
 }
 
 export function getSettingDescription<

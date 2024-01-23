@@ -8,7 +8,8 @@ import type {
   PreferenceStateInformation,
   AllPreferences,
 } from './preferences-schema';
-import type { Preferences } from './preferences';
+import type { Preferences, PreferencesAccess } from './preferences';
+
 export type {
   UserPreferences,
   UserConfigurablePreferences,
@@ -33,22 +34,7 @@ export {
   isAIFeatureEnabled,
 } from './utils';
 export type { User, UserStorage } from './storage';
-
-export interface PreferencesAccess {
-  savePreferences(
-    attributes: Partial<UserPreferences>
-  ): Promise<AllPreferences>;
-  refreshPreferences(): Promise<AllPreferences>;
-  getPreferences(): AllPreferences;
-  ensureDefaultConfigurableUserPreferences(): Promise<void>;
-  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
-  getPreferenceStates(): Promise<PreferenceStateInformation>;
-  onPreferenceValueChanged<K extends keyof AllPreferences>(
-    preferenceName: K,
-    callback: (value: AllPreferences[K]) => void
-  ): () => void;
-  createSandbox(): Promise<PreferencesAccess>;
-}
+export type { PreferencesAccess };
 export { setupPreferences };
 export const defaultPreferencesInstance: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
