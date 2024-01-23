@@ -8,11 +8,9 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
+  DeriveValueFunction,
 } from './preferences-schema';
-import {
-  allPreferencesProps,
-  makeComputePreferencesValuesAndStates,
-} from './preferences-schema';
+import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage, type BasePreferencesStorage } from './storage';
 
 export interface PreferencesAccess {
@@ -207,12 +205,39 @@ export class Preferences {
     for (const key of Object.keys(this._globalPreferences.hardcoded))
       states[key] = 'hardcoded';
 
-    const computeValuesAndStates = makeComputePreferencesValuesAndStates(
-      values,
-      states
-    );
+    const originalValues = { ...values };
+    const originalStates = { ...states };
 
-    return computeValuesAndStates();
+    function deriveValue<K extends keyof AllPreferences>(
+      key: K
+    ): {
+      value: AllPreferences[K];
+      state: PreferenceState;
+    } {
+      const descriptor = allPreferencesProps[key];
+      if (!descriptor.deriveValue) {
+        return { value: originalValues[key], state: originalStates[key] };
+      }
+      return (descriptor.deriveValue as DeriveValueFunction<AllPreferences[K]>)(
+        // `as unknown` to work around TS bug(?) https://twitter.com/addaleax/status/1572191664252551169
+        (k) =>
+          (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
+        (k) =>
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+      );
+    }
+
+    for (const key of Object.keys(allPreferencesProps)) {
+      // awkward IIFE to make typescript understand that `key` is the *same* key
+      // in each loop iteration
+      (<K extends keyof AllPreferences>(key: K) => {
+        const result = deriveValue(key);
+        values[key] = result.value;
+        if (result.state !== undefined) states[key] = result.state;
+      })(key as keyof AllPreferences);
+    }
+
+    return { values, states };
   }
 
   /**

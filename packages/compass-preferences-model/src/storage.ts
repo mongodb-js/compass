@@ -4,7 +4,6 @@ import { UserData } from '@mongodb-js/compass-user-data';
 
 import {
   getDefaultsForStoredPreferences,
-  getInitialValuesForStoredPreferences,
   getPreferencesValidator,
 } from './preferences-schema';
 import type {
@@ -20,7 +19,7 @@ export interface BasePreferencesStorage {
 }
 
 export class InMemoryStorage implements BasePreferencesStorage {
-  private preferences = getInitialValuesForStoredPreferences();
+  private preferences = getDefaultsForStoredPreferences();
 
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
     this.preferences = {
