@@ -50,6 +50,12 @@ let MONGODB_USE_ENTERPRISE =
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
 
+function getBrowserName() {
+  return process.env.BROWSER_NAME ?? 'chrome';
+}
+
+export const BROWSER_NAME = getBrowserName();
+
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
@@ -738,7 +744,21 @@ export async function startBrowser(
 ) {
   const browser: CompassBrowser = (await remote({
     capabilities: {
-      browserName: 'firefox',
+      browserName: BROWSER_NAME, // 'chrome' or 'firefox'
+      // https://webdriver.io/docs/driverbinaries/
+      // If you leave out browserVersion it will try and find the browser binary
+      // on your system. If you specify it it will download that version. The
+      // main limitation then is that 'latest' is the only 'semantic' version
+      // that is supported for Firefox.
+      // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
+      // Alternatively we can download it ourselves and specify the path to the
+      // binary or we can even start and stop chromedriver/geckodriver manually.
+      // NOTE: The version of chromedriver or geckodriver in play might also be
+      // relevant.
+      browserVersion: 'latest',
+      'goog:chromeOptions': {
+        args: ['whitelisted-ips='],
+      },
     },
     // TODO: copy all the relevant config from our electron-based config like wdio timeouts
   })) as CompassBrowser;
