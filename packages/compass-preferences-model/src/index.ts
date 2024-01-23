@@ -23,7 +23,6 @@ export {
   getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
-export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 export {
   setupPreferencesAndUser,
   getActiveUser,
