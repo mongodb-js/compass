@@ -1,4 +1,5 @@
 #!/usr/bin/env ts-node
+import dns from 'dns';
 import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
@@ -18,6 +19,9 @@ import {
   updateMongoDBServerInfo,
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
+
+// https://github.com/nodejs/node/issues/40537
+dns.setDefaultResultOrder('ipv4first');
 
 const debug = Debug('compass-e2e-tests');
 
@@ -288,6 +292,9 @@ async function run() {
 
     cleanup();
   }
+
+  // TODO: why does this somehow hang? How do you debug that?
+  process.exit(process.exitCode ?? 0);
 }
 
 void run();
