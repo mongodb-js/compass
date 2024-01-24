@@ -58,13 +58,17 @@ async function setup() {
 
     if (shouldTestCompassWeb) {
       debug('Starting Compass Web');
-      compassWeb = crossSpawn.spawn('npm', ['run', 'start-web'], {
-        cwd: path.resolve(__dirname, '..', '..'),
-        env: {
-          ...process.env,
-          OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
-        },
-      });
+      compassWeb = crossSpawn.spawn(
+        'npm',
+        ['run', '--unsafe-perm', 'start-web'],
+        {
+          cwd: path.resolve(__dirname, '..', '..'),
+          env: {
+            ...process.env,
+            OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+          },
+        }
+      );
       // wait for webpack to finish compiling
       await new Promise<void>((resolve) => {
         let output = '';
