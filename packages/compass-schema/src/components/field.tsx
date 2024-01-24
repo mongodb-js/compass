@@ -11,7 +11,7 @@ import {
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import { find } from 'lodash';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import type {
   ArraySchemaType,
   DocumentSchemaType,

@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { withPreferences } from 'compass-preferences-model';
+import {
+  withPreferences,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import {
   Button,
   ErrorSummary,
@@ -17,7 +20,6 @@ import {
   SegmentedControl,
   SegmentedControlOption,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../../modules';
 import {

@@ -1,6 +1,4 @@
 export type { THEMES } from './preferences-schema';
-export { getSettingDescription } from './preferences-schema';
-export { featureFlags } from './feature-flags';
 
 import type {
   UserPreferences,
@@ -25,12 +23,9 @@ export {
   getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
-export { usePreference, withPreferences } from './react';
-export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 export {
   setupPreferencesAndUser,
   getActiveUser,
-  useIsAIFeatureEnabled,
   isAIFeatureEnabled,
 } from './utils';
 export type { User, UserStorage } from './storage';

@@ -12,7 +12,7 @@ import {
 import type { Signal } from '@mongodb-js/compass-components';
 import React from 'react';
 import toNS from 'mongodb-ns';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
 import CollectionStats from '../collection-stats';
 import type { CollectionState } from '../../modules/collection-tab';

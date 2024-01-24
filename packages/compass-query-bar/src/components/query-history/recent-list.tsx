@@ -18,7 +18,7 @@ import {
   FavoriteActionButton,
 } from './query-item';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';

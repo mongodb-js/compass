@@ -4,8 +4,11 @@ import { Preferences, type PreferencesAccess } from './preferences';
 import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './storage';
 export { usePreference, withPreferences } from './react';
+export { useIsAIFeatureEnabled } from './utils';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
-``;
+export { featureFlags } from './feature-flags';
+export { getSettingDescription } from './preferences-schema';
+
 export class ReadOnlyPreferenceAccess implements PreferencesAccess {
   private _preferences: Preferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
