@@ -19,7 +19,7 @@ import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
 
 type Settings = {
   name: string;

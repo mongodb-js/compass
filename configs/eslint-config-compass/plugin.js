@@ -24,8 +24,7 @@ module.exports = {
       // restrictedProviderImport('@mongodb-js/my-queries-storage'),
       // TODO(COMPASS-7412): enable when possible
       // restrictedProviderImport('@mongodb-js/atlas-service'),
-      // TODO(COMPASS-7559): enable when possible
-      // restrictedProviderImport('compass-preferences-model'),
+      restrictedProviderImport('compass-preferences-model'),
       {
         paths: require('module').builtinModules,
         message: 'Using Node.js built-in modules in plugins is not allowed.',

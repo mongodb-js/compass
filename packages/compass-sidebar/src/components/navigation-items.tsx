@@ -18,7 +18,10 @@ import {
   useDarkMode,
   Tooltip,
 } from '@mongodb-js/compass-components';
-import { usePreference, withPreferences } from 'compass-preferences-model';
+import {
+  usePreference,
+  withPreferences,
+} from 'compass-preferences-model/provider';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import DatabaseCollectionFilter from './database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';

@@ -12,7 +12,7 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;

@@ -110,6 +110,7 @@ tasks:
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass
+      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass
@@ -130,6 +131,7 @@ tasks:
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-readonly
+      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -150,6 +152,7 @@ tasks:
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-isolated
+      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-isolated

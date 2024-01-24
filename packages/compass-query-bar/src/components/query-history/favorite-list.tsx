@@ -18,7 +18,7 @@ import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;

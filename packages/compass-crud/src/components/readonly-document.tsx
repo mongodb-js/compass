@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 type BSONObject = TypeCastMap['Object'];
 

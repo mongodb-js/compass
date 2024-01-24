@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { UserPreferences } from 'compass-preferences-model';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 
 import SettingsList from './settings-list';
 import type { RootState } from '../../stores';

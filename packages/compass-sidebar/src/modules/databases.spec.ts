@@ -95,7 +95,7 @@ describe('sidebar databases', function () {
           databases: dbs,
         });
 
-        changeFilterRegex(/^foo$/)(slice.dispatch as any, getState as any, {
+        changeFilterRegex(/^foo$/)(slice.dispatch, getState as any, {
           globalAppRegistry: {
             emit() {
               // noop

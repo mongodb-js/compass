@@ -2,7 +2,8 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import type { AllPreferences } from './';
-import { createSandboxFromDefaultPreferences, withPreferences } from './index';
+import { createSandboxFromDefaultPreferences } from './index';
+import { withPreferences } from './react';
 import sinon from 'sinon';
 import { PreferencesProvider } from './provider';
 

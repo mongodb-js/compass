@@ -4,7 +4,7 @@ import {
   usePreference,
   featureFlags,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from 'compass-preferences-model/provider';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { css, spacing } from '@mongodb-js/compass-components';
 

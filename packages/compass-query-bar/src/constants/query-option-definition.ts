@@ -1,6 +1,6 @@
 import type { TextInput } from '@mongodb-js/compass-components';
 import type { ComponentProps } from 'react';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { QueryProperty } from './query-properties';
 
 export type QueryOption = Exclude<QueryProperty, 'update'>;

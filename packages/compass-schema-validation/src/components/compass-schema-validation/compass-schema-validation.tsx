@@ -11,7 +11,7 @@ import {
 import { namespaceChanged } from '../../modules/namespace';
 import { clearSampleDocuments } from '../../modules/sample-documents';
 import { changeZeroState } from '../../modules/zero-state';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import { css } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import type { ValidationStatesProps } from '../validation-states/validation-states';
