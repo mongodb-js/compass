@@ -547,7 +547,7 @@ async function startCompassElectron(
   await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const chromeArgs = [];
+  const chromeArgs: string[] = [];
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
@@ -638,7 +638,8 @@ async function startCompassElectron(
 
   const options = {
     capabilities: {
-      browserName: 'chrome',
+      browserName: 'chromium',
+      browserVersion: '120.0.6099.216', // TODO: this must always be the corresponding chromium version for the electron version
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,

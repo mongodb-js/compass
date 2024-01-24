@@ -1,3 +1,4 @@
+import { Key } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 
 export async function setValueVisible(
@@ -8,7 +9,10 @@ export async function setValueVisible(
   await browser.waitUntil(async () => {
     const element = await browser.$(selector);
     await element.waitForDisplayed();
+    await element.click(); // focus
     await element.clearValue();
+    await browser.keys([Key.Ctrl, 'a']);
+    await browser.keys('Delete');
     await element.setValue(value);
     const actualValue = await element.getValue();
     if (actualValue !== value) {
