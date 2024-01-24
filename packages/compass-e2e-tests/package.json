@@ -27,7 +27,7 @@
     "server-info": "ts-node ./scripts/server-info.ts"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.5.0",
+    "@electron/rebuild": "^3.6.0",
     "@mongodb-js/compass-test-server": "^0.1.11",
     "@mongodb-js/eslint-config-compass": "^1.0.15",
     "@mongodb-js/oidc-mock-provider": "^0.4.1",
