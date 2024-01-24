@@ -100,6 +100,13 @@ function cleanup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   if (!disableStartStop) {
+    debug('Stopping compass-web');
+    try {
+      compassWeb.kill('SIGTERM');
+    } catch (e) {
+      debug('Failed to stop compass-web', e);
+    }
+
     debug('Stopping MongoDB server');
     try {
       crossSpawn.sync(
@@ -122,13 +129,7 @@ function cleanup() {
     } catch (e) {
       debug('Failed to stop MongoDB Server', e);
     }
-
-    debug('Stopping compass-web');
-    try {
-      compassWeb.kill('SIGTERM');
-    } catch (e) {
-      debug('Failed to stop compass-web', e);
-    }
+    debug('Done stopping');
   }
 }
 
