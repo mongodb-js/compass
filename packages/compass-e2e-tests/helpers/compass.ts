@@ -50,8 +50,6 @@ let MONGODB_USE_ENTERPRISE =
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
 
-console.log('TEST_COMPASS_WEB', TEST_COMPASS_WEB, process.argv);
-
 function getBrowserName() {
   return process.env.BROWSER_NAME ?? 'chrome';
 }
