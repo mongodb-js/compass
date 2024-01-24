@@ -105,12 +105,10 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
-      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass
-      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass
@@ -126,12 +124,10 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-readonly
-      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-readonly
-      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -147,12 +143,10 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-isolated
-      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-isolated
-      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -175,7 +169,7 @@ tasks:
         vars: 
           mongodb_version: '4.0.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-40x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -195,7 +189,7 @@ tasks:
         vars: 
           mongodb_version: '4.0.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-42x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -215,7 +209,7 @@ tasks:
         vars: 
           mongodb_version: '4.2.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-42x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -235,7 +229,7 @@ tasks:
         vars: 
           mongodb_version: '4.2.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-44x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -255,7 +249,7 @@ tasks:
         vars: 
           mongodb_version: '4.4.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-44x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -275,7 +269,7 @@ tasks:
         vars: 
           mongodb_version: '4.4.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-5x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -295,7 +289,7 @@ tasks:
         vars: 
           mongodb_version: '5.x.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-5x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -315,7 +309,7 @@ tasks:
         vars: 
           mongodb_version: '5.x.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-60x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -335,7 +329,7 @@ tasks:
         vars: 
           mongodb_version: '6.0.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-60x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -355,7 +349,7 @@ tasks:
         vars: 
           mongodb_version: '6.0.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-70x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -375,7 +369,7 @@ tasks:
         vars: 
           mongodb_version: '7.0.x'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-70x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -395,7 +389,7 @@ tasks:
         vars: 
           mongodb_version: '7.0.x-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 
   - name: test-packaged-app-latest
     tags: ['required-for-publish', 'run-on-pr']
@@ -415,4 +409,4 @@ tasks:
         vars: 
           mongodb_version: 'latest-alpha-enterprise'
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'

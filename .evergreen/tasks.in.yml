@@ -132,5 +132,5 @@ for (const testPackagedTask of tasks['test-packaged-app']) { %>
         vars: <% for (const [key, value] of Object.entries(testPackagedTask.vars)) { %>
           <% out(`${key}: '${value}'`) } %>
           compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*,*webdriver*,*chromedriver*'
 <% } %>
