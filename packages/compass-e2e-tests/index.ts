@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
@@ -44,13 +45,40 @@ let metricsClient: MongoClient;
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
-function setup() {
+let compassWeb: ChildProcessWithoutNullStreams;
+
+async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
     crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+
+    if (shouldTestCompassWeb) {
+      debug('Starting Compass Web');
+      compassWeb = crossSpawn.spawn('npm', ['run', 'start-web'], {
+        cwd: path.resolve(__dirname, '..', '..'),
+        env: {
+          ...process.env,
+          OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+        },
+      });
+      // wait for webpack to finish compiling
+      await new Promise<void>((resolve) => {
+        let output = '';
+        const listener = function (chunk: string) {
+          console.log(chunk);
+          output += chunk;
+          if (/^webpack \d+\.\d+\.\d+ compiled/m.test(output)) {
+            compassWeb.stdout.off('data', listener);
+            resolve();
+          }
+        };
+        compassWeb.stdout.setEncoding('utf8').on('data', listener);
+      });
+    }
   }
 
   try {
@@ -72,7 +100,7 @@ function cleanup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   if (!disableStartStop) {
-    debug('Stopping MongoDB server and cleaning up server data');
+    debug('Stopping MongoDB server');
     try {
       crossSpawn.sync(
         'npm',
@@ -94,16 +122,18 @@ function cleanup() {
     } catch (e) {
       debug('Failed to stop MongoDB Server', e);
     }
+
+    debug('Stopping compass-web');
     try {
-      fs.rmdirSync('.mongodb', { recursive: true });
+      compassWeb.kill('SIGTERM');
     } catch (e) {
-      debug('Failed to clean up server data', e);
+      debug('Failed to stop compass-web', e);
     }
   }
 }
 
 async function main() {
-  setup();
+  await setup();
 
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 

@@ -12,7 +12,8 @@
       "test",
       ["test-electron", { "gui": true }],
       "package",
-      ["test-packaged-app", { "gui": true, "depends_on": "package-compass" }]
+      ["test-packaged-app", { "gui": true, "depends_on": "package-compass" }],
+      ["test-web-sandbox", { "gui": true }]
     ]
   },
   "tasks": {
@@ -136,6 +137,24 @@
             "mongodb_version": "latest-alpha-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large"]
+        }
+      ],
+      "test-web-sandbox": [
+        {
+          "name": "chrome",
+          "vars": {
+            "mongodb_version": "latest-alpha-enterprise",
+            "browser_name": "chrome"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large", "windows-vsCurrent-large"]
+        },
+        {
+          "name": "firefox",
+          "vars": {
+            "mongodb_version": "latest-alpha-enterprise",
+            "browser_name": "firefox"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large", "windows-vsCurrent-large"]
         }
       ]
     }
