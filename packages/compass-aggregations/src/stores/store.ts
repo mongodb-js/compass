@@ -10,8 +10,10 @@ import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import type {
+  SavedPipeline,
+  PipelineStorage,
+} from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
@@ -60,10 +62,6 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      */
     collections: CollectionInfo[];
     /**
-     * Storage service for saved aggregations
-     */
-    pipelineStorage: PipelineStorage;
-    /**
      * Service for interacting with Atlas-only features
      */
     atlasService: AtlasService;
@@ -77,6 +75,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  pipelineStorage: PipelineStorage;
 };
 
 export function activateAggregationsPlugin(
@@ -89,6 +88,7 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
+    pipelineStorage,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -117,8 +117,6 @@ export function activateAggregationsPlugin(
   );
 
   const atlasService = options.atlasService ?? new AtlasService();
-
-  const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)

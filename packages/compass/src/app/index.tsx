@@ -8,6 +8,8 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -182,12 +184,14 @@ const Application = View.extend({
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <PipelineStorageProvider value={new PipelineStorage()}>
+              <AppRegistryProvider>
+                <CompassHomePlugin
+                  appName={remote.app.getName()}
+                  getAutoConnectInfo={getAutoConnectInfo}
+                ></CompassHomePlugin>
+              </AppRegistryProvider>
+            </PipelineStorageProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

@@ -7,7 +7,7 @@ import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
 import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -18,13 +18,13 @@ type MyQueriesServices = {
   instance: MongoDBInstance;
   globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
+  pipelineStorage: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 
 // TODO(COMPASS-7411): should also be service injected, this type will merge
 // with the one above
 type Storages = {
-  pipelineStorage: PipelineStorage;
   queryStorage: FavoriteQueryStorage;
 };
 
@@ -34,7 +34,7 @@ export function configureStore({
   instance,
   logger,
   workspaces,
-  pipelineStorage = new PipelineStorage(),
+  pipelineStorage,
   queryStorage = new FavoriteQueryStorage(),
 }: MyQueriesServices & Partial<Storages>) {
   return createStore(
