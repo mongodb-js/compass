@@ -40,13 +40,15 @@ function signArchive(target, cb) {
  * @param {string} src
  */
 function getSigningMethod(src) {
-  const ext = path.extname(src);
-  if (ext === '.rpm') {
-    return 'rpm_gpg';
-  } else if (ext === '.exe' || ext === '.msi') {
-    return 'jsign';
+  switch (path.extname(src)) {
+    case '.exe':
+    case '.msi':
+      return 'jsign';
+    case '.rpm':
+      return 'rpm_gpg';
+    default:
+      return 'gpg';
   }
-  return 'gpg';
 }
 
 /**
