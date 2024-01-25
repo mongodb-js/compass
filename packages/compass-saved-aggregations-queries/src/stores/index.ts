@@ -6,12 +6,12 @@ import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import { FavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 
 type MyQueriesServices = {
   dataService: DataService;
@@ -20,12 +20,9 @@ type MyQueriesServices = {
   logger: LoggerAndTelemetry;
   pipelineStorage: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-};
-
-// TODO(COMPASS-7411): should also be service injected, this type will merge
-// with the one above
-type Storages = {
-  queryStorage: FavoriteQueryStorage;
+  locateFavoriteQueryStorage: ReturnType<
+    typeof createFavoriteQueryStorageLocator
+  >;
 };
 
 export function configureStore({
@@ -35,8 +32,8 @@ export function configureStore({
   logger,
   workspaces,
   pipelineStorage,
-  queryStorage = new FavoriteQueryStorage(),
-}: MyQueriesServices & Partial<Storages>) {
+  locateFavoriteQueryStorage,
+}: MyQueriesServices) {
   return createStore(
     combineReducers({
       savedItems: itemsReducer,
@@ -50,7 +47,7 @@ export function configureStore({
         instance,
         logger,
         pipelineStorage,
-        queryStorage,
+        queryStorage: locateFavoriteQueryStorage(),
         workspaces,
       })
     )
@@ -61,7 +58,7 @@ export type RootState = ReturnType<
   ReturnType<typeof configureStore>['getState']
 >;
 
-type SavedQueryAggregationExtraArgs = MyQueriesServices & Storages;
+type SavedQueryAggregationExtraArgs = MyQueriesServices;
 
 export type SavedQueryAggregationThunkAction<
   R,
@@ -70,7 +67,7 @@ export type SavedQueryAggregationThunkAction<
 
 export function activatePlugin(
   _: Record<string, never>,
-  services: MyQueriesServices & Partial<Storages>
+  services: MyQueriesServices
 ) {
   const store = configureStore(services);
   return {

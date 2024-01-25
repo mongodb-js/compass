@@ -14,9 +14,10 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import {
-  FavoriteQueryStorage,
+  type FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
+import type { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 
 import {
   countDocuments,
@@ -275,7 +276,6 @@ type CrudStoreOptions = Pick<
   | 'isSearchIndexesSupported'
 > & {
   noRefreshOnConfigure?: boolean;
-  favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
 };
 
@@ -406,12 +406,12 @@ class CrudStoreImpl
       | 'globalAppRegistry'
       | 'preferences'
       | 'logger'
+      | 'locateFavoriteQueryStorage'
     >
   ) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
-    this.favoriteQueriesStorage =
-      options.favoriteQueriesStorage || new FavoriteQueryStorage();
+    this.favoriteQueriesStorage = services.locateFavoriteQueryStorage();
     this.recentQueriesStorage =
       options.recentQueriesStorage || new RecentQueryStorage();
     this.dataService = services.dataService;
@@ -1942,6 +1942,9 @@ export type DocumentsPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  locateFavoriteQueryStorage: ReturnType<
+    typeof createFavoriteQueryStorageLocator
+  >;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1952,6 +1955,7 @@ export function activateDocumentsPlugin(
     globalAppRegistry,
     preferences,
     logger,
+    locateFavoriteQueryStorage,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1966,6 +1970,7 @@ export function activateDocumentsPlugin(
         globalAppRegistry,
         preferences,
         logger,
+        locateFavoriteQueryStorage,
       }
     )
   ) as CrudStore;
