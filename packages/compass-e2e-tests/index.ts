@@ -77,7 +77,6 @@ async function setup() {
       await new Promise<void>((resolve) => {
         let output = '';
         const listener = function (chunk: string) {
-          console.log(chunk);
           output += chunk;
           if (/^webpack \d+\.\d+\.\d+ compiled/m.test(output)) {
             compassWeb.stdout.off('data', listener);
