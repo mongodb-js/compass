@@ -46,8 +46,18 @@ verify_using_rpm() {
   # Here, we need to import the key in `rpm` and then verify the signature.
   echo "Importing key into rpm"
   rpm --import $COMPASS_KEY > "$TMP_FILE" 2>&1
+  # Even if the file is not signed, the command below will exit with 0 and output something like: sha1 md5 OK
+  # So we need to check the output of the command to see if the file is signed successfully.
   echo "Verifying $1 using rpm"
-  rpm -K $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+  output=$(rpm -K $ARTIFACTS_DIR/$1)
+  # Remove the imported key from rpm
+  rpm -e $(rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release}:%{summary}\n' | grep compass | awk -F: '{print $1}')
+  
+  # Check if the output contains the string "pgp md5 OK"
+  if [[ $output != *"pgp md5 OK"* ]]; then
+    echo "File $1 is not signed"
+    exit 1
+  fi
 }
 
 setup_gpg() {
