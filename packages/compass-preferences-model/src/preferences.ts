@@ -11,7 +11,8 @@ import type {
   DeriveValueFunction,
 } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
-import { InMemoryStorage, type BasePreferencesStorage } from './storage';
+import { InMemoryStorage } from './in-memory-storage';
+import type { BasePreferencesStorage } from './in-memory-storage';
 
 export interface PreferencesAccess {
   savePreferences(

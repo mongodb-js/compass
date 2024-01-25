@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
 import { type AllPreferences } from './preferences-schema';
-import { InMemoryStorage } from './storage';
+import { InMemoryStorage } from './in-memory-storage';
 export { usePreference, withPreferences } from './react';
 export { useIsAIFeatureEnabled } from './utils';
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
