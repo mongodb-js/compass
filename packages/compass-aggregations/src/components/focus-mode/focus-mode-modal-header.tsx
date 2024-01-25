@@ -24,7 +24,7 @@ import {
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { createSearchIndex } from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
 

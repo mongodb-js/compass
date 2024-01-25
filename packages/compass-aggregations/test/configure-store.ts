@@ -6,7 +6,7 @@ import type {
 import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export default function configureStore(
@@ -30,7 +30,7 @@ export default function configureStore(
     {
       dataService,
       instance: {} as any,
-      preferences: defaultPreferencesInstance,
+      preferences: new ReadOnlyPreferenceAccess(),
       globalAppRegistry: new AppRegistry(),
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,

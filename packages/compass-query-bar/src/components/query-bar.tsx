@@ -19,7 +19,7 @@ import { connect } from '../stores/context';
 import {
   usePreference,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from 'compass-preferences-model/provider';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import {

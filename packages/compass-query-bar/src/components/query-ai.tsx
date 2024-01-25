@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import type { RootState } from '../stores/query-bar-store';
 import {

@@ -27,7 +27,7 @@ import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-for
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { UserPreferences } from 'compass-preferences-model';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'

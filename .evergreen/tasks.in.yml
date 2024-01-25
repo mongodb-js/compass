@@ -105,10 +105,12 @@ tasks:
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: <% out(packageTask.vars.compass_distribution) %>
+      - func: spawn-signing-server
       - func: package
         vars:
           debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: <% out(packageTask.vars.compass_distribution) %>
+      - func: verify-artifacts
       - func: save-all-artifacts
         vars:
           compass_distribution: <% out(packageTask.vars.compass_distribution) %>

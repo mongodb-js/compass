@@ -15,7 +15,7 @@ import {
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';

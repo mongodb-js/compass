@@ -17,7 +17,7 @@ import type {
   ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
 const tableStyles = css({

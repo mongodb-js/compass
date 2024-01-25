@@ -27,7 +27,7 @@ import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type ConnectFn = typeof connect;
 
