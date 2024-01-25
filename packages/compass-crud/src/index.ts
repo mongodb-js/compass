@@ -17,7 +17,10 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
-import { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import {
+  createFavoriteQueryStorageLocator,
+  createRecentQueryStorageLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
@@ -34,6 +37,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-CRUD-UI'),
     locateFavoriteQueryStorage: createFavoriteQueryStorageLocator,
+    locateRecentQueryStorage: createRecentQueryStorageLocator,
   }
 );
 

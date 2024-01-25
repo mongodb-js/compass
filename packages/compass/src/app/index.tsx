@@ -11,10 +11,12 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   FavoriteQueryStorage,
   PipelineStorage,
+  RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import {
   PipelineStorageProvider,
   FavoriteQueryStorageProvider,
+  RecentQueryStorageContextProvider,
 } from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
@@ -186,22 +188,32 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
+    const favoriteQueryStorageProviderValue = {
+      createStorage: (options) => new FavoriteQueryStorage(options),
+    };
+
+    const recentQueryStorageProviderValue = {
+      createStorage: (options) => new RecentQueryStorage(options),
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
             <PipelineStorageProvider value={new PipelineStorage()}>
               <FavoriteQueryStorageProvider
-                value={{
-                  createStorage: (options) => new FavoriteQueryStorage(options),
-                }}
+                value={favoriteQueryStorageProviderValue}
               >
-                <AppRegistryProvider>
-                  <CompassHomePlugin
-                    appName={remote.app.getName()}
-                    getAutoConnectInfo={getAutoConnectInfo}
-                  ></CompassHomePlugin>
-                </AppRegistryProvider>
+                <RecentQueryStorageContextProvider
+                  value={recentQueryStorageProviderValue}
+                >
+                  <AppRegistryProvider>
+                    <CompassHomePlugin
+                      appName={remote.app.getName()}
+                      getAutoConnectInfo={getAutoConnectInfo}
+                    ></CompassHomePlugin>
+                  </AppRegistryProvider>
+                </RecentQueryStorageContextProvider>
               </FavoriteQueryStorageProvider>
             </PipelineStorageProvider>
           </LoggerAndTelemetryProvider>

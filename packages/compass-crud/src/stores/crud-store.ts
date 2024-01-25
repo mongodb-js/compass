@@ -13,11 +13,14 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import {
-  type FavoriteQueryStorage,
+import type {
+  FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
-import type { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import type {
+  createFavoriteQueryStorageLocator,
+  createRecentQueryStorageLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 
 import {
   countDocuments,
@@ -276,7 +279,6 @@ type CrudStoreOptions = Pick<
   | 'isSearchIndexesSupported'
 > & {
   noRefreshOnConfigure?: boolean;
-  recentQueriesStorage?: RecentQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -407,13 +409,13 @@ class CrudStoreImpl
       | 'preferences'
       | 'logger'
       | 'locateFavoriteQueryStorage'
+      | 'locateRecentQueryStorage'
     >
   ) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
     this.favoriteQueriesStorage = services.locateFavoriteQueryStorage();
-    this.recentQueriesStorage =
-      options.recentQueriesStorage || new RecentQueryStorage();
+    this.recentQueriesStorage = services.locateRecentQueryStorage();
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
@@ -1945,6 +1947,7 @@ export type DocumentsPluginServices = {
   locateFavoriteQueryStorage: ReturnType<
     typeof createFavoriteQueryStorageLocator
   >;
+  locateRecentQueryStorage: ReturnType<typeof createRecentQueryStorageLocator>;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1956,6 +1959,7 @@ export function activateDocumentsPlugin(
     preferences,
     logger,
     locateFavoriteQueryStorage,
+    locateRecentQueryStorage,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1971,6 +1975,7 @@ export function activateDocumentsPlugin(
         preferences,
         logger,
         locateFavoriteQueryStorage,
+        locateRecentQueryStorage,
       }
     )
   ) as CrudStore;

@@ -18,8 +18,8 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import {
-  type FavoriteQueryStorage,
+import type {
+  FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
@@ -29,7 +29,10 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import type {
+  createFavoriteQueryStorageLocator,
+  createRecentQueryStorageLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -44,13 +47,13 @@ type QueryBarServices = {
   locateFavoriteQueryStorage: ReturnType<
     typeof createFavoriteQueryStorageLocator
   >;
+  locateRecentQueryStorage: ReturnType<typeof createRecentQueryStorageLocator>;
 };
 
-// TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
-// implemented yet, so we're keeping them separate from the type above
+// TODO(COMPASS-7412): this doesn't have service injector
+// implemented yet, so we're keeping it separate from the type above
 type QueryBarExtraServices = {
   atlasService?: AtlasService;
-  recentQueryStorage?: RecentQueryStorage;
 };
 
 export type QueryBarStoreOptions = CollectionTabPluginMetadata;
@@ -112,11 +115,12 @@ export function activatePlugin(
     preferences,
     logger,
     locateFavoriteQueryStorage,
+    locateRecentQueryStorage,
     atlasService = new AtlasService(),
-    recentQueryStorage = new RecentQueryStorage({ namespace }),
   } = services;
 
   const favoriteQueryStorage = locateFavoriteQueryStorage({ namespace });
+  const recentQueryStorage = locateRecentQueryStorage({ namespace });
   const store = configureStore(
     {
       namespace: namespace ?? '',
