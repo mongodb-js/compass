@@ -9,6 +9,7 @@ ls -l $ARTIFACTS_DIR
 # Use tmp directory for all gpg operations
 GPG_HOME=$(mktemp -d)
 TMP_FILE=$(mktemp)
+COMPASS_KEY="https://pgp.mongodb.com/compass.asc"
 
 trap_handler() {
   local code=$?
@@ -40,9 +41,18 @@ verify_using_codesign() {
   codesign -dv --verbose=4 $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
+verify_using_rpm() {
+  # RPM packages are signed using gpg and the signature is embedded in the package.
+  # Here, we need to import the key in `rpm` and then verify the signature.
+  echo "Importing key into rpm"
+  rpm --import $COMPASS_KEY > "$TMP_FILE" 2>&1
+  echo "Verifying $1 using rpm"
+  rpm -K $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+}
+
 setup_gpg() {
   echo "Importing Compass public key"
-  curl https://pgp.mongodb.com/compass.asc | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
+  curl $COMPASS_KEY | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
 }
 
 if [ "$IS_WINDOWS" = true ]; then
@@ -55,7 +65,7 @@ elif [ "$IS_UBUNTU" = true ]; then
   verify_using_gpg $LINUX_TAR_NAME
 elif [ "$IS_RHEL" = true ]; then
   setup_gpg
-  verify_using_gpg $RHEL_RPM_NAME
+  verify_using_rpm $RHEL_RPM_NAME
   verify_using_gpg $RHEL_TAR_NAME
 elif [ "$IS_OSX" = true ]; then
   setup_gpg
