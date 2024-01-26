@@ -13,7 +13,7 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { configureStore } from '../stores';
+import { configureStore } from '../../test/configure-store';
 import { SettingsModal } from './modal';
 
 describe('SettingsModal', function () {
@@ -24,12 +24,12 @@ describe('SettingsModal', function () {
     props?: Partial<ComponentProps<typeof SettingsModal>>
   ) => void;
 
-  beforeEach(function () {
+  beforeEach(async function () {
     onCloseSpy = spy();
     fetchSettingsSpy = stub().resolves();
     onSaveSpy = spy();
 
-    const store = configureStore({ logger: stub() as any });
+    const store = await configureStore();
     renderSettingsModal = (
       props: Partial<ComponentProps<typeof SettingsModal>> = {}
     ) => {

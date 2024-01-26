@@ -8,6 +8,7 @@ import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
@@ -35,6 +36,7 @@ export default function configureStore(
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
       logger: createNoopLoggerAndTelemetry(),
+      atlasService: new AtlasService(),
       ...services,
     },
     createActivateHelpers()

@@ -2,26 +2,21 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { stub } from 'sinon';
 import { Provider } from 'react-redux';
 import { GeneralSettings } from './general';
-import { configureStore } from '../../stores';
+import { configureStore } from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('GeneralSettings', function () {
   let container: HTMLElement;
-  let store: ReturnType<typeof configureStore>;
+  let store: Awaited<ReturnType<typeof configureStore>>;
 
   function getSettings() {
     return store.getState().settings.settings;
   }
 
   beforeEach(async function () {
-    store = configureStore({
-      logger: stub() as any,
-      preferences: await createSandboxFromDefaultPreferences(),
-    });
+    store = await configureStore();
     await store.dispatch(fetchSettings());
     const component = () => (
       <Provider store={store}>

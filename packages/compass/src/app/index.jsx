@@ -10,6 +10,7 @@ import {
   getActiveUser,
 } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
+import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 // https://github.com/nodejs/node/issues/40537
@@ -62,6 +63,7 @@ import { setupIntercom } from './intercom';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -179,12 +181,14 @@ const Application = View.extend({
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <AtlasServiceProvider value={new AtlasService()}>
+              <AppRegistryProvider>
+                <CompassHomePlugin
+                  appName={remote.app.getName()}
+                  getAutoConnectInfo={getAutoConnectInfo}
+                ></CompassHomePlugin>
+              </AppRegistryProvider>
+            </AtlasServiceProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

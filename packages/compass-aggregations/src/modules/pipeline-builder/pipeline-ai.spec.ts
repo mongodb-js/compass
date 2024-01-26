@@ -35,9 +35,11 @@ describe('AIPipelineReducer', function () {
         const store = configureStore(
           {
             namespace: 'database.collection',
-            atlasService: mockAtlasService as any,
           },
-          mockDataService as any
+          mockDataService as any,
+          {
+            atlasService: mockAtlasService as any,
+          }
         );
 
         // Set autoPreview false so that it doesn't start the
@@ -86,7 +88,9 @@ describe('AIPipelineReducer', function () {
             .rejects(new Error('500 Internal Server Error')),
         };
 
-        const store = configureStore({ atlasService: mockAtlasService as any });
+        const store = configureStore({}, undefined, {
+          atlasService: mockAtlasService as any,
+        });
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
@@ -109,7 +113,9 @@ describe('AIPipelineReducer', function () {
           on: sandbox.stub(),
           getAggregationFromUserInput: sandbox.stub().rejects(authError),
         };
-        const store = configureStore({ atlasService: mockAtlasService as any });
+        const store = configureStore({}, undefined, {
+          atlasService: mockAtlasService as any,
+        });
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(store.getState().pipelineBuilder.aiPipeline).to.deep.eq({
           status: 'ready',
@@ -173,9 +179,11 @@ describe('AIPipelineReducer', function () {
       const store = configureStore(
         {
           namespace: 'database.collection',
-          atlasService: mockAtlasService as any,
         },
-        mockDataService as any
+        mockDataService as any,
+        {
+          atlasService: mockAtlasService as any,
+        }
       );
 
       // Set autoPreview false so that it doesn't start the

@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { fetchSettings, changeFieldValue, saveSettings } from './settings';
-import { configureStore } from '.';
+import { configureStore } from '../../test/configure-store';
 
 describe('Settings store actions', function () {
   const sinonSandbox = Sinon.createSandbox();
@@ -24,7 +24,7 @@ describe('Settings store actions', function () {
 
   describe('fetchSettings', function () {
     it('fetches current settings and adds them to the state', async function () {
-      const store = configureStore({ preferencesSandbox });
+      const store = await configureStore({ preferencesSandbox });
       const actionPromise = store.dispatch(fetchSettings() as any);
       expect(store.getState()).to.have.nested.property(
         'settings.loadingState',
@@ -46,7 +46,7 @@ describe('Settings store actions', function () {
 
   describe('changeFieldValue', function () {
     it('updates the value of a single field', async function () {
-      const store = configureStore({ preferencesSandbox });
+      const store = await configureStore({ preferencesSandbox });
       await store.dispatch(fetchSettings() as any);
       await store.dispatch(changeFieldValue('readOnly', true) as any);
       expect(preferencesSandbox.updateField).to.have.been.calledOnceWithExactly(
@@ -58,7 +58,7 @@ describe('Settings store actions', function () {
 
   describe('saveSettings', function () {
     it('updates the global preferences struct', async function () {
-      const store = configureStore({ preferencesSandbox });
+      const store = await configureStore({ preferencesSandbox });
       await store.dispatch(fetchSettings() as any);
       await store.dispatch(saveSettings() as any);
       expect(preferencesSandbox.applySandboxChangesToPreferences).to.have.been

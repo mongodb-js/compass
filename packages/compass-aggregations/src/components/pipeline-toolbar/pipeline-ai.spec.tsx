@@ -41,11 +41,10 @@ describe('PipelineAI Component', function () {
   };
 
   const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
-    const store = configureStore(
-      { atlasService: mockAtlasService, ...opts },
-      undefined,
-      { preferences }
-    );
+    const store = configureStore(opts, undefined, {
+      preferences,
+      atlasService: mockAtlasService,
+    });
     render(
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>

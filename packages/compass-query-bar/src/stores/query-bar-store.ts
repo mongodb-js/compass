@@ -22,7 +22,7 @@ import {
   FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
@@ -40,12 +40,12 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasService: AtlasService;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
 // implemented yet, so we're keeping them separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasService;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
 };
@@ -108,7 +108,7 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    atlasService = new AtlasService(),
+    atlasService,
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
   } = services;

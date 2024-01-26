@@ -23,16 +23,19 @@
     "main.js",
     "main.d.ts",
     "renderer.js",
-    "renderer.d.ts"
+    "renderer.d.ts",
+    "prodiver.js"
   ],
   "license": "SSPL",
   "exports": {
     "./main": "./main.js",
-    "./renderer": "./renderer.js"
+    "./renderer": "./renderer.js",
+    "./provider": "./dist/provider.js"
   },
   "compass:exports": {
     "./main": "./src/main.ts",
-    "./renderer": "./src/renderer.ts"
+    "./renderer": "./src/renderer.ts",
+    "./provider": "./dist/provider.js"
   },
   "scripts": {
     "bootstrap": "npm run compile",

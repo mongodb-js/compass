@@ -4,7 +4,7 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -26,12 +26,13 @@ type ThunkExtraArg = {
 };
 
 export function configureStore(
-  options: Pick<ThunkExtraArg, 'logger' | 'preferences'> &
+  options: Pick<ThunkExtraArg, 'logger' | 'preferences' | 'atlasService'> &
     Partial<ThunkExtraArg>
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
-  const atlasService = options?.atlasService ?? new AtlasService();
+
+  const { atlasService } = options;
 
   const store = createStore(
     combineReducers({
@@ -85,13 +86,15 @@ const onActivated = (
     globalAppRegistry,
     logger,
     preferences,
+    atlasService,
   }: {
     globalAppRegistry: AppRegistry;
     logger: LoggerAndTelemetry;
     preferences: PreferencesAccess;
+    atlasService: AtlasService;
   }
 ) => {
-  const store = configureStore({ logger, preferences });
+  const store = configureStore({ logger, preferences, atlasService });
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());
