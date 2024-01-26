@@ -16,7 +16,7 @@ import {
 import {
   PipelineStorageProvider,
   FavoriteQueryStorageProvider,
-  RecentQueryStorageContextProvider,
+  RecentQueryStorageProvider,
 } from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
@@ -204,7 +204,7 @@ const Application = View.extend({
               <FavoriteQueryStorageProvider
                 value={favoriteQueryStorageProviderValue}
               >
-                <RecentQueryStorageContextProvider
+                <RecentQueryStorageProvider
                   value={recentQueryStorageProviderValue}
                 >
                   <AppRegistryProvider>
@@ -213,7 +213,7 @@ const Application = View.extend({
                       getAutoConnectInfo={getAutoConnectInfo}
                     ></CompassHomePlugin>
                   </AppRegistryProvider>
-                </RecentQueryStorageContextProvider>
+                </RecentQueryStorageProvider>
               </FavoriteQueryStorageProvider>
             </PipelineStorageProvider>
           </LoggerAndTelemetryProvider>

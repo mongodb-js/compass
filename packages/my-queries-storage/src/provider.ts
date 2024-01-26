@@ -17,8 +17,7 @@ const RecentQueryStorageContext = createContext<{
 export const PipelineStorageProvider = PipelineStorageContext.Provider;
 export const FavoriteQueryStorageProvider =
   FavoriteQueryStorageContext.Provider;
-export const RecentQueryStorageContextProvider =
-  RecentQueryStorageContext.Provider;
+export const RecentQueryStorageProvider = RecentQueryStorageContext.Provider;
 
 export const pipelineStorageLocator = (): PipelineStorage => {
   const pipelineStorage = useContext(PipelineStorageContext);
