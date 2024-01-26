@@ -6,12 +6,15 @@ import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import type {
+  FavoriteQueryStorage,
+  PipelineStorage,
+} from '@mongodb-js/my-queries-storage';
 import type { DataService } from 'mongodb-data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { createFavoriteQueryStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import type { FavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
 
 type MyQueriesServices = {
   dataService: DataService;
@@ -20,9 +23,7 @@ type MyQueriesServices = {
   logger: LoggerAndTelemetry;
   pipelineStorage: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-  locateFavoriteQueryStorage: ReturnType<
-    typeof createFavoriteQueryStorageLocator
-  >;
+  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
 };
 
 export function configureStore({
@@ -32,7 +33,7 @@ export function configureStore({
   logger,
   workspaces,
   pipelineStorage,
-  locateFavoriteQueryStorage,
+  favoriteQueryStorageAccess,
 }: MyQueriesServices) {
   return createStore(
     combineReducers({
@@ -47,7 +48,7 @@ export function configureStore({
         instance,
         logger,
         pipelineStorage,
-        queryStorage: locateFavoriteQueryStorage(),
+        queryStorage: favoriteQueryStorageAccess.createStorage(),
         workspaces,
       })
     )
@@ -62,7 +63,7 @@ type SavedQueryAggregationExtraArgs = Omit<
   MyQueriesServices,
   'locateFavoriteQueryStorage'
 > & {
-  queryStorage: ReturnType<MyQueriesServices['locateFavoriteQueryStorage']>;
+  queryStorage: FavoriteQueryStorage;
 };
 
 export type SavedQueryAggregationThunkAction<

@@ -18,8 +18,8 @@ import type {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import type {
-  createFavoriteQueryStorageLocator,
-  createRecentQueryStorageLocator,
+  FavoriteQueryStorageAccess,
+  RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
 import {
@@ -408,14 +408,15 @@ class CrudStoreImpl
       | 'globalAppRegistry'
       | 'preferences'
       | 'logger'
-      | 'locateFavoriteQueryStorage'
-      | 'locateRecentQueryStorage'
-    >
+    > & {
+      favoriteQueryStorage: FavoriteQueryStorage;
+      recentQueryStorage: RecentQueryStorage;
+    }
   ) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
-    this.favoriteQueriesStorage = services.locateFavoriteQueryStorage();
-    this.recentQueriesStorage = services.locateRecentQueryStorage();
+    this.favoriteQueriesStorage = services.favoriteQueryStorage;
+    this.recentQueriesStorage = services.recentQueryStorage;
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
@@ -1944,10 +1945,8 @@ export type DocumentsPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  locateFavoriteQueryStorage: ReturnType<
-    typeof createFavoriteQueryStorageLocator
-  >;
-  locateRecentQueryStorage: ReturnType<typeof createRecentQueryStorageLocator>;
+  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess: RecentQueryStorageAccess;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1958,8 +1957,8 @@ export function activateDocumentsPlugin(
     globalAppRegistry,
     preferences,
     logger,
-    locateFavoriteQueryStorage,
-    locateRecentQueryStorage,
+    favoriteQueryStorageAccess,
+    recentQueryStorageAccess,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1974,8 +1973,8 @@ export function activateDocumentsPlugin(
         globalAppRegistry,
         preferences,
         logger,
-        locateFavoriteQueryStorage,
-        locateRecentQueryStorage,
+        favoriteQueryStorage: favoriteQueryStorageAccess.createStorage(),
+        recentQueryStorage: recentQueryStorageAccess.createStorage(),
       }
     )
   ) as CrudStore;

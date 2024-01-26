@@ -1,18 +1,24 @@
-import { createContext, useContext, useRef } from 'react';
+import { createContext, useContext } from 'react';
 import type { PipelineStorage } from './pipeline-storage';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
-const PipelineStorageContext = createContext<PipelineStorage | null>(null);
-const FavoriteQueryStorageContext = createContext<{
-  createStorage: (
+export type FavoriteQueryStorageAccess = {
+  createStorage(
     ...options: ConstructorParameters<typeof FavoriteQueryStorage>
-  ) => FavoriteQueryStorage;
-} | null>(null);
-const RecentQueryStorageContext = createContext<{
-  createStorage: (
+  ): FavoriteQueryStorage;
+};
+
+export type RecentQueryStorageAccess = {
+  createStorage(
     ...options: ConstructorParameters<typeof RecentQueryStorage>
-  ) => RecentQueryStorage;
-} | null>(null);
+  ): RecentQueryStorage;
+};
+
+const PipelineStorageContext = createContext<PipelineStorage | null>(null);
+const FavoriteQueryStorageContext =
+  createContext<FavoriteQueryStorageAccess | null>(null);
+const RecentQueryStorageContext =
+  createContext<RecentQueryStorageAccess | null>(null);
 
 export const PipelineStorageProvider = PipelineStorageContext.Provider;
 export const FavoriteQueryStorageProvider =
@@ -27,46 +33,19 @@ export const pipelineStorageLocator = (): PipelineStorage => {
   return pipelineStorage;
 };
 
-export const createFavoriteQueryStorageLocator =
-  () =>
-  (
-    ...options: ConstructorParameters<typeof FavoriteQueryStorage>
-  ): FavoriteQueryStorage => {
-    const context = useContext(FavoriteQueryStorageContext);
-    if (!context) {
+export const favoriteQueryStorageAccessLocator =
+  (): FavoriteQueryStorageAccess => {
+    const favoriteQueryStorageAccess = useContext(FavoriteQueryStorageContext);
+    if (!favoriteQueryStorageAccess) {
       throw new Error('No FavoriteQueryStorage available in this context');
     }
-
-    const storageRef = useRef<Map<string, FavoriteQueryStorage>>(new Map());
-    const key = JSON.stringify(options);
-    const queryStorage = storageRef.current.get(key);
-    if (!queryStorage) {
-      const favoriteQueryStorage = context.createStorage(...options);
-      storageRef.current.set(key, favoriteQueryStorage);
-      return favoriteQueryStorage;
-    }
-
-    return queryStorage;
+    return favoriteQueryStorageAccess;
   };
 
-export const createRecentQueryStorageLocator =
-  () =>
-  (
-    ...options: ConstructorParameters<typeof RecentQueryStorage>
-  ): RecentQueryStorage => {
-    const context = useContext(RecentQueryStorageContext);
-    if (!context) {
-      throw new Error('No RecentQueryStorage available in this context');
-    }
-
-    const storageRef = useRef<Map<string, RecentQueryStorage>>(new Map());
-    const key = JSON.stringify(options);
-    const queryStorage = storageRef.current.get(key);
-    if (!queryStorage) {
-      const recentQueryStorage = context.createStorage(...options);
-      storageRef.current.set(key, recentQueryStorage);
-      return recentQueryStorage;
-    }
-
-    return queryStorage;
-  };
+export const recentQueryStorageAccessLocator = (): RecentQueryStorageAccess => {
+  const recentQueryStorageAccess = useContext(RecentQueryStorageContext);
+  if (!recentQueryStorageAccess) {
+    throw new Error('No RecentQueryStorage available in this context');
+  }
+  return recentQueryStorageAccess;
+};

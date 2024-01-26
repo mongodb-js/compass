@@ -32,8 +32,11 @@ describe('AggregationsQueriesList', function () {
   const Plugin = MyQueriesPlugin.withMockServices({
     dataService,
     instance,
-    locateFavoriteQueryStorage: () =>
-      queryStorage as unknown as FavoriteQueryStorage,
+    favoriteQueryStorageAccess: {
+      createStorage() {
+        return queryStorage as unknown as FavoriteQueryStorage;
+      },
+    },
     pipelineStorage: pipelineStorage as unknown as PipelineStorage,
   });
 

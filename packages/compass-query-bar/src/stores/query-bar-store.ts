@@ -30,8 +30,8 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type {
-  createFavoriteQueryStorageLocator,
-  createRecentQueryStorageLocator,
+  FavoriteQueryStorageAccess,
+  RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
 // Partial of DataService that mms shares with Compass.
@@ -44,10 +44,8 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  locateFavoriteQueryStorage: ReturnType<
-    typeof createFavoriteQueryStorageLocator
-  >;
-  locateRecentQueryStorage: ReturnType<typeof createRecentQueryStorageLocator>;
+  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess: RecentQueryStorageAccess;
 };
 
 // TODO(COMPASS-7412): this doesn't have service injector
@@ -114,13 +112,17 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    locateFavoriteQueryStorage,
-    locateRecentQueryStorage,
+    favoriteQueryStorageAccess,
+    recentQueryStorageAccess,
     atlasService = new AtlasService(),
   } = services;
 
-  const favoriteQueryStorage = locateFavoriteQueryStorage({ namespace });
-  const recentQueryStorage = locateRecentQueryStorage({ namespace });
+  const favoriteQueryStorage = favoriteQueryStorageAccess.createStorage({
+    namespace,
+  });
+  const recentQueryStorage = recentQueryStorageAccess.createStorage({
+    namespace,
+  });
   const store = configureStore(
     {
       namespace: namespace ?? '',

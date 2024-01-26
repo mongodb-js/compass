@@ -12,7 +12,7 @@ import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import {
   pipelineStorageLocator,
-  createFavoriteQueryStorageLocator,
+  favoriteQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
 
 const serviceLocators = {
@@ -25,7 +25,7 @@ const serviceLocators = {
   logger: createLoggerAndTelemetryLocator('COMPASS-MY-QUERIES-UI'),
   workspaces: workspacesServiceLocator,
   pipelineStorage: pipelineStorageLocator,
-  locateFavoriteQueryStorage: createFavoriteQueryStorageLocator,
+  favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
 };
 
 export const MyQueriesPlugin = registerHadronPlugin<
