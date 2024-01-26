@@ -341,17 +341,6 @@ export class Compass {
   }
 
   async stop(): Promise<void> {
-    // TODO: we don't have main logs to write :(
-    /*
-    const mainLogs = [];
-    const mainLogPath = path.join(
-      LOG_PATH,
-      `electron-main.${name}.log`
-    );
-    debug(`Writing application main process log to ${mainLogPath}`);
-    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
-    */
-
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${this.name}.json`
@@ -495,15 +484,10 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function startCompassElectron(
-  name: string,
-  opts: StartCompassOptions = {}
-): Promise<Compass> {
-  const { testPackagedApp, binary } = await getCompassExecutionParameters();
+async function processCommonOpts(opts: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
-  // TODO: also do this for compass-web
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
   if (defaultUserDataDir && opts.firstRun) {
@@ -519,7 +503,6 @@ async function startCompassElectron(
     needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
   }
 
-  // TODO: also do this for compass-web
   // Calculate the userDataDir once so it will be the same between runs. That
   // way we can test first run vs second run experience.
   if (!defaultUserDataDir) {
@@ -534,51 +517,75 @@ async function startCompassElectron(
   );
   const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
-  // TODO: also do this for compass-web
   // Ensure that the user data dir exists
   await fs.mkdir(defaultUserDataDir, { recursive: true });
 
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
-  // TODO: also do this for compass-web
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
   await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const chromeArgs: string[] = [];
+  // https://webdriver.io/docs/options/#webdriver-options
+  const webdriverOptions = {
+    logLevel: 'info' as const,
+    outputDir: webdriverLogPath,
+  };
+
+  // https://webdriver.io/docs/options/#webdriverio
+  const wdioOptions = {
+    // default is 3000ms
+    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
+      : 120_000, // shorter than the test timeout so the exact line will fail, not the test
+    // default is 500ms
+    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
+      : 100,
+  };
+
+  process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
+  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+  process.env.CHROME_LOG_FILE = chromedriverLogPath;
+
+  // https://peter.sh/experiments/chromium-command-line-switches/
+  // https://www.electronjs.org/docs/latest/api/command-line-switches
+  const chromeArgs: string[] = [
+    ...CHROME_STARTUP_FLAGS,
+    `--user-data-dir=${defaultUserDataDir}`,
+  ];
+
+  return {
+    needsCloseWelcomeModal,
+    webdriverOptions,
+    wdioOptions,
+    chromeArgs,
+  };
+}
+
+async function startCompassElectron(
+  name: string,
+  opts: StartCompassOptions = {}
+): Promise<Compass> {
+  const { testPackagedApp, binary } = await getCompassExecutionParameters();
+
+  const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
+    await processCommonOpts();
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
     chromeArgs.push(`--app=${COMPASS_PATH}`);
-    //process.chdir(COMPASS_PATH); // TODO: do we need this?
   }
 
-  // https://peter.sh/experiments/chromium-command-line-switches/
-  // https://www.electronjs.org/docs/latest/api/command-line-switches
-  chromeArgs.push(
-    ...CHROME_STARTUP_FLAGS,
-    `--user-data-dir=${defaultUserDataDir}`,
-
-    // chomedriver options
-    // TODO: cant get this to work
-    //`--log-path=${chromedriverLogPath}`,
-    //'--verbose',
-
-    // electron/chromium options
-    // TODO: cant get this to work either
-    //'--enable-logging=file',
-    //`--log-file=${chromedriverLogPath}`,
-    //'--log-level=INFO',
-    //'--v=1',
-    // --vmodule=pattern
-
+  if (opts.firstRun) {
     // by default make sure we get the welcome modal
-    ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
-
-    ...(opts.extraSpawnArgs ?? [])
-  );
+    chromeArgs.push('--showed-network-opt-in=true');
+  }
+  if (opts.extraSpawnArgs) {
+    chromeArgs.push(...opts.extraSpawnArgs);
+  }
 
   // Electron on Windows interprets its arguments in a weird way where
   // the second positional argument inserted by webdriverio (about:blank)
@@ -598,42 +605,16 @@ async function startCompassElectron(
     return [...this];
   };
 
-  // TODO: also for compass-web
-  // https://webdriver.io/docs/options/#webdriver-options
-  const webdriverOptions = {
-    logLevel: 'info' as const,
-    outputDir: webdriverLogPath,
-  };
-
-  // TODO: also for compass-web
-  // https://webdriver.io/docs/options/#webdriverio
-  const wdioOptions = {
-    // default is 3000ms
-    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
-      : 120_000, // shorter than the test timeout so the exact line will fail, not the test
-    // default is 500ms
-    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
-      : 100,
-  };
-
   const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else
   process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
-  // TODO: we should probably do this for compass-web too
-  process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
-  // TODO: we should probably do this for compass-web too
-  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
-  process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
   // we disable the cues completely for the e2e tests
-  // TODO: also for compass-web
   process.env.DISABLE_GUIDE_CUES = 'true';
 
   const options = {
@@ -645,21 +626,10 @@ async function startCompassElectron(
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
-      // more chrome options
-      /*
-      'loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      },
-      'goog:loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      }
-      */
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts,
+    ...opts, // TODO: Is this a good idea? We're passing everything on to remote()
   };
 
   debug('Starting compass via webdriverio with the following configuration:');
@@ -743,6 +713,13 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
+  const {
+    //needsCloseWelcomeModal,
+    webdriverOptions,
+    wdioOptions,
+    //chromeArgs
+  } = await processCommonOpts();
+
   const browser: CompassBrowser = (await remote({
     capabilities: {
       browserName: BROWSER_NAME, // 'chrome' or 'firefox'
@@ -761,7 +738,8 @@ export async function startBrowser(
         args: ['whitelisted-ips='],
       },
     },
-    // TODO: copy all the relevant config from our electron-based config like wdio timeouts
+    ...webdriverOptions,
+    ...wdioOptions,
   })) as CompassBrowser;
   await browser.navigateTo('http://localhost:8080/');
   const compass = new Compass(name, browser, {

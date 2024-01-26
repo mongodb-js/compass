@@ -13,6 +13,7 @@ export async function setValueVisible(
     await element.clearValue();
     await browser.keys([Key.Ctrl, 'a']);
     await browser.keys('Delete');
+    await browser.screenshot('setValueVisible_clear.png');
     await element.setValue(value);
     const actualValue = await element.getValue();
     if (actualValue !== value) {
