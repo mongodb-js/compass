@@ -8,7 +8,6 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import type { DataService } from 'mongodb-data-service';
 import { activatePlugin } from './stores';
 import AggregationsQueriesList from './components/aggregations-queries-list';
-import type { RecentQueryStorage } from '@mongodb-js/my-queries-storage';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
@@ -29,9 +28,7 @@ const serviceLocators = {
 
 export const MyQueriesPlugin = registerHadronPlugin<
   React.ComponentProps<typeof AggregationsQueriesList>,
-  typeof serviceLocators & {
-    queryStorage?: () => RecentQueryStorage;
-  }
+  typeof serviceLocators
 >(
   {
     name: 'MyQueries',

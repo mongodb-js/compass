@@ -11,6 +11,10 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { queries, pipelines, DATE } from '../test/fixtures';
 import { MyQueriesPlugin } from '.';
+import type {
+  PipelineStorage,
+  FavoriteQueryStorage,
+} from '@mongodb-js/my-queries-storage';
 
 describe('AggregationsQueriesList', function () {
   const sandbox = Sinon.createSandbox();
@@ -28,8 +32,9 @@ describe('AggregationsQueriesList', function () {
   const Plugin = MyQueriesPlugin.withMockServices({
     dataService,
     instance,
-    queryStorage,
-    pipelineStorage,
+    locateFavoriteQueryStorage: () =>
+      queryStorage as unknown as FavoriteQueryStorage,
+    pipelineStorage: pipelineStorage as unknown as PipelineStorage,
   });
 
   afterEach(function () {

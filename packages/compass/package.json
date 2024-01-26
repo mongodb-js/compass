@@ -186,6 +186,7 @@
     "@mongodb-js/get-os-info": "^0.3.23",
     "@mongodb-js/mocha-config-compass": "^1.3.6",
     "@mongodb-js/mongodb-downloader": "^0.2.1",
+    "@mongodb-js/my-queries-storage": "^0.4.3",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.5.3",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
