@@ -639,7 +639,6 @@ class Target {
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
 
-    this.linux_rpm_sign_filename = getSignedFilename(this.linux_rpm_filename);
     this.rhel_tar_sign_filename = getSignedFilename(this.rhel_tar_filename);
 
     this.assets = [
@@ -656,10 +655,6 @@ class Target {
         name: this.linux_rpm_filename,
         path: this.dest(this.linux_rpm_filename),
         downloadCenter: true
-      },
-      {
-        name: this.linux_rpm_sign_filename,
-        path: this.dest(this.linux_rpm_sign_filename),
       },
       {
         name: this.linux_tar_filename,
