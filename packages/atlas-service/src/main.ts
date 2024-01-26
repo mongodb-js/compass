@@ -85,22 +85,6 @@ export async function throwIfNotOk(
   }
 }
 
-function throwIfAINotEnabled(
-  atlasService: typeof AtlasService,
-  preferences: PreferencesAccess
-) {
-  if (!isAIFeatureEnabled(preferences.getPreferences())) {
-    throw new Error(
-      "Compass' AI functionality is not currently enabled. Please try again later."
-    );
-  }
-  // Only throw if we actually have userInfo / logged in. Otherwise allow
-  // request to fall through so that we can get a proper network error
-  if (atlasService['currentUser']?.enabledAIFeature === false) {
-    throw new Error("Can't use AI before accepting terms and conditions");
-  }
-}
-
 const AI_MAX_REQUEST_SIZE = 10000;
 
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
@@ -142,6 +126,14 @@ export class AtlasService {
   private static currentUser: AtlasUserInfo | null = null;
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
+
+  public static privateUnAuthEndpoint = (path: string): string => {
+    return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
+  };
+
+  public static privateAtlasEndpoint = (path: string): string => {
+    return `${this.config.atlasApiBaseUrl}/${path}`;
+  };
 
   public static unAuthenticatedFetch = async (
     url: RequestInfo,
@@ -354,10 +346,6 @@ export class AtlasService {
 
   private static throwIfNetworkTrafficDisabled() {
     throwIfNetworkTrafficDisabled(this.preferences);
-  }
-
-  private static throwIfAINotEnabled() {
-    throwIfAINotEnabled(this, this.preferences);
   }
 
   private static async requestOAuthToken({

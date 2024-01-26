@@ -27,6 +27,7 @@ export interface PreferencesAccess {
     callback: (value: AllPreferences[K]) => void
   ): () => void;
   createSandbox(): Promise<PreferencesAccess>;
+  getUserId?(): string;
 }
 
 type OnPreferencesChangedCallback = (
