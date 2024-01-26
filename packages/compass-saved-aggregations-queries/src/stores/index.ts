@@ -58,7 +58,12 @@ export type RootState = ReturnType<
   ReturnType<typeof configureStore>['getState']
 >;
 
-type SavedQueryAggregationExtraArgs = MyQueriesServices;
+type SavedQueryAggregationExtraArgs = Omit<
+  MyQueriesServices,
+  'locateFavoriteQueryStorage'
+> & {
+  queryStorage: ReturnType<MyQueriesServices['locateFavoriteQueryStorage']>;
+};
 
 export type SavedQueryAggregationThunkAction<
   R,
