@@ -18,6 +18,36 @@ type HostInformation = {
   public_cloud_name?: string;
 };
 
+async function getPublicCloudInfo(host: string): Promise<{
+  public_cloud_name?: string;
+  is_public_cloud?: boolean;
+}> {
+  try {
+    const { isAws, isAzure, isGcp } = await getCloudInfo(host);
+
+    const public_cloud_name = isAws
+      ? 'AWS'
+      : isAzure
+      ? 'Azure'
+      : isGcp
+      ? 'GCP'
+      : undefined;
+
+    if (public_cloud_name === undefined) {
+      return { is_public_cloud: false };
+    }
+
+    return {
+      is_public_cloud: true,
+      public_cloud_name,
+    };
+  } catch (err) {
+    debug('getCloudInfo failed', err);
+
+    return {};
+  }
+}
+
 async function getHostInformation(
   host: string | null
 ): Promise<HostInformation> {
@@ -47,41 +77,14 @@ async function getHostInformation(
     };
   }
 
-  const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
-    (err: Error) => {
-      debug('getCloudInfo failed', err);
-      return {
-        isAws: false,
-        isAzure: false,
-        isGcp: false,
-      };
-    }
-  );
+  const publicCloudInfo = await getPublicCloudInfo(host);
 
-  const isPublicCloud = isAws || isAzure || isGcp;
-  const publicCloudName = isAws
-    ? 'AWS'
-    : isAzure
-    ? 'Azure'
-    : isGcp
-    ? 'GCP'
-    : undefined;
-
-  const result: HostInformation = {
+  return {
     is_localhost: false,
     is_do_url: false,
     is_atlas_url: isAtlas(host),
+    ...publicCloudInfo,
   };
-
-  if (typeof isPublicCloud !== 'undefined') {
-    result.is_public_cloud = isPublicCloud;
-  }
-
-  if (typeof publicCloudName !== 'undefined') {
-    result.public_cloud_name = publicCloudName;
-  }
-
-  return result;
 }
 
 function getCsfleInformation(
