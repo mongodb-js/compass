@@ -50,9 +50,14 @@ async function getHostInformation(
   const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
     (err: Error) => {
       debug('getCloudInfo failed', err);
-      return {};
+      return {
+        isAws: false,
+        isAzure: false,
+        isGcp: false,
+      };
     }
   );
+
   const isPublicCloud = isAws || isAzure || isGcp;
   const publicCloudName = isAws
     ? 'AWS'
