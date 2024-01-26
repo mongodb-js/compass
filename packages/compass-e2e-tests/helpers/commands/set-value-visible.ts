@@ -9,8 +9,8 @@ export async function setValueVisible(
   await browser.waitUntil(async () => {
     const element = await browser.$(selector);
     await element.waitForDisplayed();
-    await element.click(); // focus
     await element.clearValue();
+    await element.click(); // focus
     await browser.keys([Key.Ctrl, 'a']);
     await browser.keys('Delete');
     await browser.screenshot('setValueVisible_clear.png');

@@ -579,8 +579,7 @@ async function startCompassElectron(
     chromeArgs.push(`--app=${COMPASS_PATH}`);
   }
 
-  if (opts.firstRun) {
-    // by default make sure we get the welcome modal
+  if (opts.firstRun === false) {
     chromeArgs.push('--showed-network-opt-in=true');
   }
   if (opts.extraSpawnArgs) {
@@ -734,9 +733,6 @@ export async function startBrowser(
       // NOTE: The version of chromedriver or geckodriver in play might also be
       // relevant.
       browserVersion: 'latest',
-      'goog:chromeOptions': {
-        args: ['whitelisted-ips='],
-      },
     },
     ...webdriverOptions,
     ...wdioOptions,

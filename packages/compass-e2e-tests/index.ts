@@ -138,6 +138,9 @@ function cleanup() {
     }
     debug('Done stopping');
   }
+
+  // since the webdriverio update something is messing with the terminal's cursor. this brings it back
+  crossSpawn.sync('tput', ['cnorm']);
 }
 
 async function main() {
