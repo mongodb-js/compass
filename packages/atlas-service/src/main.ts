@@ -2,7 +2,7 @@ import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import { AtlasServiceError } from './util';
+import { AtlasServiceError, hasExtraneousKeys } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -23,11 +23,7 @@ import type {
   AtlasUserInfo,
 } from './util';
 import type { AtlasUserConfig } from './user-config-store';
-import {
-  validateAIQueryResponse,
-  validateAIAggregationResponse,
-  validateAIFeatureEnablementResponse,
-} from './util';
+import { validateAIQueryResponse } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -147,17 +143,90 @@ export class AtlasService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  private static fetch = (
+  public static unAuthenticatedFetch = async (
     url: RequestInfo,
     init: RequestInit = {}
   ): Promise<Response> => {
-    return nodeFetch(url, {
+    await this.initPromise;
+    this.throwIfNetworkTrafficDisabled();
+    throwIfAborted(init.signal as AbortSignal);
+    log.info(
+      mongoLogId(1_001_000_292),
+      'AtlasService',
+      'Making an unauthenticated fetch',
+      { url }
+    );
+    try {
+      const res = await nodeFetch(url, {
+        ...init,
+        headers: {
+          ...init.headers,
+          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+        },
+      });
+
+      if (res.ok) {
+        return res;
+      }
+
+      const messageJSON = await res.json().catch(() => undefined);
+      if (messageJSON && isServerError(messageJSON)) {
+        throw new AtlasServiceError(
+          'ServerError',
+          res.status,
+          messageJSON.detail ?? 'Internal server error',
+          messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
+        );
+      } else {
+        throw new AtlasServiceError(
+          'NetworkError',
+          res.status,
+          res.statusText,
+          `${res.status}`
+        );
+      }
+    } catch (err) {
+      log.info(mongoLogId(1_001_000_291), 'AtlasService', 'Fetch errored', {
+        url,
+        err,
+      });
+      throw err;
+    }
+  };
+
+  public static unAuthenticatedFetchJson = async <T>(
+    url: RequestInfo,
+    init: RequestInit = {}
+  ): Promise<T> => {
+    throwIfAborted(init.signal as AbortSignal);
+    const body = await this.unAuthenticatedFetch(url, init);
+    return body.json();
+  };
+
+  public static fetch = async (
+    url: RequestInfo,
+    init: RequestInit = {}
+  ): Promise<Response> => {
+    throwIfAborted(init.signal as AbortSignal);
+    const token = await this.maybeGetToken({
+      signal: init.signal as AbortSignal,
+    });
+    return await this.unAuthenticatedFetch(url, {
       ...init,
       headers: {
         ...init.headers,
-        'User-Agent': `${app.getName()}/${app.getVersion()}`,
+        Authorization: `Bearer ${token ?? ''}`,
       },
     });
+  };
+
+  public static fetchJson = async <T>(
+    url: RequestInfo,
+    init: RequestInit = {}
+  ): Promise<T> => {
+    throwIfAborted(init.signal as AbortSignal);
+    const response = await this.fetch(url, init);
+    return await response.json();
   };
 
   private static secretStore = new SecretStore();
@@ -460,7 +529,7 @@ export class AtlasService {
     this.currentUser ??= await (async () => {
       const token = await this.maybeGetToken({ signal });
 
-      const res = await this.fetch(
+      const res = await this.unAuthenticatedFetch(
         `${this.config.atlasLogin.issuer}/v1/userinfo`,
         {
           headers: {
@@ -520,7 +589,7 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.fetch(url.toString(), {
+    const res = await this.unAuthenticatedFetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -555,7 +624,7 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.fetch(url.toString(), {
+    const res = await this.unAuthenticatedFetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -572,40 +641,27 @@ export class AtlasService {
   }
 
   static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    this.throwIfNetworkTrafficDisabled();
-
     const userId = await this.getUserId();
-    const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
-
-    log.info(
-      mongoLogId(1_001_000_227),
-      'AtlasService',
-      'Fetching if the AI feature is enabled via hello endpoint',
-      { userId, url }
+    const body = await this.unAuthenticatedFetchJson<AIFeatureEnablement>(
+      `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`
     );
 
-    const res = await this.fetch(url);
-
-    await throwIfNotOk(res);
-
-    const body = await res.json();
-
-    validateAIFeatureEnablementResponse(body);
+    if (typeof body?.features !== 'object') {
+      throw new Error('Unexpected response: expected features to be an object');
+    }
 
     return body;
   }
 
   static async setupAIAccess(): Promise<void> {
     try {
-      this.throwIfNetworkTrafficDisabled();
-
       const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
         !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       log.info(
-        mongoLogId(1_001_000_229),
+        mongoLogId(1_001_000_295),
         'AtlasService',
         'Fetched if the AI feature is enabled',
         {
@@ -622,7 +678,7 @@ export class AtlasService {
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
       log.error(
-        mongoLogId(1_001_000_244),
+        mongoLogId(1_001_000_296),
         'AtlasService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }
@@ -645,8 +701,6 @@ export class AtlasService {
     sampleDocuments?: Document[];
     signal?: AbortSignal;
   }): Promise<AIAggregation> {
-    throwIfAborted(signal);
-    this.throwIfNetworkTrafficDisabled();
     this.throwIfAINotEnabled();
 
     let msgBody = JSON.stringify({
@@ -675,46 +729,40 @@ export class AtlasService {
       }
     }
 
-    const token = await this.maybeGetToken({ signal });
-    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`;
-
-    log.info(
-      mongoLogId(1_001_000_247),
-      'AtlasService',
-      'Running aggregation generation request',
+    const res = await this.fetchJson<AIAggregation>(
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`,
       {
-        url,
-        userInput,
-        collectionName,
-        databaseName,
-        messageBodyLength: msgBody.length,
+        signal: signal as NodeFetchAbortSignal | undefined,
+        method: 'POST',
+        body: msgBody,
       }
     );
 
-    const res = await this.fetch(url, {
-      signal: signal as NodeFetchAbortSignal | undefined,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: msgBody,
-    });
+    const { content } = res;
 
-    log.info(
-      mongoLogId(1_001_000_248),
-      'AtlasService',
-      'Received aggregation generation response',
-      { status: res.status, statusText: res.statusText }
-    );
+    if (typeof content !== 'object' || content === null) {
+      throw new Error('Unexpected response: expected content to be an object');
+    }
 
-    await throwIfNotOk(res);
+    if (hasExtraneousKeys(content, ['aggregation'])) {
+      throw new Error('Unexpected keys in response: expected aggregation');
+    }
 
-    const body = await res.json();
+    if (
+      content.aggregation &&
+      typeof content.aggregation.pipeline !== 'string'
+    ) {
+      // Compared to queries where we will always get the `query` field, for
+      // aggregations backend deletes the whole `aggregation` key if pipeline is
+      // empty, so we only validate `pipeline` key if `aggregation` key is present
+      throw new Error(
+        `Unexpected response: expected aggregation to be a string, got ${String(
+          content.aggregation.pipeline
+        )}`
+      );
+    }
 
-    validateAIAggregationResponse(body);
-
-    return body;
+    return res;
   }
 
   static async getQueryFromUserInput({
@@ -732,8 +780,6 @@ export class AtlasService {
     sampleDocuments?: Document[];
     signal?: AbortSignal;
   }): Promise<AIQuery> {
-    throwIfAborted(signal);
-    this.throwIfNetworkTrafficDisabled();
     this.throwIfAINotEnabled();
 
     let msgBody = JSON.stringify({
@@ -762,46 +808,18 @@ export class AtlasService {
       }
     }
 
-    const token = await this.maybeGetToken({ signal });
-    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`;
-
-    log.info(
-      mongoLogId(1_001_000_249),
-      'AtlasService',
-      'Running query generation request',
+    const res = await this.fetchJson<AIQuery>(
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`,
       {
-        url,
-        userInput,
-        collectionName,
-        databaseName,
-        messageBodyLength: msgBody.length,
+        signal: signal as NodeFetchAbortSignal | undefined,
+        method: 'POST',
+        body: msgBody,
       }
     );
 
-    const res = await this.fetch(url, {
-      signal: signal as NodeFetchAbortSignal | undefined,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: msgBody,
-    });
+    validateAIQueryResponse(res);
 
-    log.info(
-      mongoLogId(1_001_000_250),
-      'AtlasService',
-      'Received query generation response',
-      { status: res.status, statusText: res.statusText }
-    );
-
-    await throwIfNotOk(res);
-
-    const body = await res.json();
-
-    validateAIQueryResponse(body);
-
-    return body;
+    return res;
   }
 
   static async onExit() {

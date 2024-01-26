@@ -14,7 +14,7 @@ export type IntrospectInfo = { active: boolean };
 
 export type Token = plugin.IdPServerResponse;
 
-function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
+export function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return Object.keys(obj).some((key) => !expectedKeys.includes(key));
 }
 
