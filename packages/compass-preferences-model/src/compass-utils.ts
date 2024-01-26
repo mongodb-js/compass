@@ -1,7 +1,7 @@
 import type { ParsedGlobalPreferencesResult } from './global-config';
 import type { PreferencesAccess } from './preferences';
-import type { UserStorage } from './storage';
-import { UserStorageImpl } from './storage';
+import type { UserStorage } from './user-storage';
+import { UserStorageImpl } from './user-storage';
 import { getActiveUserId } from './utils';
 import { setupPreferences } from './setup-preferences';
 

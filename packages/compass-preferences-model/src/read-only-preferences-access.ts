@@ -1,7 +1,7 @@
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
 import { type AllPreferences } from './preferences-schema';
-import { InMemoryStorage } from './in-memory-storage';
+import { InMemoryStorage } from './preferences-in-memory-storage';
 
 export class ReadOnlyPreferenceAccess implements PreferencesAccess {
   private _preferences: Preferences;

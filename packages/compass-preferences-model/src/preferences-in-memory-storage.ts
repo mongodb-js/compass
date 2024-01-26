@@ -1,13 +1,8 @@
+import type { PreferencesStorage } from './preferences-storage';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
 import type { AllPreferences, StoredPreferences } from './preferences-schema';
 
-export interface BasePreferencesStorage {
-  setup(): Promise<void>;
-  getPreferences(): StoredPreferences;
-  updatePreferences(attributes: Partial<StoredPreferences>): Promise<void>;
-}
-
-export class InMemoryStorage implements BasePreferencesStorage {
+export class InMemoryStorage implements PreferencesStorage {
   private preferences = getDefaultsForStoredPreferences();
 
   constructor(preferencesOverrides?: Partial<AllPreferences>) {

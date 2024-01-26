@@ -10,8 +10,8 @@ import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import type { PreferencesAccess } from '.';
-import { PersistentStorage } from './storage';
-import { InMemoryStorage } from './in-memory-storage';
+import { PersistentStorage } from './preferences-persistent-storage';
+import { InMemoryStorage } from './preferences-in-memory-storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const compassPreferencesLogger = createLoggerAndTelemetry(

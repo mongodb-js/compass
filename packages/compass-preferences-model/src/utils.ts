@@ -1,6 +1,6 @@
 import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
-import type { UserStorage } from './storage';
+import type { UserStorage } from './user-storage';
 
 export function getActiveUserId(
   preferences: PreferencesAccess
