@@ -66,17 +66,12 @@ const shouldPreventAutoConnect = async ({
   }
 
   const needsConfirm = hasDisallowedConnectionStringOptions(connectionString);
-  if (connectionString && trustedConnectionString === false && needsConfirm) {
-    process.stderr.write(
-      `The "${connectionString}" connection string contains options that are typically not set by default and may present a security risk. You are required to confirm this connection attempt. Set --trustedConnectionString to allow connecting to any connection string without confirmation. Do not use this flag if you do not trust the source of the connection string.\n`
-    );
-  }
+  if (trustedConnectionString || !needsConfirm) return false;
 
-  return (
-    !trustedConnectionString &&
-    needsConfirm &&
-    !(await hasUserConfirmedConnectionAttempt(connectionString))
+  process.stderr.write(
+    `The "${connectionString}" connection string contains options that are typically not set by default and may present a security risk. You are required to confirm this connection attempt. Set --trustedConnectionString to allow connecting to any connection string without confirmation. Do not use this flag if you do not trust the source of the connection string.\n`
   );
+  return !(await hasUserConfirmedConnectionAttempt(connectionString));
 };
 
 export async function getWindowAutoConnectPreferences(
