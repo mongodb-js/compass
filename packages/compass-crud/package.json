@@ -91,7 +91,7 @@
     "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^2.0.0",
-    "electron": "^28.1.4",
+    "electron": "^28.2.0",
     "electron-mocha": "^12.2.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
