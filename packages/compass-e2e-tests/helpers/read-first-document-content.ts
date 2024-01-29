@@ -9,19 +9,13 @@ export async function getFirstListDocument(browser: CompassBrowser) {
   // just check the first document on screen to make sure the included fields
   // and their values are what we expected.
 
-  const fieldNameElements = await browser.$$(
-    Selectors.documentListDocumentKey(1)
-  );
-  const fieldNames = await Promise.all(
-    fieldNameElements.map((el) => el.getText()) as unknown as Promise<string>[] // TODO
-  );
+  const fieldNames = await browser
+    .$$(Selectors.documentListDocumentKey(1))
+    .map((el) => el.getText());
 
-  const fieldValueElements = await browser.$$(
-    Selectors.documentListDocumentValue(1)
-  );
-  const fieldValues = await Promise.all(
-    fieldValueElements.map((el) => el.getText()) as unknown as Promise<string>[] // TODO
-  );
+  const fieldValues = await browser
+    .$$(Selectors.documentListDocumentValue(1))
+    .map((el) => el.getText());
 
   expect(fieldValues).to.have.lengthOf(fieldNames.length);
 

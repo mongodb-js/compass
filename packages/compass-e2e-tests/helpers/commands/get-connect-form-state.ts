@@ -340,13 +340,8 @@ async function getMultipleValues(
   browser: CompassBrowser,
   selector: string
 ): Promise<string[] | null> {
-  const elements = await browser.$$(selector);
   const results = (
-    await Promise.all(
-      elements.map((element) => {
-        return element.getValue();
-      }) as unknown as Promise<string>[] // TODO: weirdness
-    )
+    await browser.$$(selector).map((element) => element.getValue())
   ).filter((result) => result !== '');
 
   return results.length ? results : null;

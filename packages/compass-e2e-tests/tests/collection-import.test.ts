@@ -652,12 +652,9 @@ describe('Collection import', function () {
       .waitForDisplayed();
 
     // extract all the type fields and check them
-    const fieldNameElements = await browser.$$(Selectors.ImportFieldLabel);
-    const fieldNames = await Promise.all(
-      fieldNameElements.map((el) =>
-        el.getText()
-      ) as unknown as Promise<string>[] // TODO
-    );
+    const fieldNames = await browser
+      .$$(Selectors.ImportFieldLabel)
+      .map((el) => el.getText());
 
     try {
       expect(fieldNames).to.deep.equal([

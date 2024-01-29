@@ -32,9 +32,8 @@ async function getRecentQueries(
     await history.waitForDisplayed();
   }
 
-  let queryTags;
   await browser.waitUntil(async () => {
-    queryTags = await browser.$$(
+    const queryTags = await browser.$$(
       '[data-testid="query-history-query-attributes"]'
     );
     // Usually we expect to find some recents and the most common failure is
@@ -46,14 +45,13 @@ async function getRecentQueries(
     return true;
   });
 
-  return Promise.all(
-    (queryTags ?? []).map(async (queryTag: WebdriverIO.Element) => {
-      const attributeTags = await queryTag.$$(
-        '[data-testid="query-history-query-attribute"]'
-      );
+  return await browser
+    .$$('[data-testid="query-history-query-attributes"]')
+    .map(async (queryTag: WebdriverIO.Element) => {
       const attributes: RecentQuery = {};
-      await Promise.all(
-        attributeTags.map(async (attributeTag: WebdriverIO.Element) => {
+      await queryTag
+        .$$('[data-testid="query-history-query-attribute"]')
+        .map(async (attributeTag) => {
           const labelTag = await attributeTag.$(
             '[data-testid="query-history-query-label"]'
           );
@@ -61,11 +59,9 @@ async function getRecentQueries(
           const key = await labelTag.getText();
           const value = await preTag.getText();
           attributes[key] = value;
-        }) as unknown as Promise<RecentQuery>[]
-      );
+        });
       return attributes;
-    })
-  );
+    });
 }
 
 async function navigateToTab(browser: CompassBrowser, tabName: string) {
