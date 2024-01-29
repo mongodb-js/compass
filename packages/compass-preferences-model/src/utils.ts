@@ -1,29 +1,10 @@
 import { usePreference } from './react';
-import type {
-  AllPreferences,
-  ParsedGlobalPreferencesResult,
-  PreferencesAccess,
-  User,
-} from '.';
-import { setupPreferences } from './setup-preferences';
-import type { UserStorage } from './storage';
-import { UserStorageImpl } from './storage';
+import type { AllPreferences, PreferencesAccess, User } from '.';
+import type { UserStorage } from './user-storage';
 
-export async function setupPreferencesAndUser(
-  globalPreferences: ParsedGlobalPreferencesResult
-): Promise<{ userStorage: UserStorage; preferences: PreferencesAccess }> {
-  const preferences = await setupPreferences(globalPreferences);
-  const userStorage = new UserStorageImpl();
-  const user = await userStorage.getOrCreate(getActiveUserId(preferences));
-  // update user id (telemetryAnonymousId) in preferences if new user was created.
-  await preferences.savePreferences({ telemetryAnonymousId: user.id });
-  await userStorage.updateUser(user.id, {
-    lastUsed: new Date(),
-  });
-  return { preferences, userStorage };
-}
-
-function getActiveUserId(preferences: PreferencesAccess): string | undefined {
+export function getActiveUserId(
+  preferences: PreferencesAccess
+): string | undefined {
   const { currentUserId, telemetryAnonymousId } = preferences.getPreferences();
   return currentUserId || telemetryAnonymousId;
 }
