@@ -37,6 +37,21 @@ function signArchive(target, cb) {
 }
 
 /**
+ * @param {string} src
+ */
+function getSigningMethod(src) {
+  switch (path.extname(src)) {
+    case '.exe':
+    case '.msi':
+      return 'jsign';
+    case '.rpm':
+      return 'rpm_gpg';
+    default:
+      return 'gpg';
+  }
+}
+
+/**
  * We are signing the file using `gpg` or `jsign` depending on the
  * file extension. If the extension is `.exe` or `.msi`, we use `jsign`
  * otherwise we use `gpg`.
@@ -58,7 +73,7 @@ async function sign(src, garasign = _garasign) {
     username: process.env.SIGNING_SERVER_USERNAME,
     port: process.env.SIGNING_SERVER_PORT,
     privateKey: process.env.SIGNING_SERVER_PRIVATE_KEY,
-    signingMethod: path.extname(src) === '.exe' || path.extname(src) === '.msi' ? 'jsign' : 'gpg'
+    signingMethod: getSigningMethod(src),
   };
 
   return await garasign(src, clientOptions);

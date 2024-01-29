@@ -667,13 +667,6 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
-        local_file: src/packages/compass/dist/${linux_rpm_sign_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_sign_filename}
-        content_type: application/pgp-signature
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${rhel_tar_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
