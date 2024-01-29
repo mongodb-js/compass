@@ -3,35 +3,36 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    versioning-strategy: increase
     directory: "/"
     schedule:
       interval: "daily"
     allow:
-      # Standalone deps
-      - dependency-name: "mongodb"
-      - dependency-name: "bson"
-      # All the mongosh deps
-      - dependency-name: "@mongosh/node-runtime-worker-thread"
-      - dependency-name: "@mongosh/browser-repl"
-      - dependency-name: "@mongosh/logging"
-      - dependency-name: "@mongodb-js/oidc-plugin" # we bump mongosh when this updates
-      - dependency-name: "@mongodb-js/devtools-connect" # we bump mongosh when this updates
+      - dependency-name: mongodb
+      - dependency-name: mongodb-*
+      - dependency-name: bson
+      - dependency-name: bson-*
+      - dependency-name: "@mongosh/*"
+      - dependency-name: "@mongodb-js/*"
+
       # All the electron and its related deps
       - dependency-name: "electron"
-      - dependency-name: "@electron/remote"
-      - dependency-name: "@electron/rebuild"
+      - dependency-name: "@electron/*"
       - dependency-name: "browserslist"
       - dependency-name: "node-abi"
-      # All the devtools-shared packages https://github.com/mongodb-js/devtools-shared
-      - dependency-name: "@mongodb-js/dl-center"
-      - dependency-name: "@mongodb-js/get-os-info"
-      - dependency-name: "@mongodb-js/mongodb-constants"
-      - dependency-name: "@mongodb-js/mongodb-downloader"
-      - dependency-name: "mongodb-runner"
-      - dependency-name: "@mongodb-js/monorepo-tools"
-      - dependency-name: "@mongodb-js/oidc-mock-provider"
-      - dependency-name: "@mongodb-js/sbom-tools"
+      - dependency-name: "kerberos"
+      - dependency-name: "saslprep"
+      - dependency-name: "@leafygreen-ui/*"
     groups:
+      driver:
+        patterns:
+        - mongodb
+        - bson
+        - "@mongodb-js/oidc-plugin"
+        - "@mongodb-js/devtools-connect"
+        - "mongodb-client-encryption"
+        - "kerberos"
+        - "saslprep"
       electron:
         patterns:
         - "electron"
@@ -53,6 +54,9 @@ updates:
       mongosh:
         patterns:
         - "@mongosh/*"
+      leafygreen:
+        patterns:
+        - "@leafygreen-ui/*"
     commit-message:
       prefix: "chore"
       include: "scope"
