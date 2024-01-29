@@ -2,14 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import type { UserStorage } from './storage';
-import {
-  getDefaultPreferences,
-  StoragePreferences,
-  type User,
-  UserStorageImpl,
-} from './storage';
+import { PersistentStorage, type User, UserStorageImpl } from './storage';
+import { getDefaultsForStoredPreferences } from './preferences-schema';
 import { expect } from 'chai';
-import { z } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {
@@ -108,7 +104,7 @@ describe('storage', function () {
     }
   });
 
-  describe('StoragePreferences', function () {
+  describe('PersistentStorage', function () {
     beforeEach(async function () {
       tmpDir = await fs.mkdtemp(
         path.join(os.tmpdir(), 'compass-preferences-storage')
@@ -123,7 +119,7 @@ describe('storage', function () {
       // When user starts compass first time, it creates AppPreferences folder with
       // General.json to store default preferences.
 
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
 
       const preferencesDir = getPreferencesFolder(tmpDir);
       const preferencesFile = getPreferencesFile(tmpDir);
@@ -138,11 +134,11 @@ describe('storage', function () {
 
       expect(
         JSON.parse((await fs.readFile(preferencesFile)).toString())
-      ).to.deep.equal(getDefaultPreferences());
+      ).to.deep.equal(getDefaultsForStoredPreferences());
     });
 
     it('when invalid json is stored, it sets the defaults', async function () {
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
 
       const preferencesFile = getPreferencesFile(tmpDir);
       await fs.mkdir(getPreferencesFolder(tmpDir));
@@ -155,11 +151,11 @@ describe('storage', function () {
 
       expect(
         JSON.parse((await fs.readFile(preferencesFile)).toString())
-      ).to.deep.equal(getDefaultPreferences());
+      ).to.deep.equal(getDefaultsForStoredPreferences());
     });
 
     it('updates preferences', async function () {
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
       await storage.setup();
 
       await storage.updatePreferences({ currentUserId: '123456789' });
@@ -167,13 +163,13 @@ describe('storage', function () {
       const newPreferences = storage.getPreferences();
 
       expect(newPreferences).to.deep.equal({
-        ...getDefaultPreferences(),
+        ...getDefaultsForStoredPreferences(),
         currentUserId: '123456789',
       });
     });
 
     it('returns default preference values if its not stored on disk', async function () {
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
 
       // manually setup the file with no content
       await fs.mkdir(getPreferencesFolder(tmpDir));
@@ -188,36 +184,41 @@ describe('storage', function () {
       });
 
       expect(storage.getPreferences()).to.deep.equal({
-        ...getDefaultPreferences(),
+        ...getDefaultsForStoredPreferences(),
         currentUserId: '123456789',
       });
     });
 
     it('does not save random props', async function () {
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
       await storage.setup();
 
       await storage.updatePreferences({ someThingNotSupported: 'abc' } as any);
 
       const newPreferences = storage.getPreferences();
 
-      expect(newPreferences).to.deep.equal(getDefaultPreferences());
+      expect(newPreferences).to.deep.equal(getDefaultsForStoredPreferences());
     });
 
     it('strips unknown props when reading from disk', async function () {
-      const storage = new StoragePreferences(tmpDir);
+      const storage = new PersistentStorage(tmpDir);
 
       // manually setup the file with default props and unknown prop
       await fs.mkdir(getPreferencesFolder(tmpDir));
       await fs.writeFile(
         getPreferencesFile(tmpDir),
-        JSON.stringify({ ...getDefaultPreferences(), somethingUnknown: true }),
+        JSON.stringify({
+          ...getDefaultsForStoredPreferences(),
+          somethingUnknown: true,
+        }),
         'utf-8'
       );
 
       await storage.setup();
 
-      expect(storage.getPreferences()).to.deep.equal(getDefaultPreferences());
+      expect(storage.getPreferences()).to.deep.equal(
+        getDefaultsForStoredPreferences()
+      );
     });
   });
 });

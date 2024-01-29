@@ -1,4 +1,4 @@
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export function maybeProtectConnectionString(

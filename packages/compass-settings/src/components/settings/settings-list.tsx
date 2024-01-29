@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import type { UserConfigurablePreferences } from 'compass-preferences-model';
-import { getSettingDescription, featureFlags } from 'compass-preferences-model';
+import {
+  getSettingDescription,
+  featureFlags,
+} from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,

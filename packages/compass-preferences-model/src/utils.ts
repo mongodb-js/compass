@@ -1,4 +1,4 @@
-import { usePreference } from '.';
+import { usePreference } from './react';
 import type {
   AllPreferences,
   ParsedGlobalPreferencesResult,

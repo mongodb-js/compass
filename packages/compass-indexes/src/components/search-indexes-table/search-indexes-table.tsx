@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { BadgeVariant } from '@mongodb-js/compass-components';
 import {

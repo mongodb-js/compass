@@ -5,7 +5,7 @@ import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import toNS from 'mongodb-ns';
 import type { Database } from '../modules/databases';
 import { toggleDatabaseExpanded } from '../modules/databases';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 

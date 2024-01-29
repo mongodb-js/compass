@@ -42,13 +42,11 @@ import {
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import type {
-  PreferencesAccess,
-  AllPreferences,
-  UserConfigurablePreferences,
-  PreferenceStateInformation,
-} from 'compass-preferences-model';
+import {
+  PreferencesProvider,
+  ReadOnlyPreferenceAccess,
+} from 'compass-preferences-model/provider';
+import type { AllPreferences } from 'compass-preferences-model';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 
 type CompassWebProps = {
@@ -100,41 +98,6 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
-function useSimplePreferencesService(
-  initialPreferences?: Partial<AllPreferences>
-): PreferencesAccess {
-  const preferencesRef = useRef(initialPreferences as AllPreferences);
-  const preferencesServiceRef = useRef<PreferencesAccess>({
-    savePreferences() {
-      return Promise.resolve(preferencesRef.current);
-    },
-    refreshPreferences() {
-      return Promise.resolve(preferencesRef.current);
-    },
-    getPreferences() {
-      return preferencesRef.current;
-    },
-    ensureDefaultConfigurableUserPreferences() {
-      return Promise.resolve();
-    },
-    getConfigurableUserPreferences() {
-      return Promise.resolve({} as UserConfigurablePreferences);
-    },
-    getPreferenceStates() {
-      return Promise.resolve({} as PreferenceStateInformation);
-    },
-    onPreferenceValueChanged() {
-      return () => {
-        // noop
-      };
-    },
-    createSandbox() {
-      return Promise.resolve(this);
-    },
-  });
-  return preferencesServiceRef.current;
-}
-
 const CompassWeb = ({
   darkMode,
   connectionString,
@@ -145,17 +108,17 @@ const CompassWeb = ({
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
-  // TODO(COMPASS-7415): this should be supported by the preferences service /
-  // preferences provider
-  const preferences = useSimplePreferencesService({
-    maxTimeMS: 10_000,
-    enableExplainPlan: true,
-    enableAggregationBuilderRunPipeline: true,
-    enableAggregationBuilderExtraOptions: true,
-    enableImportExport: false,
-    enableSavedAggregationsQueries: false,
-    ...initialPreferences,
-  });
+  const preferencesAccess = useRef(
+    new ReadOnlyPreferenceAccess({
+      maxTimeMS: 10_000,
+      enableExplainPlan: true,
+      enableAggregationBuilderRunPipeline: true,
+      enableAggregationBuilderExtraOptions: true,
+      enableImportExport: false,
+      enableSavedAggregationsQueries: false,
+      ...initialPreferences,
+    })
+  );
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
   const dataService = useRef<DataService>();
@@ -199,7 +162,7 @@ const CompassWeb = ({
 
   return (
     <CompassComponentsProvider darkMode={darkMode}>
-      <PreferencesProvider value={preferences}>
+      <PreferencesProvider value={preferencesAccess.current}>
         <AppRegistryProvider>
           <DataServiceProvider value={dataService.current}>
             <CompassInstanceStorePlugin>

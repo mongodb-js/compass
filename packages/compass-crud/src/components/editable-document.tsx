@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
