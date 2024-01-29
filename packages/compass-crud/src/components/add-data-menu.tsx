@@ -6,7 +6,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const tooltipContainerStyles = css({
   display: 'flex',

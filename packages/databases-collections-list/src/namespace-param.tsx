@@ -11,7 +11,7 @@ import {
   SignalPopover,
 } from '@mongodb-js/compass-components';
 import type { ViewType } from './use-view-type';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const namespaceParam = css({
   display: 'flex',

@@ -64,10 +64,6 @@ variables:
     E2E_TESTS_ATLAS_READANYDATABASE_STRING: ${e2e_tests_atlas_readanydatabase_string}
     E2E_TESTS_ATLAS_CUSTOMROLE_STRING: ${e2e_tests_atlas_customrole_string}
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
-    NOTARY_URL: http://notary-service.build.10gen.cc:5000
-    NOTARY_AUTH_TOKEN: ${signing_auth_token}
-    NOTARY_SIGNING_KEY: ${signing_key_name}
-    NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
     MACOS_NOTARY_KEY: ${macos_notary_key}
     MACOS_NOTARY_SECRET: ${macos_notary_secret}
     MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
@@ -570,6 +566,29 @@ functions:
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
+  
+  verify-artifacts:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          # These are set in the apply-compass-target-expansion func
+          WINDOWS_EXE_NAME: ${windows_setup_filename}
+          WINDOWS_MSI_NAME: ${windows_msi_filename}
+          WINDOWS_ZIP_NAME: ${windows_zip_filename}
+          WINDOWS_NUPKG_NAME: ${windows_nupkg_full_filename}
+          OSX_DMG_NAME: ${osx_dmg_filename}
+          OSX_ZIP_NAME: ${osx_zip_filename}
+          RHEL_RPM_NAME: ${linux_rpm_filename}
+          RHEL_TAR_NAME: ${rhel_tar_filename}
+          LINUX_DEB_NAME: ${linux_deb_filename}
+          LINUX_TAR_NAME: ${linux_tar_filename}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/verify-artifacts.sh
 
   save-all-artifacts:
     - command: s3.put
@@ -644,13 +663,6 @@ functions:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
-        optional: true
-    - command: s3.put
-      params:
-        <<: *save-artifact-params-public
-        local_file: src/packages/compass/dist/${linux_rpm_sign_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_sign_filename}
-        content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:

@@ -8,7 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 
 import WelcomeImage from './welcome-image';
 
