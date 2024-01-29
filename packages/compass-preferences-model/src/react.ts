@@ -1,7 +1,27 @@
 import type { FunctionComponent } from 'react';
-import { useState, useEffect, createElement } from 'react';
+import {
+  useState,
+  useEffect,
+  createElement,
+  createContext,
+  useContext,
+} from 'react';
 import { type AllPreferences } from './';
-import { preferencesLocator } from './provider';
+import type { PreferencesAccess } from './preferences';
+import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
+
+const PreferencesContext = createContext<PreferencesAccess>(
+  // Our context starts with our read-only preference access but we expect
+  // different runtimes to provide their own access implementation at render.
+  new ReadOnlyPreferenceAccess()
+);
+
+export const PreferencesProvider = PreferencesContext.Provider;
+
+export function preferencesLocator(): PreferencesAccess {
+  return useContext(PreferencesContext);
+}
+export type { PreferencesAccess };
 
 /** Use as: const enableMaps = usePreference('enableMaps', React); */
 export function usePreference<K extends keyof AllPreferences>(

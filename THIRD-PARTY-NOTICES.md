@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Jan 24 2024.
+This document was automatically generated on Mon Jan 29 2024.
 
 ## List of dependencies
 
@@ -85,7 +85,7 @@ This document was automatically generated on Wed Jan 24 2024.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#7171b6f206528f7cb96421173db392770ce3e83b4c9db1c52d2b3c32fd20a35f)**                                   | 2.1.1        | MIT                                 |
+| **[@electron/remote](#1b60dc9421c1b6d8b9d0e622fa6b2ef72f605502fd87ad509ea160940395ab6d)**                                   | 2.1.2        | MIT                                 |
 | **[@emotion/cache](#c91e3f11a83bb52488c9d1aa63b8e135037dbebc6acd2717e994939f5547b521)**                                     | 11.11.0      | MIT                                 |
 | **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
 | **[@emotion/hash](#b42900e08e5dadbc62da63a30f552d7705f99bf37c9468aacaf4d05af9589206)**                                      | 0.9.1        | MIT                                 |
@@ -249,7 +249,7 @@ This document was automatically generated on Wed Jan 24 2024.
 | **[ejson-shell-parser](#1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7)**                                 | 2.0.0        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#5ed223a1177f3a5efacab2f76611fab7dfbf6539cbb652918b5656115906a144)**                                           | 28.1.4       | MIT                                 |
+| **[electron](#2de45e41f5577aa71213bc8c5095fe939c208102aca1fddf1dfd1ba10c6d3558)**                                           | 28.2.0       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -7639,9 +7639,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="7171b6f206528f7cb96421173db392770ce3e83b4c9db1c52d2b3c32fd20a35f"></a>
+<a id="1b60dc9421c1b6d8b9d0e622fa6b2ef72f605502fd87ad509ea160940395ab6d"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.1)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.2)
 
 License tags: MIT
 
@@ -21058,9 +21058,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="5ed223a1177f3a5efacab2f76611fab7dfbf6539cbb652918b5656115906a144"></a>
+<a id="2de45e41f5577aa71213bc8c5095fe939c208102aca1fddf1dfd1ba10c6d3558"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 28.1.4)
+### [electron](https://www.npmjs.com/package/electron) (version 28.2.0)
 
 License tags: MIT
 
