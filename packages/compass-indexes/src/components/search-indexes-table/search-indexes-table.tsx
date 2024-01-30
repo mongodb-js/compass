@@ -4,16 +4,21 @@ import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { BadgeVariant } from '@mongodb-js/compass-components';
 import {
-  EmptyContent,
-  Button,
-  Link,
   Badge,
+  BadgeVariant,
+  Button,
+  EmptyContent,
+  Link,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { SearchSortColumn } from '../../modules/search-indexes';
+import type {
+  LGColumnDef,
+  LeafyGreenTableRow,
+  LGTableDataType,
+} from '@mongodb-js/compass-components';
+
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
@@ -23,11 +28,10 @@ import {
   showUpdateModal,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
-import { sortSearchIndexes } from '../../modules/search-indexes';
-import type { SortDirection, RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
-import IndexActions from './search-index-actions';
+import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
+import type { RootState } from '../../modules';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -36,12 +40,12 @@ type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
-  onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
   openCreateModal: () => void;
   onPollIndexes: () => void;
   status: SearchIndexesStatus;
+  pollingInterval?: number;
 };
 
 function isReadyStatus(status: SearchIndexesStatus) {
@@ -110,6 +114,8 @@ function IndexStatus({
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
+  marginBottom: spacing[2],
+  padding: `0px ${spacing[6]}px`,
 });
 
 const searchIndexFieldStyles = css({
@@ -157,7 +163,57 @@ function SearchIndexDetails({
   );
 }
 
-const COLUMNS = ['Name and Fields', 'Status'] as const;
+type SearchIndexInfo = {
+  id: string;
+  name: string;
+  indexInfo: SearchIndex;
+  status: React.ReactNode;
+  actions: React.ReactNode;
+  renderExpandedContent: React.ReactNode;
+};
+
+function sortByStatus(
+  rowA: LeafyGreenTableRow<SearchIndexInfo>,
+  rowB: LeafyGreenTableRow<SearchIndexInfo>
+) {
+  if (typeof rowB.original.indexInfo.status === 'undefined') {
+    return -1;
+  }
+  if (typeof rowA.original.indexInfo.status === 'undefined') {
+    return 1;
+  }
+  if (rowA.original.indexInfo.status > rowB.original.indexInfo.status) {
+    return -1;
+  }
+  if (rowA.original.indexInfo.status < rowB.original.indexInfo.status) {
+    return 1;
+  }
+  return 0;
+}
+
+const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name and Fields',
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (info) => info.getValue(),
+    sortingFn: sortByStatus,
+    enableSorting: true,
+  },
+];
+
+const COLUMNS_WITH_ACTIONS: LGColumnDef<SearchIndexInfo>[] = [
+  ...COLUMNS,
+  {
+    accessorKey: 'actions',
+    header: '',
+    cell: (info) => info.getValue(),
+  },
+];
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
@@ -166,50 +222,36 @@ export const SearchIndexesTable: React.FunctionComponent<
   indexes,
   isWritable,
   readOnly,
-  onSortTable,
   openCreateModal,
   onEditIndex,
   status,
   onDropIndex,
   onPollIndexes,
+  pollingInterval = POLLING_INTERVAL,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
 
   useEffect(() => {
-    const id = setInterval(onPollIndexes, POLLING_INTERVAL);
+    const id = setInterval(onPollIndexes, pollingInterval);
     return () => {
       clearInterval(id);
     };
-  }, [onPollIndexes]);
+  }, [onPollIndexes, pollingInterval]);
 
-  const data = useMemo(() => {
-    return indexes.map((index) => {
-      return {
-        key: index.name,
-        'data-testid': `row-${index.name}`,
-        fields: [
-          {
-            'data-testid': 'name-field',
-            style: {
-              width: '30%',
-            },
-            children: index.name,
-          },
-          {
-            'data-testid': 'status-field',
-            style: {
-              width: '20%',
-            },
-            children: (
-              <IndexStatus
-                status={index.status}
-                data-testid={`search-indexes-status-${index.name}`}
-              />
-            ),
-          },
-        ],
+  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
+    () =>
+      indexes.map((index) => ({
+        id: index.name,
+        name: index.name,
+        status: (
+          <IndexStatus
+            status={index.status}
+            data-testid={`search-indexes-status-${index.name}`}
+          />
+        ),
+        indexInfo: index,
         actions: (
-          <IndexActions
+          <SearchIndexActions
             index={index}
             onDropIndex={onDropIndex}
             onEditIndex={onEditIndex}
@@ -221,16 +263,16 @@ export const SearchIndexesTable: React.FunctionComponent<
             }}
           />
         ),
-        // TODO(COMPASS-7206): details for the nested row
-        details: (
+        // eslint-disable-next-line react/display-name
+        renderExpandedContent: () => (
           <SearchIndexDetails
             indexName={index.name}
             definition={index.latestDefinition}
           />
         ),
-      };
-    });
-  }, [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]);
+      })),
+    [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]
+  );
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
@@ -248,11 +290,8 @@ export const SearchIndexesTable: React.FunctionComponent<
   return (
     <IndexesTable
       data-testid="search-indexes"
-      aria-label="Search Indexes"
-      canModifyIndex={canModifyIndex}
-      columns={COLUMNS}
+      columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
-      onSortTable={onSortTable}
     />
   );
 };
@@ -265,7 +304,6 @@ const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
 });
 
 const mapDispatch = {
-  onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
   openCreateModal: showCreateModal,
   onEditIndex: showUpdateModal,

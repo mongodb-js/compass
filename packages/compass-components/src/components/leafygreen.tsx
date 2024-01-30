@@ -8,7 +8,7 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import Button from '@leafygreen-ui/button';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
-import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
+import Code, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -21,15 +21,16 @@ import {
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
+// TODO: This needed?
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
 // tag without specifying a type and buttons by default have type="submit".
-MenuItem.defaultProps = {
-  ...MenuItem.defaultProps,
-  type: 'button',
-};
+// MenuItem.defaultProps = {
+//   ...MenuItem.defaultProps,
+//   type: 'button',
+// };
 
-import LeafyGreenModal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
+import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 import Popover from '@leafygreen-ui/popover';
@@ -41,10 +42,25 @@ import {
 } from '@leafygreen-ui/segmented-control';
 import { Select, Option, OptionGroup } from '@leafygreen-ui/select';
 import {
-  Table as LeafyGreenTable,
-  TableHeader,
-  Row,
   Cell,
+  HeaderCell,
+  HeaderRow,
+  ExpandedContent,
+  Row,
+  Table,
+  TableHead,
+  TableBody,
+  flexRender,
+  useLeafyGreenTable,
+} from '@leafygreen-ui/table';
+export type {
+  LGColumnDef,
+  HeaderGroup,
+  LeafyGreenTableCell,
+  LeafyGreenTableRow,
+  LGTableDataType,
+  LGRowData,
+  SortingState,
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
@@ -69,8 +85,6 @@ import {
   Description,
 } from '@leafygreen-ui/typography';
 
-import { withDarkMode } from '../hooks/use-theme';
-
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
   size,
@@ -88,10 +102,11 @@ Icon.isGlyph = true;
 // TODO(LG-2703, COMPASS-6367) In new versions they do pull from the provider, however there's a
 // bug with the language switcher in the Code component,
 // so we're not updating yet.
-const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
-const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
-const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
+// const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
+// const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
+// const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 
+// TODO: Remove these types?
 delete (MarketingModal as React.ComponentType<any>).propTypes;
 delete (Checkbox as React.ComponentType<any>).propTypes;
 
@@ -105,6 +120,9 @@ export {
   Checkbox,
   Code,
   ConfirmationModal,
+  ExpandedContent,
+  HeaderCell,
+  HeaderRow,
   Icon,
   IconButton,
   Language,
@@ -128,7 +146,8 @@ export {
   Option,
   OptionGroup,
   Table,
-  TableHeader,
+  TableBody,
+  TableHead,
   Row,
   Cell,
   Stage,
@@ -151,4 +170,6 @@ export {
   Description,
   SearchInput,
   InfoSprinkle,
+  flexRender,
+  useLeafyGreenTable,
 };

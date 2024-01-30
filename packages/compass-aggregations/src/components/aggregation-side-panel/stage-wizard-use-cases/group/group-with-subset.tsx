@@ -259,7 +259,6 @@ export const GroupWithSubset = ({
     <div className={containerStyles}>
       <div className={formGroupStyles}>
         <Body className={groupLabelStyles}>Return the</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={selectStyles}
           allowDeselect={false}
@@ -333,7 +332,6 @@ export const GroupWithSubset = ({
             fields={fields}
           />
           <Body>in</Body>
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
           <Select
             className={selectStyles}
             allowDeselect={false}

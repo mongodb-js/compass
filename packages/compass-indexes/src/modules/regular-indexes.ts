@@ -5,25 +5,11 @@ import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
 import type { CreateIndexSpec } from './create-index';
-import type { SortDirection, IndexesThunkAction } from '.';
+import type { IndexesThunkAction } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-
-export type RegularSortColumn = keyof typeof sortColumnToProps;
-type SortField = keyof Pick<
-  RegularIndex,
-  'name' | 'type' | 'size' | 'usageCount' | 'properties'
->;
-
-const sortColumnToProps = {
-  'Name and Definition': 'name',
-  Type: 'type',
-  Size: 'size',
-  Usage: 'usageCount',
-  Properties: 'properties',
-} as const;
 
 export type RegularIndex = Omit<
   _IndexDefinition,
@@ -48,7 +34,6 @@ export type InProgressIndex = {
 
 export enum ActionTypes {
   IndexesAdded = 'indexes/regular-indexes/IndexesAdded',
-  IndexesSorted = 'indexes/regular-indexes/IndexesSorted',
 
   SetIsRefreshing = 'indexes/regular-indexes/SetIsRefreshing',
   SetError = 'indexes/regular-indexes/SetError',
@@ -61,13 +46,6 @@ export enum ActionTypes {
 type IndexesAddedAction = {
   type: ActionTypes.IndexesAdded;
   indexes: RegularIndex[];
-};
-
-type IndexesSortedAction = {
-  type: ActionTypes.IndexesSorted;
-  indexes: RegularIndex[];
-  sortOrder: SortDirection;
-  sortColumn: RegularSortColumn;
 };
 
 type SetIsRefreshingAction = {
@@ -98,7 +76,6 @@ type InProgressIndexFailedAction = {
 
 type RegularIndexesActions =
   | IndexesAddedAction
-  | IndexesSortedAction
   | SetIsRefreshingAction
   | SetErrorAction
   | InProgressIndexAddedAction
@@ -107,8 +84,6 @@ type RegularIndexesActions =
 
 export type State = {
   indexes: RegularIndex[];
-  sortOrder: SortDirection;
-  sortColumn: RegularSortColumn;
   isRefreshing: boolean;
   inProgressIndexes: InProgressIndex[];
   error: string | null;
@@ -116,8 +91,6 @@ export type State = {
 
 export const INITIAL_STATE: State = {
   indexes: [],
-  sortOrder: 'asc',
-  sortColumn: 'Name and Definition',
   inProgressIndexes: [],
   isRefreshing: false,
   error: null,
@@ -128,15 +101,6 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return {
       ...state,
       indexes: action.indexes,
-    };
-  }
-
-  if (isAction<IndexesSortedAction>(action, ActionTypes.IndexesSorted)) {
-    return {
-      ...state,
-      indexes: action.indexes,
-      sortOrder: action.sortOrder,
-      sortColumn: action.sortColumn,
     };
   }
 
@@ -243,7 +207,7 @@ export const fetchIndexes = (): IndexesThunkAction<
       isReadonlyView,
       dataService,
       namespace,
-      regularIndexes: { sortColumn, sortOrder, inProgressIndexes },
+      regularIndexes: { inProgressIndexes },
     } = getState();
 
     if (isReadonlyView) {
@@ -263,34 +227,13 @@ export const fetchIndexes = (): IndexesThunkAction<
       const allIndexes = _mergeInProgressIndexes(
         indexes,
         cloneDeep(inProgressIndexes)
-      ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
+      );
+      //.sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
       dispatch(_handleIndexesChanged(allIndexes));
     } catch (err) {
       dispatch(setError((err as Error).message));
       dispatch(_handleIndexesChanged([]));
     }
-  };
-};
-
-export const sortRegularIndexes = (
-  column: RegularSortColumn,
-  order: SortDirection
-): IndexesThunkAction<void, IndexesSortedAction> => {
-  return (dispatch, getState) => {
-    const {
-      regularIndexes: { indexes },
-    } = getState();
-
-    const sortedIndexes = [...indexes].sort(
-      _getSortFunction(_mapColumnToProp(column), order)
-    );
-
-    dispatch({
-      type: ActionTypes.IndexesSorted,
-      indexes: sortedIndexes,
-      sortOrder: order,
-      sortColumn: column,
-    });
   };
 };
 
@@ -443,45 +386,3 @@ function _mergeInProgressIndexes(
 
   return indexes;
 }
-
-const _getSortFunctionForProperties = (order: 1 | -1) => {
-  return function (a: RegularIndex, b: RegularIndex) {
-    const aValue =
-      a.cardinality === 'compound' ? 'compound' : a.properties?.[0] || '';
-    const bValue =
-      b.cardinality === 'compound' ? 'compound' : b.properties?.[0] || '';
-    if (aValue > bValue) {
-      return order;
-    }
-    if (aValue < bValue) {
-      return -order;
-    }
-    return 0;
-  };
-};
-
-const _getSortFunction = (field: SortField, sortOrder: SortDirection) => {
-  const order = sortOrder === 'asc' ? 1 : -1;
-  if (field === 'properties') {
-    return _getSortFunctionForProperties(order);
-  }
-  return function (a: RegularIndex, b: RegularIndex) {
-    if (typeof b[field] === 'undefined') {
-      return order;
-    }
-    if (typeof a[field] === 'undefined') {
-      return -order;
-    }
-    if (a[field]! > b[field]!) {
-      return order;
-    }
-    if (a[field]! < b[field]!) {
-      return -order;
-    }
-    return 0;
-  };
-};
-
-const _mapColumnToProp = (column: RegularSortColumn): SortField => {
-  return sortColumnToProps[column];
-};

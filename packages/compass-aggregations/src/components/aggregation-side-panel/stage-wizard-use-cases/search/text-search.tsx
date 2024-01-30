@@ -136,7 +136,6 @@ export const TextSearch = ({
     <div className={containerStyles}>
       <div className={rowStyles}>
         <Body className={labelStyles}>Perform a</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={inputStyles}
           allowDeselect={false}
@@ -166,7 +165,6 @@ export const TextSearch = ({
       </div>
       <div className={rowStyles}>
         <Body className={labelStyles}>for all documents where</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={inputStyles}
           allowDeselect={false}

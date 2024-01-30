@@ -290,7 +290,6 @@ class InsertDocumentDialog extends React.PureComponent<
         <div className={toolbarStyles}>
           <SegmentedControl
             label="View"
-            size="small"
             value={currentView}
             aria-controls={documentViewId}
             onChange={this.switchInsertDocumentView.bind(this)}

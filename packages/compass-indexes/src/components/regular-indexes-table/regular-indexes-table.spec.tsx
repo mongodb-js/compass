@@ -1,8 +1,6 @@
 import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
@@ -103,7 +101,6 @@ const renderIndexList = (
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}
-      onSortTable={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
       onDeleteIndex={() => {}}
@@ -124,7 +121,7 @@ describe('RegularIndexesTable Component', function () {
 
     // Renders indexes list (table rows)
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(indexRow, 'it renders each index in a row').to.exist;
 
       // Renders index fields (table cells)
@@ -133,7 +130,7 @@ describe('RegularIndexesTable Component', function () {
         'indexes-type-field',
         'indexes-size-field',
         'indexes-usage-field',
-        'indexes-property-field',
+        'indexes-properties-field',
         'indexes-actions-field',
       ].forEach((indexCell) => {
         // For _id index we always hide drop index field
@@ -166,7 +163,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
     });
   });
@@ -176,7 +173,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
@@ -188,49 +185,10 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
     });
   });
-
-  ['Name and Definition', 'Type', 'Size', 'Usage', 'Properties'].forEach(
-    (column) => {
-      it(`sorts table by ${column}`, function () {
-        const onSortTableSpy = spy();
-        renderIndexList({
-          isWritable: true,
-          readOnly: false,
-          indexes: indexes,
-          onSortTable: onSortTableSpy,
-        });
-
-        const indexesList = screen.getByTestId('indexes-list');
-
-        const columnheader = within(indexesList).getByTestId(
-          `indexes-header-${column}`
-        );
-        const sortButton = within(columnheader).getByRole('button', {
-          name: /sort/i,
-        });
-
-        expect(onSortTableSpy.callCount).to.equal(0);
-
-        userEvent.click(sortButton);
-        expect(onSortTableSpy.callCount).to.equal(1);
-        expect(onSortTableSpy.getCalls()[0].args).to.deep.equal([
-          column,
-          'desc',
-        ]);
-
-        userEvent.click(sortButton);
-        expect(onSortTableSpy.callCount).to.equal(2);
-        expect(onSortTableSpy.getCalls()[1].args).to.deep.equal([
-          column,
-          'asc',
-        ]);
-      });
-    }
-  );
 });

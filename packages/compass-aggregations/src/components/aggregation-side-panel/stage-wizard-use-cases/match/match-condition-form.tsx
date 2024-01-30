@@ -163,7 +163,6 @@ const MatchConditionForm = ({
         />
       </div>
       <div className={operatorSelectStyles}>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           size="default"
           allowDeselect={false}
@@ -191,7 +190,6 @@ const MatchConditionForm = ({
         />
       </div>
       <div className={bsonTypeSelectStyles}>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           allowDeselect={false}
           placeholder={LABELS.typeSelect}

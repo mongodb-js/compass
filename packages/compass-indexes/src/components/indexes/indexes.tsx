@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { css, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
@@ -28,6 +32,8 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
+  height: '100%',
+  flexGrow: 1,
 });
 
 type IndexesProps = {
@@ -90,18 +96,23 @@ export function Indexes({
 
   return (
     <div className={containerStyles}>
-      <IndexesToolbar
-        errorMessage={errorMessage || null}
-        hasTooManyIndexes={hasTooManyIndexes}
-        isRefreshing={isRefreshing}
-        onRefreshIndexes={onRefreshIndexes}
-      />
-      {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
-        <RegularIndexesTable />
-      )}
-      {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-        <SearchIndexesTable />
-      )}
+      <WorkspaceContainer
+        toolbar={
+          <IndexesToolbar
+            errorMessage={errorMessage || null}
+            hasTooManyIndexes={hasTooManyIndexes}
+            isRefreshing={isRefreshing}
+            onRefreshIndexes={onRefreshIndexes}
+          />
+        }
+      >
+        {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+          <RegularIndexesTable />
+        )}
+        {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+          <SearchIndexesTable />
+        )}
+      </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
     </div>

@@ -101,7 +101,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
         key={pipelineMode}
         data-testid="pipeline-builder-toggle"
         value={pipelineMode}
-        size={'small'}
         onChange={(value) => {
           onChangePipelineMode(value as PipelineMode);
         }}

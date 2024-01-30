@@ -18,7 +18,6 @@ const ViewSwitcher = ({ activeView, onChange }: ViewSwitcherProps) => {
     <SegmentedControl
       id={controlId}
       aria-label="View"
-      size="small"
       value={activeView}
       onChange={(value) => onChange(value as DocumentView)}
     >

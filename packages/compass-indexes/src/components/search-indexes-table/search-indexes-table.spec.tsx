@@ -9,10 +9,9 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
 import type { Document } from 'mongodb';
 
-import { POLLING_INTERVAL, SearchIndexesTable } from './search-indexes-table';
+import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
 
@@ -27,7 +26,6 @@ const renderIndexList = (
       status="READY"
       isWritable={true}
       readOnly={false}
-      onSortTable={noop}
       onDropIndex={noop}
       onEditIndex={noop}
       onPollIndexes={noop}
@@ -53,7 +51,7 @@ describe('SearchIndexesTable Component', function () {
 
       // Renders indexes list (table rows)
       for (const index of indexes) {
-        const indexRow = screen.getByTestId(`search-indexes-row-${index.name}`);
+        const indexRow = screen.getByText(index.name).closest('tr')!;
         expect(indexRow, 'it renders each index in a row').to.exist;
 
         // Renders index fields (table cells)
@@ -130,34 +128,6 @@ describe('SearchIndexesTable Component', function () {
     expect(openCreateSpy.callCount).to.equal(1);
   });
 
-  for (const column of ['Name and Fields', 'Status']) {
-    it(`sorts table by ${column}`, function () {
-      const onSortTableSpy = sinon.spy();
-      renderIndexList({
-        onSortTable: onSortTableSpy,
-      });
-
-      const indexesList = screen.getByTestId('search-indexes-list');
-
-      const columnheader = within(indexesList).getByTestId(
-        `search-indexes-header-${column}`
-      );
-      const sortButton = within(columnheader).getByRole('button', {
-        name: /sort/i,
-      });
-
-      expect(onSortTableSpy.callCount).to.equal(0);
-
-      userEvent.click(sortButton);
-      expect(onSortTableSpy.callCount).to.equal(1);
-      expect(onSortTableSpy.getCalls()[0].args).to.deep.equal([column, 'desc']);
-
-      userEvent.click(sortButton);
-      expect(onSortTableSpy.callCount).to.equal(2);
-      expect(onSortTableSpy.getCalls()[1].args).to.deep.equal([column, 'asc']);
-    });
-  }
-
   context('renders list with action', function () {
     it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();
@@ -189,13 +159,18 @@ describe('SearchIndexesTable Component', function () {
   describe('connectivity', function () {
     it('does poll the index for changes in online mode', async function () {
       const onPollIndexesSpy = sinon.spy();
-      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: true });
+      const testPollingInterval = 50;
+      renderIndexList({
+        onPollIndexes: onPollIndexesSpy,
+        isWritable: true,
+        pollingInterval: testPollingInterval,
+      });
 
       await waitFor(
         () => {
-          expect(onPollIndexesSpy.callCount).to.be.greaterThanOrEqual(1);
+          expect(onPollIndexesSpy.callCount).to.equal(1);
         },
-        { timeout: POLLING_INTERVAL * 2 }
+        { timeout: testPollingInterval * 1.5 }
       );
     });
   });

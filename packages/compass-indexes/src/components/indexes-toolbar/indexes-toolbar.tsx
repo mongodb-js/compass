@@ -151,7 +151,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
             {isSearchManagementActive && (
               <SegmentedControl
-                size="small"
                 onChange={(evt) => onChangeIndexView(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
@@ -275,7 +274,8 @@ export const CreateIndexButton: React.FunctionComponent<
   return (
     <Button
       data-testid="open-create-index-modal-button"
-      disabled={!isWritable}
+      // disabled={!isWritable}
+      disabled={true}
       onClick={onCreateRegularIndex}
       variant="primary"
       size="small"
