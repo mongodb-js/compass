@@ -274,8 +274,7 @@ export const CreateIndexButton: React.FunctionComponent<
   return (
     <Button
       data-testid="open-create-index-modal-button"
-      // disabled={!isWritable}
-      disabled={true}
+      disabled={!isWritable}
       onClick={onCreateRegularIndex}
       variant="primary"
       size="small"
