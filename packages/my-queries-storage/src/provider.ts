@@ -1,17 +1,17 @@
 import { createContext, useContext } from 'react';
 import type { PipelineStorage } from './pipeline-storage';
-import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
+import type {
+  FavoriteQueryStorage,
+  RecentQueryStorage,
+  QueryStorageOptions,
+} from './query-storage';
 
 export type FavoriteQueryStorageAccess = {
-  createStorage(
-    ...options: ConstructorParameters<typeof FavoriteQueryStorage>
-  ): FavoriteQueryStorage;
+  createStorage(options: QueryStorageOptions): FavoriteQueryStorage;
 };
 
 export type RecentQueryStorageAccess = {
-  createStorage(
-    ...options: ConstructorParameters<typeof RecentQueryStorage>
-  ): RecentQueryStorage;
+  createStorage(options: QueryStorageOptions): RecentQueryStorage;
 };
 
 const PipelineStorageContext = createContext<PipelineStorage | null>(null);

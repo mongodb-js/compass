@@ -42,7 +42,7 @@ export type RecentQuery = z.output<typeof RecentQuerySchema>;
 
 export type FavoriteQuery = z.output<typeof FavoriteQuerySchema>;
 
-type QueryStorageOptions = {
+export type QueryStorageOptions = {
   basepath?: string;
   namespace?: string;
 };
