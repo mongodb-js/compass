@@ -228,7 +228,6 @@ export const fetchIndexes = (): IndexesThunkAction<
         indexes,
         cloneDeep(inProgressIndexes)
       );
-      //.sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
       dispatch(_handleIndexesChanged(allIndexes));
     } catch (err) {
       dispatch(setError((err as Error).message));

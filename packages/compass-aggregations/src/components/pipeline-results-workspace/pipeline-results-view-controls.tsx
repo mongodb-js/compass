@@ -40,6 +40,7 @@ const PipelineResultsViewControls: React.FunctionComponent<{
       <SegmentedControl
         id={controlId}
         aria-labelledby={labelId}
+        size="xsmall"
         value={value}
         onChange={onChange as (newValue: string) => void}
       >

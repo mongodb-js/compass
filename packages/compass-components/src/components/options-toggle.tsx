@@ -65,7 +65,6 @@ export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
     { className: optionsButtonStyles },
     focusRingProps
     // We cast here so that the `as` prop of link can be properly typed.
-    // React.ComponentType<React.ComponentProps<
   ) as Partial<InferredPolymorphicComponentType<typeof Link, 'button'>>;
   const onClick = useCallback(() => {
     onToggleOptions();

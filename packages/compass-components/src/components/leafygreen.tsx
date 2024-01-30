@@ -21,14 +21,13 @@ import {
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
-// TODO: This needed?
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
 // tag without specifying a type and buttons by default have type="submit".
-// MenuItem.defaultProps = {
-//   ...MenuItem.defaultProps,
-//   type: 'button',
-// };
+(MenuItem as any).defaultProps = {
+  ...(MenuItem as any).defaultProps,
+  type: 'button',
+};
 
 import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
@@ -97,16 +96,6 @@ const Icon = ({
 };
 Icon.isGlyph = true;
 
-// The following components, Table, Modal, and Code do not currently
-// pull the theme from the LeafyGreen Provider.
-// TODO(LG-2703, COMPASS-6367) In new versions they do pull from the provider, however there's a
-// bug with the language switcher in the Code component,
-// so we're not updating yet.
-// const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
-// const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
-// const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
-
-// TODO: Remove these types?
 delete (MarketingModal as React.ComponentType<any>).propTypes;
 delete (Checkbox as React.ComponentType<any>).propTypes;
 
