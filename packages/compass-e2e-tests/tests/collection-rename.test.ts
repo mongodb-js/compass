@@ -100,7 +100,7 @@ async function renameCollectionSuccessFlow(
   await page.successToast.waitForDisplayed();
 }
 
-describe('Collection Rename Modal', () => {
+describe.only('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -292,7 +292,7 @@ describe('Collection Rename Modal', () => {
     );
 
     // functionality not implemented and tests failing
-    it.skip('preserves a saved aggregation for a namespace when a collection is renamed', async () => {
+    it('preserves a saved aggregation for a namespace when a collection is renamed', async () => {
       // open the rename collection modal
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
@@ -361,7 +361,7 @@ describe('Collection Rename Modal', () => {
     });
 
     // functionality not implemented and tests failing
-    it.skip('preserves a saved query for a namespace when a collection is renamed', async () => {
+    it('preserves a saved query for a namespace when a collection is renamed', async () => {
       // open the rename collection modal
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)

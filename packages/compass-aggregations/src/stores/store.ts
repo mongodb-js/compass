@@ -7,7 +7,10 @@ import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
-import { openStoredPipeline } from '../modules/saved-pipeline';
+import {
+  openStoredPipeline,
+  renameCollectionForPipeline,
+} from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
@@ -216,6 +219,14 @@ export function activateAggregationsPlugin(
       refreshInput();
     }
   });
+
+  on(
+    globalAppRegistry,
+    'collection-renamed',
+    (collectionRenameMetadata: { from: string; to: string }) => {
+      store.dispatch(renameCollectionForPipeline(collectionRenameMetadata));
+    }
+  );
 
   // If stored pipeline was passed through options and we are not editing,
   // restore pipeline

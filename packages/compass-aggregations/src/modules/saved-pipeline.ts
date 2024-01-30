@@ -264,3 +264,16 @@ export const confirmDeletePipeline =
     await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
   };
+
+export const renameCollectionForPipeline =
+  (data: { from: string; to: string }): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState, { pipelineStorage }) => {
+    // console.error(await pipelineStorage.loadAll());
+    // console.error({ data })
+    // const oldPipelines = await pipelineStorage.loadMany(pipeline => pipeline.namespace === data.from);
+    // const updates = oldPipelines.map(pipeline => pipelineStorage.updateAttributes(pipeline.id, {
+    //   namespace: data.to
+    // }));
+    // await Promise.allSettled(updates);
+    // dispatch(updatePipelineList());
+  };

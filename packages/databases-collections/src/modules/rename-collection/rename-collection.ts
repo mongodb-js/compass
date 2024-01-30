@@ -4,6 +4,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { Reducer } from 'redux';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { openToast } from '@mongodb-js/compass-components';
+import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 
 /**
  * Open action name.
@@ -114,8 +115,19 @@ export const renameCollection = (
     const oldNamespace = `${databaseName}.${initialCollectionName}`;
     const newNamespace = `${databaseName}.${newCollectionName}`;
 
+    async function updateSavedAggregations() {
+      const storage = new PipelineStorage();
+      for (const pipeline of await storage.loadMany(
+        ({ namespace }) => namespace === oldNamespace
+      )) {
+        await storage.updateAttributes(pipeline.id, {
+          namespace: newNamespace,
+        });
+      }
+    }
     try {
       await dataService.renameCollection(oldNamespace, newCollectionName);
+      await updateSavedAggregations();
       globalAppRegistry.emit('collection-renamed', {
         to: newNamespace,
         from: oldNamespace,
