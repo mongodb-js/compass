@@ -2,30 +2,37 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { OutputStage } from './output-stage-preview';
-
-const renderOutputStage = (
-  props: Partial<ComponentProps<typeof OutputStage>> = {}
-) => {
-  render(
-    <OutputStage
-      operator={null}
-      isLoading={false}
-      isFinishedPersistingDocuments={false}
-      destinationNamespace="foo.bar"
-      hasServerError={false}
-      onGoToOutputResults={() => {}}
-      onRunOutputStage={() => {}}
-      {...props}
-    />
-  );
-};
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('OutputStagePreview', function () {
-  let enableAggregationBuilderRunPipeline: boolean;
+  let preferences: PreferencesAccess;
+
+  const renderOutputStage = (
+    props: Partial<ComponentProps<typeof OutputStage>> = {}
+  ) => {
+    render(
+      <PreferencesProvider value={preferences}>
+        <OutputStage
+          operator={null}
+          isLoading={false}
+          isFinishedPersistingDocuments={false}
+          destinationNamespace="foo.bar"
+          hasServerError={false}
+          onGoToOutputResults={() => {}}
+          onRunOutputStage={() => {}}
+          {...props}
+        />
+      </PreferencesProvider>
+    );
+  };
 
   afterEach(cleanup);
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
 
   it('renders nothing for a non-out stage', function () {
     renderOutputStage({ operator: '$match' });
@@ -35,18 +42,9 @@ describe('OutputStagePreview', function () {
   for (const operator of ['$out', '$merge']) {
     describe(`${operator} stage`, function () {
       describe('with enableAggregationBuilderRunPipeline set to `true`', function () {
-        before(async function () {
-          enableAggregationBuilderRunPipeline =
-            preferencesAccess.getPreferences()
-              .enableAggregationBuilderRunPipeline;
-          await preferencesAccess.savePreferences({
+        beforeEach(async function () {
+          await preferences.savePreferences({
             enableAggregationBuilderRunPipeline: true,
-          });
-        });
-
-        after(async function () {
-          await preferencesAccess.savePreferences({
-            enableAggregationBuilderRunPipeline,
           });
         });
 
@@ -98,18 +96,9 @@ describe('OutputStagePreview', function () {
       });
 
       describe('with enableAggregationBuilderRunPipeline set to `false`', function () {
-        before(async function () {
-          enableAggregationBuilderRunPipeline =
-            preferencesAccess.getPreferences()
-              .enableAggregationBuilderRunPipeline;
-          await preferencesAccess.savePreferences({
+        beforeEach(async function () {
+          await preferences.savePreferences({
             enableAggregationBuilderRunPipeline: false,
-          });
-        });
-
-        after(async function () {
-          await preferencesAccess.savePreferences({
-            enableAggregationBuilderRunPipeline,
           });
         });
 

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { BadgeVariant } from '@mongodb-js/compass-components';
 import {
@@ -157,6 +157,8 @@ function SearchIndexDetails({
   );
 }
 
+const COLUMNS = ['Name and Fields', 'Status'] as const;
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
@@ -180,6 +182,56 @@ export const SearchIndexesTable: React.FunctionComponent<
     };
   }, [onPollIndexes]);
 
+  const data = useMemo(() => {
+    return indexes.map((index) => {
+      return {
+        key: index.name,
+        'data-testid': `row-${index.name}`,
+        fields: [
+          {
+            'data-testid': 'name-field',
+            style: {
+              width: '30%',
+            },
+            children: index.name,
+          },
+          {
+            'data-testid': 'status-field',
+            style: {
+              width: '20%',
+            },
+            children: (
+              <IndexStatus
+                status={index.status}
+                data-testid={`search-indexes-status-${index.name}`}
+              />
+            ),
+          },
+        ],
+        actions: (
+          <IndexActions
+            index={index}
+            onDropIndex={onDropIndex}
+            onEditIndex={onEditIndex}
+            onRunAggregateIndex={(name) => {
+              openCollectionWorkspace(namespace, {
+                initialPipeline: getInitialSearchIndexPipeline(name),
+                newTab: true,
+              });
+            }}
+          />
+        ),
+        // TODO(COMPASS-7206): details for the nested row
+        details: (
+          <SearchIndexDetails
+            indexName={index.name}
+            definition={index.latestDefinition}
+          />
+        ),
+      };
+    });
+  }, [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]);
+
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -193,64 +245,14 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const canModifyIndex = isWritable && !readOnly;
 
-  const columns = ['Name and Fields', 'Status'] as const;
-
-  const data = indexes.map((index) => {
-    return {
-      key: index.name,
-      'data-testid': `row-${index.name}`,
-      fields: [
-        {
-          'data-testid': 'name-field',
-          className: css({
-            width: '30%',
-          }),
-          children: index.name,
-        },
-        {
-          'data-testid': 'status-field',
-          className: css({
-            width: '20%',
-          }),
-          children: (
-            <IndexStatus
-              status={index.status}
-              data-testid={`search-indexes-status-${index.name}`}
-            />
-          ),
-        },
-      ],
-      actions: (
-        <IndexActions
-          index={index}
-          onDropIndex={onDropIndex}
-          onEditIndex={onEditIndex}
-          onRunAggregateIndex={(name) => {
-            openCollectionWorkspace(namespace, {
-              initialPipeline: getInitialSearchIndexPipeline(name),
-              newTab: true,
-            });
-          }}
-        />
-      ),
-      // TODO(COMPASS-7206): details for the nested row
-      details: (
-        <SearchIndexDetails
-          indexName={index.name}
-          definition={index.latestDefinition}
-        />
-      ),
-    };
-  });
-
   return (
     <IndexesTable
       data-testid="search-indexes"
       aria-label="Search Indexes"
       canModifyIndex={canModifyIndex}
-      columns={columns}
+      columns={COLUMNS}
       data={data}
-      onSortTable={(column, direction) => onSortTable(column, direction)}
+      onSortTable={onSortTable}
     />
   );
 };
@@ -273,4 +275,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(SearchIndexesTable, ['readOnly'], React));
+)(withPreferences(SearchIndexesTable, ['readOnly']));

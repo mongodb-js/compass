@@ -3,31 +3,20 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-
 import { SchemaToolbar } from './schema-toolbar';
-import AppRegistry from 'hadron-app-registry';
+import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 
-const mockQueryBarRole = {
-  name: 'Query Bar',
-  // eslint-disable-next-line react/display-name
-  component: () => <div>Query bar</div>,
-  configureStore: () => ({}),
-  configureActions: () => {},
-  storeName: 'Query.Store',
-  actionName: 'Query.Actions',
-};
-
-const mockQueryBarStore = {
-  state: {
-    filterString: '123',
-    projectString: '',
-    sortString: '',
-    collationString: '',
-    skipString: '',
-    limitString: '',
-    maxTimeMSString: '',
+const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
+  dataService: {
+    sample() {
+      return Promise.resolve([]);
+    },
+    getConnectionString() {
+      return { hosts: [] } as any;
+    },
   },
-};
+  instance: { on() {}, removeListener() {} } as any,
+});
 
 const testErrorMessage =
   'An error occurred during schema analysis: test error msg';
@@ -35,22 +24,20 @@ const testErrorMessage =
 const renderSchemaToolbar = (
   props: Partial<ComponentProps<typeof SchemaToolbar>> = {}
 ) => {
-  const localAppRegistry = new AppRegistry();
-  localAppRegistry.registerRole('Query.QueryBar', mockQueryBarRole);
-  localAppRegistry.registerStore(mockQueryBarRole.storeName, mockQueryBarStore);
-
+  const queryBarProps = {};
   render(
-    <SchemaToolbar
-      localAppRegistry={localAppRegistry}
-      analysisState="complete"
-      errorMessage={''}
-      isOutdated={false}
-      onAnalyzeSchemaClicked={() => {}}
-      onResetClicked={() => {}}
-      sampleSize={10}
-      schemaResultId="123"
-      {...props}
-    />
+    <MockQueryBarPlugin {...(queryBarProps as any)}>
+      <SchemaToolbar
+        analysisState="complete"
+        errorMessage={''}
+        isOutdated={false}
+        onAnalyzeSchemaClicked={() => {}}
+        onResetClicked={() => {}}
+        sampleSize={10}
+        schemaResultId="123"
+        {...props}
+      />
+    </MockQueryBarPlugin>
   );
 };
 
@@ -102,7 +89,6 @@ describe('SchemaToolbar', function () {
 
   it('renders the query bar role', function () {
     renderSchemaToolbar();
-
-    expect(screen.getByText('Query bar')).to.be.visible;
+    expect(screen.getByTestId('query-bar')).to.be.visible;
   });
 });

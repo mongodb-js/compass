@@ -11,7 +11,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
 
 import type { RootState } from '../../../modules';
 import { editPipeline } from '../../../modules/workspace';
@@ -66,7 +66,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onEditPipelineClick,
   onShowAIInputClick,
 }) => {
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
 
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">

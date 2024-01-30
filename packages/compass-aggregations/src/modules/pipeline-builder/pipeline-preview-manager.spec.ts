@@ -6,11 +6,18 @@ import {
   DEFAULT_SAMPLE_SIZE,
   PipelinePreviewManager,
 } from './pipeline-preview-manager';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('PipelinePreviewManager', function () {
+  let preferences: PreferencesAccess;
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   it('should return pipeline results', async function () {
     const dataService = mockDataService({ data: [{ foo: 'bar' }] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
     expect(
       await previewManager.getPreviewForStage(0, 'test.test', [], {
         debounceMs: 10,
@@ -20,7 +27,7 @@ describe('PipelinePreviewManager', function () {
 
   it('should throw a cancelled error if preview request was cancelled', async function () {
     const dataService = mockDataService({ data: [] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     const result = await Promise.allSettled([
       previewManager.getPreviewForStage(0, 'test.test', []),
@@ -33,7 +40,7 @@ describe('PipelinePreviewManager', function () {
 
   it('should debounce aggregation calls for the same stage', async function () {
     const dataService = mockDataService({ data: [] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     previewManager
       .getPreviewForStage(0, 'test.test', [], {
@@ -60,7 +67,7 @@ describe('PipelinePreviewManager', function () {
 
   it('should make aggregation calls for multiple stages', async function () {
     const dataService = mockDataService({ data: [] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
       previewManager.getPreviewForStage(0, 'test.test', [], {
@@ -80,7 +87,7 @@ describe('PipelinePreviewManager', function () {
 
   it('should cancel preview fetch for a stage', function () {
     const dataService = mockDataService({ data: [] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     previewManager.getPreviewForStage(0, 'test.test', []).catch(() => {
       /* ignore error */
@@ -91,7 +98,7 @@ describe('PipelinePreviewManager', function () {
 
   it('should clear the queue starting from the index', async function () {
     const dataService = mockDataService({ data: [] });
-    const previewManager = new PipelinePreviewManager(dataService);
+    const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
       previewManager.getPreviewForStage(0, 'test.test', [], {

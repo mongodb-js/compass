@@ -30,7 +30,7 @@ export async function clickVisible(
 
   const clickElement = await getElement();
   if (options?.screenshot) {
-    await browser.saveScreenshot(options.screenshot);
+    await browser.screenshot(options.screenshot);
   }
   if (await clickElement.isEnabled()) {
     await clickElement.click();

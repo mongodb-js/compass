@@ -1,7 +1,7 @@
-import preferences from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { checkValidator } from './validation';
 import type { DataService } from 'mongodb-data-service';
-import type { RootAction, RootState } from '.';
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -217,9 +217,11 @@ const getSampleDocuments = async ({
   pipeline,
   namespace,
   dataService,
+  preferences,
 }: {
   namespace: string;
-  dataService: DataService;
+  dataService: Pick<DataService, 'aggregate'>;
+  preferences: PreferencesAccess;
   pipeline: Record<string, unknown>[];
 }) => {
   const aggOptions = {
@@ -231,15 +233,13 @@ const getSampleDocuments = async ({
   return await dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
-export const fetchValidDocument = () => {
-  return async (
-    dispatch: (action: RootAction) => void,
-    getState: () => RootState
-  ) => {
+export const fetchValidDocument = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, getState, { preferences, dataService }) => {
     dispatch(fetchingValidDocument());
 
     const state = getState();
-    const dataService = state.dataService;
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
@@ -248,15 +248,12 @@ export const fetchValidDocument = () => {
       checkedValidator.validator as string
     ).validator;
 
-    if (!dataService) {
-      return;
-    }
-
     try {
       const valid = (
         await getSampleDocuments({
           namespace,
           dataService,
+          preferences,
           pipeline: [{ $match: query }, { $limit: 1 }],
         })
       )[0];
@@ -268,15 +265,13 @@ export const fetchValidDocument = () => {
   };
 };
 
-export const fetchInvalidDocument = () => {
-  return async (
-    dispatch: (action: RootAction) => void,
-    getState: () => RootState
-  ) => {
+export const fetchInvalidDocument = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, getState, { preferences, dataService }) => {
     dispatch(fetchingInvalidDocument());
 
     const state = getState();
-    const dataService = state.dataService;
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
@@ -286,15 +281,12 @@ export const fetchInvalidDocument = () => {
       checkedValidator.validator as string
     ).validator;
 
-    if (!dataService) {
-      return;
-    }
-
     try {
       const invalid = (
         await getSampleDocuments({
           namespace,
           dataService,
+          preferences,
           pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
         })
       )[0];

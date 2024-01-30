@@ -11,7 +11,7 @@ import { css } from '@mongodb-js/compass-components';
 
 const optionsSelectDropdownStyles = css({
   zIndex: 1,
-  'button:focus, button:focus-within': {
+  'button[aria-expanded=true]': {
     zIndex: 20,
   },
 });

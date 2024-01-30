@@ -8,7 +8,7 @@ import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
 
@@ -48,22 +48,18 @@ export const PipelineSettings: React.FunctionComponent<
   onCreateNewPipeline,
 }) => {
   const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries',
-    React
+    'enableSavedAggregationsQueries'
   );
-  const isSavePipelineDisplayed =
-    !editViewName && enableSavedAggregationsQueries;
+  const isPipelineNameDisplayed =
+    !editViewName && !!enableSavedAggregationsQueries;
+
   const isCreatePipelineDisplayed = !editViewName;
 
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
-        {isSavePipelineDisplayed && (
-          <>
-            <PipelineName />
-            <SaveMenu />
-          </>
-        )}
+        {isPipelineNameDisplayed && <PipelineName />}
+        <SaveMenu isSaveEnabled={!!enableSavedAggregationsQueries}></SaveMenu>
         {isCreatePipelineDisplayed && (
           <Button
             size="xsmall"

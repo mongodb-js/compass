@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import {
   changeAIPromptText,
@@ -13,25 +12,36 @@ import {
   hideInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../modules';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+const useOnSubmitFeedback = () => {
+  const logger = useLoggerAndTelemetry('AI-PIPELINE-UI');
+  return useCallback(
+    (feedback: 'positive' | 'negative', text: string) => {
+      const { log, mongoLogId, track } = logger;
+      log.info(
+        mongoLogId(1_001_000_232),
+        'PipelineAI',
+        'AI pipeline feedback',
+        {
+          feedback,
+          text,
+        }
+      );
 
-const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
-  log.info(mongoLogId(1_001_000_232), 'PipelineAI', 'AI pipeline feedback', {
-    feedback,
-    text,
-  });
+      track('PipelineAI Feedback', () => ({
+        feedback,
+        text,
+      }));
 
-  track('PipelineAI Feedback', () => ({
-    feedback,
-    text,
-  }));
-
-  openToast('pipeline-ai-feedback-submitted', {
-    variant: 'success',
-    title: 'Your feedback has been submitted.',
-    timeout: 10_000,
-  });
+      openToast('pipeline-ai-feedback-submitted', {
+        variant: 'success',
+        title: 'Your feedback has been submitted.',
+        timeout: 10_000,
+      });
+    },
+    [logger]
+  );
 };
 
 type PipelineAIProps = {
@@ -64,7 +74,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   onResetIsAggregationGeneratedFromQuery,
 }) => {
   // Don't show the feedback options if telemetry is disabled.
-  const enableTelemetry = usePreference('trackUsageStatistics', React);
+  const enableTelemetry = usePreference('trackUsageStatistics');
   const onResetIsAggregationGeneratedFromQueryRef = useRef(
     onResetIsAggregationGeneratedFromQuery
   );
@@ -74,6 +84,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onResetIsAggregationGeneratedFromQueryRef.current();
     };
   }, []);
+  const onSubmitFeedback = useOnSubmitFeedback();
 
   return (
     <GenerativeAIInput

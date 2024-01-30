@@ -15,11 +15,7 @@ import {
   Badge,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-
-import type {
-  StageWizardUseCase,
-  WizardComponentProps,
-} from '../aggregation-side-panel/stage-wizard-use-cases';
+import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { connect } from 'react-redux';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
@@ -35,8 +31,9 @@ import type {
 import { getSchema } from '../../utils/get-schema';
 import { getStageHelpLink } from '../../utils/stage';
 import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
-import type { FieldSchema } from '../../utils/get-schema';
+import type { DocumentSchema } from '../../utils/get-schema';
 import type { TypeCastTypes } from 'hadron-type-checker';
+import { useFieldsSchema } from '@mongodb-js/compass-field-store';
 
 const containerStyles = css({
   display: 'flex',
@@ -83,10 +80,11 @@ const warningStyles = css({
 
 type StageWizardProps = SortableProps & {
   index: number;
+  namespace: string;
   useCaseId: string;
   value: string | null;
   syntaxError: SyntaxError | null;
-  fields: WizardComponentProps['fields'];
+  previousStageFields: DocumentSchema | null;
   onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
@@ -153,16 +151,36 @@ function useGrabFocus<E extends HTMLElement>() {
 
 export const StageWizard = ({
   index,
+  namespace,
   useCaseId,
   value,
   syntaxError,
-  fields,
+  previousStageFields,
   onChange,
   onCancel: onCancelProp,
   onApply,
   ...sortableProps
 }: StageWizardProps) => {
   const { returnFocus, focusContainerRef } = useGrabFocus<HTMLDivElement>();
+  const fieldsSchema = useFieldsSchema(namespace);
+  const fields: DocumentSchema = useMemo(() => {
+    function schemaTypeToKindaTypeCastType(type: string | string[]) {
+      // we don't expect any handling for multi-type schemas, pick the first
+      // type whatever it is
+      type = Array.isArray(type) ? type[0] : type;
+      // parsed schema has the bson type Object replaced with Document to avoid
+      // collision with JS Objects but that shouldn't be a problem for us
+      // because we use these as string values alongside well defined casters.
+      return type === 'Document' ? 'Object' : (type as TypeCastTypes);
+    }
+
+    return Object.values(fieldsSchema).map((field) => {
+      return {
+        name: field.name,
+        type: schemaTypeToKindaTypeCastType(field.type),
+      };
+    });
+  }, [fieldsSchema]);
 
   const onCancel = useCallback(() => {
     onCancelProp?.();
@@ -219,7 +237,7 @@ export const StageWizard = ({
           <div className={wizardContentStyles}>
             <div data-testid="wizard-form">
               <useCase.wizardComponent
-                fields={fields}
+                fields={previousStageFields ?? fields}
                 onChange={onChangeWizard}
               />
             </div>
@@ -257,8 +275,8 @@ type WizardOwnProps = {
 export default connect(
   (state: RootState, ownProps: WizardOwnProps) => {
     const {
+      namespace,
       autoPreview,
-      fields: initialFields,
       pipelineBuilder: {
         stageEditor: { stages },
       },
@@ -271,40 +289,22 @@ export default connect(
       .reverse()
       .find((x): x is StoreStage => x.type === 'stage' && !x.disabled);
 
-    const mappedInitialFields = (
-      initialFields as {
-        name: string;
-        description?: string;
-      }[]
-    ).map<FieldSchema>(({ name, description }) => {
-      // parsed schema has the bson type Object replaced with
-      // Document to avoid collision with JS Objects but that
-      // shouldn't be a problem for us because we use these
-      // as string values alongside well defined casters.
-      const type =
-        description === 'Document'
-          ? 'Object'
-          : ((description ?? 'String') as TypeCastTypes);
-
-      return { name, type };
-    });
-    const previousStageFieldsWithSchema = getSchema(
-      previousStage?.previewDocs?.map((doc) => {
-        return doc.generateObject();
-      }) ?? []
-    );
-
-    const fields =
-      previousStageFieldsWithSchema.length > 0 && autoPreview
-        ? previousStageFieldsWithSchema
-        : mappedInitialFields;
-
     return {
       id: wizard.id,
+      namespace,
       syntaxError: wizard.syntaxError,
       useCaseId: wizard.useCaseId,
       value: wizard.value,
-      fields,
+      previousStageFields:
+        autoPreview &&
+        previousStage?.previewDocs &&
+        previousStage?.previewDocs.length > 0
+          ? getSchema(
+              previousStage.previewDocs.map((doc) => {
+                return doc.generateObject();
+              })
+            )
+          : null,
     };
   },
   (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({

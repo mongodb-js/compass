@@ -1,7 +1,6 @@
 import type { TextInput } from '@mongodb-js/compass-components';
 import type { ComponentProps } from 'react';
-import React from 'react';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { QueryProperty } from './query-properties';
 
 export type QueryOption = Exclude<QueryProperty, 'update'>;
@@ -59,7 +58,7 @@ export const OPTION_DEFINITION: {
     placeholder: '60000',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
     extraTextInputProps() {
-      const preferenceMaxTimeMS = usePreference('maxTimeMS', React);
+      const preferenceMaxTimeMS = usePreference('maxTimeMS');
       const props: { max?: number; placeholder?: string } = {
         max: preferenceMaxTimeMS,
       };

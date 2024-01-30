@@ -17,7 +17,7 @@ import type {
   ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
 const tableStyles = css({
@@ -61,10 +61,7 @@ export function ExportConnectionsModal({
 
   useOpenModalThroughIpc(open, setOpen, 'compass:open-export-connections');
 
-  const protectConnectionStrings = !!usePreference(
-    'protectConnectionStrings',
-    React
-  );
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const {
     onSubmit,
     onCancel,

@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { PrivacySettings } from './privacy';
 import { configureStore } from '../../stores';
 import { fetchSettings } from '../../stores/settings';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function renderPrivacySettings(
   store,
@@ -30,7 +31,10 @@ describe('PrivacySettings', function () {
   }
 
   beforeEach(async function () {
-    store = configureStore({ logger: stub() as any });
+    store = configureStore({
+      logger: stub() as any,
+      preferences: await createSandboxFromDefaultPreferences(),
+    });
     await store.dispatch(fetchSettings());
   });
 

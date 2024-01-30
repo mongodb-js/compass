@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { withPreferences } from 'compass-preferences-model';
+import {
+  withPreferences,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import {
   Button,
   ErrorSummary,
@@ -17,7 +20,6 @@ import {
   SegmentedControl,
   SegmentedControlOption,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../../modules';
 import {
@@ -86,11 +88,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference(
-    'enableAtlasSearchIndexManagement',
-    React
+    'enableAtlasSearchIndexManagement'
   );
 
-  const showInsights = usePreference('showInsights', React) && !errorMessage;
+  const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -310,4 +311,4 @@ const mapDispatch = {
 export default connect(
   mapState,
   mapDispatch
-)(withPreferences(IndexesToolbar, ['readOnly'], React));
+)(withPreferences(IndexesToolbar, ['readOnly']));

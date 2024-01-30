@@ -11,7 +11,7 @@ describe('CompassSchemaValidation [Component]', function () {
   let store: ReturnType<typeof configureStore> | null;
 
   beforeEach(function () {
-    store = configureStore();
+    store = configureStore({}, {} as any);
     component = mount(
       <Provider store={store}>
         <CompassSchemaValidation />

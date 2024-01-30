@@ -4,8 +4,6 @@ import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import React from 'react';
-import type { CollectionTabOptions } from '../stores/collection-tab';
 
 type CollectionThunkAction<
   ReturnType,
@@ -143,112 +141,6 @@ export type CollectionTabPluginMetadata = CollectionMetadata & {
    * `pipeline` options
    */
   editViewName?: string;
-};
-
-const setupRole = (
-  roleName: string,
-  {
-    namespace,
-    initialAggregation,
-    initialPipeline,
-    initialPipelineText,
-    initialQuery,
-    editViewName,
-  }: CollectionTabOptions
-): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
-  return (
-    dispatch,
-    getState,
-    { localAppRegistry, globalAppRegistry, dataService }
-  ) => {
-    const roles = globalAppRegistry.getRole(roleName) ?? [];
-
-    return roles.map((role) => {
-      localAppRegistry.registerRole(roleName, role);
-
-      const {
-        name,
-        component,
-        storeName,
-        configureStore,
-        actionName,
-        configureActions,
-      } = role;
-
-      const collectionStoreMetadata = {
-        namespace,
-        aggregation: initialAggregation,
-        pipeline: initialPipeline,
-        pipelineText: initialPipelineText,
-        query: initialQuery,
-        editViewName,
-        ...getState().metadata,
-        localAppRegistry,
-        globalAppRegistry,
-        dataProvider: {
-          // Even though this is technically impossible, all scoped plugins
-          // expect error key to be present
-          error: null,
-          dataProvider: dataService,
-        },
-      };
-
-      let actions;
-      if (actionName && configureActions) {
-        actions =
-          localAppRegistry.getAction(actionName) ??
-          localAppRegistry
-            .registerAction(actionName, configureActions())
-            .getAction(actionName);
-      }
-
-      let store;
-      if (storeName && configureStore) {
-        store =
-          localAppRegistry.getStore(storeName) ??
-          localAppRegistry
-            .registerStore(
-              storeName,
-              configureStore({ ...collectionStoreMetadata, actions })
-            )
-            .getStore(storeName);
-      }
-
-      return {
-        name,
-        component: React.createElement(component, {
-          store,
-          actions,
-          key: name,
-        }),
-      };
-    });
-  };
-};
-
-export const renderScopedModals = (
-  collectionOptions: CollectionTabOptions
-): CollectionThunkAction<React.ReactElement[]> => {
-  return (dispatch) => {
-    return dispatch(setupRole('Collection.ScopedModal', collectionOptions)).map(
-      (role) => {
-        return role.component;
-      }
-    );
-  };
-};
-
-export const renderTabs = (
-  collectionOptions: CollectionTabOptions
-): CollectionThunkAction<{ name: string; component: React.ReactElement }[]> => {
-  return (dispatch) => {
-    // TODO(COMPASS-7020): we don't actually render query bar in the collection
-    // tab, but compass-crud and compass-schema expect some additional roles and
-    // stores to be already set up when they are rendered instead of handling
-    // this on their own. We do this here and ignore the return value, this just
-    // makes sure that other plugins can use query bar
-    return dispatch(setupRole('Query.QueryBar', collectionOptions));
-  };
 };
 
 export default reducer;

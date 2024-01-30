@@ -46,7 +46,7 @@ describe('SidebarStore [Store]', function () {
         instance,
         logger: { log: { warn() {} }, mongoLogId() {} },
       } as any,
-      { on() {}, cleanup() {}, addCleanup() {} }
+      { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
   });
 

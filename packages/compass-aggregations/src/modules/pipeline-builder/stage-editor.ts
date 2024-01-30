@@ -1,7 +1,6 @@
 import type { Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
@@ -22,7 +21,6 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
@@ -36,7 +34,6 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -286,7 +283,7 @@ export const loadStagePreview = (
 
       const {
         namespace,
-        maxTimeMS,
+        maxTimeMS: { current: maxTimeMS },
         collationString,
         limit,
         largeLimit,
@@ -389,7 +386,11 @@ export const loadPreviewForStagesFrom = (
 export const runStage = (
   idx: number
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, globalAppRegistry }
+  ) => {
     const {
       dataService: { dataService },
       namespace,
@@ -423,13 +424,14 @@ export const runStage = (
         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
       );
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS.current ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
       const result = await aggregatePipeline({
         dataService,
+        preferences,
         signal,
         namespace,
         pipeline,
@@ -440,13 +442,11 @@ export const runStage = (
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
-      dispatch(
-        globalAppRegistryEmit(
-          'agg-pipeline-out-executed',
-          getDestinationNamespaceFromStage(
-            namespace,
-            pipeline[pipeline.length - 1]
-          )
+      globalAppRegistry.emit(
+        'agg-pipeline-out-executed',
+        getDestinationNamespaceFromStage(
+          namespace,
+          pipeline[pipeline.length - 1]
         )
       );
     } catch (error: any) {
@@ -534,7 +534,7 @@ export const changeStageOperator = (
   string | undefined,
   ChangeStageOperatorAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       env,
       comments,
@@ -643,7 +643,7 @@ export const changeStageCollapsed = (
 export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -674,7 +674,7 @@ export const addStage = (
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -706,7 +706,7 @@ export const moveStage = (
   from: number,
   to: number
 ): PipelineBuilderThunkAction<void, StageMoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     if (from === to) {
       return;
     }
@@ -872,7 +872,7 @@ export const convertWizardToStage = (
   void,
   WizardChangeAction | WizardToStageAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },

@@ -56,12 +56,9 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
         },
         helpers
       );
-      // TODO(COMPASS-7442): Remove the store register/register calls
-      globalAppRegistry.registerStore('App.InstanceStore', store);
       return {
         store,
         deactivate: () => {
-          globalAppRegistry.deregisterStore('App.InstanceStore');
           helpers.cleanup();
         },
       };

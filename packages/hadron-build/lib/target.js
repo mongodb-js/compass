@@ -1,36 +1,20 @@
 // eslint-disable-next-line strict
 'use strict';
 const chalk = require('chalk');
-const childProcess = require('child_process');
-const download = require('download');
 const fs = require('fs');
 const _ = require('lodash');
 const semver = require('semver');
 const path = require('path');
-const { promisify } = require('util');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
-const execFile = promisify(childProcess.execFile);
-const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const which = require('which');
 const plist = require('plist');
-const { signtool } = require('./signtool');
+const { sign, getSignedFilename } = require('./signtool');
 const tarGz = require('./tar-gz');
-
-async function signLinuxPackage(src) {
-  debug('Signing ... %s', src);
-  await mongodbNotaryServiceClient(src);
-  debug('Successfully signed %s', src);
-}
-
-async function signWindowsPackage(src) {
-  debug('Signing ... %s', src);
-  await signtool(src);
-  debug('Successfully signed %s', src);
-}
+const { notarize } = require('./mac-notary-service');
 
 function _canBuildInstaller(ext) {
   var bin = null;
@@ -344,6 +328,11 @@ class Target {
     this.windows_nupkg_full_label =
       this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
+    this.windows_zip_sign_label =
+      this.windows_zip_sign_filename = getSignedFilename(this.windows_zip_filename);
+    this.windows_nupkg_full_sign_label =
+      this.windows_nupkg_full_sign_filename = getSignedFilename(this.windows_nupkg_full_filename);
+
     this.assets = [
       {
         name: this.windows_setup_label,
@@ -361,12 +350,20 @@ class Target {
         downloadCenter: true
       },
       {
+        name: this.windows_zip_sign_label,
+        path: this.dest(this.windows_zip_sign_label),
+      },
+      {
         name: this.windows_releases_label,
         path: this.dest(this.windows_releases_label)
       },
       {
         name: this.windows_nupkg_full_label,
         path: this.dest(this.windows_nupkg_full_label)
+      },
+      {
+        name: this.windows_nupkg_full_sign_label,
+        path: this.dest(this.windows_nupkg_full_sign_label)
       }
     ];
 
@@ -413,8 +410,7 @@ class Target {
 
     this.createInstaller = async() => {
       // sign the main application .exe
-      await signWindowsPackage(
-        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
+      await sign(path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
@@ -453,12 +449,15 @@ class Target {
       await msiCreator.compile();
 
       // sign the MSI
-      await signWindowsPackage(this.dest(this.packagerOptions.name + '.msi'));
+      await sign(this.dest(this.packagerOptions.name + '.msi'));
 
       await fs.promises.rename(
         this.dest(this.packagerOptions.name + '.msi'),
         this.dest(this.windows_msi_label),
       );
+
+      // sign the nupkg
+      await sign(this.dest(this.windows_nupkg_full_filename));
     };
   }
 
@@ -499,6 +498,8 @@ class Target {
       this.osx_dmg_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`;
     this.osx_zip_label =
       this.osx_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
+    this.osx_zip_sign_label =
+      this.osx_zip_sign_filename = getSignedFilename(this.osx_zip_filename);
 
     this.assets = [
       {
@@ -509,6 +510,10 @@ class Target {
       {
         name: this.osx_zip_label,
         path: this.dest(this.osx_zip_label)
+      },
+      {
+        name: this.osx_zip_sign_label,
+        path: this.dest(this.osx_zip_sign_label)
       }
     ];
 
@@ -554,7 +559,6 @@ class Target {
     };
 
     this.createInstaller = async() => {
-      const appDirectoryName = `${this.productName}.app`;
       const appPath = this.appPath;
 
       {
@@ -572,58 +576,32 @@ class Target {
         await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
       }
 
-      if (process.env.MACOS_NOTARY_KEY &&
-          process.env.MACOS_NOTARY_SECRET &&
-          process.env.MACOS_NOTARY_CLIENT_URL &&
-          process.env.MACOS_NOTARY_API_URL) {
-        debug(`Signing and notarizing "${appPath}"`);
-        // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
-        debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
-        await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
-          extract: true,
-          strip: 1 // remove leading platform + arch directory
-        });
-        await fs.promises.chmod('macnotary/macnotary', 0o755); // ensure +x is set
+      const isNotarizationPossible = process.env.MACOS_NOTARY_KEY &&
+        process.env.MACOS_NOTARY_SECRET &&
+        process.env.MACOS_NOTARY_CLIENT_URL &&
+        process.env.MACOS_NOTARY_API_URL;
 
-        debug(`running "zip -y -r '${appDirectoryName}.zip' '${appDirectoryName}'"`);
-        await execFile('zip', ['-y', '-r', `${appDirectoryName}.zip`, appDirectoryName], {
-          cwd: path.dirname(appPath)
-        });
-        debug(`sending file to notary service (bundle id = ${this.bundleId})`);
-        const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
-          '-t', 'app',
-          '-m', 'notarizeAndSign',
-          '-u', process.env.MACOS_NOTARY_API_URL,
-          '-b', this.bundleId,
-          '-f', `${appDirectoryName}.zip`,
-          '-o', `${appDirectoryName}.signed.zip`,
-          '--verify',
-          ...(this.macosEntitlements ? ['-e', this.macosEntitlements] : [])
-        ], {
-          cwd: path.dirname(appPath),
-          encoding: 'utf8'
-        });
-        debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
-        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
-        debug('removing existing directory contents');
-        await execFile('rm', ['-r', appDirectoryName], {
-          cwd: path.dirname(appPath)
-        });
-        debug(`unzipping with "unzip -u '${appDirectoryName}.signed.zip'"`);
-        await execFile('unzip', ['-u', `${appDirectoryName}.signed.zip`], {
-          cwd: path.dirname(appPath),
-          encoding: 'utf8'
-        });
-        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
-        debug(`removing '${appDirectoryName}.signed.zip' and '${appDirectoryName}.zip'`);
-        await fs.promises.unlink(`${appPath}.signed.zip`);
-        await fs.promises.unlink(`${appPath}.zip`);
+      const notarizationOptions = {
+        bundleId: this.bundleId,
+        macosEntitlements: this.macosEntitlements
+      };
+
+      if (isNotarizationPossible) {
+        await notarize(appPath, notarizationOptions);
       } else {
         console.error(chalk.yellow.bold(
-          'WARNING: macos notary service credentials not set -- skipping signing and notarization!'));
+          'WARNING: macos notary service credentials not set -- skipping signing and notarization of .app!'));
       }
+
       const createDMG = require('electron-installer-dmg');
       await createDMG(this.installerOptions);
+
+      if (isNotarizationPossible) {
+        await notarize(this.installerOptions.dmgPath, notarizationOptions);
+      } else {
+        console.error(chalk.yellow.bold(
+          'WARNING: macos notary service credentials not set -- skipping signing and notarization of .dmg!'));
+      }
     };
   }
 
@@ -646,6 +624,9 @@ class Target {
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.linux_deb_sign_filename = getSignedFilename(this.linux_deb_filename);
+    this.linux_tar_sign_filename = getSignedFilename(this.linux_tar_filename);
 
     const rhelVersion = [
       this.semver.major,
@@ -656,14 +637,19 @@ class Target {
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
-    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
+
+    this.rhel_tar_sign_filename = getSignedFilename(this.rhel_tar_filename);
 
     this.assets = [
       {
         name: this.linux_deb_filename,
         path: this.dest(this.linux_deb_filename),
         downloadCenter: true
+      },
+      {
+        name: this.linux_deb_sign_filename,
+        path: this.dest(this.linux_deb_sign_filename),
       },
       {
         name: this.linux_rpm_filename,
@@ -675,8 +661,16 @@ class Target {
         path: this.dest(this.linux_tar_filename)
       },
       {
+        name: this.linux_tar_sign_filename,
+        path: this.dest(this.linux_tar_sign_filename)
+      },
+      {
         name: this.rhel_tar_filename,
         path: this.dest(this.rhel_tar_filename)
+      },
+      {
+        name: this.rhel_tar_sign_filename,
+        path: this.dest(this.rhel_tar_sign_filename)
       }
     ];
 
@@ -731,7 +725,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return signLinuxPackage(this.dest(this.linux_rpm_filename));
+          return sign(this.dest(this.linux_rpm_filename));
         });
       });
     };
@@ -741,12 +735,7 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          // We do not sign debs because it doesn't work, see
-          // this thread for context:
-          //   https://mongodb.slack.com/archives/G2L10JAV7/p1623169331107600
-          //
-          // return sign(this.dest(this.linux_deb_filename));
-          return this.dest(this.linux_deb_filename);
+          return sign(this.dest(this.linux_deb_filename));
         });
       });
     };
@@ -758,7 +747,9 @@ class Target {
         this.dest(this.app_archive_name)
       );
 
-      return tarGz(this.appPath, this.dest(this.app_archive_name));
+      return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
+        return sign(this.dest(this.app_archive_name));
+      });
     };
 
     this.createInstaller = () => {

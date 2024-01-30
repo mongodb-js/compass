@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry, LogEntry } from '../helpers/telemetry';
@@ -11,7 +11,7 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await beforeTests({ firstRun: true });
+      const compass = await init(this.test?.fullTitle(), { firstRun: true });
       const { browser } = compass;
 
       try {
@@ -19,7 +19,7 @@ describe('Logging and Telemetry integration', function () {
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
       } finally {
-        await afterTests(compass);
+        await cleanup(compass);
         await telemetry.stop();
       }
 
@@ -167,7 +167,7 @@ describe('Logging and Telemetry integration', function () {
         },
         {
           s: 'I',
-          c: 'COMPASS-CONNECT-UI',
+          c: 'COMPASS-CONNECTIONS',
           id: 1_001_000_004,
           ctx: 'Connection UI',
           msg: 'Initiating connection attempt',
@@ -385,15 +385,21 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      compass = await beforeTests();
+      compass = await init(this.test?.fullTitle());
+    });
+
+    afterEach(async function () {
+      await screenshotIfFailed(compass, this.currentTest);
     });
 
     after(async function name() {
-      await afterTests(compass);
+      await cleanup(compass);
       await telemetry.stop();
     });
 
     it('tracks an event for identify call', function () {
+      console.log(telemetry.events());
+
       const identify = telemetry
         .events()
         .find((entry) => entry.type === 'identify');
@@ -408,17 +414,23 @@ describe('Logging and Telemetry integration', function () {
     before(async function () {
       try {
         process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
-        compass = await beforeTests();
+        compass = await init(this.test?.fullTitle());
       } finally {
         delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
       }
 
-      await afterTests(compass);
+      // yes we're deliberately cleaning up in the before hook already, even
+      // before the test runs
+      await cleanup(compass);
+    });
+
+    afterEach(async function () {
+      await screenshotIfFailed(compass, this.currentTest);
     });
 
     after(async function () {
       // clean up if it failed during the before hook
-      await afterTests(compass, this.currentTest);
+      await cleanup(compass);
     });
 
     it('provides logging information for uncaught exceptions', function () {

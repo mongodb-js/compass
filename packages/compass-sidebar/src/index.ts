@@ -10,14 +10,6 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
-function activate() {
-  // noop
-}
-
-function deactivate() {
-  // noop
-}
-
 export const CompassSidebarPlugin = registerHadronPlugin<
   SidebarPluginProps,
   {
@@ -66,6 +58,3 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     logger: createLoggerAndTelemetryLocator('COMPASS-SIDEBAR-UI'),
   }
 );
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

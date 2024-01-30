@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
@@ -10,6 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type {
   CollectionTabInfo,
+  OpenWorkspaceOptions,
   WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
@@ -23,10 +24,11 @@ import {
   selectPrevTab,
   selectTab,
 } from '../stores/workspaces';
-import { useWorkspacePlugin } from './workspaces-provider';
+import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
+import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -64,12 +66,13 @@ type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
   activeTab?: WorkspaceTab | null;
   collectionInfo: Record<string, CollectionTabInfo>;
+  openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
   onSelectPrevTab(): void;
   onMoveTab(from: number, to: number): void;
-  onCreateTab(): void;
+  onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
 };
 
@@ -77,6 +80,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   tabs,
   activeTab,
   collectionInfo,
+  openOnEmptyWorkspace,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -85,7 +89,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
-  const getWorkspaceByName = useWorkspacePlugin();
+  const { getWorkspacePluginByName } = useWorkspacePlugins();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -154,15 +158,15 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       case 'My Queries':
       case 'Performance':
       case 'Databases': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }
       case 'Collections': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         return <Component namespace={activeTab.namespace}></Component>;
       }
       case 'Collection': {
-        const Component = getWorkspaceByName(activeTab.type);
+        const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
         return <Component {...collectionMetadata}></Component>;
@@ -170,7 +174,11 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       default:
         return null;
     }
-  }, [activeTab, getWorkspaceByName]);
+  }, [activeTab, getWorkspacePluginByName]);
+
+  const onCreateNewTab = useCallback(() => {
+    onCreateTab(openOnEmptyWorkspace);
+  }, [onCreateTab, openOnEmptyWorkspace]);
 
   return (
     <div className={workspacesContainerStyles}>
@@ -180,7 +188,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onSelectNextTab={onSelectNextTab}
         onSelectPrevTab={onSelectPrevTab}
         onMoveTab={onMoveTab}
-        onCreateNewTab={onCreateTab}
+        onCreateNewTab={onCreateNewTab}
         onCloseTab={onCloseTab}
         tabs={tabDescriptions}
         selectedTabIndex={activeTabIndex}
@@ -188,25 +196,27 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
       <div className={workspacesContentStyles}>
         {activeTab && activeWorkspaceElement ? (
-          <AppRegistryProvider
-            key={activeTab.id}
-            localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
-            deactivateOnUnmount={false}
-          >
-            <ErrorBoundary
-              displayName={activeTab.type}
-              onError={(error, errorInfo) => {
-                log.error(
-                  mongoLogId(1_001_000_277),
-                  'Workspace',
-                  'Rendering workspace tab failed',
-                  { name: activeTab.type, error: error.message, errorInfo }
-                );
-              }}
+          <WorkspaceTabStateProvider id={activeTab.id}>
+            <AppRegistryProvider
+              key={activeTab.id}
+              localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
+              deactivateOnUnmount={false}
             >
-              {activeWorkspaceElement}
-            </ErrorBoundary>
-          </AppRegistryProvider>
+              <ErrorBoundary
+                displayName={activeTab.type}
+                onError={(error, errorInfo) => {
+                  log.error(
+                    mongoLogId(1_001_000_277),
+                    'Workspace',
+                    'Rendering workspace tab failed',
+                    { name: activeTab.type, error: error.message, errorInfo }
+                  );
+                }}
+              >
+                {activeWorkspaceElement}
+              </ErrorBoundary>
+            </AppRegistryProvider>
+          </WorkspaceTabStateProvider>
         ) : (
           <EmptyWorkspaceContent></EmptyWorkspaceContent>
         )}

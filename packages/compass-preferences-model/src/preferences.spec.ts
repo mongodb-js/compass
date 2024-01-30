@@ -4,6 +4,8 @@ import os from 'os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { featureFlags } from './feature-flags';
+import { PersistentStorage } from './storage';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = Object.entries(featureFlags)
   .filter(([, v]) => v.stage === 'released')
@@ -13,10 +15,20 @@ const expectedReleasedFeatureFlagsStates = Object.fromEntries(
   releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])
 );
 
+const logger = createLoggerAndTelemetry('COMPASS-PREFERENCES');
+
 const setupPreferences = async (
-  ...args: ConstructorParameters<typeof Preferences>
+  basePath: string,
+  globalPreferences?: ConstructorParameters<
+    typeof Preferences
+  >[0]['globalPreferences']
 ) => {
-  const preferences = new Preferences(...args);
+  const preferencesStorage = new PersistentStorage(basePath);
+  const preferences = new Preferences({
+    preferencesStorage,
+    globalPreferences,
+    logger,
+  });
   await preferences.setupStorage();
   return preferences;
 };
@@ -270,7 +282,8 @@ describe('Preferences class', function () {
     });
     await mainPreferences.savePreferences({ trackUsageStatistics: true });
     const sandbox = await Preferences.CreateSandbox(
-      await mainPreferences.getPreferenceSandboxProperties()
+      await mainPreferences.getPreferenceSandboxProperties(),
+      logger
     );
 
     await sandbox.savePreferences({ readOnly: true });

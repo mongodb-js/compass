@@ -1,11 +1,7 @@
 import { ipcRenderer } from 'hadron-ipc';
 
 import type { ConnectionStorage as ConnectionStorageMain } from './connection-storage';
-export type {
-  ConnectionInfo,
-  ConnectionFavoriteOptions,
-} from './connection-info';
-export { getConnectionTitle } from './connection-title';
+export type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 export class ConnectionStorage {
   private static _ipc = ipcRenderer?.createInvoke<

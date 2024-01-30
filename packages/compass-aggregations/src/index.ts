@@ -14,16 +14,9 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './modules/data-service';
-import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-
-const activate = () => {
-  // noop
-};
-
-const deactivate = () => {
-  // noop
-};
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
@@ -38,6 +31,8 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     >,
     workspaces: workspacesServiceLocator,
     instance: mongoDBInstanceLocator,
+    preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-AGGREGATIONS-UI'),
   }
 );
 
@@ -60,5 +55,4 @@ export const CreateViewPlugin = registerHadronPlugin(
 );
 
 export default AggregationsPlugin;
-export { activate, deactivate, Aggregations, StageEditor };
-export { default as metadata } from '../package.json';
+export { Aggregations, StageEditor };

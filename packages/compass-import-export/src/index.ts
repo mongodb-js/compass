@@ -8,6 +8,8 @@ import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
 import { activatePlugin as activateExportPlugin } from './stores/export-store';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 
 /**
  * The import plugin.
@@ -23,6 +25,8 @@ export const ImportPlugin = registerHadronPlugin(
       'isConnected' | 'bulkWrite' | 'insertOne'
     >,
     workspaces: workspacesServiceLocator,
+    preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-IMPORT-UI'),
   }
 );
 
@@ -39,16 +43,7 @@ export const ExportPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<
       'findCursor' | 'aggregateCursor'
     >,
+    preferences: preferencesLocator,
+    logger: createLoggerAndTelemetryLocator('COMPASS-EXPORT-UI'),
   }
 );
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

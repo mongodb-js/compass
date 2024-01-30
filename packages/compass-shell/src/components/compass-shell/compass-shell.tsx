@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import type { Shell as ShellType } from '@mongosh/browser-repl';
 
 // The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
@@ -307,4 +307,4 @@ export default connect((state: RootState) => ({
     state.runtime.appRegistry?.emit('compass:compass-shell:opened');
   },
   runtime: state.runtime ? state.runtime.runtime : null,
-}))(withPreferences(CompassShell, ['enableShell'], React));
+}))(withPreferences(CompassShell, ['enableShell']));

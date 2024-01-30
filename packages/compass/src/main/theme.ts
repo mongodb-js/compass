@@ -1,6 +1,6 @@
 import type { THEMES } from 'compass-preferences-model';
 import { nativeTheme } from 'electron';
-import preferences from 'compass-preferences-model';
+import type { CompassApplication } from './application';
 
 const compassThemeToElectronTheme: Record<
   THEMES,
@@ -11,7 +11,8 @@ const compassThemeToElectronTheme: Record<
   OS_THEME: 'system',
 } as const;
 
-export function setupTheme() {
+export function setupTheme(compassApp: typeof CompassApplication) {
+  const { preferences } = compassApp;
   const listener = () => {
     const value = preferences.getPreferences().theme;
     const electronThemeSource = compassThemeToElectronTheme[value];

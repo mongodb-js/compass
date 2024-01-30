@@ -9,8 +9,8 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import {
@@ -54,6 +54,9 @@ import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -82,9 +85,6 @@ export type CrudActions = {
 };
 
 export type DocumentView = 'List' | 'JSON' | 'Table';
-
-const { debug, log, mongoLogId, track } =
-  createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const INITIAL_BULK_UPDATE_TEXT = `{
   $set: {
@@ -234,31 +234,6 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
 const COUNT_MAX_TIME_MS_CAP = 5000;
 
 /**
- * Set the data provider.
- *
- * @param {Store} store - The store.
- * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
- */
-export const setDataProvider = (
-  store: CrudStoreImpl,
-  error: Error | null | undefined,
-  provider: DataService
-) => {
-  store.setDataService(error, provider);
-};
-
-/**
- * Set the isReadonly flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isReadonly - If the collection is readonly.
- */
-export const setIsReadonly = (store: CrudStoreImpl, isReadonly: boolean) => {
-  store.onReadonlyChanged(isReadonly);
-};
-
-/**
  * Set the isEditable flag in the store.
  *
  * @param {Store} store - The store.
@@ -269,30 +244,7 @@ export const setIsEditable = (store: CrudStoreImpl, hasProjection: boolean) => {
     isReadonly: store.state.isReadonly,
     hasProjection,
   });
-  store.onIsEditableChanged(isEditable);
-};
-
-/**
- * Set the isTimeSeries flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
- */
-export const setIsTimeSeries = (
-  store: CrudStoreImpl,
-  isTimeSeries: boolean
-) => {
-  store.onTimeSeriesChanged(isTimeSeries);
-};
-
-/**
- * Set the namespace in the store.
- *
- * @param {Store} store - The store.
- * @param {String} ns - The namespace in "db.collection" format.
- */
-export const setNamespace = (store: CrudStoreImpl, ns: string) => {
-  store.onCollectionChanged(ns);
+  store.setState({ isEditable });
 };
 
 /**
@@ -314,13 +266,15 @@ export const isListEditable = ({
   return !hasProjection && !isDataLake && !isReadonly;
 };
 
-type CrudStoreOptions = {
-  query?: unknown; // Partial<QueryState>;
-  isReadonly: boolean;
-  namespace: string;
-  isTimeSeries: boolean;
+type CrudStoreOptions = Pick<
+  CollectionTabPluginMetadata,
+  | 'query'
+  | 'isReadonly'
+  | 'namespace'
+  | 'isTimeSeries'
+  | 'isSearchIndexesSupported'
+> & {
   noRefreshOnConfigure?: boolean;
-  isSearchIndexesSupported: boolean;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
 };
@@ -410,7 +364,6 @@ type CrudState = {
   resultId: number;
   isWritable: boolean;
   instanceDescription: string;
-  fields: string[];
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
@@ -435,22 +388,24 @@ class CrudStoreImpl
   state!: CrudState;
   setState!: (newState: Partial<CrudState>) => void;
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  preferences: PreferencesAccess;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   favoriteQueriesStorage: FavoriteQueryStorage;
   recentQueriesStorage: RecentQueryStorage;
+  logger: LoggerAndTelemetry;
+  instance: MongoDBInstance;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
     services: Pick<
       DocumentsPluginServices,
-      'dataService' | 'localAppRegistry' | 'globalAppRegistry'
+      | 'instance'
+      | 'dataService'
+      | 'localAppRegistry'
+      | 'globalAppRegistry'
+      | 'preferences'
+      | 'logger'
     >
   ) {
     super(options);
@@ -462,52 +417,53 @@ class CrudStoreImpl
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
-  }
-
-  updateFields(fields: { autocompleteFields: { name: string }[] }) {
-    this.setState({
-      fields: fields.autocompleteFields.map((field) => field.name),
-    });
+    this.preferences = services.preferences;
+    this.logger = services.logger;
+    this.instance = services.instance;
   }
 
   getInitialState(): CrudState {
+    const queryState = this.getInitialQueryState();
+    const isDataLake = !!this.instance.dataLake.isDataLake;
+    const isReadonly = !!this.options.isReadonly;
+
     return {
-      ns: '',
-      collection: '',
+      ns: this.options.namespace,
+      collection: toNS(this.options.namespace).collection,
       abortController: null,
       error: null,
       docs: [],
       start: 0,
-      version: '3.4.0',
+      version: this.instance.build.version,
       end: 0,
       page: 0,
-      isEditable: true,
+      isEditable: isListEditable({
+        isDataLake,
+        isReadonly,
+        hasProjection: this.hasProjection(queryState),
+      }),
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
+      bulkDelete: this.getInitialBulkDeleteState(),
       table: this.getInitialTableState(),
-      query: this.getInitialQueryState(),
-      isDataLake: false,
-      isReadonly: false,
-      isTimeSeries: false,
+      query: queryState,
+      isDataLake,
+      isReadonly,
+      isTimeSeries: !!this.options.isTimeSeries,
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
       outdated: false,
       shardKeys: null,
       resultId: resultId(),
-      isWritable: false,
-      instanceDescription: '',
-      fields: [],
+      isWritable: this.instance.isWritable,
+      instanceDescription: this.instance.description,
       isCollectionScan: false,
-      isSearchIndexesSupported: false,
-      isUpdatePreviewSupported: false,
-      bulkDelete: {
-        previews: [],
-        status: 'closed',
-        affected: 0,
-      },
+      isSearchIndexesSupported: this.options.isSearchIndexesSupported,
+      isUpdatePreviewSupported:
+        this.instance.topologyDescription.type !== 'Single',
     };
   }
 
@@ -538,6 +494,14 @@ class CrudStoreImpl
       },
       syntaxError: undefined,
       serverError: undefined,
+    };
+  }
+
+  getInitialBulkDeleteState(): BulkDeleteState {
+    return {
+      previews: [],
+      status: 'closed',
+      affected: 0,
     };
   }
 
@@ -583,56 +547,6 @@ class CrudStoreImpl
   }
 
   /**
-   * Set if the collection is readonly.
-   *
-   * @param {Boolean} isReadonly - If the collection is readonly.
-   */
-  onReadonlyChanged(isReadonly: boolean) {
-    this.setState({ isReadonly });
-  }
-
-  /**
-   * Set if the connection supports search index management.
-   */
-  setIsSearchIndexesSupported(isSearchIndexesSupported: boolean) {
-    this.setState({ isSearchIndexesSupported });
-  }
-
-  /**
-   * Set if the collection is readonly.
-   *
-   * @param {Boolean} isEditable - If Compass is readonly
-   */
-  onIsEditableChanged(isEditable: boolean) {
-    this.setState({ isEditable });
-  }
-
-  /**
-   * Set if the collection is a time-series collection.
-   *
-   * @param {Boolean} isTimeSeries - If the collection is time-series.
-   */
-  onTimeSeriesChanged(isTimeSeries: boolean) {
-    this.setState({ isTimeSeries });
-  }
-
-  /**
-   * Plugin lifecycle method that is called when the namespace changes in
-   * Compass. Trigger with new namespace and cleared path/types.
-   *
-   * @param {String} ns - The new namespace.
-   */
-  onCollectionChanged(ns: string) {
-    const nsobj = toNS(ns);
-    this.setState({
-      ns: ns,
-      collection: nsobj.collection,
-      table: this.getInitialTableState(),
-      query: this.getInitialQueryState(),
-    });
-  }
-
-  /**
    * Fires when the query is changed.
    *
    * @param {Object} state - The query state.
@@ -665,7 +579,7 @@ class CrudStoreImpl
    * @returns {Boolean} If the copy succeeded.
    */
   copyToClipboard(doc: Document) {
-    track('Document Copied', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Copied', { mode: this.modeForTelemetry() });
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
@@ -677,7 +591,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async removeDocument(doc: Document) {
-    track('Document Deleted', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Deleted', { mode: this.modeForTelemetry() });
     const id = doc.getId();
     if (id !== undefined) {
       doc.emit('remove-start');
@@ -745,7 +659,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async updateDocument(doc: Document) {
-    track('Document Updated', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
       // We add the shard keys here, if there are any, because that is
@@ -759,7 +673,7 @@ class CrudStoreImpl
             ),
           }
         );
-      debug('Performing findOneAndUpdate', { query, updateDoc });
+      this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
         doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
@@ -811,7 +725,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async replaceDocument(doc: Document) {
-    track('Document Updated', { mode: this.modeForTelemetry() });
+    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
 
@@ -864,7 +778,7 @@ class CrudStoreImpl
       const query = doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(
         queryKeyInclusionOptions
       );
-      debug('Performing findOneAndReplace', { query, object });
+      this.logger.debug('Performing findOneAndReplace', { query, object });
 
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
@@ -964,7 +878,7 @@ class CrudStoreImpl
       sort,
       projection,
       collation,
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(this.preferences, maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
     };
@@ -1011,10 +925,10 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.localAppRegistry.emit(
-      'documents-paginated',
-      documents[0]?.generateObject()
-    );
+    this.globalAppRegistry.emit('documents-paginated', {
+      ns: this.state.ns,
+      docs: [documents[0]?.generateObject()],
+    });
 
     cancelDebounceLoad();
   }
@@ -1050,7 +964,7 @@ class CrudStoreImpl
     const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
-      track('Document Cloned', { mode: this.modeForTelemetry() });
+      this.logger.track('Document Cloned', { mode: this.modeForTelemetry() });
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
       for (const element of hadronDoc.elements) {
@@ -1108,12 +1022,12 @@ class CrudStoreImpl
     });
   }
 
-  async openBulkUpdateModal() {
-    track('Bulk Update Opened', {
+  async openBulkUpdateModal(updateText?: string) {
+    this.logger.track('Bulk Update Opened', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    await this.updateBulkUpdatePreview(INITIAL_BULK_UPDATE_TEXT);
+    await this.updateBulkUpdatePreview(updateText ?? INITIAL_BULK_UPDATE_TEXT);
     this.setState({
       bulkUpdate: {
         ...this.state.bulkUpdate,
@@ -1255,7 +1169,7 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
-    track('Bulk Update Executed', {
+    this.logger.track('Bulk Update Executed', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1303,7 +1217,7 @@ class CrudStoreImpl
         affectedDocuments: this.state.bulkUpdate.affected,
       });
 
-      log.error(
+      this.logger.log.error(
         mongoLogId(1_001_000_269),
         'Bulk Update Documents',
         `Update operation failed: ${err.message}`,
@@ -1433,7 +1347,7 @@ class CrudStoreImpl
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
-    track('Document Inserted', {
+    this.logger.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: docs.length > 1,
     });
@@ -1448,7 +1362,6 @@ class CrudStoreImpl
         multiple: true,
         docs,
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1479,7 +1392,7 @@ class CrudStoreImpl
    * view to insert.
    */
   async insertDocument() {
-    track('Document Inserted', {
+    this.logger.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: false,
     });
@@ -1503,7 +1416,6 @@ class CrudStoreImpl
         multiple: false,
         docs: [doc],
       };
-      this.localAppRegistry.emit('document-inserted', payload);
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1571,8 +1483,6 @@ class CrudStoreImpl
    * @param {String} view - The new view.
    */
   viewChanged(view: CrudState['view']) {
-    this.globalAppRegistry.emit('document-view-changed', view);
-    this.localAppRegistry.emit('document-view-changed', view);
     this.setState({ view: view });
   }
 
@@ -1617,7 +1527,7 @@ class CrudStoreImpl
    */
   async refreshDocuments(onApply = false) {
     if (this.dataService && !this.dataService.isConnected()) {
-      log.warn(
+      this.logger.log.warn(
         mongoLogId(1_001_000_072),
         'Documents',
         'Trying to refresh documents but dataService is disconnected'
@@ -1633,7 +1543,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { query, isTimeSeries, isReadonly } = this.state;
-      track('Query Executed', {
+      this.logger.track('Query Executed', {
         has_projection:
           !!query.project && Object.keys(query.project).length > 0,
         has_skip: query.skip > 0,
@@ -1656,13 +1566,17 @@ class CrudStoreImpl
     const signal = abortController.signal;
 
     const fetchShardingKeysOptions = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
+        query.maxTimeMS
+      ),
       signal,
     };
 
-    const countOptions: Parameters<typeof countDocuments>[3] = {
+    const countOptions: Parameters<typeof countDocuments>[4] = {
       skip: query.skip,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
         query.maxTimeMS > COUNT_MAX_TIME_MS_CAP
           ? COUNT_MAX_TIME_MS_CAP
           : query.maxTimeMS
@@ -1680,7 +1594,10 @@ class CrudStoreImpl
       skip: query.skip,
       limit: NUM_PAGE_DOCS,
       collation: query.collation,
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        this.preferences,
+        query.maxTimeMS
+      ),
       promoteValues: false,
       bsonRegExp: true,
     };
@@ -1691,12 +1608,17 @@ class CrudStoreImpl
       findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
     }
 
-    log.info(mongoLogId(1_001_000_073), 'Documents', 'Refreshing documents', {
-      ns,
-      withFilter: !isEmpty(query.filter),
-      findOptions,
-      countOptions,
-    });
+    this.logger.log.info(
+      mongoLogId(1_001_000_073),
+      'Documents',
+      'Refreshing documents',
+      {
+        ns,
+        withFilter: !isEmpty(query.filter),
+        findOptions,
+        countOptions,
+      }
+    );
 
     // Only check if index was used if query filter or sort is not empty
     if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
@@ -1721,7 +1643,21 @@ class CrudStoreImpl
     }
 
     // Don't wait for the count to finish. Set the result asynchronously.
-    countDocuments(this.dataService, ns, query.filter, countOptions)
+    countDocuments(
+      this.dataService,
+      this.preferences,
+      ns,
+      query.filter,
+      countOptions,
+      (err: any) => {
+        this.logger.log.warn(
+          mongoLogId(1_001_000_288),
+          'Documents',
+          'Failed to count documents',
+          err
+        );
+      }
+    )
       .then((count) => this.setState({ count, loadingCount: false }))
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
@@ -1734,7 +1670,19 @@ class CrudStoreImpl
       });
 
     const promises = [
-      fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
+      fetchShardingKeys(
+        this.dataService,
+        ns,
+        fetchShardingKeysOptions,
+        (err) => {
+          this.logger.log.warn(
+            mongoLogId(1_001_000_075),
+            'Documents',
+            'Failed to fetch sharding keys',
+            err
+          );
+        }
+      ),
       fetchDocuments(
         this.dataService,
         this.state.version,
@@ -1781,12 +1729,12 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.localAppRegistry.emit(
-        'documents-refreshed',
-        docs[0]?.generateObject()
-      );
+      this.globalAppRegistry.emit('documents-refreshed', {
+        ns: this.state.ns,
+        docs: [docs[0]?.generateObject()],
+      });
     } catch (error) {
-      log.error(
+      this.logger.log.error(
         mongoLogId(1_001_000_074),
         'Documents',
         'Failed to refresh documents',
@@ -1840,18 +1788,6 @@ class CrudStoreImpl
     return !!(query.project && Object.keys(query.project).length > 0);
   }
 
-  /**
-   * Set the data service on the store.
-   *
-   * @param {Error} error - The error connecting.
-   * @param {DataService} dataService - The data service.
-   */
-  setDataService(error: Error | undefined | null, dataService: DataService) {
-    if (!error) {
-      this.dataService = dataService;
-    }
-  }
-
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal');
   }
@@ -1861,7 +1797,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    track('Bulk Delete Opened');
+    this.logger.track('Bulk Delete Opened');
 
     const PREVIEW_DOCS = 5;
 
@@ -1901,7 +1837,7 @@ class CrudStoreImpl
       affectedDocuments: this.state.bulkDelete.affected,
     });
 
-    log.error(
+    this.logger.log.error(
       mongoLogId(1_001_000_268),
       'Bulk Delete Documents',
       `Delete operation failed: ${ex.message}`,
@@ -1926,7 +1862,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    track('Bulk Delete Executed');
+    this.logger.track('Bulk Delete Executed');
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1967,7 +1903,7 @@ class CrudStoreImpl
   }
 
   async saveUpdateQuery(name: string): Promise<void> {
-    track('Bulk Update Favorited', {
+    this.logger.track('Bulk Update Favorited', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -2002,14 +1938,10 @@ export type CrudStore = Store & CrudStoreImpl & { gridStore: GridStore };
 export type DocumentsPluginServices = {
   dataService: DataService;
   instance: MongoDBInstance;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -2018,6 +1950,8 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
+    preferences,
+    logger,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -2026,18 +1960,18 @@ export function activateDocumentsPlugin(
     new CrudStoreImpl(
       { ...options, actions },
       {
+        instance,
         dataService,
         localAppRegistry,
         globalAppRegistry,
+        preferences,
+        logger,
       }
     )
   ) as CrudStore;
 
+  // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  on(localAppRegistry, 'refresh-data', store.refreshDocuments.bind(store));
-
-  on(localAppRegistry, 'fields-changed', store.updateFields.bind(store));
 
   on(
     localAppRegistry,
@@ -2051,18 +1985,6 @@ export function activateDocumentsPlugin(
       );
     }
   );
-
-  // Set global app registry to get status actions.
-  const instanceState: Partial<CrudState> = {
-    isWritable: instance.isWritable,
-    instanceDescription: instance.description,
-    version: instance.build.version,
-    isUpdatePreviewSupported: instance.topologyDescription.type !== 'Single',
-  };
-  if (instance.dataLake.isDataLake) {
-    instanceState.isDataLake = true;
-  }
-  store.setState(instanceState);
 
   // these can change later
   on(instance, 'change:isWritable', () => {
@@ -2083,23 +2005,22 @@ export function activateDocumentsPlugin(
     }
   });
 
-  if (options.isReadonly !== null && options.isReadonly !== undefined) {
-    setIsReadonly(store, options.isReadonly);
-  }
-
-  if (options.namespace) {
-    setNamespace(store, options.namespace);
-  }
-
-  if (options.isTimeSeries) {
-    setIsTimeSeries(store, options.isTimeSeries);
-  }
-
   if (!options.noRefreshOnConfigure) {
-    void store.refreshDocuments();
+    queueMicrotask(() => {
+      void store.refreshDocuments();
+    });
   }
 
-  store.setIsSearchIndexesSupported(options.isSearchIndexesSupported);
+  if ((options.query as any)?.update) {
+    // This will be set if the user clicked a bulk update query on the My Queries page
+    const initialUpdate: BSONObject | undefined = (options.query as any)
+      ?.update;
+    const updateText = initialUpdate ? toJSString(initialUpdate) : undefined;
+
+    queueMicrotask(() => {
+      void store.openBulkUpdateModal(updateText);
+    });
+  }
 
   const gridStore = configureGridStore({ actions });
   store.gridStore = gridStore;

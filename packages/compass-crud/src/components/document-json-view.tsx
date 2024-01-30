@@ -22,6 +22,7 @@ const listItemStyles = css({
 });
 
 export type DocumentJsonViewProps = {
+  namespace: string;
   docs: Document[];
   isEditable: boolean;
   className?: string;
@@ -34,7 +35,6 @@ export type DocumentJsonViewProps = {
   | 'updateDocument'
   | 'openInsertDocumentDialog'
   | 'isExpanded'
-  | 'fields'
 >;
 
 const keylineCardCSS = css({
@@ -58,6 +58,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
         <li className={listItemStyles} data-testid="document-json-item" key={i}>
           <KeylineCard className={keylineCardCSS}>
             <JSONEditor
+              namespace={this.props.namespace}
               key={doc.uuid}
               doc={doc}
               editable={this.props.isEditable}
@@ -68,7 +69,6 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
               isExpanded={this.props.isExpanded}
-              fields={this.props.fields}
             />
           </KeylineCard>
         </li>

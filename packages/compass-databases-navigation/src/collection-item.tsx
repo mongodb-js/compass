@@ -21,7 +21,7 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -66,8 +66,7 @@ export const CollectionItem: React.FunctionComponent<
   onNamespaceAction,
 }) => {
   const isRenameCollectionEnabled = usePreference(
-    'enableRenameCollectionModal',
-    React
+    'enableRenameCollectionModal'
   );
   const [hoverProps, isHovered] = useHoverState();
 

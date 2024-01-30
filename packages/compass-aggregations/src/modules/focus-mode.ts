@@ -2,9 +2,6 @@ import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 enum ActionTypes {
   FocusModeEnabled = 'compass-aggregations/focusModeEnabled',
@@ -79,7 +76,7 @@ export default function reducer(
 export const enableFocusMode = (
   stageIndex: number
 ): PipelineBuilderThunkAction<void, FocusModeEnabledAction> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { track } }) => {
     track('Focus Mode Opened', {
       num_stages: pipelineFromStore(
         getState().pipelineBuilder.stageEditor.stages
@@ -96,7 +93,7 @@ export const disableFocusMode = (): PipelineBuilderThunkAction<
   void,
   FocusModeDisabledAction
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { logger: { track } }) => {
     const state = getState();
     track('Focus Mode Closed', {
       num_stages: pipelineFromStore(state.pipelineBuilder.stageEditor.stages)

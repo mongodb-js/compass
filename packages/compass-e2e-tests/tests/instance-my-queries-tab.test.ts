@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -37,7 +37,7 @@ describe('Instance my queries tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
   beforeEach(async function () {
@@ -45,10 +45,10 @@ describe('Instance my queries tab', function () {
     await browser.connectWithConnectionString();
   });
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('opens a saved query', async function () {

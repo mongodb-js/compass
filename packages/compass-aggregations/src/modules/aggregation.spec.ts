@@ -20,6 +20,8 @@ import { createCancelError } from '@mongodb-js/compass-utils';
 import HadronDocument from 'hadron-document';
 import { omit } from 'lodash';
 import { EJSON } from 'bson';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const getMockedStore = (
   aggregation: AggregateState,
@@ -30,7 +32,16 @@ const getMockedStore = (
     aggregation,
     dataService: { dataService },
   };
-  return createStore(rootReducer, mockedState, applyMiddleware(thunk));
+  return createStore(
+    rootReducer,
+    mockedState,
+    applyMiddleware(
+      thunk.withExtraArgument({
+        preferences: defaultPreferencesInstance,
+        logger: createNoopLoggerAndTelemetry(),
+      })
+    )
+  );
 };
 
 const hadronDocsToJsonDocs = (docs: HadronDocument[]) => {

@@ -19,6 +19,12 @@ function createOptions(options) {
   };
 }
 
+const thunkArgs = {
+  localAppRegistry: { emit() {} },
+  dataService: { createIndex() {} },
+  logger: { track() {} },
+};
+
 describe('create index module', function () {
   let errorSpy;
   let inProgressSpy;
@@ -54,7 +60,7 @@ describe('create index module', function () {
       const state = () => ({
         fields: [{ name: '', type: '' }],
       });
-      await createIndex()(dispatch, state);
+      await createIndex()(dispatch, state, thunkArgs);
       expect(errorSpy.calledOnce).to.equal(true);
     });
     it('errors if TTL is not number', async function () {
@@ -69,7 +75,7 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: 'def' }],
         options: createOptions({ expireAfterSeconds: 'abc' }),
       });
-      await createIndex()(dispatch, state);
+      await createIndex()(dispatch, state, thunkArgs);
       expect(errorSpy.calledOnce).to.equal(true);
     });
     it('errors if PFE is not JSON', async function () {
@@ -84,7 +90,7 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: 'def' }],
         options: createOptions({ partialFilterExpression: 'abc' }),
       });
-      await createIndex()(dispatch, state);
+      await createIndex()(dispatch, state, thunkArgs);
       expect(errorSpy.calledOnce).to.equal(true);
     });
     it('calls createIndex with correct options', async function () {
@@ -121,29 +127,33 @@ describe('create index module', function () {
           collation: "{locale: 'en'}",
           expireAfterSeconds: 100,
         }),
-        appRegistry: {
-          emit: emitSpy,
-        },
         namespace: 'db.coll',
-        dataService: {
-          createIndex: (ns, spec, options) => {
-            expect(ns).to.equal('db.coll');
-            expect(spec).to.deep.equal({ abc: 1 });
-            expect(options).to.deep.equal({
-              collation: {
-                locale: 'en',
-              },
-              expireAfterSeconds: 100,
-              name: 'test name',
-              partialFilterExpression: { a: 1 },
-              unique: true,
-              sparse: true,
-            });
-            return Promise.resolve();
-          },
-        },
       });
-      await createIndex()(dispatch, state);
+      const localAppRegistry = {
+        emit: emitSpy,
+      };
+      const dataService = {
+        createIndex: (ns, spec, options) => {
+          expect(ns).to.equal('db.coll');
+          expect(spec).to.deep.equal({ abc: 1 });
+          expect(options).to.deep.equal({
+            collation: {
+              locale: 'en',
+            },
+            expireAfterSeconds: 100,
+            name: 'test name',
+            partialFilterExpression: { a: 1 },
+            unique: true,
+            sparse: true,
+          });
+          return Promise.resolve();
+        },
+      };
+      await createIndex()(dispatch, state, {
+        ...thunkArgs,
+        localAppRegistry,
+        dataService,
+      });
       expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(inProgressSpy.calledTwice).to.equal(
@@ -189,26 +199,30 @@ describe('create index module', function () {
           expireAfterSeconds: 100,
         }),
         namespace: 'db.coll',
-        appRegistry: {
-          emit: emitSpy,
-        },
-        dataService: {
-          createIndex: (ns, spec, options) => {
-            expect(ns).to.equal('db.coll');
-            expect(spec).to.deep.equal({ abc: 1 });
-            expect(options).to.deep.equal({
-              collation: {
-                locale: 'en',
-              },
-              expireAfterSeconds: 100,
-              partialFilterExpression: { a: 1 },
-              unique: true,
-            });
-            return Promise.resolve();
-          },
-        },
       });
-      await createIndex()(dispatch, state);
+      const localAppRegistry = {
+        emit: emitSpy,
+      };
+      const dataService = {
+        createIndex: (ns, spec, options) => {
+          expect(ns).to.equal('db.coll');
+          expect(spec).to.deep.equal({ abc: 1 });
+          expect(options).to.deep.equal({
+            collation: {
+              locale: 'en',
+            },
+            expireAfterSeconds: 100,
+            partialFilterExpression: { a: 1 },
+            unique: true,
+          });
+          return Promise.resolve();
+        },
+      };
+      await createIndex()(dispatch, state, {
+        ...thunkArgs,
+        localAppRegistry,
+        dataService,
+      });
       expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(inProgressSpy.calledTwice).to.equal(
@@ -254,19 +268,18 @@ describe('create index module', function () {
           sparse: false,
         }),
         namespace: 'db.coll',
-        appRegistry: {},
-        dataService: {
-          createIndex: (ns, spec, options) => {
-            expect(ns).to.equal('db.coll');
-            expect(spec).to.deep.equal({ abc: 1 });
-            expect(options).to.deep.equal({
-              name: 'test name',
-            });
-            return Promise.reject({ message: 'test err' });
-          },
-        },
       });
-      await createIndex()(dispatch, state);
+      const dataService = {
+        createIndex: (ns, spec, options) => {
+          expect(ns).to.equal('db.coll');
+          expect(spec).to.deep.equal({ abc: 1 });
+          expect(options).to.deep.equal({
+            name: 'test name',
+          });
+          return Promise.reject({ message: 'test err' });
+        },
+      };
+      await createIndex()(dispatch, state, { ...thunkArgs, dataService });
       expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'

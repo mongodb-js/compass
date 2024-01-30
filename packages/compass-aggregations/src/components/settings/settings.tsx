@@ -14,7 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
 const aggregationCommentModeDescriptionId =
@@ -121,8 +121,7 @@ function Settings({
   toggleSettingsIsExpanded,
 }: SettingsProps) {
   const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions',
-    React
+    'enableAggregationBuilderExtraOptions'
   );
   const darkMode = useDarkMode();
   const onSampleSizeChanged = useCallback(

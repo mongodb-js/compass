@@ -8,6 +8,7 @@ import {
   spacing,
   InfoSprinkle,
   Label,
+  useId,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -31,6 +32,7 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
   SearchIndexTemplateDropdownProps
 > = ({ tooltip, onTemplate }) => {
   const [templateValue, setTemplateValue] = useState('0');
+  const labelId = useId();
 
   const onChooseTemplate = useCallback(
     (value: string) => {
@@ -43,12 +45,14 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
   return (
     <div className={containerStyles}>
       <div className={dropdownLabelStyles}>
-        <Label htmlFor="template-dropdown">Template</Label>
+        <Label id={labelId} htmlFor="template-dropdown">
+          Template
+        </Label>
         <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
       </div>
       <Select
         id="template-dropdown"
-        aria-labelledby="Template"
+        aria-labelledby={labelId}
         value={templateValue}
         allowDeselect={false}
         onChange={onChooseTemplate}

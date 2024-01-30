@@ -153,6 +153,28 @@ export type UpdatePreview = {
   changes: UpdatePreviewChange[];
 };
 
+export type StreamProcessor = {
+  id: string;
+  name: string;
+  state:
+    | 'CREATING'
+    | 'CREATED'
+    | 'VALIDATING'
+    | 'PROVISIONING'
+    | 'RECEIVED_ON_DISPATCHER'
+    | 'STARTING'
+    | 'STARTED'
+    | 'STOPPING'
+    | 'STOPPED'
+    | 'RELEASING'
+    | 'DROPPING'
+    | 'DROPPED'
+    | 'FAILED';
+  pipeline: Document[];
+  lastStateChange: Date;
+  lastModified: Date;
+};
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
@@ -786,6 +808,34 @@ export interface DataService {
     update: UpdateFilter<Document>,
     options?: UpdateOptions
   ): Promise<UpdateResult>;
+
+  /*** Streams ***/
+
+  /**
+   * List all the named stream processors.
+   */
+  listStreamProcessors(filter?: Document): Promise<StreamProcessor[]>;
+
+  /**
+   * Start the specified stream processor
+   *
+   * @param name processor name
+   */
+  startStreamProcessor(name: string): Promise<void>;
+
+  /**
+   * Stop the specified stream processor
+   *
+   * @param name processor name
+   */
+  stopStreamProcessor(name: string): Promise<void>;
+
+  /**
+   * Drop the specified stream processor
+   *
+   * @param name processor name
+   */
+  dropStreamProcessor(name: string): Promise<void>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -2643,6 +2693,34 @@ class DataServiceImpl extends WithLogContext implements DataService {
         serializedState: await this._state.oidcPlugin.serialize(),
       },
     };
+  }
+
+  @op(mongoLogId(1_001_000_284))
+  async listStreamProcessors(filter?: Document): Promise<StreamProcessor[]> {
+    const adminDb = this._database('admin', 'CRUD');
+    const { streamProcessors } = await runCommand(adminDb, {
+      listStreamProcessors: 1,
+      filter,
+    });
+    return streamProcessors;
+  }
+
+  @op(mongoLogId(1_001_000_285))
+  async startStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { startStreamProcessor: name });
+  }
+
+  @op(mongoLogId(1_001_000_286))
+  async stopStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { stopStreamProcessor: name });
+  }
+
+  @op(mongoLogId(1_001_000_287))
+  async dropStreamProcessor(name: string): Promise<void> {
+    const adminDb = this._database('admin', 'CRUD');
+    await runCommand(adminDb, { dropStreamProcessor: name });
   }
 
   static {

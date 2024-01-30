@@ -252,9 +252,7 @@ async function createWorkspace({
     'compass:exports': {
       '.': './src/index.ts',
     },
-    // plugins use `export {...} from '../package.json'` by default and therefore
-    // tsc adds types for `src` to `dist/src/` rather than to `dist/`
-    types: isPlugin ? './dist/src/index.d.ts' : './dist/index.d.ts',
+    types: './dist/index.d.ts',
     scripts: {
       bootstrap: 'npm run compile',
       prepublishOnly: 'npm run compile && compass-scripts check-exports-exist',
@@ -398,7 +396,7 @@ async function createWorkspace({
   const eslintrcContent = `
 module.exports = {
   root: true,
-  extends: ['@mongodb-js/eslint-config-compass'],
+  extends: ['@mongodb-js/eslint-config-compass${isPlugin ? '/plugin' : ''}'],
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
@@ -428,32 +426,33 @@ module.exports = compassPluginConfig;
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
   const indexSrcContent = isPlugin
     ? `
-import type AppRegistry from "hadron-app-registry";
+import { registerHadronPlugin } from "hadron-app-registry";
 
-function activate(appRegistry: AppRegistry): void {
-  // Register plugin stores, roles, and components
-}
+const Plugin = registerHadronPlugin({
+  name: 'Plugin',
+  component: () => null,
+  activate(initialProps, services, activateHelpers) {
+    return {}
+  }
+});
 
-function deactivate(appRegistry: AppRegistry): void {
-  // Unregister plugin stores, roles, and components
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
+export default Plugin;
 `
     : '';
 
-  const indexSpecPath = path.join(indexSrcDir, 'index.spec.ts');
+  const indexSpecPath = path.join(indexSrcDir, 'index.spec.tsx');
   const indexSpecContent = isPlugin
     ? `
+import React from 'react';
 import { expect } from 'chai';
-import * as CompassPlugin from './index';
+import { cleanup, render } from '@testing-library/react';
+import CompassPlugin from './index';
 
 describe('Compass Plugin', function() {
-  it('exports activate, deactivate, and metadata', function() {
-    expect(CompassPlugin).to.have.property('activate');
-    expect(CompassPlugin).to.have.property('deactivate');
-    expect(CompassPlugin).to.have.property('metadata');
+  const Plugin = CompassPlugin.withMockServices({});
+
+  it('renders a Plugin', function() {
+    render(<Plugin></Plugin>)
   });
 });
 `

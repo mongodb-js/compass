@@ -8,5 +8,7 @@ module.exports = {
   require: [
     ...base.require,
     path.resolve(__dirname, 'register', 'resolve-from-source-register.js'),
+    path.resolve(__dirname, 'register', 'jsdom-extra-mocks-register.js'),
+    path.resolve(__dirname, 'register', 'node-env-register.js'),
   ],
 };

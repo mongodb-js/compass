@@ -3,11 +3,11 @@ import { ipcRenderer } from 'hadron-ipc';
 import type { PreferencesAccess } from '.';
 import type {
   AllPreferences,
-  PreferenceSandboxProperties,
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
-} from './preferences';
+} from './preferences-schema';
+import type { PreferenceSandboxProperties } from './preferences';
 import { createSandboxAccessFromProps } from './setup-preferences';
 
 /**

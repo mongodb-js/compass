@@ -15,11 +15,11 @@ import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai';
-import { connect } from 'react-redux';
+import { connect } from '../stores/context';
 import {
   usePreference,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from 'compass-preferences-model/provider';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import {
@@ -176,7 +176,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onHideAIInputClick,
 }) => {
   const darkMode = useDarkMode();
-  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -216,8 +216,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
   const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries',
-    React
+    'enableSavedAggregationsQueries'
   );
 
   return (

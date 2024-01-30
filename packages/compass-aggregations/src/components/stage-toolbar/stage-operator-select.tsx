@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 
 import {
@@ -130,6 +130,5 @@ export default withPreferences(
       };
     }
   )(StageOperatorSelect),
-  ['readOnly'],
-  React
+  ['readOnly']
 );

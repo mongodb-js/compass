@@ -1,6 +1,5 @@
-import type AppRegistry from 'hadron-app-registry';
-import React, { useCallback, useMemo, useRef } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import React, { useCallback, useMemo } from 'react';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   Body,
   DropdownMenuButton,
@@ -16,11 +15,10 @@ import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
-
-const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
+import { QueryBar } from '@mongodb-js/compass-query-bar';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -95,10 +93,8 @@ export type CrudToolbarProps = {
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
-  isExportable: boolean;
   isWritable: boolean;
   loadingCount: boolean;
-  localAppRegistry: Pick<AppRegistry, 'getRole' | 'getStore'>;
   onApplyClicked: () => void;
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
@@ -124,10 +120,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   getPage,
   insertDataHandler,
   instanceDescription,
-  isExportable,
   isWritable,
   loadingCount,
-  localAppRegistry,
   onApplyClicked,
   onResetClicked,
   onUpdateButtonClicked,
@@ -144,16 +138,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
-  const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
-
-  const queryBarRef = useRef(
-    isExportable
-      ? {
-          component: queryBarRole.component,
-          store: localAppRegistry.getStore(queryBarRole.storeName!),
-        }
-      : null
-  );
+  const { track } = useLoggerAndTelemetry('COMPASS-CRUD-UI');
+  const isImportExportEnabled = usePreference('enableImportExport');
 
   const displayedDocumentCount = useMemo(
     () => (loadingCount ? '' : `${count ?? 'N/A'}`),
@@ -163,11 +149,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const onClickRefreshDocuments = useCallback(() => {
     track('Query Results Refreshed');
     refreshDocuments();
-  }, [refreshDocuments]);
-
-  const QueryBarComponent = isExportable
-    ? queryBarRef.current!.component
-    : null;
+  }, [refreshDocuments, track]);
 
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
@@ -177,7 +159,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     [count, page]
   );
 
-  const enableExplainPlan = usePreference('enableExplainPlan', React);
+  const enableExplainPlan = usePreference('enableExplainPlan');
   const shouldDisableBulkOp = useMemo(
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
@@ -186,18 +168,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   return (
     <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
-        {isExportable && QueryBarComponent && (
-          <QueryBarComponent
-            store={queryBarRef.current!.store}
-            // TODO(COMPASS-6606): add the same for other query bars
-            resultId={resultId}
-            buttonLabel="Find"
-            onApply={onApplyClicked}
-            onReset={onResetClicked}
-            showExplainButton={enableExplainPlan}
-            insights={insights}
-          />
-        )}
+        <QueryBar
+          resultId={resultId}
+          buttonLabel="Find"
+          onApply={onApplyClicked}
+          onReset={onResetClicked}
+          showExplainButton={enableExplainPlan}
+          insights={insights}
+        />
       </div>
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
@@ -208,19 +186,21 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          <DropdownMenuButton<ExportDataOption>
-            data-testid="crud-export-collection"
-            actions={exportDataActions}
-            onAction={(action: ExportDataOption) =>
-              openExportFileDialog(action === 'export-full-collection')
-            }
-            buttonText="Export Data"
-            buttonProps={{
-              className: exportCollectionButtonStyles,
-              size: 'xsmall',
-              leftGlyph: <Icon glyph="Export" />,
-            }}
-          />
+          {isImportExportEnabled && (
+            <DropdownMenuButton<ExportDataOption>
+              data-testid="crud-export-collection"
+              actions={exportDataActions}
+              onAction={(action: ExportDataOption) =>
+                openExportFileDialog(action === 'export-full-collection')
+              }
+              buttonText="Export Data"
+              buttonProps={{
+                className: exportCollectionButtonStyles,
+                size: 'xsmall',
+                leftGlyph: <Icon glyph="Export" />,
+              }}
+            />
+          )}
           {!readonly && (
             <UpdateMenu
               isWritable={isWritable && !shouldDisableBulkOp}

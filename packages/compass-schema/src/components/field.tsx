@@ -11,19 +11,19 @@ import {
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import { find } from 'lodash';
-import { withPreferences } from 'compass-preferences-model';
-import type AppRegistry from 'hadron-app-registry';
+import { withPreferences } from 'compass-preferences-model/provider';
 import type {
   ArraySchemaType,
   DocumentSchemaType,
   SchemaField,
   SchemaType,
 } from 'mongodb-schema';
-
 import { FieldType, sortTypes } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
 import type { configureActions } from '../actions';
+import { useQueryBarQuery } from '@mongodb-js/compass-query-bar';
+import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
 const toggleCollapseButtonIconStyles = css({
   color: palette.gray.dark2,
@@ -111,7 +111,6 @@ const nestedFieldStyles = css({
 
 type FieldProps = {
   actions: ReturnType<typeof configureActions>;
-  localAppRegistry: AppRegistry;
   name: string;
   path: string[];
   types: SchemaType[];
@@ -197,14 +196,9 @@ export function shouldShowUnboundArrayInsight(
   );
 }
 
-function Field({
-  actions,
-  localAppRegistry,
-  name,
-  path,
-  types,
-  enableMaps,
-}: FieldProps) {
+function Field({ actions, name, path, types, enableMaps }: FieldProps) {
+  const query = useQueryBarQuery();
+  const changeQuery = useChangeQueryBarQuery();
   const [isExpanded, setIsExpanded] = useState(false);
   // Set the active type to the first type in the sorted props.types array.
   const [activeType, setActiveType] = useState(() => {
@@ -219,6 +213,11 @@ function Field({
 
   const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
   const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
+
+  // TODO(COMPASS-7547): Convert the string array of paths to a single string
+  // with dots between field names. This will cause collisions when there are
+  // fields with dots in them.
+  const fieldName = path.join('.');
 
   return (
     <KeylineCard className={fieldContainerStyles}>
@@ -289,15 +288,12 @@ function Field({
           </div>
           <div className={fieldChartContainerStyles}>
             <Minichart
-              // Convert the string array of paths
-              // to a single string with dots between field names.
-              // Note: This will cause collisions when
-              // there are fields with dots in them.
-              fieldName={path.join('.')}
+              fieldName={fieldName}
+              fieldValue={query.filter?.[fieldName]}
               type={activeType}
               nestedDocType={nestedDocType}
               actions={actions}
-              localAppRegistry={localAppRegistry}
+              onQueryChanged={changeQuery}
             />
           </div>
         </div>
@@ -314,12 +310,7 @@ function Field({
             {(getNestedDocType(types)?.fields || []).map(
               (field: SchemaField) => (
                 <div className={nestedFieldStyles} key={field.name}>
-                  <Field
-                    actions={actions}
-                    localAppRegistry={localAppRegistry}
-                    enableMaps={enableMaps}
-                    {...field}
-                  />
+                  <Field actions={actions} enableMaps={enableMaps} {...field} />
                 </div>
               )
             )}
@@ -330,4 +321,4 @@ function Field({
   );
 }
 
-export default withPreferences(Field, ['enableMaps'], React);
+export default withPreferences(Field, ['enableMaps']);

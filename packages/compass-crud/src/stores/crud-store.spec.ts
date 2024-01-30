@@ -21,6 +21,9 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 chai.use(chaiAsPromised);
 
@@ -99,11 +102,13 @@ describe('store', function () {
   let dataService: DataService;
   let deactivate: (() => void) | null = null;
   let instance: MongoDBInstance;
+  let preferences: PreferencesAccess;
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
   before(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     dataService = await connect({
       connectionOptions: {
         connectionString: cluster().connectionString,
@@ -181,6 +186,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -257,7 +264,6 @@ describe('store', function () {
         isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
-        fields: [],
       });
     });
   });
@@ -279,6 +285,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -332,6 +340,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -362,97 +372,6 @@ describe('store', function () {
     });
   });
 
-  describe('#onCollectionChanged', function () {
-    let store: CrudStore;
-
-    beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.another',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-        },
-        createActivateHelpers()
-      );
-      store = plugin.store;
-      deactivate = () => plugin.deactivate();
-    });
-
-    context('when the collection is not readonly', function () {
-      beforeEach(function () {
-        store.state.table.path = ['test-path'];
-        store.state.table.types = ['test-types'];
-        store.state.table.doc = {};
-        store.state.table.editParams = {};
-      });
-
-      it('resets the state for the new editable collection', async function () {
-        const listener = waitForState(store, (state) => {
-          expect(state.table.path).to.deep.equal([]);
-          expect(state.table.types).to.deep.equal([]);
-          expect(state.table.doc).to.equal(null);
-          expect(state.table.editParams).to.equal(null);
-          expect(state.collection).to.equal('another');
-          expect(state.isEditable).to.equal(true);
-          expect(state.ns).to.equal('compass-crud.another');
-        });
-
-        store.onCollectionChanged('compass-crud.another');
-
-        await listener;
-      });
-    });
-
-    context('when the collection is readonly', function () {
-      beforeEach(function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: true,
-            isTimeSeries: false,
-            namespace: 'compass-crud.another',
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-          },
-          createActivateHelpers()
-        );
-        store = plugin.store;
-        deactivate = () => plugin.deactivate();
-        store.state.table.path = ['test-path'];
-        store.state.table.types = ['test-types'];
-        store.state.table.doc = {};
-        store.state.table.editParams = {};
-      });
-
-      it('resets the state for the new readonly collection', async function () {
-        const listener = waitForState(store, (state) => {
-          expect(state.table.path).to.deep.equal([]);
-          expect(state.table.types).to.deep.equal([]);
-          expect(state.table.doc).to.equal(null);
-          expect(state.table.editParams).to.equal(null);
-          expect(state.collection).to.equal('another');
-          expect(state.isEditable).to.equal(false);
-          expect(state.ns).to.equal('compass-crud.another');
-        });
-
-        store.onCollectionChanged('compass-crud.another');
-
-        await listener;
-      });
-    });
-  });
-
   describe('#onQueryChanged', function () {
     let store: CrudStore;
 
@@ -469,6 +388,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -514,6 +435,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -627,6 +550,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -909,6 +834,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -991,6 +918,50 @@ describe('store', function () {
     });
   });
 
+  describe('favourited bulk update queries coming from My Queries', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activateDocumentsPlugin(
+        {
+          isSearchIndexesSupported: true,
+          isReadonly: false,
+          isTimeSeries: false,
+          namespace: 'compass-crud.test',
+          query: {
+            update: {
+              $set: {
+                foo: 1,
+              },
+            },
+          },
+        },
+        {
+          dataService,
+          localAppRegistry,
+          globalAppRegistry,
+          instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
+        },
+        createActivateHelpers()
+      );
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('opens the bulk update modal if there is an initial options.query.update value', async function () {
+      const listener = waitForState(store, (state) => {
+        expect(state.bulkUpdate.isOpen).to.equal(true);
+        expect(state.bulkUpdate.updateText).to.match(
+          /{\s+\$set:\s+{\s+foo:\s+1\s+}\s+}/
+        );
+      });
+
+      await listener;
+    });
+  });
+
   describe('#bulkDeleteDialog', function () {
     let store: CrudStore;
 
@@ -1007,6 +978,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1086,6 +1059,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1243,6 +1218,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1414,6 +1391,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1585,6 +1564,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1768,6 +1749,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1809,6 +1792,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1847,6 +1832,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -1883,6 +1870,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -1959,6 +1948,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2004,6 +1995,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2046,6 +2039,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2090,6 +2085,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2141,6 +2138,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2207,6 +2206,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2314,6 +2315,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2757,6 +2760,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );
@@ -2812,6 +2817,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2897,6 +2904,8 @@ describe('store', function () {
             localAppRegistry,
             globalAppRegistry,
             instance,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
           },
           createActivateHelpers()
         );
@@ -2955,6 +2964,8 @@ describe('store', function () {
           localAppRegistry,
           globalAppRegistry,
           instance,
+          preferences,
+          logger: createNoopLoggerAndTelemetry(),
         },
         createActivateHelpers()
       );

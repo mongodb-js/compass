@@ -71,7 +71,12 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
   Promise<void>
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const { id, namespace, dataService, maxTimeMS } = getState();
+    const {
+      id,
+      namespace,
+      dataService,
+      maxTimeMS: { current: maxTimeMS },
+    } = getState();
     const abortSignal = getAbortSignal(id);
     try {
       // Debounce action to allow for user typing to stop
@@ -107,9 +112,8 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
 };
 
 export const openCreateIndexModal = (): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState) => {
-    const { appRegistry } = getState();
-    (appRegistry as any).localAppRegistry.emit('open-create-index-modal');
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-index-modal');
   };
 };
 

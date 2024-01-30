@@ -4,8 +4,8 @@ import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeEnableShell, setupRuntime } from '../modules/runtime';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import preferences from 'compass-preferences-model';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 
@@ -17,19 +17,23 @@ export default class CompassShellStore {
   }
 
   globalAppRegistry: AppRegistry | null = null;
+  preferences: PreferencesAccess | null = null;
 
   onActivated({
     globalAppRegistry,
     logger: { log, track, debug },
     dataService,
+    preferences,
   }: {
     globalAppRegistry: AppRegistry;
     logger: LoggerAndTelemetry;
     dataService: DataService;
+    preferences: PreferencesAccess;
   }): () => void {
     debug('activated');
 
     this.globalAppRegistry = globalAppRegistry;
+    this.preferences = preferences;
 
     const unsubscribePreference = preferences.onPreferenceValueChanged(
       'enableShell',

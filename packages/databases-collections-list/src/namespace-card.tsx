@@ -27,7 +27,7 @@ import type {
 import { NamespaceParam } from './namespace-param';
 import type { ItemType } from './use-create';
 import type { ViewType } from './use-view-type';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -202,7 +202,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   viewType,
   ...props
 }) => {
-  const readOnly = usePreference('readOnly', React);
+  const readOnly = usePreference('readOnly');
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 

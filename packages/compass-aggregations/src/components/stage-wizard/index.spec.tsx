@@ -11,6 +11,7 @@ const renderStageWizard = (
 ) => {
   return render(
     <StageWizard
+      namespace="test.test"
       onApply={() => {}}
       onCancel={() => {}}
       onChange={() => {}}
@@ -21,7 +22,7 @@ const renderStageWizard = (
       setNodeRef={() => {}}
       style={{}}
       listeners={undefined}
-      fields={[]}
+      previousStageFields={[]}
       {...props}
     />
   );

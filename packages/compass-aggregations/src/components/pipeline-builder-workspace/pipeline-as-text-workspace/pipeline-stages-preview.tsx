@@ -20,7 +20,7 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../../constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   alignItems: 'center',
@@ -85,8 +85,7 @@ export const OutputStagePreview = ({
   // When explicit pipeline run is not enabled, we allow to run output stage
   // from the preview
   const showOutputActions = !usePreference(
-    'enableAggregationBuilderRunPipeline',
-    React
+    'enableAggregationBuilderRunPipeline'
   );
 
   if (!stageOperator) {

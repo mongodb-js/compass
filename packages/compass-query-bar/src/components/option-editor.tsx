@@ -9,19 +9,16 @@ import {
   SignalPopover,
   rafraf,
 } from '@mongodb-js/compass-components';
-import type {
-  Command,
-  CompletionWithServerInfo,
-  EditorRef,
-} from '@mongodb-js/compass-editor';
+import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
-import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { connect } from '../stores/context';
+import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -80,6 +77,7 @@ const insightsBadgeStyles = css({
 });
 
 type OptionEditorProps = {
+  namespace: string;
   id?: string;
   hasError?: boolean;
   /**
@@ -91,7 +89,6 @@ type OptionEditorProps = {
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | HTMLElement;
-  schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
   ['data-testid']?: string;
@@ -99,6 +96,7 @@ type OptionEditorProps = {
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
+  namespace,
   id,
   hasError = false,
   insertEmptyDocOnFocus = true,
@@ -106,13 +104,12 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   onApply,
   onBlur,
   placeholder,
-  schemaFields = [],
   serverVersion = '3.6.0',
   value = '',
   ['data-testid']: dataTestId,
   insights,
 }) => {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
 
@@ -138,17 +135,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     ];
   }, []);
 
+  const schemaFields = useAutocompleteFields(namespace);
+
   const completer = useMemo(() => {
     return createQueryAutocompleter({
-      fields: schemaFields
-        .filter(
-          (field): field is { name: string } & CompletionWithServerInfo =>
-            !!field.name
-        )
-        .map((field) => ({
-          name: field.name,
-          description: field.description,
-        })),
+      fields: schemaFields,
       serverVersion,
     });
   }, [schemaFields, serverVersion]);
@@ -223,7 +214,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
 const ConnectedOptionEditor = connect((state: RootState) => {
   return {
-    schemaFields: state.queryBar.schemaFields as CompletionWithServerInfo[],
+    namespace: state.queryBar.namespace,
     serverVersion: state.queryBar.serverVersion,
   };
 })(OptionEditor);

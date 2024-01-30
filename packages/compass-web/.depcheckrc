@@ -1,0 +1,21 @@
+ignores:
+ - '@mongodb-js/prettier-config-compass'
+ - '@mongodb-js/tsconfig-compass'
+ - '@types/chai'
+ - '@types/sinon-chai'
+ - 'sinon'
+ - '@testing-library/user-event'
+ - '@types/chai-dom'
+ - '@types/react'
+ - '@types/react-dom'
+# Used in webpack config as polyfills, depcheck can't detect that because of `/`
+# at the end of require
+ - 'buffer'
+ - 'events'
+ - 'process'
+ - 'util'
+# Already a dependency of mongodb-data-service -> devtools-connect, only
+# referenced in webpack for weird polyfilling reasons (see config)
+ - 'resolve-mongodb-srv'
+ignore-patterns:
+ - 'dist'

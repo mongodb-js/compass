@@ -1923,5 +1923,97 @@ describe('DataService', function () {
         ).to.be.undefined;
       });
     });
+
+    describe('#listStreamProcessors', function () {
+      it('returns stream processors from listStreamProcessors command', async function () {
+        const streamProcessors = [
+          { id: new ObjectId().toHexString(), name: 'foo' },
+          { id: new ObjectId().toHexString(), name: 'bar' },
+        ];
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            listStreamProcessors: { ok: 1, streamProcessors },
+          },
+        });
+        const result = await dataService.listStreamProcessors();
+        expect(result).to.deep.eq(streamProcessors);
+      });
+
+      it('rejects when listStreamProcessors command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            listStreamProcessors: new Error('unknown error'),
+          },
+        });
+        const result = dataService.listStreamProcessors();
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#startStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            startStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.startStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when startStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            startStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.startStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#stopStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            stopStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.stopStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when stopStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            stopStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.stopStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
+
+    describe('#dropStreamProcessor', function () {
+      it('returns when stream processor was started successfully', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            dropStreamProcessor: { ok: 1 },
+          },
+        });
+        const result = await dataService.dropStreamProcessor('spName');
+        expect(result).to.be.undefined;
+      });
+
+      it('rejects when dropStreamProcessor command errors', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            dropStreamProcessor: new Error('unknown error'),
+          },
+        });
+        const result = dataService.dropStreamProcessor('spName');
+        await expect(result).to.be.rejectedWith('unknown error');
+      });
+    });
   });
 });

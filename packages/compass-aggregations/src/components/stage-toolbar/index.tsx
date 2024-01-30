@@ -20,7 +20,7 @@ import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import { createSearchIndex } from '../../modules/search-indexes';
 
@@ -120,7 +120,7 @@ export function StageToolbar({
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
   const darkMode = useDarkMode();
 
   const insight = useMemo(

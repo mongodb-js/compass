@@ -9,12 +9,10 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
-
-const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
 
 const serverStatsToolbarStyles = css({
   display: 'flex',
@@ -58,6 +56,7 @@ type ServerStatsToolbarProps = {
 };
 
 function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
+  const { track } = useLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
   const darkMode = useDarkMode();
 
   const [time, setTime] = useState('00:00:00');
@@ -79,7 +78,7 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
     }
     setPaused(!isPaused);
     Actions.pause();
-  }, [isPaused]);
+  }, [isPaused, track]);
 
   return (
     <div

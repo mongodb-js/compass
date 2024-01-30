@@ -18,7 +18,7 @@ describe('ValidationStates [Component]', function () {
   let component: ReturnType<typeof mount>;
 
   const mountComponent = (props: any) => {
-    const store = configureStore();
+    const store = configureStore({}, {} as any);
     return mount(
       <Provider store={store}>
         <ValidationStates {...props} />

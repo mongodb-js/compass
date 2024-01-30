@@ -4,7 +4,7 @@ import {
   usePreference,
   featureFlags,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from 'compass-preferences-model/provider';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { css, spacing } from '@mongodb-js/compass-components';
 
@@ -21,8 +21,7 @@ const developmentFeatureFlagFields = featureFlagFields.filter(
 );
 
 function useShouldShowDevFeatures(): boolean {
-  const showDevFeatureFlags =
-    usePreference('showDevFeatureFlags', React) ?? false;
+  const showDevFeatureFlags = usePreference('showDevFeatureFlags') ?? false;
 
   return showDevFeatureFlags && developmentFeatureFlagFields.length > 0;
 }
@@ -38,7 +37,7 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
   // - or if:
   //   - we are in a development environment or 'showDevFeatureFlags' is explicitly enabled
   //   - and there are feature flags in 'development' stage.
-  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
+  const aiFeatureEnabled = useIsAIFeatureEnabled();
   const showDevFeatures = useShouldShowDevFeatures();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
 
@@ -50,7 +49,7 @@ const atlasSettingsContainerStyles = css({
 });
 
 export const FeaturePreviewSettings: React.FunctionComponent = () => {
-  const aiFeatureEnabled = useIsAIFeatureEnabled(React);
+  const aiFeatureEnabled = useIsAIFeatureEnabled();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 

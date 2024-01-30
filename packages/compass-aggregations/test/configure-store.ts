@@ -1,19 +1,18 @@
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
-import type { ConfigureStoreOptions } from '../src/stores/store';
+import type {
+  AggregationsPluginServices,
+  ConfigureStoreOptions,
+} from '../src/stores/store';
 import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
   dataService: DataService = mockDataService(),
-  appRegistries: {
-    globalAppRegistry: AppRegistry;
-    localAppRegistry: AppRegistry;
-  } = {
-    globalAppRegistry: new AppRegistry(),
-    localAppRegistry: new AppRegistry(),
-  }
+  services: Partial<AggregationsPluginServices> = {}
 ) {
   return activateAggregationsPlugin(
     {
@@ -30,9 +29,14 @@ export default function configureStore(
     },
     {
       dataService,
-      instance: {},
-      ...appRegistries,
-    } as any,
+      instance: {} as any,
+      preferences: new ReadOnlyPreferenceAccess(),
+      globalAppRegistry: new AppRegistry(),
+      localAppRegistry: new AppRegistry(),
+      workspaces: {} as any,
+      logger: createNoopLoggerAndTelemetry(),
+      ...services,
+    },
     createActivateHelpers()
   ).store;
 }

@@ -5,26 +5,36 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
-  PreferenceSandboxProperties,
-} from './preferences';
+} from './preferences-schema';
+import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import type { PreferencesAccess } from '.';
+import { InMemoryStorage, PersistentStorage } from './storage';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
+const compassPreferencesLogger = createLoggerAndTelemetry(
+  'COMPASS-PREFERENCES'
+);
 let preferencesSingleton: Preferences | undefined;
 
 export async function setupPreferences(
   globalPreferences: ParsedGlobalPreferencesResult
-): Promise<void> {
+): Promise<PreferencesAccess> {
   if (preferencesSingleton) {
     throw new Error('Preferences setup already been called!');
   }
 
-  const preferences = (preferencesSingleton = new Preferences(
-    undefined,
-    globalPreferences,
+  const preferencesStorage =
     process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true'
-  ));
+      ? new InMemoryStorage()
+      : new PersistentStorage();
+
+  const preferences = (preferencesSingleton = new Preferences({
+    logger: compassPreferencesLogger,
+    globalPreferences,
+    preferencesStorage,
+  }));
 
   await preferences.setupStorage();
 
@@ -32,7 +42,7 @@ export async function setupPreferences(
     // Ignore missing ipc if COMPASS_TEST_ env is set, this means that we are in
     // a test environment where it's expected not to have ipc
     if (process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true') {
-      return;
+      return preferencesMain;
     }
     throw new Error('Trying to setup preferences in unsupported environments');
   }
@@ -72,9 +82,12 @@ export async function setupPreferences(
   ipcMain.handle('compass:get-preference-sandbox-properties', () => {
     return preferences.getPreferenceSandboxProperties();
   });
+  return preferencesMain;
 }
 
-const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
+const makePreferenceMain = (
+  preferences: () => Preferences | undefined
+): PreferencesAccess => ({
   async savePreferences(
     attributes: Partial<UserPreferences>
   ): Promise<AllPreferences> {
@@ -128,7 +141,10 @@ const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
 export async function createSandboxAccessFromProps(
   props: PreferenceSandboxProperties | undefined
 ): Promise<PreferencesAccess> {
-  const sandbox = await Preferences.CreateSandbox(props);
+  const sandbox = await Preferences.CreateSandbox(
+    props,
+    compassPreferencesLogger
+  );
   return makePreferenceMain(() => sandbox);
 }
 export const preferencesMain: PreferencesAccess = makePreferenceMain(

@@ -20,7 +20,7 @@ import {
   type SerializedExplainPlan,
 } from '../stores/explain-plan-modal-store';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const defaultFormatter = (_: unknown) => String(_);
 
@@ -144,7 +144,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
   onCreateIndexInsightClick,
 }) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights');
 
   const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
 

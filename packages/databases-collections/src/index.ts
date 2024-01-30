@@ -69,14 +69,3 @@ export const RenameCollectionPlugin = registerHadronPlugin(
       dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
   }
 );
-
-function activate() {
-  // noop
-}
-
-function deactivate() {
-  // noop
-}
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

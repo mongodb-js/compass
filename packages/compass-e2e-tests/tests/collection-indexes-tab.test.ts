@@ -2,9 +2,9 @@ import chai from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  beforeTests,
-  afterTests,
-  afterTest,
+  init,
+  cleanup,
+  screenshotIfFailed,
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -18,7 +18,7 @@ describe('Collection indexes tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -29,19 +29,23 @@ describe('Collection indexes tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('lists indexes', async function () {
     const element = await browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
-    const indexes = await browser.$$(Selectors.indexComponent('_id_'));
-    expect(indexes).to.have.lengthOf(1);
+    // This seems to sometimes render an empty list momentarily before it has
+    // the list loaded and browser.$$ doesn't wait.
+    await browser.waitUntil(async function () {
+      const indexes = await browser.$$(Selectors.indexComponent('_id_'));
+      return indexes.length === 1;
+    });
 
     const indexFieldNameElement = await browser.$(
       `${Selectors.indexComponent('_id_')} ${Selectors.IndexFieldName}`
@@ -163,14 +167,16 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(
         `${Selectors.indexComponent('columnstore')} ${
-          Selectors.DropIndexButton
+          Selectors.IndexesTableDropIndexButton
         }`
       );
 
       const dropModal = await browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();
 
-      const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
+      const confirmInput = await browser.$(
+        Selectors.DropIndexModalConfirmButton
+      );
       await confirmInput.waitForDisplayed();
       await confirmInput.setValue('columnstore');
 

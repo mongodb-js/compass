@@ -18,8 +18,8 @@ import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const containerStyles = css({
   position: 'relative',
@@ -59,24 +59,26 @@ const errorContainerStyles = css({
 });
 
 export type PipelineEditorProps = {
+  namespace: string;
   num_stages: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
-  fields: { name: string }[];
   onChangePipelineText: (value: string) => void;
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
+  namespace,
   num_stages,
   pipelineText,
   serverError,
   syntaxErrors,
   serverVersion,
-  fields,
   onChangePipelineText,
 }) => {
+  const fields = useAutocompleteFields(namespace);
+  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;
@@ -99,7 +101,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       });
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [editorInitialValueRef, num_stages]);
+  }, [num_stages, track]);
 
   const annotations: Annotation[] = useMemo(() => {
     return syntaxErrors
@@ -158,6 +160,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 };
 
 const mapState = ({
+  namespace,
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -170,14 +173,13 @@ const mapState = ({
     },
   },
   serverVersion,
-  fields,
 }: RootState) => ({
+  namespace,
   num_stages: pipeline.length,
   pipelineText,
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,
   serverVersion,
-  fields,
 });
 
 const mapDispatch = {

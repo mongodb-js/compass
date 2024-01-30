@@ -62,11 +62,6 @@ const descriptionStyles = css({
   marginBottom: spacing[2],
 });
 
-const previewStyles = css({
-  contain: 'size',
-  overflow: 'auto',
-});
-
 const previewDescriptionStyles = css({
   display: 'inline',
 });
@@ -100,10 +95,19 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+const emptyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
+});
+
 const updatePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+  contain: 'size',
+  height: 'calc(100% - 20px)',
+  overflowY: 'scroll',
 });
 
 const modalFooterToolbarSpacingStyles = css({
@@ -132,6 +136,7 @@ const inlineSaveQueryModalInputStyles = css({
 });
 
 type InlineSaveQueryModalProps = {
+  disabled?: boolean;
   onSave: (name: string) => void;
 };
 
@@ -139,7 +144,7 @@ const inlineSaveQueryModalContainedElements = ['#inline-save-query-modal *'];
 
 const InlineSaveQueryModal: React.FunctionComponent<
   InlineSaveQueryModalProps
-> = ({ onSave }) => {
+> = ({ disabled, onSave }) => {
   const [open, setOpen] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [valid, setValid] = useState(false);
@@ -187,6 +192,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
             data-testid="inline-save-query-modal-opener"
             aria-haspopup="true"
             aria-expanded={open ? true : undefined}
+            disabled={disabled}
           >
             <Icon glyph="Favorite" />
             Save
@@ -261,8 +267,8 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   if (count === 0) {
     return (
       <div
-        className={updatePreviewStyles}
         data-testid="bulk-update-preview-empty-state"
+        className={emptyStyles}
       >
         <Label htmlFor="bulk-update-preview">
           Preview{' '}
@@ -283,7 +289,7 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   }
 
   return (
-    <div className={previewStyles}>
+    <div>
       <Label htmlFor="bulk-update-preview">
         Preview{' '}
         <Description className={previewDescriptionStyles}>
@@ -385,6 +391,8 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
+  const disabled = !!(syntaxError || serverError);
+
   return (
     <Modal
       open={isOpen}
@@ -456,7 +464,7 @@ export default function BulkUpdateModal({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <InlineSaveQueryModal onSave={saveUpdateQuery} />
+          <InlineSaveQueryModal disabled={disabled} onSave={saveUpdateQuery} />
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button
@@ -467,7 +475,7 @@ export default function BulkUpdateModal({
             Cancel
           </Button>
           <Button
-            disabled={!!(syntaxError || serverError)}
+            disabled={disabled}
             variant="primary"
             onClick={runBulkUpdate}
             data-testid="update-button"

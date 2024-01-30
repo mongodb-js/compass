@@ -33,4 +33,5 @@ mongodb-crypt
 packages/*/.npmrc
 config/*/.npmrc
 .sbom
+.logs
 .evergreen/logs

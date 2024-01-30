@@ -3,7 +3,7 @@ import chai from 'chai';
 import { promises as fs } from 'fs';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -93,7 +93,7 @@ describe('Collection import', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests();
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
@@ -104,16 +104,30 @@ describe('Collection import', function () {
   });
 
   after(async function () {
-    await afterTests(compass, this.currentTest);
+    await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
-    await afterTest(compass, this.currentTest);
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   it('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
+
+    async function getDocumentCount() {
+      const countText = await browser.$(Selectors.DocumentCountValue).getText();
+      return countText ? Number(countText) : null;
+    }
+
+    // wait for the stats to load
+    await browser.waitUntil(async () => {
+      const count = await getDocumentCount();
+      return count !== null && !isNaN(count);
+    });
+
+    // store current document count
+    const initialDocCount = await getDocumentCount();
 
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
@@ -161,6 +175,14 @@ describe('Collection import', function () {
     expect(result).to.deep.equal({
       foo: '10',
       long: '99',
+    });
+
+    // make sure document count also updated
+    await browser.waitUntil(async () => {
+      const currentDocCount = await getDocumentCount();
+      return (
+        initialDocCount !== null && initialDocCount + 1 === currentDocCount
+      );
     });
   });
 

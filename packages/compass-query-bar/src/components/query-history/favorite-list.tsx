@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { connect } from '../../stores/context';
 import {
   applyFromHistory,
   deleteFavoriteQuery,
@@ -14,12 +14,11 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
-import { usePreference } from 'compass-preferences-model';
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+import { usePreference } from 'compass-preferences-model/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
@@ -37,7 +36,8 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const readOnlyCompass = usePreference('readOnly', React);
+  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+  const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
@@ -59,12 +59,13 @@ const FavoriteItem = ({
 
     onApply(attributes);
   }, [
-    onApply,
-    onUpdateFavoriteChoosen,
+    track,
     query._id,
-    attributes,
     isUpdateQuery,
     isDisabled,
+    onApply,
+    attributes,
+    onUpdateFavoriteChoosen,
   ]);
 
   const onDeleteClick = useCallback(() => {
@@ -74,7 +75,7 @@ const FavoriteItem = ({
       isUpdateQuery,
     });
     onDelete(query._id);
-  }, [onDelete, query._id, isUpdateQuery]);
+  }, [track, query._id, isUpdateQuery, onDelete]);
 
   return (
     <QueryItemCard

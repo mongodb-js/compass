@@ -17,7 +17,7 @@ import {
   ANALYSIS_STATE_INITIAL,
   ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService as OriginalDataService } from 'mongodb-data-service';
@@ -26,6 +26,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import type { Schema } from 'mongodb-schema';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
@@ -54,15 +55,10 @@ function resultId(): number {
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
 export type SchemaPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore' | 'getRole'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   loggerAndTelemetry: LoggerAndTelemetry;
+  preferences: PreferencesAccess;
 };
 
 type SchemaState = {
@@ -90,7 +86,8 @@ export type SchemaStore = Reflux.Store & {
 
   localAppRegistry: SchemaPluginServices['localAppRegistry'];
   globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
-
+  // TODO(COMPASS-6847): We don't really need this state in store, but it's hard
+  // to factor away while the store is reflux
   query: QueryState;
   ns: string;
   geoLayers: Record<string, InternalLayer>;
@@ -100,9 +97,26 @@ export type SchemaStore = Reflux.Store & {
   onQueryChanged(state: QueryState): void;
   onSubTabChanged(name: string): void;
   onSchemaSampled(): void;
-  geoLayerAdded(field: string, layer: Layer): void;
-  geoLayersEdited(field: string, layers: LayerGroup): void;
-  geoLayersDeleted(layers: LayerGroup): void;
+  geoLayerAdded(
+    field: string,
+    layer: Layer,
+    // NB: reflux doesn't return values from actions so we have to pass
+    // component onChage as a callback
+    onAdded: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+  ): void;
+  geoLayersEdited(
+    field: string,
+    layers: LayerGroup,
+    // NB: reflux doesn't return values from actions so we have to pass
+    // component onChage as a callback
+    onEdited: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+  ): void;
+  geoLayersDeleted(
+    layers: LayerGroup,
+    // NB: reflux doesn't return values from actions so we have to pass
+    // component onChage as a callback
+    onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+  ): void;
   stopAnalysis(): void;
   _trackSchemaAnalyzed(analysisTimeMS: number): void;
   startAnalysis(): void;
@@ -122,6 +136,7 @@ export function activateSchemaPlugin(
     localAppRegistry,
     globalAppRegistry,
     loggerAndTelemetry,
+    preferences,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -139,9 +154,7 @@ export function activateSchemaPlugin(
      * Initialize the document list store.
      */
     init: function (this: SchemaStore) {
-      this.query = (
-        localAppRegistry.getStore('Query.Store') as any
-      )?.getCurrentQuery() ?? {
+      this.query = {
         filter: {},
         project: null,
         limit: DEFAULT_SAMPLE_SIZE,
@@ -223,32 +236,49 @@ export function activateSchemaPlugin(
       this.geoLayers = {};
     },
 
-    geoLayerAdded(this: SchemaStore, field: string, layer: Layer) {
+    geoLayerAdded(
+      this: SchemaStore,
+      field: string,
+      layer: Layer,
+      // NB: reflux doesn't return values from actions so we have to pass
+      // component onChage as a callback
+      onAdded: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+    ) {
       this.geoLayers = addLayer(
         field,
         layer as Circle | Polygon,
         this.geoLayers
       );
-      localAppRegistry.emit('query-bar-change-filter', {
-        type: 'mergeGeoQuery',
-        payload: generateGeoQuery(this.geoLayers),
-      });
+      onAdded(generateGeoQuery(this.geoLayers));
     },
 
-    geoLayersEdited(this: SchemaStore, field: string, layers: LayerGroup) {
+    geoLayersEdited(
+      this: SchemaStore,
+      field: string,
+      layers: LayerGroup,
+      // NB: reflux doesn't return values from actions so we have to pass
+      // component onChage as a callback
+      onEdited: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+    ) {
       layers.eachLayer((layer) => {
-        this.geoLayerAdded(field, layer);
+        this.geoLayerAdded(field, layer, () => {
+          // noop, we will call `onEdited` when we're done with updates
+        });
       });
+      onEdited(generateGeoQuery(this.geoLayers));
     },
 
-    geoLayersDeleted(this: SchemaStore, layers: LayerGroup) {
+    geoLayersDeleted(
+      this: SchemaStore,
+      layers: LayerGroup,
+      // NB: reflux doesn't return values from actions so we have to pass
+      // component onChage as a callback
+      onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+    ) {
       layers.eachLayer((layer) => {
         delete this.geoLayers[(layer as any)._leaflet_id];
       });
-      localAppRegistry.emit('query-bar-change-filter', {
-        type: 'mergeGeoQuery',
-        payload: generateGeoQuery(this.geoLayers),
-      });
+      onDeleted(generateGeoQuery(this.geoLayers));
     },
 
     stopAnalysis(this: SchemaStore) {
@@ -285,7 +315,7 @@ export function activateSchemaPlugin(
       };
 
       const driverOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
       };
 
       try {
@@ -312,6 +342,8 @@ export function activateSchemaPlugin(
           loggerAndTelemetry
         );
         const analysisTime = Date.now() - analysisStartTime;
+
+        this.globalAppRegistry.emit('schema-analyzed', { ns: this.ns, schema });
 
         this.setState({
           analysisState: schema
@@ -344,13 +376,12 @@ export function activateSchemaPlugin(
     },
   }) as SchemaStore;
 
+  // TODO(COMPASS-7544): remove dependency on this event
   on(localAppRegistry, 'subtab-changed', (name) => {
     store.onSubTabChanged(name);
   });
 
-  /**
-   * When the collection is changed, update the store.
-   */
+  // TODO(COMPASS-7543): remove dependency on this event
   on(localAppRegistry, 'query-changed', (state) => {
     store.onQueryChanged(state);
   });

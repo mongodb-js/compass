@@ -7,6 +7,7 @@ import thunk from 'redux-thunk';
 import reducer from '../modules';
 
 import { NavigationItems } from './navigation-items';
+import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 function renderNavigationItems(
   props?: Partial<React.ComponentProps<typeof NavigationItems>>
@@ -14,21 +15,28 @@ function renderNavigationItems(
   const store = createStore(reducer, applyMiddleware(thunk));
   return render(
     <Provider store={store}>
-      <NavigationItems
-        isReady
-        isExpanded
-        onAction={() => {
-          /* noop */
-        }}
-        showCreateDatabaseAction={true}
-        isPerformanceTabSupported={true}
-        onFilterChange={() => {
-          /* noop */
-        }}
-        currentLocation={null}
-        currentNamespace={null}
-        {...props}
-      />
+      <WorkspacesProvider
+        value={[
+          { name: 'My Queries', component: () => null },
+          { name: 'Performance', component: () => null },
+        ]}
+      >
+        <NavigationItems
+          isReady
+          isExpanded
+          onAction={() => {
+            /* noop */
+          }}
+          showCreateDatabaseAction={true}
+          isPerformanceTabSupported={true}
+          onFilterChange={() => {
+            /* noop */
+          }}
+          currentLocation={null}
+          currentNamespace={null}
+          {...props}
+        />
+      </WorkspacesProvider>
     </Provider>
   );
 }

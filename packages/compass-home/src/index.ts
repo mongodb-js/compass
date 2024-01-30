@@ -1,20 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import Home from './components/home';
 
-/**
- * Activate all the components in the Home package.
- **/
-function activate(): void {
-  // noop
-}
-
-/**
- * Deactivate all the components in the Home package.
- **/
-function deactivate(): void {
-  // noop
-}
-
 export const CompassHomePlugin = registerHadronPlugin({
   name: 'CompassHome',
   component: Home,
@@ -32,6 +18,3 @@ export const CompassHomePlugin = registerHadronPlugin({
     };
   },
 });
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

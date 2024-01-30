@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import {
   COMMON_INITIAL_STATE,
@@ -12,7 +12,7 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;
@@ -80,10 +80,7 @@ export function useExportConnections(
     }
   }, [favoriteConnections, state.connectionList]);
 
-  const protectConnectionStrings = !!usePreference(
-    'protectConnectionStrings',
-    React
-  );
+  const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   useEffect(() => {
     if (protectConnectionStrings) {
       setState((prevState) => ({ ...prevState, removeSecrets: true }));

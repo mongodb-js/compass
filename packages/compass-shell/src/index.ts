@@ -4,18 +4,18 @@ import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import type { DataService } from 'mongodb-data-service';
-
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
+import {
+  preferencesLocator,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,
-  { logger: () => LoggerAndTelemetry; dataService: () => DataService }
+  {
+    logger: () => LoggerAndTelemetry;
+    dataService: () => DataService;
+    preferences: () => PreferencesAccess;
+  }
 >(
   {
     name: 'CompassShell',
@@ -25,8 +25,6 @@ export const CompassShellPlugin = registerHadronPlugin<
   {
     logger: createLoggerAndTelemetryLocator('COMPASS-SHELL'),
     dataService: dataServiceLocator,
+    preferences: preferencesLocator,
   }
 );
-
-export { activate, deactivate };
-export { default as metadata } from '../package.json';

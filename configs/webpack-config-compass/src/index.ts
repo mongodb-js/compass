@@ -88,6 +88,21 @@ const sharedResolveOptions = (
       // KeyObject instances from the Node.js crypto API (https://tinyurl.com/2rrtu2hy).
       // Manually resolve `jose` to use the Node.js export here.
       jose: require.resolve('jose'),
+
+      // Leafygreen tries to include all the server-side emotion stuff in the
+      // client bundle, this requires packaging a ton of otherwise unneccessary
+      // polyfills.To work around this, we're providing a minimally required
+      // polyfill for code not to break. This is mostly a problem for our web
+      // packages, but also not a bad thing at all for the electron app itself.
+      '@emotion/server/create-instance': path.resolve(
+        __dirname,
+        '..',
+        'polyfills',
+        '@emotion',
+        'server',
+        'create-instance',
+        'index.js'
+      ),
     },
   };
 };
@@ -321,7 +336,39 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...sharedResolveOptions(opts.target),
     },
     ignoreWarnings: sharedIgnoreWarnings,
+    plugins:
+      isServe(opts) && opts.hot
+        ? [
+            // Plugin types are not matching Webpack 5, but they work
+            new ReactRefreshWebpackPlugin() as unknown as WebpackPluginInstance,
+          ]
+        : opts.analyze
+        ? [
+            // Plugin types are not matching Webpack 5, but they work
+            new BundleAnalyzerPlugin({
+              logLevel: 'silent',
+              analyzerPort: 'auto',
+            }) as unknown as WebpackPluginInstance,
+
+            new DuplicatePackageCheckerPlugin(),
+          ]
+        : [],
   };
+}
+
+function findEntry(cwd: string) {
+  const files = fs.readdirSync(path.join(cwd, 'src'));
+  const entryFile = ['index.tsx', 'index.ts', 'index.jsx', 'index.js'].find(
+    (entry) => {
+      return files.includes(entry);
+    }
+  );
+  if (!entryFile) {
+    throw new Error(
+      `Can not find entry file for the package. Looking for index.{tsx,ts,jsx,js} in plugin src folder`
+    );
+  }
+  return path.join(cwd, 'src', entryFile);
 }
 
 export function compassPluginConfig(
@@ -369,9 +416,7 @@ export function compassPluginConfig(
     ];
   }
 
-  const entry = fs.existsSync(path.join(opts.cwd, 'src', 'index.ts'))
-    ? path.join(opts.cwd, 'src', 'index.ts')
-    : path.join(opts.cwd, 'src', 'index.js');
+  const entry = findEntry(opts.cwd);
 
   return [
     merge(

@@ -7,7 +7,13 @@ import PipelineResultsList from './pipeline-results-list';
 
 describe('PipelineResultsList', function () {
   it('does not render when documents are empty', function () {
-    render(<PipelineResultsList documents={[]} view="document" />);
+    render(
+      <PipelineResultsList
+        namespace="test.test"
+        documents={[]}
+        view="document"
+      />
+    );
     expect(() => {
       screen.getByTestId('document-list-item');
     }).to.throw;
@@ -16,6 +22,7 @@ describe('PipelineResultsList', function () {
   it('renders list view', function () {
     render(
       <PipelineResultsList
+        namespace="test.test"
         documents={[
           new HadronDocument({ id: 1 }),
           new HadronDocument({ id: 2 }),
@@ -31,6 +38,7 @@ describe('PipelineResultsList', function () {
   it('renders json view', function () {
     render(
       <PipelineResultsList
+        namespace="test.test"
         documents={[
           new HadronDocument({ id: 3 }),
           new HadronDocument({ id: 4 }),

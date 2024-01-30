@@ -116,7 +116,7 @@ export function createInstanceStore(
     );
   }
 
-  async function refreshNamespaceStats(ns: string) {
+  async function refreshNamespaceStats({ ns }: { ns: string }) {
     const { database } = toNS(ns);
     const db = instance.databases.get(database);
     const coll = db?.collections.get(ns);
@@ -171,17 +171,9 @@ export function createInstanceStore(
   const instance = new MongoDBInstance(
     initialInstanceProps as MongoDBInstanceProps
   );
-  if ((globalThis as any).hadronApp) {
-    // TODO(COMPASS-7442): Remove this
-    (globalThis as any).hadronApp.instance = instance;
-  }
 
   addCleanup(() => {
     instance.removeAllListeners();
-    const hadronApp = (globalThis as any).hadronApp;
-    if (hadronApp?.instance === instance) {
-      hadronApp.instance = null;
-    }
     appRegistry.emit('instance-destroyed', { instance: null });
   });
 

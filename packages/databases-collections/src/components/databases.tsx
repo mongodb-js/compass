@@ -9,7 +9,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 import { ZeroGraphic } from './zero-graphic';
 import type { Database, DatabasesState } from '../modules/databases';
 import {
@@ -80,7 +80,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick,
   onRefreshClick,
 }) => {
-  const isPreferencesReadOnly = usePreference('readOnly', React);
+  const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
   useTrackOnChange(

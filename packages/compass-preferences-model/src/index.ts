@@ -1,14 +1,13 @@
-export type { THEMES } from './preferences';
-export { getSettingDescription } from './preferences';
-export { featureFlags } from './feature-flags';
+export type { THEMES } from './preferences-schema';
 
 import type {
   UserPreferences,
   UserConfigurablePreferences,
   PreferenceStateInformation,
   AllPreferences,
-  Preferences,
-} from './preferences';
+} from './preferences-schema';
+import type { Preferences, PreferencesAccess } from './preferences';
+
 export type {
   UserPreferences,
   UserConfigurablePreferences,
@@ -24,32 +23,16 @@ export {
   getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
-export { usePreference, withPreferences } from './react';
 export {
-  capMaxTimeMSAtPreferenceLimit,
   setupPreferencesAndUser,
   getActiveUser,
-  useIsAIFeatureEnabled,
   isAIFeatureEnabled,
 } from './utils';
-export type { User } from './storage';
-
-export interface PreferencesAccess {
-  savePreferences(
-    attributes: Partial<UserPreferences>
-  ): Promise<AllPreferences>;
-  refreshPreferences(): Promise<AllPreferences>;
-  getPreferences(): AllPreferences;
-  ensureDefaultConfigurableUserPreferences(): Promise<void>;
-  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
-  getPreferenceStates(): Promise<PreferenceStateInformation>;
-  onPreferenceValueChanged<K extends keyof AllPreferences>(
-    preferenceName: K,
-    callback: (value: AllPreferences[K]) => void
-  ): () => void;
-  createSandbox(): Promise<PreferencesAccess>;
-}
+export type { User, UserStorage } from './storage';
+export type { PreferencesAccess };
 export { setupPreferences };
-export const preferencesAccess: PreferencesAccess =
+export const defaultPreferencesInstance: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
-export default preferencesAccess;
+export function createSandboxFromDefaultPreferences(): Promise<PreferencesAccess> {
+  return defaultPreferencesInstance.createSandbox();
+}

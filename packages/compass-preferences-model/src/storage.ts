@@ -1,42 +1,31 @@
+import { z } from 'zod';
 import { UUID } from 'bson';
-import { storedUserPreferencesProps } from './preferences';
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { UserData } from '@mongodb-js/compass-user-data';
 
-type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
-export type StoredPreferences = z.output<PreferencesValidator>;
+import {
+  getDefaultsForStoredPreferences,
+  getPreferencesValidator,
+} from './preferences-schema';
+import type {
+  AllPreferences,
+  StoredPreferences,
+  StoredPreferencesValidator,
+} from './preferences-schema';
 
-export const getDefaultPreferences = (): StoredPreferences => {
-  return Object.fromEntries(
-    Object.entries(storedUserPreferencesProps)
-      .map(([key, value]) => [key, value.validator.parse(undefined)])
-      .filter(([, value]) => value !== undefined)
-  );
-};
-
-const getPreferencesValidator = () => {
-  const preferencesPropsValidator = Object.fromEntries(
-    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
-      key,
-      validator,
-    ])
-  ) as {
-    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
-  };
-
-  return z.object(preferencesPropsValidator);
-};
-export abstract class BasePreferencesStorage {
-  abstract setup(): Promise<void>;
-  abstract getPreferences(): StoredPreferences;
-  abstract updatePreferences(
-    attributes: Partial<StoredPreferences>
-  ): Promise<void>;
+export interface BasePreferencesStorage {
+  setup(): Promise<void>;
+  getPreferences(): StoredPreferences;
+  updatePreferences(attributes: Partial<StoredPreferences>): Promise<void>;
 }
 
-export class SandboxPreferences extends BasePreferencesStorage {
-  private preferences = getDefaultPreferences();
-  constructor() {
-    super();
+export class InMemoryStorage implements BasePreferencesStorage {
+  private preferences = getDefaultsForStoredPreferences();
+
+  constructor(preferencesOverrides?: Partial<AllPreferences>) {
+    this.preferences = {
+      ...this.preferences,
+      ...preferencesOverrides,
+    };
   }
 
   getPreferences() {
@@ -56,14 +45,13 @@ export class SandboxPreferences extends BasePreferencesStorage {
   }
 }
 
-export class StoragePreferences extends BasePreferencesStorage {
+export class PersistentStorage implements BasePreferencesStorage {
   private readonly file = 'General';
-  private readonly defaultPreferences = getDefaultPreferences();
-  private readonly userData: UserData<PreferencesValidator>;
-  private preferences: StoredPreferences = getDefaultPreferences();
+  private readonly defaultPreferences = getDefaultsForStoredPreferences();
+  private readonly userData: UserData<StoredPreferencesValidator>;
+  private preferences: StoredPreferences = getDefaultsForStoredPreferences();
 
   constructor(basePath?: string) {
-    super();
     this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
@@ -99,7 +87,9 @@ export class StoragePreferences extends BasePreferencesStorage {
     };
   }
 
-  async updatePreferences(attributes: Partial<z.input<PreferencesValidator>>) {
+  async updatePreferences(
+    attributes: Partial<z.input<StoredPreferencesValidator>>
+  ) {
     await this.userData.write(this.file, {
       ...(await this.readPreferences()),
       ...attributes,
@@ -121,7 +111,16 @@ const UserSchema = z.object({
 
 export type User = z.output<typeof UserSchema>;
 
-export class UserStorage {
+export interface UserStorage {
+  getOrCreate(id?: string): Promise<User>;
+  getUser(id: string): Promise<User>;
+  updateUser(
+    id: string,
+    attributes: Partial<z.input<typeof UserSchema>>
+  ): Promise<User>;
+}
+
+export class UserStorageImpl implements UserStorage {
   private readonly userData: UserData<typeof UserSchema>;
   constructor(basePath?: string) {
     this.userData = new UserData(UserSchema, {

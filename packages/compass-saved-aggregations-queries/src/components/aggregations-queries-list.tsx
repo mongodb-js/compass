@@ -99,7 +99,6 @@ export const AggregationsQueriesList = ({
   } = useGridFilters(items);
 
   const filteredItems = useFilteredItems(items, filters, search)
-    .filter((e) => e.item.type !== 'updatemany')
     .sort((a, b) => {
       return a.score - b.score;
     })

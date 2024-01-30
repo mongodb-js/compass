@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
-import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { usePreference } from 'compass-preferences-model';
+import { connect } from '../stores/context';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import type { RootState } from '../stores/query-bar-store';
 import {
@@ -11,25 +10,31 @@ import {
   changeAIPromptText,
   runAIQuery,
 } from '../stores/ai-query-reducer';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
+const useOnSubmitFeedback = () => {
+  const logger = useLoggerAndTelemetry('AI-QUERY-UI');
+  return useCallback(
+    (feedback: 'positive' | 'negative', text: string) => {
+      const { log, mongoLogId, track } = logger;
+      log.info(mongoLogId(1_001_000_224), 'AIQuery', 'AI query feedback', {
+        feedback,
+        text,
+      });
 
-const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
-  log.info(mongoLogId(1_001_000_224), 'AIQuery', 'AI query feedback', {
-    feedback,
-    text,
-  });
+      track('AI Query Feedback', () => ({
+        feedback,
+        text,
+      }));
 
-  track('AI Query Feedback', () => ({
-    feedback,
-    text,
-  }));
-
-  openToast('query-ai-feedback-submitted', {
-    variant: 'success',
-    title: 'Your feedback has been submitted.',
-    timeout: 10_000,
-  });
+      openToast('query-ai-feedback-submitted', {
+        variant: 'success',
+        title: 'Your feedback has been submitted.',
+        timeout: 10_000,
+      });
+    },
+    [logger]
+  );
 };
 
 type QueryAIProps = Omit<
@@ -39,7 +44,8 @@ type QueryAIProps = Omit<
 
 function QueryAI(props: QueryAIProps) {
   // Don't show the feedback options if telemetry is disabled.
-  const enableTelemetry = usePreference('trackUsageStatistics', React);
+  const enableTelemetry = usePreference('trackUsageStatistics');
+  const onSubmitFeedback = useOnSubmitFeedback();
 
   return (
     <GenerativeAIInput

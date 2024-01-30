@@ -1,8 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import type { Store as RefluxStore } from 'reflux';
 import { Provider as ReduxStoreProvider } from 'react-redux';
-import type { Actions } from './actions';
-import type { Plugin } from './app-registry';
+import type { Plugin, RefluxActions } from './app-registry';
 import { AppRegistry, isReduxStore } from './app-registry';
 import {
   GlobalAppRegistryContext,
@@ -14,6 +13,29 @@ import {
 class ActivateHelpersImpl {
   private cleanupFns = new Set<() => void>();
 
+  private deactivateController = new AbortController();
+
+  constructor() {
+    this.addCleanup(() => {
+      this.deactivateController.abort();
+    });
+  }
+
+  /**
+   * A signal for the abort controller that will be aborted when the cleanup
+   * method is called. Helpful to be able to abort or check whether or not
+   * plugin is still active in async tasks triggered during plugin activate
+   * phase
+   */
+  get signal() {
+    return this.deactivateController.signal;
+  }
+
+  /**
+   * Helper method to subscribe to events on a generic event emitter. Events
+   * will be added to the cleanup set and will be cleaned up when `cleanup` is
+   * called
+   */
   on = (
     emitter: {
       on(evt: string, fn: (...args: any) => any): any;
@@ -22,16 +44,23 @@ class ActivateHelpersImpl {
     evt: string,
     fn: (...args: any) => any
   ) => {
-    emitter.on(evt, fn);
+    emitter.on(evt, (...args) => void fn(...args));
     this.addCleanup(() => {
       emitter.removeListener(evt, fn);
     });
   };
 
+  /**
+   * Add an arbitrary callback to the cleanup set
+   */
   addCleanup = (fn: () => void) => {
     this.cleanupFns.add(fn);
   };
 
+  /**
+   * Call all the cleanup callbacks. This includes any events listeners set up
+   * with an `on` helper and everything that was added with `addCleanup`
+   */
   cleanup = () => {
     for (const fn of this.cleanupFns.values()) {
       fn();
@@ -41,7 +70,7 @@ class ActivateHelpersImpl {
 
 export type ActivateHelpers = Pick<
   ActivateHelpersImpl,
-  'on' | 'addCleanup' | 'cleanup'
+  'on' | 'addCleanup' | 'cleanup' | 'signal'
 >;
 
 export function createActivateHelpers(): ActivateHelpers {
@@ -54,7 +83,7 @@ function LegacyRefluxProvider({
   children,
 }: {
   store: Partial<RefluxStore>;
-  actions?: Partial<typeof Actions>;
+  actions?: Partial<RefluxActions>;
   children: React.ReactElement;
 }) {
   const storeRef = useRef(store);
@@ -340,7 +369,7 @@ export function registerHadronPlugin<
       useHadronPluginActivate(config, services, props);
     },
     withMockServices(
-      mocks: Partial<Registries & Services<S>>,
+      mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
     ): React.FunctionComponent<T> {
       const {

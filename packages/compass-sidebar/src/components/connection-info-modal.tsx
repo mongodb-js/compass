@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { InfoModal, Body, css, spacing } from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
-import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
 
@@ -170,7 +170,7 @@ function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
       break;
 
     default:
-      clusterType = ServerType.humanize(servers[0].type);
+      clusterType = ServerType.humanize(servers[0]?.type ?? 'Unknown');
       break;
   }
 

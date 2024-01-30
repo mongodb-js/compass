@@ -7,7 +7,8 @@ import { Transform } from 'stream';
 import type { Readable, Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
 
@@ -256,16 +257,19 @@ export async function exportCSVFromAggregation({
   ns,
   aggregation,
   dataService,
+  preferences,
   ...exportOptions
 }: Omit<ExportCSVOptions, 'input' | 'columns'> & {
   ns: string;
   dataService: Pick<DataService, 'aggregateCursor'>;
+  preferences: PreferencesAccess;
   aggregation: ExportAggregation;
 }) {
   debug('exportCSVFromAggregation()', { ns: toNS(ns), aggregation });
 
   const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
+    preferences,
     aggregationOptions.maxTimeMS
   );
   aggregationOptions.promoteValues = false;

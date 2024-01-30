@@ -18,7 +18,9 @@ import sinon from 'sinon';
 
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
-import preferencesAccess from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
@@ -57,16 +59,12 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 }
 
 describe('Connections Component', function () {
-  let persistOIDCTokens: boolean | undefined;
+  let preferences: PreferencesAccess;
   let onConnectedSpy: sinon.SinonSpy;
 
   before(async function () {
-    persistOIDCTokens = preferencesAccess.getPreferences().persistOIDCTokens;
-    await preferencesAccess.savePreferences({ persistOIDCTokens: false });
-  });
-
-  after(async function () {
-    await preferencesAccess.savePreferences({ persistOIDCTokens });
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({ persistOIDCTokens: false });
   });
 
   beforeEach(function () {
@@ -85,11 +83,13 @@ describe('Connections Component', function () {
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
 
       render(
-        <Connections
-          onConnected={onConnectedSpy}
-          connectionStorage={mockStorage}
-          appName="Test App Name"
-        />
+        <PreferencesProvider value={preferences}>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </PreferencesProvider>
       );
     });
 
@@ -166,14 +166,16 @@ describe('Connections Component', function () {
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
       render(
-        <ToastArea>
-          <Connections
-            onConnected={onConnectedSpy}
-            connectFn={mockConnectFn}
-            connectionStorage={mockStorage}
-            appName="Test App Name"
-          />
-        </ToastArea>
+        <PreferencesProvider value={preferences}>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectFn={mockConnectFn}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
+        </PreferencesProvider>
       );
 
       await waitFor(() => expect(screen.queryAllByRole('listitem')).to.exist);
@@ -338,12 +340,14 @@ describe('Connections Component', function () {
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
       render(
-        <Connections
-          onConnected={onConnectedSpy}
-          connectFn={mockConnectFn}
-          connectionStorage={mockStorage}
-          appName="Test App Name"
-        />
+        <PreferencesProvider value={preferences}>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectFn={mockConnectFn}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </PreferencesProvider>
       );
 
       await waitFor(
@@ -466,13 +470,15 @@ describe('Connections Component', function () {
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection1' }]);
       render(
-        <ToastArea>
-          <Connections
-            onConnected={onConnectedSpy}
-            connectionStorage={mockStorage}
-            appName="Test App Name"
-          />
-        </ToastArea>
+        <PreferencesProvider value={preferences}>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
+        </PreferencesProvider>
       );
 
       await waitFor(
@@ -489,13 +495,15 @@ describe('Connections Component', function () {
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection2' }]);
       const { rerender } = render(
-        <ToastArea>
-          <Connections
-            onConnected={onConnectedSpy}
-            connectionStorage={mockStorage}
-            appName="Test App Name"
-          />
-        </ToastArea>
+        <PreferencesProvider value={preferences}>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
+        </PreferencesProvider>
       );
 
       await waitFor(() => screen.getByTestId('legacy-connections-modal'));
@@ -509,13 +517,15 @@ describe('Connections Component', function () {
       fireEvent.click(within(modal).getByText(/close/i));
 
       rerender(
-        <ToastArea>
-          <Connections
-            onConnected={onConnectedSpy}
-            connectionStorage={mockStorage}
-            appName="Test App Name"
-          />
-        </ToastArea>
+        <PreferencesProvider value={preferences}>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
+        </PreferencesProvider>
       );
 
       // Saves data in storage

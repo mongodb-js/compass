@@ -12,7 +12,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.11",
+  "version": "0.1.15",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -53,10 +53,10 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
-    "@mongodb-js/compass-logging": "^1.2.8",
-    "@mongodb-js/compass-utils": "^0.5.7",
-    "@mongodb-js/eslint-config-compass": "^1.0.12",
-    "@mongodb-js/mocha-config-compass": "^1.3.3",
+    "@mongodb-js/compass-logging": "^1.2.12",
+    "@mongodb-js/compass-utils": "^0.5.11",
+    "@mongodb-js/eslint-config-compass": "^1.0.15",
+    "@mongodb-js/mocha-config-compass": "^1.3.6",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",

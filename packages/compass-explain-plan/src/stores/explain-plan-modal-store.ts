@@ -1,17 +1,9 @@
-import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
-import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import thunk from 'redux-thunk';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { log, mongoLogId, track } =
-  createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');
+import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -61,26 +53,14 @@ export type ExplainPlanModalState = {
   explainPlanFetchId: number;
 };
 
-type ExplainPlanDataService = Pick<
-  DataService,
-  'explainAggregate' | 'explainFind' | 'isCancelError'
->;
-
-type ExplainPlanAppRegistry = Pick<AppRegistry, 'on' | 'emit'>;
-
-type ExplainPlanModalExtraArgs = {
-  dataService: ExplainPlanDataService;
-  localAppRegistry?: ExplainPlanAppRegistry;
-};
-
 type ExplainPlanModalThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   ExplainPlanModalState,
-  ExplainPlanModalExtraArgs,
+  ExplainPlanModalServices,
   A
 >;
 
-const INITIAL_STATE: ExplainPlanModalState = {
+export const INITIAL_STATE: ExplainPlanModalState = {
   namespace: '',
   isDataLake: false,
   error: null,
@@ -160,23 +140,6 @@ export const reducer: Reducer<ExplainPlanModalState> = (
   return state;
 };
 
-type OpenExplainPlanModalEvent =
-  | {
-      query: { filter: Document } & Pick<
-        FindOptions,
-        'projection' | 'collation' | 'sort' | 'skip' | 'limit' | 'maxTimeMS'
-      >;
-      aggregation?: never;
-    }
-  | {
-      query?: never;
-      aggregation: {
-        pipeline: Document[];
-        collation?: AggregateOptions['collation'];
-        maxTimeMS?: number;
-      };
-    };
-
 const ExplainPlanAbortControllerMap = new Map<number, AbortController>();
 
 let explainPlanFetchId = 0;
@@ -210,7 +173,11 @@ const DEFAULT_MAX_TIME_MS = 60_000;
 export const openExplainPlanModal = (
   event: OpenExplainPlanModalEvent
 ): ExplainPlanModalThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, logger: { log, track, mongoLogId } }
+  ) => {
     const { id: fetchId, signal } = getAbortSignal();
 
     let rawExplainPlan = null;
@@ -242,6 +209,7 @@ export const openExplainPlanModal = (
 
         const explainOptions = {
           maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
             maxTimeMS ?? DEFAULT_MAX_TIME_MS
           ),
         };
@@ -281,6 +249,7 @@ export const openExplainPlanModal = (
         const explainOptions = {
           ...options,
           maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
             options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
           ),
         };
@@ -351,42 +320,3 @@ export const openCreateIndexModal = (): ExplainPlanModalThunkAction<void> => {
     localAppRegistry?.emit('open-create-index-modal');
   };
 };
-
-export type ExplainPlanModalConfigureStoreOptions = {
-  localAppRegistry: ExplainPlanAppRegistry;
-  dataProvider?: {
-    dataProvider?: ExplainPlanDataService;
-  };
-  namespace: string;
-  isDataLake: boolean;
-};
-
-export function configureStore({
-  localAppRegistry,
-  dataProvider,
-  namespace,
-  isDataLake,
-}: ExplainPlanModalConfigureStoreOptions) {
-  if (!dataProvider?.dataProvider) {
-    throw new Error('Explain Plan plugin requires dataService to be provided');
-  }
-
-  const store = createStore(
-    reducer,
-    { ...INITIAL_STATE, namespace, isDataLake },
-    applyMiddleware(
-      thunk.withExtraArgument({
-        dataService: dataProvider.dataProvider,
-        localAppRegistry,
-      })
-    )
-  );
-
-  localAppRegistry.on('open-explain-plan-modal', (event) => {
-    void store.dispatch(
-      openExplainPlanModal(event as OpenExplainPlanModalEvent)
-    );
-  });
-
-  return store;
-}

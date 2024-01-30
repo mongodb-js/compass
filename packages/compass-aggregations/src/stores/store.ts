@@ -6,7 +6,6 @@ import { toJSString } from 'mongodb-query-parser';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
-import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
@@ -28,13 +27,15 @@ import type { CollectionInfo } from '../modules/collections-fields';
 import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
-import preferencesAccess from 'compass-preferences-model';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -70,16 +71,12 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
 
 export type AggregationsPluginServices = {
   dataService: DataService;
-  localAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
-  globalAppRegistry: Pick<
-    AppRegistry,
-    'on' | 'emit' | 'removeListener' | 'getStore'
-  >;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
+  preferences: PreferencesAccess;
+  logger: LoggerAndTelemetry;
 };
 
 export function activateAggregationsPlugin(
@@ -90,6 +87,8 @@ export function activateAggregationsPlugin(
     globalAppRegistry,
     workspaces,
     instance,
+    preferences,
+    logger,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -113,6 +112,7 @@ export function activateAggregationsPlugin(
 
   const pipelineBuilder = new PipelineBuilder(
     dataService,
+    preferences,
     initialPipelineSource
   );
 
@@ -132,11 +132,6 @@ export function activateAggregationsPlugin(
     reducer,
     {
       // TODO: move this to thunk extra arg
-      appRegistry: {
-        localAppRegistry,
-        globalAppRegistry,
-      },
-      // TODO: move this to thunk extra arg
       dataService: { dataService },
       namespace: options.namespace,
       serverVersion: options.serverVersion,
@@ -147,8 +142,6 @@ export function activateAggregationsPlugin(
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
         options.env ?? (instance.env as typeof ENVS[number]),
-      // options.fields is only used by mms, but always set to [] which is the initial value anyway
-      fields: options.fields ?? [],
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
@@ -167,22 +160,32 @@ export function activateAggregationsPlugin(
       // side panel)
       sidePanel: {
         isPanelOpen:
-          // if the feature is enabled in preferences, the state of the
-          // panel is fetched and then kept in sync with a localStorage entry.
           // The initial state, if the localStorage entry is not set,
           // should be 'hidden'.
-          preferencesAccess.getPreferences().enableStageWizard &&
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        globalAppRegistry,
+        localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
         atlasService,
         workspaces,
         instance,
+        preferences,
+        logger,
       })
+    )
+  );
+
+  store.dispatch(
+    preferencesMaxTimeMSChanged(preferences.getPreferences().maxTimeMS)
+  );
+  addCleanup(
+    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
+      store.dispatch(preferencesMaxTimeMSChanged(newValue))
     )
   );
 
@@ -195,23 +198,6 @@ export function activateAggregationsPlugin(
   const refreshInput = () => {
     void store.dispatch(refreshInputDocuments());
   };
-
-  /**
-   * Refresh documents on data refresh.
-   */
-  on(localAppRegistry, 'refresh-data', () => {
-    refreshInput();
-  });
-
-  /**
-   * When the schema fields change, update the state with the new
-   * fields.
-   *
-   * @param {Object} fields - The fields.
-   */
-  on(localAppRegistry, 'fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.autocompleteFields));
-  });
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
     store.dispatch(generateAggregationFromQuery(data));

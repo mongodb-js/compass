@@ -9,6 +9,7 @@ import workspacesReducer, {
   getActiveTab,
   getInitialTabState,
   getLocalAppRegistryForTab,
+  cleanupLocalAppRegistries,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -21,6 +22,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { DataServiceLocator } from 'mongodb-data-service/provider';
 import { dataServiceLocator } from 'mongodb-data-service/provider';
 import { WorkspacesStoreContext } from './stores/context';
+import toNS from 'mongodb-ns';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -28,13 +30,48 @@ export type WorkspacesServices = {
   dataService: DataService;
 };
 
+/**
+ * When opening tabs initially, there might be the case that db and collection
+ * models don't exist yet on the instance model. Workspaces expect the models to
+ * exist when rendered, so we prepopulate instance model with collections and
+ * databases to support that case
+ */
+function prepopulateInstanceModel(
+  tabs: OpenWorkspaceOptions[],
+  instance: MongoDBInstance
+) {
+  for (const tab of tabs) {
+    if (tab.type === 'Collections' || tab.type === 'Collection') {
+      const { ns, database, collection, validCollectionName } = toNS(
+        tab.namespace
+      );
+      const db =
+        instance.databases.get(database) ??
+        instance.databases.add({ _id: database });
+
+      if (
+        collection &&
+        validCollectionName &&
+        !db.collections.get(collection, 'name')
+      ) {
+        db.collections.add({ _id: ns });
+      }
+    }
+  }
+}
+
 export function configureStore(
-  initialWorkspaceTab: OpenWorkspaceOptions | undefined | null,
+  initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
   services: WorkspacesServices
 ) {
-  const initialTabs = initialWorkspaceTab
-    ? [getInitialTabState(initialWorkspaceTab)]
-    : [];
+  const initialTabs =
+    initialWorkspaceTabs && initialWorkspaceTabs.length > 0
+      ? initialWorkspaceTabs.map((tab) => {
+          return getInitialTabState(tab);
+        })
+      : [];
+
+  prepopulateInstanceModel(initialTabs, services.instance);
 
   const store = createStore(
     workspacesReducer,
@@ -50,15 +87,19 @@ export function configureStore(
 }
 
 export function activateWorkspacePlugin(
-  { initialWorkspaceTab }: { initialWorkspaceTab?: OpenWorkspaceOptions },
+  {
+    initialWorkspaceTabs,
+  }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
   { globalAppRegistry, instance, dataService }: WorkspacesServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const store = configureStore(initialWorkspaceTab, {
+  const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
     instance,
     dataService,
   });
+
+  addCleanup(cleanupLocalAppRegistries);
 
   on(instance, 'change:collections._id', (collection: Collection) => {
     const { _id: from } = collection.previousAttributes();
@@ -120,17 +161,7 @@ const WorkspacesPlugin = registerHadronPlugin(
   }
 );
 
-function activate(): void {
-  // noop
-}
-
-function deactivate(): void {
-  // noop
-}
-
 export default WorkspacesPlugin;
-export { activate, deactivate };
-export { default as metadata } from '../package.json';
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
 export type {

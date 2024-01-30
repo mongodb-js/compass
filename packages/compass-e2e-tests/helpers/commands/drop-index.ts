@@ -12,13 +12,15 @@ export async function dropIndex(
 
   await browser.hover(indexComponentSelector);
   await browser.clickVisible(
-    `${indexComponentSelector} ${Selectors.DropIndexButton}`
+    `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
   );
 
   const dropModal = await browser.$(Selectors.DropIndexModal);
   await dropModal.waitForDisplayed();
 
-  const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
+  const confirmInput = await browser.$(
+    Selectors.DropIndexModalConfirmNameInput
+  );
   await confirmInput.waitForDisplayed();
   await confirmInput.setValue(indexName);
 
@@ -26,10 +28,7 @@ export async function dropIndex(
     await browser.screenshot(screenshotName);
   }
 
-  const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
-    Selectors.DropIndexModal
-  );
-  await browser.clickVisible(ConfirmButtonSelector);
+  await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 
   await dropModal.waitForDisplayed({ reverse: true });
 

@@ -1,19 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
-import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   css,
   spacing,
   ResizableSidebar,
   useToast,
 } from '@mongodb-js/compass-components';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
-import FavoriteIndicator from './favorite-indicator';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from './connection-info-modal';
 import NonGenuineWarningModal from './non-genuine-warning-modal';
@@ -25,22 +23,47 @@ import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
-import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
-import type { RootState } from '../modules';
+import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import type { RootState, SidebarThunkAction } from '../modules';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
-// NOTE: This covers both the typical case where we have no badges and the case where we do.
-const badgesPlaceholderStyles = css({
-  paddingTop: spacing[3],
+const sidebarStyles = css({
+  // Sidebar internally has z-indexes higher than zero. We set zero on the
+  // container so that the sidebar doesn't stick out in the layout z ordering
+  // with other parts of the app
+  zIndex: 0,
+});
+
+const connectionInfoContainerStyles = css({});
+
+const connectionBadgesContainerStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '100%',
+  gridTemplateRows: 'auto',
+  gap: spacing[2],
+  marginTop: spacing[3],
+  '&:empty': {
+    display: 'none',
+  },
+});
+
+const navigationItemsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  marginTop: spacing[2],
+  '&:first-child': {
+    marginTop: 2,
+  },
 });
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
+  showConnectionInfo = true,
   activeWorkspace,
   isExpanded,
   connectionInfo,
-  globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
@@ -48,11 +71,12 @@ export function Sidebar({
   setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
+  onSidebarAction,
 }: {
+  showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
   isExpanded: boolean;
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
-  globalAppRegistryEmit: any;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
@@ -60,6 +84,7 @@ export function Sidebar({
   setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+  onSidebarAction(action: string, ...rest: any[]): void;
 }) {
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
@@ -78,6 +103,7 @@ export function Sidebar({
   );
 
   const { openToast } = useToast('compass-connections');
+  const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const onAction = useCallback(
     (action: string, ...rest: any[]) => {
@@ -125,13 +151,14 @@ export function Sidebar({
         return;
       }
 
-      globalAppRegistryEmit(action, ...rest);
+      onSidebarAction(action, ...rest);
     },
     [
+      onSidebarAction,
+      openToast,
+      maybeProtectConnectionString,
       connectionInfo.connectionOptions.connectionString,
       setIsExpanded,
-      globalAppRegistryEmit,
-      openToast,
     ]
   );
 
@@ -151,39 +178,43 @@ export function Sidebar({
       expanded={isExpanded}
       setExpanded={setIsExpanded}
       data-testid="navigation-sidebar"
+      className={sidebarStyles}
     >
       <>
-        <SidebarTitle
-          title={getConnectionTitle(connectionInfo)}
-          isFavorite={!!connectionInfo.favorite}
-          isExpanded={isExpanded}
-          onAction={onAction}
-        />
-        {connectionInfo.favorite && (
-          <FavoriteIndicator favorite={connectionInfo.favorite} />
+        {showConnectionInfo && (
+          <div className={connectionInfoContainerStyles}>
+            <SidebarTitle
+              title={getConnectionTitle(connectionInfo)}
+              isFavorite={!!connectionInfo.favorite}
+              favoriteColor={connectionInfo.favorite?.color}
+              isExpanded={isExpanded}
+              onAction={onAction}
+            />
+            <div className={connectionBadgesContainerStyles}>
+              {isExpanded && (
+                <NonGenuineMarker
+                  isGenuine={isGenuine}
+                  showNonGenuineModal={showNonGenuineModal}
+                />
+              )}
+              {isExpanded && (
+                <CSFLEMarker
+                  csfleMode={csfleMode}
+                  toggleCSFLEModalVisible={toggleCSFLEModalVisible}
+                />
+              )}
+            </div>
+          </div>
         )}
 
-        <div className={badgesPlaceholderStyles}>
-          {isExpanded && (
-            <NonGenuineMarker
-              isGenuine={isGenuine}
-              showNonGenuineModal={showNonGenuineModal}
-            />
-          )}
-          {isExpanded && (
-            <CSFLEMarker
-              csfleMode={csfleMode}
-              toggleCSFLEModalVisible={toggleCSFLEModalVisible}
-            />
-          )}
+        <div className={navigationItemsContainerStyles}>
+          <NavigationItems
+            currentLocation={activeWorkspace?.type ?? null}
+            currentNamespace={activeWorkspace?.namespace ?? null}
+            isExpanded={isExpanded}
+            onAction={onAction}
+          />
         </div>
-
-        <NavigationItems
-          currentLocation={activeWorkspace?.type ?? null}
-          currentNamespace={activeWorkspace?.namespace ?? null}
-          isExpanded={isExpanded}
-          onAction={onAction}
-        />
 
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}
@@ -218,12 +249,21 @@ const mapStateToProps = (state: RootState) => ({
   csfleMode: state.instance?.csfleMode,
 });
 
+const onSidebarAction = (
+  action: string,
+  ...rest: any[]
+): SidebarThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit(action, ...rest);
+  };
+};
+
 const MappedSidebar = connect(mapStateToProps, {
-  globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
   setIsExpanded,
   setConnectionIsCSFLEEnabled,
+  onSidebarAction,
 })(Sidebar);
 
 export default MappedSidebar;

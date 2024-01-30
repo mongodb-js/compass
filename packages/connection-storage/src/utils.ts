@@ -1,8 +1,10 @@
 import ConnectionString from 'mongodb-connection-string-url';
 import { getAppName } from '@mongodb-js/compass-utils';
 
-import type { ConnectionInfo } from './connection-info';
-import type { ConnectionSecrets } from './connection-secrets';
+import type {
+  ConnectionInfo,
+  ConnectionSecrets,
+} from '@mongodb-js/connection-info';
 
 export function getKeytarServiceName() {
   const namespace = 'Connections';

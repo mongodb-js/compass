@@ -4,7 +4,7 @@ import { createInstanceStore } from './instance-store';
 import { once } from 'events';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 
 class FakeDataService extends EventEmitter {
@@ -51,16 +51,13 @@ describe('InstanceStore [Store]', function () {
   let initialInstanceRefreshedPromise: Promise<unknown>;
   let sandbox: sinon.SinonSandbox;
 
-  const hadronAppBkp = (globalThis as any).hadronApp;
-
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
-    (globalThis as any).hadronApp = {};
     sandbox = sinon.createSandbox();
 
     emitSpy = sandbox.spy(globalAppRegistry, 'emit');
     dataService = createDataService();
-    const logger = createLoggerAndTelemetry('COMPASS-INSTANCE-STORE');
+    const logger = createNoopLoggerAndTelemetry();
     initialInstanceRefreshedPromise = once(
       globalAppRegistry,
       'instance-refreshed'
@@ -78,18 +75,12 @@ describe('InstanceStore [Store]', function () {
   });
 
   afterEach(function () {
-    (globalThis as any).hadronApp = hadronAppBkp;
     emitSpy = null;
     sandbox.restore();
     store.deactivate();
   });
 
   context('when data service connects', function () {
-    it('creates instance and makes it globally available through global.hadronApp.instance', function () {
-      expect((instance as any).getType()).to.equal('Instance');
-      expect((globalThis as any).hadronApp.instance).to.equal(instance);
-    });
-
     it('emits instance-refreshed event', async function () {
       await initialInstanceRefreshedPromise;
       const events = emitSpy.args.map(([evtName]: any) => evtName);

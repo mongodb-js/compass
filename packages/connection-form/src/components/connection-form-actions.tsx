@@ -12,6 +12,7 @@ import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
+import { useConnectionFormPreference } from '../hooks/use-connect-form-preferences';
 
 const formActionStyles = css({
   paddingLeft: spacing[4],
@@ -45,7 +46,6 @@ function ConnectFormActions({
   onSaveAndConnectClicked,
   saveButton,
   saveAndConnectButton,
-  showSaveActions,
 }: {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
@@ -54,8 +54,11 @@ function ConnectFormActions({
   onSaveAndConnectClicked: () => void;
   saveButton: 'enabled' | 'disabled' | 'hidden';
   saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
-  showSaveActions?: boolean;
 }): React.ReactElement {
+  const showFavoriteActions = useConnectionFormPreference(
+    'showFavoriteActions'
+  );
+
   return (
     <div className={cx(formActionStyles)}>
       {warnings.length > 0 && (
@@ -75,7 +78,7 @@ function ConnectFormActions({
         </div>
       )}
       <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
-        {showSaveActions && (
+        {showFavoriteActions && (
           <>
             {saveButton !== 'hidden' && (
               <Button
@@ -108,7 +111,7 @@ function ConnectFormActions({
           variant={ButtonVariant.Primary}
           onClick={onConnectClicked}
         >
-          Connect
+          {showFavoriteActions ? 'Connect' : 'Save & Connect'}
         </Button>
       </div>
     </div>

@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import L from 'leaflet';
 
 import { Map, TileLayer, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
-import { palette, spacing } from '@mongodb-js/compass-components';
+import { palette, spacing, useDarkMode } from '@mongodb-js/compass-components';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
@@ -17,7 +17,7 @@ import GeoscatterMapItem from './marker';
 import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
 import { getHereAttributionMessage } from './utils';
 import { debounce } from 'lodash';
-import { withDarkMode } from '@mongodb-js/compass-components';
+import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
@@ -128,6 +128,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
     actions: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     darkMode: PropTypes.bool,
+    onGeoQueryChanged: PropTypes.func.isRequired,
   };
 
   state = {
@@ -239,15 +240,26 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   }
 
   onCreated = (evt) => {
-    this.props.actions.geoLayerAdded(this.props.fieldName, evt.layer);
+    this.props.actions.geoLayerAdded(
+      this.props.fieldName,
+      evt.layer,
+      this.props.onGeoQueryChanged
+    );
   };
 
   onEdited = (evt) => {
-    this.props.actions.geoLayersEdited(this.props.fieldName, evt.layers);
+    this.props.actions.geoLayersEdited(
+      this.props.fieldName,
+      evt.layers,
+      this.props.onGeoQueryChanged
+    );
   };
 
   onDeleted = (evt) => {
-    this.props.actions.geoLayersDeleted(evt.layers);
+    this.props.actions.geoLayersDeleted(
+      evt.layers,
+      this.props.onGeoQueryChanged
+    );
   };
 
   /**
@@ -296,7 +308,23 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   }
 }
 
-const CoordinatesMinichart = withDarkMode(UnthemedCoordinatesMinichart);
+const CoordinatesMinichart = ({ ...props }) => {
+  const darkMode = useDarkMode();
+  const changeQuery = useChangeQueryBarQuery();
+  const onChange = useCallback(
+    (geoQuery) => {
+      changeQuery('mergeGeoQuery', geoQuery);
+    },
+    [changeQuery]
+  );
+  return (
+    <UnthemedCoordinatesMinichart
+      {...props}
+      darkMode={darkMode}
+      onGeoQueryChanged={onChange}
+    ></UnthemedCoordinatesMinichart>
+  );
+};
 
 export default CoordinatesMinichart;
 export { CoordinatesMinichart };

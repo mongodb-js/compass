@@ -14,7 +14,7 @@ import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
 import { DEFAULT_MAX_TIME_MS } from '../../../constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
   paddingTop: spacing[1],
@@ -66,7 +66,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
     },
     [maxTimeMSChanged]
   );
-  const maxTimeMSLimit = usePreference('maxTimeMS', React);
+  const maxTimeMSLimit = usePreference('maxTimeMS');
 
   return (
     <div
@@ -135,7 +135,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
 const mapState = ({ collationString, maxTimeMS }: RootState) => ({
   collationValue: collationString.text,
   collationHasError: !collationString.isValid,
-  maxTimeMSValue: maxTimeMS,
+  maxTimeMSValue: maxTimeMS.current,
 });
 
 const mapDispatch = {
