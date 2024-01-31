@@ -379,7 +379,7 @@ export class Compass {
 
     // Copy log files before stopping in case that stopping itself fails and needs to be debugged
     await copyCompassLog();
-    debug('Stopping Compass application');
+    debug(`Stopping Compass application [${this.name}]`);
     await this.browser.deleteSession();
 
     this.logs = (await copyCompassLog()).structured;
@@ -929,7 +929,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
   let timeoutId;
   const timeoutPromise = new Promise<void>((resolve) => {
     timeoutId = setTimeout(() => {
-      console.error('It took too long to close compass');
+      console.error(`It took too long to close compass [${compass.name}]`);
       resolve();
     }, 30000);
   });
@@ -938,7 +938,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
     try {
       await compass.stop();
     } catch (err) {
-      debug('An error occurred while stopping compass:');
+      debug(`An error occurred while stopping compass: [${compass.name}]`);
       debug(err);
       try {
         // make sure the process can exit

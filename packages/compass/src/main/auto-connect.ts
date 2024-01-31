@@ -3,6 +3,12 @@ import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 import { hasDisallowedConnectionStringOptions } from './validate-connection-string';
 import COMPASS_ICON from './icon';
+import {
+  createLoggerAndTelemetry,
+  mongoLogId,
+} from '@mongodb-js/compass-logging';
+import { redactConnectionString } from 'mongodb-connection-string-url';
+const { log } = createLoggerAndTelemetry('COMPASS-AUTO-CONNECT-MAIN');
 
 export type AutoConnectPreferences = Partial<
   Pick<
@@ -30,6 +36,14 @@ export function resetForTesting(): void {
 async function hasUserConfirmedConnectionAttempt(
   connectionString: string
 ): Promise<boolean> {
+  log.info(
+    mongoLogId(1_001_000_292),
+    'validation',
+    'Asking for confirmation on whether to automatically connect with connection string',
+    {
+      connectionString: redactConnectionString(connectionString),
+    }
+  );
   const answer = await dialog.showMessageBox({
     type: 'info',
     title: 'Connect to a MongoDB deployment',
@@ -39,7 +53,17 @@ async function hasUserConfirmedConnectionAttempt(
     buttons: ['Connect', 'Cancel'],
     defaultId: 1,
   });
-  return answer.response === 0;
+  const positive = answer.response === 0;
+  log.info(
+    mongoLogId(1_001_000_293),
+    'validation',
+    'Received confirmation on whether to automatically connect with connection string',
+    {
+      connectionString: redactConnectionString(connectionString),
+      positive,
+    }
+  );
+  return positive;
 }
 
 export function registerMongoDbUrlForBrowserWindow(
@@ -64,7 +88,6 @@ const shouldPreventAutoConnect = async ({
   if (!connectionString) {
     return false;
   }
-
   const needsConfirm = hasDisallowedConnectionStringOptions(connectionString);
   if (trustedConnectionString || !needsConfirm) return false;
 
