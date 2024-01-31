@@ -289,7 +289,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -299,7 +299,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -328,7 +328,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -338,7 +338,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -385,8 +385,8 @@ describe('CrudToolbar Component', function () {
       expect(
         screen
           .getByTestId('crud-add-data-show-actions')
-          .getAttribute('disabled')
-      ).to.exist;
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 

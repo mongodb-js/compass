@@ -390,6 +390,9 @@ describe('Connections Component', function () {
       it('should enable the connect button', function () {
         const connectButton = screen.getByText('Connect');
         expect(connectButton).to.not.match('disabled');
+        expect(connectButton.getAttribute('aria-disabled')).to.not.equal(
+          'true'
+        );
       });
 
       it('should not call to save the connection', function () {

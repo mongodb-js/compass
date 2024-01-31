@@ -300,7 +300,7 @@ describe('Indexes Component', function () {
       // click the refresh button
       const refreshButton = within(toolbar).getByText('Refresh');
       await waitFor(
-        () => expect(refreshButton.getAttribute('disabled')).to.be.null
+        () => expect(refreshButton.getAttribute('aria-disabled')).to.be.null
       );
       fireEvent.click(refreshButton);
 

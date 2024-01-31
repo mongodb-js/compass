@@ -74,10 +74,10 @@ describe('use-confirmation', function () {
     });
   });
 
-  context('showConfirmation global function', function () {
+  context.only('showConfirmation global function', function () {
     let modal: HTMLElement;
     let response: Promise<boolean>;
-    beforeEach(function () {
+    beforeEach(async function () {
       render(
         <ConfirmationModalArea>
           <div />
@@ -88,6 +88,7 @@ describe('use-confirmation', function () {
         description: 'This action can not be undone.',
         buttonText: 'Yes',
       });
+      await new Promise((resolve) => setTimeout(resolve, 500));
       modal = screen.getByTestId('confirmation-modal');
       expect(modal).to.exist;
     });

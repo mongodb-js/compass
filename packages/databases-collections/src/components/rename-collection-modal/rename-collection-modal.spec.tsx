@@ -49,12 +49,12 @@ describe('CreateCollectionModal [Component]', function () {
     it('disables the submit button when the value is equal to the initial collection name', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton).to.have.attribute('aria-disabled');
 
       fireEvent.change(input, { target: { value: 'baz' } });
-      expect(submitButton).not.to.have.attribute('disabled');
+      expect(submitButton).not.to.have.attribute('aria-disabled');
       fireEvent.change(input, { target: { value: 'bar' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton).to.have.attribute('aria-disabled');
     });
 
     context('when the user has submitted the form', () => {
