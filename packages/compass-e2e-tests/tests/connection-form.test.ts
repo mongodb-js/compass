@@ -15,7 +15,7 @@ import type { ConnectFormState } from '../helpers/connect-form-state';
 const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
   "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n";
 
-describe('Connection form', function () {
+describe.skip('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 

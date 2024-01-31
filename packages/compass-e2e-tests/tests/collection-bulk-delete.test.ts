@@ -23,9 +23,7 @@ describe('Bulk Delete', () => {
     }
 
     telemetry = await startTelemetryServer();
-    compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: ['--enableBulkDeleteOperations'],
-    });
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 

@@ -23,9 +23,7 @@ describe('Bulk Update', () => {
     }
 
     telemetry = await startTelemetryServer();
-    compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: ['--enableBulkUpdateOperations'],
-    });
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 

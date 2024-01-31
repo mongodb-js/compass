@@ -198,7 +198,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
               <TextInput
                 aria-labelledby={`query-bar-option-input-${name}-label`}
                 id={id}
-                data-testid="query-bar-option-input"
+                data-testid={`query-bar-option-${name}-input`}
                 className={cx(
                   darkMode
                     ? numericTextInputDarkStyles

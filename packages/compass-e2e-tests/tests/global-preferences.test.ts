@@ -67,8 +67,11 @@ describe('Global preferences', function () {
           browser,
           'enableMaps'
         );
+        await browser.screenshot(
+          'allows-setting-preferences-through-the-cli.png'
+        );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set at Compass startup.'
         );
@@ -99,7 +102,7 @@ describe('Global preferences', function () {
           'enableMaps'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -130,7 +133,7 @@ describe('Global preferences', function () {
           'enableMaps'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -160,7 +163,7 @@ describe('Global preferences', function () {
         'enableMaps'
       );
       expect(value).to.equal('false');
-      expect(disabled).to.equal(''); // null = missing attribute, '' = set
+      expect(disabled).to.equal('true');
       expect(bannerText).to.include(
         'This setting cannot be modified as it has been set in the global Compass configuration file.'
       );
@@ -182,7 +185,7 @@ describe('Global preferences', function () {
           'readOnly'
         );
         expect(value).to.equal('true');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -193,7 +196,7 @@ describe('Global preferences', function () {
           'enableShell'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -220,7 +223,8 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  it('redacts command line options after parsing', async function () {
+  // TODO: https://github.com/webdriverio/webdriverio/issues/12128
+  it.skip('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
       extraSpawnArgs: ['mongodb://usr:53cr3t@localhost:0/'],
     });

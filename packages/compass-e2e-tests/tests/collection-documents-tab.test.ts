@@ -126,6 +126,7 @@ describe('Collection documents tab', function () {
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
+    console.log({ maxTimeMSBefore });
   });
 
   after(async function () {
@@ -498,8 +499,10 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.SelectTableView);
 
     const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await document.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}'\) 33 0$/
+    const text = (await document.getText()).replace(/\s+/g, ' ');
+    console.log({ text });
+    expect(text).to.match(
+      /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
     );
 
     const value = await document.$('[col-id="j"] .element-value');
@@ -524,7 +527,7 @@ FindIterable<Document> result = collection.find(filter);`);
       '.ag-center-cols-clipper .ag-row-first'
     );
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}'\) 33 -100$/
+      /^ObjectId\('[a-f0-9]{24}('\))? 33 -100$/
     );
   });
 

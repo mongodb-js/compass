@@ -17,7 +17,7 @@ export async function selectFile(
 
   // select the file
   const fileInput = await browser.$(fileSelector);
-  await fileInput.setValue(filePath);
+  await fileInput.addValue(filePath);
 
   // HACK: undo what we just did
   await browser.execute((selector) => {

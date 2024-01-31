@@ -10,7 +10,8 @@ const connectionStringUnreachable =
   'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-describe('Automatically connecting from the command line', function () {
+// TODO: https://github.com/webdriverio/webdriverio/issues/12128
+describe.skip('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 

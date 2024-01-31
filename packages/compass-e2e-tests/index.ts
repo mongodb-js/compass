@@ -102,7 +102,7 @@ async function setup() {
 }
 
 function cleanup() {
-  removeUserDataDir();
+  //removeUserDataDir(); // TODO: remove comment
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
 

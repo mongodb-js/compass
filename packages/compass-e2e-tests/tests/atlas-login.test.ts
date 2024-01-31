@@ -222,9 +222,10 @@ describe('Atlas Login', function () {
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const errorToast = browser.$(Selectors.AtlasLoginErrorToast);
+      await errorToast.waitForDisplayed();
 
       expect(await errorToast.getText()).to.match(
-        /Sign in failed\n\nAuth failed/
+        /Sign in failed\n+Auth failed/
       );
     });
   });

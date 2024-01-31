@@ -103,7 +103,7 @@ describe('Collection ai query', function () {
       await browser.clickVisible(Selectors.QueryBarAITextInput);
 
       const testUserInput = 'find all documents where i is greater than 50';
-      await browser.setOrClearValue(
+      await browser.setValueVisible(
         Selectors.QueryBarAITextInput,
         testUserInput
       );
@@ -156,7 +156,7 @@ describe('Collection ai query', function () {
       await browser.clickVisible(Selectors.QueryBarAITextInput);
 
       const testUserInput = 'find all documents where i is greater than 50';
-      await browser.setOrClearValue(
+      await browser.setValueVisible(
         Selectors.QueryBarAITextInput,
         testUserInput
       );

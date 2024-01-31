@@ -530,7 +530,7 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'info' as const,
+    logLevel: 'warn' as const, // info is super verbose right now
     outputDir: webdriverLogPath,
   };
 
@@ -572,7 +572,7 @@ async function startCompassElectron(
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
 
   const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
-    await processCommonOpts();
+    await processCommonOpts(opts);
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
@@ -582,6 +582,7 @@ async function startCompassElectron(
   if (opts.firstRun === false) {
     chromeArgs.push('--showed-network-opt-in=true');
   }
+
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
   }
@@ -600,7 +601,9 @@ async function startCompassElectron(
   // webdriverio automatically prepends '--' to options that do not already have it.
   // We need the ability to pass positional arguments, though.
   // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
+  // TODO: this hack doesn't work anymore because webdriverio makes a copy of chromeArgs
   (chromeArgs as any).map = function () {
+    throw new Error('this is our map function');
     return [...this];
   };
 
@@ -619,7 +622,7 @@ async function startCompassElectron(
   const options = {
     capabilities: {
       browserName: 'chromium',
-      browserVersion: '120.0.6099.216', // TODO: this must always be the corresponding chromium version for the electron version
+      browserVersion: '120.0.6099.227', // TODO: this must always be the corresponding chromium version for the electron version
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
@@ -957,6 +960,10 @@ export async function init(
     : await startCompassElectron(name, opts);
 
   const { browser } = compass;
+
+  await browser.execute(() => {
+    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  });
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();

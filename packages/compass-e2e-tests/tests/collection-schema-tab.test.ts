@@ -66,10 +66,9 @@ describe('Collection schema tab', function () {
       .map((el) => el.getText());
     expect(fieldNames).to.deep.equal(['_id', 'i', 'j']);
 
-    const schemaFieldTypeListElement = await browser.$$(
-      Selectors.SchemaFieldTypeList
-    );
-    const fieldTypes = schemaFieldTypeListElement.map((el) => el.getText());
+    const fieldTypes = await browser
+      .$$(Selectors.SchemaFieldTypeList)
+      .map((el) => el.getText());
     expect(fieldTypes).to.deep.equal(['objectid', 'int32', 'int32']);
   });
 
