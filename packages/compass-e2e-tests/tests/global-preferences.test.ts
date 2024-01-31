@@ -223,10 +223,15 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  // TODO: https://github.com/webdriverio/webdriverio/issues/12128
-  it.skip('redacts command line options after parsing', async function () {
+  it('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
-      extraSpawnArgs: ['mongodb://usr:53cr3t@localhost:0/'],
+      wrapBinary: async (binary: string): Promise<string> => {
+        const wrapperPath = path.join(tmpdir, 'wrap.sh');
+        const wrapper = `#!/bin/bash\n\n${binary} "$@" mongodb://usr:53cr3t@localhost:0/\n`;
+        await fs.writeFile(wrapperPath, wrapper);
+        await fs.chmod(wrapperPath, 0o755);
+        return wrapperPath;
+      },
     });
     try {
       // ps-list is ESM-only in recent versions.

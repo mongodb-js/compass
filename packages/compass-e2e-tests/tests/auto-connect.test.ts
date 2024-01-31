@@ -10,8 +10,7 @@ const connectionStringUnreachable =
   'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-// TODO: https://github.com/webdriverio/webdriverio/issues/12128
-describe.skip('Automatically connecting from the command line', function () {
+describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
@@ -73,9 +72,19 @@ describe.skip('Automatically connecting from the command line', function () {
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
+  function positionalArgs(positionalArgs: string) {
+    return async function wrapBinary(binary: string): Promise<string> {
+      const wrapperPath = path.join(tmpdir, 'wrap.sh');
+      const wrapper = `#!/bin/bash\n\n${binary} "$@" ${positionalArgs}\n`;
+      await fs.writeFile(wrapperPath, wrapper);
+      await fs.chmod(wrapperPath, 0o755);
+      return wrapperPath;
+    };
+  }
+
   it('works with a connection string on the command line', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [connectionStringSuccess],
+      wrapBinary: positionalArgs(connectionStringSuccess),
       noWaitForConnectionScreen: true,
     });
     try {
@@ -86,14 +95,15 @@ describe.skip('Automatically connecting from the command line', function () {
   });
 
   it('works with a connection file on the command line', async function () {
+    const args = [
+      '--file',
+      path.join(tmpdir, 'exported.json'),
+      '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
+      '--passphrase',
+      'p4ssw0rd',
+    ];
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [
-        '--file',
-        path.join(tmpdir, 'exported.json'),
-        '--passphrase',
-        'p4ssw0rd',
-        '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
-      ],
+      wrapBinary: positionalArgs(args.join(' ')),
       noWaitForConnectionScreen: true,
     });
     try {
@@ -105,9 +115,9 @@ describe.skip('Automatically connecting from the command line', function () {
 
   it('does not store the connection information as a recent connection', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [connectionStringSuccess],
       noWaitForConnectionScreen: true,
       firstRun: true,
+      wrapBinary: positionalArgs(connectionStringSuccess),
     });
     try {
       const browser = compass.browser;
@@ -122,14 +132,15 @@ describe.skip('Automatically connecting from the command line', function () {
   });
 
   it('fails with an unreachable URL', async function () {
+    const args = [
+      '--file',
+      path.join(tmpdir, 'exported.json'),
+      'd47681e6-1884-41ff-be8e-8843f1c21fd8',
+      '--passphrase',
+      'p4ssw0rd',
+    ];
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [
-        '--file',
-        path.join(tmpdir, 'exported.json'),
-        '--passphrase',
-        'p4ssw0rd',
-        'd47681e6-1884-41ff-be8e-8843f1c21fd8',
-      ],
+      wrapBinary: positionalArgs(args.join(' ')),
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -142,16 +153,17 @@ describe.skip('Automatically connecting from the command line', function () {
   });
 
   it('fails with invalid auth', async function () {
+    const args = [
+      '--file',
+      path.join(tmpdir, 'exported.json'),
+      '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
+      '--passphrase',
+      'p4ssw0rd',
+      '--username=doesnotexist',
+      '--password=asdf/',
+    ];
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [
-        '--file',
-        path.join(tmpdir, 'exported.json'),
-        '--passphrase',
-        'p4ssw0rd',
-        '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
-        '--username=doesnotexist',
-        '--password=asdf/',
-      ],
+      wrapBinary: positionalArgs(args.join(' ')),
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -165,12 +177,14 @@ describe.skip('Automatically connecting from the command line', function () {
   });
 
   it('fails with an invalid connection string', async function () {
+    const args = [
+      '--file',
+      path.join(tmpdir, 'invalid.json'),
+      '9beea496-22b2-4973-b3d8-03d5010ff989',
+    ];
+
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [
-        '--file',
-        path.join(tmpdir, 'invalid.json'),
-        '9beea496-22b2-4973-b3d8-03d5010ff989',
-      ],
+      wrapBinary: positionalArgs(args.join(' ')),
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -182,7 +196,9 @@ describe.skip('Automatically connecting from the command line', function () {
 
   it('fails with an invalid connections file', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: ['--file', path.join(tmpdir, 'doesnotexist.json')],
+      wrapBinary: positionalArgs(
+        ['--file', path.join(tmpdir, 'doesnotexist.json')].join(' ')
+      ),
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -197,8 +213,8 @@ describe.skip('Automatically connecting from the command line', function () {
       return this.skip(); // Doesn't work on Windows, but only in CI
     }
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [connectionStringSuccess],
       noWaitForConnectionScreen: true,
+      wrapBinary: positionalArgs(connectionStringSuccess),
     });
     try {
       const { browser } = compass;
@@ -219,7 +235,7 @@ describe.skip('Automatically connecting from the command line', function () {
 
   it('does not enter auto-connect mode in new windows', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [connectionStringSuccess],
+      wrapBinary: positionalArgs(connectionStringSuccess),
       noWaitForConnectionScreen: true,
     });
     try {
