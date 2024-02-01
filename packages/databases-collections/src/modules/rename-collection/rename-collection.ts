@@ -4,7 +4,10 @@ import type { ThunkAction } from 'redux-thunk';
 import type { Reducer } from 'redux';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { openToast } from '@mongodb-js/compass-components';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import {
+  FavoriteQueryStorage,
+  PipelineStorage,
+} from '@mongodb-js/my-queries-storage';
 
 /**
  * Open action name.
@@ -125,9 +128,21 @@ export const renameCollection = (
         });
       }
     }
+    async function updateSavedQueries() {
+      const storage = new FavoriteQueryStorage();
+      const queries = await storage.loadAll();
+      for (const query of queries.filter(
+        (query) => query._ns === oldNamespace
+      )) {
+        await storage.updateAttributes(query._id, {
+          _ns: newNamespace,
+        });
+      }
+    }
     try {
       await dataService.renameCollection(oldNamespace, newCollectionName);
       await updateSavedAggregations();
+      await updateSavedQueries();
       globalAppRegistry.emit('collection-renamed', {
         to: newNamespace,
         from: oldNamespace,
