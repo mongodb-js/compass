@@ -228,6 +228,7 @@ describe('Global preferences', function () {
       wrapBinary: async (binary: string): Promise<string> => {
         const wrapperPath = path.join(tmpdir, 'wrap.sh');
         const wrapper = `#!/bin/bash\n${binary} $@ mongodb://usr:53cr3t@localhost:0/\n`;
+        console.log({ wrapper });
         await fs.writeFile(wrapperPath, wrapper);
         await fs.chmod(wrapperPath, 0o755);
         return wrapperPath;
