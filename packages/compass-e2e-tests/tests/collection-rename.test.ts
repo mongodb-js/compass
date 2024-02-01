@@ -361,7 +361,7 @@ describe.only('Collection Rename Modal', () => {
     });
 
     // functionality not implemented and tests failing
-    it('preserves a saved query for a namespace when a collection is renamed', async () => {
+    it.only('preserves a saved query for a namespace when a collection is renamed', async () => {
       // open the rename collection modal
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
@@ -369,6 +369,8 @@ describe.only('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.CollectionShowActionsButton);
       await browser.clickVisible(Selectors.RenameCollectionButton);
       await renameCollectionSuccessFlow(browser, newName);
+
+      // return to the documents tab for the renamed collection
       await browser.navigateToCollectionTab(
         'rename-collection',
         newName,
@@ -381,9 +383,13 @@ describe.only('Collection Rename Modal', () => {
       const history = await browser.$(Selectors.QueryBarHistory);
       await history.waitForDisplayed();
 
-      const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
       await browser.debug();
+
+      const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
+      await setTimeout(3000);
+
       await button.clickVisible();
+      await setTimeout(3000);
 
       await browser.$(Selectors.QueryHistoryFavoriteItem).waitForDisplayed();
 
