@@ -5,7 +5,6 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
 
-import { setTimeout } from 'timers/promises';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import { setFeature } from '../helpers/commands';
 const initialName = 'numbers';
@@ -100,7 +99,7 @@ async function renameCollectionSuccessFlow(
   await page.successToast.waitForDisplayed();
 }
 
-describe.only('Collection Rename Modal', () => {
+describe('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -291,7 +290,6 @@ describe.only('Collection Rename Modal', () => {
       }
     );
 
-    // functionality not implemented and tests failing
     it('preserves a saved aggregation for a namespace when a collection is renamed', async () => {
       // open the rename collection modal
       await browser.hover(
@@ -360,8 +358,7 @@ describe.only('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
     });
 
-    // functionality not implemented and tests failing
-    it.only('preserves a saved query for a namespace when a collection is renamed', async () => {
+    it('preserves a saved query for a namespace when a collection is renamed', async () => {
       // open the rename collection modal
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
@@ -380,20 +377,23 @@ describe.only('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.QueryBarHistoryButton);
 
       // Wait for the popover to show
-      const history = await browser.$(Selectors.QueryBarHistory);
+      const history = browser.$(Selectors.QueryBarHistory);
       await history.waitForDisplayed();
 
-      await browser.debug();
+      // await browser.debug();
 
       const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
-      await setTimeout(3000);
 
-      await button.clickVisible();
-      await setTimeout(3000);
+      await button.waitForDisplayed();
+      await button.click();
 
       await browser.$(Selectors.QueryHistoryFavoriteItem).waitForDisplayed();
 
-      await setTimeout(3000);
+      const favoriteQuery = browser.$(Selectors.FavouriteQueryTitle);
+      await favoriteQuery.waitForDisplayed();
+      const text = await favoriteQuery.getText();
+
+      expect(text).to.equal('list of numbers greater than 10 - query');
     });
   });
 });
