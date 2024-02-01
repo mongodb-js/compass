@@ -105,6 +105,12 @@ describe('convertExplainCompat', () => {
         fixture('unsharded-find.sbe.out')
       );
     });
+    it('handles 7.2 (SERVER-79724) changes to mongos explain for unsharded collections', () => {
+      assert.deepStrictEqual(
+        convertExplainCompat(fixture('unsharded-aggregate-on-mongos.7.2.in')),
+        fixture('unsharded-aggregate-on-mongos.7.2.out')
+      );
+    });
   });
 
   describe('explain mode "queryPlanner"', function () {
