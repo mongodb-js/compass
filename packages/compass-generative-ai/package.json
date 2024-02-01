@@ -88,7 +88,7 @@
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "mongodb": "^6.3.0",
-    "mongodb-runner": "^5.4.4",
+    "mongodb-runner": "^5.5.2",
     "mongodb-schema": "^12.1.0",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
