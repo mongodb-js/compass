@@ -331,7 +331,9 @@ describe('Collection documents tab', function () {
       useBuilders: true,
     });
 
-    expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
+    // sometimes there are blank lines, sometimes there aren't..
+    expect(text.replace(/\n+/g, '\n')).to
+      .equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
