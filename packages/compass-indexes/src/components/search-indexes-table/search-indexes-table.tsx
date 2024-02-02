@@ -28,6 +28,7 @@ import type { SortDirection, RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -107,6 +108,24 @@ function IndexStatus({
   );
 }
 
+function SearchIndexType({
+  type,
+  link,
+}: // 'data-testid': dataTestId
+{
+  type: string;
+  link: string;
+  // ['data-testid']: string;
+}) {
+  return (
+    <BadgeWithIconLink
+      text={type}
+      link={link}
+      // data-testid={dataTestId}
+    />
+  );
+}
+
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
@@ -157,7 +176,7 @@ function SearchIndexDetails({
   );
 }
 
-const COLUMNS = ['Name and Fields', 'Status'] as const;
+const COLUMNS = ['Name and Fields', 'Type', 'Status'] as const;
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
@@ -194,6 +213,20 @@ export const SearchIndexesTable: React.FunctionComponent<
               width: '30%',
             },
             children: index.name,
+          },
+          {
+            'data-testid': 'type-field',
+            style: {
+              width: '20%',
+            },
+            children: (
+              <SearchIndexType
+                type={index.type}
+                // TODO: Update:
+                link="https://www.mongodb.com/products/platform/atlas-vector-search"
+                // data-testid={`search-indexes-type-${index.name}`}
+              />
+            ),
           },
           {
             'data-testid': 'status-field',
