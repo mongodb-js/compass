@@ -8,11 +8,14 @@ interface ClickOptions {
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<Promise<WebdriverIO.Element>>,
+  selector:
+    | string
+    | ChainablePromiseElement<WebdriverIO.Element>
+    | WebdriverIO.Element,
   options?: ClickOptions
 ): Promise<void> {
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
+  async function getElement() {
+    return typeof selector === 'string' ? await browser.$(selector) : selector;
   }
 
   const displayElement = await getElement();
