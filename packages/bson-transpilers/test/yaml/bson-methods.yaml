@@ -1,1160 +1,402 @@
-runner: !!js/function >
-    (it, type, expect, input, output, transpiler, test) => {
-        it(`${input}: ${test.input[input]} => ${output}`, () => {
-            expect(
-                transpiler[input][output].compile(test.input[input], true)
-            ).to.equal(test.output[output]);
-        });
-    }
+runner: !<tag:yaml.org,2002:js/function> |-
+  function anonymous(it,type,expect,input,output,transpiler,test
+  ) {
+
+      it(`${input}: ${test.input[input]} => ${output}`, () => {
+          expect(
+              transpiler[input][output].compile(test.input[input], true)
+          ).to.equal(test.output[output]);
+      });
+
+  }
 tests:
-    Code-methods:
-    -   input:
-            javascript: 'Code(''test code'', {x: 1}).scope'
-            python: |-
-                Code('test code', {
-                    'x': 1
-                }).scope
-            shell: 'Code(''test code'', {x: 1}).scope'
-        output:
-            javascript: |-
-                new Code('test code', {
-                  'x': 1
-                }).scope
-            python: |-
-                Code('test code', {
-                    'x': 1
-                }).scope
-            java: new CodeWithScope("test code", new Document("x", 1L)).getScope()
-            csharp: new BsonJavaScriptWithScope("test code", new BsonDocument("x", 1)).Scope
-            shell: |-
-                new Code('test code', {
-                  'x': 1
-                }).scope
-            object: "{'x': 1}"
-            php: (new Javascript('test code', ['x' => 1]))->getScope()
-            ruby: |-
-                BSON::CodeWithScope.new('test code', {
-                  'x' => 1
-                }).scope
-            go: |-
-                primitive.CodeWithScope{Code: primitive.JavaScript("test code"), Scope: bson.D{{"x", 1}}}
-            rust: |-
-                JavaScriptCodeWithScope { code: "test code".to_string(), scope: doc! {
-                    "x": 1
-                } }.scope
-    -   input:
-            javascript: Code('test code').code
-            shell: Code('test code').code
-            # Python doesn't have a code attribute
-        output:
-            javascript: new Code('test code').code
-            python: str(Code('test code'))
-            java: new Code("test code").getCode()
-            csharp: new BsonJavaScript("test code").Code
-            shell: new Code('test code').code
-            object: "'test code'"
-            php: (new Javascript('test code'))->getCode()
-            ruby: BSON::Code.new('test code').javascript
-            go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"test code\")}.Code"
-            # Rust doesn't have a code attribute
-    -   input:
-            python: ObjectId('5ab901c29ee65f5c8550c5b9').binary
-            shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
-        output:
-            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
-            python: str(ObjectId('5ab901c29ee65f5c8550c5b9'))
-            java: new ObjectId("5ab901c29ee65f5c8550c5b9").toHexString()
-            csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
-            shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
-            object: "'5ab901c29ee65f5c8550c5b9'"
-            php: (string) new ObjectId('5ab901c29ee65f5c8550c5b9')
-            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("5ab901c29ee65f5c8550c5b9").String()
-            rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.to_hex()
-    -   input:
-            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
-            shell: ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
-        output:
-            python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
-            java: new ObjectId("5ab901c29ee65f5c8550c5b9").getTimestamp()
-            csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
-            shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
-            object: new Date('2018-03-26T14:20:50.000Z')
-            php: (new ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
-            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("5ab901c29ee65f5c8550c5b9").Timestamp()
-            rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.timestamp()
-    -   input:
-            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
-            shell: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
-        output:
-            python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
-            java: new ObjectId("5ab901c29ee65f5c8550c5b9").equals(new ObjectId("5ab901c29ee65f5c8550c5b9"))
-            csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Equals(new ObjectId("5ab901c29ee65f5c8550c5b9"))
-            shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
-            object: true
-            php: new ObjectId('5ab901c29ee65f5c8550c5b9') == new ObjectId('5ab901c29ee65f5c8550c5b9')
-            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
-    -   input:
-            javascript: new ObjectId('6ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
-            shell: ObjectId('6ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
-        output:
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
-            rust: ObjectId::parse_str("6ab901c29ee65f5c8550c5b9")? == ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
-    -   input:
-            python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
-        output:
-            object: true
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
-    -   input:
-            python: ObjectId('6ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
-        output:
-            object: false
-            go: |-
-                var objectIDFromHex = func(hex string) primitive.ObjectID {
-                  objectID, err := primitive.ObjectIDFromHex(hex)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return objectID
-                }
-
-                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
-    -   input:
-            javascript: new ObjectId().equals(new ObjectId())
-            shell: ObjectId().equals(ObjectId())
-            python: ObjectId() == ObjectId()
-        output:
-            object: false
-    DBRef-methods:
-    -   input:
-            shell: new DBRef('coll', new ObjectId(), 'db').$db
-        output:
-            python: DBRef('coll', ObjectId(), 'db').database
-            java: new DBRef("db", "coll", new ObjectId()).getDatabaseName()
-            csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
-            shell: new DBRef('coll', new ObjectId(), "db").getDb()
-            object: "'db'"
-            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId.new,
-                  '$db' => 'db'
-                ).database
-    -   input:
-            javascript: new DBRef('coll', new ObjectId(), 'db').db
-            python: DBRef('coll', ObjectId(), 'db').database
-            shell: new DBRef('coll', new ObjectId(), 'db').getDb()
-        output:
-            python: DBRef('coll', ObjectId(), 'db').database
-            java: new DBRef("db", "coll", new ObjectId()).getDatabaseName()
-            csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
-            shell: new DBRef('coll', new ObjectId(), 'db').getDb()
-            object: "'db'"
-            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId.new,
-                  '$db' => 'db'
-                ).database
-    -   input:
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getRef()
-        output:
-            python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).collection
-            java: new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
-            csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
-            object: "'coll'"
-            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$ref']"
-    -   input:
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$ref
-        output:
-            python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).collection
-            java: new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
-            csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
-            object: "'coll'"
-            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$ref']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                ).collection
-    -   input:
-            javascript: new DBRef('coll', new ObjectId()).namespace
-            python: DBRef('coll', ObjectId()).collection
-            shell: new DBRef('coll', new ObjectId()).getCollection()
-        output:
-            python: DBRef('coll', ObjectId()).collection
-            java: new DBRef("coll", new ObjectId()).getCollectionName()
-            csharp: new MongoDBRef("coll", new ObjectId()).CollectionName
-            shell: new DBRef('coll', new ObjectId()).getCollection()
-            object: "'coll'"
-            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]['$ref']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId.new
-                ).collection
-    -   input:
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$id
-        output:
-            python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id
-            java: new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()
-            csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
-            object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$id']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                ).id
-    -   input:
-            javascript: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).oid
-            python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
-        output:
-            python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id
-            java: new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()
-            csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
-            shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
-            object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$id']"
-            ruby: |-
-                BSON::DBRef.new(
-                  '$ref' => 'coll',
-                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                ).id
-    Long-methods:
-    -   input:
-            shell: NumberLong(429496729601).top
-        output:
-            javascript: Long.fromNumber(429496729601).getHighBits()
-            java: 429496729601L >> 32
-            csharp: 429496729601L >> 32
-            python: Int64(429496729601) >> 32
-            object: '100'
-            php: 429496729601 >> 32
-            ruby: 429496729601 >> 32
-            go: int64(429496729601) >> 32
-            rust: 429496729601i64 >> 32
-    -   input:
-            shell: NumberLong(429496729601).bottom
-        output:
-            javascript: Long.fromNumber(429496729601).getLowBits()
-            java: 429496729601L & 0x0000ffff
-            csharp: 429496729601L & 0x0000ffff
-            python: Int64(429496729601) & 0x0000ffff
-            object: '1'
-            php: 429496729601 & 0x00000000ffffffff
-            ruby: 429496729601 & 0x0000ffff
-            go: int64(429496729601) & 0x0000ffff
-            rust: 429496729601i64 & 0x0000ffff
-    -  input:
-            shell: NumberLong(429496729601).floatApprox
-       output:
-            javascript: Long.fromNumber(429496729601).toNumber()
-            java: "(float) 429496729601L"
-            csharp: "(float) 429496729601L"
-            python: float(Int64(429496729601))
-            object: '429496729601'
-            php: (float) 429496729601
-            ruby: 429496729601.to_f
-            go: float64(int64(429496729601))
-            rust: 429496729601i64 as f32
-    -   input:
-            javascript: new Long(1, 100).toInt()
-        output:
-            python: int(Int64(429496729601))
-            java: "(int) 429496729601L"
-            csharp: "(int) 429496729601L"
-            shell: new NumberLong(429496729601).valueOf()
-            object: '1'
-            php: '429496729601'
-            ruby: '429496729601'
-            go: int(int64(429496729601))
-            rust: 429496729601i64 as i32
-    -   input:
-            javascript: new Long(1, 100).toNumber()
-        output:
-            python: float(Int64(429496729601))
-            java: "(double) 429496729601L"
-            csharp: "(double) 429496729601L"
-            shell: new NumberLong(429496729601).floatApprox
-            object: '429496729601'
-            php: (float) 429496729601
-            ruby: 429496729601.to_f
-            go: float64(int64(429496729601))
-            rust: 429496729601i64 as f64
-    -   input:
-            javascript: new Long(1, 100).toString()
-            shell: NumberLong(429496729601).toString()
-        output:
-            python: "'429496729601'"
-            java: '"429496729601"'
-            csharp: '"429496729601"'
-            shell: "'429496729601'"
-            object: "'429496729601'"
-            php: "'429496729601'"
-            ruby: "'429496729601'"
-            go:  '"429496729601"'
-            rust: '"429496729601"'
-    -   input:
-            javascript: new Long(1, 100).toString(10)
-        output:
-            python: "'429496729601'"
-            java: '"429496729601"'
-            csharp: '"429496729601"'
-            shell: "'429496729601'"
-            object: "'429496729601'"
-            php: "'429496729601'"
-            ruby: "'429496729601'"
-            go:  '"429496729601"'
-            rust: '"429496729601"'
-    -   input:
-            javascript: new Long(1, 100).isZero()
-        output:
-            python: Int64(429496729601) == 0
-            java: 429496729601L == 0
-            csharp: 429496729601L == 0
-            shell: new NumberLong(429496729601) === 0
-            object: 'false'
-            php: 429496729601 === 0
-            ruby: 429496729601 == 0
-            go: int64(429496729601) == int64(0)
-            rust: 429496729601i64 == 0
-    -   input:
-            javascript: new Long(1, 100).isNegative()
-        output:
-            python: Int64(429496729601) < 0
-            java: 429496729601L < 0
-            csharp: 429496729601L < 0
-            shell: new NumberLong(429496729601) < 0
-            object: 'false'
-            php: 429496729601 < 0
-            ruby: 429496729601 < 0
-            go: int64(429496729601) < int64(0)
-            rust: 429496729601i64 < 0
-    -   input:
-            javascript: new Long(1, 100).isOdd()
-        output:
-            python: "(Int64(429496729601) % 2) == 1"
-            java: "(429496729601L % 2) == 1"
-            csharp: 429496729601L % 2 == 1
-            shell: "(new NumberLong(429496729601) % 2) === 1"
-            object: 'true'
-            php: "(429496729601 % 2) === 1"
-            ruby: "(429496729601 % 2) == 1"
-            go: int64(429496729601) % 2 == 1
-            rust: 429496729601i64 % 2 == 1
-    -   input:
-            javascript: new Long(1, 100).equals(new Long(9, 1))
-        output:
-            python: Int64(429496729601) == Int64(4294967305)
-            java: 429496729601L == 4294967305L
-            csharp: 429496729601L == 4294967305L
-            shell: new NumberLong(429496729601) === new NumberLong(4294967305)
-            object: 'false'
-            php: 429496729601 == 4294967305
-            ruby: 429496729601 == 4294967305
-            go: int64(429496729601) == int64(4294967305)
-            rust: 429496729601i64 == 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).notEquals(Long(9, 1))
-        output:
-            python: Int64(429496729601) != Int64(4294967305)
-            java: 429496729601L != 4294967305L
-            csharp: 429496729601L != 4294967305L
-            shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
-            object: 'true'
-            php: 429496729601 != 4294967305
-            ruby: 429496729601 != 4294967305
-            go: int64(429496729601) != int64(4294967305)
-            rust: 429496729601i64 != 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).compare(new Long(9, 1))
-        output:
-            python: Int64(429496729601) - Int64(4294967305)
-            java: 429496729601L - 4294967305L
-            csharp: 429496729601L - 4294967305L
-            shell: new NumberLong(429496729601) - new NumberLong(4294967305)
-            object: "1"
-            php: 429496729601 <=> 4294967305
-            ruby: 429496729601 - 4294967305
-            go: int64(429496729601) - int64(4294967305)
-            rust: 429496729601i64 - 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).greaterThan(new Long(9, 1))
-        output:
-            python: Int64(429496729601) > Int64(4294967305)
-            java: 429496729601L > 4294967305L
-            csharp: 429496729601L > 4294967305L
-            shell: new NumberLong(429496729601) > new NumberLong(4294967305)
-            object: 'true'
-            php: 429496729601 > 4294967305
-            ruby: 429496729601 > 4294967305
-            go: int64(429496729601) > int64(4294967305)
-            rust: 429496729601i64 > 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).greaterThanOrEqual(new Long(9, 1))
-        output:
-            python: Int64(429496729601) >= Int64(4294967305)
-            java: 429496729601L >= 4294967305L
-            csharp: 429496729601L >= 4294967305L
-            shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
-            object: 'true'
-            php: 429496729601 >= 4294967305
-            ruby: 429496729601 >= 4294967305
-            go: int64(429496729601) >= int64(4294967305)
-            rust: 429496729601i64 >= 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).lessThan(new Long(9, 1))
-        output:
-            python: Int64(429496729601) < Int64(4294967305)
-            java: 429496729601L < 4294967305L
-            csharp: 429496729601L < 4294967305L
-            shell: new NumberLong(429496729601) < new NumberLong(4294967305)
-            object: 'false'
-            php: 429496729601 < 4294967305
-            ruby: 429496729601 < 4294967305
-            go: int64(429496729601) < int64(4294967305)
-            rust: 429496729601i64 < 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).lessThanOrEqual(new Long(9, 1))
-        output:
-            python: Int64(429496729601) <= Int64(4294967305)
-            java: 429496729601L <= 4294967305L
-            csharp: 429496729601L <= 4294967305L
-            shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
-            object: 'false'
-            php: 429496729601 <= 4294967305
-            ruby: 429496729601 <= 4294967305
-            go: int64(429496729601) <= int64(4294967305)
-            rust: 429496729601i64 <= 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).negate()
-        output:
-            python: "-Int64(429496729601)"
-            java: "-429496729601L"
-            csharp: "-429496729601L"
-            shell: "-new NumberLong(429496729601)"
-            output: "-429496729601"
-            php: "-429496729601"
-            ruby: "-429496729601"
-            go: "-int64(429496729601)"
-            rust: "-429496729601i64"
-    -   input:
-            javascript: new Long(1, 100).add(new Long(9, 1))
-        output:
-            python: Int64(429496729601) + Int64(4294967305)
-            java: 429496729601L + 4294967305L
-            csharp: 429496729601L + 4294967305L
-            shell: new NumberLong(429496729601) + new NumberLong(4294967305)
-            object: new Long(10, 101)
-            php: 429496729601 + 4294967305
-            ruby: 429496729601 + 4294967305
-            go: int64(429496729601) + int64(4294967305)
-            rust: 429496729601i64 + 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).subtract(new Long(9, 1))
-        output:
-            python: Int64(429496729601) - Int64(4294967305)
-            java: 429496729601L - 4294967305L
-            csharp: 429496729601L - 4294967305L
-            shell: new NumberLong(429496729601) - new NumberLong(4294967305)
-            object: new Long(-8, 98)
-            php: 429496729601 - 4294967305
-            ruby: 429496729601 - 4294967305
-            go: int64(429496729601) - int64(4294967305)
-            rust: 429496729601i64 - 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).multiply(new Long(9, 1))
-        output:
-            python: Int64(429496729601) * Int64(4294967305)
-            java: 429496729601L * 4294967305L
-            csharp: 429496729601L * 4294967305L
-            shell: new NumberLong(429496729601) * new NumberLong(4294967305)
-            object: new Long(9, 901)
-            php: 429496729601 * 4294967305
-            ruby: 429496729601 * 4294967305
-            go: int64(429496729601) * int64(4294967305)
-            rust: 429496729601i64 * 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).div(new Long(9, 1))
-        output:
-            python: Int64(429496729601) / Int64(4294967305)
-            java: 429496729601L / 4294967305L
-            csharp: 429496729601L / 4294967305L
-            shell: new NumberLong(429496729601) / new NumberLong(4294967305)
-            object: new Long(99, 0)
-            php: 429496729601 / 4294967305
-            ruby: 429496729601 / 4294967305
-            go: int64(429496729601) / int64(4294967305)
-            rust: 429496729601i64 / 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).modulo(new Long(9, 1))
-        output:
-            python: Int64(429496729601) % Int64(4294967305)
-            java: 429496729601L % 4294967305L
-            csharp: 429496729601L % 4294967305L
-            shell: new NumberLong(429496729601) % new NumberLong(4294967305)
-            object: new Long(-890, 0)
-            php: 429496729601 % 4294967305
-            ruby: 429496729601 % 4294967305
-            go: int64(429496729601) % int64(4294967305)
-            rust: 429496729601i64 % 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).not()
-        output:
-            python: "~Int64(429496729601)"
-            java: "~429496729601L"
-            csharp: "~429496729601L"
-            shell: "~new NumberLong(429496729601)"
-            object: new Long(-1, -101)
-            php: "~429496729601"
-            ruby: "~429496729601"
-            go: "^int64(429496729601)"
-            rust: "~429496729601i64"
-    -   input:
-            javascript: new Long(1, 100).and(new Long(9, 1))
-        output:
-            python: Int64(429496729601) & Int64(4294967305)
-            java: 429496729601L & 4294967305L
-            csharp: 429496729601L & 4294967305L
-            shell: new NumberLong(429496729601) & new NumberLong(4294967305)
-            object: new Long(1, 0)
-            php: 429496729601 & 4294967305
-            ruby: 429496729601 & 4294967305
-            go: int64(429496729601) & int64(4294967305)
-            rust: 429496729601i64 & 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).or(new Long(9, 1))
-        output:
-            python: Int64(429496729601) | Int64(4294967305)
-            java: 429496729601L | 4294967305L
-            csharp: 429496729601L | 4294967305L
-            shell: new NumberLong(429496729601) | new NumberLong(4294967305)
-            object: new Long(9, 101)
-            php: 429496729601 | 4294967305
-            ruby: 429496729601 | 4294967305
-            go: int64(429496729601) | int64(4294967305)
-            rust: 429496729601i64 | 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).xor(new Long(9, 1))
-        output:
-            python: Int64(429496729601) ^ Int64(4294967305)
-            java: 429496729601L ^ 4294967305L
-            csharp: 429496729601L ^ 4294967305L
-            shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
-            object: new Long(8, 101)
-            php: 429496729601 ^ 4294967305
-            ruby: 429496729601 ^ 4294967305
-            go: int64(429496729601) ^ int64(4294967305)
-            rust: 429496729601i64 ^ 4294967305i64
-    -   input:
-            javascript: new Long(1, 100).shiftLeft(10)
-        output:
-            python: Int64(429496729601) << 10
-            java: Long.rotateLeft(429496729601L, 10)
-            csharp: 429496729601L << 10
-            shell: new NumberLong(429496729601) << 10
-            object: new Long(1024, 102400)
-            php: 429496729601 << 10
-            ruby: 429496729601 << 10
-            go: int64(429496729601) << 10
-            rust: 429496729601i64 << 10
-    -   input:
-            javascript: new Long(1, 100).shiftRight(10)
-        output:
-            python: Int64(429496729601) >> 10
-            java: Long.rotateRight(429496729601L, 10)
-            csharp: 429496729601L >> 10
-            shell: new NumberLong(429496729601) >> 10
-            object: new Long(419430400, 0)
-            php: 429496729601 >> 10
-            ruby: 429496729601 >> 10
-            go: int64(429496729601) >> 10
-            rust: 429496729601i64 >> 10
-    Decimal128-methods:
-    -   input:
-            javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString()
-        output:
-            python: str(Decimal128('5.3E-6175'))
-            java: Decimal128.parse("5.3E-6175").toString()
-            csharp: Decimal128.Parse("5.3E-6175").ToString()
-            shell: new NumberDecimal(5.3E-6175).toString()
-            output: "'5.3E-6175'"
-            php: (string) new Decimal128('5.3E-6175')
-            ruby: BSON::Decimal128.new('5.3E-6175').to_s
-            go: |-
-                var parseDecimal128 = func(str string) primitive.Decimal128 {
-                  d128, err := primitive.ParseDecimal128(str)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return d128
-                }
-
-                parseDecimal128("5.3E-6175").String()
-    Timestamp-methods:
-    -   input:
-            javascript: Timestamp(1, 100).toString()
-            shell: Timestamp(1, 100).toString()
-        output:
-            python: str(Timestamp(1, 100))
-            java: new BSONTimestamp(1, 100).toString()
-            csharp: new BsonTimestamp(1, 100).ToString()
-            shell: new Timestamp(1, 100).toString()
-            object: "'429496729601'"
-            php: (string) new Timestamp(100, 1)
-            ruby: BSON::Timestamp.new(1, 100).to_s
-            rust: "Timestamp { time: 1, increment: 100 }.to_string()"
-    -   input:
-            javascript: Timestamp(1, 100).equals(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) == Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).equals(new BSONTimestamp(2, 99))
-            csharp: new BsonTimestamp(1, 100).Equals(new BsonTimestamp(2, 99))
-            shell: new Timestamp(1, 100) === new Timestamp(2, 99)
-            object: 'false'
-            php: new Timestamp(100, 1) == new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) == BSON::Timestamp.new(2, 99)
-            go: "primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
-            rust: "Timestamp { time: 1, increment: 100 } == Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).compare(Timestamp(2, 99))
-        output:
-            python: "(Timestamp(1, 100).as_datetime() - Timestamp(2, 99).as_datetime()).total_seconds()"
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99))
-            csharp: new BsonTimestamp(1, 100).CompareTo(new BsonTimestamp(2, 99))
-            shell: new Timestamp(1, 100) - new Timestamp(2, 99)
-            object: '1'
-            php: new Timestamp(100, 1) <=> new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) <=> BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
-            rust: "Timestamp { time: 1, increment: 100 }.cmp(Timestamp { time: 2, increment: 99 })"
-    -   input:
-            javascript: Timestamp(1, 100).notEquals(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) != Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) != 0
-            csharp: new BsonTimestamp(1, 100) != new BsonTimestamp(2, 99)
-            shell: new Timestamp(1, 100) !== new Timestamp(2, 99)
-            object: 'true'
-            php: new Timestamp(100, 1) != new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) != BSON::Timestamp.new(2, 99)
-            go: "!primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
-            rust: "Timestamp { time: 1, increment: 100 } != Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).greaterThan(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) > Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) > 0
-            csharp: new BsonTimestamp(1, 100) > new BsonTimestamp(2, 99)
-            shell: new Timestamp(1, 100) > new Timestamp(2, 99)
-            object: 'true'
-            php: new Timestamp(100, 1) > new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
-            rust: "Timestamp { time: 1, increment: 100 } > Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) >= Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) >= 0
-            csharp: new BsonTimestamp(1, 100) >= new BsonTimestamp(2, 99)
-            shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
-            object: 'true'
-            php: new Timestamp(100, 1) >= new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) >= 0"
-            rust: "Timestamp { time: 1, increment: 100 } >= Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) < Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) < 0
-            csharp: new BsonTimestamp(1, 100) < new BsonTimestamp(2, 99)
-            shell: new Timestamp(1, 100) < new Timestamp(2, 99)
-            object: 'false'
-            php: new Timestamp(100, 1) < new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
-            rust: "Timestamp { time: 1, increment: 100 } < Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))
-        output:
-            python: Timestamp(1, 100) <= Timestamp(2, 99)
-            java: new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) <= 0
-            csharp: new BsonTimestamp(1, 100) <= new BsonTimestamp(2, 99)
-            shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
-            object: 'false'
-            php: new Timestamp(100, 1) <= new Timestamp(99, 2)
-            ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) <= 0"
-            rust: "Timestamp { time: 1, increment: 100 } <= Timestamp { time: 2, increment: 99 }"
-    -   input:
-            javascript: Timestamp(1, 100).getLowBits()
-            python: Timestamp(1, 100).time
-            shell: Timestamp(1, 100).getTime()
-        output:
-            python: Timestamp(1, 100).time
-            java: new BSONTimestamp(1, 100).getTime()
-            csharp: new BsonTimestamp(1, 100).ToUniversalTime()
-            shell: new Timestamp(1, 100).getTime()
-            object: '1'
-            php: (new Timestamp(100, 1))->getTimestamp()
-            ruby: BSON::Timestamp.new(1, 100).seconds
-            go: "primitive.Timestamp{T: 1, I: 100}.T"
-            rust: "Timestamp { time: 1, increment: 100 }.time"
-    -   input:
-            javascript: Timestamp(1, 100).getHighBits()
-            python: Timestamp(1, 100).inc
-            shell: Timestamp(1, 100).getInc()
-        output:
-            python: Timestamp(1, 100).inc
-            java: new BSONTimestamp(1, 100).getInc()
-            csharp: new BsonTimestamp(1, 100).Increment
-            shell: new Timestamp(1, 100).getInc()
-            object: '100'
-            php: (new Timestamp(100, 1))->getIncrement()
-            ruby: BSON::Timestamp.new(1, 100).increment
-            go: "primitive.Timestamp{T: 1, I: 100}.I"
-            rust: "Timestamp { time: 1, increment: 100 }.increment"
-    -   input:
-            shell: Timestamp(1, 100).t
-        output:
-            python: Timestamp(1, 100).time
-            java: new BSONTimestamp(1, 100).getTime()
-            csharp: new BsonTimestamp(1, 100).ToUniversalTime()
-            shell: new Timestamp(1, 100).getTime()
-            object: '1'
-            php: (new Timestamp(100, 1))->getTimestamp()
-            ruby: BSON::Timestamp.new(1, 100).seconds
-            go: "primitive.Timestamp{T: 1, I: 100}.T"
-            rust: "Timestamp { time: 1, increment: 100 }.time"
-    -   input:
-            shell: Timestamp(1, 100).i
-        output:
-            python: Timestamp(1, 100).inc
-            java: new BSONTimestamp(1, 100).getInc()
-            csharp: new BsonTimestamp(1, 100).Increment
-            shell: new Timestamp(1, 100).getInc()
-            object: '100'
-            php: (new Timestamp(100, 1))->getIncrement()
-            ruby: BSON::Timestamp.new(1, 100).increment
-            go: "primitive.Timestamp{T: 1, I: 100}.I"
-            rust: "Timestamp { time: 1, increment: 100 }.increment"
+  Code-methods:
     - input:
-          python: Timestamp(1, 100).as_datetime
+        shell: 'Code(''test code'', {x: 1}).scope'
       output:
-          javascript: new Date(new Timestamp(1, 100).getHighBits() * 1000)
-          java: new java.util.Date(new BSONTimestamp(1, 100).getTime())
-          csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
-          shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
-          object: "new Date('1970-01-01T00:01:40.000Z')"
-          php: new UTCDateTime((new Timestamp(100, 1))->getTimestamp() * 1000)
-          ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
-          go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0)"
-          rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
-    Symbol-methods:
-    -   input:
-            javascript: new BSONSymbol('2').valueOf()
-        output:
-            python: "'2'"
-            java: new Symbol("2").getSymbol()
-            csharp: '"2"'
-            shell: "'2'"
-            object: "'2'"
-            php: "'2'"
-            ruby: ":'2'"
-            go: primitive.Symbol("2")
-            rust: Bson::Symbol("2").as_symbol().unwrap()
-    -   input:
-            javascript: new BSONSymbol('2').toString()
-        output:
-            python: "'2'"
-            java: new Symbol("2").toString()
-            csharp: '"2"'
-            shell: "'2'"
-            output: "'2'"
-            php: "'2'"
-            ruby: "'2'"
-            go: string(primitive.Symbol("2"))
-            rust: Bson::Symbol("2").as_symbol().unwrap()
-    -   input:
-            javascript: new BSONSymbol('2').inspect()
-        output:
-            python: "'2'"
-            java: new Symbol("2").getSymbol()
-            csharp: '"2"'
-            shell: "'2'"
-            output: "'2'"
-            php: "'2'"
-            ruby: ":'2'.inspect"
-            go: primitive.Symbol("2")
-            rust: format!("{:?}", Bson::Symbol("2"))
-    ObjectId-utils:
+        javascript: |-
+          new Code('test code', {
+            'x': 1
+          }).scope
+        python: |-
+          Code('test code', {
+              'x': 1
+          }).scope
+        java: 'new CodeWithScope("test code", new Document("x", 1L)).getScope()'
+        csharp: >-
+          new BsonJavaScriptWithScope("test code", new BsonDocument("x",
+          1)).Scope
+        shell: |-
+          new Code('test code', {
+            'x': 1
+          }).scope
+        object: '{''x'': 1}'
+        php: '(new Javascript(''test code'', [''x'' => 1]))->getScope()'
+        ruby: |-
+          BSON::CodeWithScope.new('test code', {
+            'x' => 1
+          }).scope
+        go: >-
+          primitive.CodeWithScope{Code: primitive.JavaScript("test code"),
+          Scope: bson.D{{"x", 1}}}
+        rust: |-
+          JavaScriptCodeWithScope { code: "test code".to_string(), scope: doc! {
+              "x": 1
+          } }.scope
     - input:
-          javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')
+        shell: Code('test code').code
       output:
-          shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
-          java: new ObjectId("5ab901c29ee65f5c8550c5b9")
-          csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
-          python: ObjectId('5ab901c29ee65f5c8550c5b9')
-          object: new ObjectId('5ab901c29ee65f5c8550c5b9')
-          php: new ObjectId('5ab901c29ee65f5c8550c5b9')
-          ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-          rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
-          go: |-
-            var objectIDFromHex = func(hex string) primitive.ObjectID {
-              objectID, err := primitive.ObjectIDFromHex(hex)
-              if err != nil {
-                log.Fatal(err)
-              }
-              return objectID
+        javascript: new Code('test code').code
+        python: str(Code('test code'))
+        java: new Code("test code").getCode()
+        csharp: new BsonJavaScript("test code").Code
+        shell: new Code('test code').code
+        object: '''test code'''
+        php: (new Javascript('test code'))->getCode()
+        ruby: 'BSON::Code.new(''test code'').javascript'
+        go: 'primitive.CodeWithScope{Code: primitive.JavaScript("test code")}.Code'
+    - input:
+        shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
+      output:
+        javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
+        python: str(ObjectId('5ab901c29ee65f5c8550c5b9'))
+        java: new ObjectId("5ab901c29ee65f5c8550c5b9").toHexString()
+        csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
+        shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
+        object: '''5ab901c29ee65f5c8550c5b9'''
+        php: (string) new ObjectId('5ab901c29ee65f5c8550c5b9')
+        ruby: 'BSON::ObjectId(''5ab901c29ee65f5c8550c5b9'').to_s'
+        go: |-
+          var objectIDFromHex = func(hex string) primitive.ObjectID {
+            objectID, err := primitive.ObjectIDFromHex(hex)
+            if err != nil {
+              log.Fatal(err)
             }
+            return objectID
+          }
 
-            objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+          objectIDFromHex("5ab901c29ee65f5c8550c5b9").String()
+        rust: 'ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.to_hex()'
     - input:
-          python: ObjectId.from_datetime(datetime(1972, 2, 3))
-          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
+        shell: ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
       output:
-          javascript: ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00 GMT').getTime() / 1000)
-          java: new ObjectId(new java.util.Date(65923200000L))
-          csharp: new ObjectId.GenerateNewId(new DateTime(1972, 2, 3, 0, 0, 0))
-          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
-          # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
-          # object: new ObjectId('03ede8800000000000000000')
-          php: new ObjectId(\str_pad(\bin2hex(\pack('N', (new UTCDateTime(65923200000))->toDateTime()->getTimestamp())), 24, '0'))
-          ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
-    - input:
-          javascript: ObjectId.createFromTime(1522075031)
-      output:
-          shell: ObjectId.fromDate(new Date(1522075031000))
-          javascript: ObjectId.createFromTime(152207503)
-          java: new ObjectId(new java.util.Date(1522075031000L))
-          csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
-          python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
-          object: new ObjectId('62bdd85a0000000000000000')
-          php: new ObjectId(\str_pad(\bin2hex(\pack('N', 1522075031)), 24, '0'))
-          ruby: BSON::ObjectId.from_time(Time.at(1522075031))
-          go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
-    - input:
-          javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
-          python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
-      output:
-          shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
-          java: ObjectId.isValid("5ab901c29ee65f5c8550c5b9")
-          csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
-          python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
-          object: 'true'
-          php: (\ctype_xdigit('5ab901c29ee65f5c8550c5b9') && \strlen('5ab901c29ee65f5c8550c5b9') == 24)
-          ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
-          go: primitive.IsValidObjectID("5ab901c29ee65f5c8550c5b9")
-#    Binary-utils:
-#    - input:
-#          javascript: Binary.SUBTYPE_DEFAULT
-#      output:
-#          shell: '0'
-#          java: BsonBinarySubType.BINARY
-#          csharp: BsonBinarySubType.Binary
-#          python: binary.BINARY_SUBTYPE
-#          php: Binary::TYPE_GENERIC
-#    - input:
-#          javascript: Binary.SUBTYPE_FUNCTION
-#      output:
-#          shell: '1'
-#          java: BsonBinarySubType.FUNCTION
-#          csharp: BsonBinarySubType.Function
-#          python: binary.FUNCTION_SUBTYPE
-#          php: Binary::TYPE_FUNCTION
-#    - input:
-#          javascript: Binary.SUBTYPE_BYTE_ARRAY
-#      output:
-#          shell: '2'
-#          java: BsonBinarySubType.BINARY
-#          csharp: BsonBinarySubType.OldBinary
-#          python: binary.BINARY_SUBTYPE
-#          php: Binary::TYPE_OLD_BINARY
-#    - input:
-#          javascript: Binary.SUBTYPE_UUID_OLD
-#      output:
-#          shell: '3'
-#          java: BsonBinarySubType.UUID_LEGACY
-#          csharp: BsonBinarySubType.UuidLegacy
-#          python: binary.OLD_UUID_SUBTYPE
-#          php: Binary::TYPE_OLD_UUID
-#    - input:
-#          javascript: Binary.SUBTYPE_UUID
-#      output:
-#          shell: '4'
-#          java: BsonBinarySubType.UUID_STANDARD
-#          csharp: BsonBinarySubType.UuidStandard
-#          python: binary.UUID_SUBTYPE
-#          php: Binary::TYPE_UUID
-#    - input:
-#          javascript: Binary.SUBTYPE_MD5
-#      output:
-#          shell: '5'
-#          java: BsonBinarySubType.MD5
-#          csharp: BsonBinarySubType.MD5
-#          python: binary.MD5_SUBTYPE
-#          php: Binary::TYPE_MD5
-#    - input:
-#          javascript: Binary.SUBTYPE_USER_DEFINED
-#      output:
-#          shell: '80'
-#          java: BsonBinarySubType.USER_DEFINED
-#          csharp: BsonBinarySubType.UserDefined
-#          python: binary.USER_DEFINED_SUBTYPE
-#          php: Binary::TYPE_USER_DEFINED
-    Long-utils:
-    - input:
-          javascript: Long.MAX_VALUE
-      output:
-          shell: Math.max()
-          java: Long.MAX_VALUE
-          csharp: Int64.MaxValue
-          python: sys.maxsize
-          object: new Long(-1, 2147483647)
-          php: \PHP_INT_MAX
-          ruby: '9223372036854775807'
-          rust: i64::MAX
-          go: int(^uint(0) >> 1)
-    - input:
-          javascript: Long.MIN_VALUE
-      output:
-          shell: Math.min()
-          java: Long.MIN_VALUE
-          csharp: Int64.MinValue
-          python: "-sys.maxsize -1"
-          object: new Long(0, -2147483648)
-          php: \PHP_INT_MIN
-          ruby: '-9223372036854775808'
-          rust: i64::MIN
-          go: -(1+int(^uint(0) >> 1))
-    - input:
-          javascript: Long.ZERO
-      output:
-          shell: '0'
-          java: 0L
-          csharp: 0L
-          python: Int64(0)
-          object: new Long(0, 0)
-          php: '0'
-          ruby: '0'
-          rust: 0i64
-          go: int64(0)
-    - input:
-          javascript: Long.ONE
-      output:
-          shell: '1'
-          java: 1L
-          csharp: 1L
-          python: Int64(1)
-          object: new Long(1, 0)
-          php: '1'
-          ruby: '1'
-          rust: 1i64
-          go: int64(1)
-    - input:
-          javascript: Long.NEG_ONE
-      output:
-          shell: "-1"
-          java: "-1L"
-          csharp: "-1L"
-          python: Int64(-1)
-          object: new Long(-1, -1)
-          php: '-1'
-          ruby: '-1'
-          rust: -1i64
-          go: int64(-1)
-    - input:
-          javascript: Long.fromInt(5)
-      output:
-          shell: new NumberLong(5)
-          java: 5L
-          csharp: 5L
-          python: Int64(5)
-          object: new Long(5, 0)
-          php: '5'
-          ruby: '5'
-          rust: 5i64
-          go: int64(5)
-    - input:
-          javascript: Long.fromString('5')
-      output:
-          shell: new NumberLong('5')
-          java: Long.parseLong("5")
-          csharp: Convert.ToInt64("5", 10)
-          python: Int64(int('5'))
-          object: new Long(5, 0)
-          php: (int) '5'
-          ruby: "'5'.to_i"
-          rust: '"5".parse::<i64>()?'
-          go: |-
-            var int64FromString = func(str string) int64 {
-              f64, err := strconv.Atoi(str)
-              if err != nil {
-                log.Fatal(err)
-              }
-              return f64
+        python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
+        java: new ObjectId("5ab901c29ee65f5c8550c5b9").getTimestamp()
+        csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
+        shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
+        object: 'new Date(''2018-03-26T14:20:50.000Z'')'
+        php: (new ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
+        ruby: 'BSON::ObjectId(''5ab901c29ee65f5c8550c5b9'').to_time'
+        go: |-
+          var objectIDFromHex = func(hex string) primitive.ObjectID {
+            objectID, err := primitive.ObjectIDFromHex(hex)
+            if err != nil {
+              log.Fatal(err)
             }
+            return objectID
+          }
 
-            int64FromString("5")
+          objectIDFromHex("5ab901c29ee65f5c8550c5b9").Timestamp()
+        rust: 'ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.timestamp()'
     - input:
-          javascript: Long.fromString('5', 10)
+        shell: >-
+          ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
       output:
-          shell: new NumberLong('5')
-          java: Long.parseLong("5", 10)
-          csharp: Convert.ToInt64("5", 10)
-          python: Int64(int('5'))
-          object: new Long(5, 0)
-          php: (int) '5'
-          ruby: "'5'.to_i"
-          rust: i64::from_str_radix("5", 10)?
-          go: |-
-            var int64FromString = func(str string) int64 {
-              f64, err := strconv.Atoi(str)
-              if err != nil {
-                log.Fatal(err)
-              }
-              return f64
+        python: >-
+          ObjectId('5ab901c29ee65f5c8550c5b9') ==
+          ObjectId('5ab901c29ee65f5c8550c5b9')
+        java: >-
+          new ObjectId("5ab901c29ee65f5c8550c5b9").equals(new
+          ObjectId("5ab901c29ee65f5c8550c5b9"))
+        csharp: >-
+          new ObjectId("5ab901c29ee65f5c8550c5b9").Equals(new
+          ObjectId("5ab901c29ee65f5c8550c5b9"))
+        shell: >-
+          new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new
+          ObjectId('5ab901c29ee65f5c8550c5b9'))
+        object: true
+        php: >-
+          new ObjectId('5ab901c29ee65f5c8550c5b9') == new
+          ObjectId('5ab901c29ee65f5c8550c5b9')
+        ruby: >-
+          BSON::ObjectId('5ab901c29ee65f5c8550c5b9') ==
+          BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
+        go: >-
+          var objectIDFromHex = func(hex string) primitive.ObjectID {
+            objectID, err := primitive.ObjectIDFromHex(hex)
+            if err != nil {
+              log.Fatal(err)
             }
+            return objectID
+          }
 
-            int64FromString("5")
+
+          objectIDFromHex("5ab901c29ee65f5c8550c5b9") ==
+          objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     - input:
-          javascript: Long.fromBits(-1, 2147483647)
+        shell: >-
+          ObjectId('6ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
       output:
-          shell: new NumberLong(9223372036854775807)
-          java: 9223372036854775807L
-          csharp: 9223372036854775807L
-          python: Int64(9223372036854775807)
-          object: new Long(-1, 2147483647)
-          php: '9223372036854775807'
-          ruby: '9223372036854775807'
-          rust: 9223372036854775807i64
-          go: int64(9223372036854775807)
+        go: >-
+          var objectIDFromHex = func(hex string) primitive.ObjectID {
+            objectID, err := primitive.ObjectIDFromHex(hex)
+            if err != nil {
+              log.Fatal(err)
+            }
+            return objectID
+          }
+
+
+          objectIDFromHex("6ab901c29ee65f5c8550c5b9") ==
+          objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+        rust: >-
+          ObjectId::parse_str("6ab901c29ee65f5c8550c5b9")? ==
+          ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
     - input:
-          javascript: Long.fromNumber(429496729601)
+        shell: ObjectId().equals(ObjectId())
       output:
-          object: new Long(1, 100)
-    Decimal128-utils:
-    -   input:
-            javascript: Decimal128.fromString("5")
-        output:
-            shell: new NumberDecimal('5')
-            java: Decimal128.parse("5")
-            csharp: Decimal128.Parse("5")
-            python: Decimal128('5')
-            object: Decimal128.fromString("5")
-            php: new Decimal128('5')
-            ruby: BSON::Decimal128.new('5')
-            go: |-
-                var parseDecimal128 = func(str string) primitive.Decimal128 {
-                  d128, err := primitive.ParseDecimal128(str)
-                  if err != nil {
-                    log.Fatal(err)
-                  }
-                  return d128
-                }
-
-                parseDecimal128("5")
-    BSONRegex-utils:
-    -   input:
-            python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
-        output:
-            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-            shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-            java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
-            csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
-            object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-            php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
-            ruby: /^[a-z0-9_-]{3,16}$/imx
-            go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsux")'
-    -   input:
-            python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
-        output:
-            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-            shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-            java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
-            csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
-            object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-            php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
-            ruby: /^[a-z0-9_-]{3,16}$/imx
-            go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsx")'
+        object: false
+  DBRef-methods:
     - input:
-          python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
+        shell: 'new DBRef(''coll'', new ObjectId(), ''db'').$db'
       output:
-          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-          shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
-          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
-          object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
-          ruby: /^[a-z0-9_-]{3,16}$/imx
-          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsux" }'
+        python: 'DBRef(''coll'', ObjectId(), ''db'').database'
+        java: 'new DBRef("db", "coll", new ObjectId()).getDatabaseName()'
+        csharp: 'new MongoDBRef("coll", new ObjectId(), "db").DatabaseName'
+        shell: 'new DBRef(''coll'', new ObjectId(), "db").getDb()'
+        object: '''db'''
+        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => ''db''][''$db'']'
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId.new,
+            '$db' => 'db'
+          ).database
     - input:
-          python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
+        shell: 'new DBRef(''coll'', new ObjectId(), ''db'').getDb()'
       output:
-          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-          shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
-          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
-          object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
-          ruby: /^[a-z0-9_-]{3,16}$/imx
-          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsx" }'
-
-
-
+        python: 'DBRef(''coll'', ObjectId(), ''db'').database'
+        java: 'new DBRef("db", "coll", new ObjectId()).getDatabaseName()'
+        csharp: 'new MongoDBRef("coll", new ObjectId(), "db").DatabaseName'
+        shell: 'new DBRef(''coll'', new ObjectId(), ''db'').getDb()'
+        object: '''db'''
+        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => ''db''][''$db'']'
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId.new,
+            '$db' => 'db'
+          ).database
+    - input:
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getRef()'
+      output:
+        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).collection'
+        java: >-
+          new DBRef("coll", new
+          ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
+        csharp: >-
+          new MongoDBRef("coll", new
+          ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
+        shell: >-
+          new DBRef('coll', new
+          ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
+        object: '''coll'''
+        php: >-
+          ['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'),
+          '$db' => null]['$ref']
+    - input:
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).$ref'
+      output:
+        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).collection'
+        java: >-
+          new DBRef("coll", new
+          ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
+        csharp: >-
+          new MongoDBRef("coll", new
+          ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
+        shell: >-
+          new DBRef('coll', new
+          ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
+        object: '''coll'''
+        php: >-
+          ['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'),
+          '$db' => null]['$ref']
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+          ).collection
+    - input:
+        shell: 'new DBRef(''coll'', new ObjectId()).getCollection()'
+      output:
+        python: 'DBRef(''coll'', ObjectId()).collection'
+        java: 'new DBRef("coll", new ObjectId()).getCollectionName()'
+        csharp: 'new MongoDBRef("coll", new ObjectId()).CollectionName'
+        shell: 'new DBRef(''coll'', new ObjectId()).getCollection()'
+        object: '''coll'''
+        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => null][''$ref'']'
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId.new
+          ).collection
+    - input:
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).$id'
+      output:
+        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).id'
+        java: 'new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()'
+        csharp: 'new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id'
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getId()'
+        object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+        php: >-
+          ['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'),
+          '$db' => null]['$id']
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+          ).id
+    - input:
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getId()'
+      output:
+        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).id'
+        java: 'new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()'
+        csharp: 'new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id'
+        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getId()'
+        object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+        php: >-
+          ['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'),
+          '$db' => null]['$id']
+        ruby: |-
+          BSON::DBRef.new(
+            '$ref' => 'coll',
+            '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+          ).id
+  Long-methods:
+    - input:
+        shell: NumberLong(429496729601).top
+      output:
+        javascript: Long.fromNumber(429496729601).getHighBits()
+        java: 429496729601L >> 32
+        csharp: 429496729601L >> 32
+        python: Int64(429496729601) >> 32
+        object: '100'
+        php: 429496729601 >> 32
+        ruby: 429496729601 >> 32
+        go: int64(429496729601) >> 32
+        rust: 429496729601i64 >> 32
+    - input:
+        shell: NumberLong(429496729601).bottom
+      output:
+        javascript: Long.fromNumber(429496729601).getLowBits()
+        java: 429496729601L & 0x0000ffff
+        csharp: 429496729601L & 0x0000ffff
+        python: Int64(429496729601) & 0x0000ffff
+        object: '1'
+        php: 429496729601 & 0x00000000ffffffff
+        ruby: 429496729601 & 0x0000ffff
+        go: int64(429496729601) & 0x0000ffff
+        rust: 429496729601i64 & 0x0000ffff
+    - input:
+        shell: NumberLong(429496729601).floatApprox
+      output:
+        javascript: Long.fromNumber(429496729601).toNumber()
+        java: (float) 429496729601L
+        csharp: (float) 429496729601L
+        python: float(Int64(429496729601))
+        object: '429496729601'
+        php: (float) 429496729601
+        ruby: 429496729601.to_f
+        go: float64(int64(429496729601))
+        rust: 429496729601i64 as f32
+    - input:
+        shell: NumberLong(429496729601).toString()
+      output:
+        python: '''429496729601'''
+        java: '"429496729601"'
+        csharp: '"429496729601"'
+        shell: '''429496729601'''
+        object: '''429496729601'''
+        php: '''429496729601'''
+        ruby: '''429496729601'''
+        go: '"429496729601"'
+        rust: '"429496729601"'
+  Decimal128-methods: []
+  Timestamp-methods:
+    - input:
+        shell: 'Timestamp(1, 100).toString()'
+      output:
+        python: 'str(Timestamp(1, 100))'
+        java: 'new BSONTimestamp(1, 100).toString()'
+        csharp: 'new BsonTimestamp(1, 100).ToString()'
+        shell: 'new Timestamp(1, 100).toString()'
+        object: '''429496729601'''
+        php: '(string) new Timestamp(100, 1)'
+        ruby: 'BSON::Timestamp.new(1, 100).to_s'
+        rust: 'Timestamp { time: 1, increment: 100 }.to_string()'
+    - input:
+        shell: 'Timestamp(1, 100).getTime()'
+      output:
+        python: 'Timestamp(1, 100).time'
+        java: 'new BSONTimestamp(1, 100).getTime()'
+        csharp: 'new BsonTimestamp(1, 100).ToUniversalTime()'
+        shell: 'new Timestamp(1, 100).getTime()'
+        object: '1'
+        php: '(new Timestamp(100, 1))->getTimestamp()'
+        ruby: 'BSON::Timestamp.new(1, 100).seconds'
+        go: 'primitive.Timestamp{T: 1, I: 100}.T'
+        rust: 'Timestamp { time: 1, increment: 100 }.time'
+    - input:
+        shell: 'Timestamp(1, 100).getInc()'
+      output:
+        python: 'Timestamp(1, 100).inc'
+        java: 'new BSONTimestamp(1, 100).getInc()'
+        csharp: 'new BsonTimestamp(1, 100).Increment'
+        shell: 'new Timestamp(1, 100).getInc()'
+        object: '100'
+        php: '(new Timestamp(100, 1))->getIncrement()'
+        ruby: 'BSON::Timestamp.new(1, 100).increment'
+        go: 'primitive.Timestamp{T: 1, I: 100}.I'
+        rust: 'Timestamp { time: 1, increment: 100 }.increment'
+    - input:
+        shell: 'Timestamp(1, 100).t'
+      output:
+        python: 'Timestamp(1, 100).time'
+        java: 'new BSONTimestamp(1, 100).getTime()'
+        csharp: 'new BsonTimestamp(1, 100).ToUniversalTime()'
+        shell: 'new Timestamp(1, 100).getTime()'
+        object: '1'
+        php: '(new Timestamp(100, 1))->getTimestamp()'
+        ruby: 'BSON::Timestamp.new(1, 100).seconds'
+        go: 'primitive.Timestamp{T: 1, I: 100}.T'
+        rust: 'Timestamp { time: 1, increment: 100 }.time'
+    - input:
+        shell: 'Timestamp(1, 100).i'
+      output:
+        python: 'Timestamp(1, 100).inc'
+        java: 'new BSONTimestamp(1, 100).getInc()'
+        csharp: 'new BsonTimestamp(1, 100).Increment'
+        shell: 'new Timestamp(1, 100).getInc()'
+        object: '100'
+        php: '(new Timestamp(100, 1))->getIncrement()'
+        ruby: 'BSON::Timestamp.new(1, 100).increment'
+        go: 'primitive.Timestamp{T: 1, I: 100}.I'
+        rust: 'Timestamp { time: 1, increment: 100 }.increment'
+  Symbol-methods: []
+  ObjectId-utils:
+    - input:
+        shell: 'ObjectId.fromDate(new Date(''Thu, 03 Feb 1972 00:00:00 GMT''))'
+      output:
+        javascript: >-
+          ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00
+          GMT').getTime() / 1000)
+        java: new ObjectId(new java.util.Date(65923200000L))
+        csharp: 'new ObjectId.GenerateNewId(new DateTime(1972, 2, 3, 0, 0, 0))'
+        shell: 'ObjectId.fromDate(new Date(''Thu, 03 Feb 1972 00:00:00 GMT''))'
+        php: >-
+          new ObjectId(\str_pad(\bin2hex(\pack('N', (new
+          UTCDateTime(65923200000))->toDateTime()->getTimestamp())), 24, '0'))
+        ruby: 'BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))'
+  Long-utils: []
+  Decimal128-utils: []
+  BSONRegex-utils: []
