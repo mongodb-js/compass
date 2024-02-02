@@ -340,14 +340,11 @@ import org.bson.conversions.Bson;
 import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import com.mongodb.client.FindIterable;
-
 /*
  * Requires the MongoDB Java Driver.
  * https://mongodb.github.io/mongo-java-driver
  */
-
 Bson filter = eq("i", 5L);
-
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
         "mongodb://localhost:27091/test"
