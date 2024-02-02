@@ -59,29 +59,6 @@ const loadJSTree = (input, start) => {
   return parser[start]();
 };
 
-// /**
-//  * Constructs the parse tree from the Python code given by the user.
-//  *
-//  * @param {String} input
-//  * @param {String} start - the name of the start node. Always defined in the
-//  * language-specific visitor.
-//  * @return {antlr4.ParserRuleContext} - The parse tree.
-//  */
-// const loadPyTree = (input, start) => {
-//   const chars = new antlr4.InputStream(input + '\n'); // requires newline
-//   const lexer = new Python3Lexer.Python3Lexer(chars);
-
-//   const tokens = new antlr4.CommonTokenStream(lexer);
-//   const parser = new Python3Parser.Python3Parser(tokens);
-//   parser.buildParseTrees = true;
-
-//   const listener = new ErrorListener();
-//   parser.removeErrorListeners(); // Remove the default ConsoleErrorListener
-//   parser.addErrorListener(listener); // Add back a custom error listener
-
-//   return parser[start]();
-// };
-
 const getTranspiler = (loadTree, visitor, generator, symbols) => {
   const Transpiler = generator(visitor);
   const transpiler = new Transpiler();
