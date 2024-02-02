@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
 import { RenameCollectionPlugin } from '../..';
+import { setTimeout } from 'timers/promises';
 import AppRegistry from 'hadron-app-registry';
 
 describe('CreateCollectionModal [Component]', function () {
@@ -11,9 +12,10 @@ describe('CreateCollectionModal [Component]', function () {
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
+    listCollections: sandbox.stub().resolves([{ name: 'my-collection' }]),
   };
   context('when the modal is visible', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
         globalAppRegistry: appRegistry,
         dataService,
@@ -23,6 +25,7 @@ describe('CreateCollectionModal [Component]', function () {
         database: 'foo',
         collection: 'bar',
       });
+      await setTimeout(0);
     });
 
     afterEach(function () {
@@ -54,6 +57,24 @@ describe('CreateCollectionModal [Component]', function () {
       fireEvent.change(input, { target: { value: 'baz' } });
       expect(submitButton).not.to.have.attribute('disabled');
       fireEvent.change(input, { target: { value: 'bar' } });
+      expect(submitButton).to.have.attribute('disabled');
+    });
+
+    it('disables the submit button when the value is empty', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      const input = screen.getByTestId('rename-collection-name-input');
+      expect(submitButton).to.have.attribute('disabled');
+
+      fireEvent.change(input, { target: { value: '' } });
+      expect(submitButton).to.have.attribute('disabled');
+    });
+
+    it('disables the submit button when the value is exists as a collection in the current database', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      const input = screen.getByTestId('rename-collection-name-input');
+      expect(submitButton).to.have.attribute('disabled');
+
+      fireEvent.change(input, { target: { value: 'my-collection' } });
       expect(submitButton).to.have.attribute('disabled');
     });
 

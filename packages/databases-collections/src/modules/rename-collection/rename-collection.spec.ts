@@ -15,6 +15,7 @@ describe('rename collection module', function () {
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
+    listCollections: sandbox.stub().resolves([]),
   };
 
   const extraThunkArgs: RenameCollectionPluginServices = {

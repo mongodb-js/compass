@@ -5,7 +5,7 @@ import type { DataService } from 'mongodb-data-service';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
 
 export type RenameCollectionPluginServices = {
-  dataService: Pick<DataService, 'renameCollection'>;
+  dataService: Pick<DataService, 'renameCollection' | 'listCollections'>;
   globalAppRegistry: AppRegistry;
 };
 
@@ -24,7 +24,14 @@ export function activateRenameCollectionPlugin(
   );
 
   const onRenameCollection = (ns: { database: string; collection: string }) => {
-    store.dispatch(open(ns.database, ns.collection));
+    dataService
+      .listCollections(ns.database)
+      .then((collections: { name: string }[]) => {
+        store.dispatch(open(ns.database, ns.collection, collections));
+      })
+      .catch(() => {
+        // nothing
+      });
   };
   globalAppRegistry.on('open-rename-collection', onRenameCollection);
 
