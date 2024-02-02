@@ -4,10 +4,13 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<Promise<WebdriverIO.Element>>
+  selector:
+    | string
+    | ChainablePromiseElement<WebdriverIO.Element>
+    | WebdriverIO.Element
 ): Promise<void> {
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
+  async function getElement() {
+    return typeof selector === 'string' ? await browser.$(selector) : selector;
   }
 
   const initialElement = await getElement();

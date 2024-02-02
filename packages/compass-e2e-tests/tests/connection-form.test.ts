@@ -694,7 +694,7 @@ describe('Connection form', function () {
     // Save & Connect
     await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
+    await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
     await browser.clickVisible(
       `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
     );

@@ -77,10 +77,7 @@ async function chooseCollectionAction(
 ) {
   // search for the view in the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  const sidebarFilterInputElement = await browser.$(
-    Selectors.SidebarFilterInput
-  );
-  await sidebarFilterInputElement.setValue(collectionName);
+  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
 
   const collectionSelector = Selectors.sidebarCollection(
     dbName,
@@ -327,9 +324,10 @@ describe('Collection aggregations tab', function () {
   it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
     await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
-    const collationInput = await browser.$(Selectors.AggregationCollationInput);
-    await collationInput.waitForDisplayed();
-    await collationInput.setValue('{ locale: "af" }');
+    await browser.setValueVisible(
+      Selectors.AggregationCollationInput,
+      '{ locale: "af" }'
+    );
 
     // select $match
     await browser.selectStageOperator(0, '$match');
@@ -361,10 +359,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickParent(Selectors.AggregationCommentModeCheckbox);
 
     // set number of preview documents to 100
-    const sampleSizeElement = await browser.$(
-      Selectors.AggregationSampleSizeInput
-    );
-    await sampleSizeElement.setValue('100');
+    await browser.setValueVisible(Selectors.AggregationSampleSizeInput, '100');
 
     // apply settings
     await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
@@ -448,8 +443,10 @@ describe('Collection aggregations tab', function () {
 
     // set view name
     await browser.waitForAnimations(Selectors.CreateViewNameInput);
-    const viewNameInput = await browser.$(Selectors.CreateViewNameInput);
-    await viewNameInput.setValue('my-view-from-pipeline');
+    await browser.setValueVisible(
+      Selectors.CreateViewNameInput,
+      'my-view-from-pipeline'
+    );
 
     await browser.screenshot('create-view-modal.png');
 
@@ -474,9 +471,10 @@ describe('Collection aggregations tab', function () {
 
     // wait for the modal, fill out the modal, confirm
     await duplicateModal.waitForDisplayed();
-    await browser
-      .$(Selectors.DuplicateViewModalTextInput)
-      .setValue('duplicated-view');
+    await browser.setValueVisible(
+      Selectors.DuplicateViewModalTextInput,
+      'duplicated-view'
+    );
     const confirmDuplicateButton = await browser.$(
       Selectors.DuplicateViewModalConfirmButton
     );
@@ -529,10 +527,10 @@ describe('Collection aggregations tab', function () {
           );
 
           // set maxTimeMS
-          const maxTimeMSElement = await browser.$(
-            Selectors.AggregationMaxTimeMSInput
+          await browser.setValueVisible(
+            Selectors.AggregationMaxTimeMSInput,
+            '100'
           );
-          await maxTimeMSElement.setValue('100');
         }
 
         if (maxTimeMSMode === 'preference') {

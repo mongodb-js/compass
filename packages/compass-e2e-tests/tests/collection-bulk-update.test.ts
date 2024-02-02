@@ -151,9 +151,10 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.BulkUpdateSaveFavorite);
 
     // Fill in a name
-    const input = await browser.$(Selectors.BulkUpdateFavouriteNameInput);
-    await input.waitForDisplayed();
-    await input.setValue('My Update Query');
+    await browser.setValueVisible(
+      Selectors.BulkUpdateFavouriteNameInput,
+      'My Update Query'
+    );
 
     // Click save to save the query
     await browser.$(Selectors.BulkUpdateFavouriteSaveButton).waitForEnabled();

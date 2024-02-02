@@ -132,9 +132,10 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed();
 
       // Select i filed name from Combobox.
-      const fieldNameSelect = Selectors.createIndexModalFieldNameSelectInput(0);
-
-      await browser.setValueVisible(fieldNameSelect, '$**');
+      await browser.setValueVisible(
+        Selectors.createIndexModalFieldNameSelectInput(0),
+        '$**'
+      );
       await browser.keys(['Enter']);
 
       // Select text filed type from Select.
@@ -181,11 +182,10 @@ describe('Collection indexes tab', function () {
       const dropModal = await browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();
 
-      const confirmInput = await browser.$(
-        Selectors.DropIndexModalConfirmButton
+      await browser.setValueVisible(
+        Selectors.DropIndexModalConfirmButton,
+        'columnstore'
       );
-      await confirmInput.waitForDisplayed();
-      await confirmInput.setValue('columnstore');
 
       const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
         Selectors.DropIndexModal

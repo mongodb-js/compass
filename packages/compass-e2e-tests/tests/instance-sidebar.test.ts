@@ -83,10 +83,10 @@ describe('Instance sidebar', function () {
 
     // search for something that cannot be found to get the results to a known empty state
     await browser.clickVisible(Selectors.SidebarFilterInput);
-    const sidebarFilterInputElement = await browser.$(
-      Selectors.SidebarFilterInput
+    await browser.setValueVisible(
+      Selectors.SidebarFilterInput,
+      'this does not exist'
     );
-    await sidebarFilterInputElement.setValue('this does not exist');
 
     // make sure there's nothing visible
     await browser.waitUntil(async () => {
@@ -95,7 +95,7 @@ describe('Instance sidebar', function () {
     });
 
     // now search for something specific
-    await sidebarFilterInputElement.setValue('numbers');
+    await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers');
 
     // wait for exactly two items: The database and the collection.
     await browser.waitUntil(async () => {
@@ -116,7 +116,7 @@ describe('Instance sidebar', function () {
     const collectionElement = await browser.$(collectionSelector);
     expect(await collectionElement.isDisplayed()).to.be.true;
 
-    await sidebarFilterInputElement.setValue('*'); // clearValue() is unreliable here
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '*');
 
     // wait for something that didn't match the previous search to show up to make sure that it reset
     // (otherwise future tests will fail because the new dbs/collections won't match the filter)
@@ -164,10 +164,7 @@ describe('Instance sidebar', function () {
     const collectionName = 'my-sidebar-collection';
 
     await browser.clickVisible(Selectors.SidebarFilterInput);
-    const sidebarFilterInputElement = await browser.$(
-      Selectors.SidebarFilterInput
-    );
-    await sidebarFilterInputElement.setValue(dbName);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
 
     const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
     await dbElement.waitForDisplayed();

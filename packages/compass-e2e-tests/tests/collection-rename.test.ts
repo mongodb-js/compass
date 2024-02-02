@@ -365,10 +365,10 @@ describe('Collection Rename Modal', () => {
       // Save the ran query
       await browser.hover(Selectors.QueryHistoryRecentItem);
       await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
-      const favoriteQueryNameField = await browser.$(
-        Selectors.QueryHistoryFavoriteItemNameField
+      await browser.setValueVisible(
+        Selectors.QueryHistoryFavoriteItemNameField,
+        favoriteQueryName
       );
-      await favoriteQueryNameField.setValue(favoriteQueryName);
       await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
     });
 

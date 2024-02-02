@@ -96,7 +96,7 @@ describe('CSFLE / QE', function () {
       // Save & Connect
       await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
       await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-      await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
+      await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
       await browser.clickVisible(
         `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
       );
@@ -485,11 +485,11 @@ describe('CSFLE / QE', function () {
           );
           await value.doubleClick();
 
-          const input = await document.$(
-            `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentValueEditor}`
-          );
-          await input.setValue(
-            typeof newValueJS === 'string' ? newValueJS : toString(newValueJS)
+          await browser.setValueVisible(
+            `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentValueEditor}`,
+            typeof newValueJS === 'string'
+              ? newValueJS
+              : (toString(newValueJS) as string)
           );
 
           const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -652,7 +652,7 @@ describe('CSFLE / QE', function () {
           true
         );
 
-        await copiedDocumentFaxNumberEditor.setValue('0');
+        await browser.setValueVisible(copiedDocumentFaxNumberEditor, '0');
 
         const button = await copiedDocument.$(Selectors.UpdateDocumentButton);
         await button.click();

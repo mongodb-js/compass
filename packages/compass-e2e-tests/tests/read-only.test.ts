@@ -81,10 +81,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
       const dbName = 'test'; // existing db
       await browser.clickVisible(Selectors.SidebarFilterInput);
-      const sidebarFilterInputElement = await browser.$(
-        Selectors.SidebarFilterInput
-      );
-      await sidebarFilterInputElement.setValue(dbName);
+      await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
       const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
       await dbElement.waitForDisplayed();
       await browser.hover(Selectors.sidebarDatabase(dbName));

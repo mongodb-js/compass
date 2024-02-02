@@ -370,10 +370,10 @@ FindIterable<Document> result = collection.find(filter);`);
     );
     await value.doubleClick();
 
-    const input = await document.$(
-      `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
+    await browser.setValueVisible(
+      `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`,
+      '42'
     );
-    await input.setValue('42');
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
@@ -507,10 +507,10 @@ FindIterable<Document> result = collection.find(filter);`);
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
-    const input = await document.$(
-      '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
+    await browser.setValueVisible(
+      '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]',
+      '-100'
     );
-    await input.setValue('-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
