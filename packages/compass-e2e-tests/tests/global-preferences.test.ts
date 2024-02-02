@@ -223,12 +223,11 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  it.only('redacts command line options after parsing', async function () {
+  it('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
       wrapBinary: async (binary: string): Promise<string> => {
         const wrapperPath = path.join(tmpdir, 'wrap.sh');
         const wrapper = `#!/bin/bash\n'${binary}' $@ mongodb://usr:53cr3t@localhost:0/\n`;
-        console.log({ wrapper });
         await fs.writeFile(wrapperPath, wrapper);
         await fs.chmod(wrapperPath, 0o755);
         return wrapperPath;

@@ -10,7 +10,7 @@ const connectionStringUnreachable =
   'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-describe.only('Automatically connecting from the command line', function () {
+describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
@@ -76,7 +76,6 @@ describe.only('Automatically connecting from the command line', function () {
     return async function wrapBinary(binary: string): Promise<string> {
       const wrapperPath = path.join(tmpdir, 'wrap.sh');
       const wrapper = `#!/bin/bash\n'${binary}' $@ ${positionalArgs}\n`;
-      console.log({ wrapper });
       await fs.writeFile(wrapperPath, wrapper);
       await fs.chmod(wrapperPath, 0o755);
       return wrapperPath;
