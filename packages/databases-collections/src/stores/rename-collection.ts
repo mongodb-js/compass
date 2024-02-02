@@ -30,7 +30,10 @@ export function activateRenameCollectionPlugin(
         store.dispatch(open(ns.database, ns.collection, collections));
       })
       .catch(() => {
-        // nothing
+        // if we can't fetch the collections, the user can still attempt the rename collection flow.
+        // fetching the collections is really just a user-experience improvement, because we can alert them
+        // before they submit the modal that they've entered a duplicate collection name.
+        store.dispatch(open(ns.database, ns.collection, []));
       });
   };
   globalAppRegistry.on('open-rename-collection', onRenameCollection);
