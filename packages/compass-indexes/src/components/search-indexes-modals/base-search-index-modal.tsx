@@ -22,6 +22,8 @@ import {
   ErrorSummary,
   Body,
   Banner,
+  RadioBoxGroup,
+  RadioBox,
   rafraf,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -61,11 +63,12 @@ const templateToolbarStyles = css({
 });
 
 const templateToolbarTextDescriptionStyles = css({
-  width: '60%',
+  flexGrow: 1,
 });
 
 const templateToolbarDropdownStyles = css({
   width: '40%',
+  flexShrink: 0,
 });
 
 const formContainerStyles = css({
@@ -99,12 +102,30 @@ type BaseSearchIndexModalProps = {
   mode: 'create' | 'update';
   initialIndexName: string;
   initialIndexDefinition: string;
+  initialIndexType?: SearchIndexType;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  onSubmit: (indexName: string, indexDefinition: Document) => void;
+  onSubmit: (index: {
+    name: string;
+    type: SearchIndexType;
+    definition: Document;
+  }) => void;
   onClose: () => void;
 };
+
+export type SearchIndexType = 'search' | 'vectorSearch';
+
+const searchIndexTypes = [
+  {
+    label: 'Search',
+    value: 'search',
+  },
+  {
+    label: 'Vector Search',
+    value: 'vectorSearch',
+  },
+] as const;
 
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
@@ -113,6 +134,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   mode,
   initialIndexName,
   initialIndexDefinition,
+  initialIndexType,
   isModalOpen,
   isBusy,
   error,
@@ -122,6 +144,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const editorRef = useRef<EditorRef>(null);
 
   const [indexName, setIndexName] = useState(initialIndexName);
+  const [searchIndexType, setSearchIndexType] = useState<SearchIndexType>(
+    initialIndexType ?? searchIndexTypes[0].value
+  );
   const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
   );
@@ -191,8 +216,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
 
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
-    onSubmit(indexName, indexDefinitionDoc);
-  }, [onSubmit, parsingError, indexName, indexDefinition]);
+    onSubmit({
+      name: indexName,
+      type: searchIndexType,
+      definition: indexDefinitionDoc,
+    });
+  }, [onSubmit, parsingError, indexName, searchIndexType, indexDefinition]);
 
   const onChangeTemplate = useCallback(
     (template: SearchTemplate) => {
@@ -202,6 +231,13 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       });
     },
     [editorRef]
+  );
+
+  const onChangeSearchIndexType = useCallback(
+    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchIndexType(value as SearchIndexType);
+    },
+    [setSearchIndexType]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -219,8 +255,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       <ModalHeader
         title={
           mode === 'create'
-            ? 'Create Search Index'
-            : `Edit "${indexName}" index`
+            ? 'Create Atlas Search Index'
+            : `Edit ${
+                initialIndexType === 'vectorSearch' ? 'Vector Search' : 'Search'
+              } Index "${indexName}"`
         }
       />
       <ModalBody className={bodyStyles}>
@@ -249,6 +287,32 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 />
               </section>
               <HorizontalRule />
+              <section className={formFieldContainerStyles}>
+                <Label htmlFor="search-index-type">
+                  Atlas Search Index type
+                </Label>
+                <RadioBoxGroup
+                  id="search-index-type"
+                  data-testid="search-index-type"
+                  onChange={onChangeSearchIndexType}
+                  value={searchIndexType}
+                >
+                  {searchIndexTypes.map(({ label, value }) => {
+                    return (
+                      <RadioBox
+                        id={`search-index-type-${value}-button`}
+                        data-testid={`search-index-type-${value}-button`}
+                        checked={searchIndexType === value}
+                        value={value}
+                        key={value}
+                      >
+                        {label}
+                      </RadioBox>
+                    );
+                  })}
+                </RadioBoxGroup>
+              </section>
+              <HorizontalRule />
             </>
           )}
           <div className={formFieldContainerStyles}>
@@ -260,25 +324,38 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 <br />
                 {mode === 'create' && (
                   <Body>
-                    By default, search indexes will have the following search
-                    configurations. You can refine this later.
+                    By default,{' '}
+                    {searchIndexType === 'vectorSearch'
+                      ? 'vector search'
+                      : 'search'}{' '}
+                    indexes will have the following search configurations. You
+                    can refine this later.
                   </Body>
                 )}
                 <Link
-                  href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+                  href={
+                    searchIndexType === 'vectorSearch'
+                      ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-tutorial/'
+                      : 'https://www.mongodb.com/docs/atlas/atlas-search/tutorial/'
+                  }
                   target="_blank"
                   hideExternalIcon={true}
                 >
-                  View Atlas Search tutorials{' '}
-                  <Icon size="small" glyph="OpenNewTab"></Icon>
+                  View Atlas{' '}
+                  {searchIndexType === 'vectorSearch'
+                    ? 'Vector Search'
+                    : 'Search'}{' '}
+                  tutorials <Icon size="small" glyph="OpenNewTab"></Icon>
                 </Link>
               </div>
-              <div className={templateToolbarDropdownStyles}>
-                <SearchIndexTemplateDropdown
-                  tooltip="Selecting a new template will replace your existing index definition in the code editor."
-                  onTemplate={onChangeTemplate}
-                />
-              </div>
+              {searchIndexType === 'search' && (
+                <div className={templateToolbarDropdownStyles}>
+                  <SearchIndexTemplateDropdown
+                    tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                    onTemplate={onChangeTemplate}
+                  />
+                </div>
+              )}
             </section>
             <CodemirrorMultilineEditor
               ref={editorRef}

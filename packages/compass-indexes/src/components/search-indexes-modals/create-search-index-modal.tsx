@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
+import type { SearchIndexType } from './base-search-index-modal';
 
 export const DEFAULT_INDEX_DEFINITION = `{
   mappings: {
@@ -16,7 +17,11 @@ type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  onCreateIndex: (indexName: string, indexDefinition: Document) => void;
+  onCreateIndex: (index: {
+    name: string;
+    type: SearchIndexType;
+    definition: Document;
+  }) => void;
   onCloseModal: () => void;
 };
 

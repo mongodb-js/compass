@@ -90,7 +90,30 @@ describe('Base Search Index Modal', function () {
       userEvent.click(
         screen.getByRole('button', { name: 'Create Search Index' })
       );
-      expect(onSubmitSpy).to.have.been.calledOnceWithExactly('default', {});
+      expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+        name: 'default',
+        definition: {},
+        type: 'search',
+      });
+    });
+
+    it('submits the modal with the correct type on create search index', function () {
+      userEvent.click(
+        screen.getByTestId('search-index-type-vectorSearch-button'),
+        undefined,
+        {
+          // leafygreen adds pointer-events: none on actually clickable elements
+          skipPointerEventsCheck: true,
+        }
+      );
+      userEvent.click(
+        screen.getByRole('button', { name: 'Create Search Index' })
+      );
+      expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+        name: 'default',
+        definition: {},
+        type: 'vectorSearch',
+      });
     });
   });
 

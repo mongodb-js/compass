@@ -47,6 +47,7 @@ import type {
   ReplaceOptions,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
+  SearchIndexDescription,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -471,8 +472,7 @@ export interface DataService {
 
   createSearchIndex(
     ns: string,
-    name: string,
-    definition: Document
+    description: SearchIndexDescription
   ): Promise<string>;
 
   updateSearchIndex(
@@ -1684,11 +1684,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_239))
   async createSearchIndex(
     ns: string,
-    name: string,
-    definition: Document
+    description: SearchIndexDescription
   ): Promise<string> {
     const coll = this._collection(ns, 'CRUD');
-    return coll.createSearchIndex({ name, definition });
+    return coll.createSearchIndex(description);
   }
 
   @op(mongoLogId(1_001_000_240))
