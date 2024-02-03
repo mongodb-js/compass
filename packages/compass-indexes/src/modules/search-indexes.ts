@@ -1,22 +1,21 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
-import { isAction } from './../utils/is-action';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
+import type { SearchIndex } from 'mongodb-data-service';
+
+import { isAction } from './../utils/is-action';
+import type { SortDirection, IndexesThunkAction } from '.';
+import { switchToSearchIndexes } from './index-view';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-import type { SortDirection, IndexesThunkAction } from '.';
-
-import type { SearchIndex } from 'mongodb-data-service';
-import { switchToSearchIndexes } from './index-view';
-import type { SearchIndexType } from '../components/search-indexes-modals/base-search-index-modal';
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
 
@@ -415,7 +414,7 @@ export const createIndex = ({
   definition,
 }: {
   name: string;
-  type: SearchIndexType;
+  type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {
@@ -434,8 +433,12 @@ export const createIndex = ({
     try {
       await dataService?.createSearchIndex(namespace, {
         name,
-        type,
         definition,
+        ...(type
+          ? {
+              type,
+            }
+          : {}),
       });
     } catch (ex) {
       const error = (ex as Error).message;
@@ -469,7 +472,7 @@ export const updateIndex = ({
   definition,
 }: {
   name: string;
-  type: SearchIndexType;
+  type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {

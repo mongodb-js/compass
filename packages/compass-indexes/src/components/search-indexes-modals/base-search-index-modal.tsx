@@ -36,7 +36,10 @@ import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
-import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
+import {
+  ATLAS_VECTOR_SEARCH_TEMPLATE,
+  type SearchTemplate,
+} from '@mongodb-js/mongodb-constants';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
@@ -92,6 +95,12 @@ const footerStyles = css({
   gap: spacing[2],
 });
 
+export const DEFAULT_INDEX_DEFINITION = `{
+  mappings: {
+    dynamic: true,
+  },
+}`;
+
 type ParsingError = {
   message: string;
   pos: number | undefined;
@@ -102,19 +111,20 @@ type BaseSearchIndexModalProps = {
   mode: 'create' | 'update';
   initialIndexName: string;
   initialIndexDefinition: string;
-  initialIndexType?: SearchIndexType;
+  initialIndexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
+  isVectorSearchSupported?: boolean;
   error: string | undefined;
   onSubmit: (index: {
     name: string;
-    type: SearchIndexType;
+    type?: string;
     definition: Document;
   }) => void;
   onClose: () => void;
 };
 
-export type SearchIndexType = 'search' | 'vectorSearch';
+type SearchIndexType = 'search' | 'vectorSearch';
 
 const searchIndexTypes = [
   {
@@ -137,6 +147,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   initialIndexType,
   isModalOpen,
   isBusy,
+  isVectorSearchSupported,
   error,
   onSubmit,
   onClose,
@@ -144,7 +155,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const editorRef = useRef<EditorRef>(null);
 
   const [indexName, setIndexName] = useState(initialIndexName);
-  const [searchIndexType, setSearchIndexType] = useState<SearchIndexType>(
+  const [searchIndexType, setSearchIndexType] = useState<string>(
     initialIndexType ?? searchIndexTypes[0].value
   );
   const [indexDefinition, setIndexDefinition] = useState(
@@ -218,10 +229,21 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
     onSubmit({
       name: indexName,
-      type: searchIndexType,
       definition: indexDefinitionDoc,
+      ...(isVectorSearchSupported
+        ? {
+            type: searchIndexType,
+          }
+        : {}),
     });
-  }, [onSubmit, parsingError, indexName, searchIndexType, indexDefinition]);
+  }, [
+    onSubmit,
+    parsingError,
+    indexName,
+    searchIndexType,
+    indexDefinition,
+    isVectorSearchSupported,
+  ]);
 
   const onChangeTemplate = useCallback(
     (template: SearchTemplate) => {
@@ -236,8 +258,15 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const onChangeSearchIndexType = useCallback(
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
       setSearchIndexType(value as SearchIndexType);
+
+      // Set the template.
+      if (value === 'vectorSearch') {
+        onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
+      } else {
+        onSearchIndexDefinitionChanged(DEFAULT_INDEX_DEFINITION);
+      }
     },
-    [setSearchIndexType]
+    [setSearchIndexType, onChangeTemplate, onSearchIndexDefinitionChanged]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -287,32 +316,36 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 />
               </section>
               <HorizontalRule />
-              <section className={formFieldContainerStyles}>
-                <Label htmlFor="search-index-type">
-                  Atlas Search Index type
-                </Label>
-                <RadioBoxGroup
-                  id="search-index-type"
-                  data-testid="search-index-type"
-                  onChange={onChangeSearchIndexType}
-                  value={searchIndexType}
-                >
-                  {searchIndexTypes.map(({ label, value }) => {
-                    return (
-                      <RadioBox
-                        id={`search-index-type-${value}-button`}
-                        data-testid={`search-index-type-${value}-button`}
-                        checked={searchIndexType === value}
-                        value={value}
-                        key={value}
-                      >
-                        {label}
-                      </RadioBox>
-                    );
-                  })}
-                </RadioBoxGroup>
-              </section>
-              <HorizontalRule />
+              {isVectorSearchSupported && (
+                <>
+                  <section className={formFieldContainerStyles}>
+                    <Label htmlFor="search-index-type">
+                      Atlas Search Index type
+                    </Label>
+                    <RadioBoxGroup
+                      id="search-index-type"
+                      data-testid="search-index-type"
+                      onChange={onChangeSearchIndexType}
+                      value={searchIndexType}
+                    >
+                      {searchIndexTypes.map(({ label, value }) => {
+                        return (
+                          <RadioBox
+                            id={`search-index-type-${value}-button`}
+                            data-testid={`search-index-type-${value}-button`}
+                            checked={searchIndexType === value}
+                            value={value}
+                            key={value}
+                          >
+                            {label}
+                          </RadioBox>
+                        );
+                      })}
+                    </RadioBoxGroup>
+                  </section>
+                  <HorizontalRule />
+                </>
+              )}
             </>
           )}
           <div className={formFieldContainerStyles}>
@@ -351,6 +384,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               {searchIndexType === 'search' && (
                 <div className={templateToolbarDropdownStyles}>
                   <SearchIndexTemplateDropdown
+                    isVectorSearchSupported={isVectorSearchSupported}
                     tooltip="Selecting a new template will replace your existing index definition in the code editor."
                     onTemplate={onChangeTemplate}
                   />

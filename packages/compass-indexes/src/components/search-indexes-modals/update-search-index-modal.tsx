@@ -4,19 +4,18 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
-import type { SearchIndexType } from './base-search-index-modal';
 
 type UpdateSearchIndexModalProps = {
   namespace: string;
   indexName: string;
   indexDefinition: string;
-  indexType: SearchIndexType;
+  indexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
   onUpdateIndex: (index: {
     name: string;
-    type: SearchIndexType;
+    type?: string;
     definition: Document;
   }) => void;
   onCloseModal: () => void;
