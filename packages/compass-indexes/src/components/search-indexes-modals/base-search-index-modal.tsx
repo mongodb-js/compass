@@ -275,6 +275,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
+  const isEditingVectorSearchIndex =
+    mode === 'update' && initialIndexType === 'vectorSearch';
+
   return (
     <Modal
       open={isModalOpen}
@@ -381,7 +384,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   tutorials <Icon size="small" glyph="OpenNewTab"></Icon>
                 </Link>
               </div>
-              {searchIndexType === 'search' && (
+              {searchIndexType === 'search' && !isEditingVectorSearchIndex && (
                 <div className={templateToolbarDropdownStyles}>
                   <SearchIndexTemplateDropdown
                     isVectorSearchSupported={isVectorSearchSupported}
