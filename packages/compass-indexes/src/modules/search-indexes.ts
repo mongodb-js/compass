@@ -21,6 +21,7 @@ export type SearchSortColumn = keyof typeof sortColumnToProps;
 
 const sortColumnToProps = {
   'Name and Fields': 'name',
+  Type: 'type',
   Status: 'status',
 } as const;
 
@@ -657,6 +658,29 @@ export function getInitialSearchIndexPipeline(name: string) {
       },
     },
   ];
+}
+
+export function getInitialVectorSearchIndexPipelineText(name: string) {
+  return `[
+  {
+    $vectorSearch: {
+      // Name of the Atlas Vector Search index to use.
+      index: "${name}",
+      // Indexed vectorEmbedding type field to search.
+      "path": "<field-to-search>",
+      // Array of numbers that represent the query vector.
+      // The array size must match the number of vector dimensions specified in the index definition for the field.
+      "queryVector": [],
+      // Number of nearest neighbors to use during the search.
+      // Value must be less than or equal to (<=) 10000.
+      "numCandidates": 50,
+      "limit": 10,
+      // Any MQL match expression that compares an indexed field with a boolean,
+      // number (not decimals), or string to use as a prefilter.
+      "filter": {}
+    },
+  },
+]`;
 }
 
 function _sortIndexes(
