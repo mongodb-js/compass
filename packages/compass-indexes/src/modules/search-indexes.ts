@@ -1,21 +1,21 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
-import { isAction } from './../utils/is-action';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
+import type { SearchIndex } from 'mongodb-data-service';
+
+import { isAction } from './../utils/is-action';
+import type { SortDirection, IndexesThunkAction } from '.';
+import { switchToSearchIndexes } from './index-view';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-import type { SortDirection, IndexesThunkAction } from '.';
-
-import type { SearchIndex } from 'mongodb-data-service';
-import { switchToSearchIndexes } from './index-view';
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
 
@@ -408,16 +408,21 @@ export const closeUpdateModal = (): UpdateSearchIndexCancelledAction => ({
   type: ActionTypes.UpdateSearchIndexCancelled,
 });
 
-export const createIndex = (
-  indexName: string,
-  indexDefinition: Document
-): IndexesThunkAction<Promise<void>> => {
+export const createIndex = ({
+  name,
+  type,
+  definition,
+}: {
+  name: string;
+  type?: string;
+  definition: Document;
+}): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {
     const { namespace, dataService } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
 
-    if (indexName === '') {
+    if (name === '') {
       dispatch({
         type: ActionTypes.CreateSearchIndexFailed,
         error: 'Please enter the name of the index.',
@@ -426,11 +431,15 @@ export const createIndex = (
     }
 
     try {
-      await dataService?.createSearchIndex(
-        namespace,
-        indexName,
-        indexDefinition
-      );
+      await dataService?.createSearchIndex(namespace, {
+        name,
+        definition,
+        ...(type
+          ? {
+              type,
+            }
+          : {}),
+      });
     } catch (ex) {
       const error = (ex as Error).message;
       dispatch({
@@ -443,10 +452,11 @@ export const createIndex = (
     dispatch({ type: ActionTypes.CreateSearchIndexSucceeded });
     track('Index Created', {
       atlas_search: true,
+      type,
     });
 
     openToast('search-index-creation-in-progress', {
-      title: `Your index ${indexName} is in progress.`,
+      title: `Your index ${name} is in progress.`,
       dismissible: true,
       timeout: 5000,
       variant: 'progress',
@@ -457,10 +467,14 @@ export const createIndex = (
   };
 };
 
-export const updateIndex = (
-  indexName: string,
-  indexDefinition: Document
-): IndexesThunkAction<Promise<void>> => {
+export const updateIndex = ({
+  name,
+  definition,
+}: {
+  name: string;
+  type?: string;
+  definition: Document;
+}): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {
     const {
       namespace,
@@ -469,26 +483,22 @@ export const updateIndex = (
     } = getState();
 
     const currentIndexDefinition = indexes.find(
-      (x) => x.name === indexName
+      (x) => x.name === name
     )?.latestDefinition;
-    if (isEqual(currentIndexDefinition, indexDefinition)) {
+    if (isEqual(currentIndexDefinition, definition)) {
       dispatch(closeUpdateModal());
       return;
     }
 
     try {
       dispatch({ type: ActionTypes.UpdateSearchIndexStarted });
-      await dataService?.updateSearchIndex(
-        namespace,
-        indexName,
-        indexDefinition
-      );
+      await dataService?.updateSearchIndex(namespace, name, definition);
       dispatch({ type: ActionTypes.UpdateSearchIndexSucceeded });
       track('Index Edited', {
         atlas_search: true,
       });
       openToast('search-index-update-in-progress', {
-        title: `Your index ${indexName} is being updated.`,
+        title: `Your index ${name} is being updated.`,
         dismissible: true,
         timeout: 5000,
         variant: 'progress',

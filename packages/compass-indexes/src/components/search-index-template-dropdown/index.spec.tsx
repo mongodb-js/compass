@@ -22,6 +22,7 @@ describe('Search Index Template Dropdown', function () {
     render(
       <SearchIndexTemplateDropdown
         tooltip="Tooltip"
+        isVectorSearchSupported
         onTemplate={onTemplateSpy}
       />
     );

@@ -9,10 +9,15 @@ type UpdateSearchIndexModalProps = {
   namespace: string;
   indexName: string;
   indexDefinition: string;
+  indexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  onUpdateIndex: (indexName: string, indexDefinition: Document) => void;
+  onUpdateIndex: (index: {
+    name: string;
+    type?: string;
+    definition: Document;
+  }) => void;
   onCloseModal: () => void;
 };
 
@@ -22,6 +27,7 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   namespace,
   indexName,
   indexDefinition,
+  indexType,
   isModalOpen,
   isBusy,
   error,
@@ -33,6 +39,7 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
       namespace={namespace}
       mode={'update'}
       initialIndexName={indexName}
+      initialIndexType={indexType}
       initialIndexDefinition={indexDefinition}
       isModalOpen={isModalOpen}
       isBusy={isBusy}
@@ -49,18 +56,18 @@ const mapState = ({
     indexes,
     updateIndex: { indexName, isBusy, isModalOpen, error },
   },
-}: RootState) => ({
-  namespace,
-  isModalOpen,
-  isBusy,
-  indexName,
-  indexDefinition: JSON.stringify(
-    indexes.find((x) => x.name === indexName)?.latestDefinition,
-    null,
-    2
-  ),
-  error,
-});
+}: RootState) => {
+  const index = indexes.find((x) => x.name === indexName);
+  return {
+    namespace,
+    isModalOpen,
+    isBusy,
+    indexName,
+    indexDefinition: JSON.stringify(index?.latestDefinition, null, 2),
+    indexType: index?.type,
+    error,
+  };
+};
 
 const mapDispatch = {
   onCloseModal: closeUpdateModal,
