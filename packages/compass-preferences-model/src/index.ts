@@ -23,12 +23,9 @@ export {
   getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
-export {
-  setupPreferencesAndUser,
-  getActiveUser,
-  isAIFeatureEnabled,
-} from './utils';
-export type { User, UserStorage } from './storage';
+export { getActiveUser, isAIFeatureEnabled } from './utils';
+export { setupPreferencesAndUser } from './compass-utils';
+export type { User, UserStorage } from './user-storage';
 export type { PreferencesAccess };
 export { setupPreferences };
 export const defaultPreferencesInstance: PreferencesAccess =

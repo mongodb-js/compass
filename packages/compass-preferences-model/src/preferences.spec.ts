@@ -4,7 +4,7 @@ import os from 'os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { featureFlags } from './feature-flags';
-import { PersistentStorage } from './storage';
+import { PersistentStorage } from './preferences-persistent-storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = Object.entries(featureFlags)
