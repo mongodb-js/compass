@@ -56,19 +56,18 @@ const mapState = ({
     indexes,
     updateIndex: { indexName, isBusy, isModalOpen, error },
   },
-}: RootState) => ({
-  namespace,
-  isModalOpen,
-  isBusy,
-  indexName,
-  indexDefinition: JSON.stringify(
-    indexes.find((x) => x.name === indexName)?.latestDefinition,
-    null,
-    2
-  ),
-  indexType: indexes.find((x) => x.name === indexName)?.type,
-  error,
-});
+}: RootState) => {
+  const index = indexes.find((x) => x.name === indexName);
+  return {
+    namespace,
+    isModalOpen,
+    isBusy,
+    indexName,
+    indexDefinition: JSON.stringify(index?.latestDefinition, null, 2),
+    indexType: index?.type,
+    error,
+  };
+};
 
 const mapDispatch = {
   onCloseModal: closeUpdateModal,
