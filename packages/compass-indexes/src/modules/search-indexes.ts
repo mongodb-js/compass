@@ -665,7 +665,7 @@ export function getInitialVectorSearchIndexPipelineText(name: string) {
   {
     $vectorSearch: {
       // Name of the Atlas Vector Search index to use.
-      index: "${name}",
+      index: ${JSON.stringify(name)},
       // Indexed vectorEmbedding type field to search.
       "path": "<field-to-search>",
       // Array of numbers that represent the query vector.
