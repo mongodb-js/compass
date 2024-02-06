@@ -10,6 +10,7 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
+import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
@@ -564,16 +565,9 @@ async function startCompass(
     chromeArgs.push('--');
   }
 
-  // webdriverio automatically prepends '--' to options that do not already have it.
-  // We need the ability to pass positional arguments, though.
-  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
-  (chromeArgs as any).map = function () {
-    return [...this];
-  };
-
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'info' as const,
+    logLevel: 'warn' as const, // info is super verbose from webdriverio 8 onwards
     outputDir: webdriverLogPath,
   };
 
@@ -606,27 +600,17 @@ async function startCompass(
 
   const options = {
     capabilities: {
-      browserName: 'chrome',
+      browserName: 'chromium',
+      browserVersion: '120.0.6099.227', // TODO: this must always be the corresponding chromium version for the electron version
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
-      // more chrome options
-      /*
-      'loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      },
-      'goog:loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      }
-      */
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts,
+    ...opts, // TODO: Is this a good idea? We're passing everything on to remote()
   };
 
   debug('Starting compass via webdriverio with the following configuration:');
@@ -635,7 +619,7 @@ async function startCompass(
   let browser: CompassBrowser;
 
   try {
-    browser = await remote(options);
+    browser = (await remote(options)) as CompassBrowser;
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
@@ -772,13 +756,14 @@ export async function rebuildNativeModules(
     await fs.readFile(fullElectronPath, 'utf8')
   ).version;
 
-  await rebuild({
+  const rebuildOptions: RebuildOptions = {
     ...rebuildConfig,
     electronVersion,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
     projectRootPath: path.resolve(compassPath, '..', '..'),
-  });
+  };
+  await rebuild(rebuildOptions);
 }
 
 export async function compileCompassAssets(
@@ -801,13 +786,15 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
       metadata = require('mongodb-compass/dist/target.json');
     }
     // Double-checking that Compass app path exists, not only the metadata
-    await fs.stat(metadata.appPath);
+    await fs.stat(metadata.appPath as string);
     debug('Existing Compass found', metadata);
     return metadata;
-  } catch (e: any) {
+  } catch (e: unknown) {
     debug('Existing Compass build not found', e);
     throw new Error(
-      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${e.message}`
+      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${
+        (e as Error).message
+      }`
     );
   }
 }
@@ -901,6 +888,11 @@ export async function init(
   const compass = await startCompass(pathName(name ?? formattedDate()), opts);
 
   const { browser } = compass;
+
+  // larger window for more consistent results
+  await browser.execute(() => {
+    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  });
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();

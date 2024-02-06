@@ -376,7 +376,7 @@ export async function setConnectFormState(
       // make sure we found and clicked on an option
       expect(
         found,
-        `Count not find URL option "${key}". Found "${allText.join(', ')}"`
+        `Could not find URL option "${key}". Found "${allText.join(', ')}"`
       ).to.be.true;
 
       // make sure the menu goes away once we clicked on the option

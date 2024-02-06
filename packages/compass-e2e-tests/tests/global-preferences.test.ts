@@ -57,7 +57,7 @@ describe('Global preferences', function () {
           'enableMaps'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set at Compass startup.'
         );
@@ -88,7 +88,7 @@ describe('Global preferences', function () {
           'enableMaps'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -119,7 +119,7 @@ describe('Global preferences', function () {
           'enableMaps'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -149,7 +149,7 @@ describe('Global preferences', function () {
         'enableMaps'
       );
       expect(value).to.equal('false');
-      expect(disabled).to.equal(''); // null = missing attribute, '' = set
+      expect(disabled).to.equal('true');
       expect(bannerText).to.include(
         'This setting cannot be modified as it has been set in the global Compass configuration file.'
       );
@@ -171,7 +171,7 @@ describe('Global preferences', function () {
           'readOnly'
         );
         expect(value).to.equal('true');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -182,7 +182,7 @@ describe('Global preferences', function () {
           'enableShell'
         );
         expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(disabled).to.equal('true');
         expect(bannerText).to.include(
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
@@ -211,7 +211,14 @@ describe('Global preferences', function () {
 
   it('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
-      extraSpawnArgs: ['mongodb://usr:53cr3t@localhost:0/'],
+      wrapBinary: async (binary: string): Promise<string> => {
+        const wrapperPath = path.join(tmpdir, 'wrap.sh');
+        const wrapper = `#!/bin/bash\n'${binary}' "$@" "mongodb://usr:53cr3t@localhost:0/"\n`;
+        console.log({ wrapper });
+        await fs.writeFile(wrapperPath, wrapper);
+        await fs.chmod(wrapperPath, 0o755);
+        return wrapperPath;
+      },
     });
     try {
       // ps-list is ESM-only in recent versions.

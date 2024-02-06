@@ -12,12 +12,11 @@ export async function addDatabase(
 ): Promise<void> {
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
-  const dbInput = await browser.$(Selectors.CreateDatabaseDatabaseName);
-  await dbInput.setValue(dbName);
-  const collectionInput = await browser.$(
-    Selectors.CreateDatabaseCollectionName
+  await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
+  await browser.setValueVisible(
+    Selectors.CreateDatabaseCollectionName,
+    collectionName
   );
-  await collectionInput.setValue(collectionName);
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
 
