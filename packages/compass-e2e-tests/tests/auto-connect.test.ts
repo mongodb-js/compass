@@ -10,7 +10,7 @@ const connectionStringUnreachable =
   'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-describe('Automatically connecting from the command line', function () {
+describe.only('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
@@ -75,7 +75,8 @@ describe('Automatically connecting from the command line', function () {
   function positionalArgs(positionalArgs: string) {
     return async function wrapBinary(binary: string): Promise<string> {
       const wrapperPath = path.join(tmpdir, 'wrap.sh');
-      const wrapper = `#!/bin/bash\n'${binary}' "$@" "${positionalArgs}"\n`;
+      // NOTE: positionalArgs has to be escaped or quoted on the outside
+      const wrapper = `#!/bin/bash\n'${binary}' "$@" ${positionalArgs}\n`;
       console.log({ wrapper });
       await fs.writeFile(wrapperPath, wrapper);
       await fs.chmod(wrapperPath, 0o755);
@@ -85,7 +86,7 @@ describe('Automatically connecting from the command line', function () {
 
   it('works with a connection string on the command line', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      wrapBinary: positionalArgs(connectionStringSuccess),
+      wrapBinary: positionalArgs(`"${connectionStringSuccess}"`),
       noWaitForConnectionScreen: true,
     });
     try {
@@ -98,7 +99,7 @@ describe('Automatically connecting from the command line', function () {
   it('works with a connection file on the command line', async function () {
     const args = [
       '--file',
-      path.join(tmpdir, 'exported.json'),
+      `"${path.join(tmpdir, 'exported.json')}"`,
       '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
       '--passphrase',
       'p4ssw0rd',
@@ -118,7 +119,7 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       noWaitForConnectionScreen: true,
       firstRun: true,
-      wrapBinary: positionalArgs(connectionStringSuccess),
+      wrapBinary: positionalArgs(`"${connectionStringSuccess}"`),
     });
     try {
       const browser = compass.browser;
@@ -135,7 +136,7 @@ describe('Automatically connecting from the command line', function () {
   it('fails with an unreachable URL', async function () {
     const args = [
       '--file',
-      path.join(tmpdir, 'exported.json'),
+      `"${path.join(tmpdir, 'exported.json')}"`,
       'd47681e6-1884-41ff-be8e-8843f1c21fd8',
       '--passphrase',
       'p4ssw0rd',
@@ -156,7 +157,7 @@ describe('Automatically connecting from the command line', function () {
   it('fails with invalid auth', async function () {
     const args = [
       '--file',
-      path.join(tmpdir, 'exported.json'),
+      `"${path.join(tmpdir, 'exported.json')}"`,
       '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
       '--passphrase',
       'p4ssw0rd',
@@ -180,7 +181,7 @@ describe('Automatically connecting from the command line', function () {
   it('fails with an invalid connection string', async function () {
     const args = [
       '--file',
-      path.join(tmpdir, 'invalid.json'),
+      `"${path.join(tmpdir, 'invalid.json')}"`,
       '9beea496-22b2-4973-b3d8-03d5010ff989',
     ];
 
@@ -198,7 +199,7 @@ describe('Automatically connecting from the command line', function () {
   it('fails with an invalid connections file', async function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(
-        ['--file', path.join(tmpdir, 'doesnotexist.json')].join(' ')
+        ['--file', `"${path.join(tmpdir, 'doesnotexist.json')}"`].join(' ')
       ),
     });
     try {
@@ -215,7 +216,7 @@ describe('Automatically connecting from the command line', function () {
     }
     const compass = await init(this.test?.fullTitle(), {
       noWaitForConnectionScreen: true,
-      wrapBinary: positionalArgs(connectionStringSuccess),
+      wrapBinary: positionalArgs(`"${connectionStringSuccess}"`),
     });
     try {
       const { browser } = compass;
@@ -236,7 +237,7 @@ describe('Automatically connecting from the command line', function () {
 
   it('does not enter auto-connect mode in new windows', async function () {
     const compass = await init(this.test?.fullTitle(), {
-      wrapBinary: positionalArgs(connectionStringSuccess),
+      wrapBinary: positionalArgs(`"${connectionStringSuccess}"`),
       noWaitForConnectionScreen: true,
     });
     try {

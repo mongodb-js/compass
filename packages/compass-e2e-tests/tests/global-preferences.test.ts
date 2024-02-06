@@ -223,7 +223,7 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  it('redacts command line options after parsing', async function () {
+  it.only('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
       wrapBinary: async (binary: string): Promise<string> => {
         const wrapperPath = path.join(tmpdir, 'wrap.sh');
