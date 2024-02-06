@@ -5,10 +5,7 @@ import dns from 'dns';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
-import {
-  defaultPreferencesInstance,
-  getActiveUser,
-} from 'compass-preferences-model';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
@@ -24,7 +21,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
-  ipcRenderer?.call(
+  void ipcRenderer?.call(
     'compass:error:fatal',
     event.error
       ? { message: event.error.message, stack: event.error.stack }
@@ -65,7 +62,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
-window.setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
+(window as any).setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
   await defaultPreferencesInstance.savePreferences({ showDevFeatureFlags });
 };
 
@@ -108,14 +105,20 @@ const Application = View.extend({
      * @see NODE-4281
      * @todo: remove when NODE-4281 is merged.
      */
-    Number.prototype.unref = () => {};
+    (Number.prototype as any).unref = () => {
+      // noop
+    };
 
-    function trackPerfEvent({ name, value }) {
+    function trackPerfEvent({
+      name,
+      value,
+    }: Pick<webvitals.Metric, 'name' | 'value'>) {
       const fullName = {
         FCP: 'First Contentful Paint',
         LCP: 'Largest Contentful Paint',
         FID: 'First Input Delay',
         CLS: 'Cumulative Layout Shift',
+        TTFB: 'Time to First Byte',
       }[name];
       track(fullName, { value });
     }
@@ -211,9 +214,16 @@ const app = {
     state.preRender();
 
     try {
-      const user = await getActiveUser(defaultPreferencesInstance);
-      setupIntercom(user, defaultPreferencesInstance);
+      void setupIntercom(defaultPreferencesInstance);
     } catch (e) {
+      log.warn(
+        mongoLogId(1_001_000_276),
+        'Main Window',
+        'Failed to set up Intercom',
+        {
+          error: (e as Error).message,
+        }
+      );
       // noop
     }
     // Catch a data refresh coming from window-manager.
@@ -273,4 +283,4 @@ Object.defineProperty(app, 'state', {
   },
 });
 
-app.init();
+void app.init();

@@ -168,7 +168,7 @@ export class AtlasService {
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
     | undefined = ipcMain;
 
-  private static getUserId: () => Promise<string>;
+  private static getUserId: () => string;
   private static preferences: PreferencesAccess;
   private static config: AtlasServiceConfig;
 
@@ -237,7 +237,7 @@ export class AtlasService {
     {
       preferences,
       getUserId,
-    }: { preferences: PreferencesAccess; getUserId: () => Promise<string> }
+    }: { preferences: PreferencesAccess; getUserId: () => string }
   ): Promise<void> {
     this.preferences = preferences;
     this.getUserId = getUserId;
@@ -574,7 +574,7 @@ export class AtlasService {
   static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     this.throwIfNetworkTrafficDisabled();
 
-    const userId = await this.getUserId();
+    const userId = this.getUserId();
     const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
     log.info(
