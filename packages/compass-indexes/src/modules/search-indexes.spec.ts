@@ -221,7 +221,9 @@ describe('search-indexes module', function () {
     });
 
     it('creates the index when data is valid', async function () {
-      await store.dispatch(createIndex('indexName', {}));
+      await store.dispatch(
+        createIndex({ name: 'indexName', definition: {}, type: 'search' })
+      );
       expect(
         store.getState().searchIndexes.createIndex.isModalOpen
       ).to.be.false;
@@ -229,7 +231,13 @@ describe('search-indexes module', function () {
     });
 
     it('opens the search index view when an index is created', async function () {
-      await store.dispatch(createIndex('indexName', {}));
+      await store.dispatch(
+        createIndex({
+          name: 'indexName',
+          definition: {},
+          type: 'search',
+        })
+      );
       expect(store.getState().indexView).to.eq('search-indexes');
     });
   });
@@ -249,7 +257,11 @@ describe('search-indexes module', function () {
 
     it('updates the index when data is valid and does not match existing definition', async function () {
       await store.dispatch(
-        updateIndex(UPDATE_INDEX.name, { something: 'else' })
+        updateIndex({
+          name: UPDATE_INDEX.name,
+          definition: { something: 'else' },
+          type: 'search',
+        })
       );
       expect(
         store.getState().searchIndexes.updateIndex.isModalOpen
@@ -270,7 +282,11 @@ describe('search-indexes module', function () {
 
     it('does not update the index when data is valid and matches existing definition', async function () {
       await store.dispatch(
-        updateIndex(UPDATE_INDEX.name, UPDATE_INDEX.latestDefinition)
+        updateIndex({
+          name: UPDATE_INDEX.name,
+          definition: UPDATE_INDEX.latestDefinition,
+          type: 'search',
+        })
       );
       expect(
         store.getState().searchIndexes.updateIndex.isModalOpen
