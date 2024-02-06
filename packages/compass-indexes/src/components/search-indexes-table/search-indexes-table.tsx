@@ -4,7 +4,7 @@ import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { BadgeVariant } from '@mongodb-js/compass-components';
+import { BadgeVariant, Disclaimer } from '@mongodb-js/compass-components';
 import {
   EmptyContent,
   Button,
@@ -128,23 +128,25 @@ const searchIndexFieldStyles = css({
 function VectorSearchIndexDetails({ definition }: { definition: Document }) {
   return (
     <>
-      {!definition.fields || definition.fields.length === 0
-        ? '[empty]'
-        : definition.fields.map((field: { path: string }) => (
-            <Tooltip
-              align="top"
-              key={field.path}
-              justify="middle"
-              trigger={({ children, ...props }) => (
-                <Badge {...props} className={searchIndexFieldStyles}>
-                  {children}
-                  {field.path}
-                </Badge>
-              )}
-            >
-              {JSON.stringify(field, null, 2)}
-            </Tooltip>
-          ))}
+      {!definition.fields || definition.fields.length === 0 ? (
+        <Disclaimer>No fields in the index definition.</Disclaimer>
+      ) : (
+        definition.fields.map((field: { path: string }) => (
+          <Tooltip
+            align="top"
+            key={field.path}
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <Badge {...props} className={searchIndexFieldStyles}>
+                {children}
+                {field.path}
+              </Badge>
+            )}
+          >
+            {JSON.stringify(field, null, 2)}
+          </Tooltip>
+        ))
+      )}
     </>
   );
 }
@@ -169,13 +171,15 @@ function SearchIndexDetails({ definition }: { definition: Document }) {
   }
   return (
     <>
-      {badges.length === 0
-        ? '[empty]'
-        : badges.map((badge) => (
-            <Badge key={badge.name} className={badge.className}>
-              {badge.name}
-            </Badge>
-          ))}
+      {badges.length === 0 ? (
+        <Disclaimer>No mappings in the index definition.</Disclaimer>
+      ) : (
+        badges.map((badge) => (
+          <Badge key={badge.name} className={badge.className}>
+            {badge.name}
+          </Badge>
+        ))
+      )}
     </>
   );
 }
@@ -229,8 +233,8 @@ export const SearchIndexesTable: React.FunctionComponent<
                 type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
                 link={
                   isVectorSearchIndex
-                    ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-type/'
-                    : 'https://www.mongodb.com/docs/atlas/atlas-search/'
+                    ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
+                    : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
                 }
               />
             ),
