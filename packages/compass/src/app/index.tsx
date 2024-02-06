@@ -217,7 +217,7 @@ const app = {
       void setupIntercom(defaultPreferencesInstance);
     } catch (e) {
       log.warn(
-        mongoLogId(1_001_000_276),
+        mongoLogId(1_001_000_289),
         'Main Window',
         'Failed to set up Intercom',
         {
