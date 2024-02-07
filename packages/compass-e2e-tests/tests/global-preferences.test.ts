@@ -213,13 +213,12 @@ describe('Global preferences', function () {
     const compass = await init(this.test?.title, {
       wrapBinary: async (binary: string): Promise<string> => {
         const wrapperPath = path.join(tmpdir, 'wrap.sh');
-        const wrapper = `#!/bin/bash
-if [[ $OSTYPE == "cygwin" ]]; then
-  $(cygpath '${binary}') "$@" "mongodb://usr:53cr3t@localhost:0/" --
-else
-  '${binary}' "$@" "mongodb://usr:53cr3t@localhost:0/"
-fi
-`;
+        const connectionString = 'mongodb://usr:53cr3t@localhost:0/';
+        const command =
+          process.platform === 'win32'
+            ? `$(cygpath '${binary}') "$@" "${connectionString}" --`
+            : `${binary}' "$@" "${connectionString}"`;
+        const wrapper = `#!/bin/bash\n${command}\n`;
         console.log({ wrapper });
         await fs.writeFile(wrapperPath, wrapper);
         await fs.chmod(wrapperPath, 0o755);

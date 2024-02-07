@@ -70,13 +70,11 @@ describe('Automatically connecting from the command line', function () {
     return async function wrapBinary(binary: string): Promise<string> {
       const wrapperPath = path.join(tmpdir, 'wrap.sh');
       // NOTE: positionalArgs has to be escaped or quoted on the outside
-      const wrapper = `#!/bin/bash
-if [[ $OSTYPE == "cygwin" ]]; then
-  $(cygpath '${binary}') "$@" ${positionalArgs} --
-else
-  '${binary}' "$@" ${positionalArgs}
-fi
-`;
+      const command =
+        process.platform === 'win32'
+          ? `$(cygpath '${binary}') "$@" ${positionalArgs} --`
+          : `${binary}' "$@" ${positionalArgs}`;
+      const wrapper = `#!/bin/bash\n${command}\n`;
       console.log({ wrapper });
       await fs.writeFile(wrapperPath, wrapper);
       await fs.chmod(wrapperPath, 0o755);
