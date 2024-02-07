@@ -11,7 +11,10 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
-import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import {
+  type AtlasServiceError,
+  throwIfAINotEnabled,
+} from '@mongodb-js/atlas-service/renderer';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -147,7 +150,7 @@ export const runAIQuery = (
     getState,
     {
       dataService,
-      atlasService,
+      atlasServices,
       localAppRegistry,
       preferences,
       logger: { log, track },
@@ -178,6 +181,7 @@ export const runAIQuery = (
 
     let jsonResponse;
     try {
+      await throwIfAINotEnabled(preferences, atlasServices.authClient);
       const sampleDocuments = await dataService.sample(
         namespace,
         {
@@ -196,7 +200,7 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasService.getQueryFromUserInput({
+      jsonResponse = await atlasServices.aiClient.getQueryFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,
@@ -367,11 +371,11 @@ export const disableAIFeature = (): QueryBarThunkAction<void> => {
 };
 
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasService }) => {
+  return async (dispatch, _getState, { atlasServices: { authClient } }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasService.signIn({ promptType: 'ai-promo-modal' });
-        await atlasService.enableAIFeature();
+        await authClient.signIn({ promptType: 'ai-promo-modal' });
+        await authClient.enableAIFeature();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {

@@ -233,7 +233,7 @@ const reducer: Reducer<AtlasLoginSettingsState> = (
 };
 
 export const signIn = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasService }) => {
+  return async (dispatch, getState, { atlasServices }) => {
     if (
       ['in-progress', 'authenticated'].includes(getState().atlasLogin.status)
     ) {
@@ -245,7 +245,7 @@ export const signIn = (): SettingsThunkAction<Promise<void>> => {
         type: AtlasLoginSettingsActionTypes.SignInStart,
         attemptId: id,
       });
-      const userInfo = await atlasService.signIn({
+      const userInfo = await atlasServices.authClient.signIn({
         signal,
         promptType: 'none',
       });
@@ -263,7 +263,7 @@ export const signIn = (): SettingsThunkAction<Promise<void>> => {
 };
 
 export const getUserInfo = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasService }) => {
+  return async (dispatch, getState, { atlasServices }) => {
     if (
       ['in-progress', 'authenticated'].includes(getState().atlasLogin.status)
     ) {
@@ -271,7 +271,7 @@ export const getUserInfo = (): SettingsThunkAction<Promise<void>> => {
     }
     try {
       dispatch({ type: AtlasLoginSettingsActionTypes.GetUserInfoStart });
-      const userInfo = await atlasService.getUserInfo();
+      const userInfo = await atlasServices.authClient.getCurrentUser();
       dispatch({
         type: AtlasLoginSettingsActionTypes.GetUserInfoSuccess,
         userInfo,
@@ -286,8 +286,8 @@ export const getUserInfo = (): SettingsThunkAction<Promise<void>> => {
 };
 
 export const signOut = (): SettingsThunkAction<void> => {
-  return (dispatch, _getState, { atlasService }) => {
-    void atlasService.signOut();
+  return (dispatch, _getState, { atlasServices }) => {
+    void atlasServices.authClient.signOut();
     dispatch({ type: AtlasLoginSettingsActionTypes.SignOut });
   };
 };
@@ -323,12 +323,12 @@ export const cancelAtlasLoginAttempt = (): SettingsThunkAction<void> => {
 };
 
 export const enableAIFeature = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasService }) => {
+  return async (dispatch, getState, { atlasServices }) => {
     if (getState().atlasLogin.status !== 'authenticated') {
       return;
     }
     try {
-      await atlasService.enableAIFeature();
+      await atlasServices.authClient.enableAIFeature();
       dispatch({ type: AtlasLoginSettingsActionTypes.EnableAIFeature });
     } catch (err) {
       // User declined opt-in, do not enable
@@ -337,12 +337,12 @@ export const enableAIFeature = (): SettingsThunkAction<Promise<void>> => {
 };
 
 export const disableAIFeature = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasService }) => {
+  return async (dispatch, getState, { atlasServices }) => {
     if (getState().atlasLogin.status !== 'authenticated') {
       return;
     }
     dispatch({ type: AtlasLoginSettingsActionTypes.DisableAIFeature });
-    await atlasService.disableAIFeature();
+    await atlasServices.authClient.disableAIFeature();
   };
 };
 

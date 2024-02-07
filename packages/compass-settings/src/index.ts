@@ -3,6 +3,7 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import SettingsPlugin from './components/index';
 import { onActivated } from './stores';
+import { atlasServicesLocator } from '@mongodb-js/atlas-service/provider';
 
 export const CompassSettingsPlugin = registerHadronPlugin(
   {
@@ -13,5 +14,6 @@ export const CompassSettingsPlugin = registerHadronPlugin(
   {
     logger: createLoggerAndTelemetryLocator('COMPASS-SETTINGS'),
     preferences: preferencesLocator,
+    atlasServices: atlasServicesLocator,
   }
 );

@@ -9,7 +9,10 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
-import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import {
+  type AtlasServiceError,
+  throwIfAINotEnabled,
+} from '@mongodb-js/atlas-service/renderer';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -193,7 +196,7 @@ export const runAIPipelineGeneration = (
     dispatch,
     getState,
     {
-      atlasService,
+      atlasServices,
       pipelineBuilder,
       preferences,
       logger: { track, log, mongoLogId },
@@ -229,6 +232,7 @@ export const runAIPipelineGeneration = (
 
     let jsonResponse;
     try {
+      await throwIfAINotEnabled(preferences, atlasServices.authClient);
       const sampleDocuments =
         (await dataService?.sample?.(
           namespace,
@@ -248,7 +252,7 @@ export const runAIPipelineGeneration = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasService.getAggregationFromUserInput({
+      jsonResponse = await atlasServices.aiClient.getAggregationFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,
@@ -389,11 +393,11 @@ export const resetIsAggregationGeneratedFromQuery =
   };
 
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasService }) => {
+  return async (dispatch, _getState, { atlasServices: { authClient } }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasService.signIn({ promptType: 'ai-promo-modal' });
-        await atlasService.enableAIFeature();
+        await authClient.signIn({ promptType: 'ai-promo-modal' });
+        await authClient.enableAIFeature();
       }
       dispatch({
         type: AIPipelineActionTypes.ShowInput,

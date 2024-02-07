@@ -3,7 +3,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServices } from '@mongodb-js/atlas-service/provider';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -63,10 +63,6 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * Storage service for saved aggregations
      */
     pipelineStorage: PipelineStorage;
-    /**
-     * Service for interacting with Atlas-only features
-     */
-    atlasService: AtlasService;
   }>;
 
 export type AggregationsPluginServices = {
@@ -77,6 +73,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasServices: AtlasServices;
 };
 
 export function activateAggregationsPlugin(
@@ -89,6 +86,7 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
+    atlasServices,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -115,8 +113,6 @@ export function activateAggregationsPlugin(
     preferences,
     initialPipelineSource
   );
-
-  const atlasService = options.atlasService ?? new AtlasService();
 
   const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
 
@@ -171,7 +167,7 @@ export function activateAggregationsPlugin(
         localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
-        atlasService,
+        atlasServices,
         workspaces,
         instance,
         preferences,
@@ -189,7 +185,7 @@ export function activateAggregationsPlugin(
     )
   );
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasServices.authClient, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

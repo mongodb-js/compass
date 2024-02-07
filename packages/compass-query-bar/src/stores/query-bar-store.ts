@@ -22,13 +22,13 @@ import {
   FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { AtlasServices } from '@mongodb-js/atlas-service/provider';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -40,12 +40,12 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasServices: AtlasServices;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
 // implemented yet, so we're keeping them separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasService;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
 };
@@ -63,11 +63,11 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: AtlasService;
   preferences: PreferencesAccess;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
+  atlasServices: AtlasServices;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -108,7 +108,7 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    atlasService = new AtlasService(),
+    atlasServices,
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
   } = services;
@@ -136,7 +136,7 @@ export function activatePlugin(
       globalAppRegistry,
       recentQueryStorage,
       favoriteQueryStorage,
-      atlasService,
+      atlasServices,
       preferences,
       logger,
     }
@@ -155,7 +155,7 @@ export function activatePlugin(
     });
   });
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasServices.authClient, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

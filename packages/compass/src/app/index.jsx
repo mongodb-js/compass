@@ -10,6 +10,12 @@ import {
   getActiveUser,
 } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
+import {
+  CompassAtlasAuthApiClient,
+  CompassAtlasHttpApiClient,
+  createAiClient,
+} from '@mongodb-js/atlas-service/renderer';
+import { AtlasServicesProvider } from '@mongodb-js/atlas-service/provider';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 // https://github.com/nodejs/node/issues/40537
@@ -175,16 +181,39 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
+    const aiClient = await createAiClient(
+      new CompassAtlasHttpApiClient(),
+      {
+        ...defaultPreferencesInstance,
+        // todo: clean up as Sergey's PR lands
+        getUserId: () => {
+          const { currentUserId, telemetryAnonymousId } =
+            defaultPreferencesInstance.getPreferences();
+          return currentUserId || telemetryAnonymousId;
+        },
+      },
+      createLoggerAndTelemetry('ATLAS-AI-CLIENT')
+    );
+    /**
+     * @type {import('@mongodb-js/atlas-service/provider').AtlasServices}
+     */
+    const atlasServicesValue = {
+      aiClient,
+      authClient: new CompassAtlasAuthApiClient(),
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <AtlasServicesProvider value={atlasServicesValue}>
+              <AppRegistryProvider>
+                <CompassHomePlugin
+                  appName={remote.app.getName()}
+                  getAutoConnectInfo={getAutoConnectInfo}
+                ></CompassHomePlugin>
+              </AppRegistryProvider>
+            </AtlasServicesProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

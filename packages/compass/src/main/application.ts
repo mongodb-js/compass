@@ -15,10 +15,7 @@ import type {
   PreferencesAccess,
   UserStorage,
 } from 'compass-preferences-model';
-import {
-  getActiveUser,
-  setupPreferencesAndUser,
-} from 'compass-preferences-model';
+import { setupPreferencesAndUser } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
 import { defaultsDeep } from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -216,10 +213,6 @@ class CompassApplication {
 
     await AtlasService.init(atlasServiceConfig, {
       preferences: this.preferences,
-      getUserId: async () =>
-        (
-          await getActiveUser(this.preferences, this.userStorage)
-        ).id,
     });
 
     this.addExitHandler(() => {
