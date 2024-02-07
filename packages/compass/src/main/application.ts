@@ -297,6 +297,10 @@ class CompassApplication {
     ipcMain?.handle('compass:appName', () => {
       return app.getName();
     });
+
+    ipcMain?.handle('compass:mainProcessPid', () => {
+      return process.pid;
+    });
   }
 
   private static async setupLogging(): Promise<void> {
