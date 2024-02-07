@@ -13,7 +13,6 @@ import { setupCSFLELibrary } from './setup-csfle-library';
 import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
-  UserStorage,
 } from 'compass-preferences-model';
 import {
   getActiveUser,
@@ -64,7 +63,6 @@ class CompassApplication {
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
   public static preferences: PreferencesAccess;
-  private static userStorage: UserStorage;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -77,11 +75,8 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    const { preferences, userStorage } = await setupPreferencesAndUser(
-      globalPreferences
-    );
+    const { preferences } = await setupPreferencesAndUser(globalPreferences);
     this.preferences = preferences;
-    this.userStorage = userStorage;
     await this.setupLogging();
     // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
@@ -216,10 +211,7 @@ class CompassApplication {
 
     await AtlasService.init(atlasServiceConfig, {
       preferences: this.preferences,
-      getUserId: async () =>
-        (
-          await getActiveUser(this.preferences, this.userStorage)
-        ).id,
+      getUserId: () => getActiveUser(this.preferences).id,
     });
 
     this.addExitHandler(() => {

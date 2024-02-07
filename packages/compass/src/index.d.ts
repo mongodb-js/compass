@@ -41,3 +41,16 @@ declare module 'process' {
     }
   }
 }
+
+declare module 'marky' {
+  declare function mark(label: string): void;
+  declare function stop(label: string): void;
+  export { mark, stop };
+}
+
+declare module 'ampersand-view' {
+  class View {
+    static extend(...args: any): any;
+  }
+  export default View;
+}

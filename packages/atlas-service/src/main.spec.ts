@@ -84,7 +84,7 @@ describe('AtlasServiceMain', function () {
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
-    AtlasService['getUserId'] = () => Promise.resolve('test');
+    AtlasService['getUserId'] = () => 'test';
 
     AtlasService['config'] = defaultConfig;
 

@@ -67,6 +67,7 @@ export type InternalUserPreferences = {
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
+  userCreatedAt: number;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -310,6 +311,17 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.string().uuid().optional(),
     type: 'string',
+  },
+  /**
+   * Stores the timestamp for when the user was created
+   */
+  userCreatedAt: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().default(Date.now()),
+    type: 'number',
   },
   /**
    * Enable/disable the AI services. This is currently set

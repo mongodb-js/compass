@@ -1,6 +1,5 @@
 import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
-import type { UserStorage } from './user-storage';
 
 export function getActiveUserId(
   preferences: PreferencesAccess
@@ -9,15 +8,15 @@ export function getActiveUserId(
   return currentUserId || telemetryAnonymousId;
 }
 
-export async function getActiveUser(
-  preferences: PreferencesAccess,
-  userStorage: UserStorage
-): Promise<User> {
+export function getActiveUser(
+  preferences: PreferencesAccess
+): Pick<User, 'id' | 'createdAt'> {
   const userId = getActiveUserId(preferences);
+  const { userCreatedAt } = preferences.getPreferences();
   if (!userId) {
     throw new Error('User not setup.');
   }
-  return userStorage.getUser(userId);
+  return { id: userId, createdAt: new Date(userCreatedAt) };
 }
 
 /**
