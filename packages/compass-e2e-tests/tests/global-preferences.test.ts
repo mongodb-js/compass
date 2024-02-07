@@ -215,7 +215,7 @@ describe('Global preferences', function () {
         const wrapperPath = path.join(tmpdir, 'wrap.sh');
         const wrapper = `#!/bin/bash
 if [[ $OSTYPE == "cygwin" ]]; then
-  $(cygpath '${binary}') "$@" "mongodb://usr:53cr3t@localhost:0/"
+  $(cygpath '${binary}') "$@" "mongodb://usr:53cr3t@localhost:0/" --
 else
   '${binary}' "$@" "mongodb://usr:53cr3t@localhost:0/"
 fi

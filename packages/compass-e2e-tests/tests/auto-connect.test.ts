@@ -72,7 +72,7 @@ describe('Automatically connecting from the command line', function () {
       // NOTE: positionalArgs has to be escaped or quoted on the outside
       const wrapper = `#!/bin/bash
 if [[ $OSTYPE == "cygwin" ]]; then
-  $(cygpath '${binary}') "$@" ${positionalArgs}
+  $(cygpath '${binary}') "$@" ${positionalArgs} --
 else
   '${binary}' "$@" ${positionalArgs}
 fi
