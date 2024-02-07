@@ -90,7 +90,6 @@ export function prepareOIDCOptions(
       matchingAllowedHosts(connectionOptions);
   }
 
-  // @ts-expect-error Will go away on @types/node update
   // with proper `AbortSignal` typings
   options.oidc.signal = signal;
 
