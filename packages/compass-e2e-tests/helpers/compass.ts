@@ -585,7 +585,6 @@ async function startCompass(
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts, // TODO: Is this a good idea? We're passing everything on to remote()
   };
 
   debug('Starting compass via webdriverio with the following configuration:');
