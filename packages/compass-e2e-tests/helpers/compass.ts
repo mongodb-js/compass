@@ -320,17 +320,6 @@ export class Compass {
   }
 
   async stop(): Promise<void> {
-    // TODO: we don't have main logs to write :(
-    /*
-    const mainLogs = [];
-    const mainLogPath = path.join(
-      LOG_PATH,
-      `electron-main.${name}.log`
-    );
-    debug(`Writing application main process log to ${mainLogPath}`);
-    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
-    */
-
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${this.name}.json`
@@ -526,7 +515,6 @@ async function startCompass(
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
     chromeArgs.push(`--app=${COMPASS_PATH}`);
-    //process.chdir(COMPASS_PATH); // TODO: do we need this?
   }
 
   // https://peter.sh/experiments/chromium-command-line-switches/
@@ -534,19 +522,6 @@ async function startCompass(
   chromeArgs.push(
     ...CHROME_STARTUP_FLAGS,
     `--user-data-dir=${defaultUserDataDir}`,
-
-    // chomedriver options
-    // TODO: cant get this to work
-    //`--log-path=${chromedriverLogPath}`,
-    //'--verbose',
-
-    // electron/chromium options
-    // TODO: cant get this to work either
-    //'--enable-logging=file',
-    //`--log-file=${chromedriverLogPath}`,
-    //'--log-level=INFO',
-    //'--v=1',
-    // --vmodule=pattern
 
     // by default make sure we get the welcome modal
     ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
@@ -601,7 +576,7 @@ async function startCompass(
   const options = {
     capabilities: {
       browserName: 'chromium',
-      browserVersion: '120.0.6099.227', // TODO: this must always be the corresponding chromium version for the electron version
+      browserVersion: '120.0.6099.227', // TODO(COMPASS-7639): this must always be the corresponding chromium version for the electron version
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
