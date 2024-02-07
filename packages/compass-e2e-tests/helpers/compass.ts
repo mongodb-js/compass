@@ -129,6 +129,7 @@ export class Compass {
   logPath?: string;
   userDataPath?: string;
   appName?: string;
+  mainProcessPid?: number;
 
   constructor(
     name: string,
@@ -196,20 +197,17 @@ export class Compass {
 
     // get the app logPath out of electron early in case the app crashes before we
     // close it and load the logs
-    this.logPath = await this.browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      return require('electron').ipcRenderer.invoke('compass:logPath');
-    });
-
-    this.userDataPath = await this.browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      return require('electron').ipcRenderer.invoke('compass:userDataPath');
-    });
-
-    this.appName = await this.browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      return require('electron').ipcRenderer.invoke('compass:appName');
-    });
+    [this.logPath, this.userDataPath, this.appName, this.mainProcessPid] =
+      await this.browser.execute(() => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { ipcRenderer } = require('electron');
+        return Promise.all([
+          ipcRenderer.invoke('compass:logPath'),
+          ipcRenderer.invoke('compass:userDataPath'),
+          ipcRenderer.invoke('compass:appName'),
+          ipcRenderer.invoke('compass:mainProcessPid'),
+        ] as const);
+      });
   }
 
   addDebugger(): void {
@@ -686,20 +684,9 @@ async function startCompass(
             .join(', ')}`
     );
 
-    filteredProcesses.forEach((p) => {
-      try {
-        debug(`Killing process ${p.name} with PID ${p.pid}`);
-        if (process.platform === 'win32') {
-          crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
-        } else {
-          process.kill(p.pid);
-        }
-      } catch (err) {
-        debug(`Failed to kill process ${p.name} with PID ${p.pid}`, {
-          error: (err as Error).stack,
-        });
-      }
-    });
+    for (const p of filteredProcesses) {
+      tryKillProcess(p.pid, p.name);
+    }
     throw err;
   }
 
@@ -711,6 +698,21 @@ async function startCompass(
   await compass.recordLogs();
 
   return compass;
+}
+
+function tryKillProcess(pid: number, name = '<unknown>'): void {
+  try {
+    debug(`Killing process ${name} with PID ${pid}`);
+    if (process.platform === 'win32') {
+      crossSpawn.sync('taskkill', ['/PID', String(pid), '/F', '/T']);
+    } else {
+      process.kill(pid);
+    }
+  } catch (err) {
+    debug(`Failed to kill process ${name} with PID ${pid}`, {
+      error: (err as Error).stack,
+    });
+  }
 }
 
 /**
@@ -927,14 +929,14 @@ export async function cleanup(compass?: Compass): Promise<void> {
   }
 
   let timeoutId;
-  const timeoutPromise = new Promise<void>((resolve) => {
+  const timeoutPromise = new Promise<'timeout'>((resolve) => {
     timeoutId = setTimeout(() => {
       console.error(`It took too long to close compass [${compass.name}]`);
-      resolve();
+      resolve('timeout');
     }, 30000);
   });
 
-  const closePromise = (async function close(): Promise<void> {
+  const closePromise = (async function close(): Promise<'closed'> {
     try {
       await compass.stop();
     } catch (err) {
@@ -948,10 +950,18 @@ export async function cleanup(compass?: Compass): Promise<void> {
       }
     }
     clearTimeout(timeoutId);
-    return;
+    return 'closed';
   })();
 
-  return Promise.race([timeoutPromise, closePromise]);
+  const result = await Promise.race([timeoutPromise, closePromise]);
+  if (result === 'timeout' && compass.mainProcessPid) {
+    try {
+      debug(`Trying to manually kill Compass [${compass.name}]`);
+      tryKillProcess(compass.mainProcessPid, compass.name);
+    } catch {
+      /* already logged ... */
+    }
+  }
 }
 
 function pathName(text: string) {
