@@ -81,7 +81,12 @@ export async function fetchShardingKeys(
   try {
     const docs = await dataService.find(
       'config.collections',
-      { _id: ns } as any,
+      {
+        _id: ns as any,
+        // unsplittable introduced in PM-3364 to mark unsharded collections
+        // that are still being tracked in the catalog
+        unsplittable: { $ne: true },
+      },
       { maxTimeMS, projection: { key: 1, _id: 0 } },
       { abortSignal: signal }
     );
