@@ -249,7 +249,7 @@ This document was automatically generated on Wed Feb 07 2024.
 | **[ejson-shell-parser](#1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7)**                                 | 2.0.0        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#2de45e41f5577aa71213bc8c5095fe939c208102aca1fddf1dfd1ba10c6d3558)**                                           | 28.2.0       | MIT                                 |
+| **[electron](#fbe31ba116fedfb4c83039ff76fc6f1f617048e031e4b0f3bf2bf6a9102389f1)**                                           | 28.2.1       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -21058,9 +21058,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="2de45e41f5577aa71213bc8c5095fe939c208102aca1fddf1dfd1ba10c6d3558"></a>
+<a id="fbe31ba116fedfb4c83039ff76fc6f1f617048e031e4b0f3bf2bf6a9102389f1"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 28.2.0)
+### [electron](https://www.npmjs.com/package/electron) (version 28.2.1)
 
 License tags: MIT
 
