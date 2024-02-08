@@ -22,13 +22,12 @@ describe('setupIntercom', function () {
   let fetchMock: SinonStub;
   let preferences: PreferencesAccess;
 
-  async function testRunSetupIntercom(user: User) {
+  async function testRunSetupIntercom() {
     const intercomScript = {
       load: sinon.spy(),
       unload: sinon.spy(),
     };
     await setupIntercom(
-      user,
       preferences,
       intercomScript as unknown as IntercomScript
     );
@@ -55,6 +54,8 @@ describe('setupIntercom', function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableFeedbackPanel: true,
+      telemetryAnonymousId: mockUser.id,
+      userCreatedAt: mockUser.createdAt.getTime(),
     });
   });
 
@@ -72,7 +73,7 @@ describe('setupIntercom', function () {
       await preferences.savePreferences({
         enableFeedbackPanel: true,
       });
-      const { intercomScript } = await testRunSetupIntercom(mockUser);
+      const { intercomScript } = await testRunSetupIntercom();
 
       expect(intercomScript.load).to.have.been.calledWith({
         app_id: 'appid123',
@@ -94,7 +95,7 @@ describe('setupIntercom', function () {
       await preferences.savePreferences({
         enableFeedbackPanel: false,
       });
-      const { intercomScript } = await testRunSetupIntercom(mockUser);
+      const { intercomScript } = await testRunSetupIntercom();
       expect(intercomScript.load).not.to.have.been.called;
       expect(intercomScript.unload).to.have.been.called;
     });
@@ -102,7 +103,7 @@ describe('setupIntercom', function () {
 
   describe('when cannot be enabled', function () {
     async function expectSetupGetsSkipped() {
-      const { intercomScript } = await testRunSetupIntercom(mockUser);
+      const { intercomScript } = await testRunSetupIntercom();
 
       expect(intercomScript.load).to.not.have.been.called;
 
