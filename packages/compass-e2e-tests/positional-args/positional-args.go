@@ -26,7 +26,7 @@ func main() {
 	positionalArgs := os.Getenv("POSITIONAL_ARGS")
 	args := os.Args[1:]
 
-	commandArgs := append(args, positionalArgs)
+	commandArgs := append(args, positionalArgs, "--")
 	cmd := exec.Command(binary, commandArgs...)
 	fmt.Println("Running command:", cmd.String())
 
