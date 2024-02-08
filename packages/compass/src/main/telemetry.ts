@@ -80,7 +80,6 @@ class CompassTelemetry {
     }
 
     this.analytics.track({
-      userId: this.currentUserId,
       anonymousId: this.telemetryAnonymousId,
       event: info.event,
       properties: { ...info.properties, ...commonProperties },
@@ -108,7 +107,6 @@ class CompassTelemetry {
       this.telemetryAnonymousId
     ) {
       this.analytics.identify({
-        userId: this.currentUserId,
         anonymousId: this.telemetryAnonymousId,
         traits: {
           ...this._getCommonProperties(),
