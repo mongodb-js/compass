@@ -204,6 +204,25 @@ function showConnectWindow(
     );
   });
 
+  // Cors
+  window.webContents.session.webRequest.onHeadersReceived(
+    { urls: ['*mongodb.com/*'] },
+    (details, callback) => {
+      Object.keys(details.responseHeaders ?? {}).forEach((header) => {
+        if (/access-control-allow-origin/i.test(header)) {
+          delete details.responseHeaders![header];
+        }
+      });
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'access-control-allow-origin': '*',
+        },
+        statusLine: details.statusLine,
+      });
+    }
+  );
+
   return window;
 }
 

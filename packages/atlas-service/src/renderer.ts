@@ -33,18 +33,16 @@ export class AtlasService {
     | 'isAuthenticated'
     | 'signIn'
     | 'signOut'
-    | 'getAggregationFromUserInput'
-    | 'getQueryFromUserInput'
     | 'updateAtlasUserConfig'
+    | 'maybeGetToken'
   >('AtlasService', [
     'getUserInfo',
     'introspect',
     'isAuthenticated',
     'signIn',
     'signOut',
-    'getAggregationFromUserInput',
-    'getQueryFromUserInput',
     'updateAtlasUserConfig',
+    'maybeGetToken',
   ]);
 
   private get ipc() {
@@ -52,6 +50,10 @@ export class AtlasService {
       throw new Error('IPC not available');
     }
     return this._ipc;
+  }
+
+  get getToken() {
+    return this.ipc.maybeGetToken;
   }
 
   get getUserInfo() {
@@ -62,12 +64,6 @@ export class AtlasService {
   }
   get isAuthenticated() {
     return this.ipc.isAuthenticated;
-  }
-  get getAggregationFromUserInput() {
-    return this.ipc.getAggregationFromUserInput;
-  }
-  get getQueryFromUserInput() {
-    return this.ipc.getQueryFromUserInput;
   }
   get signOut() {
     return this.ipc.signOut;
@@ -184,3 +180,8 @@ export type {
   AIQuery,
   AIAggregation,
 } from './util';
+
+export {
+  CompassAtlasHttpApiClient,
+  AtlasServiceNew,
+} from './atlas-http-api-client';
