@@ -993,7 +993,7 @@ export function positionalArgs(positionalArgs: string[]) {
     process.env.BINARY = binary;
     process.env.POSITIONAL_ARGS =
       process.platform === 'win32'
-        ? positionalArgs.join('_pathsep_')
+        ? positionalArgs.join('_varsep_')
         : positionalArgs.join(' ');
     const wrapperPath =
       process.platform === 'win32'

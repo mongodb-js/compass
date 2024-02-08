@@ -24,7 +24,7 @@ import (
 
 func main() {
 	binary := os.Getenv("BINARY")
-	positionalArgs := strings.Split(os.Getenv("POSITIONAL_ARGS"), "_pathsep_")
+	positionalArgs := strings.Split(os.Getenv("POSITIONAL_ARGS"), "_varsep_")
 	args := os.Args[1:]
 
 	commandArgs := append(args, positionalArgs...)
