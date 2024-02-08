@@ -214,9 +214,9 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  it.only('redacts command line options after parsing', async function () {
+  it('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
-      wrapBinary: positionalArgs('mongodb://usr:53cr3t@localhost:0/'),
+      wrapBinary: positionalArgs(['mongodb://usr:53cr3t@localhost:0/']),
     });
     try {
       // ps-list is ESM-only in recent versions.

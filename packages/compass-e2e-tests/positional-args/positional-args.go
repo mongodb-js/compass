@@ -19,14 +19,15 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
 	binary := os.Getenv("BINARY")
-	positionalArgs := os.Getenv("POSITIONAL_ARGS")
+	positionalArgs := strings.Split(os.Getenv("POSITIONAL_ARGS"), "_pathsep_")
 	args := os.Args[1:]
 
-	commandArgs := append(args, positionalArgs, "--")
+	commandArgs := append(args, positionalArgs...)
 	cmd := exec.Command(binary, commandArgs...)
 	fmt.Println("Running command:", cmd.String())
 

@@ -988,10 +988,13 @@ export function subtestTitle(
   return `${title}_${step}`;
 }
 
-export function positionalArgs(positionalArgs: string) {
+export function positionalArgs(positionalArgs: string[]) {
   return function wrapBinary(binary: string): string {
     process.env.BINARY = binary;
-    process.env.POSITIONAL_ARGS = positionalArgs;
+    process.env.POSITIONAL_ARGS =
+      process.platform === 'win32'
+        ? positionalArgs.join('_pathsep_')
+        : positionalArgs.join(' ');
     const wrapperPath =
       process.platform === 'win32'
         ? path.join(__dirname, '..', 'positional-args', 'positional-args.exe')
