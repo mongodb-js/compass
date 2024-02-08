@@ -78,7 +78,7 @@ describe('Automatically connecting from the command line', function () {
     }
   });
 
-  it.only('works with a connection file on the command line', async function () {
+  it('works with a connection file on the command line', async function () {
     const args = [
       `--file=${path.join(tmpdir, 'exported.json')}`,
       '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
