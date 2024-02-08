@@ -80,11 +80,9 @@ describe.only('Automatically connecting from the command line', function () {
 
   it('works with a connection file on the command line', async function () {
     const args = [
-      '--file',
-      path.join(tmpdir, 'exported.json'),
+      `--file=${path.join(tmpdir, 'exported.json')}`,
       '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
-      '--passphrase',
-      'p4ssw0rd',
+      `--passphrase=p4ssw0rd`,
     ];
 
     const compass = await init(this.test?.fullTitle(), {
@@ -118,11 +116,9 @@ describe.only('Automatically connecting from the command line', function () {
 
   it('fails with an unreachable URL', async function () {
     const args = [
-      '--file',
-      path.join(tmpdir, 'exported.json'),
+      `--file=${path.join(tmpdir, 'exported.json')}`,
       'd47681e6-1884-41ff-be8e-8843f1c21fd8',
-      '--passphrase',
-      'p4ssw0rd',
+      `--passphrase=p4ssw0rd`,
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args.join(' ')),
@@ -139,11 +135,9 @@ describe.only('Automatically connecting from the command line', function () {
 
   it('fails with invalid auth', async function () {
     const args = [
-      '--file',
-      path.join(tmpdir, 'exported.json'),
+      `--file=${path.join(tmpdir, 'exported.json')}`,
       '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
-      '--passphrase',
-      'p4ssw0rd',
+      `--passphrase=p4ssw0rd`,
       '--username=doesnotexist',
       '--password=asdf/',
     ];
@@ -163,8 +157,7 @@ describe.only('Automatically connecting from the command line', function () {
 
   it('fails with an invalid connection string', async function () {
     const args = [
-      '--file',
-      path.join(tmpdir, 'invalid.json'),
+      `--file=${path.join(tmpdir, 'invalid.json')}`,
       '9beea496-22b2-4973-b3d8-03d5010ff989',
     ];
     const compass = await init(this.test?.fullTitle(), {
@@ -181,7 +174,7 @@ describe.only('Automatically connecting from the command line', function () {
   it('fails with an invalid connections file', async function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(
-        ['--file', `"${path.join(tmpdir, 'doesnotexist.json')}"`].join(' ')
+        [`--file=${path.join(tmpdir, 'doesnotexist.json')}`].join(' ')
       ),
     });
     try {
