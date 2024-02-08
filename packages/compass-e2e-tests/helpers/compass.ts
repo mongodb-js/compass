@@ -990,7 +990,8 @@ export function subtestTitle(
 
 export function positionalArgs(positionalArgs: string[]) {
   return function wrapBinary(binary: string): string {
-    process.env.BINARY = binary;
+    process.env.BINARY =
+      process.env.POSITIONAL_ARGS === 'win32' ? binary : `"${binary}"`; // spaces in this path in linux
     process.env.POSITIONAL_ARGS =
       process.platform === 'win32'
         ? positionalArgs.join('_varsep_')
