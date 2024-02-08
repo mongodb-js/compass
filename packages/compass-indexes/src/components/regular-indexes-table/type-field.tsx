@@ -3,7 +3,7 @@ import getIndexHelpLink from '../../utils/index-link-helper';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
 
 import type { RegularIndex } from '../../modules/regular-indexes';
-import BadgeWithIconLink from './badge-with-icon-link';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export const canRenderTooltip = (type: RegularIndex['type']) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;

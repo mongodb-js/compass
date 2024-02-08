@@ -11,7 +11,8 @@ import type {
   DeriveValueFunction,
 } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
-import { InMemoryStorage, type BasePreferencesStorage } from './storage';
+import { InMemoryStorage } from './preferences-in-memory-storage';
+import type { PreferencesStorage } from './preferences-storage';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -44,7 +45,7 @@ type PreferenceSandboxPropertiesImpl = {
 export class Preferences {
   private _logger: LoggerAndTelemetry;
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
-  private _preferencesStorage: BasePreferencesStorage;
+  private _preferencesStorage: PreferencesStorage;
   private _globalPreferences: {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
@@ -57,7 +58,7 @@ export class Preferences {
     preferencesStorage = new InMemoryStorage(),
   }: {
     logger: LoggerAndTelemetry;
-    preferencesStorage: BasePreferencesStorage;
+    preferencesStorage: PreferencesStorage;
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>;
   }) {
     this._logger = logger;

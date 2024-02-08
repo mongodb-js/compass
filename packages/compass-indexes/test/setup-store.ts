@@ -34,8 +34,16 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   getSearchIndexes(ns: string) {
     return Promise.resolve([]);
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createSearchIndex(ns: string, name: string, spec: any) {
+  createSearchIndex(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ns: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    description: {
+      name: string;
+      definition: any;
+      type: string;
+    }
+  ) {
     return Promise.resolve('new-id');
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

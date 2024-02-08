@@ -83,6 +83,12 @@ variables:
 
 # This is here with the variables because anchors aren't supported across includes
 post:
+  - command: shell.exec
+    params:
+      working_dir: src
+      shell: bash
+      script: |
+        tar czvf all-e2e-logs.tgz packages/compass-e2e-tests/.log
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -92,6 +98,7 @@ post:
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
         - src/.testserver/logs/*
         - src/.evergreen/logs/*
+        - src/all-e2e-logs.tgz
       remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - command: s3.put
@@ -367,7 +374,7 @@ functions:
             sleep 20
           done
           echo "SSH connection established after $attempts attempts"
-    
+
           # Write the host info so that it can be used by the signing tool
           if [[ $OSTYPE == "cygwin" ]]; then
             identity_file=$(cygpath -wa "$identity_file")
@@ -566,7 +573,7 @@ functions:
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
-  
+
   verify-artifacts:
     - command: shell.exec
       params:
