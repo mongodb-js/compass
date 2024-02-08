@@ -987,3 +987,16 @@ export function subtestTitle(
   const title = test?.fullTitle() ?? formattedDate();
   return `${title}_${step}`;
 }
+
+export function positionalArgs(positionalArgs: string) {
+  return function wrapBinary(binary: string): string {
+    process.env.BINARY = binary;
+    process.env.POSITIONAL_ARGS = positionalArgs;
+    const wrapperPath =
+      process.platform === 'win32'
+        ? path.join(__dirname, '..', 'positional-args', 'positional-args.exe')
+        : path.join(__dirname, '..', 'scripts', 'positional-args.sh');
+    console.log({ binary, positionalArgs, wrapperPath });
+    return wrapperPath;
+  };
+}

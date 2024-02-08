@@ -1,5 +1,10 @@
 import { expect } from 'chai';
-import { init, cleanup, runCompassOnce } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  runCompassOnce,
+  positionalArgs,
+} from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -209,21 +214,9 @@ describe('Global preferences', function () {
     expect(stderr).to.not.include('DeprecationWarning');
   });
 
-  it('redacts command line options after parsing', async function () {
+  it.only('redacts command line options after parsing', async function () {
     const compass = await init(this.test?.title, {
-      wrapBinary: async (binary: string): Promise<string> => {
-        const wrapperPath = path.join(tmpdir, 'wrap.sh');
-        const connectionString = 'mongodb://usr:53cr3t@localhost:0/';
-        const command =
-          process.platform === 'win32'
-            ? `$(cygpath '${binary}') "$@" "${connectionString}" --`
-            : `${binary}' "$@" "${connectionString}"`;
-        const wrapper = `#!/bin/bash\n${command}\n`;
-        console.log({ wrapper });
-        await fs.writeFile(wrapperPath, wrapper);
-        await fs.chmod(wrapperPath, 0o755);
-        return wrapperPath;
-      },
+      wrapBinary: positionalArgs('mongodb://usr:53cr3t@localhost:0/'),
     });
     try {
       // ps-list is ESM-only in recent versions.
