@@ -495,7 +495,7 @@ describe('AtlasServiceMain', function () {
         preferences,
         getUserId: AtlasService['getUserId'],
       });
-      expect(getListenerCount(logger)).to.eq(25);
+      expect(getListenerCount(logger)).to.eq(26);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
