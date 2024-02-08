@@ -990,17 +990,24 @@ export function subtestTitle(
 
 export function positionalArgs(positionalArgs: string[]) {
   return function wrapBinary(binary: string): string {
-    process.env.BINARY =
-      process.env.POSITIONAL_ARGS === 'win32' ? binary : `"${binary}"`; // spaces in this path in linux
+    process.env.BINARY = binary;
+
     process.env.POSITIONAL_ARGS =
       process.platform === 'win32'
         ? positionalArgs.join('_varsep_')
         : positionalArgs.join(' ');
+
     const wrapperPath =
       process.platform === 'win32'
         ? path.join(__dirname, '..', 'positional-args', 'positional-args.exe')
         : path.join(__dirname, '..', 'scripts', 'positional-args.sh');
-    console.log({ binary, positionalArgs, wrapperPath });
+
+    console.log({
+      binary: process.env.BINARY,
+      args: process.env.POSITIONAL_ARGS,
+      wrapperPath,
+    });
+
     return wrapperPath;
   };
 }

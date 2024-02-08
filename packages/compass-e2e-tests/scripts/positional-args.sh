@@ -2,4 +2,4 @@
 
 set -e
 
-${BINARY} "$@" ${POSITIONAL_ARGS}
+"${BINARY}" "$@" ${POSITIONAL_ARGS}
