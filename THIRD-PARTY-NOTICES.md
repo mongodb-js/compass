@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Feb 08 2024.
+This document was automatically generated on Fri Feb 09 2024.
 
 ## List of dependencies
 
@@ -188,7 +188,7 @@ This document was automatically generated on Thu Feb 08 2024.
 | **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**                                      | 0.2.0        | MIT                                 |
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                                    | 1.1.11       | MIT                                 |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                               | 4.7.2        | Apache-2.0                          |
-| **[bson](#3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e)**                                               | 6.2.0        | Apache-2.0                          |
+| **[bson](#607dd6d7b6dd6a0f468e2cb81ea5a631792cf41d0e2d6111a56ce46f2d016cd4)**                                               | 6.3.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                                | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                       | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                        | 1.0.0        | MIT                                 |
@@ -335,7 +335,7 @@ This document was automatically generated on Thu Feb 08 2024.
 | **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**                                              | 2.5.2        | MIT                                 |
 | **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**                                              | 2.2.3        | MIT                                 |
 | **[jsondiffpatch](#2cc3b990f6692cd23f883319a727b42a76a3a9d6675d1ebd8a05241eb7edc4ac)**                                      | 0.5.0        | MIT                                 |
-| **[kerberos](#ecc13232f73ddbc1e14ae853e00606bba961d628224781bdf06d0614b1965923)**                                           | 2.0.2        | Apache-2.0                          |
+| **[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**                                           | 2.1.0        | Apache-2.0                          |
 | **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**                                     | 1.3.0        | MIT                                 |
 | **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**                                             | 7.9.0        | MIT                                 |
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1        | BSD-2-Clause                        |
@@ -467,7 +467,7 @@ This document was automatically generated on Thu Feb 08 2024.
 | **[onetime](#8d8b66854ab397ef1815b6af9e17698a8e5f83b256a1202b74104ee5609c5d99)**                                            | 6.0.0        | MIT                                 |
 | **[open](#6c66626cf6e18f59c76bef1f4ed0c2b541e68592d65325d4fb83a659e3078981)**                                               | 9.1.0        | MIT                                 |
 | **[openid-client](#232ea216b02e0e7447b34f65477e23a91636c8d689c1a6faa398758f243a42d0)**                                      | 5.4.2        | MIT                                 |
-| **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**                                      | 1.2.0        | MIT                                 |
+| **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**                                      | 1.2.1        | MIT                                 |
 | **[papaparse](#a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684)**                                          | 5.3.2        | MIT                                 |
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3        | MIT                                 |
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0        | MIT                                 |
@@ -18776,9 +18776,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="3ef74b83b3a8e896c2fa1244001f3ebf06227cc6b34ce177f6a18889e1b4bc8e"></a>
+<a id="607dd6d7b6dd6a0f468e2cb81ea5a631792cf41d0e2d6111a56ce46f2d016cd4"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 6.2.0)
+### [bson](https://www.npmjs.com/package/bson) (version 6.3.0)
 
 License tags: Apache-2.0
 
@@ -24144,9 +24144,9 @@ License files:
 
 License tags: MIT
 
-<a id="ecc13232f73ddbc1e14ae853e00606bba961d628224781bdf06d0614b1965923"></a>
+<a id="05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e"></a>
 
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.0.2)
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.0)
 
 License tags: Apache-2.0
 
@@ -30541,9 +30541,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872"></a>
+<a id="ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de"></a>
 
-### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.2.0)
+### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.2.1)
 
 License tags: MIT
 
