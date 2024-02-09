@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app, safeStorage } from 'electron';
+import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -116,6 +116,7 @@ class CompassApplication {
       return;
     }
 
+    this.setupCORSBypass();
     void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
@@ -132,6 +133,92 @@ class CompassApplication {
     globalPreferences: ParsedGlobalPreferencesResult
   ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
+  }
+
+  private static setupCORSBypass() {
+    const CLOUD_URLS_FILTER = {
+      urls: [
+        '*://cloud.mongodb.com/*',
+        '*://cloud-dev.mongodb.com/*',
+        '*://compass.mongodb.com/*',
+      ],
+    };
+
+    // List of request headers that will indicate to the server that it's a CORS
+    // request and can trigger a CORS check that we are trying to bypass
+    const REQUEST_CORS_HEADERS = [
+      // Fetch metadata headers https://developer.mozilla.org/en-US/docs/Glossary/Fetch_metadata_request_header
+      'sec-fetch-site',
+      'sec-fetch-mode',
+      'sec-fetch-user',
+      'sec-fetch-dest',
+      'sec-purpose',
+      'service-worker-navigation-preload',
+      // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+      'origin',
+      'access-control-request-headers',
+      'access-control-request-method',
+    ];
+
+    const RESPONSE_CORS_HEADERS = [
+      'access-control-allow-credentials',
+      'access-control-allow-headers',
+      'access-control-allow-methods',
+      'access-control-allow-origin',
+      'access-control-expose-headers',
+      'access-control-max-age',
+    ];
+
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+      CLOUD_URLS_FILTER,
+      (details, callback) => {
+        console.log(
+          'onBeforeSendHeaders',
+          details.method,
+          details.url,
+          details.requestHeaders
+        );
+        // Filter out all CORS related headers
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(details.requestHeaders).filter(([name]) => {
+            return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({ requestHeaders: filteredHeaders });
+      }
+    );
+
+    session.defaultSession.webRequest.onHeadersReceived(
+      CLOUD_URLS_FILTER,
+      (details, callback) => {
+        console.log(
+          'onHeadersReceived',
+          details.method,
+          details.url,
+          details.statusLine,
+          details.responseHeaders
+        );
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(
+            // Types are not matching documentation
+            (details.responseHeaders as
+              | Record<string, string | string[]>
+              | undefined) ?? {}
+          ).filter(([name]) => {
+            return !RESPONSE_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({
+          responseHeaders: {
+            ...filteredHeaders,
+            'Access-Control-Allow-Origin': ['*'],
+            'Access-Control-Allow-Headers': ['*'],
+            'Access-Control-Allow-Methods': ['*'],
+            'Access-Control-Allow-Credentials': ['true'],
+          },
+        });
+      }
+    );
   }
 
   private static async setupAtlasService() {
