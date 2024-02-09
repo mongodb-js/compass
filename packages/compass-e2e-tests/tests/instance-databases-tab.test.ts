@@ -150,7 +150,8 @@ describe('Instance databases tab', function () {
     await dbCard.waitForDisplayed();
 
     // Drop it and refresh again
-    await browser.shellEval(`db.dropDatabase();`);
+    const text = await browser.shellEval(`db.dropDatabase();`);
+    console.log(`db.dropDatabase();`, { text });
     // looks like if you refresh too fast the database appears in the list but
     // the stats never load, so just pause for bit first
     await browser.pause(1000);
