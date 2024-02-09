@@ -50,7 +50,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.2.12",
     "@mongodb-js/compass-user-data": "^0.1.15",
-    "bson": "^6.2.0",
+    "bson": "^6.3.0",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "yargs-parser": "^21.1.1",

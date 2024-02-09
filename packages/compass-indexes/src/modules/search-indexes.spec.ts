@@ -331,3 +331,13 @@ describe('search-indexes module', function () {
     });
   });
 });
+
+describe('#getInitialVectorSearchIndexPipelineText', function () {
+  it('returns pipeline text with the index name', function () {
+    expect(
+      searchIndexesSlice.getInitialVectorSearchIndexPipelineText('pineapple')
+    ).to.include(`$vectorSearch: {
+      // Name of the Atlas Vector Search index to use.
+      index: "pineapple",`);
+  });
+});

@@ -4,12 +4,13 @@ import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { BadgeVariant } from '@mongodb-js/compass-components';
+import { BadgeVariant, Disclaimer } from '@mongodb-js/compass-components';
 import {
   EmptyContent,
   Button,
   Link,
   Badge,
+  Tooltip,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -18,6 +19,7 @@ import {
   SearchIndexesStatuses,
   dropSearchIndex,
   getInitialSearchIndexPipeline,
+  getInitialVectorSearchIndexPipelineText,
   pollSearchIndexes,
   showCreateModal,
   showUpdateModal,
@@ -28,6 +30,7 @@ import type { SortDirection, RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -107,6 +110,10 @@ function IndexStatus({
   );
 }
 
+function SearchIndexType({ type, link }: { type: string; link: string }) {
+  return <BadgeWithIconLink text={type} link={link} />;
+}
+
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
@@ -118,14 +125,35 @@ const searchIndexFieldStyles = css({
   gap: spacing[1],
 });
 
-function SearchIndexDetails({
-  indexName,
-  definition,
-}: {
-  indexName: string;
-  definition: Document;
-}) {
+function VectorSearchIndexDetails({ definition }: { definition: Document }) {
+  return (
+    <>
+      {!definition.fields || definition.fields.length === 0 ? (
+        <Disclaimer>No fields in the index definition.</Disclaimer>
+      ) : (
+        definition.fields.map((field: { path: string }) => (
+          <Tooltip
+            align="top"
+            key={field.path}
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <Badge {...props} className={searchIndexFieldStyles}>
+                {children}
+                {field.path}
+              </Badge>
+            )}
+          >
+            {JSON.stringify(field, null, 2)}
+          </Tooltip>
+        ))
+      )}
+    </>
+  );
+}
+
+function SearchIndexDetails({ definition }: { definition: Document }) {
   const badges: { name: string; className?: string }[] = [];
+
   if (definition.mappings?.dynamic) {
     badges.push({
       name: 'Dynamic Mappings',
@@ -142,22 +170,21 @@ function SearchIndexDetails({
     );
   }
   return (
-    <div
-      className={searchIndexDetailsStyles}
-      data-testid={`search-indexes-details-${indexName}`}
-    >
-      {badges.length === 0
-        ? '[empty]'
-        : badges.map((badge) => (
-            <Badge key={badge.name} className={badge.className}>
-              {badge.name}
-            </Badge>
-          ))}
-    </div>
+    <>
+      {badges.length === 0 ? (
+        <Disclaimer>No mappings in the index definition.</Disclaimer>
+      ) : (
+        badges.map((badge) => (
+          <Badge key={badge.name} className={badge.className}>
+            {badge.name}
+          </Badge>
+        ))
+      )}
+    </>
   );
 }
 
-const COLUMNS = ['Name and Fields', 'Status'] as const;
+const COLUMNS = ['Name and Fields', 'Type', 'Status'] as const;
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
@@ -184,6 +211,7 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const data = useMemo(() => {
     return indexes.map((index) => {
+      const isVectorSearchIndex = index.type === 'vectorSearch';
       return {
         key: index.name,
         'data-testid': `row-${index.name}`,
@@ -194,6 +222,22 @@ export const SearchIndexesTable: React.FunctionComponent<
               width: '30%',
             },
             children: index.name,
+          },
+          {
+            'data-testid': 'type-field',
+            style: {
+              width: '20%',
+            },
+            children: (
+              <SearchIndexType
+                type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
+                link={
+                  isVectorSearchIndex
+                    ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
+                    : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
+                }
+              />
+            ),
           },
           {
             'data-testid': 'status-field',
@@ -215,18 +259,30 @@ export const SearchIndexesTable: React.FunctionComponent<
             onEditIndex={onEditIndex}
             onRunAggregateIndex={(name) => {
               openCollectionWorkspace(namespace, {
-                initialPipeline: getInitialSearchIndexPipeline(name),
                 newTab: true,
+                ...(isVectorSearchIndex
+                  ? {
+                      initialPipelineText:
+                        getInitialVectorSearchIndexPipelineText(name),
+                    }
+                  : {
+                      initialPipeline: getInitialSearchIndexPipeline(name),
+                    }),
               });
             }}
           />
         ),
-        // TODO(COMPASS-7206): details for the nested row
         details: (
-          <SearchIndexDetails
-            indexName={index.name}
-            definition={index.latestDefinition}
-          />
+          <div
+            className={searchIndexDetailsStyles}
+            data-testid={`search-indexes-details-${index.name}`}
+          >
+            {isVectorSearchIndex ? (
+              <VectorSearchIndexDetails definition={index.latestDefinition} />
+            ) : (
+              <SearchIndexDetails definition={index.latestDefinition} />
+            )}
+          </div>
         ),
       };
     });
