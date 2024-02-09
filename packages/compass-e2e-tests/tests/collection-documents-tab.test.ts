@@ -483,7 +483,6 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
     const text = (await document.getText()).replace(/\s+/g, ' ');
-    console.log({ text });
     expect(text).to.match(
       /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
     );
