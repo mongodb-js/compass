@@ -90,7 +90,6 @@ export function prepareOIDCOptions(
       matchingAllowedHosts(connectionOptions);
   }
 
-  // with proper `AbortSignal` typings
   options.oidc.signal = signal;
 
   return options;
