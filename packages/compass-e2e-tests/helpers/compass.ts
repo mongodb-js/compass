@@ -529,17 +529,6 @@ async function startCompass(
     ...(opts.extraSpawnArgs ?? [])
   );
 
-  // Electron on Windows interprets its arguments in a weird way where
-  // the second positional argument inserted by webdriverio (about:blank)
-  // throws it off and won't let it start because it then interprets the first
-  // positional argument as an app path.
-  if (
-    process.platform === 'win32' &&
-    chromeArgs.some((arg) => !arg.startsWith('--'))
-  ) {
-    chromeArgs.push('--');
-  }
-
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
     logLevel: 'warn' as const, // info is super verbose from webdriverio 8 onwards
