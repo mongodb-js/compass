@@ -331,16 +331,16 @@ functions:
         wait: true
     # copy ssh key (this key will be used to connect to ssh server)
     - command: shell.exec
+      silent: true
       params:
+        working_dir: src
         shell: bash
+        env:
+          __project_aws_ssh_key_value: ${__project_aws_ssh_key_value}
         script: |
           set -e
-          {
-          set +x
-          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
-          chmod 0600 ~/.ssh/mcipacker.pem
-          set -x
-          }
+          .evergreen/setup-ssh-key.sh
+
     # wait for host to be ready
     - command: shell.exec
       params:
