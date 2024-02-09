@@ -146,8 +146,7 @@ describe('Instance databases tab', function () {
       dbSelector,
       'grid'
     );
-    const dbCard = await browser.$(dbSelector);
-    await dbCard.waitForDisplayed();
+    await browser.$(dbSelector).waitForDisplayed();
 
     // Drop it and refresh again
     const text = await browser.shellEval(`db.dropDatabase();`);
@@ -156,6 +155,6 @@ describe('Instance databases tab', function () {
     // the stats never load, so just pause for bit first
     await browser.pause(1000);
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
-    await dbCard.waitForExist({ reverse: true });
+    await browser.$(dbSelector).waitForExist({ reverse: true });
   });
 });
