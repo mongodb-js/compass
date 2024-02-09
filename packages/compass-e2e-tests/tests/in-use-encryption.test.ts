@@ -27,6 +27,12 @@ async function refresh(browser: CompassBrowser) {
 }
 
 describe('CSFLE / QE', function () {
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
+
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
@@ -34,10 +40,6 @@ describe('CSFLE / QE', function () {
     let browser: CompassBrowser;
 
     before(async function () {
-      if (TEST_COMPASS_WEB) {
-        this.skip();
-      }
-
       if (
         !serverSatisfies('>= 4.2.20', true) ||
         // TODO(COMPASS-5911): Saved connections are not being displayed after disconnect on Linux CI.
@@ -64,10 +66,6 @@ describe('CSFLE / QE', function () {
     });
 
     after(async function () {
-      if (TEST_COMPASS_WEB) {
-        return;
-      }
-
       if (compass) {
         await cleanup(compass);
       }
