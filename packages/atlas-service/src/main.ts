@@ -374,7 +374,11 @@ export class AtlasService {
             'AtlasService',
             'Signed in successfully'
           );
-          track('Atlas Sign In Success', getTrackingUserInfo(userInfo));
+          const { auid } = getTrackingUserInfo(userInfo);
+          track('Atlas Sign In Success', { auid });
+          await this.preferences.savePreferences({
+            telemetryAtlasUserId: auid,
+          });
           return userInfo;
         } catch (err) {
           track('Atlas Sign In Error', {

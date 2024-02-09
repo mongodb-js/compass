@@ -67,6 +67,7 @@ export type InternalUserPreferences = {
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
+  telemetryAtlasUserId?: string;
   userCreatedAt: number;
 };
 
@@ -311,6 +312,17 @@ export const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     validator: z.string().uuid().optional(),
+    type: 'string',
+  },
+  /**
+   * Stores a unique telemetry atlas ID for the current user.
+   */
+  telemetryAtlasUserId: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
     type: 'string',
   },
   /**
