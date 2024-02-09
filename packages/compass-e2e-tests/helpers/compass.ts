@@ -679,20 +679,9 @@ async function startCompassElectron(
             .join(', ')}`
     );
 
-    filteredProcesses.forEach((p) => {
-      try {
-        debug(`Killing process ${p.name} with PID ${p.pid}`);
-        if (process.platform === 'win32') {
-          crossSpawn.sync('taskkill', ['/PID', String(p.pid), '/F', '/T']);
-        } else {
-          process.kill(p.pid);
-        }
-      } catch (err) {
-        debug(`Failed to kill process ${p.name} with PID ${p.pid}`, {
-          error: (err as Error).stack,
-        });
-      }
-    });
+    for (const p of filteredProcesses) {
+      tryKillProcess(p.pid, p.name);
+    }
     throw err;
   }
 
