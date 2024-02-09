@@ -244,9 +244,6 @@ async function run() {
 
     cleanup();
   }
-
-  // TODO: why does this somehow hang? How do you debug that?
-  process.exit(process.exitCode ?? 0);
 }
 
 void run();
