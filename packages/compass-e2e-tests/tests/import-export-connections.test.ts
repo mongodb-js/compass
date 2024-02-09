@@ -273,9 +273,10 @@ describe('Connection Import / Export', function () {
           if (variant === 'protected') {
             await browser.clickParent(Selectors.ExportConnectionsRemoveSecrets);
           } else if (variant === 'encrypted') {
-            await browser
-              .$(Selectors.ExportConnectionsPassphrase)
-              .setValue('s3cr3t');
+            await browser.setValueVisible(
+              Selectors.ExportConnectionsPassphrase,
+              's3cr3t'
+            );
           }
         }
 
@@ -331,9 +332,10 @@ describe('Connection Import / Export', function () {
             filename
           );
           if (variant === 'encrypted') {
-            await browser
-              .$(Selectors.ImportConnectionsPassphrase)
-              .setValue('s3cr3t');
+            await browser.setValueVisible(
+              Selectors.ImportConnectionsPassphrase,
+              's3cr3t'
+            );
           }
           // Wait until the favorite is listed in the import connection list
           const favoriteNameTableCell = browser.$(

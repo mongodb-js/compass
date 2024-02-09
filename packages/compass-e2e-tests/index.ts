@@ -98,6 +98,10 @@ function cleanup() {
       debug('Failed to clean up server data', e);
     }
   }
+
+  // Since the webdriverio update something is messing with the terminal's
+  // cursor. This brings it back.
+  crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
 }
 
 async function main() {

@@ -52,7 +52,7 @@ async function setMaxTimeMS(
 ) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
   await browser.clickVisible(selector);
-  await browser.setOrClearValue(selector, value);
+  await browser.setValueVisible(selector, value);
 }
 
 async function setSkip(
@@ -62,7 +62,7 @@ async function setSkip(
 ) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
   await browser.clickVisible(selector);
-  await browser.setOrClearValue(selector, value);
+  await browser.setValueVisible(selector, value);
 }
 
 export async function setLimit(
@@ -72,7 +72,7 @@ export async function setLimit(
 ) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
   await browser.clickVisible(selector);
-  await browser.setOrClearValue(selector, value);
+  await browser.setValueVisible(selector, value);
 }
 
 async function isOptionsExpanded(browser: CompassBrowser, tabName: string) {
