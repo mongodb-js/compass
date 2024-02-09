@@ -22,6 +22,8 @@
     "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "test-noserver": "env DEBUG=hadron*,mongo*,compass* npm run test -- --disable-start-stop --bail",
     "test-noserver-nocompile": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
+    "test-web": "env DEBUG=hadron*,mongo*,compass* npm run test -- --test-compass-web",
+    "test-web-noserver": "env DEBUG=hadron*,mongo*,compass* npm run test -- --test-compass-web --disable-start-stop --bail",
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
     "coverage-report": "npm run coverage-merge && nyc report",
     "server-info": "ts-node ./scripts/server-info.ts"

@@ -1,8 +1,10 @@
 #!/usr/bin/env ts-node
+import dns from 'dns';
 import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
@@ -18,9 +20,13 @@ import {
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
 
+// https://github.com/nodejs/node/issues/40537
+dns.setDefaultResultOrder('ipv4first');
+
 const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
+  '--test-compass-web',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',
@@ -43,13 +49,43 @@ let metricsClient: MongoClient;
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
-function setup() {
+let compassWeb: ChildProcessWithoutNullStreams;
+
+async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
     crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+
+    if (shouldTestCompassWeb) {
+      debug('Starting Compass Web');
+      compassWeb = crossSpawn.spawn(
+        'npm',
+        ['run', '--unsafe-perm', 'start-web'],
+        {
+          cwd: path.resolve(__dirname, '..', '..'),
+          env: {
+            ...process.env,
+            OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+          },
+        }
+      );
+      // wait for webpack to finish compiling
+      await new Promise<void>((resolve) => {
+        let output = '';
+        const listener = function (chunk: string) {
+          output += chunk;
+          if (/^webpack \d+\.\d+\.\d+ compiled/m.test(output)) {
+            compassWeb.stdout.off('data', listener);
+            resolve();
+          }
+        };
+        compassWeb.stdout.setEncoding('utf8').on('data', listener);
+      });
+    }
   }
 
   try {
@@ -61,6 +97,7 @@ function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
+  debug('Getting mongodb server info');
   updateMongoDBServerInfo();
 }
 
@@ -70,7 +107,14 @@ function cleanup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   if (!disableStartStop) {
-    debug('Stopping MongoDB server and cleaning up server data');
+    debug('Stopping compass-web');
+    try {
+      compassWeb.kill('SIGTERM');
+    } catch (e) {
+      debug('Failed to stop compass-web', e);
+    }
+
+    debug('Stopping MongoDB server');
     try {
       crossSpawn.sync(
         'npm',
@@ -92,11 +136,7 @@ function cleanup() {
     } catch (e) {
       debug('Failed to stop MongoDB Server', e);
     }
-    try {
-      fs.rmdirSync('.mongodb', { recursive: true });
-    } catch (e) {
-      debug('Failed to clean up server data', e);
-    }
+    debug('Done stopping');
   }
 
   // Since the webdriverio update something is messing with the terminal's
@@ -105,15 +145,26 @@ function cleanup() {
 }
 
 async function main() {
-  setup();
+  await setup();
 
-  const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
+
+  // These are mutually exclusive since compass-web is always going to browse to
+  // the running webserver.
+  const shouldTestPackagedApp =
+    process.argv.includes('--test-packaged-app') && !shouldTestCompassWeb;
+
   // Skip this step if you are running tests consecutively and don't need to
-  // rebuild modules all the time
-  const noNativeModules = process.argv.includes('--no-native-modules');
+  // rebuild modules all the time. Also no need to ever recompile when testing
+  // compass-web.
+  const noNativeModules =
+    process.argv.includes('--no-native-modules') || shouldTestCompassWeb;
+
   // Skip this step if you want to run tests against your own compilation (e.g,
-  // a dev build or a build running in watch mode that autorecompiles)
-  const noCompile = process.argv.includes('--no-compile');
+  // a dev build or a build running in watch mode that autorecompiles). Also no
+  // need to recompile when testing compass-web.
+  const noCompile =
+    process.argv.includes('--no-compile') || shouldTestCompassWeb;
 
   if (shouldTestPackagedApp) {
     process.env.TEST_PACKAGED_APP = '1';
