@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app, safeStorage } from 'electron';
+import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -14,10 +14,7 @@ import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
 } from 'compass-preferences-model';
-import {
-  getActiveUser,
-  setupPreferencesAndUser,
-} from 'compass-preferences-model';
+import { setupPreferencesAndUser } from 'compass-preferences-model';
 import { AtlasService } from '@mongodb-js/atlas-service/main';
 import { defaultsDeep } from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -116,6 +113,7 @@ class CompassApplication {
       return;
     }
 
+    this.setupCORSBypass();
     void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
@@ -209,10 +207,7 @@ class CompassApplication {
       config[atlasServiceBackendPreset]
     ) as typeof envConfig & typeof config[keyof typeof config];
 
-    await AtlasService.init(atlasServiceConfig, {
-      preferences: this.preferences,
-      getUserId: () => getActiveUser(this.preferences).id,
-    });
+    await AtlasService.init(atlasServiceConfig, this.preferences);
 
     this.addExitHandler(() => {
       return AtlasService.onExit();
@@ -371,6 +366,79 @@ class CompassApplication {
   static removeAllListeners(): typeof CompassApplication {
     this.emitter.removeAllListeners();
     return this;
+  }
+
+  private static setupCORSBypass() {
+    const CLOUD_URLS_FILTER = {
+      urls: [
+        '*://cloud.mongodb.com/*',
+        '*://cloud-dev.mongodb.com/*',
+        '*://compass.mongodb.com/*',
+      ],
+    };
+
+    // List of request headers that will indicate to the server that it's a CORS
+    // request and can trigger a CORS check that we are trying to bypass
+    const REQUEST_CORS_HEADERS = [
+      // Fetch metadata headers https://developer.mozilla.org/en-US/docs/Glossary/Fetch_metadata_request_header
+      'sec-fetch-site',
+      'sec-fetch-mode',
+      'sec-fetch-user',
+      'sec-fetch-dest',
+      'sec-purpose',
+      'service-worker-navigation-preload',
+      // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+      'origin',
+      'access-control-request-headers',
+      'access-control-request-method',
+    ];
+
+    const RESPONSE_CORS_HEADERS = [
+      'access-control-allow-credentials',
+      'access-control-allow-headers',
+      'access-control-allow-methods',
+      'access-control-allow-origin',
+      'access-control-expose-headers',
+      'access-control-max-age',
+    ];
+
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+      CLOUD_URLS_FILTER,
+      (details, callback) => {
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(details.requestHeaders).filter(([name]) => {
+            return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({ requestHeaders: filteredHeaders });
+      }
+    );
+
+    session.defaultSession.webRequest.onHeadersReceived(
+      CLOUD_URLS_FILTER,
+      (details, callback) => {
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(
+            // Types are not matching documentation
+            (details.responseHeaders as
+              | Record<string, string | string[]>
+              | undefined) ?? {}
+          ).filter(([name]) => {
+            return !RESPONSE_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({
+          responseHeaders: {
+            ...filteredHeaders,
+            'Access-Control-Allow-Origin': ['*'],
+            'Access-Control-Allow-Headers': ['*'],
+            'Access-Control-Allow-Methods': ['*'],
+            'Access-Control-Allow-Credentials': ['true'],
+            'Access-Control-Max-Age': ['86400'],
+          },
+        });
+      }
+    );
   }
 }
 

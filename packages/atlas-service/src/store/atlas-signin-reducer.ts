@@ -3,7 +3,7 @@ import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasUserConfig } from '../user-config-store';
-import type { AtlasService } from '../renderer';
+import type { AtlasLoginService } from '../renderer';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import { showOptInConfirmation } from '../components/ai-opt-in-confirmation';
 
@@ -36,7 +36,7 @@ export type AtlasSignInState = {
 export type AtlasSignInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasSignInState, { atlasService: AtlasService }, A>;
+> = ThunkAction<R, AtlasSignInState, { atlasService: AtlasLoginService }, A>;
 
 export const enum AtlasSignInActions {
   OpenSignInModal = 'atlas-service/atlas-signin/OpenSignInModal',

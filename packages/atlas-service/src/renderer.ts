@@ -14,7 +14,7 @@ import { getStore } from './store/atlas-signin-store';
 import type { AtlasUserInfo } from './util';
 import type { AtlasUserConfig } from './user-config-store';
 
-let atlasServiceInstanceSingleton: AtlasService;
+let atlasLoginServiceInstanceSingleton: AtlasLoginService;
 
 type AtlasServiceEvents = {
   'signed-in': [];
@@ -23,7 +23,7 @@ type AtlasServiceEvents = {
   'user-config-changed': [AtlasUserConfig];
 };
 
-export class AtlasService {
+export class AtlasLoginService {
   private emitter = new EventEmitter();
 
   private _ipc = ipcRenderer?.createInvoke<
@@ -144,8 +144,8 @@ export class AtlasService {
   }
 
   constructor() {
-    if (atlasServiceInstanceSingleton) {
-      return atlasServiceInstanceSingleton;
+    if (atlasLoginServiceInstanceSingleton) {
+      return atlasLoginServiceInstanceSingleton;
     }
 
     // We might not be in electorn environment
@@ -165,7 +165,7 @@ export class AtlasService {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    atlasServiceInstanceSingleton = this;
+    atlasLoginServiceInstanceSingleton = this;
   }
 }
 
@@ -173,15 +173,10 @@ export { AtlasSignIn } from './components/atlas-signin';
 
 export { AtlasServiceError } from './util';
 export type { AtlasUserConfig } from './user-config-store';
-export type {
-  AtlasUserInfo,
-  IntrospectInfo,
-  Token,
-  AIQuery,
-  AIAggregation,
-} from './util';
+export type { AtlasUserInfo, IntrospectInfo, Token } from './util';
 
 export {
   CompassAtlasHttpApiClient,
-  AtlasServiceNew,
+  AtlasHttpApiClient,
+  AtlasService,
 } from './atlas-http-api-client';

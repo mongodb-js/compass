@@ -147,10 +147,9 @@ export const runAIQuery = (
     getState,
     {
       dataService,
-      atlasService,
       localAppRegistry,
       preferences,
-      generativeAiClient,
+      aiClient,
       logger: { log, track },
     }
   ) => {
@@ -197,7 +196,7 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await generativeAiClient.getQueryFromUserInput({
+      jsonResponse = await aiClient.getQueryFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,

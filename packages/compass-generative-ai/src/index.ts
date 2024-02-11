@@ -3,4 +3,7 @@ export {
   GenerativeAIInput,
   createAIPlaceholderHTMLPlaceholder,
 } from './components';
-export { GenerativeAiApiClient } from './ai-client';
+export {
+  GenerativeAiApiClient,
+  createGenerativeAiApiClient,
+} from './ai-client';

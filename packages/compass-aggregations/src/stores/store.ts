@@ -3,7 +3,10 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import {
+  AtlasLoginService,
+  CompassAtlasHttpApiClient,
+} from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -36,6 +39,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createGenerativeAiApiClient } from '@mongodb-js/compass-generative-ai';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -66,7 +70,7 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
     /**
      * Service for interacting with Atlas-only features
      */
-    atlasService: AtlasService;
+    atlasService: AtlasLoginService;
   }>;
 
 export type AggregationsPluginServices = {
@@ -116,9 +120,15 @@ export function activateAggregationsPlugin(
     initialPipelineSource
   );
 
-  const atlasService = options.atlasService ?? new AtlasService();
+  const atlasService = options.atlasService ?? new AtlasLoginService();
 
   const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
+
+  const aiClient = createGenerativeAiApiClient(
+    new CompassAtlasHttpApiClient(preferences),
+    preferences,
+    logger
+  );
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)
@@ -176,6 +186,7 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
+        aiClient,
       })
     )
   );

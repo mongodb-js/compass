@@ -2,12 +2,7 @@ import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import {
-  AtlasServiceError,
-  throwIfNotOk,
-  isServerError,
-  throwIfNetworkTrafficDisabled,
-} from './util';
+import { throwIfNotOk, throwIfNetworkTrafficDisabled } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -18,7 +13,7 @@ import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
 import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 import type { RequestInfo, RequestInit, Response } from 'node-fetch';
 import nodeFetch from 'node-fetch';
-import type { IntrospectInfo, AtlasUserInfo } from './util';
+import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import type { AtlasUserConfig } from './user-config-store';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
@@ -52,16 +47,6 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
     auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
   };
 }
-
-export type AtlasServiceConfig = {
-  atlasApiBaseUrl: string;
-  atlasApiUnauthBaseUrl: string;
-  atlasLogin: {
-    clientId: string;
-    issuer: string;
-  };
-  authPortalUrl: string;
-};
 
 export class AtlasService {
   private constructor() {
@@ -107,27 +92,8 @@ export class AtlasService {
           'User-Agent': `${app.getName()}/${app.getVersion()}`,
         },
       });
-
-      if (res.ok) {
-        return res;
-      }
-
-      const messageJSON = await res.json().catch(() => undefined);
-      if (messageJSON && isServerError(messageJSON)) {
-        throw new AtlasServiceError(
-          'ServerError',
-          res.status,
-          messageJSON.detail ?? 'Internal server error',
-          messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
-        );
-      } else {
-        throw new AtlasServiceError(
-          'NetworkError',
-          res.status,
-          res.statusText,
-          `${res.status}`
-        );
-      }
+      throwIfNotOk(res);
+      return res;
     } catch (err) {
       log.info(mongoLogId(1_001_000_291), 'AtlasService', 'Fetch errored', {
         url,
@@ -270,8 +236,6 @@ export class AtlasService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      // // todo:
-      // await this.setupAIAccess();
       // // Whether or not we got the state, try requesting user info. If there was
       // // no serialized state returned, this will just fail quickly. If there was
       // // some state, we will prepare the service state for user interactions by

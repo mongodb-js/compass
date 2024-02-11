@@ -23,8 +23,7 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import {
-  AtlasService,
-  AtlasServiceNew,
+  AtlasLoginService,
   CompassAtlasHttpApiClient,
 } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -33,7 +32,10 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { GenerativeAiApiClient } from '@mongodb-js/compass-generative-ai';
+import {
+  createGenerativeAiApiClient,
+  type GenerativeAiApiClient,
+} from '@mongodb-js/compass-generative-ai';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -50,7 +52,7 @@ type QueryBarServices = {
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
 // implemented yet, so we're keeping them separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasService;
+  atlasService?: AtlasLoginService;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
 };
@@ -68,12 +70,12 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: AtlasService;
+  atlasService: AtlasLoginService;
   preferences: PreferencesAccess;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
-  generativeAiClient: GenerativeAiApiClient;
+  aiClient: GenerativeAiApiClient;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -114,20 +116,16 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    atlasService = new AtlasService(),
+    atlasService = new AtlasLoginService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
   } = services;
 
-  const aiClient = new GenerativeAiApiClient(
-    new AtlasServiceNew(new CompassAtlasHttpApiClient(preferences)),
+  const aiClient = createGenerativeAiApiClient(
+    new CompassAtlasHttpApiClient(preferences),
     preferences,
     logger
   );
-  aiClient
-    .setupAIAccess()
-    .then(() => console.log('ai setup done'))
-    .catch(() => console.log('ai setup failed'));
 
   const store = configureStore(
     {
@@ -155,7 +153,7 @@ export function activatePlugin(
       atlasService,
       preferences,
       logger,
-      generativeAiClient: aiClient,
+      aiClient,
     }
   );
 

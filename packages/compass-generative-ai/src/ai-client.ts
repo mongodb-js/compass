@@ -4,21 +4,11 @@ import {
 } from '@mongodb-js/compass-logging/provider';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { isAIFeatureEnabled } from 'compass-preferences-model';
-
-export interface AtlasServiceInterface {
-  getCurrentUser<T>(): Promise<T>;
-  privateUnAuthEndpoint(path: string): string;
-  privateAtlasEndpoint(path: string): string;
-  fetchJson<T>(
-    url: string,
-    init?: RequestInit & { json?: Record<string, unknown> }
-  ): Promise<T>;
-  unAuthenticatedFetchJson<T>(
-    url: string,
-    init?: RequestInit & { json?: Record<string, unknown> }
-  ): Promise<T>;
-}
+import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import {
+  AtlasService,
+  type AtlasHttpApiClient,
+} from '@mongodb-js/atlas-service/renderer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -63,10 +53,12 @@ type AIQuery = {
 
 export class GenerativeAiApiClient {
   constructor(
-    private atlasService: AtlasServiceInterface,
-    private preferences: Pick<
-      PreferencesAccess,
-      'getUserId' | 'savePreferences' | 'getPreferences'
+    private atlasService: AtlasService,
+    private preferences: Required<
+      Pick<
+        PreferencesAccess,
+        'getUserId' | 'savePreferences' | 'getPreferences'
+      >
     >,
     private logger: LoggerAndTelemetry
   ) {}
@@ -79,10 +71,7 @@ export class GenerativeAiApiClient {
     }
     // Only throw if we actually have userInfo / logged in. Otherwise allow
     // request to fall through so that we can get a proper network error
-    if (
-      (await this.atlasService.getCurrentUser<{ enabledAIFeature: boolean }>())
-        .enabledAIFeature === false
-    ) {
+    if ((await this.atlasService.getCurrentUser()).enabledAIFeature === false) {
       throw new Error("Can't use AI before accepting terms and conditions");
     }
   }
@@ -291,4 +280,20 @@ export class GenerativeAiApiClient {
   private hasExtraneousKeys(obj: any, expectedKeys: string[]) {
     return Object.keys(obj).some((key) => !expectedKeys.includes(key));
   }
+}
+
+export function createGenerativeAiApiClient(
+  atlasHttpApiClient: AtlasHttpApiClient,
+  preferences: PreferencesAccess,
+  logger: LoggerAndTelemetry
+) {
+  return new GenerativeAiApiClient(
+    new AtlasService(atlasHttpApiClient),
+    {
+      getPreferences: preferences.getPreferences,
+      getUserId: () => getActiveUser(preferences).id,
+      savePreferences: preferences.savePreferences,
+    },
+    logger
+  );
 }

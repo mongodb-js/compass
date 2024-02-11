@@ -193,7 +193,7 @@ export const runAIPipelineGeneration = (
     dispatch,
     getState,
     {
-      atlasService,
+      aiClient,
       pipelineBuilder,
       preferences,
       logger: { track, log, mongoLogId },
@@ -248,7 +248,7 @@ export const runAIPipelineGeneration = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasService.getAggregationFromUserInput({
+      jsonResponse = await aiClient.getAggregationFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,

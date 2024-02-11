@@ -6,10 +6,10 @@ import {
 import type { AtlasUserInfo } from './util';
 import { throwIfNetworkTrafficDisabled, throwIfNotOk } from './util';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { AtlasServiceConfig } from './main';
+import { AtlasServiceConfig } from './util';
 import { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
-import { AtlasService as AtlasServiceRenderer } from './renderer';
+import { AtlasLoginService as AtlasLoginServiceRenderer } from './renderer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -23,10 +23,10 @@ export interface AtlasHttpApiClient {
 
 export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
   private config: AtlasServiceConfig;
-  private tmpOldAtlasService: AtlasServiceRenderer;
+  private atlasLoginServiceRenderer: AtlasLoginServiceRenderer;
   constructor(private preferences: Pick<PreferencesAccess, 'getPreferences'>) {
     this.config = this.getConfig();
-    this.tmpOldAtlasService = new AtlasServiceRenderer();
+    this.atlasLoginServiceRenderer = new AtlasLoginServiceRenderer();
   }
   private getConfig() {
     /**
@@ -76,8 +76,10 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
         authPortalUrl: 'https://account-dev.mongodb.com/account/login',
       },
       atlas: {
-        atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
-        atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+        // atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+        // atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+        atlasApiBaseUrl: 'http://localhost:9000/api/private',
+        atlasApiUnauthBaseUrl: 'http://localhost:9000/api/private/unauth',
         atlasLogin: {
           clientId: '0oajzdcznmE8GEyio297',
           issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -104,7 +106,7 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
     ) as typeof envConfig & typeof config[keyof typeof config];
   }
   getCurrentUser(): Promise<AtlasUserInfo> {
-    return this.tmpOldAtlasService.getUserInfo();
+    return this.atlasLoginServiceRenderer.getUserInfo();
   }
   privateUnAuthEndpoint(path: string): string {
     return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
@@ -125,11 +127,8 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
       },
     });
   };
-  fetch = async (
-    url: RequestInfo,
-    init: RequestInit = {}
-  ): Promise<Response> => {
-    const token = await this.tmpOldAtlasService.getToken({
+  async fetch(url: RequestInfo, init: RequestInit = {}): Promise<Response> {
+    const token = await this.atlasLoginServiceRenderer.getToken({
       signal: init.signal as AbortSignal,
     });
     return await this.unAuthenticatedFetch(url, {
@@ -139,13 +138,13 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
         Authorization: `Bearer ${token ?? ''}`,
       },
     });
-  };
+  }
   login() {
-    this.tmpOldAtlasService.signIn();
+    return this.atlasLoginServiceRenderer.signIn();
   }
 }
 
-export class AtlasServiceNew {
+export class AtlasService {
   constructor(private httpClient: AtlasHttpApiClient) {}
   privateUnAuthEndpoint(path: string) {
     return this.httpClient.privateUnAuthEndpoint(path);
