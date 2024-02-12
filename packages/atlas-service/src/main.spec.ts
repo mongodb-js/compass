@@ -74,7 +74,9 @@ describe('AtlasServiceMain', function () {
 
   let preferences: PreferencesAccess;
 
-  let getTrackingUserInfoStub;
+  let getTrackingUserInfoStub: Sinon.SinonStubbedMember<
+    typeof util.getTrackingUserInfo
+  >;
 
   before(function () {
     getTrackingUserInfoStub = sandbox.stub(util, 'getTrackingUserInfo');
