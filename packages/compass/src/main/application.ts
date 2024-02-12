@@ -435,6 +435,7 @@ class CompassApplication {
             'Access-Control-Allow-Methods': ['*'],
             'Access-Control-Allow-Credentials': ['true'],
           },
+          statusLine: details.method === 'OPTIONS' ? '200' : details.statusLine,
         });
       }
     );
