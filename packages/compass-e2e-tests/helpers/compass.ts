@@ -385,12 +385,19 @@ export class Compass {
       return compassLog;
     };
 
-    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-    await copyCompassLog();
+    if (this.logPath) {
+      // TODO: not available when testing web
+      // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+      await copyCompassLog();
+    }
+
     debug(`Stopping Compass application [${this.name}]`);
     await this.browser.deleteSession({ shutdownDriver: true });
 
-    this.logs = (await copyCompassLog()).structured;
+    if (this.logPath) {
+      // TODO: not available when testing web
+      this.logs = (await copyCompassLog()).structured;
+    }
   }
 }
 
@@ -973,6 +980,7 @@ export async function init(
 
 export async function cleanup(compass?: Compass): Promise<void> {
   if (!compass) {
+    debug('no compass to close');
     return;
   }
 
@@ -992,7 +1000,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       debug(err);
       try {
         // make sure the process can exit
-        await compass.browser.deleteSession();
+        await compass.browser.deleteSession({ shutdownDriver: true });
       } catch (_) {
         debug('browser already closed');
       }
@@ -1001,6 +1009,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
     return 'closed';
   })();
 
+  debug(`Closing compass [${compass.name}]`);
   const result = await Promise.race([timeoutPromise, closePromise]);
   if (result === 'timeout') {
     debug('Closing compass timed out.');

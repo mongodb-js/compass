@@ -300,7 +300,6 @@ async function run() {
 
   // TODO: why does this somehow hang? How do you debug that?
   log();
-  //process.exit(process.exitCode ?? 0);
 }
 
 void run();
