@@ -65,8 +65,8 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     activate: activateRenameCollectionPlugin,
   },
   {
-    dataService: dataServiceLocator as typeof dataServiceLocator<
-      'renameCollection' | 'listCollections'
-    >,
+    dataService:
+      dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
+    instance: mongoDBInstanceLocator,
   }
 );

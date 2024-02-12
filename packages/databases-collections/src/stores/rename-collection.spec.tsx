@@ -5,19 +5,27 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import { RenameCollectionPlugin } from '..';
 import { render, cleanup, screen } from '@testing-library/react';
-import { setTimeout } from 'timers/promises';
 
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
-    listCollections: sandbox.stub().resolves([]),
+  };
+  const instanceModel = {
+    databases: {
+      get: function () {
+        return {
+          collections: [{ name: 'my-collection' }],
+        };
+      },
+    },
   };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({
       globalAppRegistry: appRegistry,
       dataService,
+      instance: instanceModel as any,
     });
 
     render(<Plugin> </Plugin>);
@@ -28,13 +36,11 @@ describe('RenameCollectionPlugin', function () {
     cleanup();
   });
 
-  it('handles the open-rename-collection event', async function () {
+  it('handles the open-rename-collection event', function () {
     appRegistry.emit('open-rename-collection', {
       database: 'foo',
       collection: 'bar',
     });
-
-    await setTimeout(0);
 
     expect(screen.getByRole('heading', { name: 'Rename collection' })).to.exist;
   });

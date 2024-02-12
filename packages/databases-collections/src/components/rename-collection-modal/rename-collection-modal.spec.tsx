@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
 import { RenameCollectionPlugin } from '../..';
-import { setTimeout } from 'timers/promises';
 import AppRegistry from 'hadron-app-registry';
 
 describe('CreateCollectionModal [Component]', function () {
@@ -12,20 +11,28 @@ describe('CreateCollectionModal [Component]', function () {
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
-    listCollections: sandbox.stub().resolves([{ name: 'my-collection' }]),
+  };
+  const instanceModel = {
+    databases: {
+      get: function () {
+        return {
+          collections: [{ name: 'my-collection' }],
+        };
+      },
+    },
   };
   context('when the modal is visible', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
         globalAppRegistry: appRegistry,
         dataService,
+        instance: instanceModel as any,
       });
       render(<Plugin> </Plugin>);
       appRegistry.emit('open-rename-collection', {
         database: 'foo',
         collection: 'bar',
       });
-      await setTimeout(0);
     });
 
     afterEach(function () {
