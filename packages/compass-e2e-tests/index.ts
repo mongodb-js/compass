@@ -8,6 +8,8 @@ import type { ChildProcessWithoutNullStreams } from 'child_process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
+// @ts-expect-error no types
+import log from 'why-is-node-running';
 import {
   rebuildNativeModules,
   compileCompassAssets,
@@ -297,7 +299,8 @@ async function run() {
   }
 
   // TODO: why does this somehow hang? How do you debug that?
-  process.exit(process.exitCode ?? 0);
+  log();
+  //process.exit(process.exitCode ?? 0);
 }
 
 void run();
