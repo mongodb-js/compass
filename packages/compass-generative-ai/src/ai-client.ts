@@ -5,10 +5,7 @@ import {
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { isAIFeatureEnabled } from 'compass-preferences-model';
-import {
-  AtlasService,
-  type AtlasHttpApiClient,
-} from '@mongodb-js/atlas-service/renderer';
+import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -51,17 +48,32 @@ type AIQuery = {
   };
 };
 
-export class GenerativeAiApiClient {
-  constructor(
+export class GenerativeAiService {
+  private static instance: GenerativeAiService | null = null;
+  private initPromise: Promise<void> | null = null;
+  private constructor(
     private atlasService: AtlasService,
-    private preferences: Required<
-      Pick<
-        PreferencesAccess,
-        'getPreferencesUser' | 'savePreferences' | 'getPreferences'
-      >
+    private preferences: Pick<
+      PreferencesAccess,
+      'getPreferencesUser' | 'savePreferences' | 'getPreferences'
     >,
     private logger: LoggerAndTelemetry
   ) {}
+
+  static getInstance(
+    atlasService: AtlasService,
+    preferences: Pick<
+      PreferencesAccess,
+      'getPreferencesUser' | 'savePreferences' | 'getPreferences'
+    >,
+    logger: LoggerAndTelemetry
+  ) {
+    if (!this.instance) {
+      this.instance = new this(atlasService, preferences, logger);
+      this.instance.initPromise = this.instance.setupAIAccess();
+    }
+    return this.instance;
+  }
 
   private async throwIfAINotEnabled() {
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
@@ -76,13 +88,15 @@ export class GenerativeAiApiClient {
     }
   }
 
-  // todo
-  async enableFeature() {}
+  async enableFeature() {
+    return this.atlasService.enableAIFeature();
+  }
 
-  // todo
-  async disableFeature() {}
+  async disableFeature() {
+    return this.atlasService.disableAIFeature();
+  }
 
-  async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
+  private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getPreferencesUser().id;
     const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
     const body = await this.atlasService.unAuthenticatedFetchJson(url, {});
@@ -90,7 +104,7 @@ export class GenerativeAiApiClient {
     return body;
   }
 
-  async setupAIAccess(): Promise<void> {
+  private async setupAIAccess(): Promise<void> {
     try {
       const featureResponse = await this.getAIFeatureEnablement();
 
@@ -129,6 +143,7 @@ export class GenerativeAiApiClient {
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
     await this.throwIfAINotEnabled();
+    await this.initPromise;
     const { signal, ...rest } = input;
     let msgBody = JSON.stringify(rest);
     if (msgBody.length > AI_MAX_REQUEST_SIZE) {
@@ -158,6 +173,9 @@ export class GenerativeAiApiClient {
       signal,
       method: 'POST',
       body: msgBody,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
     validationFn(res);
     return res;
@@ -283,19 +301,4 @@ export class GenerativeAiApiClient {
   private hasExtraneousKeys(obj: any, expectedKeys: string[]) {
     return Object.keys(obj).some((key) => !expectedKeys.includes(key));
   }
-}
-
-export function createGenerativeAiApiClient(
-  atlasHttpApiClient: AtlasHttpApiClient,
-  preferences: PreferencesAccess,
-  logger: LoggerAndTelemetry
-) {
-  const client = new GenerativeAiApiClient(
-    new AtlasService(atlasHttpApiClient),
-    preferences,
-    logger
-  );
-  // todo
-  // await client.setupAIAccess();
-  return client;
 }

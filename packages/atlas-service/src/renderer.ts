@@ -2,8 +2,6 @@ import { EventEmitter } from 'events';
 import { ipcRenderer } from 'hadron-ipc';
 import type { AtlasService as AtlasServiceMain } from './main';
 import {
-  disableAIFeature,
-  enableAIFeature,
   signInWithModalPrompt,
   signInWithoutPrompt,
   signedOut,
@@ -132,17 +130,6 @@ export class AtlasAuthService {
     }
   }
 
-  async enableAIFeature() {
-    const accepted = await getStore().dispatch(enableAIFeature());
-    if (!accepted) {
-      throw new Error('Terms and conditions were not accepted');
-    }
-  }
-
-  async disableAIFeature() {
-    await getStore().dispatch(disableAIFeature());
-  }
-
   constructor() {
     if (atlasAuthServiceInstanceSingleton) {
       return atlasAuthServiceInstanceSingleton;
@@ -175,8 +162,6 @@ export { AtlasServiceError } from './util';
 export type { AtlasUserConfig } from './user-config-store';
 export type { AtlasUserInfo, IntrospectInfo, Token } from './util';
 
-export {
-  CompassAtlasHttpApiClient,
-  AtlasHttpApiClient,
-  AtlasService,
-} from './atlas-http-api-client';
+export { AtlasHttpApiClient } from './atlas-http-api-client';
+export { AtlasService } from './atlas-service';
+export { AtlasUserData, CompassAtlasUserData } from './atlas-user';

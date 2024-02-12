@@ -526,7 +526,7 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
 };
 
 export const enableAIFeature = (): AtlasSignInThunkAction<Promise<boolean>> => {
-  return async (dispatch, getState, { atlasAuthService }) => {
+  return async (dispatch, getState) => {
     const { userInfo, state } = getState();
 
     if (state !== 'success') {
@@ -543,16 +543,12 @@ export const enableAIFeature = (): AtlasSignInThunkAction<Promise<boolean>> => {
       dispatch({ type: AtlasSignInActions.EnableAIFeature });
     }
 
-    await atlasAuthService.updateAtlasUserConfig({
-      config: { enabledAIFeature: confirmed },
-    });
-
     return confirmed;
   };
 };
 
 export const disableAIFeature = (): AtlasSignInThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAuthService }) => {
+  return async (dispatch, getState) => {
     const { userInfo, state } = getState();
 
     if (state !== 'success' || !userInfo) {
@@ -560,10 +556,6 @@ export const disableAIFeature = (): AtlasSignInThunkAction<Promise<void>> => {
     }
 
     dispatch({ type: AtlasSignInActions.DisableAIFeature });
-
-    await atlasAuthService.updateAtlasUserConfig({
-      config: { enabledAIFeature: false },
-    });
   };
 };
 

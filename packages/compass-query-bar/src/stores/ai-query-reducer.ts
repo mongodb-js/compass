@@ -149,7 +149,7 @@ export const runAIQuery = (
       dataService,
       localAppRegistry,
       preferences,
-      aiClient,
+      atlasAiService,
       logger: { log, track },
     }
   ) => {
@@ -196,7 +196,7 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await aiClient.getQueryFromUserInput({
+      jsonResponse = await atlasAiService.getQueryFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,
@@ -367,11 +367,11 @@ export const disableAIFeature = (): QueryBarThunkAction<void> => {
 };
 
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService, aiClient }) => {
+  return async (dispatch, _getState, { atlasAuthService, atlasAiService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
-        await aiClient.enableFeature();
+        await atlasAiService.enableFeature();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {

@@ -5,7 +5,7 @@ import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
 import {
   AtlasAuthService,
-  AtlasHttpApiClient,
+  type AtlasService,
 } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
@@ -39,7 +39,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createGenerativeAiApiClient } from '@mongodb-js/compass-generative-ai';
+import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -81,7 +81,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  atlasHttpClient: AtlasHttpApiClient;
+  atlasService: AtlasService;
 };
 
 export function activateAggregationsPlugin(
@@ -94,7 +94,7 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
-    atlasHttpClient,
+    atlasService,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -182,8 +182,8 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
-        aiClient: createGenerativeAiApiClient(
-          atlasHttpClient,
+        aiClient: GenerativeAiService.getInstance(
+          atlasService,
           preferences,
           logger
         ),

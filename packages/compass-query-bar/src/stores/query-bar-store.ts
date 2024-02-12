@@ -24,7 +24,7 @@ import {
 } from '@mongodb-js/my-queries-storage';
 import {
   AtlasAuthService,
-  AtlasHttpApiClient,
+  type AtlasService,
 } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -32,10 +32,7 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import {
-  createGenerativeAiApiClient,
-  type GenerativeAiApiClient,
-} from '@mongodb-js/compass-generative-ai';
+import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -47,7 +44,7 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  atlasHttpClient: AtlasHttpApiClient;
+  atlasService: AtlasService;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
@@ -76,7 +73,7 @@ export type QueryBarExtraArgs = {
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
-  aiClient: GenerativeAiApiClient;
+  atlasAiService: GenerativeAiService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -120,7 +117,7 @@ export function activatePlugin(
     atlasAuthService = new AtlasAuthService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
-    atlasHttpClient,
+    atlasService,
   } = services;
 
   const store = configureStore(
@@ -149,8 +146,8 @@ export function activatePlugin(
       atlasAuthService,
       preferences,
       logger,
-      aiClient: createGenerativeAiApiClient(
-        atlasHttpClient,
+      atlasAiService: GenerativeAiService.getInstance(
+        atlasService,
         preferences,
         logger
       ),

@@ -13,7 +13,7 @@ import {
 import QueryBarComponent from './components/query-bar';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
-import { atlasHttpClientLocator } from '@mongodb-js/atlas-service/provider';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -39,7 +39,7 @@ const QueryBarPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-QUERY-BAR-UI'),
-    atlasHttpClient: atlasHttpClientLocator,
+    atlasService: atlasServiceLocator,
   }
 );
 

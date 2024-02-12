@@ -4,7 +4,11 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import {
+  AtlasAuthService,
+  AtlasService,
+} from '@mongodb-js/atlas-service/renderer';
+import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -23,11 +27,17 @@ type ThunkExtraArg = {
   atlasAuthService: Public<AtlasAuthService>;
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
+  atlasAiService: GenerativeAiService;
+};
+
+type SettingsPluginServices = {
+  logger: LoggerAndTelemetry;
+  preferences: PreferencesAccess;
+  atlasService: AtlasService;
 };
 
 export function configureStore(
-  options: Pick<ThunkExtraArg, 'logger' | 'preferences'> &
-    Partial<ThunkExtraArg>
+  options: SettingsPluginServices & Partial<ThunkExtraArg>
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
@@ -47,6 +57,11 @@ export function configureStore(
         preferencesSandbox,
         atlasAuthService,
         logger: options.logger,
+        atlasAiService: GenerativeAiService.getInstance(
+          options.atlasService,
+          options.preferences,
+          options.logger
+        ),
       })
     )
   );
@@ -85,13 +100,12 @@ const onActivated = (
     globalAppRegistry,
     logger,
     preferences,
-  }: {
-    globalAppRegistry: AppRegistry;
-    logger: LoggerAndTelemetry;
-    preferences: PreferencesAccess;
+    atlasService,
+  }: SettingsPluginServices & {
+    globalAppRegistry: Pick<AppRegistry, 'on' | 'removeListener'>;
   }
 ) => {
-  const store = configureStore({ logger, preferences });
+  const store = configureStore({ logger, preferences, atlasService });
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());

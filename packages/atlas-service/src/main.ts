@@ -63,15 +63,7 @@ export class AtlasService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  public static privateUnAuthEndpoint = (path: string): string => {
-    return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
-  };
-
-  public static privateAtlasEndpoint = (path: string): string => {
-    return `${this.config.atlasApiBaseUrl}/${path}`;
-  };
-
-  public static unAuthenticatedFetch = async (
+  public static fetch = async (
     url: RequestInfo,
     init: RequestInit = {}
   ): Promise<Response> => {
@@ -101,41 +93,6 @@ export class AtlasService {
       });
       throw err;
     }
-  };
-
-  public static unAuthenticatedFetchJson = async <T>(
-    url: RequestInfo,
-    init: RequestInit = {}
-  ): Promise<T> => {
-    throwIfAborted(init.signal as AbortSignal);
-    const body = await this.unAuthenticatedFetch(url, init);
-    return body.json();
-  };
-
-  public static fetch = async (
-    url: RequestInfo,
-    init: RequestInit = {}
-  ): Promise<Response> => {
-    throwIfAborted(init.signal as AbortSignal);
-    const token = await this.maybeGetToken({
-      signal: init.signal as AbortSignal,
-    });
-    return await this.unAuthenticatedFetch(url, {
-      ...init,
-      headers: {
-        ...init.headers,
-        Authorization: `Bearer ${token ?? ''}`,
-      },
-    });
-  };
-
-  public static fetchJson = async <T>(
-    url: RequestInfo,
-    init: RequestInit = {}
-  ): Promise<T> => {
-    throwIfAborted(init.signal as AbortSignal);
-    const response = await this.fetch(url, init);
-    return await response.json();
   };
 
   private static secretStore = new SecretStore();
@@ -427,7 +384,7 @@ export class AtlasService {
     this.currentUser ??= await (async () => {
       const token = await this.maybeGetToken({ signal });
 
-      const res = await this.unAuthenticatedFetch(
+      const res = await this.fetch(
         `${this.config.atlasLogin.issuer}/v1/userinfo`,
         {
           headers: {
@@ -487,7 +444,7 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.unAuthenticatedFetch(url.toString(), {
+    const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -522,7 +479,7 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.unAuthenticatedFetch(url.toString(), {
+    const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],

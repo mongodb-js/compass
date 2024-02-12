@@ -323,12 +323,12 @@ export const cancelAtlasLoginAttempt = (): SettingsThunkAction<void> => {
 };
 
 export const enableAIFeature = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAuthService }) => {
+  return async (dispatch, getState, { atlasAiService }) => {
     if (getState().atlasLogin.status !== 'authenticated') {
       return;
     }
     try {
-      await atlasAuthService.enableAIFeature();
+      await atlasAiService.enableFeature();
       dispatch({ type: AtlasLoginSettingsActionTypes.EnableAIFeature });
     } catch (err) {
       // User declined opt-in, do not enable
@@ -337,12 +337,12 @@ export const enableAIFeature = (): SettingsThunkAction<Promise<void>> => {
 };
 
 export const disableAIFeature = (): SettingsThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAuthService }) => {
+  return async (dispatch, getState, { atlasAiService }) => {
     if (getState().atlasLogin.status !== 'authenticated') {
       return;
     }
     dispatch({ type: AtlasLoginSettingsActionTypes.DisableAIFeature });
-    await atlasAuthService.disableAIFeature();
+    await atlasAiService.disableFeature();
   };
 };
 

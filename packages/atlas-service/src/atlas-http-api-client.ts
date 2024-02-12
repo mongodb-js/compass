@@ -1,27 +1,11 @@
-import {
-  throwIfAborted,
-  getAppName,
-  getAppVersion,
-} from '@mongodb-js/compass-utils';
-import type { AtlasUserInfo } from './util';
-import { throwIfNetworkTrafficDisabled, throwIfNotOk } from './util';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
+import { throwIfNetworkTrafficDisabled } from './util';
 import { AtlasServiceConfig } from './util';
 import { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
 import { AtlasAuthService as AtlasAuthServiceRenderer } from './renderer';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
-
-export interface AtlasHttpApiClient {
-  getCurrentUser(): Promise<AtlasUserInfo>;
-  privateUnAuthEndpoint(path: string): string;
-  privateAtlasEndpoint(path: string): string;
-  fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-  unAuthenticatedFetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-}
-
-export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
+export class AtlasHttpApiClient {
   private config: AtlasServiceConfig;
   private atlasLoginServiceRenderer: AtlasAuthServiceRenderer;
   constructor(private preferences: Pick<PreferencesAccess, 'getPreferences'>) {
@@ -106,9 +90,6 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
       config[atlasServiceBackendPreset]
     ) as typeof envConfig & typeof config[keyof typeof config];
   }
-  getCurrentUser(): Promise<AtlasUserInfo> {
-    return this.atlasLoginServiceRenderer.getUserInfo();
-  }
   privateUnAuthEndpoint(path: string): string {
     return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
   }
@@ -129,96 +110,17 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
     });
   };
   async fetch(url: RequestInfo, init: RequestInit = {}): Promise<Response> {
-    const token = await this.atlasLoginServiceRenderer.getToken({
-      signal: init.signal as AbortSignal,
-    });
+    const token = await this.atlasLoginServiceRenderer
+      .getToken({
+        signal: init.signal as AbortSignal,
+      })
+      .catch(() => null);
     return await this.unAuthenticatedFetch(url, {
       ...init,
       headers: {
         ...init.headers,
-        Authorization: `Bearer ${token ?? ''}`,
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
-  }
-}
-
-export class AtlasService {
-  constructor(private httpClient: AtlasHttpApiClient) {}
-  privateUnAuthEndpoint(path: string) {
-    return this.httpClient.privateUnAuthEndpoint(path);
-  }
-  privateAtlasEndpoint(path: string) {
-    return this.httpClient.privateAtlasEndpoint(path);
-  }
-  private async makeFetch(
-    httpFetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>,
-    url: RequestInfo,
-    init?: RequestInit
-  ): Promise<Response> {
-    throwIfAborted(init?.signal as AbortSignal);
-    log.info(
-      mongoLogId(1_001_000_297),
-      'ErrorAwareAtlasHttpApiClient',
-      'Making a fetch',
-      {
-        url,
-      }
-    );
-    try {
-      const res = await httpFetch(url, init);
-      await throwIfNotOk(res);
-      return res;
-    } catch (err) {
-      log.info(
-        mongoLogId(1_001_000_298),
-        'ErrorAwareAtlasHttpApiClient',
-        'Fetch errored',
-        {
-          url,
-          err,
-        }
-      );
-      throw err;
-    }
-  }
-  async unAuthenticatedFetch(url: RequestInfo, init?: RequestInit) {
-    return this.makeFetch(
-      this.httpClient.unAuthenticatedFetch.bind(this.httpClient),
-      url,
-      init
-    );
-  }
-  async unAuthenticatedFetchJson<T>(
-    url: RequestInfo,
-    init: RequestInit
-  ): Promise<T> {
-    const response = await this.unAuthenticatedFetch(url, {
-      ...init,
-      headers: {
-        ...init.headers,
-        Accept: 'application/json',
-      },
-    });
-    return await response.json();
-  }
-  async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
-    return this.makeFetch(
-      this.httpClient.fetch.bind(this.httpClient),
-      url,
-      init
-    );
-  }
-  async fetchJson<T>(url: RequestInfo, init?: RequestInit): Promise<T> {
-    const response = await this.fetch(url, {
-      ...init,
-      headers: {
-        ...init?.headers,
-        Accept: 'application/json',
-      },
-    });
-    return await response.json();
-  }
-  async getCurrentUser() {
-    return this.httpClient.getCurrentUser();
   }
 }
