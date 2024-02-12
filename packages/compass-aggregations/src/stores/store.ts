@@ -182,11 +182,7 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
-        aiClient: GenerativeAiService.getInstance(
-          atlasService,
-          preferences,
-          logger
-        ),
+        aiClient: GenerativeAiService.getInstance(atlasService),
       })
     )
   );

@@ -1,9 +1,4 @@
-import {
-  type LoggerAndTelemetry,
-  mongoLogId,
-} from '@mongodb-js/compass-logging/provider';
 import type { SimplifiedSchema } from 'mongodb-schema';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { isAIFeatureEnabled } from 'compass-preferences-model';
 import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
@@ -51,25 +46,20 @@ type AIQuery = {
 export class GenerativeAiService {
   private static instance: GenerativeAiService | null = null;
   private initPromise: Promise<void> | null = null;
-  private constructor(
-    private atlasService: AtlasService,
-    private preferences: Pick<
-      PreferencesAccess,
-      'getPreferencesUser' | 'savePreferences' | 'getPreferences'
-    >,
-    private logger: LoggerAndTelemetry
-  ) {}
 
-  static getInstance(
-    atlasService: AtlasService,
-    preferences: Pick<
-      PreferencesAccess,
-      'getPreferencesUser' | 'savePreferences' | 'getPreferences'
-    >,
-    logger: LoggerAndTelemetry
-  ) {
+  private constructor(private atlasService: AtlasService) {}
+
+  get preferences() {
+    return this.atlasService.preferences;
+  }
+
+  get logger() {
+    return this.atlasService.logger;
+  }
+
+  static getInstance(atlasService: AtlasService) {
     if (!this.instance) {
-      this.instance = new this(atlasService, preferences, logger);
+      this.instance = new this(atlasService);
       this.instance.initPromise = this.instance.setupAIAccess();
     }
     return this.instance;
@@ -112,7 +102,7 @@ export class GenerativeAiService {
         !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       this.logger.log.info(
-        mongoLogId(1_001_000_293),
+        this.logger.mongoLogId(1_001_000_293),
         'AtlasService',
         'Fetched if the AI feature is enabled',
         {
@@ -129,7 +119,7 @@ export class GenerativeAiService {
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
       this.logger.log.error(
-        mongoLogId(1_001_000_294),
+        this.logger.mongoLogId(1_001_000_294),
         'AtlasService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }

@@ -146,11 +146,7 @@ export function activatePlugin(
       atlasAuthService,
       preferences,
       logger,
-      atlasAiService: GenerativeAiService.getInstance(
-        atlasService,
-        preferences,
-        logger
-      ),
+      atlasAiService: GenerativeAiService.getInstance(atlasService),
     }
   );
 

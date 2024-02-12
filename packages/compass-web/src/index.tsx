@@ -48,14 +48,18 @@ import {
 } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
-import { AtlasHttpClientProvider } from '@mongodb-js/atlas-service/provider';
-import type { AtlasHttpApiClient } from '@mongodb-js/atlas-service/renderer';
+import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
+import {
+  AtlasUserData,
+  AtlasService,
+} from '@mongodb-js/atlas-service/renderer';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type CompassWebProps = {
   darkMode?: boolean;
   connectionString: string;
   initialPreferences?: Partial<AllPreferences>;
-  atlasHttpClient: AtlasHttpApiClient;
+  atlasUserData: AtlasUserData;
 } & Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
@@ -107,7 +111,7 @@ const CompassWeb = ({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   initialPreferences,
-  atlasHttpClient,
+  atlasUserData,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
@@ -149,6 +153,14 @@ const CompassWeb = ({
     };
   }, [connectionString, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
+  const atlasService = useMemo(() => {
+    return new AtlasService(
+      atlasUserData,
+      preferencesAccess.current,
+      useLoggerAndTelemetry('CLOUD-ATLAS-SERVICE')
+    );
+  }, [atlasUserData, preferencesAccess.current]);
+
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
   // handling a single connection)
@@ -167,7 +179,7 @@ const CompassWeb = ({
   return (
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
-        <AtlasHttpClientProvider value={atlasHttpClient}>
+        <AtlasServiceProvider value={atlasService}>
           <AppRegistryProvider>
             <DataServiceProvider value={dataService.current}>
               <CompassInstanceStorePlugin>
@@ -230,7 +242,7 @@ const CompassWeb = ({
               </CompassInstanceStorePlugin>
             </DataServiceProvider>
           </AppRegistryProvider>
-        </AtlasHttpClientProvider>
+        </AtlasServiceProvider>
       </PreferencesProvider>
     </CompassComponentsProvider>
   );

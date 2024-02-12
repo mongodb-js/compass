@@ -57,11 +57,7 @@ export function configureStore(
         preferencesSandbox,
         atlasAuthService,
         logger: options.logger,
-        atlasAiService: GenerativeAiService.getInstance(
-          options.atlasService,
-          options.preferences,
-          options.logger
-        ),
+        atlasAiService: GenerativeAiService.getInstance(options.atlasService),
       })
     )
   );

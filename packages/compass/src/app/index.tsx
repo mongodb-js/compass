@@ -184,7 +184,8 @@ const Application = View.extend({
 
     const atlasService = new AtlasService(
       new CompassAtlasUserData(),
-      defaultPreferencesInstance
+      defaultPreferencesInstance,
+      createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE')
     );
 
     ReactDOM.render(
