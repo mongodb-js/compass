@@ -73,5 +73,5 @@ export async function exportToLanguage(
   await exportModal.waitForDisplayed({ reverse: true });
 
   // normalize copied text so that it's the same for all platforms
-  return text.replace(/\r\n/g, '\n');
+  return text.replace(/\r\n/g, '\n').replace(/\n+/g, '\n');
 }

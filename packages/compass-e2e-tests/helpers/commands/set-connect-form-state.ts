@@ -358,25 +358,32 @@ export async function setConnectFormState(
       );
 
       let found = false;
-      const options = await browser.$$('#select-key-menu [role="option"]');
-      const allText = [];
-      for (const option of options) {
-        const text = (await option.getText()).trim();
-        allText.push(text);
-        if (text === key) {
-          found = true;
-          await option.scrollIntoView();
-          await option.waitForDisplayed();
-          await waitForElementAnimations(browser, option);
-          await option.click();
-          break;
+      let allText: string[] = [];
+
+      // for whatever reasons sometimes the first one or two come through as empty strings
+      await browser.waitUntil(async () => {
+        allText = [];
+        const options = await browser.$$('#select-key-menu [role="option"]');
+        for (const option of options) {
+          const _text = await option.getText();
+          const text = _text.trim();
+          allText.push(text);
+          if (text === key) {
+            found = true;
+            await option.scrollIntoView();
+            await option.waitForDisplayed();
+            await waitForElementAnimations(browser, option);
+            await option.click();
+            break;
+          }
         }
-      }
+        return found;
+      });
 
       // make sure we found and clicked on an option
       expect(
         found,
-        `Count not find URL option "${key}". Found "${allText.join(', ')}"`
+        `Could not find URL option "${key}". Found "${allText.join(', ')}"`
       ).to.be.true;
 
       // make sure the menu goes away once we clicked on the option

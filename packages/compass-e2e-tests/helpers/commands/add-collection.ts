@@ -40,10 +40,10 @@ export async function addCollection(
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);
   await createModalElement.waitForDisplayed();
 
-  const collectionInput = await browser.$(
-    Selectors.CreateDatabaseCollectionName
+  await browser.setValueVisible(
+    Selectors.CreateDatabaseCollectionName,
+    collectionName
   );
-  await collectionInput.setValue(collectionName);
 
   if (collectionOptions) {
     await browser.clickVisible(
@@ -54,11 +54,10 @@ export async function addCollection(
   if (collectionOptions && collectionOptions.capped) {
     await browser.clickVisible(Selectors.CreateCollectionCappedCheckboxLabel);
 
-    const sizeElement = await browser.$(
-      Selectors.CreateCollectionCappedSizeInput
+    await browser.setValueVisible(
+      Selectors.CreateCollectionCappedSizeInput,
+      collectionOptions.capped.size.toString()
     );
-    await sizeElement.waitForDisplayed();
-    await sizeElement.setValue(collectionOptions.capped.size.toString());
   }
 
   if (collectionOptions && collectionOptions.customCollation) {
@@ -101,18 +100,16 @@ export async function addCollection(
       Selectors.CreateCollectionTimeseriesCheckboxLabel
     );
 
-    const timeField = await browser.$(
-      Selectors.CreateCollectionTimeseriesTimeField
+    await browser.setValueVisible(
+      Selectors.CreateCollectionTimeseriesTimeField,
+      collectionOptions.timeseries.timeField
     );
-    await timeField.waitForDisplayed();
-    await timeField.setValue(collectionOptions.timeseries.timeField);
 
     if (collectionOptions.timeseries.metaField) {
-      const metaField = await browser.$(
-        Selectors.CreateCollectionTimeseriesMetaField
+      await browser.setValueVisible(
+        Selectors.CreateCollectionTimeseriesMetaField,
+        collectionOptions.timeseries.metaField
       );
-      await metaField.waitForDisplayed();
-      await metaField.setValue(collectionOptions.timeseries.metaField);
     }
 
     if (collectionOptions.timeseries.granularity) {
@@ -131,31 +128,22 @@ export async function addCollection(
     }
 
     if (collectionOptions.timeseries.bucketMaxSpanSeconds) {
-      const bucketMaxSpanSecondsField = await browser.$(
-        Selectors.CreateCollectionTimeseriesBucketMaxSpanSeconds
-      );
-      await bucketMaxSpanSecondsField.waitForDisplayed();
-      await bucketMaxSpanSecondsField.setValue(
+      await browser.setValueVisible(
+        Selectors.CreateCollectionTimeseriesBucketMaxSpanSeconds,
         collectionOptions.timeseries.bucketMaxSpanSeconds.toString()
       );
     }
 
     if (collectionOptions.timeseries.bucketRoundingSeconds) {
-      const bucketMaxRoundingSecondsField = await browser.$(
-        Selectors.CreateCollectionTimeseriesBucketRoundingSeconds
-      );
-      await bucketMaxRoundingSecondsField.waitForDisplayed();
-      await bucketMaxRoundingSecondsField.setValue(
+      await browser.setValueVisible(
+        Selectors.CreateCollectionTimeseriesBucketRoundingSeconds,
         collectionOptions.timeseries.bucketRoundingSeconds.toString()
       );
     }
 
     if (collectionOptions.timeseries.expireAfterSeconds) {
-      const expireField = await browser.$(
-        Selectors.CreateCollectionTimeseriesExpireAfterSeconds
-      );
-      await expireField.waitForDisplayed();
-      await expireField.setValue(
+      await browser.setValueVisible(
+        Selectors.CreateCollectionTimeseriesExpireAfterSeconds,
         collectionOptions.timeseries.expireAfterSeconds.toString()
       );
     }
@@ -166,17 +154,13 @@ export async function addCollection(
       Selectors.CreateCollectionClusteredCheckboxLabel
     );
 
-    const nameField = await browser.$(
-      Selectors.CreateCollectionClusteredNameField
+    await browser.setValueVisible(
+      Selectors.CreateCollectionClusteredNameField,
+      collectionOptions.clustered.name
     );
-    await nameField.waitForDisplayed();
-    await nameField.setValue(collectionOptions.clustered.name);
 
-    const expireField = await browser.$(
-      Selectors.CreateCollectionClusteredExpireAfterSeconds
-    );
-    await expireField.waitForDisplayed();
-    await expireField.setValue(
+    await browser.setValueVisible(
+      Selectors.CreateCollectionClusteredExpireAfterSeconds,
       collectionOptions.clustered.expireAfterSeconds.toString()
     );
   }

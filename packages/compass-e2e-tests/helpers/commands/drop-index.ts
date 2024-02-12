@@ -18,11 +18,10 @@ export async function dropIndex(
   const dropModal = await browser.$(Selectors.DropIndexModal);
   await dropModal.waitForDisplayed();
 
-  const confirmInput = await browser.$(
-    Selectors.DropIndexModalConfirmNameInput
+  await browser.setValueVisible(
+    Selectors.DropIndexModalConfirmNameInput,
+    indexName
   );
-  await confirmInput.waitForDisplayed();
-  await confirmInput.setValue(indexName);
 
   if (screenshotName) {
     await browser.screenshot(screenshotName);

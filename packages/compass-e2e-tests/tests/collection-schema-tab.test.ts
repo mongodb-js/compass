@@ -49,18 +49,14 @@ describe('Collection schema tab', function () {
     const fields = await browser.$$(Selectors.SchemaField);
     expect(fields).to.have.lengthOf(3);
 
-    const schemaFieldNameElement = await browser.$$(Selectors.SchemaFieldName);
-    const fieldNames = await Promise.all(
-      schemaFieldNameElement.map((el) => el.getText())
-    );
+    const fieldNames = await browser
+      .$$(Selectors.SchemaFieldName)
+      .map((el) => el.getText());
     expect(fieldNames).to.deep.equal(['_id', 'i', 'j']);
 
-    const schemaFieldTypeListElement = await browser.$$(
-      Selectors.SchemaFieldTypeList
-    );
-    const fieldTypes = await Promise.all(
-      schemaFieldTypeListElement.map((el) => el.getText())
-    );
+    const fieldTypes = await browser
+      .$$(Selectors.SchemaFieldTypeList)
+      .map((el) => el.getText());
     expect(fieldTypes).to.deep.equal(['objectid', 'int32', 'int32']);
   });
 
@@ -73,19 +69,15 @@ describe('Collection schema tab', function () {
       const element = await browser.$(Selectors.SchemaFieldList);
       await element.waitForDisplayed();
 
-      const schemaFieldNameElement = await browser.$$(
-        Selectors.SchemaFieldName
-      );
       const fieldNames = (
-        await Promise.all(schemaFieldNameElement.map((el) => el.getText()))
+        await browser.$$(Selectors.SchemaFieldName).map((el) => el.getText())
       ).map((text: string) => text.trim());
       expect(fieldNames).to.deep.equal(['_id', 'location']);
 
-      const schemaFieldTypeListElement = await browser.$$(
-        Selectors.SchemaFieldTypeList
-      );
       const fieldTypes = (
-        await Promise.all(schemaFieldTypeListElement.map((el) => el.getText()))
+        await browser
+          .$$(Selectors.SchemaFieldTypeList)
+          .map((el) => el.getText())
       ).map((text: string) => text.trim());
       expect(fieldTypes).to.deep.equal([
         'objectid',

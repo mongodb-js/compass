@@ -174,11 +174,10 @@ describe('Collection indexes tab', function () {
       const dropModal = await browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();
 
-      const confirmInput = await browser.$(
-        Selectors.DropIndexModalConfirmButton
+      await browser.setValueVisible(
+        Selectors.DropIndexModalConfirmButton,
+        'columnstore'
       );
-      await confirmInput.waitForDisplayed();
-      await confirmInput.setValue('columnstore');
 
       const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
         Selectors.DropIndexModal

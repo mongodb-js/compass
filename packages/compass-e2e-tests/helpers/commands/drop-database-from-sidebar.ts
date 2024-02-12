@@ -7,10 +7,7 @@ export async function dropDatabaseFromSidebar(
 ): Promise<void> {
   // search for the database in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  const sidebarFilterInputElement = await browser.$(
-    Selectors.SidebarFilterInput
-  );
-  await sidebarFilterInputElement.setValue(dbName);
+  await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
   await browser.$(Selectors.sidebarDatabase(dbName)).waitForDisplayed();
 
   // open the drop database modal from the sidebar

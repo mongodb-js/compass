@@ -39,8 +39,10 @@ export async function saveAggregationPipeline(
 
   // set aggregation name
   await browser.waitForAnimations(Selectors.SavePipelineNameInput);
-  const pipelineNameInput = await browser.$(Selectors.SavePipelineNameInput);
-  await pipelineNameInput.setValue(aggregationName);
+  await browser.setValueVisible(
+    Selectors.SavePipelineNameInput,
+    aggregationName
+  );
 
   const createButton = await browser
     .$(Selectors.SavePipelineModal)

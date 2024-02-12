@@ -162,15 +162,12 @@ describe('Bulk Delete', () => {
       useBuilders: false,
     });
     expect(text).to.equal(`from pymongo import MongoClient
-
 # Requires the PyMongo package.
 # https://api.mongodb.com/python/current
-
 client = MongoClient('mongodb://localhost:27091/test')
 filter={
     'i': 5
 }
-
 result = client['test']['numbers'].delete_many(
   filter=filter
 )`);

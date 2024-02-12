@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  positionalArgs,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
 import { ConnectionString } from 'mongodb-connection-string-url';
@@ -10,7 +15,9 @@ describe('forceConnectionOptions', function () {
 
   before(async function () {
     compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: ['--forceConnectionOptions.appName=testAppName'],
+      wrapBinary: positionalArgs([
+        '--forceConnectionOptions.appName=testAppName',
+      ]),
     });
     browser = compass.browser;
   });

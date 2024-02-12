@@ -50,7 +50,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "bson": "^6.2.0",
+    "bson": "^6.3.0",
     "lodash": "^4.17.21",
     "mongodb-connection-string-url": "^2.6.0"
   },

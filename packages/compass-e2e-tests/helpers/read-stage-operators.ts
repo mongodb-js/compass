@@ -6,12 +6,9 @@ export async function getStageOperators(
   index: number
 ) {
   await browser.focusStageOperator(index);
-  const stageOperatorOptionsElements = await browser.$$(
-    Selectors.stageOperatorOptions(index)
-  );
-  const options: string[] = await Promise.all(
-    stageOperatorOptionsElements.map((element) => element.getText())
-  );
+  const options = await browser
+    .$$(Selectors.stageOperatorOptions(index))
+    .map((element) => element.getText());
 
   const actualOptions = options.map((option) => option.split('\n')[0]);
   actualOptions.sort();

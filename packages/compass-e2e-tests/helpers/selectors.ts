@@ -1055,31 +1055,31 @@ export const queryBar = (tabName: string): string => {
 };
 export const queryBarOptionInputFilter = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-filter"]`;
+  return `${tabSelector} [data-testid="query-bar-option-filter-input"]`;
 };
 export const queryBarOptionInputProject = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-project"]`;
+  return `${tabSelector} [data-testid="query-bar-option-project-input"]`;
 };
 export const queryBarOptionInputSort = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-sort"]`;
+  return `${tabSelector} [data-testid="query-bar-option-sort-input"]`;
 };
 export const queryBarOptionInputCollation = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-collation"]`;
+  return `${tabSelector} [data-testid="query-bar-option-collation-input"]`;
 };
 export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS"]`;
+  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS-input"]`;
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-skip"]`;
+  return `${tabSelector} [data-testid="query-bar-option-skip-input"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-option-limit"]`;
+  return `${tabSelector} [data-testid="query-bar-option-limit-input"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
