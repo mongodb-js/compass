@@ -111,7 +111,8 @@ function cleanup() {
   if (!disableStartStop) {
     debug('Stopping compass-web');
     try {
-      compassWeb.kill('SIGTERM');
+      const result = compassWeb.kill();
+      debug('result from stopping compass-web', { result });
     } catch (e) {
       debug('Failed to stop compass-web', e);
     }
