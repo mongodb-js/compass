@@ -1,8 +1,7 @@
 import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import { AtlasServiceError } from './util';
+import { AtlasServiceError, getTrackingUserInfo } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -113,14 +112,6 @@ const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
 } as const;
-
-export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
-  return {
-    // AUID is shared Cloud user identificator that can be tracked through
-    // various MongoDB properties
-    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
-  };
-}
 
 export type AtlasServiceConfig = {
   atlasApiBaseUrl: string;

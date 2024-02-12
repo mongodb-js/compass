@@ -1,6 +1,7 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
 import util from 'util';
 import type { AtlasUserConfig } from './user-config-store';
+import { createHash } from 'crypto';
 
 export type AtlasUserInfo = {
   sub: string;
@@ -159,4 +160,12 @@ export class AtlasServiceError extends Error {
     this.errorCode = errorCode;
     this.detail = detail;
   }
+}
+
+export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
+  return {
+    // AUID is shared Cloud user identificator that can be tracked through
+    // various MongoDB properties
+    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
+  };
 }
