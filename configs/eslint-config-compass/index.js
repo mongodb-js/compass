@@ -57,6 +57,13 @@ const testTsOverrides = {
   },
 };
 
+const testHelpersOverrides = {
+  files: ['**/test/**/*'],
+  rules: {
+    '@typescript-eslint/no-restricted-imports': 'off',
+  },
+};
+
 module.exports = {
   plugins: [...shared.plugins, '@mongodb-js/compass'],
   rules: {
@@ -89,6 +96,7 @@ module.exports = {
     tsxOverrides,
     testJsOverrides,
     testTsOverrides,
+    testHelpersOverrides,
   ],
   settings: {
     ...shared.settings,

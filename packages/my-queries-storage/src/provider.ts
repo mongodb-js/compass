@@ -7,11 +7,11 @@ import type {
 } from './query-storage';
 
 export type FavoriteQueryStorageAccess = {
-  createStorage(options: QueryStorageOptions): FavoriteQueryStorage;
+  createStorage(options?: QueryStorageOptions): FavoriteQueryStorage;
 };
 
 export type RecentQueryStorageAccess = {
-  createStorage(options: QueryStorageOptions): RecentQueryStorage;
+  createStorage(options?: QueryStorageOptions): RecentQueryStorage;
 };
 
 const PipelineStorageContext = createContext<PipelineStorage | null>(null);

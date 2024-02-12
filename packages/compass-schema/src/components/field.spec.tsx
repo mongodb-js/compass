@@ -12,7 +12,7 @@ import { BSON, Decimal128 } from 'bson';
 import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
-import type {
+import {
   FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
@@ -29,12 +29,12 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
     createStorage() {
-      return {} as unknown as FavoriteQueryStorage;
+      return new FavoriteQueryStorage();
     },
   },
   recentQueryStorageAccess: {
     createStorage() {
-      return {} as unknown as RecentQueryStorage;
+      return new RecentQueryStorage();
     },
   },
 });
