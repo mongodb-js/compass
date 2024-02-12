@@ -111,8 +111,13 @@ function cleanup() {
   if (!disableStartStop) {
     debug('Stopping compass-web');
     try {
-      const result = compassWeb.kill();
-      debug('result from stopping compass-web', { result });
+      //const result = compassWeb.kill();
+      //debug('result from stopping compass-web', { result });
+      if (compassWeb.pid) {
+        process.kill(-compassWeb.pid);
+      } else {
+        debug('no pid for compass-web');
+      }
     } catch (e) {
       debug('Failed to stop compass-web', e);
     }
