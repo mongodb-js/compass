@@ -104,7 +104,8 @@ class CompassTelemetry {
     if (
       this.state === 'enabled' &&
       this.analytics &&
-      this.telemetryAnonymousId
+      this.telemetryAnonymousId &&
+      this.telemetryAtlasUserId
     ) {
       this.analytics.identify({
         userId: this.telemetryAtlasUserId,
