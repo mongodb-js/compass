@@ -13,6 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
+import { getActiveUser } from '.';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -28,7 +29,7 @@ export interface PreferencesAccess {
     callback: (value: AllPreferences[K]) => void
   ): () => void;
   createSandbox(): Promise<PreferencesAccess>;
-  getUserId?(): string;
+  getPreferencesUser(): ReturnType<typeof getActiveUser>;
 }
 
 type OnPreferencesChangedCallback = (

@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/compass-logging/provider';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import { isAIFeatureEnabled } from 'compass-preferences-model';
 import {
   AtlasService,
   type AtlasHttpApiClient,
@@ -57,7 +57,7 @@ export class GenerativeAiApiClient {
     private preferences: Required<
       Pick<
         PreferencesAccess,
-        'getUserId' | 'savePreferences' | 'getPreferences'
+        'getPreferencesUser' | 'savePreferences' | 'getPreferences'
       >
     >,
     private logger: LoggerAndTelemetry
@@ -83,10 +83,7 @@ export class GenerativeAiApiClient {
   async disableFeature() {}
 
   async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    const userId = this.preferences.getUserId?.();
-    if (!userId) {
-      throw new Error('No user id found');
-    }
+    const userId = this.preferences.getPreferencesUser().id;
     const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
     const body = await this.atlasService.unAuthenticatedFetchJson(url, {});
     this.validateAIFeatureEnablementResponse(body);
@@ -290,16 +287,12 @@ export class GenerativeAiApiClient {
 
 export function createGenerativeAiApiClient(
   atlasHttpApiClient: AtlasHttpApiClient,
-  _preferences: PreferencesAccess,
+  preferences: PreferencesAccess,
   logger: LoggerAndTelemetry
 ) {
-  const preference = {
-    ..._preferences,
-    getUserId: () => getActiveUser(_preferences).id,
-  };
   const client = new GenerativeAiApiClient(
     new AtlasService(atlasHttpApiClient),
-    preference,
+    preferences,
     logger
   );
   // todo
