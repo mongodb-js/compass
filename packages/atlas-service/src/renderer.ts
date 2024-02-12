@@ -14,7 +14,7 @@ import { getStore } from './store/atlas-signin-store';
 import type { AtlasUserInfo } from './util';
 import type { AtlasUserConfig } from './user-config-store';
 
-let atlasLoginServiceInstanceSingleton: AtlasLoginService;
+let atlasAuthServiceInstanceSingleton: AtlasAuthService;
 
 type AtlasServiceEvents = {
   'signed-in': [];
@@ -23,7 +23,7 @@ type AtlasServiceEvents = {
   'user-config-changed': [AtlasUserConfig];
 };
 
-export class AtlasLoginService {
+export class AtlasAuthService {
   private emitter = new EventEmitter();
 
   private _ipc = ipcRenderer?.createInvoke<
@@ -144,8 +144,8 @@ export class AtlasLoginService {
   }
 
   constructor() {
-    if (atlasLoginServiceInstanceSingleton) {
-      return atlasLoginServiceInstanceSingleton;
+    if (atlasAuthServiceInstanceSingleton) {
+      return atlasAuthServiceInstanceSingleton;
     }
 
     // We might not be in electorn environment
@@ -165,7 +165,7 @@ export class AtlasLoginService {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    atlasLoginServiceInstanceSingleton = this;
+    atlasAuthServiceInstanceSingleton = this;
   }
 }
 

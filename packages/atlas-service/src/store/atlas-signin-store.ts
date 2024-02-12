@@ -1,16 +1,16 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { AtlasLoginService } from '../renderer';
+import { AtlasAuthService } from '../renderer';
 import reducer from './atlas-signin-reducer';
 
 export function configureStore({
-  atlasService,
+  atlasAuthService,
 }: {
-  atlasService: AtlasLoginService;
+  atlasAuthService: AtlasAuthService;
 }) {
   return createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasService }))
+    applyMiddleware(thunk.withExtraArgument({ atlasAuthService }))
   );
 }
 
@@ -20,7 +20,7 @@ let store: AtlasServiceStore;
 
 export function getStore() {
   store ??= configureStore({
-    atlasService: new AtlasLoginService(),
+    atlasAuthService: new AtlasAuthService(),
   });
   return store;
 }

@@ -9,7 +9,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { AtlasServiceConfig } from './util';
 import { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
-import { AtlasLoginService as AtlasLoginServiceRenderer } from './renderer';
+import { AtlasAuthService as AtlasAuthServiceRenderer } from './renderer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -23,10 +23,10 @@ export interface AtlasHttpApiClient {
 
 export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
   private config: AtlasServiceConfig;
-  private atlasLoginServiceRenderer: AtlasLoginServiceRenderer;
+  private atlasLoginServiceRenderer: AtlasAuthServiceRenderer;
   constructor(private preferences: Pick<PreferencesAccess, 'getPreferences'>) {
     this.config = this.getConfig();
-    this.atlasLoginServiceRenderer = new AtlasLoginServiceRenderer();
+    this.atlasLoginServiceRenderer = new AtlasAuthServiceRenderer();
   }
   private getConfig() {
     /**
@@ -76,10 +76,11 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
         authPortalUrl: 'https://account-dev.mongodb.com/account/login',
       },
       atlas: {
-        // atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
-        // atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
-        atlasApiBaseUrl: 'http://localhost:9000/api/private',
-        atlasApiUnauthBaseUrl: 'http://localhost:9000/api/private/unauth',
+        atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+        atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+        // todo: clean up
+        // atlasApiBaseUrl: 'http://localhost:9000/api/private',
+        // atlasApiUnauthBaseUrl: 'http://localhost:9000/api/private/unauth',
         atlasLogin: {
           clientId: '0oajzdcznmE8GEyio297',
           issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -138,9 +139,6 @@ export class CompassAtlasHttpApiClient implements AtlasHttpApiClient {
         Authorization: `Bearer ${token ?? ''}`,
       },
     });
-  }
-  login() {
-    return this.atlasLoginServiceRenderer.signIn();
   }
 }
 

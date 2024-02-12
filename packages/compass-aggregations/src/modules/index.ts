@@ -1,6 +1,6 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-import type { AtlasLoginService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import dataService from './data-service';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
@@ -92,7 +92,7 @@ export type PipelineBuilderExtraArgs = {
   localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
-  atlasService: AtlasLoginService;
+  atlasAuthService: AtlasAuthService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;

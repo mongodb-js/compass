@@ -4,7 +4,7 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { AtlasLoginService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -20,7 +20,7 @@ export type Public<T> = { [K in keyof T]: T[K] };
 
 type ThunkExtraArg = {
   preferencesSandbox: Public<PreferencesSandbox>;
-  atlasService: Public<AtlasLoginService>;
+  atlasAuthService: Public<AtlasAuthService>;
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
 };
@@ -31,7 +31,7 @@ export function configureStore(
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
-  const atlasService = options?.atlasService ?? new AtlasLoginService();
+  const atlasAuthService = options?.atlasAuthService ?? new AtlasAuthService();
 
   const store = createStore(
     combineReducers({
@@ -45,25 +45,25 @@ export function configureStore(
       thunk.withExtraArgument({
         preferences: options.preferences,
         preferencesSandbox,
-        atlasService,
+        atlasAuthService,
         logger: options.logger,
       })
     )
   );
 
-  atlasService.on('signed-in', () => {
+  atlasAuthService.on('signed-in', () => {
     void store.dispatch(getUserInfo());
   });
 
-  atlasService.on('signed-out', () => {
+  atlasAuthService.on('signed-out', () => {
     void store.dispatch(atlasServiceSignedOut());
   });
 
-  atlasService.on('token-refresh-failed', () => {
+  atlasAuthService.on('token-refresh-failed', () => {
     void store.dispatch(atlasServiceTokenRefreshFailed());
   });
 
-  atlasService.on('user-config-changed', (newConfig) => {
+  atlasAuthService.on('user-config-changed', (newConfig) => {
     void store.dispatch(atlasServiceUserConfigChanged(newConfig));
   });
 

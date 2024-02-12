@@ -23,8 +23,8 @@ import {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import {
-  AtlasLoginService,
-  CompassAtlasHttpApiClient,
+  AtlasAuthService,
+  AtlasHttpApiClient,
 } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -47,12 +47,13 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasHttpClient: AtlasHttpApiClient;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
 // implemented yet, so we're keeping them separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasLoginService;
+  atlasAuthService?: AtlasAuthService;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
 };
@@ -70,7 +71,7 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: AtlasLoginService;
+  atlasAuthService: AtlasAuthService;
   preferences: PreferencesAccess;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
@@ -116,16 +117,11 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    atlasService = new AtlasLoginService(),
+    atlasAuthService = new AtlasAuthService(),
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
+    atlasHttpClient,
   } = services;
-
-  const aiClient = createGenerativeAiApiClient(
-    new CompassAtlasHttpApiClient(preferences),
-    preferences,
-    logger
-  );
 
   const store = configureStore(
     {
@@ -150,10 +146,14 @@ export function activatePlugin(
       globalAppRegistry,
       recentQueryStorage,
       favoriteQueryStorage,
-      atlasService,
+      atlasAuthService,
       preferences,
       logger,
-      aiClient,
+      aiClient: createGenerativeAiApiClient(
+        atlasHttpClient,
+        preferences,
+        logger
+      ),
     }
   );
 
@@ -170,7 +170,7 @@ export function activatePlugin(
     });
   });
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasAuthService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

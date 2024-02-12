@@ -8,7 +8,8 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-
+import { CompassAtlasHttpApiClient } from '@mongodb-js/atlas-service/renderer';
+import { AtlasHttpClientProvider } from '@mongodb-js/atlas-service/provider';
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
@@ -182,12 +183,18 @@ const Application = View.extend({
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <AtlasHttpClientProvider
+              value={
+                new CompassAtlasHttpApiClient(loggerProviderValue.preferences)
+              }
+            >
+              <AppRegistryProvider>
+                <CompassHomePlugin
+                  appName={remote.app.getName()}
+                  getAutoConnectInfo={getAutoConnectInfo}
+                ></CompassHomePlugin>
+              </AppRegistryProvider>
+            </AtlasHttpClientProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

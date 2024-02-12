@@ -4,8 +4,8 @@ import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
 import {
-  AtlasLoginService,
-  CompassAtlasHttpApiClient,
+  AtlasAuthService,
+  AtlasHttpApiClient,
 } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
@@ -70,7 +70,7 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
     /**
      * Service for interacting with Atlas-only features
      */
-    atlasService: AtlasLoginService;
+    atlasAuthService: AtlasAuthService;
   }>;
 
 export type AggregationsPluginServices = {
@@ -81,6 +81,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasHttpClient: AtlasHttpApiClient;
 };
 
 export function activateAggregationsPlugin(
@@ -93,6 +94,7 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
+    atlasHttpClient,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -120,15 +122,9 @@ export function activateAggregationsPlugin(
     initialPipelineSource
   );
 
-  const atlasService = options.atlasService ?? new AtlasLoginService();
+  const atlasAuthService = options.atlasAuthService ?? new AtlasAuthService();
 
   const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
-
-  const aiClient = createGenerativeAiApiClient(
-    new CompassAtlasHttpApiClient(preferences),
-    preferences,
-    logger
-  );
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)
@@ -181,12 +177,16 @@ export function activateAggregationsPlugin(
         localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
-        atlasService,
+        atlasAuthService,
         workspaces,
         instance,
         preferences,
         logger,
-        aiClient,
+        aiClient: createGenerativeAiApiClient(
+          atlasHttpClient,
+          preferences,
+          logger
+        ),
       })
     )
   );
@@ -200,7 +200,7 @@ export function activateAggregationsPlugin(
     )
   );
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasAuthService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

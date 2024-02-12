@@ -76,6 +76,12 @@ export class GenerativeAiApiClient {
     }
   }
 
+  // todo
+  async enableFeature() {}
+
+  // todo
+  async disableFeature() {}
+
   async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getUserId?.();
     if (!userId) {
@@ -284,16 +290,19 @@ export class GenerativeAiApiClient {
 
 export function createGenerativeAiApiClient(
   atlasHttpApiClient: AtlasHttpApiClient,
-  preferences: PreferencesAccess,
+  _preferences: PreferencesAccess,
   logger: LoggerAndTelemetry
 ) {
-  return new GenerativeAiApiClient(
+  const preference = {
+    ..._preferences,
+    getUserId: () => getActiveUser(_preferences).id,
+  };
+  const client = new GenerativeAiApiClient(
     new AtlasService(atlasHttpApiClient),
-    {
-      getPreferences: preferences.getPreferences,
-      getUserId: () => getActiveUser(preferences).id,
-      savePreferences: preferences.savePreferences,
-    },
+    preference,
     logger
   );
+  // todo
+  // await client.setupAIAccess();
+  return client;
 }

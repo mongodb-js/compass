@@ -236,10 +236,10 @@ export class AtlasService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      // // Whether or not we got the state, try requesting user info. If there was
-      // // no serialized state returned, this will just fail quickly. If there was
-      // // some state, we will prepare the service state for user interactions by
-      // // forcing oidc-plugin to do token refresh if expired and setting user
+      // Whether or not we got the state, try requesting user info. If there was
+      // no serialized state returned, this will just fail quickly. If there was
+      // some state, we will prepare the service state for user interactions by
+      // forcing oidc-plugin to do token refresh if expired and setting user
       // try {
       //   await this.getUserInfo();
       //   log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
