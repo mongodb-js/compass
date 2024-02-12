@@ -388,7 +388,7 @@ export class Compass {
     // Copy log files before stopping in case that stopping itself fails and needs to be debugged
     await copyCompassLog();
     debug(`Stopping Compass application [${this.name}]`);
-    await this.browser.deleteSession();
+    await this.browser.deleteSession({ shutdownDriver: true });
 
     this.logs = (await copyCompassLog()).structured;
   }
@@ -1002,12 +1002,16 @@ export async function cleanup(compass?: Compass): Promise<void> {
   })();
 
   const result = await Promise.race([timeoutPromise, closePromise]);
-  if (result === 'timeout' && compass.mainProcessPid) {
-    try {
-      debug(`Trying to manually kill Compass [${compass.name}]`);
-      tryKillProcess(compass.mainProcessPid, compass.name);
-    } catch {
-      /* already logged ... */
+  if (result === 'timeout') {
+    debug('Closing compass timed out.');
+    if (compass.mainProcessPid) {
+      // this only works for the electron use case
+      try {
+        debug(`Trying to manually kill Compass [${compass.name}]`);
+        tryKillProcess(compass.mainProcessPid, compass.name);
+      } catch {
+        /* already logged ... */
+      }
     }
   }
 }
