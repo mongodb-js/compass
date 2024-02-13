@@ -1,17 +1,16 @@
 import { createContext, useContext } from 'react';
+import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
-import type {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
-  QueryStorageOptions,
-} from './query-storage';
+import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
+
+export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };
 
 export type FavoriteQueryStorageAccess = {
-  createStorage(options?: QueryStorageOptions): FavoriteQueryStorage;
+  getStorage(options?: QueryStorageOptions): FavoriteQueryStorage;
 };
 
 export type RecentQueryStorageAccess = {
-  createStorage(options?: QueryStorageOptions): RecentQueryStorage;
+  getStorage(options?: QueryStorageOptions): RecentQueryStorage;
 };
 
 const PipelineStorageContext = createContext<PipelineStorage | null>(null);

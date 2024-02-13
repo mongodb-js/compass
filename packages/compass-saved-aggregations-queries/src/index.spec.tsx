@@ -14,7 +14,7 @@ import { MyQueriesPlugin } from '.';
 import type {
   PipelineStorage,
   FavoriteQueryStorage,
-} from '@mongodb-js/my-queries-storage';
+} from '@mongodb-js/my-queries-storage/provider';
 
 describe('AggregationsQueriesList', function () {
   const sandbox = Sinon.createSandbox();
@@ -33,7 +33,7 @@ describe('AggregationsQueriesList', function () {
     dataService,
     instance,
     favoriteQueryStorageAccess: {
-      createStorage() {
+      getStorage() {
         return queryStorage as unknown as FavoriteQueryStorage;
       },
     },

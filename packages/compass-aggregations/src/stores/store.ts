@@ -10,10 +10,7 @@ import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
-import type {
-  SavedPipeline,
-  PipelineStorage,
-} from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
@@ -38,6 +35,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{

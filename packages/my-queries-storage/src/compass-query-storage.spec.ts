@@ -5,7 +5,10 @@ import os from 'os';
 import { EJSON, UUID } from 'bson';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
-import { RecentQueryStorage, FavoriteQueryStorage } from './query-storage';
+import {
+  CompassRecentQueryStorage,
+  CompassFavoriteQueryStorage,
+} from './compass-query-storage';
 
 const queries = [
   {
@@ -25,13 +28,13 @@ const queries = [
 
 const maxAllowedRecentQueries = 30;
 
-describe('RecentQueryStorage', function () {
-  let queryHistoryStorage: RecentQueryStorage;
+describe('CompassRecentQueryStorage', function () {
+  let queryHistoryStorage: CompassRecentQueryStorage;
 
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
-    queryHistoryStorage = new RecentQueryStorage({
+    queryHistoryStorage = new CompassRecentQueryStorage({
       basepath: tmpDir,
     });
   });
@@ -180,7 +183,7 @@ describe('RecentQueryStorage', function () {
   for (const { query, version } of recentQueries) {
     it(`supports recent query from Compass v${version}`, async function () {
       await writeQuery(query, 'RecentQueries');
-      const recentQueryStorage = new RecentQueryStorage({
+      const recentQueryStorage = new CompassRecentQueryStorage({
         basepath: tmpDir,
       });
       const [loadedQuery] = await recentQueryStorage.loadAll();
@@ -196,7 +199,7 @@ describe('RecentQueryStorage', function () {
   for (const { query, version } of favoriteQueries) {
     it(`supports favorite query from Compass v${version}`, async function () {
       await writeQuery(query, 'FavoriteQueries');
-      const favoriteQueryStorage = new FavoriteQueryStorage({
+      const favoriteQueryStorage = new CompassFavoriteQueryStorage({
         basepath: tmpDir,
       });
       const [loadedQuery] = await favoriteQueryStorage.loadAll();
@@ -218,13 +221,13 @@ describe('RecentQueryStorage', function () {
   }
 });
 
-describe('FavoriteQueryStorage', function () {
-  let queryFavoriteStorage: FavoriteQueryStorage;
+describe('CompassFavoriteQueryStorage', function () {
+  let queryFavoriteStorage: CompassFavoriteQueryStorage;
 
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
-    queryFavoriteStorage = new FavoriteQueryStorage({
+    queryFavoriteStorage = new CompassFavoriteQueryStorage({
       basepath: tmpDir,
     });
   });

@@ -9,9 +9,9 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
-  FavoriteQueryStorage,
-  PipelineStorage,
-  RecentQueryStorage,
+  CompassFavoriteQueryStorage,
+  CompassPipelineStorage,
+  CompassRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import {
   PipelineStorageProvider,
@@ -191,18 +191,22 @@ const Application = View.extend({
     };
 
     const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
-      createStorage: (options) => new FavoriteQueryStorage(options),
+      getStorage(options) {
+        return new CompassFavoriteQueryStorage(options);
+      },
     };
 
     const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
-      createStorage: (options) => new RecentQueryStorage(options),
+      getStorage(options) {
+        return new CompassRecentQueryStorage(options);
+      },
     };
 
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <PipelineStorageProvider value={new PipelineStorage()}>
+            <PipelineStorageProvider value={new CompassPipelineStorage()}>
               <FavoriteQueryStorageProvider
                 value={favoriteQueryStorageProviderValue}
               >

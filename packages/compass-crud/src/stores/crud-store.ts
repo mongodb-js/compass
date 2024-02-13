@@ -14,12 +14,10 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
-import type {
   FavoriteQueryStorageAccess,
+  FavoriteQueryStorage,
   RecentQueryStorageAccess,
+  RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 
 import {
@@ -1973,8 +1971,8 @@ export function activateDocumentsPlugin(
         globalAppRegistry,
         preferences,
         logger,
-        favoriteQueryStorage: favoriteQueryStorageAccess.createStorage(),
-        recentQueryStorage: recentQueryStorageAccess.createStorage(),
+        favoriteQueryStorage: favoriteQueryStorageAccess.getStorage(),
+        recentQueryStorage: recentQueryStorageAccess.getStorage(),
       }
     )
   ) as CrudStore;

@@ -18,10 +18,6 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import type {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -31,7 +27,9 @@ import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type {
   FavoriteQueryStorageAccess,
+  FavoriteQueryStorage,
   RecentQueryStorageAccess,
+  RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 
 // Partial of DataService that mms shares with Compass.
@@ -117,8 +115,8 @@ export function activatePlugin(
     atlasService = new AtlasService(),
   } = services;
 
-  const favoriteQueryStorage = favoriteQueryStorageAccess.createStorage();
-  const recentQueryStorage = recentQueryStorageAccess.createStorage();
+  const favoriteQueryStorage = favoriteQueryStorageAccess.getStorage();
+  const recentQueryStorage = recentQueryStorageAccess.getStorage();
   const store = configureStore(
     {
       namespace: namespace ?? '',

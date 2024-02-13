@@ -16,8 +16,8 @@ import { CrudToolbar } from './crud-toolbar';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
+  CompassFavoriteQueryStorage,
+  CompassRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 
 const noop = () => {
@@ -38,13 +38,13 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   },
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
-    createStorage() {
-      return new FavoriteQueryStorage();
+    getStorage() {
+      return new CompassFavoriteQueryStorage();
     },
   },
   recentQueryStorageAccess: {
-    createStorage() {
-      return new RecentQueryStorage();
+    getStorage() {
+      return new CompassRecentQueryStorage();
     },
   },
 });

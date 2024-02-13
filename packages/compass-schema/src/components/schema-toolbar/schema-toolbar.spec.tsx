@@ -6,8 +6,8 @@ import sinon from 'sinon';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
+  CompassFavoriteQueryStorage,
+  CompassRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
@@ -21,13 +21,13 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   },
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
-    createStorage() {
-      return new FavoriteQueryStorage();
+    getStorage() {
+      return new CompassFavoriteQueryStorage();
     },
   },
   recentQueryStorageAccess: {
-    createStorage() {
-      return new RecentQueryStorage();
+    getStorage() {
+      return new CompassRecentQueryStorage();
     },
   },
 });
