@@ -44,7 +44,6 @@ export type FavoriteQuery = z.output<typeof FavoriteQuerySchema>;
 
 export type QueryStorageOptions = {
   basepath?: string;
-  namespace?: string;
 };
 
 export abstract class QueryStorage<T extends typeof RecentQuerySchema> {
@@ -62,16 +61,14 @@ export abstract class QueryStorage<T extends typeof RecentQuerySchema> {
     });
   }
 
-  async loadAll(): Promise<z.output<T>[]> {
+  async loadAll(namespace?: string): Promise<z.output<T>[]> {
     try {
       const { data } = await this.userData.readAll();
       const sortedData = data
         .sort((a, b) => {
           return b._lastExecuted.getTime() - a._lastExecuted.getTime();
         })
-        .filter(
-          (x) => !this.options.namespace || x._ns === this.options.namespace
-        );
+        .filter((x) => !namespace || x._ns === namespace);
       return sortedData;
     } catch (e) {
       return [];

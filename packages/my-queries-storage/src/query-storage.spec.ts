@@ -76,6 +76,20 @@ describe('RecentQueryStorage', function () {
     );
   });
 
+  it('loads files from storage only for a specific namespace', async function () {
+    const differentNSQuery = {
+      _id: new UUID().toString(),
+      _ns: 'x.y',
+      _lastExecuted: new Date(1690876213077 - queries.length * 1000),
+    };
+    const mixedQueries = [...queries, differentNSQuery];
+    await Promise.all(mixedQueries.map((query) => writeQuery(query)));
+
+    const data = await queryHistoryStorage.loadAll(differentNSQuery._ns);
+    expect(data).to.have.lengthOf(1);
+    expect(data[0]).to.deep.equal(differentNSQuery);
+  });
+
   it('updates data in storage if files exists', async function () {
     await Promise.all(queries.map((query) => writeQuery(query)));
 
@@ -235,5 +249,31 @@ describe('FavoriteQueryStorage', function () {
     expect(query._ns).to.equal('test.test');
     expect(query.filter).to.deep.equal({ a: 1 });
     expect(query.update).to.deep.equal({ $set: { a: 2 } });
+  });
+
+  it('should retrieve saved queries only for a specific namespace', async function () {
+    const nsTestQuery = {
+      _ns: 'test.test',
+      _name: 'my-query',
+      filter: { a: 1 },
+      update: { $set: { a: 2 } },
+    };
+    const nsTest1Query = {
+      _ns: 'test1.test1',
+      _name: 'my-query-1',
+      filter: { a: 1 },
+      update: { $set: { a: 2 } },
+    };
+    await queryFavoriteStorage.saveQuery(nsTestQuery);
+    await queryFavoriteStorage.saveQuery(nsTest1Query);
+
+    const loaded = await queryFavoriteStorage.loadAll(nsTest1Query._ns);
+    expect(loaded.length).to.equal(1);
+
+    const [query] = loaded;
+    expect(query._name).to.equal(nsTest1Query._name);
+    expect(query._ns).to.equal(nsTest1Query._ns);
+    expect(query.filter).to.deep.equal(nsTest1Query.filter);
+    expect(query.update).to.deep.equal(nsTest1Query.update);
   });
 });

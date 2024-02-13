@@ -117,12 +117,8 @@ export function activatePlugin(
     atlasService = new AtlasService(),
   } = services;
 
-  const favoriteQueryStorage = favoriteQueryStorageAccess.createStorage({
-    namespace,
-  });
-  const recentQueryStorage = recentQueryStorageAccess.createStorage({
-    namespace,
-  });
+  const favoriteQueryStorage = favoriteQueryStorageAccess.createStorage();
+  const recentQueryStorage = recentQueryStorageAccess.createStorage();
   const store = configureStore(
     {
       namespace: namespace ?? '',

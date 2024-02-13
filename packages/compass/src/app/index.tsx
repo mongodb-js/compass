@@ -17,6 +17,8 @@ import {
   PipelineStorageProvider,
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
+  type FavoriteQueryStorageAccess,
+  type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
@@ -188,11 +190,11 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
-    const favoriteQueryStorageProviderValue = {
+    const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
       createStorage: (options) => new FavoriteQueryStorage(options),
     };
 
-    const recentQueryStorageProviderValue = {
+    const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
       createStorage: (options) => new RecentQueryStorage(options),
     };
 
