@@ -386,7 +386,7 @@ export class Compass {
     };
 
     if (this.logPath) {
-      // TODO: not available when testing web
+      // not available when testing web
       // Copy log files before stopping in case that stopping itself fails and needs to be debugged
       await copyCompassLog();
     }
@@ -395,7 +395,7 @@ export class Compass {
     await this.browser.deleteSession({ shutdownDriver: true });
 
     if (this.logPath) {
-      // TODO: not available when testing web
+      // not available when testing web
       this.logs = (await copyCompassLog()).structured;
     }
   }
@@ -635,7 +635,6 @@ async function startCompassElectron(
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts, // TODO: Is this a good idea? We're passing everything on to remote()
   };
 
   debug('Starting compass via webdriverio with the following configuration:');

@@ -5,8 +5,6 @@ import * as Selectors from '../selectors';
 
 export async function disconnect(browser: CompassBrowser): Promise<void> {
   if (TEST_COMPASS_WEB) {
-    // TODO: refreshing will probably not be enough to sign out once we run
-    // these tests against real atlas, depending on how we implement that.
     await browser.refresh();
     const element = await browser.$(Selectors.ConnectSection);
     await element.waitForDisplayed();
