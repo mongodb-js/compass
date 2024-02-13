@@ -11,7 +11,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
-import BadgeWithIconLink from './badge-with-icon-link';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 const containerStyles = css({
   display: 'flex',

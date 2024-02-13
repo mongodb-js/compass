@@ -5,10 +5,8 @@ export async function navigateToInstanceTab(
   browser: CompassBrowser,
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ): Promise<void> {
-  const sidebarNavigationItem = browser.$(
-    Selectors.sidebarInstanceNavigationItem(tabName)
-  );
-  await browser.clickVisible(sidebarNavigationItem);
+  const itemSelector = Selectors.sidebarInstanceNavigationItem(tabName);
+  await browser.clickVisible(itemSelector);
   await waitUntilActiveInstanceTab(browser, tabName);
 }
 

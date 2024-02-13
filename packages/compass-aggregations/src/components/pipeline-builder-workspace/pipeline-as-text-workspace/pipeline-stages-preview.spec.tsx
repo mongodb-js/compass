@@ -98,7 +98,7 @@ describe('OutputStagePreview', function () {
         const button = screen.getByRole('button', {
           name: /save documents/i,
         });
-        expect(button).to.have.attribute('aria-disabled');
+        expect(button.getAttribute('aria-disabled')).to.equal('true');
       });
 
       it('renders complete state', function () {

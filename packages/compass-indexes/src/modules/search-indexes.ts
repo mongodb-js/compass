@@ -1,21 +1,21 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
-import { isAction } from './../utils/is-action';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
+import type { SearchIndex } from 'mongodb-data-service';
+
+import { isAction } from './../utils/is-action';
+import type { IndexesThunkAction } from '.';
+import { switchToSearchIndexes } from './index-view';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-import type { IndexesThunkAction } from '.';
-
-import type { SearchIndex } from 'mongodb-data-service';
-import { switchToSearchIndexes } from './index-view';
 
 export enum SearchIndexesStatuses {
   /**
@@ -378,16 +378,21 @@ export const closeUpdateModal = (): UpdateSearchIndexCancelledAction => ({
   type: ActionTypes.UpdateSearchIndexCancelled,
 });
 
-export const createIndex = (
-  indexName: string,
-  indexDefinition: Document
-): IndexesThunkAction<Promise<void>> => {
+export const createIndex = ({
+  name,
+  type,
+  definition,
+}: {
+  name: string;
+  type?: string;
+  definition: Document;
+}): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {
     const { namespace, dataService } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
 
-    if (indexName === '') {
+    if (name === '') {
       dispatch({
         type: ActionTypes.CreateSearchIndexFailed,
         error: 'Please enter the name of the index.',
@@ -396,11 +401,15 @@ export const createIndex = (
     }
 
     try {
-      await dataService?.createSearchIndex(
-        namespace,
-        indexName,
-        indexDefinition
-      );
+      await dataService?.createSearchIndex(namespace, {
+        name,
+        definition,
+        ...(type
+          ? {
+              type,
+            }
+          : {}),
+      });
     } catch (ex) {
       const error = (ex as Error).message;
       dispatch({
@@ -413,10 +422,11 @@ export const createIndex = (
     dispatch({ type: ActionTypes.CreateSearchIndexSucceeded });
     track('Index Created', {
       atlas_search: true,
+      type,
     });
 
     openToast('search-index-creation-in-progress', {
-      title: `Your index ${indexName} is in progress.`,
+      title: `Your index ${name} is in progress.`,
       dismissible: true,
       timeout: 5000,
       variant: 'progress',
@@ -427,10 +437,14 @@ export const createIndex = (
   };
 };
 
-export const updateIndex = (
-  indexName: string,
-  indexDefinition: Document
-): IndexesThunkAction<Promise<void>> => {
+export const updateIndex = ({
+  name,
+  definition,
+}: {
+  name: string;
+  type?: string;
+  definition: Document;
+}): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState, { logger: { track } }) {
     const {
       namespace,
@@ -439,26 +453,22 @@ export const updateIndex = (
     } = getState();
 
     const currentIndexDefinition = indexes.find(
-      (x) => x.name === indexName
+      (x) => x.name === name
     )?.latestDefinition;
-    if (isEqual(currentIndexDefinition, indexDefinition)) {
+    if (isEqual(currentIndexDefinition, definition)) {
       dispatch(closeUpdateModal());
       return;
     }
 
     try {
       dispatch({ type: ActionTypes.UpdateSearchIndexStarted });
-      await dataService?.updateSearchIndex(
-        namespace,
-        indexName,
-        indexDefinition
-      );
+      await dataService?.updateSearchIndex(namespace, name, definition);
       dispatch({ type: ActionTypes.UpdateSearchIndexSucceeded });
       track('Index Edited', {
         atlas_search: true,
       });
       openToast('search-index-update-in-progress', {
-        title: `Your index ${indexName} is being updated.`,
+        title: `Your index ${name} is being updated.`,
         dismissible: true,
         timeout: 5000,
         variant: 'progress',
@@ -607,4 +617,27 @@ export function getInitialSearchIndexPipeline(name: string) {
       },
     },
   ];
+}
+
+export function getInitialVectorSearchIndexPipelineText(name: string) {
+  return `[
+  {
+    $vectorSearch: {
+      // Name of the Atlas Vector Search index to use.
+      index: ${JSON.stringify(name)},
+      // Indexed vectorEmbedding type field to search.
+      "path": "<field-to-search>",
+      // Array of numbers that represent the query vector.
+      // The array size must match the number of vector dimensions specified in the index definition for the field.
+      "queryVector": [],
+      // Number of nearest neighbors to use during the search.
+      // Value must be less than or equal to (<=) 10000.
+      "numCandidates": 50,
+      "limit": 10,
+      // Any MQL match expression that compares an indexed field with a boolean,
+      // number (not decimals), or string to use as a prefilter.
+      "filter": {}
+    },
+  },
+]`;
 }

@@ -1,11 +1,24 @@
 import React from 'react';
-import { Icon, Button, Tooltip } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  Button,
+  Tooltip,
+  css,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
 type UpdateMenuButtonProps = {
   isWritable: boolean;
   onClick: () => void;
 };
+
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
 
 const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
   isWritable,
@@ -26,7 +39,7 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
       leftGlyph={<Icon glyph="Edit"></Icon>}
       data-testid="crud-update"
     >
-      Update
+      <span className={hiddenOnNarrowStyles}>Update</span>
     </Button>
   );
 };

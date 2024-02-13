@@ -56,8 +56,11 @@ describe('IndexesToolbar Component', function () {
 
       it('should render the create index button enabled', function () {
         expect(
-          screen.getByText('Create Index').closest('button')
-        ).to.not.have.attr('aria-disabled');
+          screen
+            .getByText('Create Index')
+            .closest('button')
+            ?.getAttribute('aria-disabled')
+        ).to.equal(undefined);
       });
     });
 
@@ -165,9 +168,12 @@ describe('IndexesToolbar Component', function () {
     });
 
     it('should render the create index button disabled', function () {
-      expect(screen.getByText('Create Index').closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByText('Create Index')
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 

@@ -4,6 +4,7 @@ import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
 import { ConnectionString } from 'mongodb-connection-string-url';
+import { getConnectionStringFromArgs } from '../main/auto-connect';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
 async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
@@ -60,7 +61,7 @@ export async function loadAutoConnectInfo(
       });
       let id: string | undefined;
       if (positionalArguments.length > 0) {
-        id = positionalArguments[0];
+        id = getConnectionStringFromArgs(positionalArguments);
       } else if (connections.length === 1) {
         id = connections[0].id;
       }
@@ -77,11 +78,13 @@ export async function loadAutoConnectInfo(
       }
       return applyUsernameAndPassword(connectionInfo, { username, password });
     } else {
+      const connectionString = getConnectionStringFromArgs(positionalArguments);
+      if (!connectionString) {
+        throw new Error('Could not find a connection string');
+      }
       return applyUsernameAndPassword(
         {
-          connectionOptions: {
-            connectionString: positionalArguments[0],
-          },
+          connectionOptions: { connectionString },
           id: new UUID().toString(),
         },
         { username, password }

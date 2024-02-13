@@ -2,12 +2,9 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 async function getOutputText(browser: CompassBrowser): Promise<string[]> {
-  const elements = await browser.$$(Selectors.ShellOutput);
-  return Promise.all(
-    elements.map((element) => {
-      return element.getText();
-    })
-  );
+  return await browser.$$(Selectors.ShellOutput).map((element) => {
+    return element.getText();
+  });
 }
 
 export async function shellEval(

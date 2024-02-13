@@ -18,11 +18,7 @@ async function navigateToCollection(
 
   // search for the collection and wait for the collection to be there and visible
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  const sidebarFilterInputElement = await browser.$(
-    Selectors.SidebarFilterInput
-  );
-  await sidebarFilterInputElement.clearValue();
-  await sidebarFilterInputElement.setValue(collectionName);
+  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
   const collectionElement = await browser.$(collectionSelector);
 
   await collectionElement.waitForDisplayed();

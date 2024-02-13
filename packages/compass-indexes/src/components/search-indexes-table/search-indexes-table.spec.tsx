@@ -13,7 +13,10 @@ import type { Document } from 'mongodb';
 
 import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
-import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
+import {
+  searchIndexes as indexes,
+  vectorSearchIndexes,
+} from './../../../test/fixtures/search-indexes';
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
@@ -153,6 +156,30 @@ describe('SearchIndexesTable Component', function () {
       expect(editIndexActions.length).to.equal(indexes.length);
       editIndexActions[0].click();
       expect(onEditIndexSpy.callCount).to.equal(1);
+    });
+  });
+
+  context('vector search index', function () {
+    it('renders the vector search index details when expanded', function () {
+      renderIndexList({
+        indexes: vectorSearchIndexes,
+      });
+
+      const indexRow = screen.getByTestId(
+        `search-indexes-row-vectorSearching123`
+      );
+      const expandButton = within(indexRow).getByLabelText('Expand row');
+      expect(expandButton).to.exist;
+      fireEvent.click(expandButton);
+
+      const details = screen.getByTestId(
+        `search-indexes-details-vectorSearching123`
+      );
+      expect(details).to.exist;
+
+      for (const path of ['plot_embedding', 'genres']) {
+        expect(within(details).getAllByText(path)).to.exist;
+      }
     });
   });
 

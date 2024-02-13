@@ -74,7 +74,7 @@ describe('use-confirmation', function () {
     });
   });
 
-  context.only('showConfirmation global function', function () {
+  context('showConfirmation global function', function () {
     let modal: HTMLElement;
     let response: Promise<boolean>;
     beforeEach(async function () {

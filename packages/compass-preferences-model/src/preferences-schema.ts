@@ -67,6 +67,7 @@ export type InternalUserPreferences = {
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
+  userCreatedAt: number;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -80,6 +81,7 @@ export type CliOnlyPreferences = {
   version?: boolean;
   help?: boolean;
   showExampleConfig?: boolean;
+  trustedConnectionString?: boolean;
 };
 
 export type NonUserPreferences = {
@@ -310,6 +312,17 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.string().uuid().optional(),
     type: 'string',
+  },
+  /**
+   * Stores the timestamp for when the user was created
+   */
+  userCreatedAt: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().default(Date.now()),
+    type: 'number',
   },
   /**
    * Enable/disable the AI services. This is currently set
@@ -733,6 +746,22 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Show Example Config File',
     },
     validator: z.boolean().optional(),
+    type: 'boolean',
+  },
+  /**
+   * Allows the automatic initiation of the connection establishment process
+   * when launching Compass from the command line to indicate that the connection string comes from a trusted source,
+   * even if the provided connection string contains disallowed connection options.
+   */
+  trustedConnectionString: {
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Always allow to Automatically Connect',
+      long: 'Allow automatic connection establishment when launching Compass, even if the provided connection string contains connection options that would not be accepted when coming from an untrusted source',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 };

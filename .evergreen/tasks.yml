@@ -108,7 +108,7 @@ tasks:
       - func: spawn-signing-server
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
+          debug: 'hadron*,mongo*,compass*,electron*,sign*'
           compass_distribution: compass
       - func: verify-artifacts
       - func: save-all-artifacts
@@ -129,7 +129,7 @@ tasks:
       - func: spawn-signing-server
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
+          debug: 'hadron*,mongo*,compass*,electron*,sign*'
           compass_distribution: compass-readonly
       - func: verify-artifacts
       - func: save-all-artifacts
@@ -150,7 +150,7 @@ tasks:
       - func: spawn-signing-server
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
+          debug: 'hadron*,mongo*,compass*,electron*,sign*'
           compass_distribution: compass-isolated
       - func: verify-artifacts
       - func: save-all-artifacts

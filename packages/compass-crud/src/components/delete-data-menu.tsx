@@ -1,11 +1,24 @@
 import React from 'react';
-import { Icon, Button, Tooltip } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  Button,
+  Tooltip,
+  WorkspaceContainer,
+  css,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
 type DeleteMenuButtonProps = {
   isWritable: boolean;
   onClick: () => void;
 };
+
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
 
 const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
   isWritable,
@@ -26,7 +39,7 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
       leftGlyph={<Icon glyph="Trash"></Icon>}
       data-testid="crud-bulk-delete"
     >
-      Delete
+      <span className={hiddenOnNarrowStyles}>Delete</span>
     </Button>
   );
 };

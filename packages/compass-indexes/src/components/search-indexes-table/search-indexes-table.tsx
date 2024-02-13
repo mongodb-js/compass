@@ -8,8 +8,10 @@ import {
   Badge,
   BadgeVariant,
   Button,
+  Disclaimer,
   EmptyContent,
   Link,
+  Tooltip,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -23,6 +25,7 @@ import {
   SearchIndexesStatuses,
   dropSearchIndex,
   getInitialSearchIndexPipeline,
+  getInitialVectorSearchIndexPipelineText,
   pollSearchIndexes,
   showCreateModal,
   showUpdateModal,
@@ -32,6 +35,7 @@ import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -111,6 +115,10 @@ function IndexStatus({
   );
 }
 
+function SearchIndexType({ type, link }: { type: string; link: string }) {
+  return <BadgeWithIconLink text={type} link={link} />;
+}
+
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
@@ -124,14 +132,35 @@ const searchIndexFieldStyles = css({
   gap: spacing[1],
 });
 
-function SearchIndexDetails({
-  indexName,
-  definition,
-}: {
-  indexName: string;
-  definition: Document;
-}) {
+function VectorSearchIndexDetails({ definition }: { definition: Document }) {
+  return (
+    <>
+      {!definition.fields || definition.fields.length === 0 ? (
+        <Disclaimer>No fields in the index definition.</Disclaimer>
+      ) : (
+        definition.fields.map((field: { path: string }) => (
+          <Tooltip
+            align="top"
+            key={field.path}
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <Badge {...props} className={searchIndexFieldStyles}>
+                {children}
+                {field.path}
+              </Badge>
+            )}
+          >
+            {JSON.stringify(field, null, 2)}
+          </Tooltip>
+        ))
+      )}
+    </>
+  );
+}
+
+function SearchIndexDetails({ definition }: { definition: Document }) {
   const badges: { name: string; className?: string }[] = [];
+
   if (definition.mappings?.dynamic) {
     badges.push({
       name: 'Dynamic Mappings',
@@ -148,18 +177,17 @@ function SearchIndexDetails({
     );
   }
   return (
-    <div
-      className={searchIndexDetailsStyles}
-      data-testid={`search-indexes-details-${indexName}`}
-    >
-      {badges.length === 0
-        ? '[empty]'
-        : badges.map((badge) => (
-            <Badge key={badge.name} className={badge.className}>
-              {badge.name}
-            </Badge>
-          ))}
-    </div>
+    <>
+      {badges.length === 0 ? (
+        <Disclaimer>No mappings in the index definition.</Disclaimer>
+      ) : (
+        badges.map((badge) => (
+          <Badge key={badge.name} className={badge.className}>
+            {badge.name}
+          </Badge>
+        ))
+      )}
+    </>
   );
 }
 
@@ -191,10 +219,36 @@ function sortByStatus(
   return 0;
 }
 
+function sortByType(
+  rowA: LeafyGreenTableRow<SearchIndexInfo>,
+  rowB: LeafyGreenTableRow<SearchIndexInfo>
+) {
+  if (typeof rowB.original.indexInfo.type === 'undefined') {
+    return -1;
+  }
+  if (typeof rowA.original.indexInfo.type === 'undefined') {
+    return 1;
+  }
+  if (rowA.original.indexInfo.type > rowB.original.indexInfo.type) {
+    return -1;
+  }
+  if (rowA.original.indexInfo.type < rowB.original.indexInfo.type) {
+    return 1;
+  }
+  return 0;
+}
+
 const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name and Fields',
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: (info) => info.getValue(),
+    sortingFn: sortByType,
     enableSorting: true,
   },
   {
@@ -240,37 +294,64 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
-      indexes.map((index) => ({
-        id: index.name,
-        name: index.name,
-        status: (
-          <IndexStatus
-            status={index.status}
-            data-testid={`search-indexes-status-${index.name}`}
-          />
-        ),
-        indexInfo: index,
-        actions: (
-          <SearchIndexActions
-            index={index}
-            onDropIndex={onDropIndex}
-            onEditIndex={onEditIndex}
-            onRunAggregateIndex={(name) => {
-              openCollectionWorkspace(namespace, {
-                initialPipeline: getInitialSearchIndexPipeline(name),
-                newTab: true,
-              });
-            }}
-          />
-        ),
-        // eslint-disable-next-line react/display-name
-        renderExpandedContent: () => (
-          <SearchIndexDetails
-            indexName={index.name}
-            definition={index.latestDefinition}
-          />
-        ),
-      })),
+      indexes.map((index) => {
+        const isVectorSearchIndex = index.type === 'vectorSearch';
+
+        return {
+          id: index.name,
+          name: index.name,
+          status: (
+            <IndexStatus
+              status={index.status}
+              data-testid={`search-indexes-status-${index.name}`}
+            />
+          ),
+          type: (
+            <SearchIndexType
+              type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
+              link={
+                isVectorSearchIndex
+                  ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
+                  : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
+              }
+            />
+          ),
+          indexInfo: index,
+          actions: (
+            <SearchIndexActions
+              index={index}
+              onDropIndex={onDropIndex}
+              onEditIndex={onEditIndex}
+              onRunAggregateIndex={(name) => {
+                openCollectionWorkspace(namespace, {
+                  newTab: true,
+                  ...(isVectorSearchIndex
+                    ? {
+                        initialPipelineText:
+                          getInitialVectorSearchIndexPipelineText(name),
+                      }
+                    : {
+                        initialPipeline: getInitialSearchIndexPipeline(name),
+                      }),
+                });
+              }}
+            />
+          ),
+          // eslint-disable-next-line react/display-name
+          renderExpandedContent: () => (
+            <div
+              className={searchIndexDetailsStyles}
+              data-testid={`search-indexes-details-${index.name}`}
+            >
+              {isVectorSearchIndex ? (
+                <VectorSearchIndexDetails definition={index.latestDefinition} />
+              ) : (
+                <SearchIndexDetails definition={index.latestDefinition} />
+              )}
+            </div>
+          ),
+        };
+      }),
     [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]
   );
 

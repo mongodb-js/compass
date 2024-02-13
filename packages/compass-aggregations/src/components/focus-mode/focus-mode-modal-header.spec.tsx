@@ -66,9 +66,11 @@ describe('FocusModeModalHeader', function () {
   it('disables "next stage" button when showing last stage', async function () {
     const context = renderFocusModeModalHeader({ stageIndex: 2 });
 
-    expect(await context.findByLabelText('Edit next stage')).to.have.attribute(
-      'aria-disabled'
-    );
+    expect(
+      (await context.findByLabelText('Edit next stage')).getAttribute(
+        'aria-disabled'
+      )
+    ).to.equal('true');
   });
 
   it('calls onAddStageClick with correct index when "Add stage before" clicked', async function () {
@@ -188,16 +190,20 @@ describe('FocusModeModalHeader', function () {
       const context = renderFocusModeModalHeader({ stages, stageIndex: 1 });
 
       expect(
-        await context.findByLabelText('Edit previous stage')
-      ).to.have.attribute('aria-disabled');
+        (await context.findByLabelText('Edit previous stage')).getAttribute(
+          'aria-disabled'
+        )
+      ).to.equal('true');
     });
 
     it('disables "next stage" button when showing last stage', async function () {
       const context = renderFocusModeModalHeader({ stages, stageIndex: 8 });
 
       expect(
-        await context.findByLabelText('Edit next stage')
-      ).to.have.attribute('aria-disabled');
+        (await context.findByLabelText('Edit next stage')).getAttribute(
+          'aria-disabled'
+        )
+      ).to.equal('true');
     });
 
     it('calls onAddStageClick with correct index when "Add stage before" clicked', async function () {

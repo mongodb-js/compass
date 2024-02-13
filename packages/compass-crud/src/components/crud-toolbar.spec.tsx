@@ -327,9 +327,12 @@ describe('CrudToolbar Component', function () {
         querySkip: 10,
       });
 
-      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByText(deleteDataText)
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should render disabled when the query has a limit', function () {
@@ -337,9 +340,12 @@ describe('CrudToolbar Component', function () {
         queryLimit: 10,
       });
 
-      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByText(deleteDataText)
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should propagate click events', function () {
