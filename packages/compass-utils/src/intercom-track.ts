@@ -16,12 +16,9 @@ export function intercomTrack(
   if (typeof win === 'undefined') {
     return;
   }
-  if (!win.Intercom) {
-    console.log('Intercom is not enabled, skipping the event', event);
+  if (!win.Intercom || typeof win.Intercom !== 'function') {
     return;
   }
 
-  // TODO: add log?
-  console.log('Intercom track event', event);
   win.Intercom('track', event, metadata);
 }
