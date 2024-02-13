@@ -58,12 +58,16 @@ describe('GenerativeAIInput Component', function () {
 
   describe('when rendered with text', function () {
     let onChangeAIPromptTextSpy: SinonSpy;
+    let onSubmitTextSpy: SinonSpy;
+    const promptText = 'test';
 
     beforeEach(function () {
       onChangeAIPromptTextSpy = sinon.spy();
+      onSubmitTextSpy = sinon.spy();
       renderGenerativeAIInput({
         onChangeAIPromptText: onChangeAIPromptTextSpy,
-        aiPromptText: 'test',
+        onSubmitText: onSubmitTextSpy,
+        aiPromptText: promptText,
       });
     });
 
@@ -74,6 +78,16 @@ describe('GenerativeAIInput Component', function () {
 
     it('does not show an error', function () {
       expect(screen.queryByTestId('ai-error-msg')).to.be.null;
+    });
+
+    it('calls onSubmitText when submitted with a keypress', function () {
+      userEvent.keyboard('{Enter}');
+      expect(onSubmitTextSpy).to.be.calledOnceWith(promptText);
+    });
+
+    it('calls onSubmitText when submitted with a button click', function () {
+      userEvent.click(screen.getByRole('button', { name: 'Generate' }));
+      expect(onSubmitTextSpy).to.be.calledOnceWith(promptText);
     });
   });
 
