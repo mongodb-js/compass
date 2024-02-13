@@ -13,6 +13,8 @@ import { expect } from 'chai';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { AcceptTOSToggle } from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
+import type { Telemetry } from '../helpers/telemetry';
+import { startTelemetryServer } from '../helpers/telemetry';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -142,6 +144,53 @@ describe('Atlas Login', function () {
           (await loginStatus.getText()).trim() ===
           'Logged in with Atlas account test@example.com'
         );
+      });
+    });
+
+    describe('telemetry', () => {
+      let telemetry: Telemetry;
+
+      before(async function () {
+        telemetry = await startTelemetryServer();
+      });
+
+      it('should send identify after the user has logged in', async function () {
+        const atlasUserIdBefore = await browser.getFeature(
+          'telemetryAtlasUserId'
+        );
+        expect(atlasUserIdBefore).to.not.exist;
+
+        try {
+          await browser.openSettingsModal('Feature Preview');
+
+          await browser.clickVisible(Selectors.LogInWithAtlasButton);
+
+          const loginStatus = browser.$(Selectors.AtlasLoginStatus);
+          await browser.waitUntil(async () => {
+            return (
+              (await loginStatus.getText()).trim() ===
+              'Logged in with Atlas account test@example.com'
+            );
+          });
+        } finally {
+          await telemetry.stop();
+        }
+        const atlasUserIdAfter = await browser.getFeature(
+          'telemetryAtlasUserId'
+        );
+        expect(atlasUserIdAfter).to.be.a('string');
+
+        console.log({
+          telemetry: telemetry
+            .events()
+            .map(({ type, event }) => ({ type, event })),
+        });
+
+        const identify = telemetry
+          .events()
+          .find((entry) => entry.type === 'identify');
+        expect(identify.traits.platform).to.equal(process.platform);
+        expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
       });
     });
 

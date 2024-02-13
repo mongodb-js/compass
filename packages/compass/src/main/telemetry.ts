@@ -182,7 +182,10 @@ class CompassTelemetry {
       }
     };
     const onAtlasUserIdChanged = (value?: string) => {
-      if (value) this.identify();
+      if (value) {
+        this.telemetryAtlasUserId = value;
+        this.identify();
+      }
     };
 
     onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
