@@ -114,7 +114,8 @@ function cleanup() {
       //const result = compassWeb.kill();
       //debug('result from stopping compass-web', { result });
       if (compassWeb.pid) {
-        process.kill(-compassWeb.pid);
+        debug(`killing compass-web [${compassWeb.pid}]`);
+        process.kill(compassWeb.pid);
       } else {
         debug('no pid for compass-web');
       }
