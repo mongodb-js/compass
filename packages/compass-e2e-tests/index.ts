@@ -23,9 +23,6 @@ import {
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
 
-// https://github.com/nodejs/node/issues/40537
-dns.setDefaultResultOrder('ipv4first');
-
 const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
