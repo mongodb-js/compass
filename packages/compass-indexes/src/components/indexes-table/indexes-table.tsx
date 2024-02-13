@@ -55,14 +55,12 @@ const indexActionsCellStyles = css({
   minWidth: spacing[5],
 });
 
-const tableHeadRowStyles = css({
-  position: 'sticky',
-  top: 0,
+const tableHeadStyles = css({
   zIndex: 5,
   background: palette.white,
 });
 
-const tableHeadRowDarkModeStyles = css({
+const tableHeadDarkModeStyles = css({
   background: palette.black,
 });
 
@@ -104,15 +102,12 @@ export function IndexesTable<T>({
       table={table}
       ref={tableContainerRef}
     >
-      <TableHead>
+      <TableHead
+        isSticky
+        className={cx(tableHeadStyles, darkMode && tableHeadDarkModeStyles)}
+      >
         {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (
-          <HeaderRow
-            className={cx(
-              tableHeadRowStyles,
-              darkMode && tableHeadRowDarkModeStyles
-            )}
-            key={headerGroup.id}
-          >
+          <HeaderRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
                 <HeaderCell

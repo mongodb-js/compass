@@ -165,9 +165,8 @@ describe('SearchIndexesTable Component', function () {
         indexes: vectorSearchIndexes,
       });
 
-      const indexRow = screen.getByTestId(
-        `search-indexes-row-vectorSearching123`
-      );
+      const indexRow = screen.getByText('vectorSearching123').closest('tr')!;
+
       const expandButton = within(indexRow).getByLabelText('Expand row');
       expect(expandButton).to.exist;
       fireEvent.click(expandButton);

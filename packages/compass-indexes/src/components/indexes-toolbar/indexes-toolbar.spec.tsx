@@ -60,7 +60,7 @@ describe('IndexesToolbar Component', function () {
             .getByText('Create Index')
             .closest('button')
             ?.getAttribute('aria-disabled')
-        ).to.equal(undefined);
+        ).to.equal('false');
       });
     });
 
@@ -255,7 +255,7 @@ describe('IndexesToolbar Component', function () {
       });
       const refreshButton = screen.getByTestId('refresh-indexes-button');
       expect(refreshButton).to.exist;
-      expect(refreshButton.getAttribute('aria-disabled')).to.be.null;
+      expect(refreshButton.getAttribute('aria-disabled')).to.equal('false');
     });
 
     it('renders refresh button - disabled state', function () {
