@@ -1,5 +1,8 @@
 export { ConnectionStorage } from './connection-storage';
-export type { StatusAwareConnectionInfo } from './connection-provider';
+export type {
+  StatusAwareConnectionInfo,
+  ConnectionStatus,
+} from './connection-provider';
 export {
   ConnectionProvider,
   DesktopConnectionProvider,

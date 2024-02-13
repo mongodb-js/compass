@@ -28,6 +28,10 @@ import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
 import { usePreference } from 'compass-preferences-model/provider';
+import {
+  ConnectionProvider,
+  DesktopConnectionProvider,
+} from '@mongodb-js/connection-storage/main';
 
 type ConnectFn = typeof connect;
 
@@ -88,7 +92,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = ConnectionStorage,
+  connectionProvider = new DesktopConnectionProvider(ConnectionStorage),
   appName,
   getAutoConnectInfo,
   connectFn = connect,
@@ -99,11 +103,12 @@ function Connections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage?: typeof ConnectionStorage;
+  connectionProvider: ConnectionProvider;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;
 }): React.ReactElement {
+  const connectionStorage = ConnectionStorage;
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   const {
     state,
@@ -121,7 +126,7 @@ function Connections({
   } = useConnections({
     onConnected,
     isConnected,
-    connectionStorage,
+    connectionProvider,
     connectFn,
     appName,
     getAutoConnectInfo,
