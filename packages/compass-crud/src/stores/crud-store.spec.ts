@@ -188,6 +188,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -287,6 +297,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -342,6 +362,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -390,6 +420,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -437,6 +477,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -552,6 +602,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -836,6 +896,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -943,6 +1013,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -980,6 +1060,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1061,6 +1151,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1220,6 +1320,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1393,6 +1503,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1566,6 +1686,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1751,6 +1881,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1794,6 +1934,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1834,6 +1984,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -1872,6 +2032,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2208,6 +2378,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -2317,6 +2497,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
@@ -2819,6 +3009,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2906,6 +3106,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2957,7 +3167,6 @@ describe('store', function () {
           isTimeSeries: false,
           namespace: 'compass-crud.testview',
           noRefreshOnConfigure: true,
-          recentQueriesStorage: recentQueriesStorage,
         },
         {
           dataService,
@@ -2966,6 +3175,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return new FavoriteQueryStorage();
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return recentQueriesStorage;
+            },
+          },
         },
         createActivateHelpers()
       );
