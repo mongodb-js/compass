@@ -10,6 +10,7 @@ import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
 // @ts-expect-error no types
 import log from 'why-is-node-running';
+import kill from 'tree-kill';
 import {
   rebuildNativeModules,
   compileCompassAssets,
@@ -111,11 +112,9 @@ function cleanup() {
   if (!disableStartStop) {
     debug('Stopping compass-web');
     try {
-      //const result = compassWeb.kill();
-      //debug('result from stopping compass-web', { result });
       if (compassWeb.pid) {
         debug(`killing compass-web [${compassWeb.pid}]`);
-        process.kill(compassWeb.pid);
+        kill(compassWeb.pid);
       } else {
         debug('no pid for compass-web');
       }
