@@ -180,12 +180,6 @@ describe('Atlas Login', function () {
         );
         expect(atlasUserIdAfter).to.be.a('string');
 
-        console.log({
-          telemetry: telemetry
-            .events()
-            .map(({ type, event }) => ({ type, event })),
-        });
-
         const identify = telemetry
           .events()
           .find((entry) => entry.type === 'identify');
