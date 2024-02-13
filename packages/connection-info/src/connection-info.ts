@@ -14,17 +14,17 @@ export interface ConnectionInfo {
   /**
    * True if the connection is marked as favorite.
    */
-  readonly userFavorite?: boolean;
+  userFavorite?: boolean;
 
   /**
    * Name of the connection.
    */
-  readonly name?: string;
+  name?: string;
 
   /**
    * Colour of the connection, if any;
    */
-  readonly color?: string;
+  color?: string;
 
   /**
    * Legacy favourite information

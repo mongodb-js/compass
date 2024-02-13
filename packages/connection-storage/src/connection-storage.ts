@@ -409,13 +409,13 @@ export class ConnectionStorage {
   private static async afterConnectionHasBeenSaved(
     savedConnection: ConnectionInfo
   ): Promise<void> {
-    if (savedConnection.favorite) {
+    if (savedConnection.userFavorite) {
       return;
     }
 
     const recentConnections = (await this.loadAll())
       // remove favorites and the just saved connection (so we do not delete it)
-      .filter((x) => !x.favorite && x.id !== savedConnection.id)
+      .filter((x) => !x.userFavorite && x.id !== savedConnection.id)
       .sort((a, b) => {
         const aTime = a.lastUsed?.getTime() ?? 0;
         const bTime = b.lastUsed?.getTime() ?? 0;

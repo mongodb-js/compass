@@ -1,8 +1,13 @@
 import { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ConnectionStorage } from './connection-storage';
 import ConnectionString from 'mongodb-connection-string-url';
+import { merge } from 'lodash';
 
-type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'failed';
+export type ConnectionStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'connecting'
+  | 'failed';
 export type StatusAwareConnectionInfo = Omit<
   ConnectionInfo & {
     status: ConnectionStatus;
@@ -53,12 +58,17 @@ export class DesktopConnectionProvider implements ConnectionProvider {
   async saveConnection(
     info: ConnectionInfo
   ): Promise<StatusAwareConnectionInfo> {
+    const oldConnectionInfo = await this.storage.load({ id: info.id });
+    const infoToSave = oldConnectionInfo
+      ? merge(oldConnectionInfo, info)
+      : info;
+
     this.ensureWellFormedConnectionString(
-      info.connectionOptions?.connectionString
+      infoToSave.connectionOptions?.connectionString
     );
 
-    await this.storage.save({ connectionInfo: info });
-    return { ...info, status: 'disconnected' };
+    await this.storage.save({ connectionInfo: infoToSave });
+    return { ...infoToSave, status: 'disconnected' };
   }
 
   async deleteConnection(info: ConnectionInfo): Promise<void> {
@@ -70,9 +80,9 @@ export class DesktopConnectionProvider implements ConnectionProvider {
   }
 
   private sortedAlphabetically = (
-    a: StatusAwareConnectionInfo,
-    b: StatusAwareConnectionInfo
-  ) => {
+    a: ConnectionInfo,
+    b: ConnectionInfo
+  ): 1 | -1 => {
     const aName = a.name?.toLocaleLowerCase() || '';
     const bName = b.name?.toLocaleLowerCase() || '';
     return bName < aName ? 1 : -1;

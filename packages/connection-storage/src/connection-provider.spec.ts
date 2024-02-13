@@ -14,6 +14,9 @@ function mockStorageWithConnections(
     async loadAll() {
       return connections;
     },
+    async load({ id }: { id: string }) {
+      return connections.find((c) => c.id === id);
+    },
     save: Sinon.stub(),
     delete: Sinon.stub(),
   } as any; // we don't need to implement the whole ConnectionStorage
@@ -98,6 +101,28 @@ describe.only('DesktopConnectionProvider', function () {
 
       expect(storage.save).to.have.been.calledOnceWith({
         connectionInfo: connectionToSave,
+      });
+    });
+
+    it('should merge the connection info is one was already saved with the same id', async function () {
+      const storage = mockStorageWithConnections([
+        { id: '1', userFavorite: true },
+      ]);
+
+      const provider = new DesktopConnectionProvider(storage);
+      const connectionToSave = {
+        id: '1',
+        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+      };
+
+      await provider.saveConnection(connectionToSave);
+
+      expect(storage.save).to.have.been.calledOnceWith({
+        connectionInfo: {
+          id: '1',
+          userFavorite: true,
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        },
       });
     });
 
