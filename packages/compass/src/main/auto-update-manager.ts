@@ -9,6 +9,7 @@ import autoUpdater, { supportsAutoupdater } from './auto-updater';
 import fetch from 'node-fetch';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
+import { getOsInfo } from '@mongodb-js/get-os-info';
 
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-AUTO-UPDATES'
@@ -447,11 +448,24 @@ class CompassAutoUpdateManager {
     };
   }
 
-  static getUpdateCheckURL() {
+  static async getUpdateCheckURL() {
     const { endpoint, product, channel, platform, arch, version } =
       this.autoUpdateOptions;
+    const {
+      os_release: release,
+      os_linux_dist,
+      os_linux_release,
+    } = await getOsInfo();
+    const url = new URL(
+      `${endpoint}/api/v2/update/${product}/${channel}/${platform}-${arch}/${version}/check`
+    );
 
-    return `${endpoint}/api/v2/update/${product}/${channel}/${platform}-${arch}/${version}/check`;
+    release && url.searchParams.set('release', release);
+    os_linux_dist && url.searchParams.set('os_linux_dist', os_linux_dist);
+    os_linux_release &&
+      url.searchParams.set('os_linux_release', os_linux_release);
+
+    return url;
   }
 
   static async checkForUpdate(): Promise<{
@@ -460,7 +474,7 @@ class CompassAutoUpdateManager {
     to: string;
   } | null> {
     try {
-      const response = await fetch(this.getUpdateCheckURL());
+      const response = await fetch(await this.getUpdateCheckURL());
       if (response.status !== 200) {
         return null;
       }
