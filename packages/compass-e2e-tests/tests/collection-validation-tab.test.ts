@@ -116,10 +116,13 @@ describe('Collection validation tab', function () {
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
-        return (
+        const result =
           matchText !== NO_PREVIEW_DOCUMENTS &&
-          notMatchingText === NO_PREVIEW_DOCUMENTS
-        );
+          notMatchingText === NO_PREVIEW_DOCUMENTS;
+        if (!result) {
+          console.log({ matchText, notMatchingText });
+        }
+        return result;
       });
     });
   });
