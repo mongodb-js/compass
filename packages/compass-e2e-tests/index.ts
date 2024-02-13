@@ -8,8 +8,6 @@ import type { ChildProcessWithoutNullStreams } from 'child_process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
-// @ts-expect-error no types
-import log from 'why-is-node-running';
 import kill from 'tree-kill';
 import {
   rebuildNativeModules,
@@ -300,9 +298,6 @@ async function run() {
 
     cleanup();
   }
-
-  // TODO: why does this somehow hang? How do you debug that?
-  log();
 }
 
 void run();
