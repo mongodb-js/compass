@@ -33,15 +33,13 @@ describe('getConnectionTitle', function () {
     ).to.equal('example.com:12345,example123.com:123452');
   });
 
-  it('returns the name of the favorite if connection is favorite', function () {
+  it('returns the name of the connection if any', function () {
     expect(
       getConnectionTitle({
         connectionOptions: {
           connectionString: 'somethingwrong',
         },
-        favorite: {
-          name: 'Favorite Name',
-        },
+        name: 'Favorite Name',
       })
     ).to.equal('Favorite Name');
   });

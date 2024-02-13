@@ -2,10 +2,10 @@ import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionInfo } from './connection-info';
 
 export function getConnectionTitle(
-  info: Pick<ConnectionInfo, 'favorite' | 'connectionOptions'>
+  info: Pick<ConnectionInfo, 'name' | 'connectionOptions'>
 ): string {
-  if (info.favorite?.name) {
-    return info.favorite.name;
+  if (info.name) {
+    return info.name;
   }
 
   try {

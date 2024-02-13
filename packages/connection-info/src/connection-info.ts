@@ -12,24 +12,31 @@ export interface ConnectionInfo {
   lastUsed?: Date;
 
   /**
-   * If present the connection is marked as a favorite by the user.
+   * True if the connection is marked as favorite.
    */
-  favorite?: ConnectionFavoriteOptions;
+  readonly userFavorite?: boolean;
 
+  /**
+   * Name of the connection.
+   */
+  readonly name?: string;
+
+  /**
+   * Colour of the connection, if any;
+   */
+  readonly color?: string;
+
+  /**
+   * Legacy favourite information
+   */
+  readonly favorite?: ConnectionFavoriteOptions;
   /**
    * The options used to connect
    */
   connectionOptions: ConnectionOptions;
 }
 
-export interface ConnectionFavoriteOptions {
-  /**
-   * User-defined name of the connection.
-   */
-  name: string;
-
-  /**
-   * Hex-code of the user-defined color.
-   */
-  color?: string;
+interface ConnectionFavoriteOptions {
+  readonly name: string;
+  readonly color?: string;
 }

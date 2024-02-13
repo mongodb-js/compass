@@ -54,6 +54,9 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           .date()
           .optional()
           .transform((x) => (x !== undefined ? new Date(x) : x)),
+        userFavorite: z.boolean().optional(),
+        name: z.string().optional(),
+        color: z.string().optional(),
         favorite: z.any().optional(),
         connectionOptions: z.object({
           connectionString: z
@@ -229,6 +232,10 @@ export class ConnectionStorage {
       );
     }
     const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
+    connectionInfo.userFavorite ??= !!connectionInfo.favorite;
+    connectionInfo.name ??= connectionInfo.favorite?.name;
+    connectionInfo.color ??= connectionInfo.favorite?.color;
+
     return deleteCompassAppNameParam(connectionInfo);
   }
 
