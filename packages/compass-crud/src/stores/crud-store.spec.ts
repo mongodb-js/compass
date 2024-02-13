@@ -92,7 +92,7 @@ function waitForState(store, cb, timeout?: number) {
   return waitForStates(store, [cb], timeout);
 }
 
-describe('store', function () {
+describe.only('store', function () {
   this.timeout(5000);
 
   const cluster = mochaTestServer({
@@ -2120,6 +2120,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2167,6 +2177,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2211,6 +2231,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2257,6 +2287,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2310,6 +2350,16 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: {
+              createStorage() {
+                return new FavoriteQueryStorage();
+              },
+            },
+            recentQueryStorageAccess: {
+              createStorage() {
+                return new RecentQueryStorage();
+              },
+            },
           },
           createActivateHelpers()
         );
@@ -2943,7 +2993,6 @@ describe('store', function () {
           isTimeSeries: false,
           namespace: 'compass-crud.testview',
           noRefreshOnConfigure: true,
-          favoriteQueriesStorage: favoriteQueriesStorage,
         },
         {
           dataService,
@@ -2952,6 +3001,16 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            createStorage() {
+              return favoriteQueriesStorage;
+            },
+          },
+          recentQueryStorageAccess: {
+            createStorage() {
+              return new RecentQueryStorage();
+            },
+          },
         },
         createActivateHelpers()
       );
