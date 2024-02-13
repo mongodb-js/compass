@@ -12,10 +12,20 @@ describe('RenameCollectionPlugin', function () {
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
   };
+  const instanceModel = {
+    databases: {
+      get: function () {
+        return {
+          collections: [{ name: 'my-collection' }],
+        };
+      },
+    },
+  };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({
       globalAppRegistry: appRegistry,
       dataService,
+      instance: instanceModel as any,
     });
 
     render(<Plugin> </Plugin>);

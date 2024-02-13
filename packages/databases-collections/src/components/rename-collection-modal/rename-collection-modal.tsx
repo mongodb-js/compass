@@ -14,6 +14,7 @@ import type { RenameCollectionRootState } from '../../modules/rename-collection/
 import {
   renameCollection,
   hideModal,
+  clearError,
 } from '../../modules/rename-collection/rename-collection';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
@@ -21,9 +22,11 @@ export interface RenameCollectionModalProps {
   isVisible: boolean;
   error: Error | null;
   initialCollectionName: string;
+  collections: { name: string }[];
   isRunning: boolean;
   hideModal: () => void;
   renameCollection: (newCollectionName: string) => void;
+  clearError: () => void;
 }
 
 const progressContainerStyles = css({
@@ -38,9 +41,11 @@ function RenameCollectionModal({
   isVisible,
   error,
   initialCollectionName,
+  collections,
   isRunning,
   hideModal,
   renameCollection,
+  clearError,
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
   const [modalState, setModalState] = useState<ModalState>();
@@ -52,9 +57,10 @@ function RenameCollectionModal({
   }, [isVisible, initialCollectionName]);
   const onNameConfirmationChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
+      clearError();
       setNewName(evt?.target.value);
     },
-    [setNewName]
+    [setNewName, clearError]
   );
   const onFormSubmit = () => {
     if (modalState === 'confirmation-screen') {
@@ -80,6 +86,20 @@ function RenameCollectionModal({
     hideModal();
   }, [hideModal]);
 
+  const doesCollectionExistInDB =
+    collections.filter(
+      ({ name }) => name !== initialCollectionName && name === newName
+    ).length > 0;
+  const errorMessage = error
+    ? // it's conceivable that while a collection is  being renamed, the collections on the server change.  the rename collection
+      // modal won't have access to the new collections.  we handle this scenario specially to provide a better error to users
+      error.message.match(/target namespace exists/i)
+      ? 'This collection name already exists in this database.'
+      : error.message
+    : doesCollectionExistInDB
+    ? 'This collection name already exists in this database.'
+    : undefined;
+
   return (
     <FormModal
       title={
@@ -97,7 +117,10 @@ function RenameCollectionModal({
       }
       variant="primary"
       submitDisabled={
-        modalState === 'input-form' && initialCollectionName === newName
+        modalState === 'input-form' &&
+        (newName === '' ||
+          initialCollectionName === newName ||
+          doesCollectionExistInDB)
       }
       data-testid="rename-collection-modal"
     >
@@ -118,9 +141,9 @@ function RenameCollectionModal({
           </div>
         </FormFieldContainer>
       )}
-      {error && modalState === 'input-form' && (
+      {errorMessage && modalState === 'input-form' && (
         <Banner variant="danger" data-testid="rename-collection-modal-error">
-          {error.message}
+          {errorMessage}
         </Banner>
       )}
       {modalState === 'confirmation-screen' && (
@@ -142,11 +165,14 @@ function RenameCollectionModal({
 const MappedRenameCollectionModal = connect(
   (
     state: RenameCollectionRootState
-  ): Omit<RenameCollectionModalProps, 'renameCollection' | 'hideModal'> =>
-    state,
+  ): Omit<
+    RenameCollectionModalProps,
+    'renameCollection' | 'hideModal' | 'clearError'
+  > => state,
   {
     hideModal,
     renameCollection,
+    clearError,
   }
 )(RenameCollectionModal);
 

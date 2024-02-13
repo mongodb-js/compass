@@ -17,9 +17,20 @@ describe('rename collection module', function () {
     renameCollection: sandbox.stub().resolves({}),
   };
 
+  const instanceModel = {
+    databases: {
+      get: function () {
+        return {
+          collections: [],
+        };
+      },
+    },
+  };
+
   const extraThunkArgs: RenameCollectionPluginServices = {
     globalAppRegistry: appRegistry,
     dataService,
+    instance: instanceModel as any,
   };
 
   context('when the modal is visible', function () {
@@ -29,6 +40,7 @@ describe('rename collection module', function () {
         {
           globalAppRegistry: appRegistry,
           dataService,
+          instance: instanceModel as any,
         }
       );
       store = plugin.store;
