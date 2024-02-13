@@ -3,15 +3,17 @@ import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 export type RenameCollectionPluginServices = {
   dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
+  instance: MongoDBInstance;
 };
 
 export function activateRenameCollectionPlugin(
   _: unknown,
-  { globalAppRegistry, dataService }: RenameCollectionPluginServices
+  { globalAppRegistry, dataService, instance }: RenameCollectionPluginServices
 ) {
   const store = legacy_createStore(
     reducer,
@@ -24,7 +26,9 @@ export function activateRenameCollectionPlugin(
   );
 
   const onRenameCollection = (ns: { database: string; collection: string }) => {
-    store.dispatch(open(ns.database, ns.collection));
+    const collections: { name: string }[] =
+      instance.databases.get(ns.database)?.collections ?? [];
+    store.dispatch(open(ns.database, ns.collection, collections));
   };
   globalAppRegistry.on('open-rename-collection', onRenameCollection);
 
