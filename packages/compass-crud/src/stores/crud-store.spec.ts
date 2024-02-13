@@ -92,7 +92,7 @@ function waitForState(store, cb, timeout?: number) {
   return waitForStates(store, [cb], timeout);
 }
 
-describe.only('store', function () {
+describe('store', function () {
   this.timeout(5000);
 
   const cluster = mochaTestServer({
