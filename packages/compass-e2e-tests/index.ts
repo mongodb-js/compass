@@ -1,5 +1,4 @@
 #!/usr/bin/env ts-node
-import dns from 'dns';
 import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
