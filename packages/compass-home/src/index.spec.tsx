@@ -7,9 +7,9 @@ import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
 import { CompassHomePlugin } from './index';
 import {
-  CompassFavoriteQueryStorage,
   CompassPipelineStorage,
-  CompassRecentQueryStorage,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
 
 const createDataService = () => ({
@@ -46,16 +46,8 @@ describe('Home [Component]', function () {
     globalAppRegistry: testAppRegistry,
     localAppRegistry: testAppRegistry,
     pipelineStorage: new CompassPipelineStorage(),
-    favoriteQueryStorageAccess: {
-      getStorage() {
-        return new CompassFavoriteQueryStorage();
-      },
-    },
-    recentQueryStorageAccess: {
-      getStorage() {
-        return new CompassRecentQueryStorage();
-      },
-    },
+    favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+    recentQueryStorageAccess: compassRecentQueryStorageAccess,
   });
 
   before(function () {

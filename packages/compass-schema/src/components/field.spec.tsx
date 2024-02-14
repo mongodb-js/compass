@@ -13,8 +13,8 @@ import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
-  CompassFavoriteQueryStorage,
-  CompassRecentQueryStorage,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
@@ -27,16 +27,8 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     },
   },
   instance: { on() {}, removeListener() {} } as any,
-  favoriteQueryStorageAccess: {
-    getStorage() {
-      return new CompassFavoriteQueryStorage();
-    },
-  },
-  recentQueryStorageAccess: {
-    getStorage() {
-      return new CompassRecentQueryStorage();
-    },
-  },
+  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+  recentQueryStorageAccess: compassRecentQueryStorageAccess,
 });
 
 function renderField(

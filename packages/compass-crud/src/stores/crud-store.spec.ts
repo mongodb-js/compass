@@ -17,8 +17,8 @@ import {
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
-  CompassFavoriteQueryStorage,
-  CompassRecentQueryStorage,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -188,16 +188,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -297,16 +289,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -362,16 +346,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -420,16 +396,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -477,16 +445,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -602,16 +562,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -896,16 +848,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1013,16 +957,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1060,16 +996,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1151,16 +1079,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1320,16 +1240,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1503,16 +1415,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1686,16 +1590,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1881,16 +1777,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1934,16 +1822,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1984,16 +1864,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2032,16 +1904,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2120,16 +1984,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2177,16 +2033,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2231,16 +2079,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2287,16 +2127,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2350,16 +2182,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2428,16 +2252,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2547,16 +2363,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2977,7 +2785,8 @@ describe('store', function () {
   });
 
   describe('saveUpdateQuery', function () {
-    const favoriteQueriesStorage = new CompassFavoriteQueryStorage();
+    const favoriteQueriesStorage =
+      compassFavoriteQueryStorageAccess.getStorage();
 
     let saveQueryStub;
     let store: CrudStore;
@@ -3006,11 +2815,7 @@ describe('store', function () {
               return favoriteQueriesStorage;
             },
           },
-          recentQueryStorageAccess: {
-            getStorage() {
-              return new CompassRecentQueryStorage();
-            },
-          },
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -3068,16 +2873,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -3165,16 +2962,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: {
-              getStorage() {
-                return new CompassFavoriteQueryStorage();
-              },
-            },
-            recentQueryStorageAccess: {
-              getStorage() {
-                return new CompassRecentQueryStorage();
-              },
-            },
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -3210,7 +2999,7 @@ describe('store', function () {
   });
 
   describe('saveRecentQueryQuery', function () {
-    const recentQueriesStorage = new CompassRecentQueryStorage();
+    const recentQueriesStorage = compassRecentQueryStorageAccess.getStorage();
 
     let saveQueryStub;
     let store: CrudStore;
@@ -3234,11 +3023,7 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: {
-            getStorage() {
-              return new CompassFavoriteQueryStorage();
-            },
-          },
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: {
             getStorage() {
               return recentQueriesStorage;
