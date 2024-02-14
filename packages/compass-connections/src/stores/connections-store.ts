@@ -139,11 +139,6 @@ type Action =
       recentConnections: StatusAwareConnectionInfo[];
     }
   | {
-      type: 'set-connections-and-select';
-      connections: ConnectionInfo[];
-      activeConnectionInfo: ConnectionInfo;
-    }
-  | {
       type: 'add-connection-merge-info';
       id: string;
       mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
@@ -203,14 +198,6 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         favoriteConnections: action.favoriteConnections,
         recentConnections: action.recentConnections,
-        connectionErrorMessage: null,
-      };
-    case 'set-connections-and-select':
-      return {
-        ...state,
-        connections: action.connections,
-        activeConnectionId: action.activeConnectionInfo.id,
-        activeConnectionInfo: action.activeConnectionInfo,
         connectionErrorMessage: null,
       };
     case 'add-connection-merge-info':
@@ -651,9 +638,8 @@ export function useConnections({
       if (activeConnectionId === connectionInfo.id) {
         // Update the active connection if it's currently selected.
         dispatch({
-          type: 'set-connections-and-select',
-          connections: newConnections,
-          activeConnectionInfo: cloneDeep(connectionInfo),
+          type: 'set-active-connection',
+          connectionInfo: cloneDeep(connectionInfo),
         });
         return;
       }
@@ -682,11 +668,13 @@ export function useConnections({
         duplicate.favorite.name += ' (copy)';
       }
       saveConnectionInfo(duplicate).then(
-        () => {
+        async () => {
+          await loadConnections(dispatch, connectionProvider, {
+            persistOIDCTokens,
+          });
           dispatch({
-            type: 'set-connections-and-select',
-            connections: [...connections, duplicate],
-            activeConnectionInfo: duplicate,
+            type: 'set-active-connection',
+            connectionInfo: duplicate,
           });
         },
         () => {

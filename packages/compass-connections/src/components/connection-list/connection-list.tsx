@@ -178,7 +178,7 @@ function ConnectionList({
     }
 
     return favoriteConnections.filter((connection) =>
-      connection.favorite?.name
+      connection.name
         ?.toLowerCase()
         .includes(favoriteConnectionsFilter.toLowerCase())
     );
@@ -254,9 +254,7 @@ function ConnectionList({
           ).map((connectionInfo, index) => (
             <li
               data-testid="favorite-connection"
-              data-id={`favorite-connection-${
-                connectionInfo?.favorite?.name || ''
-              }`}
+              data-id={`favorite-connection-${connectionInfo.name || ''}`}
               key={`${connectionInfo.id || ''}-${index}`}
             >
               <Connection

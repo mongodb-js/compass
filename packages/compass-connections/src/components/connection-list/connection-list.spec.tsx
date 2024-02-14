@@ -31,10 +31,9 @@ const mockFavorites = [
       connectionString:
         'mongodb+srv://testUserForTesting:notMyRealPassword@test.mongodb.net/test?authSource=admin&replicaSet=art-dev-shard-0&readPreference=primary&ssl=true',
     },
-    favorite: {
-      name: 'Atlas test',
-      color: '#d4366e',
-    },
+    name: 'Atlas test',
+    color: '#d4366e',
+    userFavorite: true,
     lastUsed: new Date(),
   },
   {
@@ -42,10 +41,9 @@ const mockFavorites = [
     connectionOptions: {
       connectionString: '',
     },
-    favorite: {
-      name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
-      color: '#5fc86e',
-    },
+    name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
+    color: '#5fc86e',
+    userFavorite: true,
     lastUsed: new Date(),
   },
   {
@@ -53,10 +51,9 @@ const mockFavorites = [
     connectionOptions: {
       connectionString: 'mongodb://localhost:27019',
     },
-    favorite: {
-      name: 'favorite',
-      color: '#5fc86e',
-    },
+    name: 'favorite',
+    color: '#5fc86e',
+    userFavorite: true,
     lastUsed: new Date(),
   },
   {
@@ -105,9 +102,9 @@ describe('ConnectionList Component', function () {
 
     it('renders the favorite connections in a list', function () {
       const listItems = screen.getAllByTestId('favorite-connection-title');
-      expect(listItems[0].textContent).to.equal(mockFavorites[0].favorite.name);
-      expect(listItems[1].textContent).to.equal(mockFavorites[1].favorite.name);
-      expect(listItems[2].textContent).to.equal(mockFavorites[2].favorite.name);
+      expect(listItems[0].textContent).to.equal(mockFavorites[0].name);
+      expect(listItems[1].textContent).to.equal(mockFavorites[1].name);
+      expect(listItems[2].textContent).to.equal(mockFavorites[2].name);
     });
 
     it('renders the recent connections in a list', function () {
@@ -226,9 +223,7 @@ describe('ConnectionList Component', function () {
 
       expect(setActiveConnectionIdSpy.called).to.equal(false);
 
-      const button = screen
-        .getByText(mockFavorites[1].favorite.name)
-        .closest('button');
+      const button = screen.getByText(mockFavorites[1].name).closest('button');
       fireEvent(
         button,
         new MouseEvent('click', {
