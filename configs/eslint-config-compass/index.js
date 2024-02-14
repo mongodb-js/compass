@@ -39,7 +39,7 @@ const tsxOverrides = {
 
 const testJsOverrides = {
   ...common.testOverrides,
-  files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.test.js'],
+  files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.test.js', '**/test/**/*.js'],
   rules: {
     ...common.testRules,
     '@mongodb-js/compass/unique-mongodb-log-id': 'off',
@@ -48,7 +48,13 @@ const testJsOverrides = {
 };
 
 const testTsOverrides = {
-  files: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.test.tsx', '**/*.test.ts'],
+  files: [
+    '**/*.spec.ts',
+    '**/*.spec.tsx',
+    '**/*.test.tsx',
+    '**/*.test.ts',
+    '**/test/**/*.ts',
+  ],
   rules: {
     ...common.testRules,
     ...extraTsRules,

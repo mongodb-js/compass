@@ -6,6 +6,11 @@ import AppRegistry from 'hadron-app-registry';
 import { ipcRenderer } from 'hadron-ipc';
 import sinon from 'sinon';
 import { CompassHomePlugin } from './index';
+import {
+  CompassPipelineStorage,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 
 const createDataService = () => ({
   getConnectionString() {
@@ -40,6 +45,9 @@ describe('Home [Component]', function () {
   const Home = CompassHomePlugin.withMockServices({
     globalAppRegistry: testAppRegistry,
     localAppRegistry: testAppRegistry,
+    pipelineStorage: new CompassPipelineStorage(),
+    favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+    recentQueryStorageAccess: compassRecentQueryStorageAccess,
   });
 
   before(function () {

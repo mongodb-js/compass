@@ -8,6 +8,18 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  CompassFavoriteQueryStorage,
+  CompassPipelineStorage,
+  CompassRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
+import {
+  PipelineStorageProvider,
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+  type FavoriteQueryStorageAccess,
+  type RecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -178,16 +190,38 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
+    const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
+      getStorage(options) {
+        return new CompassFavoriteQueryStorage(options);
+      },
+    };
+
+    const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
+      getStorage(options) {
+        return new CompassRecentQueryStorage(options);
+      },
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <PipelineStorageProvider value={new CompassPipelineStorage()}>
+              <FavoriteQueryStorageProvider
+                value={favoriteQueryStorageProviderValue}
+              >
+                <RecentQueryStorageProvider
+                  value={recentQueryStorageProviderValue}
+                >
+                  <AppRegistryProvider>
+                    <CompassHomePlugin
+                      appName={remote.app.getName()}
+                      getAutoConnectInfo={getAutoConnectInfo}
+                    ></CompassHomePlugin>
+                  </AppRegistryProvider>
+                </RecentQueryStorageProvider>
+              </FavoriteQueryStorageProvider>
+            </PipelineStorageProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

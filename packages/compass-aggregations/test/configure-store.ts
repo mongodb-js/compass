@@ -9,6 +9,8 @@ import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
+import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
+
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
   dataService: DataService = mockDataService(),
@@ -35,6 +37,7 @@ export default function configureStore(
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
       logger: createNoopLoggerAndTelemetry(),
+      pipelineStorage: new CompassPipelineStorage(),
       ...services,
     },
     createActivateHelpers()
