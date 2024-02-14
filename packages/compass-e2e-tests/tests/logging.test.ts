@@ -42,6 +42,14 @@ describe('Logging and Telemetry integration', function () {
         );
       });
 
+      it('tracks an event for identify call', function () {
+        const identify = telemetry
+          .events()
+          .find((entry) => entry.type === 'identify');
+        expect(identify.traits.platform).to.equal(process.platform);
+        expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
+      });
+
       it('tracks an event for shell use', function () {
         const shellUse = telemetry
           .events()
