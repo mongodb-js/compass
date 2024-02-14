@@ -154,27 +154,28 @@ describe('Atlas Login', function () {
         telemetry = await startTelemetryServer();
       });
 
+      after(async function () {
+        await telemetry.stop();
+      });
+
       it('should send identify after the user has logged in', async function () {
         const atlasUserIdBefore = await browser.getFeature(
           'telemetryAtlasUserId'
         );
         expect(atlasUserIdBefore).to.not.exist;
 
-        try {
-          await browser.openSettingsModal('Feature Preview');
+        await browser.openSettingsModal('Feature Preview');
 
-          await browser.clickVisible(Selectors.LogInWithAtlasButton);
+        await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
-          const loginStatus = browser.$(Selectors.AtlasLoginStatus);
-          await browser.waitUntil(async () => {
-            return (
-              (await loginStatus.getText()).trim() ===
-              'Logged in with Atlas account test@example.com'
-            );
-          });
-        } finally {
-          await telemetry.stop();
-        }
+        const loginStatus = browser.$(Selectors.AtlasLoginStatus);
+        await browser.waitUntil(async () => {
+          return (
+            (await loginStatus.getText()).trim() ===
+            'Logged in with Atlas account test@example.com'
+          );
+        });
+
         const atlasUserIdAfter = await browser.getFeature(
           'telemetryAtlasUserId'
         );
