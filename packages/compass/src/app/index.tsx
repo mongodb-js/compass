@@ -22,17 +22,17 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event: ErrorEvent) => {
   event.preventDefault();
-  void ipcRenderer?.call(
-    'compass:error:fatal',
-    event.error
-      ? { message: event.error.message, stack: event.error.stack }
-      : { message: event.message, stack: '<no stack available>' }
-  );
+  const error = ensureError(event.error);
+  void ipcRenderer?.call('compass:error:fatal', {
+    message: error.message,
+    stack: error.stack,
+  });
 });
 
 window.addEventListener(
   'unhandledrejection',
   (event: PromiseRejectionEvent) => {
+    event.preventDefault();
     const error = ensureError(event.reason);
     void ipcRenderer?.call('compass:rejection:fatal', {
       message: error.message,
