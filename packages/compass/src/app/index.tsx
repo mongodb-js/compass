@@ -20,7 +20,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 }
 
 // Setup error reporting to main process before anything else.
-window.addEventListener('error', (event) => {
+window.addEventListener('error', (event: ErrorEvent) => {
   event.preventDefault();
   void ipcRenderer?.call(
     'compass:error:fatal',
@@ -30,14 +30,17 @@ window.addEventListener('error', (event) => {
   );
 });
 
-window.addEventListener('unhandledrejection', (event) => {
-  event.preventDefault();
-  const error = ensureError(event.reason);
-  void ipcRenderer?.call('compass:error:fatal', {
-    message: error.message,
-    stack: error.stack,
-  });
-});
+window.addEventListener(
+  'unhandledrejection',
+  (event: PromiseRejectionEvent) => {
+    event.preventDefault();
+    const error = ensureError(event.reason);
+    void ipcRenderer?.call('compass:error:fatal', {
+      message: error.message,
+      stack: error.stack,
+    });
+  }
+);
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
