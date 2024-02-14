@@ -19,7 +19,14 @@ export function intercomTrack(
   if (typeof win === 'undefined') {
     return;
   }
-  if (!win.Intercom || typeof win.Intercom !== 'function') {
+
+  if (
+    !win.Intercom ||
+    typeof win.Intercom !== 'function' ||
+    // the last check is because the packages might be embedded in an environment where an external Intercom lives
+    // this way we ensure we don't polute such external Intercom with events intended for Compass Intercom
+    !process.env.HADRON_METRICS_INTERCOM_APP_ID
+  ) {
     return;
   }
 
