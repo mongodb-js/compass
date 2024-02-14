@@ -93,6 +93,7 @@ function Connections({
   onConnected,
   isConnected,
   connectionProvider = new DesktopConnectionProvider(ConnectionStorage),
+  connectionStorage = ConnectionStorage,
   appName,
   getAutoConnectInfo,
   connectFn = connect,
@@ -104,11 +105,11 @@ function Connections({
   ) => void;
   isConnected: boolean;
   connectionProvider: ConnectionProvider;
+  connectionStorage: typeof ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;
 }): React.ReactElement {
-  const connectionStorage = ConnectionStorage;
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   const {
     state,
