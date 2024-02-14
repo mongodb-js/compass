@@ -54,10 +54,8 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           .date()
           .optional()
           .transform((x) => (x !== undefined ? new Date(x) : x)),
-        userFavorite: z.boolean().optional(),
-        name: z.string().optional(),
-        color: z.string().optional(),
         favorite: z.any().optional(),
+        savedConnectionType: z.enum(['favorite', 'recent']).optional(),
         connectionOptions: z.object({
           connectionString: z
             .string()
@@ -216,6 +214,14 @@ export class ConnectionStorage {
       : undefined;
   }
 
+  private static migrateSavedConnectionType(
+    connectionInfo: ConnectionInfo
+  ): void {
+    connectionInfo.savedConnectionType ??= connectionInfo.favorite
+      ? 'favorite'
+      : 'recent';
+  }
+
   private static mapStoredConnectionToConnectionInfo({
     connectionInfo: storedConnectionInfo,
     connectionSecrets: storedConnectionSecrets,
@@ -232,10 +238,7 @@ export class ConnectionStorage {
       );
     }
     const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
-    connectionInfo.userFavorite ??= !!connectionInfo.favorite;
-    connectionInfo.name ??= connectionInfo.favorite?.name;
-    connectionInfo.color ??= connectionInfo.favorite?.color;
-
+    this.migrateSavedConnectionType(connectionInfo);
     return deleteCompassAppNameParam(connectionInfo);
   }
 
@@ -409,13 +412,13 @@ export class ConnectionStorage {
   private static async afterConnectionHasBeenSaved(
     savedConnection: ConnectionInfo
   ): Promise<void> {
-    if (savedConnection.userFavorite) {
+    if (savedConnection.favorite) {
       return;
     }
 
     const recentConnections = (await this.loadAll())
       // remove favorites and the just saved connection (so we do not delete it)
-      .filter((x) => !x.userFavorite && x.id !== savedConnection.id)
+      .filter((x) => !x.favorite && x.id !== savedConnection.id)
       .sort((a, b) => {
         const aTime = a.lastUsed?.getTime() ?? 0;
         const bTime = b.lastUsed?.getTime() ?? 0;

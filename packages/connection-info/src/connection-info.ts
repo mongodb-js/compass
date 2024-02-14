@@ -12,31 +12,27 @@ export interface ConnectionInfo {
   lastUsed?: Date;
 
   /**
-   * True if the connection is marked as favorite.
+   * Favourite information. We keep it so we don't have to change the connection storage.
    */
-  userFavorite?: boolean;
-
+  favorite?: ConnectionFavoriteOptions;
   /**
-   * Name of the connection.
+   * Saved connection type. Legacy favorite connections will be mapped as 'favorite'.
    */
-  name?: string;
-
-  /**
-   * Colour of the connection, if any;
-   */
-  color?: string;
-
-  /**
-   * Legacy favourite information
-   */
-  readonly favorite?: ConnectionFavoriteOptions;
+  savedConnectionType: 'favorite' | 'recent';
   /**
    * The options used to connect
    */
   connectionOptions: ConnectionOptions;
 }
 
-interface ConnectionFavoriteOptions {
-  readonly name: string;
-  readonly color?: string;
+/** @deprecated will be removed when the multiple connections project is done. */
+export interface ConnectionFavoriteOptions {
+  name: string;
+  color?: string;
 }
+
+export type ConnectionStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'connecting'
+  | 'failed';

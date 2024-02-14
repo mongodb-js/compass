@@ -656,7 +656,9 @@ describe('ConnectionStorage', function () {
       const connectionInfo = getConnectionInfo({ lastUsed: new Date() });
       await writeFakeConnection(tmpDir, { connectionInfo });
       const connections = await ConnectionStorage.loadAll();
-      expect(connections).to.deep.equal([connectionInfo]);
+      expect(connections).to.deep.equal([
+        { ...connectionInfo, savedConnectionType: 'recent' },
+      ]);
     });
 
     it('should ignore failures in conversion', async function () {
@@ -675,7 +677,9 @@ describe('ConnectionStorage', function () {
         connectionInfo: connectionInfo2,
       });
       const connections = await ConnectionStorage.loadAll();
-      expect(connections).to.deep.equal([connectionInfo2]);
+      expect(connections).to.deep.equal([
+        { ...connectionInfo2, savedConnectionType: 'recent' },
+      ]);
     });
 
     it('should convert lastUsed', async function () {
@@ -711,7 +715,10 @@ describe('ConnectionStorage', function () {
       const connection = await ConnectionStorage.load({
         id: connectionInfo.id,
       });
-      expect(connection).to.deep.equal(connectionInfo);
+      expect(connection).to.deep.equal({
+        ...connectionInfo,
+        savedConnectionType: 'recent',
+      });
     });
 
     it('should convert lastUsed', async function () {
@@ -1135,11 +1142,13 @@ describe('ConnectionStorage', function () {
         favorite: {
           name: 'Connection 1',
         },
+        savedConnectionType: 'favorite',
       }),
       getConnectionInfo({
         favorite: {
           name: 'Connection 2',
         },
+        savedConnectionType: 'favorite',
       }),
     ];
 
@@ -1253,6 +1262,7 @@ describe('ConnectionStorage', function () {
           'lastUsed',
           'favorite',
           'connectionOptions',
+          'savedConnectionType',
         ]);
         expect(expectedConnection!.id, version).to.equal(connection._id);
         expect(expectedConnection!.connectionOptions, version).to.deep.equal(

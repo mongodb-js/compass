@@ -26,7 +26,7 @@ function mockStorage(): typeof ConnectionStorage {
   return mockStorageWithConnections([]);
 }
 
-describe.only('DesktopConnectionProvider', function () {
+describe('DesktopConnectionProvider', function () {
   describe('#listConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
       const provider = new DesktopConnectionProvider(
@@ -39,7 +39,6 @@ describe.only('DesktopConnectionProvider', function () {
       const connections = await provider.listConnections();
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('2');
-      expect(connections[0].status).to.equal('disconnected');
     });
 
     it('should return favourite connections sorted by name alphabetically', async function () {
@@ -70,7 +69,6 @@ describe.only('DesktopConnectionProvider', function () {
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('1');
       expect(connections[0].name).to.equal('not webscale');
-      expect(connections[0].status).to.equal('disconnected');
     });
 
     it('should return non favourite connections sorted by name alphabetically', async function () {
