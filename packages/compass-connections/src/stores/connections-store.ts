@@ -10,7 +10,8 @@ import type { DataService, connect } from 'mongodb-data-service';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   ConnectionProvider,
-  type StatusAwareConnectionInfo,
+  type ConnectionInfo,
+  type ConnectionStatus,
 } from '@mongodb-js/connection-storage/main';
 import type {
   ConnectionInfo,
@@ -67,14 +68,11 @@ function isOIDCAuth(connectionString: string): boolean {
   return authMechanismString === 'MONGODB-OIDC';
 }
 
-function ensureWellFormedConnectionString(connectionString: string) {
-  new ConnectionString(connectionString);
-}
-
 type State = {
+  activeConnectionId?: string;
   connectionStatus: Map<string, ConnectionStatus>;
-  favoriteConnections: StatusAwareConnectionInfo[];
-  recentConnections: StatusAwareConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
+  recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
   connectingStatusText: string;
   connectionAttempt: ConnectionAttempt | null;
@@ -135,8 +133,8 @@ type Action =
     }
   | {
       type: 'set-connections';
-      favoriteConnections: StatusAwareConnectionInfo[];
-      recentConnections: StatusAwareConnectionInfo[];
+      favoriteConnections: ConnectionInfo[];
+      recentConnections: ConnectionInfo[];
     }
   | {
       type: 'add-connection-merge-info';
@@ -219,8 +217,8 @@ export function connectionsReducer(state: State, action: Action): State {
 async function loadConnections(
   dispatch: Dispatch<{
     type: 'set-connections';
-    favoriteConnections: StatusAwareConnectionInfo[];
-    recentConnections: StatusAwareConnectionInfo[];
+    favoriteConnections: ConnectionInfo[];
+    recentConnections: ConnectionInfo[];
   }>,
   connectionProvider: ConnectionProvider,
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
@@ -278,20 +276,18 @@ export function useConnections({
   appName: string;
 }): {
   state: State;
-  recentConnections: StatusAwareConnectionInfo[];
-  favoriteConnections: StatusAwareConnectionInfo[];
+  recentConnections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
   cancelConnectionAttempt: () => void;
   connect: (
-    connectionInfo:
-      | StatusAwareConnectionInfo
-      | (() => Promise<StatusAwareConnectionInfo>)
+    connectionInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
   ) => Promise<void>;
   createNewConnection: () => void;
-  saveConnection: (connectionInfo: StatusAwareConnectionInfo) => Promise<void>;
+  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
-  duplicateConnection: (connectioInfo: StatusAwareConnectionInfo) => void;
-  removeConnection: (connectionInfo: StatusAwareConnectionInfo) => void;
+  duplicateConnection: (connectioInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
   const { openToast } = useToast('compass-connections');
@@ -371,7 +367,7 @@ export function useConnections({
       shouldSaveConnectionInfo: boolean
     ) => {
       try {
-        dispatch({ type: 'activate-connection', connectionInfo });
+        dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected(connectionInfo, dataService);
 
         if (!shouldSaveConnectionInfo) return;
@@ -402,7 +398,7 @@ export function useConnections({
               // race condition window between load() and save() is as short as possible.
               const mergeConnectionInfo = {
                 connectionOptions: await dataService.getUpdatedSecrets(),
-              };
+              } as ConnectionInfo;
               if (!mergeConnectionInfo) return;
               dispatch({
                 type: 'add-connection-merge-info',
@@ -664,9 +660,10 @@ export function useConnections({
         id: uuidv4(),
       };
 
-      if (duplicate.favorite?.name) {
-        duplicate.favorite.name += ' (copy)';
+      if (duplicate.name) {
+        duplicate.name += ' (copy)';
       }
+
       saveConnectionInfo(duplicate).then(
         async () => {
           await loadConnections(dispatch, connectionProvider, {
@@ -692,7 +689,7 @@ export function useConnections({
 
       await Promise.all(
         recentConnections.map((info) =>
-          connectionProvider.deleteConnection(info)
+          connectionProvider.deleteConnection?.(info)
         )
       );
 

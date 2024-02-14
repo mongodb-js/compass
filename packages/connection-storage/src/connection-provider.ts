@@ -3,18 +3,6 @@ import { ConnectionStorage } from './connection-storage';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 
-export type ConnectionStatus =
-  | 'connected'
-  | 'disconnected'
-  | 'connecting'
-  | 'failed';
-export type StatusAwareConnectionInfo = Omit<
-  ConnectionInfo & {
-    status: ConnectionStatus;
-  },
-  'favorite'
->;
-
 /**
  * Exposes an interface that will be implemented for each deployment environment to
  * get access to the connections on that environment. For Compass Desktop, it will
@@ -22,9 +10,9 @@ export type StatusAwareConnectionInfo = Omit<
  * facade on top of that).
  */
 export interface ConnectionProvider {
-  listConnections(): Promise<StatusAwareConnectionInfo[]>;
-  listConnectionHistory?(): Promise<StatusAwareConnectionInfo[]>;
-  saveConnection?(info: ConnectionInfo): Promise<StatusAwareConnectionInfo>;
+  listConnections(): Promise<ConnectionInfo[]>;
+  listConnectionHistory?(): Promise<ConnectionInfo[]>;
+  saveConnection?(info: ConnectionInfo): Promise<ConnectionInfo>;
   deleteConnection?(info: ConnectionInfo): Promise<void>;
 }
 
@@ -33,31 +21,25 @@ export class DesktopConnectionProvider implements ConnectionProvider {
   // in case we want to change how ConnectionStorage works in the future.
   constructor(private readonly storage: typeof ConnectionStorage) {}
 
-  async listConnections(): Promise<StatusAwareConnectionInfo[]> {
+  public static defaultInstance(): DesktopConnectionProvider {
+    return new DesktopConnectionProvider(ConnectionStorage);
+  }
+
+  async listConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter((connection) => connection.userFavorite)
-      .sort(this.sortedAlphabetically)
-      .map((connection) => ({
-        ...connection,
-        status: 'disconnected',
-      }));
+      .sort(this.sortedAlphabetically);
   }
 
-  async listConnectionHistory(): Promise<StatusAwareConnectionInfo[]> {
+  async listConnectionHistory(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter((connection) => !connection.userFavorite)
-      .sort(this.sortedAlphabetically)
-      .map((connection) => ({
-        ...connection,
-        status: 'disconnected',
-      }));
+      .sort(this.sortedAlphabetically);
   }
 
-  async saveConnection(
-    info: ConnectionInfo
-  ): Promise<StatusAwareConnectionInfo> {
+  async saveConnection(info: ConnectionInfo): Promise<ConnectionInfo> {
     const oldConnectionInfo = await this.storage.load({ id: info.id });
     const infoToSave = oldConnectionInfo
       ? merge(oldConnectionInfo, info)
