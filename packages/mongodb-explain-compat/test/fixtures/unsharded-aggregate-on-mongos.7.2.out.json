@@ -1,0 +1,113 @@
+{
+  "serverInfo": {
+    "host": "M-C02D23CNMD6R",
+    "port": 27017,
+    "version": "7.3.0-alpha1-184-gef22b28",
+    "gitVersion": "ef22b2853f29e36ff86c78e8f3d5627508252826"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "trySbeRestricted"
+  },
+  "splitPipeline": null,
+  "shards": {
+    "replSet-a3becde9-cc49-4b7d-94c8-266bc36068ef": {
+      "host": "127.0.0.1:64745",
+      "stages": [
+        {
+          "$cursor": {
+            "queryPlanner": {
+              "namespace": "test.coll",
+              "indexFilterSet": false,
+              "parsedQuery": {},
+              "queryHash": "E0087D7B",
+              "planCacheKey": "2FE566FB",
+              "optimizationTimeMillis": 0,
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "isCached": false,
+                "stage": "PROJECTION_SIMPLE",
+                "transformBy": {
+                  "_id": true,
+                  "author": true,
+                  "tags": true
+                },
+                "inputStage": {
+                  "stage": "COLLSCAN",
+                  "direction": "forward"
+                }
+              },
+              "rejectedPlans": []
+            }
+          }
+        },
+        {
+          "$unwind": {
+            "path": "$tags"
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "tags": "$tags"
+            },
+            "authors": {
+              "$addToSet": "$author"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "command": {
+    "aggregate": "coll",
+    "pipeline": [
+      {
+        "$project": {
+          "author": 1,
+          "tags": 1
+        }
+      },
+      {
+        "$unwind": "$tags"
+      },
+      {
+        "$group": {
+          "_id": {
+            "tags": "$tags"
+          },
+          "authors": {
+            "$addToSet": "$author"
+          }
+        }
+      }
+    ],
+    "cursor": {}
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": "7329888704586055681"
+    },
+    "signature": {
+      "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "keyId": {
+        "low": 0,
+        "high": 0,
+        "unsigned": false
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": "7329888691701153793"
+  }
+}

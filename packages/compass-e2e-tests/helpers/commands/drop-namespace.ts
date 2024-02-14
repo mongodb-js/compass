@@ -7,8 +7,10 @@ export async function dropNamespace(
 ): Promise<void> {
   const dropModalElement = await browser.$(Selectors.DropNamespaceModal);
   await dropModalElement.waitForDisplayed();
-  const confirmInput = await browser.$(Selectors.DropNamespaceConfirmNameInput);
-  await confirmInput.setValue(collectionName);
+  await browser.setValueVisible(
+    Selectors.DropNamespaceConfirmNameInput,
+    collectionName
+  );
   const confirmButton = await browser.$(Selectors.DropNamespaceDropButton);
   await confirmButton.waitForEnabled();
 

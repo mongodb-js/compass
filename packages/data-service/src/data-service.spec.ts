@@ -1205,7 +1205,10 @@ describe('DataService', function () {
     describe('#createSearchIndex', function () {
       it('throws an error', async function () {
         await expect(
-          dataService.createSearchIndex(testNamespace, 'my-index', {})
+          dataService.createSearchIndex(testNamespace, {
+            name: 'my-index',
+            definition: {},
+          })
         ).to.be.rejectedWith(
           MongoServerError,
           "no such command: 'createSearchIndexes'"
@@ -1897,8 +1900,9 @@ describe('DataService', function () {
       it('creates a search index', async function () {
         const dataService: any = createDataServiceWithMockedClient({});
         expect(
-          await dataService.createSearchIndex('test.test', 'my-index', {
-            mappings: { dynamic: true },
+          await dataService.createSearchIndex('test.test', {
+            name: 'my-index',
+            definition: { mappings: { dynamic: true } },
           })
         ).to.deep.equal('my-index');
       });

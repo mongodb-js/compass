@@ -11,6 +11,7 @@ export type SearchIndexStatus =
 export type SearchIndex = {
   id: string;
   name: string;
+  type?: string;
   status: SearchIndexStatus;
   queryable: boolean;
   latestDefinition: Document;

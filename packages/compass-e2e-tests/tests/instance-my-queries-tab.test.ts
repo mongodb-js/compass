@@ -73,10 +73,10 @@ describe('Instance my queries tab', function () {
     // Save the ran query
     await browser.hover(Selectors.QueryHistoryRecentItem);
     await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
-    const favoriteQueryNameField = await browser.$(
-      Selectors.QueryHistoryFavoriteItemNameField
+    await browser.setValueVisible(
+      Selectors.QueryHistoryFavoriteItemNameField,
+      favoriteQueryName
     );
-    await favoriteQueryNameField.setValue(favoriteQueryName);
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
@@ -114,13 +114,14 @@ describe('Instance my queries tab', function () {
     const renameModal = await browser.$(Selectors.RenameSavedItemModal);
     await renameModal.waitForDisplayed();
 
-    await browser
-      .$(Selectors.RenameSavedItemModalTextInput)
-      .setValue(newFavoriteQueryName);
+    await browser.setValueVisible(
+      Selectors.RenameSavedItemModalTextInput,
+      newFavoriteQueryName
+    );
     const confirmRenameButton = await browser.$(
       Selectors.RenameSavedItemModalSubmit
     );
-    confirmRenameButton.waitForEnabled();
+    await confirmRenameButton.waitForEnabled();
 
     await browser.screenshot('rename-saved-item-modal.png');
 
@@ -146,7 +147,7 @@ describe('Instance my queries tab', function () {
     const confirmOpenButton = await browser.$(
       Selectors.OpenSavedItemModalConfirmButton
     );
-    confirmOpenButton.waitForEnabled();
+    await confirmOpenButton.waitForEnabled();
 
     await browser.screenshot('open-saved-item-modal.png');
 
@@ -172,7 +173,7 @@ describe('Instance my queries tab', function () {
     const confirmDeleteButton = await browser.$(
       Selectors.ConfirmationModalConfirmButton()
     );
-    confirmDeleteButton.waitForEnabled();
+    await confirmDeleteButton.waitForEnabled();
 
     await browser.screenshot('delete-saved-item-modal.png');
 
@@ -208,8 +209,10 @@ describe('Instance my queries tab', function () {
 
     // set aggregation name
     await browser.waitForAnimations(Selectors.SavePipelineNameInput);
-    const pipelineNameInput = await browser.$(Selectors.SavePipelineNameInput);
-    await pipelineNameInput.setValue(savedAggregationName);
+    await browser.setValueVisible(
+      Selectors.SavePipelineNameInput,
+      savedAggregationName
+    );
 
     await browser.screenshot('save-pipeline-modal.png');
 

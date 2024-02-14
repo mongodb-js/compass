@@ -1,6 +1,6 @@
 import { ATLAS_SEARCH_TEMPLATES } from '@mongodb-js/mongodb-constants';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Select,
   Option,
@@ -25,12 +25,13 @@ const dropdownLabelStyles = css({
 
 type SearchIndexTemplateDropdownProps = {
   tooltip: string;
+  isVectorSearchSupported?: boolean;
   onTemplate: (template: SearchTemplate) => void;
 };
 
 export const SearchIndexTemplateDropdown: React.FunctionComponent<
   SearchIndexTemplateDropdownProps
-> = ({ tooltip, onTemplate }) => {
+> = ({ isVectorSearchSupported, tooltip, onTemplate }) => {
   const [templateValue, setTemplateValue] = useState('0');
   const labelId = useId();
 
@@ -41,6 +42,17 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
     },
     [onTemplate]
   );
+
+  const templates = useMemo(() => {
+    // When vector search is supported we don't show the
+    // KNN Vector field mapping option.
+    if (isVectorSearchSupported) {
+      return ATLAS_SEARCH_TEMPLATES.filter(
+        (template) => template.name !== 'KNN Vector field mapping'
+      );
+    }
+    return ATLAS_SEARCH_TEMPLATES;
+  }, [isVectorSearchSupported]);
 
   return (
     <div className={containerStyles}>
@@ -57,7 +69,7 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
         allowDeselect={false}
         onChange={onChooseTemplate}
       >
-        {ATLAS_SEARCH_TEMPLATES.map((template, idx) => (
+        {templates.map((template, idx) => (
           <Option key={idx} value={`${idx}`}>
             {template.name}
           </Option>

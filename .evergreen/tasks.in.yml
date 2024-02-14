@@ -108,7 +108,7 @@ tasks:
       - func: spawn-signing-server
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
+          debug: 'hadron*,mongo*,compass*,electron*,sign*'
           compass_distribution: <% out(packageTask.vars.compass_distribution) %>
       - func: verify-artifacts
       - func: save-all-artifacts

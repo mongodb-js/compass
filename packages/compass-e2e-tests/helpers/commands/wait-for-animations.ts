@@ -1,13 +1,16 @@
 import _ from 'lodash';
-import type { ChainablePromiseElement, Element } from 'webdriverio';
+import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<Promise<Element<'async'>>>
+  selector:
+    | string
+    | ChainablePromiseElement<WebdriverIO.Element>
+    | WebdriverIO.Element
 ): Promise<void> {
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
+  async function getElement() {
+    return typeof selector === 'string' ? await browser.$(selector) : selector;
   }
 
   const initialElement = await getElement();

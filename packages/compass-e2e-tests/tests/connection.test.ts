@@ -183,12 +183,11 @@ async function assertCannotCreateDb(
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
-  const dbInput = await browser.$(Selectors.CreateDatabaseDatabaseName);
-  await dbInput.setValue(dbName);
-  const collectionInput = await browser.$(
-    Selectors.CreateDatabaseCollectionName
+  await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
+  await browser.setValueVisible(
+    Selectors.CreateDatabaseCollectionName,
+    collectionName
   );
-  await collectionInput.setValue(collectionName);
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
   await createButton.click();
@@ -214,10 +213,7 @@ async function assertCannotCreateCollection(
 ): Promise<void> {
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  const sidebarFilterInputElement = await browser.$(
-    Selectors.SidebarFilterInput
-  );
-  await sidebarFilterInputElement.setValue(dbName);
+  await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
   const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
   await dbElement.waitForDisplayed();
   await browser.hover(Selectors.sidebarDatabase(dbName));
@@ -225,10 +221,10 @@ async function assertCannotCreateCollection(
 
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);
   await createModalElement.waitForDisplayed();
-  const collectionInput = await browser.$(
-    Selectors.CreateDatabaseCollectionName
+  await browser.setValueVisible(
+    Selectors.CreateDatabaseCollectionName,
+    collectionName
   );
-  await collectionInput.setValue(collectionName);
 
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);
 

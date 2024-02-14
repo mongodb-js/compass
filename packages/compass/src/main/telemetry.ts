@@ -35,7 +35,6 @@ class CompassTelemetry {
   private static analytics: Analytics | null = null;
   private static state: 'enabled' | 'disabled' = 'disabled';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
-  private static currentUserId?: string; // Deprecated field. Should be used only for old users to keep their analytics in Segment.
   private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
   private static lastReportedScreen = '';
   private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T>
@@ -80,7 +79,6 @@ class CompassTelemetry {
     }
 
     this.analytics.track({
-      userId: this.currentUserId,
       anonymousId: this.telemetryAnonymousId,
       event: info.event,
       properties: { ...info.properties, ...commonProperties },
@@ -96,7 +94,6 @@ class CompassTelemetry {
       {
         telemetryCapableEnvironment,
         hasAnalytics: !!this.analytics,
-        currentUserId: this.currentUserId,
         telemetryAnonymousId: this.telemetryAnonymousId,
         state: this.state,
         queuedEvents: this.queuedEvents.length,
@@ -108,7 +105,6 @@ class CompassTelemetry {
       this.telemetryAnonymousId
     ) {
       this.analytics.identify({
-        userId: this.currentUserId,
         anonymousId: this.telemetryAnonymousId,
         traits: {
           ...this._getCommonProperties(),
@@ -131,9 +127,8 @@ class CompassTelemetry {
 
   private static async _init(app: typeof CompassApplication) {
     const { preferences } = app;
-    const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
+    const { trackUsageStatistics, telemetryAnonymousId } =
       preferences.getPreferences();
-    this.currentUserId = currentUserId;
     this.telemetryAnonymousId = telemetryAnonymousId ?? '';
 
     try {
