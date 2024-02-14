@@ -1,3 +1,6 @@
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
+
 type WindowWithIntercomGlobals = Window &
   typeof globalThis & {
     Intercom?: (...args: any[]) => any;
@@ -20,5 +23,9 @@ export function intercomTrack(
     return;
   }
 
-  win.Intercom('track', event, metadata);
+  try {
+    win.Intercom('track', event, metadata);
+  } catch (error) {
+    debug('intercom track error', error);
+  }
 }
