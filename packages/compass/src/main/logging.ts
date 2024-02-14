@@ -108,7 +108,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
         'COMPASS-MAIN',
         mongoLogId(1_001_000_294),
         'app',
-        `Uncaught rejection: ${meta.reason as string}`,
+        `Uncaught rejection: ${meta.message as string}`,
         meta
       );
     });

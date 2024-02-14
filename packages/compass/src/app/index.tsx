@@ -2,6 +2,7 @@
 import '../setup-hadron-distribution';
 
 import dns from 'dns';
+import ensureError from 'ensure-error';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
@@ -32,8 +33,10 @@ window.addEventListener('error', (event: ErrorEvent) => {
 window.addEventListener(
   'unhandledrejection',
   (event: PromiseRejectionEvent) => {
+    const error = ensureError(event.reason);
     void ipcRenderer?.call('compass:rejection:fatal', {
-      reason: event.reason.toString(),
+      message: error.message,
+      stack: error.stack,
     });
   }
 );
