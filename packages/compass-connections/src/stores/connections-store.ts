@@ -2,17 +2,17 @@ import {
   type Dispatch,
   useCallback,
   useEffect,
-  useMemo,
   useReducer,
   useRef,
+  useContext,
 } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  ConnectionProvider,
+  type ConnectionProvider,
   type ConnectionInfo,
+  ConnectionProviderContext,
 } from '@mongodb-js/connection-storage/main';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
@@ -255,7 +255,6 @@ async function loadConnections(
 export function useConnections({
   onConnected,
   isConnected,
-  connectionProvider,
   appName,
   getAutoConnectInfo,
   connectFn,
@@ -265,7 +264,6 @@ export function useConnections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionProvider: ConnectionProvider;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: ConnectFn;
   appName: string;
@@ -285,6 +283,7 @@ export function useConnections({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
+  const connectionProvider = useContext(ConnectionProviderContext);
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
   const forceConnectionOptions = usePreference('forceConnectionOptions') ?? [];

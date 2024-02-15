@@ -10,7 +10,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
-  ConnectionProvider,
+  type ConnectionProvider,
   DesktopConnectionProvider,
 } from '@mongodb-js/connection-storage/main';
 
@@ -296,7 +296,6 @@ describe('use-connections hook', function () {
       });
 
       it('updates the existing entry on the connections list', function () {
-        console.log(hookResult.current.favoriteConnections[0]);
         expect(hookResult.current.favoriteConnections.length).to.equal(2);
         expect(hookResult.current.favoriteConnections[0]).to.deep.equal({
           id: 'oranges',
@@ -320,7 +319,6 @@ describe('use-connections hook', function () {
     });
 
     describe('saving a new connection', function () {
-      let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
@@ -341,8 +339,6 @@ describe('use-connections hook', function () {
             name: 'bacon',
           });
         });
-
-        hookResult = result;
       });
 
       it('calls to save a connection on the store', function () {

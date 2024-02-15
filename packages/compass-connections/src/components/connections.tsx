@@ -14,18 +14,13 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 
 import {
-  CompassConnectionProvider,
-  ConnectionProvider,
   ConnectionProviderContext,
   ConnectionStorageContext,
 } from '@mongodb-js/connection-storage/main';
@@ -113,8 +108,6 @@ function Connections({
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   const connectionProvider = useContext(ConnectionProviderContext);
   const connectionStorage = useContext(ConnectionStorageContext);
-
-  console.log('on connections', connectionStorage);
 
   const {
     state,
