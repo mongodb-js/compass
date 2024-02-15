@@ -1,5 +1,9 @@
+import { createContext, useContext } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionStorage } from './connection-storage';
+import {
+  ConnectionStorage,
+  ConnectionStorageContext,
+} from './connection-storage';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 
@@ -75,3 +79,6 @@ export class CompassConnectionProvider implements ConnectionProvider {
     return bName < aName ? 1 : -1;
   };
 }
+
+export const ConnectionProviderContext =
+  createContext<ConnectionProvider | null>(null);
