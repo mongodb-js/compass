@@ -8,7 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
@@ -36,6 +36,30 @@ const progressContainerStyles = css({
 });
 
 type ModalState = 'input-form' | 'confirmation-screen';
+
+function ConfirmationModalContent({
+  areSavedQueriesAndAggregationsImpacted,
+}: {
+  areSavedQueriesAndAggregationsImpacted: boolean;
+}) {
+  return (
+    <Banner variant="warning" data-testid="rename-collection-modal-warning">
+      Renaming collection will result in loss of any unsaved queries, filters or
+      aggregation pipeline.
+      {areSavedQueriesAndAggregationsImpacted && (
+        <Fragment>
+          <br />
+          <br />
+          <b>
+            {' '}
+            Additionally, any saved queries or aggregations targeting this
+            collection will need to be remapped to the new namespace.
+          </b>
+        </Fragment>
+      )}
+    </Banner>
+  );
+}
 
 function RenameCollectionModal({
   isVisible,
@@ -147,10 +171,9 @@ function RenameCollectionModal({
         </Banner>
       )}
       {modalState === 'confirmation-screen' && (
-        <Banner variant="info" data-testid="rename-collection-modal-warning">
-          Renaming collection will result in loss of any unsaved queries,
-          filters or aggregation pipeline
-        </Banner>
+        <ConfirmationModalContent
+          areSavedQueriesAndAggregationsImpacted={false}
+        />
       )}
       {isRunning && (
         <Body className={progressContainerStyles}>
