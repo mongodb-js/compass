@@ -5,7 +5,7 @@ import * as Selectors from '../selectors';
 
 export async function disconnect(browser: CompassBrowser): Promise<void> {
   if (TEST_COMPASS_WEB) {
-    await browser.refresh();
+    await browser.navigateTo('/');
     const element = await browser.$(Selectors.ConnectSection);
     await element.waitForDisplayed();
     return;
