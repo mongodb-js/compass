@@ -15,11 +15,9 @@ tests:
         shell: "1 \t\t +2"
       output:
         javascript: 1 + 2
-        shell: 1 + 2
         python: 1 + 2
         java: 1L + 2L
         csharp: 1 + 2
-        object: '3'
         php: 1 + 2
         ruby: 1 + 2
         go: 1 + 2
@@ -28,11 +26,9 @@ tests:
         shell: "1 \t\t +2"
       output:
         javascript: 1 + 2
-        shell: 1 + 2
         python: 1 + 2
         java: 1L + 2L
         csharp: 1 + 2
-        object: '3'
         php: 1 + 2
         ruby: 1 + 2
         go: 1 + 2
@@ -42,11 +38,9 @@ tests:
         shell: 1 === 2
       output:
         javascript: 1 === 2
-        shell: 1 === 2
         python: 1 == 2
         java: 1L == 2L
         csharp: 1 == 2
-        object: 'false'
         php: 1 == 2
         ruby: 1 == 2
         go: 1 == 2
@@ -55,11 +49,9 @@ tests:
         shell: 1 !== 2
       output:
         javascript: 1 !== 2
-        shell: 1 !== 2
         python: 1 != 2
         java: 1L != 2L
         csharp: 1 != 2
-        object: 'true'
         php: 1 != 2
         ruby: 1 != 2
         go: 1 != 2
@@ -68,11 +60,9 @@ tests:
         shell: true || false
       output:
         javascript: true || false
-        shell: true || false
         python: True or False
         java: true || false
         csharp: true || false
-        object: 'true'
         php: true || false
         ruby: true || false
         go: true || false
@@ -81,11 +71,9 @@ tests:
         shell: true || false || true
       output:
         javascript: true || false || true
-        shell: true || false || true
         python: True or False or True
         java: true || false || true
         csharp: true || false || true
-        object: 'true'
         php: true || false || true
         ruby: true || false || true
         go: true || false || true
@@ -94,11 +82,9 @@ tests:
         shell: true && false
       output:
         javascript: true && false
-        shell: true && false
         python: True and False
         java: true && false
         csharp: true && false
-        object: 'false'
         php: true && false
         ruby: true && false
         go: true && false
@@ -107,11 +93,9 @@ tests:
         shell: true && false && true
       output:
         javascript: true && false && true
-        shell: true && false && true
         python: True and False and True
         java: true && false && true
         csharp: true && false && true
-        object: 'false'
         php: true && false && true
         ruby: true && false && true
         go: true && false && true
@@ -120,11 +104,9 @@ tests:
         shell: '!true'
       output:
         javascript: '!true'
-        shell: '!true'
         python: not True
         java: '!true'
         csharp: '!true'
-        object: 'false'
         php: '! true'
         ruby: '!true'
         go: '!true'
@@ -133,22 +115,18 @@ tests:
         shell: 1 > 2 < 3 >= 4 <= 6
       output:
         javascript: 1 > 2 < 3 >= 4 <= 6
-        shell: 1 > 2 < 3 >= 4 <= 6
         python: 1 > 2 < 3 >= 4 <= 6
         java: 1L > 2L < 3L >= 4L <= 6L
         csharp: 1 > 2 < 3 >= 4 <= 6
-        object: 'true'
         go: 1 > 2 < 3 >= 4 <= 6
   comments:
     - input:
         shell: 1 // a comment
       output:
         javascript: '1'
-        shell: '1'
         python: '1'
         java: 1L
         csharp: '1'
-        object: '1'
         php: '1'
         ruby: '1'
         go: '1'
@@ -157,11 +135,9 @@ tests:
         shell: 1 /* a comment*/
       output:
         javascript: '1'
-        shell: '1'
         python: '1'
         java: 1L
         csharp: '1'
-        object: '1'
         php: '1'
         ruby: '1'
         go: '1'
@@ -174,11 +150,9 @@ tests:
           t*/+2
       output:
         javascript: 1 + 2
-        shell: 1 + 2
         python: 1 + 2
         java: 1L + 2L
         csharp: 1 + 2
-        object: '3'
         php: 1 + 2
         ruby: 1 + 2
         go: 1 + 2
@@ -191,11 +165,9 @@ tests:
           t*/
       output:
         javascript: '1'
-        shell: '1'
         python: '1'
         java: 1L
         csharp: '1'
-        object: '1'
         php: '1'
         ruby: '1'
         go: '1'
@@ -204,11 +176,9 @@ tests:
         shell: 1 /* a comment*/+2
       output:
         javascript: 1 + 2
-        shell: 1 + 2
         python: 1 + 2
         java: 1L + 2L
         csharp: 1 + 2
-        object: '3'
         php: 1 + 2
         ruby: 1 + 2
         go: 1 + 2
@@ -218,11 +188,9 @@ tests:
         shell: (1 === 1)
       output:
         javascript: (1 === 1)
-        shell: (1 === 1)
         python: (1 == 1)
         java: (1L == 1L)
         csharp: (1 == 1)
-        object: 'true'
         php: (1 == 1)
         ruby: (1 == 1)
         go: (1 == 1)
@@ -231,11 +199,9 @@ tests:
         shell: ((1 === (1)))
       output:
         javascript: ((1 === (1)))
-        shell: ((1 === (1)))
         python: ((1 == (1)))
         java: ((1L == (1L)))
         csharp: ((1 == (1)))
-        object: 'true'
         php: ((1 == (1)))
         ruby: ((1 == (1)))
         go: ((1 == (1)))

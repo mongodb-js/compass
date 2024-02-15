@@ -16,21 +16,18 @@ tests:
         shell: '{x: 1}'
       output:
         java: 'new Document("x", 1L)'
-        object: '{x: 1}'
         go: 'bson.D{{"x", 1}}'
     - description: Doc with trailing comma
       input:
         shell: '{x: ''x''}'
       output:
         java: 'new Document("x", "x")'
-        object: '{x: ''x'',}'
         go: 'bson.D{{"x", "x"}}'
     - description: Doc with array
       input:
         shell: '{x: [''x'', ''y'']}'
       output:
         java: 'new Document("x", Arrays.asList("x", "y"))'
-        object: '{x: [''x'', ''y'']}'
         go: |-
           bson.D{
               {"x",
@@ -45,14 +42,12 @@ tests:
         shell: '{x: {y: ''x''}}'
       output:
         java: 'new Document("x", new Document("y", "x"))'
-        object: '{x: {y: ''x''}}'
         go: 'bson.D{{"x", bson.D{{"y", "x"}}}}'
     - description: Empty object
       input:
         shell: '{}'
       output:
         java: new Document()
-        object: '{}'
         go: 'bson.D{}'
     - description: Doc with declaration
       input:
@@ -75,7 +70,6 @@ tests:
         java: |-
           new Document("x", "x")
               .append("n", "4")
-        object: '{x: ''x'', n: ''4''}'
         go: |-
           bson.D{
               {"x", "x"},
@@ -94,10 +88,6 @@ tests:
                   .append("connectFromField", "_id")
                   .append("connectToField", "manager")
                   .append("as", "reports"))
-        object: >-
-          { graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id',
-          'connectFromField' : '_id', 'connectToField' : 'manager', 'as' :
-          'reports' } }
         go: |-
           bson.D{
               {"graphLookup",
@@ -122,9 +112,6 @@ tests:
                   new Document("$lt", 30L)), 
                   new Document("item", 
                   new Document("$regex", "^p"))))
-        object: >-
-          { status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }]
-          }
         go: |-
           bson.D{
               {"status", "A"},
@@ -142,7 +129,6 @@ tests:
         java: |-
           Arrays.asList("x", 
               new Document("settings", "http2"))
-        object: '[''x'', { settings: ''http2'' }]'
     - description: nested array with nested subdoc
       input:
         shell: >-
@@ -160,10 +146,6 @@ tests:
                   new Document("startQuarter", 1L)
                           .append("notes", 1L)
                           .append("job_code", 1L))))
-        object: >-
-          {'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] } }
-          }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1,
-          notes:1, job_code: 1 } } ]}
         go: |-
           bson.D{
               {"pipeline",
