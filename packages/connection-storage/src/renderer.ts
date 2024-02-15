@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
+import { createContext } from 'react';
 
 import type { ConnectionStorage as ConnectionStorageMain } from './connection-storage';
 export type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -57,3 +58,7 @@ export class ConnectionStorage {
     return this.ipc.exportConnections;
   }
 }
+
+export const ConnectionStorageContext = createContext<
+  typeof ConnectionStorage | null
+>(null);

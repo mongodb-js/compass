@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionStorage } from './connection-storage';
+import { ConnectionStorage } from './renderer';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 
@@ -23,7 +23,6 @@ export class CompassConnectionProvider implements ConnectionProvider {
   constructor(private readonly storage: typeof ConnectionStorage) {}
 
   public static defaultInstance(): CompassConnectionProvider {
-    ConnectionStorage.init();
     return new CompassConnectionProvider(ConnectionStorage);
   }
 

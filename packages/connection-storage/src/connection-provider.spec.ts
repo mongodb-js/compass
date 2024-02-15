@@ -2,7 +2,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { CompassConnectionProvider } from './connection-provider';
 import chai, { expect } from 'chai';
 import Sinon from 'sinon';
-import type { ConnectionStorage } from './connection-storage';
+import type { ConnectionStorage } from './renderer';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);

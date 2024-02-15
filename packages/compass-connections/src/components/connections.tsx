@@ -18,12 +18,8 @@ import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
-
-import {
-  ConnectionProviderContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/main';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
 import { useConnections } from '../stores/connections-store';
@@ -106,8 +102,6 @@ function Connections({
   connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
-  const connectionProvider = useContext(ConnectionProviderContext);
-  const connectionStorage = useContext(ConnectionStorageContext);
 
   const {
     state,
@@ -125,7 +119,6 @@ function Connections({
   } = useConnections({
     onConnected,
     isConnected,
-    connectionProvider,
     connectFn,
     appName,
     getAutoConnectInfo,
@@ -266,16 +259,16 @@ function Connections({
         favoriteConnections={favoriteConnections}
         afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
+        connectionStorage={ConnectionStorage}
       />
       <ExportConnectionsModal
         open={showExportConnectionsModal}
         setOpen={setShowExportConnectionsModal}
         favoriteConnections={favoriteConnections}
         trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
+        connectionStorage={ConnectionStorage}
       />
-      <LegacyConnectionsModal connectionStorage={connectionStorage} />
+      <LegacyConnectionsModal connectionStorage={ConnectionStorage} />
     </div>
   );
 }
