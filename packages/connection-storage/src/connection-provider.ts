@@ -16,26 +16,30 @@ export interface ConnectionProvider {
   deleteConnection?(info: ConnectionInfo): Promise<void>;
 }
 
-export class DesktopConnectionProvider implements ConnectionProvider {
+export class CompassConnectionProvider implements ConnectionProvider {
   // Inject the type as it would be an instance (this is literally injecting the singleton)
   // in case we want to change how ConnectionStorage works in the future.
   constructor(private readonly storage: typeof ConnectionStorage) {}
 
-  public static defaultInstance(): DesktopConnectionProvider {
-    return new DesktopConnectionProvider(ConnectionStorage);
+  public static defaultInstance(): CompassConnectionProvider {
+    return new CompassConnectionProvider(ConnectionStorage);
   }
 
   async listConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
-      .filter((connection) => connection.userFavorite)
+      .filter((connection) => connection.savedConnectionType === 'favorite')
       .sort(this.sortedAlphabetically);
   }
 
   async listConnectionHistory(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
-      .filter((connection) => !connection.userFavorite)
+      .filter(
+        (connection) =>
+          connection.savedConnectionType === 'recent' ||
+          !connection.savedConnectionType
+      )
       .sort(this.sortedAlphabetically);
   }
 
@@ -50,7 +54,7 @@ export class DesktopConnectionProvider implements ConnectionProvider {
     );
 
     await this.storage.save({ connectionInfo: infoToSave });
-    return { ...infoToSave, status: 'disconnected' };
+    return infoToSave;
   }
 
   async deleteConnection(info: ConnectionInfo): Promise<void> {
@@ -65,8 +69,8 @@ export class DesktopConnectionProvider implements ConnectionProvider {
     a: ConnectionInfo,
     b: ConnectionInfo
   ): 1 | -1 => {
-    const aName = a.name?.toLocaleLowerCase() || '';
-    const bName = b.name?.toLocaleLowerCase() || '';
+    const aName = a.favorite?.name?.toLocaleLowerCase() || '';
+    const bName = b.favorite?.name?.toLocaleLowerCase() || '';
     return bName < aName ? 1 : -1;
   };
 }

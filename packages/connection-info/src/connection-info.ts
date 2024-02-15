@@ -18,7 +18,7 @@ export interface ConnectionInfo {
   /**
    * Saved connection type. Legacy favorite connections will be mapped as 'favorite'.
    */
-  savedConnectionType: 'favorite' | 'recent';
+  savedConnectionType?: 'favorite' | 'recent';
   /**
    * The options used to connect
    */
