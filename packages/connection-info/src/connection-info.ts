@@ -25,7 +25,6 @@ export interface ConnectionInfo {
   connectionOptions: ConnectionOptions;
 }
 
-/** @deprecated will be removed when the multiple connections project is done. */
 export interface ConnectionFavoriteOptions {
   name: string;
   color?: string;
