@@ -32,7 +32,7 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -73,7 +73,7 @@ export type QueryBarExtraArgs = {
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
   logger: LoggerAndTelemetry;
-  atlasAiService: GenerativeAiService;
+  atlasAiService: AtlasAiService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -146,7 +146,7 @@ export function activatePlugin(
       atlasAuthService,
       preferences,
       logger,
-      atlasAiService: GenerativeAiService.getInstance(atlasService),
+      atlasAiService: AtlasAiService.getInstance(atlasService),
     }
   );
 

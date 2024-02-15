@@ -13,7 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
-import { getActiveUser } from '.';
+import type { getActiveUser } from '.';
 
 export interface PreferencesAccess {
   savePreferences(

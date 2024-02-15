@@ -1,6 +1,7 @@
 import type { SimplifiedSchema } from 'mongodb-schema';
-import { isAIFeatureEnabled } from 'compass-preferences-model';
+import { isAIFeatureEnabled } from 'compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { Document } from 'mongodb';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -43,8 +44,8 @@ type AIQuery = {
   };
 };
 
-export class GenerativeAiService {
-  private static instance: GenerativeAiService | null = null;
+export class AtlasAiService {
+  private static instance: AtlasAiService | null = null;
   private initPromise: Promise<void> | null = null;
 
   private constructor(private atlasService: AtlasService) {}
@@ -89,7 +90,7 @@ export class GenerativeAiService {
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getPreferencesUser().id;
     const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
-    const body = await this.atlasService.unAuthenticatedFetchJson(url, {});
+    const body = await this.atlasService.unAuthenticatedFetchJson(url);
     this.validateAIFeatureEnablementResponse(body);
     return body;
   }

@@ -1,6 +1,6 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
 import type { AtlasUserConfig } from './user-config-store';
-import { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type AtlasUserInfo = {
   sub: string;

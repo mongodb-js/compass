@@ -6,9 +6,9 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import {
   AtlasAuthService,
-  AtlasService,
+  type AtlasService,
 } from '@mongodb-js/atlas-service/renderer';
-import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -22,22 +22,22 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
-type ThunkExtraArg = {
+export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;
   atlasAuthService: Public<AtlasAuthService>;
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
-  atlasAiService: GenerativeAiService;
+  atlasAiService: AtlasAiService;
 };
 
-type SettingsPluginServices = {
+export type SettingsPluginServices = {
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
   atlasService: AtlasService;
 };
 
 export function configureStore(
-  options: SettingsPluginServices & Partial<ThunkExtraArg>
+  options: SettingsPluginServices & Partial<SettingsThunkExtraArgs>
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
@@ -57,7 +57,7 @@ export function configureStore(
         preferencesSandbox,
         atlasAuthService,
         logger: options.logger,
-        atlasAiService: GenerativeAiService.getInstance(options.atlasService),
+        atlasAiService: AtlasAiService.getInstance(options.atlasService),
       })
     )
   );
@@ -88,7 +88,7 @@ export type RootState = ReturnType<
 export type SettingsThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, RootState, ThunkExtraArg, A>;
+> = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
 const onActivated = (
   _: unknown,

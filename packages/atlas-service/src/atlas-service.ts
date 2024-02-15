@@ -141,12 +141,12 @@ export class AtlasService {
   }
   async unAuthenticatedFetchJson<T>(
     url: RequestInfo,
-    init: RequestInit
+    init?: RequestInit
   ): Promise<T> {
     const response = await this.unAuthenticatedFetch(url, {
       ...init,
       headers: {
-        ...init.headers,
+        ...init?.headers,
         Accept: 'application/json',
       },
     });
@@ -173,8 +173,8 @@ export class AtlasService {
     return this.atlasUser.getUser();
   }
   async disableAIFeature() {
-    await getStore().dispatch(disableAIFeature());
-    this.atlasUser.updateConfig({ enabledAIFeature: false });
+    getStore().dispatch(disableAIFeature());
+    await this.atlasUser.updateConfig({ enabledAIFeature: false });
   }
   async enableAIFeature() {
     const accepted = await getStore().dispatch(enableAIFeature());

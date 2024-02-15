@@ -8,12 +8,35 @@ import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+
+export class MockAtlasUserData {
+  getUser = () => Promise.resolve({} as any);
+  updateConfig = () => Promise.resolve();
+}
+export class MockAtlasAuthService {
+  on() {
+    return this;
+  }
+  signIn() {
+    return Promise.resolve({});
+  }
+}
 
 export default function configureStore(
   options: Partial<ConfigureStoreOptions> = {},
   dataService: DataService = mockDataService(),
   services: Partial<AggregationsPluginServices> = {}
 ) {
+  AtlasAiService['instance'] = null;
+  const preferences = new ReadOnlyPreferenceAccess();
+  const logger = createNoopLoggerAndTelemetry();
+  const atlasService =
+    services.atlasService ||
+    new AtlasService(new MockAtlasUserData(), preferences, logger);
+  const atlasAuthService =
+    options.atlasAuthService || (new MockAtlasAuthService() as any);
   return activateAggregationsPlugin(
     {
       namespace: 'test.test',
@@ -26,16 +49,18 @@ export default function configureStore(
       isAtlas: false,
       serverVersion: '4.0.0',
       ...options,
+      atlasAuthService,
     },
     {
       dataService,
       instance: {} as any,
-      preferences: new ReadOnlyPreferenceAccess(),
+      preferences,
       globalAppRegistry: new AppRegistry(),
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
-      logger: createNoopLoggerAndTelemetry(),
+      logger,
       ...services,
+      atlasService,
     },
     createActivateHelpers()
   ).store;

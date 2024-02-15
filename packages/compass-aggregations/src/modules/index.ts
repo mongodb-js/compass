@@ -41,7 +41,7 @@ import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider'
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { GenerativeAiApiClient } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 /**
  * The main application reducer.
@@ -96,7 +96,7 @@ export type PipelineBuilderExtraArgs = {
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  aiClient: GenerativeAiApiClient;
+  atlasAiService: AtlasAiService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

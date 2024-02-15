@@ -84,7 +84,7 @@ export class AtlasService {
           'User-Agent': `${app.getName()}/${app.getVersion()}`,
         },
       });
-      throwIfNotOk(res);
+      await throwIfNotOk(res);
       return res;
     } catch (err) {
       log.info(mongoLogId(1_001_000_291), 'AtlasService', 'Fetch errored', {
@@ -197,17 +197,17 @@ export class AtlasService {
       // no serialized state returned, this will just fail quickly. If there was
       // some state, we will prepare the service state for user interactions by
       // forcing oidc-plugin to do token refresh if expired and setting user
-      // try {
-      //   await this.getUserInfo();
-      //   log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
-      // } catch (err) {
-      //   log.error(
-      //     mongoLogId(1_001_000_225),
-      //     'AtlasService',
-      //     'Failed to restore state',
-      //     { error: (err as Error).stack }
-      //   );
-      // }
+      try {
+        await this.getUserInfo();
+        log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
+      } catch (err) {
+        log.error(
+          mongoLogId(1_001_000_225),
+          'AtlasService',
+          'Failed to restore state',
+          { error: (err as Error).stack }
+        );
+      }
     })());
   }
 

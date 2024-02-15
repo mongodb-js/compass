@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 
-import configureStore from '../../../test/configure-store';
+import configureReduxStore from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
   cancelAIPipelineGeneration,
@@ -9,6 +9,10 @@ import {
   generateAggregationFromQuery,
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { MockAtlasUserData } from '../../../test/configure-store';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -17,28 +21,42 @@ describe('AIPipelineReducer', function () {
     sandbox.reset();
   });
 
+  async function configureStore(atlasService: Partial<AtlasService> = {}) {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableGenAIFeatures: true,
+      cloudFeatureRolloutAccess: {
+        GEN_AI_COMPASS: true,
+      },
+    });
+    const atlasServiceInstance = new AtlasService(
+      new MockAtlasUserData(),
+      preferences,
+      createNoopLoggerAndTelemetry()
+    );
+    return configureReduxStore(
+      {
+        namespace: 'database.collection',
+      },
+      {
+        sample: sandbox.stub().resolves([{ _id: 42 }]),
+        getConnectionString: sandbox.stub().returns({ hosts: [] }),
+      } as any,
+      {
+        atlasService: Object.assign(atlasServiceInstance, atlasService),
+      }
+    );
+  }
+
   describe('runAIPipelineGeneration', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
-        const mockAtlasService = {
-          on: sandbox.stub(),
-          getAggregationFromUserInput: sandbox.stub().resolves({
-            content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
-          }),
-        };
-
-        const mockDataService = {
-          sample: sandbox.stub().resolves([{ _id: 42 }]),
-          getConnectionString: sandbox.stub().returns({ hosts: [] }),
-        };
-
-        const store = configureStore(
-          {
-            namespace: 'database.collection',
-            atlasService: mockAtlasService as any,
-          },
-          mockDataService as any
-        );
+        const fetchJsonStub = sandbox.stub().resolves({
+          content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+        });
+        const store = await configureStore({
+          fetchJson: fetchJsonStub,
+        });
 
         // Set autoPreview false so that it doesn't start the
         // follow up async preview doc requests.
@@ -49,21 +67,18 @@ describe('AIPipelineReducer', function () {
 
         await store.dispatch(runAIPipelineGeneration('testing prompt'));
 
-        expect(mockAtlasService.getAggregationFromUserInput).to.have.been
-          .calledOnce;
-        expect(
-          mockAtlasService.getAggregationFromUserInput.getCall(0)
-        ).to.have.nested.property('args[0].userInput', 'testing prompt');
-        expect(
-          mockAtlasService.getAggregationFromUserInput.getCall(0)
-        ).to.have.nested.property('args[0].collectionName', 'collection');
-        expect(
-          mockAtlasService.getAggregationFromUserInput.getCall(0)
-        ).to.have.nested.property('args[0].databaseName', 'database');
+        expect(fetchJsonStub).to.have.been.calledOnce;
+
+        const args = fetchJsonStub.getCall(0).args;
+        expect(args[0]).to.contain('ai/api/v1/mql-aggregation');
+        expect(args[1].method).to.equal('POST');
+
+        const body = JSON.parse(args[1].body);
+        expect(body).to.have.property('userInput', 'testing prompt');
+        expect(body).to.have.property('collectionName', 'collection');
+        expect(body).to.have.property('databaseName', 'database');
         // Sample documents are currently disabled.
-        expect(
-          mockAtlasService.getAggregationFromUserInput.getCall(0)
-        ).to.not.have.nested.property('args[0].sampleDocuments');
+        expect(body).to.not.have.property('sampleDocuments');
 
         expect(
           store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
@@ -79,14 +94,11 @@ describe('AIPipelineReducer', function () {
 
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
-        const mockAtlasService = {
-          on: sandbox.stub(),
-          getAggregationFromUserInput: sandbox
+        const store = await configureStore({
+          fetchJson: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
-        };
-
-        const store = configureStore({ atlasService: mockAtlasService as any });
+        });
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
@@ -105,11 +117,9 @@ describe('AIPipelineReducer', function () {
       it('resets the store if errs was caused by user being unauthorized', async function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
-        const mockAtlasService = {
-          on: sandbox.stub(),
-          getAggregationFromUserInput: sandbox.stub().rejects(authError),
-        };
-        const store = configureStore({ atlasService: mockAtlasService as any });
+        const store = await configureStore({
+          fetchJson: sandbox.stub().rejects(authError),
+        });
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(store.getState().pipelineBuilder.aiPipeline).to.deep.eq({
           status: 'ready',
@@ -125,8 +135,8 @@ describe('AIPipelineReducer', function () {
   });
 
   describe('cancelAIPipelineGeneration', function () {
-    it('should unset the fetching id and set the status on the store', function () {
-      const store = configureStore();
+    it('should unset the fetching id and set the status on the store', async function () {
+      const store = await configureStore();
       expect(
         store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
       ).to.equal(-1);
@@ -155,28 +165,14 @@ describe('AIPipelineReducer', function () {
   });
 
   describe('generateAggregationFromQuery', function () {
-    it('should create an aggregation pipeline', function () {
-      const mockAtlasService = {
-        on: sandbox.stub(),
-        getAggregationFromUserInput: sandbox.stub().resolves({
+    it('should create an aggregation pipeline', async function () {
+      const store = await configureStore({
+        fetchJson: sandbox.stub().resolves({
           content: {
             aggregation: { pipeline: '[{ $group: { _id: "$price" } }]' },
           },
         }),
-      };
-
-      const mockDataService = {
-        sample: sandbox.stub().resolves([{ _id: 42 }]),
-        getConnectionString: sandbox.stub().returns({ hosts: [] }),
-      };
-
-      const store = configureStore(
-        {
-          namespace: 'database.collection',
-          atlasService: mockAtlasService as any,
-        },
-        mockDataService as any
-      );
+      });
 
       // Set autoPreview false so that it doesn't start the
       // follow up async preview doc requests.

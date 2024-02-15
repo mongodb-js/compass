@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { stub } from 'sinon';
 import { Provider } from 'react-redux';
 import { GeneralSettings } from './general';
-import { configureStore } from '../../stores';
+import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 

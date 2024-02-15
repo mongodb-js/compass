@@ -3,14 +3,22 @@ import { EventEmitter } from 'events';
 import { screen, cleanup, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import type { Public } from '../../stores';
-import { configureStore } from '../../stores';
+import configureStore from '../../../test/configure-store';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { cancelAtlasLoginAttempt, signIn } from '../../stores/atlas-login';
 import { closeModal } from '../../stores/settings';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+
+class UserDataMock {
+  getUser = () => Promise.resolve({} as any);
+  updateConfig = () => Promise.resolve();
+}
 
 describe('AtlasLoginSettings', function () {
   const sandbox = Sinon.createSandbox();
@@ -21,28 +29,40 @@ describe('AtlasLoginSettings', function () {
 
   afterEach(function () {
     cleanup();
+    AtlasAiService['instance'] = null;
   });
 
   function renderAtlasLoginSettings(
-    atlasService: Partial<Public<AtlasService>>
+    atlasAuthService: Partial<Public<AtlasService>>,
+    atlasService: Partial<AtlasService> = {}
   ) {
+    const atlasServiceInstance = Object.assign(
+      new AtlasService(
+        new UserDataMock(),
+        new ReadOnlyPreferenceAccess(),
+        createNoopLoggerAndTelemetry()
+      ),
+      atlasService
+    );
     const store = configureStore({
-      atlasService: {
+      atlasAuthService: {
         on: sandbox.stub() as any,
-        ...atlasService,
+        signIn: sandbox.stub().resolves({}),
+        signOut: sandbox.stub().resolves(),
+        ...atlasAuthService,
       } as Public<AtlasService>,
+      atlasService: atlasServiceInstance,
     });
-    const result = render(
+    render(
       <Provider store={store}>
         <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
       </Provider>
     );
-    return { store, result };
+    return { store };
   }
 
   it('should sign in user when signed out and sign in is clicked', async function () {
     renderAtlasLoginSettings({
-      on: sandbox.stub() as any,
       signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     });
 
@@ -69,9 +89,7 @@ describe('AtlasLoginSettings', function () {
 
   it('should sign out user when signed in and sign out is clicked', async function () {
     const { store } = renderAtlasLoginSettings({
-      on: sandbox.stub() as any,
       signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
-      signOut: sandbox.stub().resolves(),
     });
 
     await store.dispatch(signIn());
@@ -108,12 +126,12 @@ describe('AtlasLoginSettings', function () {
 
   it('updates state with user info on `signed-in` event', async function () {
     const emitter = new EventEmitter();
-    const atlasService = {
+    const atlasAuthService = {
       on: emitter.on.bind(emitter),
       getUserInfo: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     } as any;
 
-    renderAtlasLoginSettings(atlasService);
+    renderAtlasLoginSettings(atlasAuthService);
 
     expect(
       screen.getByText(
@@ -134,12 +152,12 @@ describe('AtlasLoginSettings', function () {
 
   it('resets sign in state on `signed-out` event', async function () {
     const emitter = new EventEmitter();
-    const atlasService = {
+    const atlasAuthService = {
       on: emitter.on.bind(emitter),
       signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     } as any;
 
-    const { store } = renderAtlasLoginSettings(atlasService);
+    const { store } = renderAtlasLoginSettings(atlasAuthService);
 
     await store.dispatch(signIn());
 
@@ -162,12 +180,12 @@ describe('AtlasLoginSettings', function () {
 
   it('resets sign in state on `token-refresh-failed` event', async function () {
     const emitter = new EventEmitter();
-    const atlasService = {
+    const atlasAuthService = {
       on: emitter.on.bind(emitter),
       signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     } as any;
 
-    const { store } = renderAtlasLoginSettings(atlasService);
+    const { store } = renderAtlasLoginSettings(atlasAuthService);
 
     await store.dispatch(signIn());
 
@@ -190,7 +208,6 @@ describe('AtlasLoginSettings', function () {
 
   it('should cancel sign in attempt on modal close', function () {
     const { store } = renderAtlasLoginSettings({
-      on: sandbox.stub() as any,
       signIn: sandbox
         .stub()
         .callsFake(({ signal }: { signal: AbortSignal }) => {
@@ -222,15 +239,17 @@ describe('AtlasLoginSettings', function () {
   });
 
   it('should enable AI feature when toggle clicked', async function () {
-    const atlasService = {
-      on: sandbox.stub(),
+    const atlasAuthService = {
       signIn: sandbox
         .stub()
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
-      enableAIFeature: sandbox.stub().resolves(),
     };
 
-    const { store } = renderAtlasLoginSettings(atlasService);
+    const enableAIFeature = sandbox.spy();
+
+    const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
+      enableAIFeature,
+    });
 
     await store.dispatch(signIn());
 
@@ -248,7 +267,7 @@ describe('AtlasLoginSettings', function () {
       { skipPointerEventsCheck: true }
     );
 
-    expect(atlasService.enableAIFeature).to.have.been.calledOnce;
+    expect(enableAIFeature).to.have.been.calledOnce;
 
     await waitFor(() => {
       expect(
@@ -260,15 +279,17 @@ describe('AtlasLoginSettings', function () {
   });
 
   it('should disable AI feature when toggle clicked', async function () {
-    const atlasService = {
-      on: sandbox.stub(),
+    const atlasAuthService = {
       signIn: sandbox
         .stub()
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: true }),
-      disableAIFeature: sandbox.stub().resolves(),
     };
 
-    const { store } = renderAtlasLoginSettings(atlasService);
+    const disableAIFeature = sandbox.spy();
+
+    const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
+      disableAIFeature,
+    });
 
     await store.dispatch(signIn());
 
@@ -286,7 +307,7 @@ describe('AtlasLoginSettings', function () {
       { skipPointerEventsCheck: true }
     );
 
-    expect(atlasService.disableAIFeature).to.have.been.calledOnce;
+    expect(disableAIFeature).to.have.been.calledOnce;
 
     await waitFor(() => {
       expect(
@@ -298,15 +319,14 @@ describe('AtlasLoginSettings', function () {
   });
 
   it('should not reset sign in state if there is no sign in attempt in progress', async function () {
-    const atlasService = {
-      on: sandbox.stub(),
+    const atlasAuthService = {
       signIn: sandbox
         .stub()
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
       enableAIFeature: sandbox.stub().resolves(),
     };
 
-    const { store } = renderAtlasLoginSettings(atlasService);
+    const { store } = renderAtlasLoginSettings(atlasAuthService);
 
     await store.dispatch(signIn());
 

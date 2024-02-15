@@ -3,4 +3,4 @@ export {
   GenerativeAIInput,
   createAIPlaceholderHTMLPlaceholder,
 } from './components';
-export { GenerativeAiService } from './ai-client';
+export { AtlasAiService } from './atlas-ai-service';

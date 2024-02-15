@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { Modal as AtlasSignIn } from './atlas-signin';
 import { configureStore } from '../store/atlas-signin-store';
 import Sinon from 'sinon';
-import type { AtlasService } from '../renderer';
+import type { AtlasAuthService } from '../renderer';
 import { enableAIFeature, signIn } from '../store/atlas-signin-reducer';
 import { expect } from 'chai';
 
@@ -14,19 +14,18 @@ describe('AtlasSignIn', function () {
   const mockAtlasService = {
     isAuthenticated: sandbox.stub().resolves(false),
     signIn: sandbox.stub().resolves({ enabledAIFeature: false }),
-    updateAtlasUserConfig: sandbox.stub().resolves(),
     on: sandbox.stub(),
     emit: sandbox.stub(),
   };
 
   const renderAtlasSignIn = (
-    atlasService = mockAtlasService,
+    atlasAuthService = mockAtlasService,
     props: Partial<React.ComponentProps<typeof AtlasSignIn>> = {
       restoreStateOnMount: false,
     }
   ) => {
     const store = configureStore({
-      atlasService: atlasService as unknown as AtlasService,
+      atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
     });
     const result = render(
       <Provider store={store}>
@@ -105,9 +104,6 @@ describe('AtlasSignIn', function () {
       );
 
       expect(await enableAIFeaturePromise).to.eq(true);
-      expect(mockAtlasService.updateAtlasUserConfig).to.be.calledWith({
-        config: { enabledAIFeature: true },
-      });
     });
 
     it("returns `false` if user haven't AI feature terms and conditions", async function () {
@@ -120,9 +116,6 @@ describe('AtlasSignIn', function () {
       userEvent.click(screen.getByRole('button', { name: /Cancel/ }));
 
       expect(await enableAIFeaturePromise).to.eq(false);
-      expect(mockAtlasService.updateAtlasUserConfig).to.be.calledWith({
-        config: { enabledAIFeature: false },
-      });
     });
   });
 });

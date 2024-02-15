@@ -50,8 +50,8 @@ export class AtlasAuthService {
     return this._ipc;
   }
 
-  get getToken() {
-    return this.ipc.maybeGetToken;
+  getToken(options: { signal?: AbortSignal } = {}) {
+    return this.ipc.maybeGetToken(options);
   }
 
   get getUserInfo() {
@@ -164,4 +164,5 @@ export type { AtlasUserInfo, IntrospectInfo, Token } from './util';
 
 export { AtlasHttpApiClient } from './atlas-http-api-client';
 export { AtlasService } from './atlas-service';
-export { AtlasUserData, CompassAtlasUserData } from './atlas-user';
+export type { AtlasUserData } from './atlas-user';
+export { CompassAtlasUserData } from './atlas-user';

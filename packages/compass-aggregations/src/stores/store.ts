@@ -39,7 +39,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { GenerativeAiService } from '@mongodb-js/compass-generative-ai';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -182,7 +182,7 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
-        aiClient: GenerativeAiService.getInstance(atlasService),
+        atlasAiService: AtlasAiService.getInstance(atlasService),
       })
     )
   );

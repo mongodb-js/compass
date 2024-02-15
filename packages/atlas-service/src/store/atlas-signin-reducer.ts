@@ -547,8 +547,8 @@ export const enableAIFeature = (): AtlasSignInThunkAction<Promise<boolean>> => {
   };
 };
 
-export const disableAIFeature = (): AtlasSignInThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+export const disableAIFeature = (): AtlasSignInThunkAction<void> => {
+  return (dispatch, getState) => {
     const { userInfo, state } = getState();
 
     if (state !== 'success' || !userInfo) {

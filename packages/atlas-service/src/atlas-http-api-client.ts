@@ -1,5 +1,5 @@
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
-import { AtlasServiceConfig } from './util';
+import type { AtlasServiceConfig } from './util';
 import { AtlasAuthService as AtlasAuthServiceRenderer } from './renderer';
 
 export class AtlasHttpApiClient {
@@ -26,11 +26,14 @@ export class AtlasHttpApiClient {
     });
   };
   async fetch(url: RequestInfo, init: RequestInit = {}): Promise<Response> {
-    const token = await this.atlasLoginServiceRenderer
-      .getToken({
+    let token;
+    try {
+      token = await this.atlasLoginServiceRenderer.getToken({
         signal: init.signal as AbortSignal,
-      })
-      .catch(() => null);
+      });
+    } catch (e) {
+      // noop
+    }
     return await this.unAuthenticatedFetch(url, {
       ...init,
       headers: {

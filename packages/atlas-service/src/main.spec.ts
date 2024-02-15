@@ -1,11 +1,12 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
+import { AtlasService, getTrackingUserInfo } from './main';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
 import type { AtlasUserInfo } from './util';
+import { throwIfNotOk } from './util';
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -84,7 +85,6 @@ describe('AtlasServiceMain', function () {
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
-    AtlasService['getUserId'] = () => 'test';
 
     AtlasService['config'] = defaultConfig;
 
@@ -219,176 +219,6 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  const atlasAIServiceTests = [
-    {
-      functionName: 'getQueryFromUserInput',
-      aiEndpoint: 'mql-query',
-      responses: {
-        success: {
-          content: { query: { filter: "{ test: 'pineapple' }" } },
-        },
-        invalid: [
-          {},
-          { countent: {} },
-          { content: { qooery: {} } },
-          { content: { query: { filter: { foo: 1 } } } },
-        ],
-      },
-    },
-    {
-      functionName: 'getAggregationFromUserInput',
-      aiEndpoint: 'mql-aggregation',
-      responses: {
-        success: {
-          content: { aggregation: { pipeline: "[{ test: 'pineapple' }]" } },
-        },
-        invalid: [
-          {},
-          { content: { aggregation: {} } },
-          { content: { aggrogation: {} } },
-          { content: { aggregation: { pipeline: true } } },
-        ],
-      },
-    },
-  ] as const;
-
-  for (const { functionName, aiEndpoint, responses } of atlasAIServiceTests) {
-    describe(functionName, function () {
-      it('makes a post request with the user input to the endpoint in the environment', async function () {
-        AtlasService['fetch'] = sandbox.stub().resolves({
-          ok: true,
-          json() {
-            return Promise.resolve(responses.success);
-          },
-        }) as any;
-
-        const res = await AtlasService[functionName]({
-          userInput: 'test',
-          signal: new AbortController().signal,
-          collectionName: 'jam',
-          databaseName: 'peanut',
-          schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
-          sampleDocuments: [{ _id: 1234 }],
-        });
-
-        const { args } = (
-          AtlasService['fetch'] as unknown as Sinon.SinonStub
-        ).getCall(0);
-
-        expect(AtlasService['fetch']).to.have.been.calledOnce;
-        expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
-        expect(args[1].body).to.eq(
-          '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
-        );
-        expect(res).to.deep.eq(responses.success);
-      });
-
-      it('should fail when response is not matching expected schema', async function () {
-        for (const res of responses.invalid) {
-          AtlasService['fetch'] = sandbox.stub().resolves({
-            ok: true,
-            json() {
-              return Promise.resolve(res);
-            },
-          }) as any;
-          try {
-            await AtlasService[functionName]({
-              userInput: 'test',
-              collectionName: 'test',
-              databaseName: 'peanut',
-            });
-            expect.fail(`Expected ${functionName} to throw`);
-          } catch (err) {
-            expect((err as Error).message).to.match(/Unexpected.+?response/);
-          }
-        }
-      });
-
-      it('uses the abort signal in the fetch request', async function () {
-        const c = new AbortController();
-        c.abort();
-        try {
-          await AtlasService[functionName]({
-            signal: c.signal,
-            userInput: 'test',
-            collectionName: 'test',
-            databaseName: 'peanut',
-          });
-          expect.fail(`Expected ${functionName} to throw`);
-        } catch (err) {
-          expect(err).to.have.property('message', 'This operation was aborted');
-        }
-      });
-
-      it('throws if the request would be too much for the ai', async function () {
-        try {
-          await AtlasService[functionName]({
-            userInput: 'test',
-            collectionName: 'test',
-            databaseName: 'peanut',
-            sampleDocuments: [{ test: '4'.repeat(60000) }],
-          });
-          expect.fail(`Expected ${functionName} to throw`);
-        } catch (err) {
-          expect(err).to.have.property(
-            'message',
-            'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-          );
-        }
-      });
-
-      it('passes fewer documents if the request would be too much for the ai with all of the documents', async function () {
-        AtlasService['fetch'] = sandbox.stub().resolves({
-          ok: true,
-          json() {
-            return Promise.resolve(responses.success);
-          },
-        }) as any;
-
-        await AtlasService[functionName]({
-          userInput: 'test',
-          collectionName: 'test.test',
-          databaseName: 'peanut',
-          sampleDocuments: [
-            { a: '1' },
-            { a: '2' },
-            { a: '3' },
-            { a: '4'.repeat(50000) },
-          ],
-        });
-
-        const { args } = (
-          AtlasService['fetch'] as unknown as Sinon.SinonStub
-        ).getCall(0);
-
-        expect(AtlasService['fetch']).to.have.been.calledOnce;
-        expect(args[1].body).to.eq(
-          '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
-        );
-      });
-
-      it('throws the error', async function () {
-        AtlasService['fetch'] = sandbox.stub().resolves({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: sandbox.stub().rejects(new Error('invalid json')),
-        }) as any;
-
-        try {
-          await AtlasService[functionName]({
-            userInput: 'test',
-            collectionName: 'test.test',
-            databaseName: 'peanut',
-          });
-          expect.fail(`Expected ${functionName} to throw`);
-        } catch (err) {
-          expect(err).to.have.property('message', '500: Internal Server Error');
-        }
-      });
-    });
-  }
-
   describe('throwIfNotOk', function () {
     it('should not throw if res is ok', async function () {
       await throwIfNotOk({
@@ -445,15 +275,11 @@ describe('AtlasServiceMain', function () {
 
   describe('init', function () {
     it('should try to restore service state by fetching user info', async function () {
-      await AtlasService.init(defaultConfig, {
-        preferences,
-        getUserId: AtlasService['getUserId'],
-      });
+      await AtlasService.init(defaultConfig, preferences);
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
       ).to.have.been.calledOnce;
-      expect(AtlasService['currentUser']).to.have.property('sub', '1234');
     });
   });
 
@@ -468,9 +294,6 @@ describe('AtlasServiceMain', function () {
       'getUserInfo',
       'introspect',
       'revoke',
-      'getAIFeatureEnablement',
-      'getAggregationFromUserInput',
-      'getQueryFromUserInput',
     ]) {
       it(`${methodName} should throw`, async function () {
         try {
@@ -491,10 +314,7 @@ describe('AtlasServiceMain', function () {
       const logger = new EventEmitter();
       AtlasService['openExternal'] = sandbox.stub().resolves();
       AtlasService['oidcPluginLogger'] = logger;
-      await AtlasService.init(defaultConfig, {
-        preferences,
-        getUserId: AtlasService['getUserId'],
-      });
+      await AtlasService.init(defaultConfig, preferences);
       expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
@@ -532,129 +352,6 @@ describe('AtlasServiceMain', function () {
       ).to.deep.eq({
         auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
       });
-    });
-  });
-
-  describe('setupAIAccess', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        cloudFeatureRolloutAccess: undefined,
-      });
-    });
-
-    it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: {
-              GEN_AI_COMPASS: {
-                enabled: true,
-              },
-            },
-          });
-        },
-      });
-      AtlasService['fetch'] = fetchStub;
-
-      let currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-      await AtlasService.setupAIAccess();
-
-      const { args } = fetchStub.getCall(0);
-
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
-
-      currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-        GEN_AI_COMPASS: true,
-      });
-    });
-
-    it('should set the cloudFeatureRolloutAccess false when returned false', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: {
-              GEN_AI_COMPASS: {
-                enabled: false,
-              },
-            },
-          });
-        },
-      });
-      AtlasService['fetch'] = fetchStub;
-
-      let currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-      await AtlasService.setupAIAccess();
-
-      const { args } = fetchStub.getCall(0);
-
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
-
-      currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-        GEN_AI_COMPASS: false,
-      });
-    });
-
-    it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: null,
-          });
-        },
-      });
-      AtlasService['fetch'] = fetchStub;
-
-      let currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-      await AtlasService.setupAIAccess();
-
-      const { args } = fetchStub.getCall(0);
-
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
-
-      currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-        GEN_AI_COMPASS: false,
-      });
-    });
-
-    it('should not set the cloudFeatureRolloutAccess false when returned false', async function () {
-      const fetchStub = sandbox.stub().throws(new Error('error'));
-      AtlasService['fetch'] = fetchStub;
-
-      let currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-      await AtlasService.setupAIAccess();
-
-      const { args } = fetchStub.getCall(0);
-
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
-
-      currentCloudFeatureRolloutAccess =
-        preferences.getPreferences().cloudFeatureRolloutAccess;
-      expect(currentCloudFeatureRolloutAccess).to.deep.equal(undefined);
     });
   });
 });
