@@ -66,8 +66,9 @@ describe('Connection Component', function () {
               connectionOptions: {
                 connectionString: '',
               },
-              userFavorite: true,
-              name: 'aaa',
+              favorite: {
+                name: 'aaa',
+              },
             }}
             onClick={onClickSpy}
             onDoubleClick={onDoubleClickSpy}
@@ -93,8 +94,9 @@ describe('Connection Component', function () {
               connectionOptions: {
                 connectionString: '',
               },
-              userFavorite: true,
-              name: 'aaa',
+              favorite: {
+                name: 'aaa',
+              },
             }}
             onClick={onClickSpy}
             onDoubleClick={onDoubleClickSpy}
@@ -211,8 +213,9 @@ describe('Connection Component', function () {
             connectionOptions: {
               connectionString: '',
             },
-            userFavorite: true,
-            name: '123',
+            favorite: {
+              name: '123',
+            },
           }}
           onClick={onClickSpy}
           onDoubleClick={onDoubleClickSpy}
@@ -248,8 +251,9 @@ describe('Connection Component', function () {
             connectionOptions: {
               connectionString: 'double-click.com',
             },
-            userFavorite: true,
-            name: 'double-click',
+            favorite: {
+              name: 'double-click',
+            },
           }}
           onClick={onClickSpy}
           onDoubleClick={onDoubleClickSpy}
@@ -276,8 +280,9 @@ describe('Connection Component', function () {
         connectionOptions: {
           connectionString: 'double-click.com',
         },
-        userFavorite: true,
-        name: 'double-click',
+        favorite: {
+          name: 'double-click',
+        },
       });
     });
   });
