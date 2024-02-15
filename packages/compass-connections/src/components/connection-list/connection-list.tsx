@@ -255,7 +255,7 @@ function ConnectionList({
             <li
               data-testid="favorite-connection"
               data-id={`favorite-connection-${
-                connectionInfo.favorite?.name || ''
+                connectionInfo?.favorite?.name || ''
               }`}
               key={`${connectionInfo.id || ''}-${index}`}
             >

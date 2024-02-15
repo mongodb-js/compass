@@ -12,13 +12,15 @@ export interface ConnectionInfo {
   lastUsed?: Date;
 
   /**
-   * Favourite information. We keep it so we don't have to change the connection storage.
+   * If present the connection is marked as a favorite by the user.
    */
   favorite?: ConnectionFavoriteOptions;
+
   /**
    * Saved connection type. Legacy favorite connections will be mapped as 'favorite'.
    */
   savedConnectionType?: 'favorite' | 'recent';
+
   /**
    * The options used to connect
    */
@@ -26,7 +28,14 @@ export interface ConnectionInfo {
 }
 
 export interface ConnectionFavoriteOptions {
+  /**
+   * User-defined name of the connection.
+   */
   name: string;
+
+  /**
+   * Hex-code of the user-defined color.
+   */
   color?: string;
 }
 
