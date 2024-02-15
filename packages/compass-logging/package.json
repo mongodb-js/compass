@@ -20,7 +20,7 @@
   },
   "files": [
     "dist",
-    "provier.js"
+    "provider.js"
   ],
   "license": "SSPL",
   "peerDependencies": {

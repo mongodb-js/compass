@@ -12,6 +12,10 @@ import { BSON, Decimal128 } from 'bson';
 import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
+import {
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {
@@ -23,6 +27,8 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     },
   },
   instance: { on() {}, removeListener() {} } as any,
+  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+  recentQueryStorageAccess: compassRecentQueryStorageAccess,
 });
 
 function renderField(
