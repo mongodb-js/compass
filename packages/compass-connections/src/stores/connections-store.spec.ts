@@ -11,29 +11,35 @@ import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   type ConnectionProvider,
-  DesktopConnectionProvider,
+  CompassConnectionProvider,
+  type ConnectionInfo,
+  ConnectionProviderContext,
 } from '@mongodb-js/connection-storage/main';
 
 const noop = (): any => {
   /* no-op */
 };
 
-const mockConnections = [
+const mockConnections: ConnectionInfo[] = [
   {
     id: 'turtle',
     connectionOptions: {
       connectionString: 'mongodb://turtle',
     },
-    userFavorite: true,
-    name: 'turtles',
+    favorite: {
+      name: 'turtles',
+    },
+    savedConnectionType: 'favorite',
   },
   {
     id: 'oranges',
     connectionOptions: {
       connectionString: 'mongodb://peaches',
     },
-    userFavorite: true,
-    name: 'peaches',
+    favorite: {
+      name: 'peaches',
+    },
+    savedConnectionType: 'favorite',
   },
 ];
 
@@ -50,7 +56,15 @@ describe('use-connections hook', function () {
     const preferences = await createSandboxFromDefaultPreferences();
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(PreferencesProvider, { children, value: preferences });
+        createElement(PreferencesProvider, {
+          value: preferences,
+          children: [
+            createElement(ConnectionProviderContext.Provider, {
+              value: connectionProvider,
+              children,
+            }),
+          ],
+        });
       return renderHook(callback, { wrapper, ...options });
     };
     await preferences.savePreferences({ persistOIDCTokens: false });
@@ -69,7 +83,7 @@ describe('use-connections hook', function () {
       load: loadSpy,
     };
 
-    connectionProvider = new DesktopConnectionProvider(mockConnectionStorage);
+    connectionProvider = new CompassConnectionProvider(mockConnectionStorage);
   });
 
   afterEach(cleanup);
@@ -82,7 +96,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -101,16 +114,25 @@ describe('use-connections hook', function () {
         connectionString: 'mongodb://turtle',
       };
       const loadAllSpyWithData = sinon.fake.resolves([
-        { id: '1', userFavorite: true, name: 'bcd', connectionOptions },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'bcd' },
+          connectionOptions,
+        },
         { id: '2', lastUsed: new Date(), connectionOptions },
-        { id: '3', userFavorite: true, name: 'abc', connectionOptions },
+        {
+          id: '3',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'abc' },
+          connectionOptions,
+        },
       ]);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -121,16 +143,18 @@ describe('use-connections hook', function () {
         expect(result.current.favoriteConnections).to.deep.equal([
           {
             id: '3',
-            userFavorite: true,
-            name: 'abc',
-            status: 'disconnected',
+            favorite: {
+              name: 'abc',
+            },
+            savedConnectionType: 'favorite',
             connectionOptions,
           },
           {
             id: '1',
-            userFavorite: true,
-            name: 'bcd',
-            status: 'disconnected',
+            favorite: {
+              name: 'bcd',
+            },
+            savedConnectionType: 'favorite',
             connectionOptions,
           },
         ])
@@ -142,20 +166,35 @@ describe('use-connections hook', function () {
         connectionString: 'mongodb://turtle',
       };
       const loadAllSpyWithData = sinon.fake.resolves([
-        { id: '1', userFavorite: true, name: 'bcd', connectionOptions },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'bcd' },
+          connectionOptions,
+        },
         {
           id: '2',
-          userFavorite: false,
-          name: '2',
+          savedConnectionType: 'recent',
+          favorite: { name: '2' },
           lastUsed: new Date(1647020087550),
           connectionOptions,
         },
-        { id: '3', userFavorite: true, name: 'abc', connectionOptions },
-        { id: '4', userFavorite: false, name: '4', connectionOptions }, // very old recent connection without lastUsed
+        {
+          id: '3',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'abc' },
+          connectionOptions,
+        },
+        {
+          id: '4',
+          savedConnectionType: 'recent',
+          favorite: { name: '4' },
+          connectionOptions,
+        }, // very old recent connection without lastUsed
         {
           id: '5',
-          userFavorite: false,
-          name: '5',
+          savedConnectionType: 'recent',
+          favorite: { name: '5' },
           lastUsed: new Date(1647020087551),
           connectionOptions,
         },
@@ -165,7 +204,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -179,24 +217,21 @@ describe('use-connections hook', function () {
       expect(result.current.recentConnections).to.deep.equal([
         {
           id: '2',
-          userFavorite: false,
-          name: '2',
-          status: 'disconnected',
+          savedConnectionType: 'recent',
+          favorite: { name: '2' },
           lastUsed: new Date(1647020087550),
           connectionOptions,
         },
         {
           id: '4',
-          name: '4',
-          userFavorite: false,
-          status: 'disconnected',
+          savedConnectionType: 'recent',
+          favorite: { name: '4' },
           connectionOptions,
         },
         {
           id: '5',
-          userFavorite: false,
-          name: '5',
-          status: 'disconnected',
+          savedConnectionType: 'recent',
+          favorite: { name: '5' },
           lastUsed: new Date(1647020087551),
           connectionOptions,
         },
@@ -266,7 +301,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionProvider,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -283,8 +317,10 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://aba',
             },
-            userFavorite: true,
-            name: 'not peaches',
+            savedConnectionType: 'favorite',
+            favorite: {
+              name: 'not peaches',
+            },
           });
         });
 
@@ -302,15 +338,16 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://aba',
           },
-          userFavorite: true,
-          name: 'not peaches',
-          status: 'disconnected',
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'not peaches',
+          },
         });
       });
 
       it('clones the existing connection when it is updated', function () {
         expect(hookResult.current.favoriteConnections[0]).to.not.equal(
-          mockConnections[1]
+          hookResult.current.favoriteConnections[1]
         );
         expect(
           hookResult.current.favoriteConnections[0].connectionOptions
@@ -323,7 +360,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionProvider,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -335,8 +371,10 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://bacon',
             },
-            userFavorite: true,
-            name: 'bacon',
+            savedConnectionType: 'favorite',
+            favorite: {
+              name: 'bacon',
+            },
           });
         });
       });
@@ -352,7 +390,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionProvider,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -364,8 +401,10 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'bacon',
             },
-            userFavorite: true,
-            name: 'bacon',
+            savedConnectionType: 'favorite',
+            favorite: {
+              name: 'bacon',
+            },
           });
         });
 
@@ -389,7 +428,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionProvider,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -411,8 +449,10 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://nice',
             },
-            userFavorite: true,
-            name: 'snakes! ah!',
+            savedConnectionType: 'favorite',
+            favorite: {
+              name: 'snakes! ah!',
+            },
           });
         });
 
@@ -426,8 +466,10 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://nice',
           },
-          userFavorite: true,
-          name: 'snakes! ah!',
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'snakes! ah!',
+          },
         });
       });
     });
@@ -440,24 +482,30 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: '',
           },
-          userFavorite: true,
-          name: 'Dolphin',
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'Dolphin',
+          },
         },
         {
           id: 'turtle',
           connectionOptions: {
             connectionString: '',
           },
-          userFavorite: false,
-          name: 'turtle',
+          savedConnectionType: 'recent',
+          favorite: {
+            name: 'turtle',
+          },
         },
         {
           id: 'oranges',
           connectionOptions: {
             connectionString: '',
           },
-          userFavorite: false,
-          name: 'oranges',
+          savedConnectionType: 'recent',
+          favorite: {
+            name: 'oranges',
+          },
         },
       ];
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
@@ -466,7 +514,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -491,7 +538,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -524,7 +570,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -557,16 +602,20 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://turtle',
           },
-          userFavorite: true,
-          name: 'turtles',
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'turtles',
+          },
         },
         {
           id: 'oranges',
           connectionOptions: {
             connectionString: 'mongodb://peaches',
           },
-          userFavorite: true,
-          name: 'peaches',
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'peaches',
+          },
         },
       ];
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
@@ -575,7 +624,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionProvider,
           connectFn: noop,
           appName: 'Test App Name',
         })
