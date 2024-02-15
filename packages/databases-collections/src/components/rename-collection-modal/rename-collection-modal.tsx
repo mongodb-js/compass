@@ -24,6 +24,7 @@ export interface RenameCollectionModalProps {
   initialCollectionName: string;
   collections: { name: string }[];
   isRunning: boolean;
+  areSavedQueriesAndAggregationsImpacted: boolean;
   hideModal: () => void;
   renameCollection: (newCollectionName: string) => void;
   clearError: () => void;
@@ -66,6 +67,7 @@ function RenameCollectionModal({
   error,
   initialCollectionName,
   collections,
+  areSavedQueriesAndAggregationsImpacted,
   isRunning,
   hideModal,
   renameCollection,
@@ -172,7 +174,9 @@ function RenameCollectionModal({
       )}
       {modalState === 'confirmation-screen' && (
         <ConfirmationModalContent
-          areSavedQueriesAndAggregationsImpacted={false}
+          areSavedQueriesAndAggregationsImpacted={
+            areSavedQueriesAndAggregationsImpacted
+          }
         />
       )}
       {isRunning && (
