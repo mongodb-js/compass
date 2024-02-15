@@ -1,4 +1,4 @@
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ConnectionStorage } from './connection-storage';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
