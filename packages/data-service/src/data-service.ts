@@ -2389,14 +2389,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ? this._crudClient
         : this._metadataClient;
     if (!client) {
-      throw new Error('Client not yet initialized');
+      throw new Error(`Client not yet initialized [${type}]`);
     }
     return client;
   }
 
   private _getCSFLECollectionTracker(): CSFLECollectionTracker {
     if (!this._csfleCollectionTracker) {
-      throw new Error('Client not yet initialized');
+      throw new Error(`Client not yet initialized [CSFLECollectionTracker]`);
     }
     return this._csfleCollectionTracker;
   }
