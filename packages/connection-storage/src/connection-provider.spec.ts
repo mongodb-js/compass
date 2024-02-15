@@ -1,5 +1,5 @@
 import { ConnectionInfo } from '@mongodb-js/connection-info';
-import { DesktopConnectionProvider } from './connection-provider';
+import { CompassConnectionProvider } from './connection-provider';
 import chai, { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionStorage } from './connection-storage';
@@ -29,10 +29,18 @@ function mockStorage(): typeof ConnectionStorage {
 describe('DesktopConnectionProvider', function () {
   describe('#listConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
-      const provider = new DesktopConnectionProvider(
+      const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
-          { id: '1', userFavorite: false, name: 'not webscale' },
-          { id: '2', userFavorite: true, name: 'webscale' },
+          {
+            id: '1',
+            savedConnectionType: 'recent',
+            favorite: { name: 'not webscale' },
+          },
+          {
+            id: '2',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'webscale' },
+          },
         ])
       );
 
@@ -42,10 +50,18 @@ describe('DesktopConnectionProvider', function () {
     });
 
     it('should return favourite connections sorted by name alphabetically', async function () {
-      const provider = new DesktopConnectionProvider(
+      const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
-          { id: '2', userFavorite: true, name: 'Bb' },
-          { id: '1', userFavorite: true, name: 'Aa' },
+          {
+            id: '2',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'Bb' },
+          },
+          {
+            id: '1',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'Aa' },
+          },
         ])
       );
 
@@ -58,24 +74,32 @@ describe('DesktopConnectionProvider', function () {
 
   describe('#listConnectionHistory', function () {
     it('should return non favourite connections as disconnected', async function () {
-      const provider = new DesktopConnectionProvider(
+      const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
-          { id: '1', userFavorite: false, name: 'not webscale' },
-          { id: '2', userFavorite: true, name: 'webscale' },
+          {
+            id: '1',
+            savedConnectionType: 'recent',
+            favorite: { name: 'not webscale' },
+          },
+          {
+            id: '2',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'webscale' },
+          },
         ])
       );
 
       const connections = await provider.listConnectionHistory();
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('1');
-      expect(connections[0].name).to.equal('not webscale');
+      expect(connections[0].favorite?.name).to.equal('not webscale');
     });
 
     it('should return non favourite connections sorted by name alphabetically', async function () {
-      const provider = new DesktopConnectionProvider(
+      const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
-          { id: '2', userFavorite: false, name: 'Bb' },
-          { id: '1', userFavorite: false, name: 'Aa' },
+          { id: '2', savedConnectionType: 'recent', favorite: { name: 'Bb' } },
+          { id: '1', savedConnectionType: 'recent', favorite: { name: 'Aa' } },
         ])
       );
 
@@ -89,7 +113,7 @@ describe('DesktopConnectionProvider', function () {
   describe('#saveConnection', function () {
     it('should save a new connection if it has a valid connection string', async function () {
       const storage = mockStorage();
-      const provider = new DesktopConnectionProvider(storage);
+      const provider = new CompassConnectionProvider(storage);
       const connectionToSave = {
         id: '1',
         connectionOptions: { connectionString: 'mongodb://localhost:27017' },
@@ -104,10 +128,10 @@ describe('DesktopConnectionProvider', function () {
 
     it('should merge the connection info is one was already saved with the same id', async function () {
       const storage = mockStorageWithConnections([
-        { id: '1', userFavorite: true },
+        { id: '1', savedConnectionType: 'favorite' },
       ]);
 
-      const provider = new DesktopConnectionProvider(storage);
+      const provider = new CompassConnectionProvider(storage);
       const connectionToSave = {
         id: '1',
         connectionOptions: { connectionString: 'mongodb://localhost:27017' },
@@ -118,7 +142,7 @@ describe('DesktopConnectionProvider', function () {
       expect(storage.save).to.have.been.calledOnceWith({
         connectionInfo: {
           id: '1',
-          userFavorite: true,
+          savedConnectionType: 'favorite',
           connectionOptions: { connectionString: 'mongodb://localhost:27017' },
         },
       });
@@ -126,7 +150,7 @@ describe('DesktopConnectionProvider', function () {
 
     it('should not save a new connection if it has an invalid connection string', async function () {
       const storage = mockStorage();
-      const provider = new DesktopConnectionProvider(storage);
+      const provider = new CompassConnectionProvider(storage);
 
       await expect(
         provider.saveConnection({
@@ -142,7 +166,7 @@ describe('DesktopConnectionProvider', function () {
   describe('#deleteConnection', function () {
     it('should delete a saved connection from the underlying storage', async function () {
       const storage = mockStorage();
-      const provider = new DesktopConnectionProvider(storage);
+      const provider = new CompassConnectionProvider(storage);
       const connectionToDelete = {
         id: '1',
         connectionOptions: { connectionString: '' },
