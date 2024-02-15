@@ -1,28 +1,43 @@
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { CompassConnectionProvider } from './connection-provider';
 import chai, { expect } from 'chai';
 import Sinon from 'sinon';
-import { ConnectionStorage } from './connection-storage';
+import type { ConnectionStorage } from './connection-storage';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
+type StorageContext = {
+  storage: typeof ConnectionStorage;
+  saveStub: Sinon.SinonStub;
+  deleteStub: Sinon.SinonStub;
+};
+
 function mockStorageWithConnections(
   connections: Partial<ConnectionInfo>[]
-): typeof ConnectionStorage {
+): StorageContext {
+  const saveStub = Sinon.stub();
+  const deleteStub = Sinon.stub();
+
   return {
-    async loadAll() {
-      return connections;
-    },
-    async load({ id }: { id: string }) {
-      return connections.find((c) => c.id === id);
-    },
-    save: Sinon.stub(),
-    delete: Sinon.stub(),
-  } as any; // we don't need to implement the whole ConnectionStorage
+    storage: {
+      loadAll(): Promise<ConnectionInfo[]> {
+        return Promise.resolve(connections as ConnectionInfo[]);
+      },
+      async load({ id }: { id: string }): Promise<ConnectionInfo> {
+        return Promise.resolve(
+          connections.find((c) => c.id === id) as ConnectionInfo
+        );
+      },
+      save: saveStub,
+      delete: deleteStub,
+    } as any,
+    saveStub,
+    deleteStub,
+  };
 }
 
-function mockStorage(): typeof ConnectionStorage {
+function mockStorage(): StorageContext {
   return mockStorageWithConnections([]);
 }
 
@@ -41,7 +56,7 @@ describe('DesktopConnectionProvider', function () {
             savedConnectionType: 'favorite',
             favorite: { name: 'webscale' },
           },
-        ])
+        ]).storage
       );
 
       const connections = await provider.listConnections();
@@ -62,7 +77,7 @@ describe('DesktopConnectionProvider', function () {
             savedConnectionType: 'favorite',
             favorite: { name: 'Aa' },
           },
-        ])
+        ]).storage
       );
 
       const connections = await provider.listConnections();
@@ -86,7 +101,7 @@ describe('DesktopConnectionProvider', function () {
             savedConnectionType: 'favorite',
             favorite: { name: 'webscale' },
           },
-        ])
+        ]).storage
       );
 
       const connections = await provider.listConnectionHistory();
@@ -100,7 +115,7 @@ describe('DesktopConnectionProvider', function () {
         mockStorageWithConnections([
           { id: '2', savedConnectionType: 'recent', favorite: { name: 'Bb' } },
           { id: '1', savedConnectionType: 'recent', favorite: { name: 'Aa' } },
-        ])
+        ]).storage
       );
 
       const connections = await provider.listConnectionHistory();
@@ -112,7 +127,7 @@ describe('DesktopConnectionProvider', function () {
 
   describe('#saveConnection', function () {
     it('should save a new connection if it has a valid connection string', async function () {
-      const storage = mockStorage();
+      const { storage, saveStub } = mockStorage();
       const provider = new CompassConnectionProvider(storage);
       const connectionToSave = {
         id: '1',
@@ -121,13 +136,13 @@ describe('DesktopConnectionProvider', function () {
 
       await provider.saveConnection(connectionToSave);
 
-      expect(storage.save).to.have.been.calledOnceWith({
+      expect(saveStub).to.have.been.calledOnceWith({
         connectionInfo: connectionToSave,
       });
     });
 
     it('should merge the connection info is one was already saved with the same id', async function () {
-      const storage = mockStorageWithConnections([
+      const { storage, saveStub } = mockStorageWithConnections([
         { id: '1', savedConnectionType: 'favorite' },
       ]);
 
@@ -139,7 +154,7 @@ describe('DesktopConnectionProvider', function () {
 
       await provider.saveConnection(connectionToSave);
 
-      expect(storage.save).to.have.been.calledOnceWith({
+      expect(saveStub).to.have.been.calledOnceWith({
         connectionInfo: {
           id: '1',
           savedConnectionType: 'favorite',
@@ -149,7 +164,7 @@ describe('DesktopConnectionProvider', function () {
     });
 
     it('should not save a new connection if it has an invalid connection string', async function () {
-      const storage = mockStorage();
+      const { storage, saveStub } = mockStorage();
       const provider = new CompassConnectionProvider(storage);
 
       await expect(
@@ -159,13 +174,13 @@ describe('DesktopConnectionProvider', function () {
         })
       ).to.be.rejected;
 
-      expect(storage.save).to.not.have.been.calledOnce;
+      expect(saveStub).to.not.have.been.calledOnce;
     });
   });
 
   describe('#deleteConnection', function () {
     it('should delete a saved connection from the underlying storage', async function () {
-      const storage = mockStorage();
+      const { storage, deleteStub } = mockStorage();
       const provider = new CompassConnectionProvider(storage);
       const connectionToDelete = {
         id: '1',
@@ -174,7 +189,7 @@ describe('DesktopConnectionProvider', function () {
 
       await provider.deleteConnection(connectionToDelete);
 
-      expect(storage.delete).to.have.been.calledOnceWith(connectionToDelete);
+      expect(deleteStub).to.have.been.calledOnceWith(connectionToDelete);
     });
   });
 });

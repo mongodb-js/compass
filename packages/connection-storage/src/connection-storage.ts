@@ -311,7 +311,6 @@ export class ConnectionStorage {
           )
       );
     } catch (err) {
-      console.error('loadAll', err);
       log.error(
         mongoLogId(1_001_000_101),
         'Connection Storage',
