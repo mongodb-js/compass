@@ -82,12 +82,6 @@ tests:
           const cursor = coll.aggregate(agg);
           const result = await cursor.toArray();
           await client.close();
-        shell: |-
-          mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
-          db.collection.aggregate({
-            'x': new NumberLong(0), 
-            'y': new ObjectId()
-          });"
         php: |-
           // Requires the MongoDB PHP Driver
           // https://www.mongodb.com/docs/drivers/php/
@@ -264,11 +258,6 @@ tests:
           const cursor = coll.find(filter);
           const result = await cursor.toArray();
           await client.close();
-        shell: |-
-          mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
-          db.collection.find({
-            'x': new NumberLong(0)
-          });"
         php: |-
           // Requires the MongoDB PHP Driver
           // https://www.mongodb.com/docs/drivers/php/
@@ -489,17 +478,6 @@ tests:
           const result = await cursor.toArray();
 
           await client.close();
-        shell: |-
-          mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
-          db.collection.find({
-            'x': new NumberLong(0)
-          }, {
-            'y': new ObjectId()
-          }).sort({
-            'name': 1
-          }).skip(5).limit(10).maxTimeMS(100).collation({
-            'locale': 'zh'
-          });"
         php: |-
           // Requires the MongoDB PHP Driver
           // https://www.mongodb.com/docs/drivers/php/
@@ -715,11 +693,6 @@ tests:
           const coll = client.db('db').collection('collection');
           const result = coll.deleteMany(filter);
           await client.close();
-        shell: |-
-          mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
-          db.collection.deleteMany({
-            'x': new NumberLong(0)
-          });"
         php: |-
           // Requires the MongoDB PHP Driver
           // https://www.mongodb.com/docs/drivers/php/

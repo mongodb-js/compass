@@ -32,6 +32,10 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
       ObjectId: bson.ObjectId,
       BSONSymbol: bson.BSONSymbol,
       Timestamp: bson.Timestamp,
+      Decimal128: bson.Decimal128,
+      Long: bson.Long,
+      Int32: bson.Int32,
+      Double: bson.Double,
       Code: function(c, s) {
         return new bson.Code(c, s);
       },
@@ -86,7 +90,13 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
    * @return {String}
    */
   processNumberDecimal(ctx) {
+    const insp = require('util').inspect;
+    const types = [];
+    types.push(insp(ctx.type));
     ctx.type = this.Types.NumberDecimal;
+
+    types.push(insp(ctx.type));
+
     const symbolType = this.Symbols.NumberDecimal;
     let decstr;
     try {
@@ -104,9 +114,19 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
 
     const res = this.returnFunctionCallLhsRhs(lhs, [decstr], symbolType, lhs);
 
-    return this.Syntax.new.template
-      ? this.Syntax.new.template(res, false, ctx.type.code)
-      : this.returnFunctionCallLhsRhs(lhs, [decstr], symbolType, lhs);
+    try {
+      return this.Syntax.new.template
+        ? this.Syntax.new.template(res, false, ctx.type.code)
+        : this.returnFunctionCallLhsRhs(lhs, [decstr], symbolType, lhs);
+    } catch (e) {
+      throw new Error(insp({
+        src: ctx.getText(),
+        typesArr: types,
+        type: ctx.type,
+        types: this.Types,
+        newT: this.Syntax.new
+      }));
+    }
   }
 
   /**
