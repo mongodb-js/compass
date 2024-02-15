@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
@@ -512,7 +511,3 @@ export class ConnectionStorage {
     return serializeConnections(exportConnections, restOfOptions);
   }
 }
-
-export const ConnectionStorageContext = createContext<
-  typeof ConnectionStorage | null
->(null);

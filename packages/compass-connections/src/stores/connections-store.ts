@@ -283,7 +283,10 @@ export function useConnections({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
-  const connectionProvider = useContext(ConnectionProviderContext);
+  const connectionProvider = useContext(
+    ConnectionProviderContext
+  ) as ConnectionProvider;
+
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
   const forceConnectionOptions = usePreference('forceConnectionOptions') ?? [];

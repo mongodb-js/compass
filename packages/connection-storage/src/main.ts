@@ -4,10 +4,8 @@ export {
   ConnectionProviderContext,
   type ConnectionProvider,
 } from './connection-provider';
-export {
-  ConnectionStorage,
-  ConnectionStorageContext,
-} from './connection-storage';
+export { ConnectionStorage } from './connection-storage';
+export { ConnectionStorageContext } from './renderer';
 export type {
   ExportConnectionOptions,
   ImportConnectionOptions,

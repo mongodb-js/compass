@@ -175,9 +175,9 @@ function notifyMainProcessOfDisconnect() {
   void hadronIpc.ipcRenderer?.call('compass:disconnected');
 }
 
-export const CompassConnectionProviderContext: React.FunctionComponent<
-  void
-> = ({ children }) => {
+export const CompassConnectionProviderContext: React.FunctionComponent<{}> = ({
+  children,
+}) => {
   const storage = useContext(ConnectionStorageContext);
   if (!storage) {
     throw new Error(
