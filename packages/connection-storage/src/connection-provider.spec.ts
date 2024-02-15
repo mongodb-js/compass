@@ -41,7 +41,7 @@ function mockStorage(): StorageContext {
   return mockStorageWithConnections([]);
 }
 
-describe('DesktopConnectionProvider', function () {
+describe('CompassConnectionProvider', function () {
   describe('#listConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
       const provider = new CompassConnectionProvider(
