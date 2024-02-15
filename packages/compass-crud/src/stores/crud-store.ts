@@ -391,8 +391,8 @@ class CrudStoreImpl
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  favoriteQueriesStorage: FavoriteQueryStorage;
-  recentQueriesStorage: RecentQueryStorage;
+  favoriteQueriesStorage?: FavoriteQueryStorage;
+  recentQueriesStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
   instance: MongoDBInstance;
 
@@ -407,8 +407,8 @@ class CrudStoreImpl
       | 'preferences'
       | 'logger'
     > & {
-      favoriteQueryStorage: FavoriteQueryStorage;
-      recentQueryStorage: RecentQueryStorage;
+      favoriteQueryStorage?: FavoriteQueryStorage;
+      recentQueryStorage?: RecentQueryStorage;
     }
   ) {
     super(options);
@@ -1196,7 +1196,7 @@ class CrudStoreImpl
       return;
     }
 
-    await this.recentQueriesStorage.saveQuery({
+    await this.recentQueriesStorage?.saveQuery({
       _ns: this.state.ns,
       filter,
       update,
@@ -1919,7 +1919,7 @@ class CrudStoreImpl
       return;
     }
 
-    await this.favoriteQueriesStorage.saveQuery({
+    await this.favoriteQueriesStorage?.saveQuery({
       _name: name,
       _ns: this.state.ns,
       filter,
@@ -1943,8 +1943,8 @@ export type DocumentsPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
-  recentQueryStorageAccess: RecentQueryStorageAccess;
+  favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1971,8 +1971,8 @@ export function activateDocumentsPlugin(
         globalAppRegistry,
         preferences,
         logger,
-        favoriteQueryStorage: favoriteQueryStorageAccess.getStorage(),
-        recentQueryStorage: recentQueryStorageAccess.getStorage(),
+        favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
+        recentQueryStorage: recentQueryStorageAccess?.getStorage(),
       }
     )
   ) as CrudStore;

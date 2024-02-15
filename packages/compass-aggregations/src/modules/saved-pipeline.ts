@@ -94,7 +94,7 @@ export const updatePipelineList =
   ) => {
     const state = getState();
     pipelineStorage
-      .loadAll()
+      ?.loadAll()
       .then((pipelines: SavedPipeline[]) => {
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
@@ -198,7 +198,7 @@ export const saveCurrentPipeline =
         dataService.dataService?.getConnectionString().hosts.join(',') ?? null,
     };
 
-    await pipelineStorage.createOrUpdate(savedPipeline.id, savedPipeline);
+    await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);
 
     const stagesLength = (() => {
       try {
@@ -261,6 +261,6 @@ export const confirmDeletePipeline =
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
       screen: 'aggregations',
     });
-    await pipelineStorage.delete(pipelineId);
+    await pipelineStorage?.delete(pipelineId);
     dispatch(updatePipelineList());
   };

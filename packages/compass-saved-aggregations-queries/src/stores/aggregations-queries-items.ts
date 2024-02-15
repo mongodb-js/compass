@@ -5,8 +5,6 @@ import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
-import type { Actions as EditItemActions } from './edit-item';
-import { ActionTypes as EditItemActionTypes } from './edit-item';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
@@ -44,7 +42,7 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
+const reducer: Reducer<State, Actions | DeleteItemActions> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -62,22 +60,9 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
         items: newItems,
       };
     }
-    case EditItemActionTypes.EditItemUpdated: {
-      const item = state.items.find((x) => x.id === action.id);
-      if (!item) {
-        return state;
-      }
-      const updatedItem =
-        'name' in action.payload
-          ? mapAggregationToItem(action.payload)
-          : mapQueryToItem(action.payload);
-      return {
-        ...state,
-        items: [...state.items.filter((x) => x.id !== action.id), updatedItem],
-      };
-    }
+    default:
+      return state;
   }
-  return state;
 };
 
 export const fetchItems = (): SavedQueryAggregationThunkAction<
@@ -90,8 +75,8 @@ export const fetchItems = (): SavedQueryAggregationThunkAction<
     { pipelineStorage, queryStorage }
   ): Promise<void> => {
     const payload = await Promise.allSettled([
-      (await pipelineStorage.loadAll()).map(mapAggregationToItem),
-      (await queryStorage.loadAll()).map(mapQueryToItem),
+      ((await pipelineStorage?.loadAll()) ?? []).map(mapAggregationToItem),
+      ((await queryStorage?.loadAll()) ?? []).map(mapQueryToItem),
     ]);
     dispatch({
       type: ActionTypes.ITEMS_FETCHED,
