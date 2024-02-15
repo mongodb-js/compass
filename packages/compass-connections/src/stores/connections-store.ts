@@ -11,12 +11,8 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   ConnectionProvider,
   type ConnectionInfo,
-  type ConnectionStatus,
 } from '@mongodb-js/connection-storage/main';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
@@ -70,7 +66,6 @@ function isOIDCAuth(connectionString: string): boolean {
 
 type State = {
   activeConnectionId?: string;
-  connectionStatus: Map<string, ConnectionStatus>;
   favoriteConnections: ConnectionInfo[];
   recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
@@ -89,7 +84,6 @@ type State = {
 
 export function defaultConnectionsState(): State {
   return {
-    connectionStatus: new Map(),
     favoriteConnections: [],
     recentConnections: [],
     activeConnectionInfo: createNewConnectionInfo(),
@@ -224,15 +218,16 @@ async function loadConnections(
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
-    const favoriteConnections = await connectionProvider.listConnections();
-    const recentConnections =
-      (await connectionProvider.listConnectionHistory?.()) || [];
+    const [favoriteConnections, recentConnections] = await Promise.all([
+      connectionProvider.listConnections(),
+      connectionProvider.listConnectionHistory?.() || Promise.resolve([]),
+    ]);
 
-    const loadedConnections = [...favoriteConnections, ...recentConnections];
     const toBeReSaved: ConnectionInfo[] = [];
-
     // Scrub OIDC tokens from connections when the option to store them has been disabled
     if (!persistOIDCTokens) {
+      const loadedConnections = [...favoriteConnections, ...recentConnections];
+
       for (const connection of loadedConnections) {
         if (connection.connectionOptions.oidc?.serializedState) {
           delete connection.connectionOptions.oidc?.serializedState;
@@ -312,7 +307,7 @@ export function useConnections({
   ): Promise<boolean> {
     try {
       if (connectionProvider.saveConnection) {
-        await connectionProvider.saveConnection(connectionInfo);
+        await connectionProvider.saveConnection?.(connectionInfo);
         debug(`saved connection with id ${connectionInfo.id || ''}`);
       } else {
         debug(
@@ -660,8 +655,8 @@ export function useConnections({
         id: uuidv4(),
       };
 
-      if (duplicate.name) {
-        duplicate.name += ' (copy)';
+      if (duplicate.favorite?.name) {
+        duplicate.favorite.name += ' (copy)';
       }
 
       saveConnectionInfo(duplicate).then(

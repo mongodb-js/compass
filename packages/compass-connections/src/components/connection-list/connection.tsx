@@ -194,15 +194,15 @@ function Connection({
   const connectionTitle = getConnectionTitle(connectionInfo);
   const {
     connectionOptions: { connectionString },
-    userFavorite,
-    color,
+    savedConnectionType,
+    favorite,
     lastUsed,
   } = connectionInfo;
 
   const darkMode = useDarkMode();
 
   const { connectionColorToHex } = useConnectionColor();
-  const favoriteColorHex = connectionColorToHex(color) ?? '';
+  const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
   const hasColoredBackground = isActive && favoriteColorHex;
   const normalTitleColor = darkMode ? palette.white : palette.gray.dark3;
@@ -293,7 +293,7 @@ function Connection({
         onClick={onClick}
         onDoubleClick={() => onDoubleClick(connectionInfo)}
       >
-        <FavoriteColorIndicator color={color} />
+        <FavoriteColorIndicator color={favorite?.color} />
         <ConnectionIcon
           color={titleColor}
           connectionString={connectionString}
@@ -301,9 +301,7 @@ function Connection({
         <H3
           className={connectionTitleStyles}
           style={{ color: titleColor }}
-          data-testid={`${
-            userFavorite ? 'favorite' : 'recent'
-          }-connection-title`}
+          data-testid={`${savedConnectionType}-connection-title`}
           title={connectionTitle}
         >
           {connectionTitle}
@@ -311,9 +309,7 @@ function Connection({
         <Description
           className={connectionDescriptionStyles}
           style={{ color: descriptionColor }}
-          data-testid={`${
-            userFavorite ? 'favorite' : 'recent'
-          }-connection-description`}
+          data-testid={`${savedConnectionType}-connection-description`}
         >
           {lastUsed ? lastUsed.toLocaleString('default', dateConfig) : 'Never'}
         </Description>

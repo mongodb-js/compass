@@ -22,6 +22,7 @@ export class CompassConnectionProvider implements ConnectionProvider {
   constructor(private readonly storage: typeof ConnectionStorage) {}
 
   public static defaultInstance(): CompassConnectionProvider {
+    ConnectionStorage.init();
     return new CompassConnectionProvider(ConnectionStorage);
   }
 
