@@ -1,7 +1,7 @@
 export { ConnectionStorage } from './connection-storage';
 export {
   ConnectionProvider,
-  CompassConnectionProvider as DesktopConnectionProvider,
+  CompassConnectionProvider,
 } from './connection-provider';
 export type {
   ExportConnectionOptions,

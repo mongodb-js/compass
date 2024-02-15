@@ -32,7 +32,7 @@ import { LegacyConnectionsModal } from './legacy-connections-modal';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
   ConnectionProvider,
-  DesktopConnectionProvider,
+  CompassConnectionProvider,
 } from '@mongodb-js/connection-storage/main';
 
 type ConnectFn = typeof connect;
@@ -94,7 +94,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionProvider = DesktopConnectionProvider.defaultInstance(),
+  connectionProvider = CompassConnectionProvider.defaultInstance(),
   connectionStorage = ConnectionStorage,
   appName,
   getAutoConnectInfo,
@@ -106,8 +106,8 @@ function Connections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionProvider: ConnectionProvider;
-  connectionStorage: typeof ConnectionStorage;
+  connectionProvider?: ConnectionProvider;
+  connectionStorage?: typeof ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;
