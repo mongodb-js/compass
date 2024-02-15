@@ -14,7 +14,13 @@ import { css } from '@leafygreen-ui/emotion';
 
 export type ToastProperties = Pick<
   ToastProps,
-  'title' | 'description' | 'variant' | 'progress' | 'timeout' | 'dismissible'
+  | 'title'
+  | 'description'
+  | 'variant'
+  | 'progress'
+  | 'timeout'
+  | 'dismissible'
+  | 'onClose'
 >;
 
 const defaultToastProperties: Partial<ToastProperties> = {

@@ -65,6 +65,7 @@ export type InternalUserPreferences = {
     GEN_AI_COMPASS?: boolean;
   };
   lastKnownVersion: string;
+  highestInstalledVersion?: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
   userCreatedAt: number;
@@ -248,6 +249,17 @@ export const storedUserPreferencesProps: Required<{
    * Stores the last version compass was run as, e.g. `1.0.5`.
    */
   lastKnownVersion: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().default('0.0.0'),
+    type: 'string',
+  },
+  /**
+   * Stores the highest Compass version that has been running on this installation.
+   */
+  highestInstalledVersion: {
     ui: false,
     cli: false,
     global: false,

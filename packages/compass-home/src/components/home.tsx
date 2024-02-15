@@ -9,6 +9,10 @@ import {
   resetGlobalCSS,
   Body,
   useConfirmationModal,
+  openToast,
+  closeToast,
+  ButtonVariant,
+  Button,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
@@ -244,7 +248,7 @@ function Home({
         onDataServiceDisconnected
       );
     };
-  }, [appRegistry, onDataServiceDisconnected]);
+  }, [appRegistry, onDataServiceDisconnected, onDataServiceConnected]);
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
@@ -314,6 +318,71 @@ function Home({
     },
     [setIsWelcomeOpen, appRegistry]
   );
+
+  useEffect(() => {
+    function onAutoupdateStarted() {
+      openToast('update-download', {
+        variant: 'progress',
+        title: 'Compass update is in progress',
+      });
+    }
+    function onAutoupdateFailed() {
+      closeToast('update-download');
+      openToast('update-download', {
+        variant: 'warning',
+        title: 'Failed to download Compass update',
+        description: 'Downloading a newer Compass version failed',
+      });
+    }
+    function onAutoupdateSucess() {
+      openToast('update-download', {
+        variant: 'important',
+        title: 'Restart to start newer Compass vesrion',
+        description: (
+          <>
+            <Button
+              variant={ButtonVariant.Primary}
+              onClick={() => {
+                void ipcRenderer?.call(
+                  'autoupdate:update-download-restart-confirmed'
+                );
+              }}
+            >
+              Restart Compass
+            </Button>
+            Continuing to use Compass without restarting may cause some of the
+            features to not work as intended
+          </>
+        ),
+        dismissible: true,
+        onClose: () => {
+          void ipcRenderer?.call(
+            'autoupdate:update-download-restart-dismissed'
+          );
+        },
+      });
+    }
+    ipcRenderer?.on(
+      'autoupdate:update-download-in-progress',
+      onAutoupdateStarted
+    );
+    ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
+    ipcRenderer?.on('autoupdate:update-download-success', onAutoupdateSucess);
+    return () => {
+      ipcRenderer?.removeListener(
+        'autoupdate:update-download-in-progress',
+        onAutoupdateStarted
+      );
+      ipcRenderer?.removeListener(
+        'autoupdate:update-download-failed',
+        onAutoupdateFailed
+      );
+      ipcRenderer?.removeListener(
+        'autoupdate:update-download-success',
+        onAutoupdateSucess
+      );
+    };
+  }, []);
 
   return (
     <FileInputBackendProvider
