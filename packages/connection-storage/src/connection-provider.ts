@@ -1,9 +1,6 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import {
-  ConnectionStorage,
-  ConnectionStorageContext,
-} from './connection-storage';
+import { ConnectionStorage } from './connection-storage';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 
