@@ -67,8 +67,8 @@ describe('Collection schema tab', function () {
 
   for (const enableMaps of [true, false]) {
     it(`can analyze coordinates for a schema (enableMaps = ${enableMaps})`, async function () {
-      // can't toggle features in compass-web yet
       if (TEST_COMPASS_WEB) {
+        // can't toggle features in compass-web
         this.skip();
       }
 

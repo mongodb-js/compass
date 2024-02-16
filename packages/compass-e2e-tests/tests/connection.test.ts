@@ -252,6 +252,7 @@ describe('Connection screen', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       this.skip();
     }
 
@@ -261,6 +262,7 @@ describe('Connection screen', function () {
 
   after(function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       return;
     }
 
@@ -634,6 +636,7 @@ describe('Connection screen', function () {
 describe('SRV connectivity', function () {
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       this.skip();
     }
   });
@@ -701,6 +704,7 @@ describe('SRV connectivity', function () {
 describe('System CA access', function () {
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       this.skip();
     }
   });
@@ -758,6 +762,7 @@ describe('FLE2', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       this.skip();
     }
 
@@ -771,6 +776,7 @@ describe('FLE2', function () {
 
   after(async function () {
     if (TEST_COMPASS_WEB) {
+      // connect form not available in compass-web
       return;
     }
 

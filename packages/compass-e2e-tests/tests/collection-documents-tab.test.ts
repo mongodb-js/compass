@@ -267,8 +267,8 @@ describe('Collection documents tab', function () {
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      // preferences modal not supported in compass-web
       if (TEST_COMPASS_WEB) {
+        // preferences modal not supported in compass-web
         this.skip();
       }
 

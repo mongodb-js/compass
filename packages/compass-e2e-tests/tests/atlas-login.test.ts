@@ -42,6 +42,7 @@ describe('Atlas Login', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // atlast-login not supported in compass-web
       this.skip();
     }
     // Start a mock server to pass an ai response.

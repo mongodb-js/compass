@@ -18,6 +18,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // settings modal not available on compass-web
       this.skip();
     }
   });
@@ -34,7 +35,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
-  it('hides and shows the plus icon on the siderbar to create a database', async function () {
+  it('hides and shows the plus icon on the sidebar to create a database', async function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {

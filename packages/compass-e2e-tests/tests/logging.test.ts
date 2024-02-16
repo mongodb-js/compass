@@ -12,6 +12,7 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 describe('Logging and Telemetry integration', function () {
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // telemetry not yet available in compass-web
       this.skip();
     }
   });

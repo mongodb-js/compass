@@ -16,6 +16,7 @@ describe('forceConnectionOptions', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // cli parameters not supported in compass-web
       this.skip();
     }
 

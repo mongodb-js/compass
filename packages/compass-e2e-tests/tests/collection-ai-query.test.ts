@@ -29,6 +29,7 @@ describe('Collection ai query', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // ai queries not yet available in compass-web
       this.skip();
     }
 

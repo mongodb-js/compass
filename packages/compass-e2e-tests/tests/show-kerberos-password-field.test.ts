@@ -16,6 +16,7 @@ describe('showKerberosPasswordField', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // connection form unavailable on compass-web
       this.skip();
     }
 
