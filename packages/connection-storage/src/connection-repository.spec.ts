@@ -1,5 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { CompassConnectionProvider } from './connection-provider';
+import { ConnectionRepository } from './connection-repository';
 import chai, { expect } from 'chai';
 import Sinon from 'sinon';
 import type { ConnectionStorage } from './renderer';
@@ -44,7 +44,7 @@ function mockStorage(): StorageContext {
 describe('CompassConnectionProvider', function () {
   describe('#listFavoriteConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
-      const provider = new CompassConnectionProvider(
+      const provider = new ConnectionRepository(
         mockStorageWithConnections([
           {
             id: '1',
@@ -65,7 +65,7 @@ describe('CompassConnectionProvider', function () {
     });
 
     it('should return favourite connections sorted by name alphabetically', async function () {
-      const provider = new CompassConnectionProvider(
+      const provider = new ConnectionRepository(
         mockStorageWithConnections([
           {
             id: '2',
@@ -89,7 +89,7 @@ describe('CompassConnectionProvider', function () {
 
   describe('#listRecentConnections', function () {
     it('should return non favourite connections as disconnected', async function () {
-      const provider = new CompassConnectionProvider(
+      const provider = new ConnectionRepository(
         mockStorageWithConnections([
           {
             id: '1',
@@ -111,7 +111,7 @@ describe('CompassConnectionProvider', function () {
     });
 
     it('should return non favourite connections sorted by name alphabetically', async function () {
-      const provider = new CompassConnectionProvider(
+      const provider = new ConnectionRepository(
         mockStorageWithConnections([
           { id: '2', savedConnectionType: 'recent', favorite: { name: 'Bb' } },
           { id: '1', savedConnectionType: 'recent', favorite: { name: 'Aa' } },
@@ -128,7 +128,7 @@ describe('CompassConnectionProvider', function () {
   describe('#saveConnection', function () {
     it('should save a new connection if it has a valid connection string', async function () {
       const { storage, saveStub } = mockStorage();
-      const provider = new CompassConnectionProvider(storage);
+      const provider = new ConnectionRepository(storage);
       const connectionToSave = {
         id: '1',
         connectionOptions: { connectionString: 'mongodb://localhost:27017' },
@@ -146,7 +146,7 @@ describe('CompassConnectionProvider', function () {
         { id: '1', savedConnectionType: 'favorite' },
       ]);
 
-      const provider = new CompassConnectionProvider(storage);
+      const provider = new ConnectionRepository(storage);
       const connectionToSave = {
         id: '1',
         connectionOptions: { connectionString: 'mongodb://localhost:27017' },
@@ -165,7 +165,7 @@ describe('CompassConnectionProvider', function () {
 
     it('should not save a new connection if it has an invalid connection string', async function () {
       const { storage, saveStub } = mockStorage();
-      const provider = new CompassConnectionProvider(storage);
+      const provider = new ConnectionRepository(storage);
 
       await expect(
         provider.saveConnection({
@@ -181,7 +181,7 @@ describe('CompassConnectionProvider', function () {
   describe('#deleteConnection', function () {
     it('should delete a saved connection from the underlying storage', async function () {
       const { storage, deleteStub } = mockStorage();
-      const provider = new CompassConnectionProvider(storage);
+      const provider = new ConnectionRepository(storage);
       const connectionToDelete = {
         id: '1',
         connectionOptions: { connectionString: '' },

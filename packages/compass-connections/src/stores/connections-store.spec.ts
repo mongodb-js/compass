@@ -10,10 +10,9 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
-  type ConnectionProvider,
-  CompassConnectionProvider,
+  ConnectionRepository,
   type ConnectionInfo,
-  ConnectionProviderContext,
+  ConnectionRepositoryContext,
 } from '@mongodb-js/connection-storage/main';
 
 const noop = (): any => {
@@ -44,7 +43,7 @@ const mockConnections: ConnectionInfo[] = [
 ];
 
 describe('use-connections hook', function () {
-  let connectionProvider: ConnectionProvider;
+  let connectionRepository: ConnectionRepository;
   let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
@@ -59,8 +58,8 @@ describe('use-connections hook', function () {
         createElement(PreferencesProvider, {
           value: preferences,
           children: [
-            createElement(ConnectionProviderContext.Provider, {
-              value: connectionProvider,
+            createElement(ConnectionRepositoryContext.Provider, {
+              value: connectionRepository,
               children,
             }),
           ],
@@ -83,7 +82,7 @@ describe('use-connections hook', function () {
       load: loadSpy,
     };
 
-    connectionProvider = new CompassConnectionProvider(mockConnectionStorage);
+    connectionRepository = new ConnectionRepository(mockConnectionStorage);
   });
 
   afterEach(cleanup);
@@ -245,7 +244,7 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
-          connectionProvider,
+          connectionRepository,
           connectFn: () => Promise.resolve({} as any),
           appName: 'Test App Name',
         })
@@ -269,7 +268,7 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
-          connectionProvider,
+          connectionRepository,
           connectFn: () => Promise.resolve({} as any),
           appName: 'Test App Name',
         })

@@ -1,11 +1,12 @@
 export type { ConnectionInfo } from '@mongodb-js/connection-info';
 export {
-  CompassConnectionProvider,
-  ConnectionProviderContext,
-  type ConnectionProvider,
-} from './connection-provider';
+  ConnectionRepository,
+  ConnectionRepositoryContext,
+  ConnectionRepositoryContextProvider,
+  connectionRepositoryLocator,
+} from './connection-repository';
 export { ConnectionStorage } from './connection-storage';
-export { ConnectionStorageContext } from './renderer';
+export { ConnectionStorageContext, connectionStorageLocator } from './renderer';
 export type {
   ExportConnectionOptions,
   ImportConnectionOptions,
