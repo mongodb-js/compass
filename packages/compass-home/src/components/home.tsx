@@ -41,7 +41,6 @@ import { DataServiceProvider } from 'mongodb-data-service/provider';
 import React, {
   useCallback,
   useEffect,
-  useContext,
   useLayoutEffect,
   useReducer,
   useRef,
@@ -57,8 +56,6 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
-  ConnectionRepository,
-  ConnectionRepositoryContext,
   ConnectionStorageContext,
   ConnectionRepositoryContextProvider,
 } from '@mongodb-js/connection-storage/main';
