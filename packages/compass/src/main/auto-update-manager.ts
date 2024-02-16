@@ -196,6 +196,7 @@ const STATE_UPDATE: Record<
   [AutoUpdateManagerState.Initial]: {
     nextStates: [
       AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+      AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
       AutoUpdateManagerState.Disabled,
       AutoUpdateManagerState.UserPromptedManualCheck,
     ],
