@@ -52,9 +52,9 @@ describe('QueryBar Component', function () {
     store.dispatch(toggleQueryOptions(expanded));
 
     render(
-      <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
-        <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
-          <PreferencesProvider value={preferences}>
+      <PreferencesProvider value={preferences}>
+        <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+          <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
             <Provider store={store}>
               <QueryBar
                 buttonLabel="Apply"
@@ -65,9 +65,9 @@ describe('QueryBar Component', function () {
                 {...props}
               />
             </Provider>
-          </PreferencesProvider>
-        </RecentQueryStorageProvider>
-      </FavoriteQueryStorageProvider>
+          </RecentQueryStorageProvider>
+        </FavoriteQueryStorageProvider>
+      </PreferencesProvider>
     );
   };
 

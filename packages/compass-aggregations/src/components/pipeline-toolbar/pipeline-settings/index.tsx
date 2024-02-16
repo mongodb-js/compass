@@ -47,7 +47,7 @@ export const PipelineSettings: React.FunctionComponent<
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
-  const enableSavedAggregationsQueries = usePipelineStorage();
+  const enableSavedAggregationsQueries = !!usePipelineStorage();
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 
