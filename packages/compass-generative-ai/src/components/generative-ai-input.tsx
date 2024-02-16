@@ -17,7 +17,7 @@ import {
 import {
   IntercomTrackingEvent,
   intercomTrack,
-} from '@mongodb-js/compass-utils';
+} from '@mongodb-js/compass-intercom';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
