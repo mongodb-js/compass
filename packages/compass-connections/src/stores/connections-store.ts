@@ -219,8 +219,8 @@ async function loadConnections(
 ) {
   try {
     const [favoriteConnections, recentConnections] = await Promise.all([
-      connectionProvider.listConnections(),
-      connectionProvider.listConnectionHistory?.() || Promise.resolve([]),
+      connectionProvider.listFavoriteConnections(),
+      connectionProvider.listRecentConnections?.() || Promise.resolve([]),
     ]);
 
     const toBeReSaved: ConnectionInfo[] = [];

@@ -42,7 +42,7 @@ function mockStorage(): StorageContext {
 }
 
 describe('CompassConnectionProvider', function () {
-  describe('#listConnections', function () {
+  describe('#listFavoriteConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
       const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
@@ -59,7 +59,7 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listConnections();
+      const connections = await provider.listFavoriteConnections();
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('2');
     });
@@ -80,14 +80,14 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listConnections();
+      const connections = await provider.listFavoriteConnections();
       expect(connections.length).to.equal(2);
       expect(connections[0].id).to.equal('1');
       expect(connections[1].id).to.equal('2');
     });
   });
 
-  describe('#listConnectionHistory', function () {
+  describe('#listRecentConnections', function () {
     it('should return non favourite connections as disconnected', async function () {
       const provider = new CompassConnectionProvider(
         mockStorageWithConnections([
@@ -104,7 +104,7 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listConnectionHistory();
+      const connections = await provider.listRecentConnections();
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('1');
       expect(connections[0].favorite?.name).to.equal('not webscale');
@@ -118,7 +118,7 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listConnectionHistory();
+      const connections = await provider.listRecentConnections();
       expect(connections.length).to.equal(2);
       expect(connections[0].id).to.equal('1');
       expect(connections[1].id).to.equal('2');

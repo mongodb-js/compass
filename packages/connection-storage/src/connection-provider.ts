@@ -11,8 +11,8 @@ import { merge } from 'lodash';
  * facade on top of that).
  */
 export interface ConnectionProvider {
-  listConnections(): Promise<ConnectionInfo[]>;
-  listConnectionHistory?(): Promise<ConnectionInfo[]>;
+  listFavoriteConnections(): Promise<ConnectionInfo[]>;
+  listRecentConnections?(): Promise<ConnectionInfo[]>;
   saveConnection?(info: ConnectionInfo): Promise<ConnectionInfo>;
   deleteConnection?(info: ConnectionInfo): Promise<void>;
 }
@@ -26,14 +26,14 @@ export class CompassConnectionProvider implements ConnectionProvider {
     return new CompassConnectionProvider(ConnectionStorage);
   }
 
-  async listConnections(): Promise<ConnectionInfo[]> {
+  async listFavoriteConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter((connection) => connection.savedConnectionType === 'favorite')
       .sort(this.sortedAlphabetically);
   }
 
-  async listConnectionHistory(): Promise<ConnectionInfo[]> {
+  async listRecentConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter(
