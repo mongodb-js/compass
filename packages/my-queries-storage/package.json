@@ -75,7 +75,8 @@
   "dependencies": {
     "@mongodb-js/compass-editor": "^0.20.3",
     "@mongodb-js/compass-user-data": "^0.1.15",
-    "bson": "^6.3.0"
+    "bson": "^6.3.0",
+    "compass-preferences-model": "^2.17.4"
   },
   "peerDependencies": {
     "react": "^17.0.2"
