@@ -29,6 +29,7 @@ async function refresh(browser: CompassBrowser) {
 describe('CSFLE / QE', function () {
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // not available in compass-web
       this.skip();
     }
   });
