@@ -193,10 +193,21 @@ describe('AggregationsQueriesList', function () {
 
       const updatedName = 'the updated name';
 
-      // The first item is a query, so we are mocking that
-      queryStorage.updateAttributes.resolves({
-        ...item.query,
-        _name: updatedName,
+      // Post the update we fetch all queries to load the updated query
+      queryStorage.updateAttributes.callsFake((id, attributes) => {
+        expect(id).to.equal(item.id);
+        expect(attributes._name).to.equal(updatedName);
+        queryStorage.loadAll.resolves(
+          queries.map(({ query }) => {
+            if (query._id === item.query._id) {
+              return {
+                ...item.query,
+                _name: updatedName,
+              };
+            }
+            return query;
+          })
+        );
       });
 
       const card = document.querySelector<HTMLElement>(

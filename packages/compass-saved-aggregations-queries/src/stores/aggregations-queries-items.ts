@@ -75,8 +75,8 @@ export const fetchItems = (): SavedQueryAggregationThunkAction<
     { pipelineStorage, queryStorage }
   ): Promise<void> => {
     const payload = await Promise.allSettled([
-      ((await pipelineStorage?.loadAll()) ?? []).map(mapAggregationToItem),
-      ((await queryStorage?.loadAll()) ?? []).map(mapQueryToItem),
+      (await pipelineStorage?.loadAll())?.map(mapAggregationToItem) ?? [],
+      (await queryStorage?.loadAll())?.map(mapQueryToItem) ?? [],
     ]);
     dispatch({
       type: ActionTypes.ITEMS_FETCHED,
