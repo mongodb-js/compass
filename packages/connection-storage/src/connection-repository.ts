@@ -1,36 +1,24 @@
+import { createElement, useMemo, useContext } from 'react';
 import { createContext } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionStorage } from './renderer';
+import { type ConnectionStorage, connectionStorageLocator } from './renderer';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 
-/**
- * Exposes an interface that will be implemented for each deployment environment to
- * get access to the connections on that environment. For Compass Desktop, it will
- * rely on the ConnectionStorage, for the Data Explorer, on the Atlas API (or another
- * facade on top of that).
- */
-export interface ConnectionProvider {
-  listFavoriteConnections(): Promise<ConnectionInfo[]>;
-  listRecentConnections?(): Promise<ConnectionInfo[]>;
-  saveConnection?(info: ConnectionInfo): Promise<ConnectionInfo>;
-  deleteConnection?(info: ConnectionInfo): Promise<void>;
-}
+type ConnectionStorageFacade = Pick<
+  typeof ConnectionStorage,
+  'loadAll' | 'load' | 'save' | 'delete'
+>;
 
-export class CompassConnectionProvider implements ConnectionProvider {
-  // Inject the type as it would be an instance (this is literally injecting the singleton)
-  // in case we want to change how ConnectionStorage works in the future.
-  constructor(private readonly storage: typeof ConnectionStorage) {}
-
-  public static defaultInstance(): CompassConnectionProvider {
-    return new CompassConnectionProvider(ConnectionStorage);
-  }
+export class ConnectionRepository {
+  // We would inject a specific implementation for Compass and Data Explorer
+  constructor(private readonly storage: ConnectionStorageFacade) {}
 
   async listFavoriteConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter((connection) => connection.savedConnectionType === 'favorite')
-      .sort(this.sortedAlphabetically);
+      .sort(ConnectionRepository.sortedAlphabetically);
   }
 
   async listRecentConnections(): Promise<ConnectionInfo[]> {
@@ -41,7 +29,7 @@ export class CompassConnectionProvider implements ConnectionProvider {
           connection.savedConnectionType === 'recent' ||
           !connection.savedConnectionType
       )
-      .sort(this.sortedAlphabetically);
+      .sort(ConnectionRepository.sortedAlphabetically);
   }
 
   async saveConnection(info: ConnectionInfo): Promise<ConnectionInfo> {
@@ -66,7 +54,7 @@ export class CompassConnectionProvider implements ConnectionProvider {
     new ConnectionString(connectionString);
   }
 
-  private sortedAlphabetically = (
+  private static sortedAlphabetically = (
     a: ConnectionInfo,
     b: ConnectionInfo
   ): number => {
@@ -76,5 +64,28 @@ export class CompassConnectionProvider implements ConnectionProvider {
   };
 }
 
-export const ConnectionProviderContext =
-  createContext<ConnectionProvider | null>(null);
+export const ConnectionRepositoryContext =
+  createContext<ConnectionRepository | null>(null);
+
+export const ConnectionRepositoryContextProvider: React.FunctionComponent<
+  object
+> = ({ children }) => {
+  const storage = connectionStorageLocator();
+  const value = useMemo(() => new ConnectionRepository(storage), [storage]);
+
+  return createElement(ConnectionRepositoryContext.Provider, {
+    value,
+    children,
+  });
+};
+
+export function connectionRepositoryLocator(): ConnectionRepository {
+  const connectionRepository = useContext(ConnectionRepositoryContext);
+  if (!connectionRepository) {
+    throw new Error(
+      'Could not find the current ConnectionRepository. Did you forget to setup the ConnectionRepositoryContext?'
+    );
+  }
+
+  return connectionRepository;
+}

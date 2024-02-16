@@ -4,14 +4,13 @@ import {
   useEffect,
   useReducer,
   useRef,
-  useContext,
 } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  type ConnectionProvider,
   type ConnectionInfo,
-  ConnectionProviderContext,
+  connectionRepositoryLocator,
+  type ConnectionRepository,
 } from '@mongodb-js/connection-storage/main';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -214,13 +213,15 @@ async function loadConnections(
     favoriteConnections: ConnectionInfo[];
     recentConnections: ConnectionInfo[];
   }>,
-  connectionProvider: ConnectionProvider,
+  connectionRepository: ConnectionRepository,
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
     const [favoriteConnections, recentConnections] = await Promise.all([
-      connectionProvider.listFavoriteConnections(),
-      connectionProvider.listRecentConnections?.() || Promise.resolve([]),
+      connectionRepository.listFavoriteConnections(),
+      connectionRepository.listRecentConnections
+        ? connectionRepository.listRecentConnections?.()
+        : Promise.resolve([]),
     ]);
 
     const toBeReSaved: ConnectionInfo[] = [];
@@ -244,7 +245,7 @@ async function loadConnections(
 
     await Promise.all(
       toBeReSaved.map(async (connectionInfo) => {
-        await connectionProvider.saveConnection?.(connectionInfo);
+        await connectionRepository.saveConnection?.(connectionInfo);
       })
     );
   } catch (error) {
@@ -283,9 +284,7 @@ export function useConnections({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
-  const connectionProvider = useContext(
-    ConnectionProviderContext
-  ) as ConnectionProvider;
+  const connectionRepository = connectionRepositoryLocator();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -308,8 +307,8 @@ export function useConnections({
     connectionInfo: ConnectionInfo
   ): Promise<boolean> {
     try {
-      if (connectionProvider.saveConnection) {
-        await connectionProvider.saveConnection?.(connectionInfo);
+      if (connectionRepository.saveConnection) {
+        await connectionRepository.saveConnection?.(connectionInfo);
         debug(`saved connection with id ${connectionInfo.id || ''}`);
       } else {
         debug(
@@ -338,15 +337,17 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    if (!connectionProvider.deleteConnection) {
+    if (!connectionRepository.deleteConnection) {
       debug(
         'current connection provider does not support deleting connections'
       );
       return;
     }
 
-    await connectionProvider.deleteConnection(connectionInfo);
-    await loadConnections(dispatch, connectionProvider, { persistOIDCTokens });
+    await connectionRepository.deleteConnection(connectionInfo);
+    await loadConnections(dispatch, connectionRepository, {
+      persistOIDCTokens,
+    });
 
     if (activeConnectionId === connectionInfo.id) {
       const nextActiveConnection = createNewConnectionInfo();
@@ -423,7 +424,7 @@ export function useConnections({
     },
     [
       onConnected,
-      connectionProvider,
+      connectionRepository,
       saveConnectionInfo,
       removeConnection,
       persistOIDCTokens,
@@ -432,7 +433,7 @@ export function useConnections({
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch, connectionProvider, { persistOIDCTokens });
+    void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
 
     if (getAutoConnectInfo) {
       log.info(
@@ -457,7 +458,9 @@ export function useConnections({
 
   useEffectOnChange(() => {
     if (!persistOIDCTokens)
-      void loadConnections(dispatch, connectionProvider, { persistOIDCTokens });
+      void loadConnections(dispatch, connectionRepository, {
+        persistOIDCTokens,
+      });
   }, [persistOIDCTokens]);
 
   const connect = async (
@@ -624,7 +627,7 @@ export function useConnections({
         return;
       }
 
-      await loadConnections(dispatch, connectionProvider, {
+      await loadConnections(dispatch, connectionRepository, {
         persistOIDCTokens,
       });
 
@@ -663,7 +666,7 @@ export function useConnections({
 
       saveConnectionInfo(duplicate).then(
         async () => {
-          await loadConnections(dispatch, connectionProvider, {
+          await loadConnections(dispatch, connectionRepository, {
             persistOIDCTokens,
           });
           dispatch({
@@ -677,7 +680,7 @@ export function useConnections({
       );
     },
     async removeAllRecentsConnections() {
-      if (!connectionProvider.deleteConnection) {
+      if (!connectionRepository.deleteConnection) {
         debug(
           'current connection provider does not support deleting connections'
         );
@@ -686,16 +689,18 @@ export function useConnections({
 
       await Promise.all(
         recentConnections.map((info) =>
-          connectionProvider.deleteConnection?.(info)
+          connectionRepository.deleteConnection?.(info)
         )
       );
 
-      await loadConnections(dispatch, connectionProvider, {
+      await loadConnections(dispatch, connectionRepository, {
         persistOIDCTokens,
       });
     },
     reloadConnections() {
-      void loadConnections(dispatch, connectionProvider, { persistOIDCTokens });
+      void loadConnections(dispatch, connectionRepository, {
+        persistOIDCTokens,
+      });
     },
   };
 }

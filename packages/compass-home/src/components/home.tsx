@@ -47,9 +47,10 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
-  CompassConnectionProvider,
+  ConnectionRepository,
+  ConnectionRepositoryContext,
   ConnectionStorageContext,
-  ConnectionProviderContext,
+  ConnectionRepositoryContextProvider,
 } from '@mongodb-js/connection-storage/main';
 
 resetGlobalCSS();
@@ -151,25 +152,6 @@ function hideCollectionSubMenu() {
 function notifyMainProcessOfDisconnect() {
   void ipcRenderer?.call('compass:disconnected');
 }
-
-export const CompassConnectionProviderContext: React.FunctionComponent<
-  object
-> = ({ children }) => {
-  const storage = useContext(ConnectionStorageContext);
-  if (!storage) {
-    throw new Error(
-      'Could not find current ConnectionStorage. Did you forget to setup the ConnectionStorageContext?'
-    );
-  }
-
-  return (
-    <ConnectionProviderContext.Provider
-      value={new CompassConnectionProvider(storage)}
-    >
-      {children}
-    </ConnectionProviderContext.Provider>
-  );
-};
 
 function Home({
   appName,
@@ -348,7 +330,7 @@ function Home({
       createFileInputBackend={electronFileInputBackendRef.current}
     >
       <ConnectionStorageContext.Provider value={ConnectionStorage}>
-        <CompassConnectionProviderContext>
+        <ConnectionRepositoryContextProvider>
           {isConnected && connectedDataService.current && (
             // AppRegistry scope for a connected application
             <AppRegistryProvider>
@@ -389,7 +371,7 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasSignIn></AtlasSignIn>
-        </CompassConnectionProviderContext>
+        </ConnectionRepositoryContextProvider>
       </ConnectionStorageContext.Provider>
     </FileInputBackendProvider>
   );

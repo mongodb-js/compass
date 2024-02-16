@@ -14,12 +14,14 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import {
+  ConnectionInfo,
+  connectionStorageLocator,
+} from '@mongodb-js/connection-storage/renderer';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
 import { useConnections } from '../stores/connections-store';
@@ -102,6 +104,7 @@ function Connections({
   connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
+  const connectionStorage = connectionStorageLocator();
 
   const {
     state,
@@ -259,16 +262,16 @@ function Connections({
         favoriteConnections={favoriteConnections}
         afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={ConnectionStorage}
+        connectionStorage={connectionStorage}
       />
       <ExportConnectionsModal
         open={showExportConnectionsModal}
         setOpen={setShowExportConnectionsModal}
         favoriteConnections={favoriteConnections}
         trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={ConnectionStorage}
+        connectionStorage={connectionStorage}
       />
-      <LegacyConnectionsModal connectionStorage={ConnectionStorage} />
+      <LegacyConnectionsModal connectionStorage={connectionStorage} />
     </div>
   );
 }
