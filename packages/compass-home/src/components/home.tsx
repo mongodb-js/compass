@@ -23,7 +23,7 @@ import Welcome from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  ConnectionInfo,
+  type ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
@@ -175,9 +175,9 @@ function notifyMainProcessOfDisconnect() {
   void hadronIpc.ipcRenderer?.call('compass:disconnected');
 }
 
-export const CompassConnectionProviderContext: React.FunctionComponent<{}> = ({
-  children,
-}) => {
+export const CompassConnectionProviderContext: React.FunctionComponent<
+  object
+> = ({ children }) => {
   const storage = useContext(ConnectionStorageContext);
   if (!storage) {
     throw new Error(
