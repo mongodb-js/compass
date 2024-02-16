@@ -6,7 +6,6 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -19,10 +18,6 @@ describe('Collection indexes tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -34,10 +29,6 @@ describe('Collection indexes tab', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
