@@ -112,10 +112,6 @@ describe('Collection documents tab', function () {
   let maxTimeMSBefore: string;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -125,20 +121,23 @@ describe('Collection documents tab', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
-    maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
+
+    // setFeature/getFeature is not supported in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
+    }
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
-    await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+    // setFeature/getFeature is not supported in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+    }
     await screenshotIfFailed(compass, this.currentTest);
   });
 
@@ -152,20 +151,26 @@ describe('Collection documents tab', function () {
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    const queryExecutedEvent = await telemetryEntry('Query Executed');
-    expect(queryExecutedEvent).to.deep.equal({
-      changed_maxtimems: false,
-      collection_type: 'collection',
-      has_collation: false,
-      has_limit: false,
-      has_projection: false,
-      has_skip: false,
-      has_sort: false,
-      used_regex: false,
-    });
+    // TODO(COMPASS-7653): no telemetry in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      const queryExecutedEvent = await telemetryEntry('Query Executed');
+      expect(queryExecutedEvent).to.deep.equal({
+        changed_maxtimems: false,
+        collection_type: 'collection',
+        has_collation: false,
+        has_limit: false,
+        has_projection: false,
+        has_skip: false,
+        has_sort: false,
+        used_regex: false,
+      });
+    }
 
-    const queries = await getRecentQueries(browser, true);
-    expect(queries).to.deep.include.members([{ Filter: '{\n i: 5\n}' }]);
+    // no query history in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      const queries = await getRecentQueries(browser, true);
+      expect(queries).to.deep.include.members([{ Filter: '{\n i: 5\n}' }]);
+    }
   });
 
   it('supports advanced find operations', async function () {
@@ -182,28 +187,35 @@ describe('Collection documents tab', function () {
     );
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 20 of 50');
-    const queryExecutedEvent = await telemetryEntry('Query Executed');
-    expect(queryExecutedEvent).to.deep.equal({
-      changed_maxtimems: false,
-      collection_type: 'collection',
-      has_collation: false,
-      has_limit: true,
-      has_projection: true,
-      has_sort: true,
-      has_skip: true,
-      used_regex: false,
-    });
 
-    const queries = await getRecentQueries(browser, true);
-    expect(queries).to.deep.include.members([
-      {
-        Filter: '{\n i: {\n  $gt: 5\n }\n}',
-        Limit: '50',
-        Project: '{\n _id: 0\n}',
-        Skip: '5',
-        Sort: '{\n i: -1\n}',
-      },
-    ]);
+    // TODO(COMPASS-7653): no telemetry in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      const queryExecutedEvent = await telemetryEntry('Query Executed');
+      expect(queryExecutedEvent).to.deep.equal({
+        changed_maxtimems: false,
+        collection_type: 'collection',
+        has_collation: false,
+        has_limit: true,
+        has_projection: true,
+        has_sort: true,
+        has_skip: true,
+        used_regex: false,
+      });
+    }
+
+    // no query history in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      const queries = await getRecentQueries(browser, true);
+      expect(queries).to.deep.include.members([
+        {
+          Filter: '{\n i: {\n  $gt: 5\n }\n}',
+          Limit: '50',
+          Project: '{\n _id: 0\n}',
+          Skip: '5',
+          Sort: '{\n i: -1\n}',
+        },
+      ]);
+    }
   });
 
   it('supports cancelling a find and then running another query', async function () {
@@ -241,16 +253,25 @@ describe('Collection documents tab', function () {
     const displayText = await documentListActionBarMessageElement.getText();
     expect(displayText).to.equal('1 – 1 of 1');
 
-    const queries = await getRecentQueries(browser, true);
-    expect(queries).to.deep.include.members([
-      {
-        Filter: "{\n $where: 'function() { return sleep(10000) || true; }'\n}",
-      },
-    ]);
+    // no query history in compass-web yet
+    if (!TEST_COMPASS_WEB) {
+      const queries = await getRecentQueries(browser, true);
+      expect(queries).to.deep.include.members([
+        {
+          Filter:
+            "{\n $where: 'function() { return sleep(10000) || true; }'\n}",
+        },
+      ]);
+    }
   });
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+      // preferences modal not supported in compass-web
+      if (TEST_COMPASS_WEB) {
+        this.skip();
+      }
+
       if (maxTimeMSMode === 'preference') {
         await browser.openSettingsModal();
         const settingsModal = await browser.$(Selectors.SettingsModal);
