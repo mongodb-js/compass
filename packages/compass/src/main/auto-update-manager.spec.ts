@@ -10,6 +10,7 @@ import type { DownloadItem } from 'electron';
 import { dialog } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
+import { getOsInfo } from '@mongodb-js/get-os-info';
 
 CompassAutoUpdateManager.autoUpdateOptions = {
   endpoint: 'http://example.com',
@@ -84,6 +85,18 @@ describe('CompassAutoUpdateManager', function () {
         return new Promise(() => {});
       });
       sandbox.stub(autoUpdater);
+    });
+
+    it('attaches OS metadata as query params to the update request URL', async () => {
+      const url = await CompassAutoUpdateManager.getUpdateCheckURL();
+
+      expect(url.searchParams.get('release')).to.exist;
+
+      const isLinux = (await getOsInfo()).os_linux_release;
+      if (isLinux) {
+        expect(url.searchParams.get('os_linux_dist')).to.exist;
+        expect(url.searchParams.get('os_linux_release')).to.exist;
+      }
     });
 
     it('should check for update and transition to update not available if backend returned nothing', async function () {
