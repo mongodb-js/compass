@@ -60,6 +60,8 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
+export const DEFAULT_CONNECTION_STRING = `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`;
+
 export function updateMongoDBServerInfo() {
   try {
     const { stdout, stderr } = crossSpawn.sync(
