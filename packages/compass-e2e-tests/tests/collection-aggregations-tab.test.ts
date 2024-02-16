@@ -7,6 +7,7 @@ import {
   screenshotIfFailed,
   outputFilename,
   serverSatisfies,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -141,7 +142,7 @@ async function deleteStage(
   await browser.clickVisible(Selectors.StageDelete);
 }
 
-describe.only('Collection aggregations tab', function () {
+describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -499,6 +500,13 @@ describe.only('Collection aggregations tab', function () {
   });
 
   describe('maxTimeMS', function () {
+    before(function () {
+      // we don't support getFeature() and setFeature() in compass-web yet
+      if (TEST_COMPASS_WEB) {
+        this.skip();
+      }
+    });
+
     let maxTimeMSBefore: any;
 
     beforeEach(async function () {
@@ -815,6 +823,11 @@ describe.only('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
+    // export is not available in compass-web yet
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
@@ -1088,6 +1101,13 @@ describe.only('Collection aggregations tab', function () {
   });
 
   describe('saving pipelines', function () {
+    before(function () {
+      // not available in compass-web yet
+      if (TEST_COMPASS_WEB) {
+        this.skip();
+      }
+    });
+
     const name = 'test agg 1';
     beforeEach(async function () {
       await saveAggregationPipeline(browser, name, [
