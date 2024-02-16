@@ -69,10 +69,10 @@ export class CompassConnectionProvider implements ConnectionProvider {
   private sortedAlphabetically = (
     a: ConnectionInfo,
     b: ConnectionInfo
-  ): 1 | -1 => {
+  ): number => {
     const aName = a.favorite?.name?.toLocaleLowerCase() || '';
     const bName = b.favorite?.name?.toLocaleLowerCase() || '';
-    return bName < aName ? 1 : -1;
+    return aName.localeCompare(bName);
   };
 }
 
