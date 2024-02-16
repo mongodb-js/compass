@@ -8,9 +8,9 @@ import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
-import { usePreference } from 'compass-preferences-model/provider';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
+import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -47,9 +47,7 @@ export const PipelineSettings: React.FunctionComponent<
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
-  const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries'
-  );
+  const enableSavedAggregationsQueries = usePipelineStorage();
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 

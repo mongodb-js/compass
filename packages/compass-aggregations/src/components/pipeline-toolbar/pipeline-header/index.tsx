@@ -14,7 +14,7 @@ import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -117,9 +117,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
-  const isSavingAggregationsEnabled = usePreference(
-    'enableSavedAggregationsQueries'
-  );
+  const isSavingAggregationsEnabled = !!usePipelineStorage();
   return (
     <div>
       <div className={containerStyles} data-testid="pipeline-header">

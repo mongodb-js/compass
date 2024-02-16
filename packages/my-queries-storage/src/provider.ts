@@ -1,4 +1,3 @@
-import { usePreference } from 'compass-preferences-model/provider';
 import { createContext, useContext } from 'react';
 import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
@@ -29,36 +28,13 @@ export const FavoriteQueryStorageProvider =
   FavoriteQueryStorageContext.Provider;
 export const RecentQueryStorageProvider = RecentQueryStorageContext.Provider;
 
-export const pipelineStorageLocator = (): PipelineStorage | undefined => {
-  const storageIsRequired = usePreference('enableSavedAggregationsQueries');
-  const pipelineStorage = useContext(PipelineStorageContext);
-  if (storageIsRequired && !pipelineStorage) {
-    throw new Error('No PipelineStorage available in this context');
-  }
+export const usePipelineStorage = () => useContext(PipelineStorageContext);
+export const pipelineStorageLocator = usePipelineStorage;
 
-  return pipelineStorage;
-};
+export const useFavoriteQueryStorageAccess = () =>
+  useContext(FavoriteQueryStorageContext);
+export const favoriteQueryStorageAccessLocator = useFavoriteQueryStorageAccess;
 
-export const favoriteQueryStorageAccessLocator = ():
-  | FavoriteQueryStorageAccess
-  | undefined => {
-  const storageIsRequired = usePreference('enableSavedAggregationsQueries');
-  const storageAccess = useContext(FavoriteQueryStorageContext);
-  if (storageIsRequired && !storageAccess) {
-    throw new Error('No FavoriteQueryStorageAccess available in this context');
-  }
-
-  return storageAccess;
-};
-
-export const recentQueryStorageAccessLocator = ():
-  | RecentQueryStorageAccess
-  | undefined => {
-  const storageIsRequired = usePreference('enableSavedAggregationsQueries');
-  const storageAccess = useContext(RecentQueryStorageContext);
-  if (storageIsRequired && !storageAccess) {
-    throw new Error('No RecentQueryStorageAccess available in this context');
-  }
-
-  return storageAccess;
-};
+export const useRecentQueryStorageAccess = () =>
+  useContext(RecentQueryStorageContext);
+export const recentQueryStorageAccessLocator = useRecentQueryStorageAccess;
