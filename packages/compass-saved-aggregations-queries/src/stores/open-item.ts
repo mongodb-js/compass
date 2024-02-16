@@ -250,13 +250,27 @@ export const openSavedItem =
   };
 
 export const openSelectedItem =
-  (): SavedQueryAggregationThunkAction<void> => (dispatch, getState) => {
+  (
+    updateItemNamespace: boolean
+  ): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, getState, { queryStorage, pipelineStorage }) => {
     const {
       openItem: { selectedItem, selectedDatabase, selectedCollection },
     } = getState();
 
     if (!selectedItem || !selectedDatabase || !selectedCollection) {
       return;
+    }
+
+    if (updateItemNamespace) {
+      const id = selectedItem.id;
+      const newNamespace = `${selectedDatabase}.${selectedCollection}`;
+
+      if (selectedItem.type === 'aggregation') {
+        await pipelineStorage.updateAttributes(id, { namespace: newNamespace });
+      } else if (selectedItem.type === 'query') {
+        await queryStorage.updateAttributes(id, { _ns: newNamespace });
+      }
     }
 
     dispatch({ type: ActionTypes.CloseModal });

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  Checkbox,
   FormModal,
   Option,
   Select,
@@ -98,7 +99,7 @@ type OpenItemModalProps = {
   itemName: string;
   isModalOpen: boolean;
   isSubmitDisabled: boolean;
-  onSubmit(): void;
+  onSubmit(updateItemNamespace: boolean): void;
   onClose(): void;
 };
 
@@ -107,6 +108,7 @@ const modalContent = css({
   gridTemplateAreas: `
     'description description'
     'database collection'
+    'checkbox checkbox'
   `,
   gridAutoColumns: '1fr',
   rowGap: spacing[4],
@@ -125,6 +127,10 @@ const collectionSelect = css({
   gridArea: 'collection',
 });
 
+const checkbox = css({
+  gridArea: 'checkbox',
+});
+
 const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   namespace,
   itemType,
@@ -134,11 +140,12 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const [updateNamespace, setUpdateNamespace] = useState(false);
   return (
     <FormModal
       open={isModalOpen}
       onCancel={onClose}
-      onSubmit={onSubmit}
+      onSubmit={() => onSubmit(updateNamespace)}
       title="Select a Namespace"
       submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
@@ -161,6 +168,12 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
             label="Collection"
           ></CollectionSelect>
         </div>
+        <Checkbox
+          className={checkbox}
+          checked={updateNamespace}
+          onChange={() => setUpdateNamespace(!updateNamespace)}
+          label={`Update this ${itemType} with the newly selected namespace`}
+        />
       </div>
     </FormModal>
   );
