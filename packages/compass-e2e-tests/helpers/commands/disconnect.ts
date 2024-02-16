@@ -5,8 +5,10 @@ import * as Selectors from '../selectors';
 
 export async function disconnect(browser: CompassBrowser): Promise<void> {
   if (TEST_COMPASS_WEB) {
-    await browser.navigateTo('/');
-    const element = await browser.$(Selectors.ConnectSection);
+    const url = new URL(await browser.getUrl());
+    url.pathname = '/';
+    await browser.navigateTo(url.toString());
+    const element = await browser.$('textarea[title="Connection string"]');
     await element.waitForDisplayed();
     return;
   }
