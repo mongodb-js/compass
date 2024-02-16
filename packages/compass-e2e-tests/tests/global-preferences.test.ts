@@ -35,6 +35,7 @@ describe('Global preferences', function () {
 
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // global preferences not available in compass-web
       this.skip();
     }
   });

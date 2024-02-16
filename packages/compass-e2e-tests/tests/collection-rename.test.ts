@@ -111,6 +111,7 @@ describe('Collection Rename Modal', () => {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // feature flags not yet available in compass-web
       this.skip();
     }
 

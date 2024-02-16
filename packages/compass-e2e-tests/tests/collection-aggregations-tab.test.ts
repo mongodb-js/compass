@@ -501,8 +501,8 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     before(function () {
-      // we don't support getFeature() and setFeature() in compass-web yet
       if (TEST_COMPASS_WEB) {
+        // we don't support getFeature() and setFeature() in compass-web yet
         this.skip();
       }
     });
@@ -823,8 +823,8 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
-    // export is not available in compass-web yet
     if (TEST_COMPASS_WEB) {
+      // export is not yet available in compass-web
       this.skip();
     }
 
@@ -1102,8 +1102,8 @@ describe('Collection aggregations tab', function () {
 
   describe('saving pipelines', function () {
     before(function () {
-      // not available in compass-web yet
       if (TEST_COMPASS_WEB) {
+        // saved pipelines not yet available in compass-web
         this.skip();
       }
     });

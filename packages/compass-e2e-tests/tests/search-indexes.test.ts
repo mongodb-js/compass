@@ -155,6 +155,7 @@ describe.skip('Search Indexes', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // search indexes disabled on compass-web
       this.skip();
     }
 

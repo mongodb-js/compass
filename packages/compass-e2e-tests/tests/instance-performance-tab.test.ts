@@ -14,6 +14,7 @@ describe('Instance performance tab', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // performance tab not yet available in compass-web
       this.skip();
     }
 

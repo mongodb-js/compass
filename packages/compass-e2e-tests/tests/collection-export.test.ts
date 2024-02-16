@@ -43,6 +43,7 @@ describe('Collection export', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // export not yet available in compass-web
       this.skip();
     }
 

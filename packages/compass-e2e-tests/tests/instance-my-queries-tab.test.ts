@@ -43,6 +43,7 @@ describe('Instance my queries tab', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // saved queries not yet available in compass-web
       this.skip();
     }
 

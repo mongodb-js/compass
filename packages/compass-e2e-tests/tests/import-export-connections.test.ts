@@ -38,6 +38,7 @@ describe('Connection Import / Export', function () {
 
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // export connections not available in compass-web
       this.skip();
     }
   });

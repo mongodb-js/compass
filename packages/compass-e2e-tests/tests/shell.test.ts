@@ -18,6 +18,7 @@ describe('Shell', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // shell not available on compass-web
       this.skip();
     }
 

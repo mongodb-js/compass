@@ -21,6 +21,7 @@ describe('Connection form', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // no connect form in compass-web
       this.skip();
     }
 

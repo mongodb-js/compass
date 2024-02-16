@@ -21,6 +21,7 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // cli parameters not supported in compass-web
       this.skip();
     }
   });

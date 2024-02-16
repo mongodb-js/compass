@@ -39,6 +39,7 @@ describe('protectConnectionStrings', function () {
 
   before(async function () {
     if (TEST_COMPASS_WEB) {
+      // connection form not available in compass-web
       this.skip();
     }
 

@@ -9,6 +9,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
 
   before(function () {
     if (TEST_COMPASS_WEB) {
+      // cli params not available in compass-web
       this.skip();
     }
 
