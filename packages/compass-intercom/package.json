@@ -43,7 +43,7 @@
     "depcheck": "depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "test": "mocha",
+    "test": "xvfb-maybe electron-mocha --no-sandbox \"./src/**/*.spec.*\"",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
@@ -61,10 +61,19 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
-    "mocha": "^10.2.0",
+    "global-jsdom": "^8.3.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^17.0.1",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "compass-preferences-model": "^2.17.4",
+    "@mongodb-js/compass-logging": "^1.2.12",
+    "electron-mocha": "^12.2.0"
+  },
+  "peerDependencies": {
+    "compass-preferences-model": "^2.17.4",
+    "@mongodb-js/compass-logging": "^1.2.12"
   }
 }
