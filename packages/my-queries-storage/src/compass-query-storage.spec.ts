@@ -5,7 +5,10 @@ import os from 'os';
 import { EJSON, UUID } from 'bson';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
-import { RecentQueryStorage, FavoriteQueryStorage } from './query-storage';
+import {
+  CompassRecentQueryStorage,
+  CompassFavoriteQueryStorage,
+} from './compass-query-storage';
 
 const queries = [
   {
@@ -25,13 +28,13 @@ const queries = [
 
 const maxAllowedRecentQueries = 30;
 
-describe('RecentQueryStorage', function () {
-  let queryHistoryStorage: RecentQueryStorage;
+describe('CompassRecentQueryStorage', function () {
+  let queryHistoryStorage: CompassRecentQueryStorage;
 
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
-    queryHistoryStorage = new RecentQueryStorage({
+    queryHistoryStorage = new CompassRecentQueryStorage({
       basepath: tmpDir,
     });
   });
@@ -74,6 +77,20 @@ describe('RecentQueryStorage', function () {
     expect(data.find((x) => x._id === queries[1]._id)).to.deep.equal(
       queries[1]
     );
+  });
+
+  it('loads files from storage only for a specific namespace', async function () {
+    const differentNSQuery = {
+      _id: new UUID().toString(),
+      _ns: 'x.y',
+      _lastExecuted: new Date(1690876213077 - queries.length * 1000),
+    };
+    const mixedQueries = [...queries, differentNSQuery];
+    await Promise.all(mixedQueries.map((query) => writeQuery(query)));
+
+    const data = await queryHistoryStorage.loadAll(differentNSQuery._ns);
+    expect(data).to.have.lengthOf(1);
+    expect(data[0]).to.deep.equal(differentNSQuery);
   });
 
   it('updates data in storage if files exists', async function () {
@@ -166,7 +183,7 @@ describe('RecentQueryStorage', function () {
   for (const { query, version } of recentQueries) {
     it(`supports recent query from Compass v${version}`, async function () {
       await writeQuery(query, 'RecentQueries');
-      const recentQueryStorage = new RecentQueryStorage({
+      const recentQueryStorage = new CompassRecentQueryStorage({
         basepath: tmpDir,
       });
       const [loadedQuery] = await recentQueryStorage.loadAll();
@@ -182,7 +199,7 @@ describe('RecentQueryStorage', function () {
   for (const { query, version } of favoriteQueries) {
     it(`supports favorite query from Compass v${version}`, async function () {
       await writeQuery(query, 'FavoriteQueries');
-      const favoriteQueryStorage = new FavoriteQueryStorage({
+      const favoriteQueryStorage = new CompassFavoriteQueryStorage({
         basepath: tmpDir,
       });
       const [loadedQuery] = await favoriteQueryStorage.loadAll();
@@ -204,13 +221,13 @@ describe('RecentQueryStorage', function () {
   }
 });
 
-describe('FavoriteQueryStorage', function () {
-  let queryFavoriteStorage: FavoriteQueryStorage;
+describe('CompassFavoriteQueryStorage', function () {
+  let queryFavoriteStorage: CompassFavoriteQueryStorage;
 
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
-    queryFavoriteStorage = new FavoriteQueryStorage({
+    queryFavoriteStorage = new CompassFavoriteQueryStorage({
       basepath: tmpDir,
     });
   });
@@ -235,5 +252,31 @@ describe('FavoriteQueryStorage', function () {
     expect(query._ns).to.equal('test.test');
     expect(query.filter).to.deep.equal({ a: 1 });
     expect(query.update).to.deep.equal({ $set: { a: 2 } });
+  });
+
+  it('should retrieve saved queries only for a specific namespace', async function () {
+    const nsTestQuery = {
+      _ns: 'test.test',
+      _name: 'my-query',
+      filter: { a: 1 },
+      update: { $set: { a: 2 } },
+    };
+    const nsTest1Query = {
+      _ns: 'test1.test1',
+      _name: 'my-query-1',
+      filter: { a: 1 },
+      update: { $set: { a: 2 } },
+    };
+    await queryFavoriteStorage.saveQuery(nsTestQuery);
+    await queryFavoriteStorage.saveQuery(nsTest1Query);
+
+    const loaded = await queryFavoriteStorage.loadAll(nsTest1Query._ns);
+    expect(loaded.length).to.equal(1);
+
+    const [query] = loaded;
+    expect(query._name).to.equal(nsTest1Query._name);
+    expect(query._ns).to.equal(nsTest1Query._ns);
+    expect(query.filter).to.deep.equal(nsTest1Query.filter);
+    expect(query.update).to.deep.equal(nsTest1Query.update);
   });
 });

@@ -251,7 +251,10 @@ export const fetchRecents = (): QueryBarThunkAction<
     { recentQueryStorage, logger: { debug } }
   ) => {
     try {
-      const recents = await recentQueryStorage.loadAll();
+      const {
+        queryBar: { namespace },
+      } = _getState();
+      const recents = await recentQueryStorage.loadAll(namespace);
       dispatch({
         type: QueryBarActions.RecentQueriesFetched,
         recents,
@@ -283,7 +286,10 @@ export const fetchFavorites = (): QueryBarThunkAction<
     { favoriteQueryStorage, logger: { debug } }
   ) => {
     try {
-      const favorites = await favoriteQueryStorage.loadAll();
+      const {
+        queryBar: { namespace },
+      } = _getState();
+      const favorites = await favoriteQueryStorage.loadAll(namespace);
       dispatch({
         type: QueryBarActions.FavoriteQueriesFetched,
         favorites,

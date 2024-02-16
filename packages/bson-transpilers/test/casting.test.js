@@ -10,15 +10,12 @@ const yaml = require('js-yaml');
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];
 
 const JavascriptANTLRVisitor = require('../lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
-const PythonANTLRVisitor = require('../lib/antlr/Python3Visitor').Python3Visitor;
 const getCodeGenerationVisitor = require('../codegeneration/CodeGenerationVisitor');
 const getJavascriptVisitor = require('../codegeneration/javascript/Visitor');
 
 
 const getANTLRVisitor = {
-  javascript: () => ( JavascriptANTLRVisitor ),
-  shell: () => ( getJavascriptVisitor(JavascriptANTLRVisitor) ),
-  python: () => ( PythonANTLRVisitor )
+  shell: () => ( getJavascriptVisitor(JavascriptANTLRVisitor) )
 };
 
 const readYAML = (filename) => {

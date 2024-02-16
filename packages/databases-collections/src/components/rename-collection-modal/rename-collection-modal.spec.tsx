@@ -12,11 +12,21 @@ describe('CreateCollectionModal [Component]', function () {
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
   };
+  const instanceModel = {
+    databases: {
+      get: function () {
+        return {
+          collections: [{ name: 'my-collection' }],
+        };
+      },
+    },
+  };
   context('when the modal is visible', function () {
     beforeEach(function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
         globalAppRegistry: appRegistry,
         dataService,
+        instance: instanceModel as any,
       });
       render(<Plugin> </Plugin>);
       appRegistry.emit('open-rename-collection', {
@@ -55,6 +65,24 @@ describe('CreateCollectionModal [Component]', function () {
       expect(submitButton).not.to.have.attribute('aria-disabled');
       fireEvent.change(input, { target: { value: 'bar' } });
       expect(submitButton).to.have.attribute('aria-disabled');
+    });
+
+    it('disables the submit button when the value is empty', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      const input = screen.getByTestId('rename-collection-name-input');
+      expect(submitButton).to.have.attribute('disabled');
+
+      fireEvent.change(input, { target: { value: '' } });
+      expect(submitButton).to.have.attribute('disabled');
+    });
+
+    it('disables the submit button when the value is exists as a collection in the current database', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      const input = screen.getByTestId('rename-collection-name-input');
+      expect(submitButton).to.have.attribute('disabled');
+
+      fireEvent.change(input, { target: { value: 'my-collection' } });
+      expect(submitButton).to.have.attribute('disabled');
     });
 
     context('when the user has submitted the form', () => {
