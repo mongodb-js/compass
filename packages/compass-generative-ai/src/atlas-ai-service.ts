@@ -1,7 +1,15 @@
 import type { SimplifiedSchema } from 'mongodb-schema';
-import { isAIFeatureEnabled } from 'compass-preferences-model/provider';
-import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import {
+  type PreferencesAccess,
+  isAIFeatureEnabled,
+} from 'compass-preferences-model/provider';
+import type {
+  AtlasAuthService,
+  AtlasService,
+} from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { showOptInConfirmation } from './components/ai-opt-in-confirmation';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -45,25 +53,15 @@ type AIQuery = {
 };
 
 export class AtlasAiService {
-  private static instance: AtlasAiService | null = null;
   private initPromise: Promise<void> | null = null;
 
-  private constructor(private atlasService: AtlasService) {}
-
-  get preferences() {
-    return this.atlasService.preferences;
-  }
-
-  get logger() {
-    return this.atlasService.logger;
-  }
-
-  static getInstance(atlasService: AtlasService) {
-    if (!this.instance) {
-      this.instance = new this(atlasService);
-      this.instance.initPromise = this.instance.setupAIAccess();
-    }
-    return this.instance;
+  constructor(
+    private atlasService: AtlasService,
+    private atlasAuthService: AtlasAuthService,
+    private preferences: PreferencesAccess,
+    private logger: LoggerAndTelemetry
+  ) {
+    this.initPromise = this.setupAIAccess();
   }
 
   private async throwIfAINotEnabled() {
@@ -74,17 +72,39 @@ export class AtlasAiService {
     }
     // Only throw if we actually have userInfo / logged in. Otherwise allow
     // request to fall through so that we can get a proper network error
-    if ((await this.atlasService.getCurrentUser()).enabledAIFeature === false) {
+    if (
+      (await this.atlasAuthService.getUserInfo()).enabledAIFeature === false
+    ) {
       throw new Error("Can't use AI before accepting terms and conditions");
     }
   }
 
   async enableFeature() {
-    return this.atlasService.enableAIFeature();
+    const isAuthenticated = await this.atlasAuthService.isAuthenticated();
+    if (!isAuthenticated) {
+      throw new Error("Can't enable AI feature when signed out");
+    }
+    const userInfo = await this.atlasAuthService.getUserInfo();
+    if (userInfo.enabledAIFeature) {
+      return;
+    }
+    await this.atlasAuthService.signIn();
+    const confirmed = await showOptInConfirmation();
+
+    await this.atlasAuthService.updateUserConfig({
+      enabledAIFeature: confirmed,
+    });
+    if (!confirmed) {
+      throw new Error('Terms and conditions were not accepted');
+    }
   }
 
   async disableFeature() {
-    return this.atlasService.disableAIFeature();
+    const isAuthenticated = await this.atlasAuthService.isAuthenticated();
+    if (!isAuthenticated) {
+      throw new Error("Can't disable AI feature when signed out");
+    }
+    await this.atlasAuthService.updateUserConfig({ enabledAIFeature: false });
   }
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
@@ -95,7 +115,7 @@ export class AtlasAiService {
     return body;
   }
 
-  private async setupAIAccess(): Promise<void> {
+  async setupAIAccess(): Promise<void> {
     try {
       const featureResponse = await this.getAIFeatureEnablement();
 

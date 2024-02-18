@@ -4,34 +4,27 @@ import { AtlasService } from './atlas-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { AtlasUserInfo } from './util';
-import { getStore } from './store/atlas-signin-store';
-import { AtlasSignInActions } from './store/atlas-signin-reducer';
+import { AtlasHttpApiClient } from './atlas-http-api-client';
 
-const USER: AtlasUserInfo = {
-  enabledAIFeature: true,
-  firstName: 'John',
-  lastName: 'Doe',
-  login: 'johndoe',
-  primaryEmail: 'johndoe@mongodb.com',
-  sub: '123',
-};
+function getAtlasService(
+  preferences: PreferencesAccess,
+  getAuthHeadersFn?: () => Promise<Record<string, string>>
+) {
+  const config = {
+    atlasApiBaseUrl: 'http://example.com/api/private',
+    atlasApiUnauthBaseUrl: 'http://api.example.com',
+    atlasLogin: {
+      clientId: 'some-client-id',
+      issuer: 'http://example.com/oauth2/default',
+    },
+    authPortalUrl: 'http://example.com/account/login',
+  };
 
-class AtlasUserDataMock {
-  getUser() {
-    return Promise.resolve(USER);
-  }
-  updateConfig() {
-    return Promise.resolve();
-  }
-}
-
-function setReducerLoginState() {
-  getStore().dispatch({ type: AtlasSignInActions.RestoringStart });
-  getStore().dispatch({
-    type: AtlasSignInActions.RestoringSuccess,
-    userInfo: USER,
-  });
+  return new AtlasService(
+    new AtlasHttpApiClient(config, getAuthHeadersFn),
+    preferences,
+    createNoopLoggerAndTelemetry()
+  );
 }
 
 describe('AtlasService', function () {
@@ -43,11 +36,7 @@ describe('AtlasService', function () {
   beforeEach(async function () {
     sandbox = Sinon.createSandbox();
     preferences = await createSandboxFromDefaultPreferences();
-    atlasService = new AtlasService(
-      new AtlasUserDataMock(),
-      preferences,
-      createNoopLoggerAndTelemetry()
-    );
+    atlasService = getAtlasService(preferences);
   });
 
   afterEach(function () {
@@ -142,8 +131,10 @@ describe('AtlasService', function () {
       json: () => Promise.resolve(expectedData),
     });
     global.fetch = fetchStub;
-    atlasService['httpClient']['atlasLoginServiceRenderer'].getToken = () =>
-      Promise.resolve('super-secret');
+    const getAuthHeadersFn = sandbox.stub().resolves({
+      Authorization: 'Bearer super-secret',
+    });
+    const atlasService = getAtlasService(preferences, getAuthHeadersFn);
     const response = await atlasService.fetch('https://example.com');
     const data = await response.json();
 
@@ -154,6 +145,7 @@ describe('AtlasService', function () {
       'Authorization',
       'Bearer super-secret'
     );
+    expect(getAuthHeadersFn.calledOnce).to.be.true;
   });
 
   it('should fetch JSON data from fetchJson', async function () {
@@ -164,8 +156,10 @@ describe('AtlasService', function () {
       json: () => Promise.resolve(expectedData),
     });
     global.fetch = fetchStub;
-    atlasService['httpClient']['atlasLoginServiceRenderer'].getToken = () =>
-      Promise.resolve('super-secret');
+    const getAuthHeadersFn = sandbox.stub().resolves({
+      Authorization: 'Bearer super-secret',
+    });
+    const atlasService = getAtlasService(preferences, getAuthHeadersFn);
     const data = await atlasService.fetchJson('https://example.com');
 
     expect(fetchStub.calledOnce).to.be.true;
@@ -179,28 +173,6 @@ describe('AtlasService', function () {
       'Accept',
       'application/json'
     );
-  });
-
-  it('should get the current user', async function () {
-    const user = await atlasService.getCurrentUser();
-    expect(user).to.deep.equal(USER);
-  });
-
-  it('should disable the AI feature', async function () {
-    setReducerLoginState();
-    sandbox.spy(atlasService['atlasUser'], 'updateConfig');
-    await atlasService.disableAIFeature();
-    expect(
-      (atlasService as any).atlasUser.updateConfig
-    ).to.have.been.calledWith({ enabledAIFeature: false });
-  });
-
-  it('should enable the AI feature', async function () {
-    setReducerLoginState();
-    sandbox.spy(atlasService['atlasUser'], 'updateConfig');
-    await atlasService.enableAIFeature();
-    expect(
-      (atlasService as any).atlasUser.updateConfig
-    ).to.have.been.calledWith({ enabledAIFeature: true });
+    expect(getAuthHeadersFn.calledOnce).to.be.true;
   });
 });

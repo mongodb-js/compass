@@ -8,18 +8,37 @@ import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 
-export class MockAtlasUserData {
-  getUser = () => Promise.resolve({} as any);
-  updateConfig = () => Promise.resolve();
-}
-export class MockAtlasAuthService {
-  on() {
-    return this;
+export class MockAtlasAuthService extends AtlasAuthService {
+  isAuthenticated() {
+    return Promise.resolve(true);
   }
-  signIn() {
+  async getUserInfo() {
+    return Promise.resolve({} as any);
+  }
+  async updateUserConfig() {
+    return Promise.resolve();
+  }
+  async signIn() {
+    return Promise.resolve({} as any);
+  }
+  async signOut() {
+    return Promise.resolve();
+  }
+}
+
+export class MockAtlasAiService {
+  async enableFeature() {
+    return Promise.resolve(true);
+  }
+  async disableFeature() {
+    return Promise.resolve(true);
+  }
+  async getAggregationFromUserInput() {
+    return Promise.resolve({});
+  }
+  async getQueryFromUserInput() {
     return Promise.resolve({});
   }
 }
@@ -29,14 +48,12 @@ export default function configureStore(
   dataService: DataService = mockDataService(),
   services: Partial<AggregationsPluginServices> = {}
 ) {
-  AtlasAiService['instance'] = null;
   const preferences = new ReadOnlyPreferenceAccess();
   const logger = createNoopLoggerAndTelemetry();
-  const atlasService =
-    services.atlasService ||
-    new AtlasService(new MockAtlasUserData(), preferences, logger);
-  const atlasAuthService =
-    options.atlasAuthService || (new MockAtlasAuthService() as any);
+
+  const atlasAuthService = new MockAtlasAuthService();
+  const atlasAiService = new MockAtlasAiService();
+
   return activateAggregationsPlugin(
     {
       namespace: 'test.test',
@@ -49,7 +66,6 @@ export default function configureStore(
       isAtlas: false,
       serverVersion: '4.0.0',
       ...options,
-      atlasAuthService,
     },
     {
       dataService,
@@ -59,8 +75,9 @@ export default function configureStore(
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
       logger,
+      atlasAiService: atlasAiService as any,
+      atlasAuthService,
       ...services,
-      atlasService,
     },
     createActivateHelpers()
   ).store;

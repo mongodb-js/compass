@@ -3,10 +3,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
-import {
-  AtlasAuthService,
-  type AtlasService,
-} from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -39,7 +36,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -67,10 +64,6 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * Storage service for saved aggregations
      */
     pipelineStorage: PipelineStorage;
-    /**
-     * Service for interacting with Atlas-only features
-     */
-    atlasAuthService: AtlasAuthService;
   }>;
 
 export type AggregationsPluginServices = {
@@ -81,7 +74,8 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  atlasService: AtlasService;
+  atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService;
 };
 
 export function activateAggregationsPlugin(
@@ -94,7 +88,8 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
-    atlasService,
+    atlasAiService,
+    atlasAuthService,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -121,8 +116,6 @@ export function activateAggregationsPlugin(
     preferences,
     initialPipelineSource
   );
-
-  const atlasAuthService = options.atlasAuthService ?? new AtlasAuthService();
 
   const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
 
@@ -182,7 +175,7 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
-        atlasAiService: AtlasAiService.getInstance(atlasService),
+        atlasAiService,
       })
     )
   );

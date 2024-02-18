@@ -1,33 +1,16 @@
-import { EventEmitter } from 'events';
 import { ipcRenderer } from 'hadron-ipc';
 import type { AtlasService as AtlasServiceMain } from './main';
+import type { AtlasUserInfo } from './util';
+import { getStore } from './store/atlas-signin-store';
 import {
   signInWithModalPrompt,
   signInWithoutPrompt,
-  signedOut,
-  tokenRefreshFailed,
-  userConfigChanged,
 } from './store/atlas-signin-reducer';
-import { getStore } from './store/atlas-signin-store';
-import type { AtlasUserInfo } from './util';
-import type { AtlasUserConfig } from './user-config-store';
 
-let atlasAuthServiceInstanceSingleton: AtlasAuthService;
-
-type AtlasServiceEvents = {
-  'signed-in': [];
-  'signed-out': [];
-  'token-refresh-failed': [];
-  'user-config-changed': [AtlasUserConfig];
-};
-
-export class AtlasAuthService {
-  private emitter = new EventEmitter();
-
+export class AtlasIpcClient {
   private _ipc = ipcRenderer?.createInvoke<
     typeof AtlasServiceMain,
     | 'getUserInfo'
-    | 'introspect'
     | 'isAuthenticated'
     | 'signIn'
     | 'signOut'
@@ -35,7 +18,6 @@ export class AtlasAuthService {
     | 'maybeGetToken'
   >('AtlasService', [
     'getUserInfo',
-    'introspect',
     'isAuthenticated',
     'signIn',
     'signOut',
@@ -57,9 +39,6 @@ export class AtlasAuthService {
   get getUserInfo() {
     return this.ipc.getUserInfo;
   }
-  get introspect() {
-    return this.ipc.introspect;
-  }
   get isAuthenticated() {
     return this.ipc.isAuthenticated;
   }
@@ -68,49 +47,6 @@ export class AtlasAuthService {
   }
   get updateAtlasUserConfig() {
     return this.ipc.updateAtlasUserConfig;
-  }
-
-  on<T extends keyof AtlasServiceEvents>(
-    evt: T,
-    listener: (...args: AtlasServiceEvents[T]) => void
-  ): this;
-  on(evt: string, listener: (...args: any[]) => void): this {
-    this.emitter.on(evt, listener);
-    return this;
-  }
-
-  once<T extends keyof AtlasServiceEvents>(
-    evt: T,
-    listener: (...args: AtlasServiceEvents[T]) => void
-  ): this;
-  once(evt: string, listener: (...args: any[]) => void): this {
-    this.emitter.once(evt, listener);
-    return this;
-  }
-
-  off<T extends keyof AtlasServiceEvents>(
-    evt: T,
-    listener: (...args: AtlasServiceEvents[T]) => void
-  ): this;
-  off(evt: string, listener: (...args: any[]) => void): this {
-    this.emitter.off(evt, listener);
-    return this;
-  }
-  removeListener<T extends keyof AtlasServiceEvents>(
-    evt: T,
-    listener: (...args: AtlasServiceEvents[T]) => void
-  ): this;
-  removeListener(evt: string, listener: (...args: any[]) => void): this {
-    this.emitter.off(evt, listener);
-    return this;
-  }
-
-  emit<T extends keyof AtlasServiceEvents>(
-    evt: T,
-    ...args: AtlasServiceEvents[T]
-  ): boolean;
-  emit(evt: string, ...args: any[]): boolean {
-    return this.emitter.emit(evt, ...args);
   }
 
   async signIn({
@@ -130,39 +66,25 @@ export class AtlasAuthService {
     }
   }
 
-  constructor() {
-    if (atlasAuthServiceInstanceSingleton) {
-      return atlasAuthServiceInstanceSingleton;
+  private static instance: AtlasIpcClient;
+  private constructor() {
+    // private constructor
+  }
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new AtlasIpcClient();
     }
-
-    // We might not be in electorn environment
-    ipcRenderer?.on('atlas-service-token-refresh-failed', () => {
-      getStore().dispatch(tokenRefreshFailed());
-    });
-
-    ipcRenderer?.on('atlas-service-signed-out', () => {
-      getStore().dispatch(signedOut());
-    });
-
-    ipcRenderer?.on(
-      'atlas-service-user-config-changed',
-      (_evt, newConfig: AtlasUserConfig) => {
-        getStore().dispatch(userConfigChanged(newConfig));
-      }
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    atlasAuthServiceInstanceSingleton = this;
+    return this.instance;
   }
 }
 
-export { AtlasSignIn } from './components/atlas-signin';
-
-export { AtlasServiceError } from './util';
+export { AtlasServiceError, getAtlasConfig } from './util';
 export type { AtlasUserConfig } from './user-config-store';
 export type { AtlasUserInfo, IntrospectInfo, Token } from './util';
-
-export { AtlasHttpApiClient } from './atlas-http-api-client';
+export { AtlasSignIn } from './components/atlas-signin';
 export { AtlasService } from './atlas-service';
-export type { AtlasUserData } from './atlas-user';
-export { CompassAtlasUserData } from './atlas-user';
+export { AtlasHttpApiClient } from './atlas-http-api-client';
+export {
+  CompassAtlasAuthService,
+  AtlasAuthService,
+} from './atlas-auth-service';

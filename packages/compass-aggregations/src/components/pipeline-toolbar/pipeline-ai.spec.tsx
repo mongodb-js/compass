@@ -7,21 +7,15 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
 import PipelineAI from './pipeline-ai';
 import configureStore, {
-  MockAtlasAuthService,
-  MockAtlasUserData,
+  MockAtlasAiService,
 } from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
   changeAIPromptText,
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
-import type { ConfigureStoreOptions } from '../../stores/store';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  LoggerAndTelemetryProvider,
-  createNoopLoggerAndTelemetry,
-} from '@mongodb-js/compass-logging/provider';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
@@ -37,18 +31,13 @@ describe('PipelineAI Component', function () {
     });
   };
 
-  const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
-    const mockAtlasService = new AtlasService(
-      new MockAtlasUserData(),
+  const renderPipelineAI = () => {
+    const atlasAiService = new MockAtlasAiService();
+    atlasAiService['enableFeature'] = () => Promise.resolve(true);
+    const store = configureStore({}, undefined, {
       preferences,
-      createNoopLoggerAndTelemetry()
-    );
-    mockAtlasService['enableAIFeature'] = () => Promise.resolve();
-    const store = configureStore(
-      { atlasAuthService: new MockAtlasAuthService() as any, ...opts },
-      undefined,
-      { preferences, atlasService: mockAtlasService }
-    );
+      atlasAiService: atlasAiService as any,
+    });
     render(
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>

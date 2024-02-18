@@ -4,11 +4,8 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import {
-  AtlasAuthService,
-  type AtlasService,
-} from '@mongodb-js/atlas-service/renderer';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -24,7 +21,7 @@ export type Public<T> = { [K in keyof T]: T[K] };
 
 export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;
-  atlasAuthService: Public<AtlasAuthService>;
+  atlasAuthService: AtlasAuthService;
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
@@ -33,7 +30,8 @@ export type SettingsThunkExtraArgs = {
 export type SettingsPluginServices = {
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
-  atlasService: AtlasService;
+  atlasAiService: AtlasAiService;
+  atlasAuthService: AtlasAuthService;
 };
 
 export function configureStore(
@@ -41,7 +39,6 @@ export function configureStore(
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
-  const atlasAuthService = options?.atlasAuthService ?? new AtlasAuthService();
 
   const store = createStore(
     combineReducers({
@@ -55,26 +52,26 @@ export function configureStore(
       thunk.withExtraArgument({
         preferences: options.preferences,
         preferencesSandbox,
-        atlasAuthService,
         logger: options.logger,
-        atlasAiService: AtlasAiService.getInstance(options.atlasService),
+        atlasAuthService: options.atlasAuthService,
+        atlasAiService: options.atlasAiService,
       })
     )
   );
 
-  atlasAuthService.on('signed-in', () => {
+  options.atlasAuthService.on('signed-in', () => {
     void store.dispatch(getUserInfo());
   });
 
-  atlasAuthService.on('signed-out', () => {
+  options.atlasAuthService.on('signed-out', () => {
     void store.dispatch(atlasServiceSignedOut());
   });
 
-  atlasAuthService.on('token-refresh-failed', () => {
+  options.atlasAuthService.on('token-refresh-failed', () => {
     void store.dispatch(atlasServiceTokenRefreshFailed());
   });
 
-  atlasAuthService.on('user-config-changed', (newConfig) => {
+  options.atlasAuthService.on('user-config-changed', (newConfig) => {
     void store.dispatch(atlasServiceUserConfigChanged(newConfig));
   });
 
@@ -94,14 +91,12 @@ const onActivated = (
   _: unknown,
   {
     globalAppRegistry,
-    logger,
-    preferences,
-    atlasService,
+    ...restOfServices
   }: SettingsPluginServices & {
     globalAppRegistry: Pick<AppRegistry, 'on' | 'removeListener'>;
   }
 ) => {
-  const store = configureStore({ logger, preferences, atlasService });
+  const store = configureStore(restOfServices);
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());

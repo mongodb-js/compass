@@ -20,31 +20,6 @@ import {
 } from 'mongodb-connection-string-url';
 import { CompassWeb } from '../src/index';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-import type {
-  AtlasHttpApiClient,
-  AtlasUserInfo,
-} from '@mongodb-js/atlas-service/renderer';
-
-class CloudHttpApiClient implements AtlasHttpApiClient {
-  getCurrentUser(): Promise<AtlasUserInfo> {
-    throw new Error('Method not implemented.');
-  }
-  privateUnAuthEndpoint(path: string): string {
-    throw new Error('Method not implemented.');
-  }
-  privateAtlasEndpoint(path: string): string {
-    throw new Error('Method not implemented.');
-  }
-  fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response> {
-    throw new Error('Method not implemented.');
-  }
-  unAuthenticatedFetch(
-    url: RequestInfo,
-    init?: RequestInit | undefined
-  ): Promise<Response> {
-    throw new Error('Method not implemented.');
-  }
-}
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -192,7 +167,6 @@ const App = () => {
           <CompassWeb
             connectionString={connectionString}
             initialWorkspaceTabs={[initialTab]}
-            atlasHttpClient={new CloudHttpApiClient()}
             onActiveWorkspaceTabChange={(tab) => {
               let newPath: string;
               switch (tab?.type) {

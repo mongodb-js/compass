@@ -22,17 +22,14 @@ import {
   FavoriteQueryStorage,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
-import {
-  AtlasAuthService,
-  type AtlasService,
-} from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -44,7 +41,8 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  atlasService: AtlasService;
+  atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService;
 };
 
 // TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
@@ -114,10 +112,10 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
-    atlasAuthService = new AtlasAuthService(),
+    atlasAuthService,
     recentQueryStorage = new RecentQueryStorage({ namespace }),
     favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
-    atlasService,
+    atlasAiService,
   } = services;
 
   const store = configureStore(
@@ -146,7 +144,7 @@ export function activatePlugin(
       atlasAuthService,
       preferences,
       logger,
-      atlasAiService: AtlasAiService.getInstance(atlasService),
+      atlasAiService,
     }
   );
 

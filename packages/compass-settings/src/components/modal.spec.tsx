@@ -29,7 +29,7 @@ describe('SettingsModal', function () {
     fetchSettingsSpy = stub().resolves();
     onSaveSpy = spy();
 
-    const store = configureStore({ logger: stub() as any });
+    const store = configureStore();
     renderSettingsModal = (
       props: Partial<ComponentProps<typeof SettingsModal>> = {}
     ) => {

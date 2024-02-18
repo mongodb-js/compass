@@ -3,22 +3,14 @@ import { EventEmitter } from 'events';
 import { screen, cleanup, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import type { Public } from '../../stores';
 import configureStore from '../../../test/configure-store';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { cancelAtlasLoginAttempt, signIn } from '../../stores/atlas-login';
 import { closeModal } from '../../stores/settings';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
-
-class UserDataMock {
-  getUser = () => Promise.resolve({} as any);
-  updateConfig = () => Promise.resolve();
-}
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 describe('AtlasLoginSettings', function () {
   const sandbox = Sinon.createSandbox();
@@ -29,29 +21,20 @@ describe('AtlasLoginSettings', function () {
 
   afterEach(function () {
     cleanup();
-    AtlasAiService['instance'] = null;
   });
 
   function renderAtlasLoginSettings(
-    atlasAuthService: Partial<Public<AtlasService>>,
-    atlasService: Partial<AtlasService> = {}
+    atlasAuthService: Partial<AtlasAuthService>,
+    atlasAiService: Partial<AtlasAiService> = {}
   ) {
-    const atlasServiceInstance = Object.assign(
-      new AtlasService(
-        new UserDataMock(),
-        new ReadOnlyPreferenceAccess(),
-        createNoopLoggerAndTelemetry()
-      ),
-      atlasService
-    );
     const store = configureStore({
       atlasAuthService: {
         on: sandbox.stub() as any,
         signIn: sandbox.stub().resolves({}),
         signOut: sandbox.stub().resolves(),
         ...atlasAuthService,
-      } as Public<AtlasService>,
-      atlasService: atlasServiceInstance,
+      } as any,
+      atlasAiService: atlasAiService as any,
     });
     render(
       <Provider store={store}>
@@ -245,10 +228,10 @@ describe('AtlasLoginSettings', function () {
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
     };
 
-    const enableAIFeature = sandbox.spy();
+    const enableFeature = sandbox.spy();
 
     const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
-      enableAIFeature,
+      enableFeature,
     });
 
     await store.dispatch(signIn());
@@ -267,7 +250,7 @@ describe('AtlasLoginSettings', function () {
       { skipPointerEventsCheck: true }
     );
 
-    expect(enableAIFeature).to.have.been.calledOnce;
+    expect(enableFeature).to.have.been.calledOnce;
 
     await waitFor(() => {
       expect(
@@ -285,10 +268,10 @@ describe('AtlasLoginSettings', function () {
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: true }),
     };
 
-    const disableAIFeature = sandbox.spy();
+    const disableFeature = sandbox.spy();
 
     const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
-      disableAIFeature,
+      disableFeature,
     });
 
     await store.dispatch(signIn());
@@ -307,7 +290,7 @@ describe('AtlasLoginSettings', function () {
       { skipPointerEventsCheck: true }
     );
 
-    expect(disableAIFeature).to.have.been.calledOnce;
+    expect(disableFeature).to.have.been.calledOnce;
 
     await waitFor(() => {
       expect(

@@ -1,12 +1,11 @@
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import type { AtlasServiceConfig } from './util';
-import { AtlasAuthService as AtlasAuthServiceRenderer } from './renderer';
 
 export class AtlasHttpApiClient {
-  private atlasLoginServiceRenderer: AtlasAuthServiceRenderer;
-  constructor(private config: AtlasServiceConfig) {
-    this.atlasLoginServiceRenderer = new AtlasAuthServiceRenderer();
-  }
+  constructor(
+    private readonly config: AtlasServiceConfig,
+    private readonly getAuthHeadersFn?: () => Promise<Record<string, string>>
+  ) {}
   privateUnAuthEndpoint(path: string): string {
     return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
   }
@@ -17,28 +16,26 @@ export class AtlasHttpApiClient {
     url: RequestInfo,
     init: RequestInit = {}
   ): Promise<Response> => {
+    const appName = getAppName();
+    const appVersion = getAppVersion();
+    const headers = {
+      ...init.headers,
+      ...(appName &&
+        appVersion && {
+          'User-Agent': `${appName}/${appVersion}`,
+        }),
+    };
     return await fetch(url, {
       ...init,
-      headers: {
-        ...init.headers,
-        'User-Agent': `${getAppName()}/${getAppVersion()}`,
-      },
+      headers,
     });
   };
   async fetch(url: RequestInfo, init: RequestInit = {}): Promise<Response> {
-    let token;
-    try {
-      token = await this.atlasLoginServiceRenderer.getToken({
-        signal: init.signal as AbortSignal,
-      });
-    } catch (e) {
-      // noop
-    }
     return await this.unAuthenticatedFetch(url, {
       ...init,
       headers: {
         ...init.headers,
-        ...(token && { Authorization: `Bearer ${token}` }),
+        ...(await this.getAuthHeadersFn?.()),
       },
     });
   }

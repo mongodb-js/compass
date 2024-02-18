@@ -9,10 +9,9 @@ import {
   generateAggregationFromQuery,
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
-import { MockAtlasUserData } from '../../../test/configure-store';
+import { MockAtlasAiService } from '../../../test/configure-store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -21,7 +20,7 @@ describe('AIPipelineReducer', function () {
     sandbox.reset();
   });
 
-  async function configureStore(atlasService: Partial<AtlasService> = {}) {
+  async function configureStore(aiService: Partial<AtlasAiService> = {}) {
     const preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableGenAIFeatures: true,
@@ -29,11 +28,7 @@ describe('AIPipelineReducer', function () {
         GEN_AI_COMPASS: true,
       },
     });
-    const atlasServiceInstance = new AtlasService(
-      new MockAtlasUserData(),
-      preferences,
-      createNoopLoggerAndTelemetry()
-    );
+    const atlasAiService = Object.assign(new MockAtlasAiService(), aiService);
     return configureReduxStore(
       {
         namespace: 'database.collection',
@@ -43,7 +38,7 @@ describe('AIPipelineReducer', function () {
         getConnectionString: sandbox.stub().returns({ hosts: [] }),
       } as any,
       {
-        atlasService: Object.assign(atlasServiceInstance, atlasService),
+        atlasAiService: atlasAiService as any,
       }
     );
   }
@@ -55,7 +50,7 @@ describe('AIPipelineReducer', function () {
           content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
         });
         const store = await configureStore({
-          fetchJson: fetchJsonStub,
+          getAggregationFromUserInput: fetchJsonStub,
         });
 
         // Set autoPreview false so that it doesn't start the
@@ -69,16 +64,12 @@ describe('AIPipelineReducer', function () {
 
         expect(fetchJsonStub).to.have.been.calledOnce;
 
-        const args = fetchJsonStub.getCall(0).args;
-        expect(args[0]).to.contain('ai/api/v1/mql-aggregation');
-        expect(args[1].method).to.equal('POST');
-
-        const body = JSON.parse(args[1].body);
-        expect(body).to.have.property('userInput', 'testing prompt');
-        expect(body).to.have.property('collectionName', 'collection');
-        expect(body).to.have.property('databaseName', 'database');
+        const args = fetchJsonStub.getCall(0).firstArg;
+        expect(args).to.have.property('userInput', 'testing prompt');
+        expect(args).to.have.property('collectionName', 'collection');
+        expect(args).to.have.property('databaseName', 'database');
         // Sample documents are currently disabled.
-        expect(body).to.not.have.property('sampleDocuments');
+        expect(args).to.not.have.property('sampleDocuments');
 
         expect(
           store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
@@ -95,7 +86,7 @@ describe('AIPipelineReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const store = await configureStore({
-          fetchJson: sandbox
+          getAggregationFromUserInput: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
         });
@@ -118,7 +109,7 @@ describe('AIPipelineReducer', function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
         const store = await configureStore({
-          fetchJson: sandbox.stub().rejects(authError),
+          getAggregationFromUserInput: sandbox.stub().rejects(authError),
         });
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(store.getState().pipelineBuilder.aiPipeline).to.deep.eq({
@@ -167,7 +158,7 @@ describe('AIPipelineReducer', function () {
   describe('generateAggregationFromQuery', function () {
     it('should create an aggregation pipeline', async function () {
       const store = await configureStore({
-        fetchJson: sandbox.stub().resolves({
+        getAggregationFromUserInput: sandbox.stub().resolves({
           content: {
             aggregation: { pipeline: '[{ $group: { _id: "$price" } }]' },
           },

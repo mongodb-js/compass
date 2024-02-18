@@ -10,9 +10,15 @@ import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   AtlasService,
-  CompassAtlasUserData,
+  AtlasHttpApiClient,
+  AtlasIpcClient,
+  CompassAtlasAuthService,
+  getAtlasConfig,
 } from '@mongodb-js/atlas-service/renderer';
-import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
+import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
+import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
+import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
@@ -182,24 +188,41 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
+    const atlasHttpClient = new AtlasHttpApiClient(
+      getAtlasConfig(defaultPreferencesInstance),
+      async () => ({
+        Authorization: `Bearer ${await AtlasIpcClient.getInstance().getToken()}`,
+      })
+    );
+
     const atlasService = new AtlasService(
-      new CompassAtlasUserData(),
+      atlasHttpClient,
       defaultPreferencesInstance,
       createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE')
+    );
+
+    const atlasAuthService = new CompassAtlasAuthService();
+    const atlasAiService = new AtlasAiService(
+      atlasService,
+      atlasAuthService,
+      defaultPreferencesInstance,
+      createLoggerAndTelemetry('COMPASS-ATLAS-AI-SERVICE')
     );
 
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AtlasServiceProvider value={atlasService}>
-              <AppRegistryProvider>
-                <CompassHomePlugin
-                  appName={remote.app.getName()}
-                  getAutoConnectInfo={getAutoConnectInfo}
-                ></CompassHomePlugin>
-              </AppRegistryProvider>
-            </AtlasServiceProvider>
+            <AtlasAuthServiceProvider value={atlasAuthService}>
+              <AtlasAiServiceProvider value={atlasAiService}>
+                <AppRegistryProvider>
+                  <CompassHomePlugin
+                    appName={remote.app.getName()}
+                    getAutoConnectInfo={getAutoConnectInfo}
+                  ></CompassHomePlugin>
+                </AppRegistryProvider>
+              </AtlasAiServiceProvider>
+            </AtlasAuthServiceProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,

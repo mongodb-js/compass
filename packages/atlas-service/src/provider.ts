@@ -1,14 +1,14 @@
 import { createContext, useContext } from 'react';
-import type { AtlasService } from './atlas-service';
+import type { AtlasAuthService } from './renderer';
 
-const AtlasServiceContext = createContext<AtlasService | null>(null);
+const AtlasAuthServiceContext = createContext<AtlasAuthService | null>(null);
 
-export const AtlasServiceProvider = AtlasServiceContext.Provider;
+export const AtlasAuthServiceProvider = AtlasAuthServiceContext.Provider;
 
-export function atlasServiceLocator(): AtlasService {
-  const client = useContext(AtlasServiceContext);
-  if (!client) {
-    throw new Error('No AtlasService available in this context');
+export function atlasAuthServiceLocator(): AtlasAuthService {
+  const service = useContext(AtlasAuthServiceContext);
+  if (!service) {
+    throw new Error('No AtlasAuthService available in this context');
   }
-  return client;
+  return service;
 }

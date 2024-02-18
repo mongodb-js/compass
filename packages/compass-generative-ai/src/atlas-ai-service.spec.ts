@@ -4,7 +4,7 @@ import { AtlasAiService } from './atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 
 const ATLAS_USER = {
   enabledAIFeature: true,
@@ -22,12 +22,28 @@ const PREFERENCES_USER = {
 
 const BASE_URL = 'http://example.com';
 
-class AtlasServiceMock {
+class MockAtlasAuthService extends AtlasAuthService {
+  isAuthenticated() {
+    return Promise.resolve(true);
+  }
+  async getUserInfo() {
+    return Promise.resolve({} as any);
+  }
+  async updateUserConfig() {
+    return Promise.resolve();
+  }
+  async signIn() {
+    return Promise.resolve({} as any);
+  }
+  async signOut() {
+    return Promise.resolve();
+  }
+}
+
+class MockAtlasService {
   constructor(private readonly preferences: PreferencesAccess) {}
   logger = createNoopLoggerAndTelemetry();
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
-  enableAIFeature = () => Promise.resolve();
-  disableAIFeature = () => Promise.resolve();
   privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
   privateAtlasEndpoint = (url: string) => [BASE_URL, url].join('/');
   unAuthenticatedFetchJson = async <T>(url: string, init?: RequestInit) => {
@@ -49,15 +65,17 @@ describe('AtlasAiService', function () {
     preferences = await createSandboxFromDefaultPreferences();
     preferences['getPreferencesUser'] = () => PREFERENCES_USER;
 
-    atlasAiService = AtlasAiService.getInstance(
-      new AtlasServiceMock(preferences) as unknown as AtlasService
+    atlasAiService = new AtlasAiService(
+      new MockAtlasService(preferences) as any,
+      new MockAtlasAuthService(),
+      preferences,
+      createNoopLoggerAndTelemetry()
     );
   });
 
   afterEach(function () {
     sandbox.restore();
     global.fetch = initialFetch;
-    AtlasAiService['instance'] = null;
   });
 
   describe('ai api calls', function () {
