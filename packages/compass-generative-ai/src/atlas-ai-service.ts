@@ -80,10 +80,6 @@ export class AtlasAiService {
   }
 
   async enableFeature() {
-    const isAuthenticated = await this.atlasAuthService.isAuthenticated();
-    if (!isAuthenticated) {
-      throw new Error("Can't enable AI feature when signed out");
-    }
     const userInfo = await this.atlasAuthService.getUserInfo();
     if (userInfo.enabledAIFeature) {
       return;
@@ -100,10 +96,6 @@ export class AtlasAiService {
   }
 
   async disableFeature() {
-    const isAuthenticated = await this.atlasAuthService.isAuthenticated();
-    if (!isAuthenticated) {
-      throw new Error("Can't disable AI feature when signed out");
-    }
     await this.atlasAuthService.updateUserConfig({ enabledAIFeature: false });
   }
 
