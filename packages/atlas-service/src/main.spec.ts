@@ -274,12 +274,10 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('init', function () {
-    it('should try to restore service state by fetching user info', async function () {
+    it('should setup the plugin', async function () {
+      const setupPluginSpy = sandbox.spy(AtlasService as any, 'setupPlugin');
       await AtlasService.init(defaultConfig, preferences);
-      expect(
-        mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
+      expect(setupPluginSpy).to.have.been.calledOnce;
     });
   });
 
@@ -314,8 +312,11 @@ describe('AtlasServiceMain', function () {
       const logger = new EventEmitter();
       AtlasService['openExternal'] = sandbox.stub().resolves();
       AtlasService['oidcPluginLogger'] = logger;
+      AtlasService['currentUser'] = {
+        sub: '1234',
+      } as any;
       await AtlasService.init(defaultConfig, preferences);
-      expect(getListenerCount(logger)).to.eq(25);
+      expect(getListenerCount(logger)).to.eq(26);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
