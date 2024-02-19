@@ -103,6 +103,16 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       );
     });
 
+    ipcMain?.on('compass:rejection:fatal', (evt, meta) => {
+      writer.fatal(
+        'COMPASS-MAIN',
+        mongoLogId(1_001_000_294),
+        'app',
+        `Uncaught rejection: ${meta.message as string}`,
+        meta
+      );
+    });
+
     process.prependListener('uncaughtException', (exception) => {
       writer.fatal(
         'COMPASS-MAIN',

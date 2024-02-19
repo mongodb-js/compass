@@ -47,6 +47,15 @@ let MONGODB_VERSION = '';
 let MONGODB_USE_ENTERPRISE =
   (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
 
+// should we test compass-web (true) or compass electron (false)?
+export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+
+function getBrowserName() {
+  return process.env.BROWSER_NAME ?? 'chrome';
+}
+
+export const BROWSER_NAME = getBrowserName();
+
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
@@ -119,11 +128,17 @@ interface RenderLogEntry {
   text: string;
   args: unknown;
 }
+interface CompassOptions {
+  mode: 'electron' | 'web';
+  writeCoverage?: boolean;
+  needsCloseWelcomeModal?: boolean;
+}
 
 export class Compass {
   name: string;
   browser: CompassBrowser;
-  testPackagedApp: boolean;
+  mode: 'electron' | 'web';
+  writeCoverage: boolean;
   needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
   logs: LogEntry[];
@@ -135,11 +150,16 @@ export class Compass {
   constructor(
     name: string,
     browser: CompassBrowser,
-    { testPackagedApp = false, needsCloseWelcomeModal = false } = {}
+    {
+      mode,
+      writeCoverage = false,
+      needsCloseWelcomeModal = false,
+    }: CompassOptions
   ) {
     this.name = name;
     this.browser = browser;
-    this.testPackagedApp = testPackagedApp;
+    this.mode = mode;
+    this.writeCoverage = writeCoverage;
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
@@ -325,7 +345,7 @@ export class Compass {
     debug(`Writing application render process log to ${renderLogPath}`);
     await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
 
-    if (!this.testPackagedApp) {
+    if (this.writeCoverage) {
       // coverage
       debug('Writing coverage');
       const coverage: Coverage = await this.browser.executeAsync((done) => {
@@ -365,12 +385,19 @@ export class Compass {
       return compassLog;
     };
 
-    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-    await copyCompassLog();
-    debug(`Stopping Compass application [${this.name}]`);
-    await this.browser.deleteSession();
+    if (this.logPath) {
+      // not available when testing web
+      // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+      await copyCompassLog();
+    }
 
-    this.logs = (await copyCompassLog()).structured;
+    debug(`Stopping Compass application [${this.name}]`);
+    await this.browser.deleteSession({ shutdownDriver: true });
+
+    if (this.logPath) {
+      // not available when testing web
+      this.logs = (await copyCompassLog()).structured;
+    }
   }
 }
 
@@ -469,11 +496,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function startCompass(
-  name: string,
-  opts: StartCompassOptions = {}
-): Promise<Compass> {
-  const { testPackagedApp, binary } = await getCompassExecutionParameters();
+async function processCommonOpts(opts: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
@@ -517,28 +540,9 @@ async function startCompass(
   await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const chromeArgs = [];
-
-  if (!testPackagedApp) {
-    // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
-    chromeArgs.push(`--app=${COMPASS_PATH}`);
-  }
-
-  // https://peter.sh/experiments/chromium-command-line-switches/
-  // https://www.electronjs.org/docs/latest/api/command-line-switches
-  chromeArgs.push(
-    ...CHROME_STARTUP_FLAGS,
-    `--user-data-dir=${defaultUserDataDir}`,
-
-    // by default make sure we get the welcome modal
-    ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
-
-    ...(opts.extraSpawnArgs ?? [])
-  );
-
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'warn' as const, // info is super verbose from webdriverio 8 onwards
+    logLevel: 'warn' as const, // info is super verbose right now
     outputDir: webdriverLogPath,
   };
 
@@ -554,15 +558,64 @@ async function startCompass(
       : 100,
   };
 
+  process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
+  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+  process.env.CHROME_LOG_FILE = chromedriverLogPath;
+
+  // https://peter.sh/experiments/chromium-command-line-switches/
+  // https://www.electronjs.org/docs/latest/api/command-line-switches
+  const chromeArgs: string[] = [
+    ...CHROME_STARTUP_FLAGS,
+    `--user-data-dir=${defaultUserDataDir}`,
+  ];
+
+  return {
+    needsCloseWelcomeModal,
+    webdriverOptions,
+    wdioOptions,
+    chromeArgs,
+  };
+}
+
+async function startCompassElectron(
+  name: string,
+  opts: StartCompassOptions = {}
+): Promise<Compass> {
+  const { testPackagedApp, binary } = await getCompassExecutionParameters();
+
+  const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
+    await processCommonOpts(opts);
+
+  if (!testPackagedApp) {
+    // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
+    chromeArgs.push(`--app=${COMPASS_PATH}`);
+  }
+
+  if (opts.firstRun === false) {
+    chromeArgs.push('--showed-network-opt-in=true');
+  }
+
+  if (opts.extraSpawnArgs) {
+    chromeArgs.push(...opts.extraSpawnArgs);
+  }
+
+  // Electron on Windows interprets its arguments in a weird way where
+  // the second positional argument inserted by webdriverio (about:blank)
+  // throws it off and won't let it start because it then interprets the first
+  // positional argument as an app path.
+  if (
+    process.platform === 'win32' &&
+    chromeArgs.some((arg) => !arg.startsWith('--'))
+  ) {
+    chromeArgs.push('--');
+  }
+
   const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else
   process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
-  process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
-  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
-  process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
@@ -570,6 +623,7 @@ async function startCompass(
   process.env.DISABLE_GUIDE_CUES = 'true';
 
   const options = {
+    automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
       browserVersion: '120.0.6099.227', // TODO(COMPASS-7639): this must always be the corresponding chromium version for the electron version
@@ -638,11 +692,50 @@ async function startCompass(
   }
 
   const compass = new Compass(name, browser, {
-    testPackagedApp,
+    mode: 'electron',
+    writeCoverage: !testPackagedApp,
     needsCloseWelcomeModal,
   });
 
   await compass.recordLogs();
+
+  return compass;
+}
+
+export async function startBrowser(
+  name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  opts: StartCompassOptions = {}
+) {
+  const { webdriverOptions, wdioOptions } = await processCommonOpts();
+
+  const browser: CompassBrowser = (await remote({
+    capabilities: {
+      browserName: BROWSER_NAME, // 'chrome' or 'firefox'
+      // https://webdriver.io/docs/driverbinaries/
+      // If you leave out browserVersion it will try and find the browser binary
+      // on your system. If you specify it it will download that version. The
+      // main limitation then is that 'latest' is the only 'semantic' version
+      // that is supported for Firefox.
+      // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
+      // Alternatively we can download it ourselves and specify the path to the
+      // binary or we can even start and stop chromedriver/geckodriver manually.
+      // NOTE: The version of chromedriver or geckodriver in play might also be
+      // relevant.
+      browserVersion: 'latest',
+    },
+    ...webdriverOptions,
+    ...wdioOptions,
+  })) as CompassBrowser;
+  await browser.navigateTo('http://localhost:8080/');
+  const compass = new Compass(name, browser, {
+    mode: 'web',
+    writeCoverage: false,
+    needsCloseWelcomeModal: false,
+  });
+
+  // TODO(COMPASS-7653): we need to figure out how to do this for compass-web
+  //await compass.recordLogs();
 
   return compass;
 }
@@ -666,7 +759,9 @@ function tryKillProcess(pid: number, name = '<unknown>'): void {
  * @param {string} logPath The compass application log path
  * @returns {Promise<CompassLog>}
  */
-async function getCompassLog(logPath: string): Promise<any> {
+async function getCompassLog(
+  logPath: string
+): Promise<{ raw: Buffer; structured: any[] }> {
   const names = await fs.readdir(logPath);
   const logNames = names.filter((name) => name.endsWith('_log.gz'));
 
@@ -855,11 +950,15 @@ export async function init(
   name?: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  name = pathName(name ?? formattedDate());
+
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = await startCompass(pathName(name ?? formattedDate()), opts);
+  const compass = TEST_COMPASS_WEB
+    ? await startBrowser(name, opts)
+    : await startCompassElectron(name, opts);
 
   const { browser } = compass;
 
@@ -880,6 +979,7 @@ export async function init(
 
 export async function cleanup(compass?: Compass): Promise<void> {
   if (!compass) {
+    debug('no compass to close');
     return;
   }
 
@@ -899,7 +999,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       debug(err);
       try {
         // make sure the process can exit
-        await compass.browser.deleteSession();
+        await compass.browser.deleteSession({ shutdownDriver: true });
       } catch (_) {
         debug('browser already closed');
       }
@@ -908,13 +1008,18 @@ export async function cleanup(compass?: Compass): Promise<void> {
     return 'closed';
   })();
 
+  debug(`Closing compass [${compass.name}]`);
   const result = await Promise.race([timeoutPromise, closePromise]);
-  if (result === 'timeout' && compass.mainProcessPid) {
-    try {
-      debug(`Trying to manually kill Compass [${compass.name}]`);
-      tryKillProcess(compass.mainProcessPid, compass.name);
-    } catch {
-      /* already logged ... */
+  if (result === 'timeout') {
+    debug('Closing compass timed out.');
+    if (compass.mainProcessPid) {
+      // this only works for the electron use case
+      try {
+        debug(`Trying to manually kill Compass [${compass.name}]`);
+        tryKillProcess(compass.mainProcessPid, compass.name);
+      } catch {
+        /* already logged ... */
+      }
     }
   }
 }

@@ -8,7 +8,7 @@ export async function connectWithConnectionString(
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
-  const sidebar = await browser.$(Selectors.SidebarTitle);
+  const sidebar = await browser.$(Selectors.Sidebar);
   if (await sidebar.isDisplayed()) {
     await browser.disconnect();
   }

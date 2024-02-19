@@ -251,7 +251,10 @@ export const fetchRecents = (): QueryBarThunkAction<
     { recentQueryStorage, logger: { debug } }
   ) => {
     try {
-      const recents = await recentQueryStorage.loadAll();
+      const {
+        queryBar: { namespace },
+      } = _getState();
+      const recents = (await recentQueryStorage?.loadAll(namespace)) ?? [];
       dispatch({
         type: QueryBarActions.RecentQueriesFetched,
         recents,
@@ -283,7 +286,10 @@ export const fetchFavorites = (): QueryBarThunkAction<
     { favoriteQueryStorage, logger: { debug } }
   ) => {
     try {
-      const favorites = await favoriteQueryStorage.loadAll();
+      const {
+        queryBar: { namespace },
+      } = _getState();
+      const favorites = (await favoriteQueryStorage?.loadAll(namespace)) ?? [];
       dispatch({
         type: QueryBarActions.FavoriteQueriesFetched,
         favorites,
@@ -330,7 +336,7 @@ export const saveRecentAsFavorite = (
       };
 
       // add it in the favorite
-      await favoriteQueryStorage.updateAttributes(
+      await favoriteQueryStorage?.updateAttributes(
         favoriteQuery._id,
         favoriteQuery
       );
@@ -358,7 +364,7 @@ export const deleteRecentQuery = (
     { recentQueryStorage, logger: { debug } }
   ) => {
     try {
-      await recentQueryStorage.delete(id);
+      await recentQueryStorage?.delete(id);
       return dispatch(fetchRecents());
     } catch (e) {
       debug('Failed to delete recent query', e);
@@ -375,7 +381,7 @@ export const deleteFavoriteQuery = (
     { favoriteQueryStorage, logger: { debug } }
   ) => {
     try {
-      await favoriteQueryStorage.delete(id);
+      await favoriteQueryStorage?.delete(id);
       return dispatch(fetchFavorites());
     } catch (e) {
       debug('Failed to delete favorite query', e);
@@ -413,14 +419,14 @@ const saveRecentQuery = (
           _host: existingQuery._host ?? host,
           _lastExecuted: new Date(),
         };
-        await recentQueryStorage.updateAttributes(
+        await recentQueryStorage?.updateAttributes(
           existingQuery._id,
           updateAttributes
         );
         return;
       }
 
-      await recentQueryStorage.saveQuery({
+      await recentQueryStorage?.saveQuery({
         ...queryAttributes,
         _ns: namespace,
         _host: host ?? '',

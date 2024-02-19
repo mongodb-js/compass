@@ -54,11 +54,12 @@ export const confirmDeleteItem = (
       }
     );
 
-    const deleteAction =
-      item.type === 'query'
-        ? queryStorage.delete.bind(queryStorage)
-        : pipelineStorage.delete.bind(pipelineStorage);
-    await deleteAction(item.id);
+    if (item.type === 'query') {
+      await queryStorage?.delete(item.id);
+    } else {
+      await pipelineStorage?.delete(item.id);
+    }
+
     dispatch({ type: ActionTypes.DeleteItemConfirm, id: item.id });
   };
 };

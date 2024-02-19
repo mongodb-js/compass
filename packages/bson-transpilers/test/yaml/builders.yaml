@@ -1,1191 +1,959 @@
-runner: !!js/function >
-    (it, type, expect, input, output, transpiler, test) => {
-        describe(`${input} => ${output}`, () => {
-            it(`${test.input[input]} equals expected`, () => {
-                expect(
-                    transpiler[input][output].compile(test.input[input], true)
-                ).to.equal(test.output[output]);
-            });
-            it(`${test.input[input]} imports correctly`, () => {
-                const mode = type === 'query' ? 'Query' : 'Pipeline';
-                expect(
-                    transpiler[input][output].getImports(mode)
-                ).to.equal(test.imports);
-            });
-        });
-    }
+runner: !<tag:yaml.org,2002:js/function> |-
+  function anonymous(it,type,expect,input,output,transpiler,test
+  ) {
+
+      describe(`${input} => ${output}`, () => {
+          it(`${test.input[input]} equals expected`, () => {
+              expect(
+                  transpiler[input][output].compile(test.input[input], true)
+              ).to.equal(test.output[output]);
+          });
+          it(`${test.input[input]} imports correctly`, () => {
+              const mode = type === 'query' ? 'Query' : 'Pipeline';
+              expect(
+                  transpiler[input][output].getImports(mode)
+              ).to.equal(test.imports);
+          });
+      });
+
+  }
 tests:
-    default doc:
+  default doc:
     - input:
-          javascript: "{x: 1}"
-          python: "{'x': 1}"
+        shell: '{x: 1}'
       output:
-          java: eq("x", 1L)
-          object: "{x: 1}"
+        java: 'eq("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.eq;
     - input:
-          javascript: "{x: 1, y: 2}"
-          python: "{'x': 1, 'y': 2}"
+        shell: '{x: 1, y: 2}'
       output:
-          java: and(eq("x", 1L), eq("y", 2L))
-          object: "{x: 1, y: 2}"
+        java: 'and(eq("x", 1L), eq("y", 2L))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
     - input:
-          javascript: "{x: 1, y: 2, z: 3, q: 4, r: 5}"
-          python: "{'x': 1, 'y': 2, 'z': 3, 'q': 4, 'r': 5}"
+        shell: '{x: 1, y: 2, z: 3, q: 4, r: 5}'
       output:
-          java: and(eq("x", 1L), eq("y", 2L), eq("z", 3L), eq("q", 4L), eq("r", 5L))
-          object: "{x: 1, y: 2, z: 3, q: 4, r: 5}"
+        java: 'and(eq("x", 1L), eq("y", 2L), eq("z", 3L), eq("q", 4L), eq("r", 5L))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-    nested doc:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+  nested doc:
     - input:
-          javascript: "{x: {y: 2}}"
-          python: "{'x': {'y': 2}}"
+        shell: '{x: {y: 2}}'
       output:
-          java: eq("x", eq("y", 2L))
-          object: "{x: {y: 2}}"
+        java: 'eq("x", eq("y", 2L))'
       imports: import static com.mongodb.client.model.Filters.eq;
     - input:
-          javascript: "{x: {y: 2}, z: {q: {r: 5}}}"
-          python: "{'x': {'y': 2}, 'z': {'q': {'r': 5}}}"
+        shell: '{x: {y: 2}, z: {q: {r: 5}}}'
       output:
-          java: and(eq("x", eq("y", 2L)), eq("z", eq("q", eq("r", 5L))))
-          object: "{x: {y: 2}, z: {q: {r: 5}}}"
+        java: 'and(eq("x", eq("y", 2L)), eq("z", eq("q", eq("r", 5L))))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-    unknown_op:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+  unknown_op:
     - input:
-          javascript: "{$notAnOp: {x: 1}}"
-          python: "{'$notAnOp': {'x': 1}}"
+        shell: '{$notAnOp: {x: 1}}'
       output:
-          java: eq("$notAnOp", eq("x", 1L))
-          object: "{$notAnOp: {x: 1}}"
+        java: 'eq("$notAnOp", eq("x", 1L))'
       imports: import static com.mongodb.client.model.Filters.eq;
-    eq:
+  eq:
     - input:
-          javascript: "{x: {y: {z: 1}}}"
-          python: "{'x': {'y': {'z': 1}}}"
+        shell: '{x: {y: {z: 1}}}'
       output:
-          java: eq("x", eq("y", eq("z", 1L)))
-          object: "{x: {y: {z: 1}}}"
+        java: 'eq("x", eq("y", eq("z", 1L)))'
       imports: import static com.mongodb.client.model.Filters.eq;
     - input:
-          javascript: "{x: {$eq: {y: {z: 1}}}}"
-          python: "{'x': {'$eq': {'y': {'z': 1}}}}"
+        shell: '{x: {$eq: {y: {z: 1}}}}'
       output:
-          java: eq("x", eq("y", eq("z", 1L)))
-          object: "{x: {$eq: {y: {z: 1}}}}"
+        java: 'eq("x", eq("y", eq("z", 1L)))'
       imports: import static com.mongodb.client.model.Filters.eq;
-    gt:
+  gt:
     - input:
-          javascript: "{x: {$gt: 1}}"
-          python: "{'x': {'$gt': 1}}"
+        shell: '{x: {$gt: 1}}'
       output:
-          java: gt("x", 1L)
-          object: "{x: {$gt: 1}}"
+        java: 'gt("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.gt;
-    lt:
+  lt:
     - input:
-          javascript: "{x: {$lt: 1}}"
-          python: "{'x': {'$lt': 1}}"
+        shell: '{x: {$lt: 1}}'
       output:
-          java: lt("x", 1L)
-          object: "{x: {$lt: 1}}"
+        java: 'lt("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.lt;
-    gte:
+  gte:
     - input:
-          javascript: "{x: {$gte: 1}}"
-          python: "{'x': {'$gte': 1}}"
+        shell: '{x: {$gte: 1}}'
       output:
-          java: gte("x", 1L)
-          object: "{x: {$gte: 1}}"
+        java: 'gte("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.gte;
-    lte:
+  lte:
     - input:
-          javascript: "{x: {$lte: 1}}"
-          python: "{'x': {'$lte': 1}}"
+        shell: '{x: {$lte: 1}}'
       output:
-          java: lte("x", 1L)
-          object: "{x: {$lte: 1}}"
+        java: 'lte("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.lte;
-    ne:
+  ne:
     - input:
-          javascript: "{x: {$ne: 1}}"
-          python: "{'x': {'$ne': 1}}"
+        shell: '{x: {$ne: 1}}'
       output:
-          java: ne("x", 1L)
-          object: "{x: {$ne: 1}}"
+        java: 'ne("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.ne;
-    in:
+  in:
     - input:
-          javascript: "{x: {$in: [1]}}"
-          python: "{'x': {'$in': [1]}}"
+        shell: '{x: {$in: [1]}}'
       output:
-          java: in("x", Arrays.asList(1L))
-          object: "{x: {$in: [1]}}"
+        java: 'in("x", Arrays.asList(1L))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.in;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.in;
     - input:
-          javascript: "{x: {$in: [1, 2]}}"
-          python: "{'x': {'$in': [1, 2]}}"
+        shell: '{x: {$in: [1, 2]}}'
       output:
-          java: in("x", Arrays.asList(1L, 2L))
-          object: "{x: {$in: [1, 2]}}"
+        java: 'in("x", Arrays.asList(1L, 2L))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.in;
-    nin:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.in;
+  nin:
     - input:
-          javascript: "{x: {$nin: [1]}}"
-          python: "{'x': {'$nin': [1]}}"
+        shell: '{x: {$nin: [1]}}'
       output:
-          java: nin("x", Arrays.asList(1L))
-          object: "{x: {$nin: [1]}}"
+        java: 'nin("x", Arrays.asList(1L))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.nin;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.nin;
     - input:
-          javascript: "{x: {$nin: [1, 2]}}"
-          python: "{'x': {'$nin': [1, 2]}}"
+        shell: '{x: {$nin: [1, 2]}}'
       output:
-          java: nin("x", Arrays.asList(1L, 2L))
-          object: "{x: {$nin: [1, 2]}}"
+        java: 'nin("x", Arrays.asList(1L, 2L))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.nin;
-    and:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.nin;
+  and:
     - input:
-          javascript: "{x: 1, y: 2}"
-          python: "{'x': 1, 'y': 2}"
+        shell: '{x: 1, y: 2}'
       output:
-          java: and(eq("x", 1L), eq("y", 2L))
-          object: "{x: 1, y: 2}"
+        java: 'and(eq("x", 1L), eq("y", 2L))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-    or:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+  or:
     - input:
-          javascript: "{$or: [{x: 1}, {z: 2}, {e: 1}]}"
-          python: "{'$or': [{'x': 1}, {'z': 2}, {'e': 1}]}"
+        shell: '{$or: [{x: 1}, {z: 2}, {e: 1}]}'
       output:
-          java: or(Arrays.asList(eq("x", 1L), eq("z", 2L), eq("e", 1L)))
-          object: "{$or: [{x: 1}, {z: 2}, {e: 1}]}"
+        java: 'or(Arrays.asList(eq("x", 1L), eq("z", 2L), eq("e", 1L)))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Filters.or;
-    not:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.or;
+  not:
     - input:
-          javascript: "{x: {$not: {$eq: 1}}}"
-          python: "{'x': {'$not': {'$eq': 1}}}"
+        shell: '{x: {$not: {$eq: 1}}}'
       output:
-          java: not(eq("x", 1L))
-          object: "{x: {$not: {$eq: 1}}}"
+        java: 'not(eq("x", 1L))'
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Filters.not;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.not;
     - input:
-          javascript: "{x: {$not: {$exists: [1, 2]} }  }"
-          python: "{'x': {'$not': {'$exists': [1, 2]}}}"
+        shell: '{x: {$not: {$exists: [1, 2]} }  }'
       output:
-          java: not(exists("x", Arrays.asList(1L, 2L)))
-          object: "{x: {$not: {$exists: [1, 2]} }  }"
+        java: 'not(exists("x", Arrays.asList(1L, 2L)))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.exists;
-          import static com.mongodb.client.model.Filters.not;
-    nor:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.exists;
+        import static com.mongodb.client.model.Filters.not;
+  nor:
     - input:
-          javascript: "{$nor: [{x: 1}, {z: 2}, {e: 1}]}"
-          python: "{'$nor': [{'x': 1}, {'z': 2}, {'e': 1}]}"
+        shell: '{$nor: [{x: 1}, {z: 2}, {e: 1}]}'
       output:
-          java: nor(Arrays.asList(eq("x", 1L), eq("z", 2L), eq("e", 1L)))
-          object: "{$nor: [{x: 1}, {z: 2}, {e: 1}]}"
+        java: 'nor(Arrays.asList(eq("x", 1L), eq("z", 2L), eq("e", 1L)))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Filters.nor;
-    all:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.nor;
+  all:
     - input:
-          javascript: '{x: {$all: ["v1", "v2", "v3"]}}'
-          python: "{'x': {'$all': ['v1', 'v2', 'v3']}}"
+        shell: '{x: {$all: ["v1", "v2", "v3"]}}'
       output:
-          java: all("x", Arrays.asList("v1", "v2", "v3"))
-          object: '{x: {$all: ["v1", "v2", "v3"]}}'
+        java: 'all("x", Arrays.asList("v1", "v2", "v3"))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.all;
-    bitsAllSet:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.all;
+  bitsAllSet:
     - input:
-          javascript: "{x: {$bitsAllSet: 100}}"
-          python: "{'x': {'$bitsAllSet': 100}}"
+        shell: '{x: {$bitsAllSet: 100}}'
       output:
-          java: bitsAllSet("x", 100L)
-          object: "{x: {$bitsAllSet: 100}}"
+        java: 'bitsAllSet("x", 100L)'
       imports: import static com.mongodb.client.model.Filters.bitsAllSet;
-    bitsAllClear:
+  bitsAllClear:
     - input:
-          javascript: "{x: {$bitsAllClear: 100}}"
-          python: "{'x': {'$bitsAllClear': 100}}"
+        shell: '{x: {$bitsAllClear: 100}}'
       output:
-          java: bitsAllClear("x", 100L)
-          object: "{x: {$bitsAllClear: 100}}"
+        java: 'bitsAllClear("x", 100L)'
       imports: import static com.mongodb.client.model.Filters.bitsAllClear;
-    bitsAnySet:
+  bitsAnySet:
     - input:
-          javascript: "{x: {$bitsAnySet: 100}}"
-          python: "{'x': {'$bitsAnySet': 100}}"
+        shell: '{x: {$bitsAnySet: 100}}'
       output:
-          java: bitsAnySet("x", 100L)
-          object: "{x: {$bitsAnySet: 100}}"
+        java: 'bitsAnySet("x", 100L)'
       imports: import static com.mongodb.client.model.Filters.bitsAnySet;
-    bitsAnyClear:
+  bitsAnyClear:
     - input:
-          javascript: "{x: {$bitsAnyClear: 100}}"
-          python: "{'x': {'$bitsAnyClear': 100}}"
+        shell: '{x: {$bitsAnyClear: 100}}'
       output:
-          java: bitsAnyClear("x", 100L)
-          object: "{x: {$bitsAnyClear: 100}}"
+        java: 'bitsAnyClear("x", 100L)'
       imports: import static com.mongodb.client.model.Filters.bitsAnyClear;
-    elemMatch:
+  elemMatch:
     - input:
-          javascript: "{x: {$elemMatch: {x: 1, y: 2}}}"
-          python: "{'x': {'$elemMatch': {'x': 1, 'y': 2}}}"
+        shell: '{x: {$elemMatch: {x: 1, y: 2}}}'
       output:
-          java: elemMatch("x", and(eq("x", 1L), eq("y", 2L)))
-          object: "{x: {$elemMatch: {x: 1, y: 2}}}"
+        java: 'elemMatch("x", and(eq("x", 1L), eq("y", 2L)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.elemMatch;
-          import static com.mongodb.client.model.Filters.eq;
-    size:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.elemMatch;
+        import static com.mongodb.client.model.Filters.eq;
+  size:
     - input:
-          javascript: "{x: {$size: 1}}"
-          python: "{'x': {'$size': 1}}"
+        shell: '{x: {$size: 1}}'
       output:
-          java: size("x", 1L)
-          object: "{x: {$size: 1}}"
+        java: 'size("x", 1L)'
       imports: import static com.mongodb.client.model.Filters.size;
-    exists:
+  exists:
     - input:
-          javascript: "{x: {$exists: true}}"
-          python: "{'x': {'$exists': True}}"
+        shell: '{x: {$exists: true}}'
       output:
-          java: exists("x", true)
-          object: "{x: {$exists: true}}"
+        java: 'exists("x", true)'
       imports: import static com.mongodb.client.model.Filters.exists;
     - input:
-          javascript: "{x: {$exists: false}}"
-          python: "{'x': {'$exists': False}}"
+        shell: '{x: {$exists: false}}'
       output:
-          java: exists("x", false)
-          object: "{x: {$exists: false}}"
+        java: 'exists("x", false)'
       imports: import static com.mongodb.client.model.Filters.exists;
-    type:
+  type:
     - input:
-          javascript: '{x: {$type: "number"} }'
-          python: "{'x': {'$type': 'number'}}"
+        shell: '{x: {$type: "number"} }'
       output:
-          java: type("x", "number")
-          object: '{x: {$type: "number"} }'
+        java: 'type("x", "number")'
       imports: import static com.mongodb.client.model.Filters.type;
-    mod:
+  mod:
     - input:
-          javascript: "{x: {$mod: [10, 2]}}"
-          python: "{'x': {'$mod': [10, 2]}}"
+        shell: '{x: {$mod: [10, 2]}}'
       output:
-          java: mod("x", 10L, 2L)
-          object: "{x: {$mod: [10, 2]}}"
+        java: 'mod("x", 10L, 2L)'
       imports: import static com.mongodb.client.model.Filters.mod;
-    regex:
+  regex:
     - input:
-          javascript: '{x: {$regex: "abc"}}'
-          python: "{'x': {'$regex': 'abc'}}"
+        shell: '{x: {$regex: "abc"}}'
       output:
-          java: regex("x", "abc")
-          object: '{x: {$regex: "abc"}}'
+        java: 'regex("x", "abc")'
       imports: import static com.mongodb.client.model.Filters.regex;
     - input:
-          javascript: '{x: {$regex: "abc", $options: "g"}}'
-          python: "{'x': {'$regex': 'abc', '$options': 'g'}}"
+        shell: '{x: {$regex: "abc", $options: "g"}}'
       output:
-          java: regex("x", "abc", "g")
-          object: '{x: {$regex: "abc", $options: "g"}}'
+        java: 'regex("x", "abc", "g")'
       imports: import static com.mongodb.client.model.Filters.regex;
-    text:
+  text:
     - input:
-          javascript: '{x: {$text: {$search: "searchstring"}}}'
-          python: "{'x': {'$text': {'$search': 'searchstring'}}}"
+        shell: '{x: {$text: {$search: "searchstring"}}}'
       output:
-          java: eq("x", text("searchstring"))
-          object: '{x: {$text: {$search: "searchstring"}}}'
+        java: 'eq("x", text("searchstring"))'
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Filters.text;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.text;
     - input:
-          javascript: '{x: {$text: { $search: "searchstring", $language: ''lang'', $caseSensitive:
-        true, $diacriticSensitive: true}}}'
-          python: "{'x': {'$text': {'$search': 'searchstring', '$language': 'lang', '$caseSensitive':
-        True, '$diacriticSensitive': True}}}"
+        shell: >-
+          {x: {$text: { $search: "searchstring", $language: 'lang',
+          $caseSensitive: true, $diacriticSensitive: true}}}
       output:
-          java: eq("x", text("searchstring", new TextSearchOptions().language("lang").caseSensitive(true).diacriticSensitive(true)))
-          object: '{x: {$text: { $search: "searchstring", $language: ''lang'', $caseSensitive:
-        true, $diacriticSensitive: true}}}'
+        java: >-
+          eq("x", text("searchstring", new
+          TextSearchOptions().language("lang").caseSensitive(true).diacriticSensitive(true)))
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Filters.text;
-          import com.mongodb.client.model.TextSearchOptions;
-    where:
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Filters.text;
+        import com.mongodb.client.model.TextSearchOptions;
+  where:
     - input:
-          javascript: "{$where: function() { $x === true }}"
-          python: "{'$where': 'function(){$x===true}'}"
+        shell: '{$where: function() { $x === true }}'
       output:
-          java: where("function(){$x===true}")
-          object: "{$where: 'function(){$x===true}'}"
+        java: 'where("function(){$x===true}")'
       imports: import static com.mongodb.client.model.Filters.where;
     - input:
-          javascript: "{'$where': 'function() { $x===true }'}"
+        shell: '{''$where'': ''function() { $x===true }''}'
       output:
-          java: where("function() { $x===true }")
-          object: "{'$where': 'function() { $x===true }'}"
+        java: 'where("function() { $x===true }")'
       imports: import static com.mongodb.client.model.Filters.where;
-    geometry:
+  geometry:
     - input:
-          javascript: "{$geometry: {type: 'Point', coordinates: [1, 2]}}"
-          python: "{'$geometry': {'type': 'Point', 'coordinates': [1, 2]}}"
+        shell: '{$geometry: {type: ''Point'', coordinates: [1, 2]}}'
       output:
-          java: new Point(new Position(1L, 2L))
-          object: "{$geometry: {type: 'Point', coordinates: [1, 2]}}"
+        java: 'new Point(new Position(1L, 2L))'
       imports: |-
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: "{$geometry: {type: 'MultiPoint', coordinates: [[1, 2], [3, 4],
-        [5, 6]]}}"
-          python: "{'$geometry': {'type': 'MultiPoint', 'coordinates': [[1, 2], [3, 4],
-        [5, 6]]}}"
+        shell: >-
+          {$geometry: {type: 'MultiPoint', coordinates: [[1, 2], [3, 4], [5,
+          6]]}}
       output:
-          java: new MultiPoint(Arrays.asList(new Position(1L, 2L), new Position(3L, 4L),
-              new Position(5L, 6L)))
-          object: "{$geometry: {type: 'MultiPoint', coordinates: [[1, 2], [3, 4],
-        [5, 6]]}}"
+        java: >-
+          new MultiPoint(Arrays.asList(new Position(1L, 2L), new Position(3L,
+          4L), new Position(5L, 6L)))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.MultiPoint;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.MultiPoint;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: "{$geometry: {type: 'LineString', coordinates: [ [1, 2], [3, 4],
-        [5, 6]]}}"
-          python: "{'$geometry': {'type': 'LineString', 'coordinates': [[1, 2], [3, 4],
-        [5, 6]]}}"
+        shell: >-
+          {$geometry: {type: 'LineString', coordinates: [ [1, 2], [3, 4], [5,
+          6]]}}
       output:
-          java: new LineString(Arrays.asList(new Position(1L, 2L), new Position(3L, 4L),
-              new Position(5L, 6L)))
-          object: "{$geometry: {type: 'LineString', coordinates: [ [1, 2], [3, 4],
-        [5, 6]]}}"
+        java: >-
+          new LineString(Arrays.asList(new Position(1L, 2L), new Position(3L,
+          4L), new Position(5L, 6L)))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.LineString;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.LineString;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: '{$geometry: {type: "MultiLineString", coordinates: [[ [1, 2], [3,
-        4], [5, 6] ],[ [7, 8], [9, 10 ] ],]}}'
-          python: "{'$geometry': {'type': 'MultiLineString', 'coordinates': [[[1, 2],
-        [3, 4], [5, 6]], [[7, 8], [9, 10]]]}}"
+        shell: >-
+          {$geometry: {type: "MultiLineString", coordinates: [[ [1, 2], [3, 4],
+          [5, 6] ],[ [7, 8], [9, 10 ] ],]}}
       output:
-          java: new MultiLineString(Arrays.asList(Arrays.asList(new Position(1L, 2L),
-              new Position(3L, 4L), new Position(5L, 6L)), Arrays.asList(new Position(7L,
-              8L), new Position(9L, 10L))))
-          object: '{$geometry: {type: "MultiLineString", coordinates: [[ [1, 2], [3,
-        4], [5, 6] ],[ [7, 8], [9, 10 ] ],]}}'
+        java: >-
+          new MultiLineString(Arrays.asList(Arrays.asList(new Position(1L, 2L),
+          new Position(3L, 4L), new Position(5L, 6L)), Arrays.asList(new
+          Position(7L, 8L), new Position(9L, 10L))))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.MultiLineString;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.MultiLineString;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: '{$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5,
-        6], [1, 2] ],[ [7, 8], [9, 10], [9, 11], [7, 8] ],[ [9, 10], [11, 12], [11,
-        10], [9, 10] ]]}}'
-          python: "{'$geometry': {'type': 'Polygon', 'coordinates': [[[1, 2], [3, 4],
-        [5, 6], [1, 2]], [[7, 8], [9, 10], [9, 11], [7, 8]], [[9, 10], [11, 12], [11,
-        10], [9, 10]]]}}"
+        shell: >-
+          {$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5, 6],
+          [1, 2] ],[ [7, 8], [9, 10], [9, 11], [7, 8] ],[ [9, 10], [11, 12],
+          [11, 10], [9, 10] ]]}}
       output:
-          java: new Polygon(new PolygonCoordinates(Arrays.asList(new Position(1L, 2L),
-              new Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L)), Arrays.asList(new
-              Position(7L, 8L), new Position(9L, 10L), new Position(9L, 11L), new Position(7L,
-              8L)), Arrays.asList(new Position(9L, 10L), new Position(11L, 12L), new Position(11L,
-              10L), new Position(9L, 10L))))
-          object: '{$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5,
-        6], [1, 2] ],[ [7, 8], [9, 10], [9, 11], [7, 8] ],[ [9, 10], [11, 12], [11,
-        10], [9, 10] ]]}}'
+        java: >-
+          new Polygon(new PolygonCoordinates(Arrays.asList(new Position(1L, 2L),
+          new Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L)),
+          Arrays.asList(new Position(7L, 8L), new Position(9L, 10L), new
+          Position(9L, 11L), new Position(7L, 8L)), Arrays.asList(new
+          Position(9L, 10L), new Position(11L, 12L), new Position(11L, 10L), new
+          Position(9L, 10L))))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.Polygon;
-          import com.mongodb.client.model.geojson.PolygonCoordinates;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.Polygon;
+        import com.mongodb.client.model.geojson.PolygonCoordinates;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: '{$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5,
-        6], [1, 2] ]]}}'
-          python: "{'$geometry': {'type': 'Polygon', 'coordinates': [[[1, 2], [3, 4],
-        [5, 6], [1, 2]]]}}"
+        shell: >-
+          {$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5, 6],
+          [1, 2] ]]}}
       output:
-          java: new Polygon(new PolygonCoordinates(Arrays.asList(new Position(1L, 2L),
-              new Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L))))
-          object: '{$geometry: {type: "Polygon", coordinates: [[ [1, 2], [3, 4], [5,
-        6], [1, 2] ]]}}'
+        java: >-
+          new Polygon(new PolygonCoordinates(Arrays.asList(new Position(1L, 2L),
+          new Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L))))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.Polygon;
-          import com.mongodb.client.model.geojson.PolygonCoordinates;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.Polygon;
+        import com.mongodb.client.model.geojson.PolygonCoordinates;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: '{$geometry: {type: "MultiPolygon", coordinates: [[  [ [1, 2],  [3,
-        4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3, 4],   [5, 6],   [1, 2] ],[ [7,
-        8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10], [11, 12], [11, 10], [9, 10] ]]]}}'
-          python: "{'$geometry': {'type': 'MultiPolygon', 'coordinates': [[[[1, 2], [3,
-        4], [5, 6], [1, 2]]], [[[1, 2], [3, 4], [5, 6], [1, 2]], [[7, 8], [9, 10],
-        [9, 11], [7, 8]], [[9, 10], [11, 12], [11, 10], [9, 10]]]]}}"
+        shell: >-
+          {$geometry: {type: "MultiPolygon", coordinates: [[  [ [1, 2],  [3,
+          4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3, 4],   [5, 6],   [1, 2] ],[
+          [7, 8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10], [11, 12], [11, 10],
+          [9, 10] ]]]}}
       output:
-          java: new MultiPolygon(Arrays.asList(new PolygonCoordinates(Arrays.asList(new
-              Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L), new Position(1L,
-              2L))), new PolygonCoordinates(Arrays.asList(new Position(1L, 2L), new Position(3L,
-              4L), new Position(5L, 6L), new Position(1L, 2L)), Arrays.asList(new Position(7L,
-              8L), new Position(9L, 10L), new Position(9L, 11L), new Position(7L, 8L)),
-              Arrays.asList(new Position(9L, 10L), new Position(11L, 12L), new Position(11L,
-              10L), new Position(9L, 10L)))))
-          object: '{$geometry: {type: "MultiPolygon", coordinates: [[  [ [1, 2],  [3,
-        4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3, 4],   [5, 6],   [1, 2] ],[ [7,
-        8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10], [11, 12], [11, 10], [9, 10] ]]]}}'
+        java: >-
+          new MultiPolygon(Arrays.asList(new
+          PolygonCoordinates(Arrays.asList(new Position(1L, 2L), new
+          Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L))), new
+          PolygonCoordinates(Arrays.asList(new Position(1L, 2L), new
+          Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L)),
+          Arrays.asList(new Position(7L, 8L), new Position(9L, 10L), new
+          Position(9L, 11L), new Position(7L, 8L)), Arrays.asList(new
+          Position(9L, 10L), new Position(11L, 12L), new Position(11L, 10L), new
+          Position(9L, 10L)))))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.MultiPolygon;
-          import com.mongodb.client.model.geojson.PolygonCoordinates;
-          import com.mongodb.client.model.geojson.Position;
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.MultiPolygon;
+        import com.mongodb.client.model.geojson.PolygonCoordinates;
+        import com.mongodb.client.model.geojson.Position;
     - input:
-          javascript: '{$geometry: {type: "GeometryCollection", coordinates: [{type: "Point",
-        coordinates: [1, 2]},{type: "MultiPoint", coordinates: [[1, 2], [3, 4], [5,
-        6]]},{type: "LineString", coordinates: [[1, 2], [3, 4], [5, 6]]},{type: "MultiLineString",
-        coordinates: [ [[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10]] ]},{type: "Polygon",
-        coordinates: [[ [1, 2], [3, 4], [5, 6], [1, 2] ]]},{type: "MultiPolygon",
-        coordinates: [[[ [1, 2],  [3, 4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3,
-        4],   [5, 6],   [1, 2] ],[ [7, 8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10],
-        [11, 12], [11, 10], [9, 10] ]]]}]}}'
-          python: "{'$geometry': {'type': 'GeometryCollection', 'coordinates': [{'type':
-        'Point', 'coordinates': [1, 2]}, {'type': 'MultiPoint', 'coordinates': [[1,
-        2], [3, 4], [5, 6]]}, {'type': 'LineString', 'coordinates': [[1, 2], [3, 4],
-        [5, 6]]}, {'type': 'MultiLineString', 'coordinates': [[[1, 2], [3, 4], [5,
-        6]], [[7, 8], [9, 10]]]}, {'type': 'Polygon', 'coordinates': [[[1, 2], [3,
-        4], [5, 6], [1, 2]]]}, {'type': 'MultiPolygon', 'coordinates': [[[[1, 2],
-        [3, 4], [5, 6], [1, 2]]], [[[1, 2], [3, 4], [5, 6], [1, 2]], [[7, 8], [9,
-        10], [9, 11], [7, 8]], [[9, 10], [11, 12], [11, 10], [9, 10]]]]}]}}"
+        shell: >-
+          {$geometry: {type: "GeometryCollection", coordinates: [{type: "Point",
+          coordinates: [1, 2]},{type: "MultiPoint", coordinates: [[1, 2], [3,
+          4], [5, 6]]},{type: "LineString", coordinates: [[1, 2], [3, 4], [5,
+          6]]},{type: "MultiLineString", coordinates: [ [[1, 2], [3, 4], [5,
+          6]], [[7, 8], [9, 10]] ]},{type: "Polygon", coordinates: [[ [1, 2],
+          [3, 4], [5, 6], [1, 2] ]]},{type: "MultiPolygon", coordinates: [[[ [1,
+          2],  [3, 4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3, 4],   [5, 6],  
+          [1, 2] ],[ [7, 8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10], [11, 12],
+          [11, 10], [9, 10] ]]]}]}}
       output:
-          java: new GeometryCollection(Arrays.asList(new Point(new Position(1L, 2L)),
-              new MultiPoint(Arrays.asList(new Position(1L, 2L), new Position(3L, 4L), new
-              Position(5L, 6L))), new LineString(Arrays.asList(new Position(1L, 2L), new
-              Position(3L, 4L), new Position(5L, 6L))), new MultiLineString(Arrays.asList(Arrays.asList(new
-              Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L)), Arrays.asList(new
-              Position(7L, 8L), new Position(9L, 10L)))), new Polygon(new PolygonCoordinates(Arrays.asList(new
-              Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L), new Position(1L,
-              2L)))), new MultiPolygon(Arrays.asList(new PolygonCoordinates(Arrays.asList(new
-              Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L), new Position(1L,
-              2L))), new PolygonCoordinates(Arrays.asList(new Position(1L, 2L), new Position(3L,
-              4L), new Position(5L, 6L), new Position(1L, 2L)), Arrays.asList(new Position(7L,
-              8L), new Position(9L, 10L), new Position(9L, 11L), new Position(7L, 8L)),
-              Arrays.asList(new Position(9L, 10L), new Position(11L, 12L), new Position(11L,
-              10L), new Position(9L, 10L)))))))
-          object: '{$geometry: {type: "GeometryCollection", coordinates: [{type: "Point",
-        coordinates: [1, 2]},{type: "MultiPoint", coordinates: [[1, 2], [3, 4], [5,
-        6]]},{type: "LineString", coordinates: [[1, 2], [3, 4], [5, 6]]},{type: "MultiLineString",
-        coordinates: [ [[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10]] ]},{type: "Polygon",
-        coordinates: [[ [1, 2], [3, 4], [5, 6], [1, 2] ]]},{type: "MultiPolygon",
-        coordinates: [[[ [1, 2],  [3, 4],   [5, 6],   [1, 2] ]],[  [ [1, 2],  [3,
-        4],   [5, 6],   [1, 2] ],[ [7, 8],  [9, 10],  [9, 11],  [7, 8] ],[ [9, 10],
-        [11, 12], [11, 10], [9, 10] ]]]}]}}'
+        java: >-
+          new GeometryCollection(Arrays.asList(new Point(new Position(1L, 2L)),
+          new MultiPoint(Arrays.asList(new Position(1L, 2L), new Position(3L,
+          4L), new Position(5L, 6L))), new LineString(Arrays.asList(new
+          Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L))), new
+          MultiLineString(Arrays.asList(Arrays.asList(new Position(1L, 2L), new
+          Position(3L, 4L), new Position(5L, 6L)), Arrays.asList(new
+          Position(7L, 8L), new Position(9L, 10L)))), new Polygon(new
+          PolygonCoordinates(Arrays.asList(new Position(1L, 2L), new
+          Position(3L, 4L), new Position(5L, 6L), new Position(1L, 2L)))), new
+          MultiPolygon(Arrays.asList(new PolygonCoordinates(Arrays.asList(new
+          Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L), new
+          Position(1L, 2L))), new PolygonCoordinates(Arrays.asList(new
+          Position(1L, 2L), new Position(3L, 4L), new Position(5L, 6L), new
+          Position(1L, 2L)), Arrays.asList(new Position(7L, 8L), new
+          Position(9L, 10L), new Position(9L, 11L), new Position(7L, 8L)),
+          Arrays.asList(new Position(9L, 10L), new Position(11L, 12L), new
+          Position(11L, 10L), new Position(9L, 10L)))))))
       imports: |-
-          import java.util.Arrays;
-          import com.mongodb.client.model.geojson.GeometryCollection;
-          import com.mongodb.client.model.geojson.LineString;
-          import com.mongodb.client.model.geojson.MultiLineString;
-          import com.mongodb.client.model.geojson.MultiPoint;
-          import com.mongodb.client.model.geojson.MultiPolygon;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Polygon;
-          import com.mongodb.client.model.geojson.PolygonCoordinates;
-          import com.mongodb.client.model.geojson.Position;
-    geoWithin:
+        import java.util.Arrays;
+        import com.mongodb.client.model.geojson.GeometryCollection;
+        import com.mongodb.client.model.geojson.LineString;
+        import com.mongodb.client.model.geojson.MultiLineString;
+        import com.mongodb.client.model.geojson.MultiPoint;
+        import com.mongodb.client.model.geojson.MultiPolygon;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Polygon;
+        import com.mongodb.client.model.geojson.PolygonCoordinates;
+        import com.mongodb.client.model.geojson.Position;
+  geoWithin:
     - input:
-          javascript: '{x: {$geoWithin: {$geometry: {type: "Point", coordinates: [1, 2]}}}}'
-          python: "{'x': {'$geoWithin': {'$geometry': {'type': 'Point', 'coordinates':
-        [1, 2]}}}}"
+        shell: '{x: {$geoWithin: {$geometry: {type: "Point", coordinates: [1, 2]}}}}'
       output:
-          java: geoWithin("x", new Point(new Position(1L, 2L)))
-          object: '{x: {$geoWithin: {$geometry: {type: "Point", coordinates: [1, 2]}}}}'
+        java: 'geoWithin("x", new Point(new Position(1L, 2L)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.geoWithin;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
-    geoWithinBox:
+        import static com.mongodb.client.model.Filters.geoWithin;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
+  geoWithinBox:
     - input:
-          javascript: "{x: {$geoWithin: {$box: [ [1, 2], [3, 4] ]}}}"
-          python: "{'x': {'$geoWithin': {'$box': [[1, 2], [3, 4]]}}}"
+        shell: '{x: {$geoWithin: {$box: [ [1, 2], [3, 4] ]}}}'
       output:
-          java: geoWithinBox("x", 1L, 2L, 3L, 4L)
-          object: "{x: {$geoWithin: {$box: [ [1, 2], [3, 4] ]}}}"
+        java: 'geoWithinBox("x", 1L, 2L, 3L, 4L)'
       imports: import static com.mongodb.client.model.Filters.geoWithinBox;
-    geoWithinPolygon:
+  geoWithinPolygon:
     - input:
-          javascript: "{x: {$geoWithin: {$polygon: [ [1, 2], [3, 4], [5, 6], [1, 2] ]}}}"
-          python: "{'x': {'$geoWithin': {'$polygon': [[1, 2], [3, 4], [5, 6], [1, 2]]}}}"
+        shell: '{x: {$geoWithin: {$polygon: [ [1, 2], [3, 4], [5, 6], [1, 2] ]}}}'
       output:
-          java: geoWithinPolygon("x", Arrays.asList(Arrays.asList(1L, 2L), Arrays.asList(3L,
-              4L), Arrays.asList(5L, 6L), Arrays.asList(1L, 2L)))
-          object: "{x: {$geoWithin: {$polygon: [ [1, 2], [3, 4], [5, 6], [1, 2] ]}}}"
+        java: >-
+          geoWithinPolygon("x", Arrays.asList(Arrays.asList(1L, 2L),
+          Arrays.asList(3L, 4L), Arrays.asList(5L, 6L), Arrays.asList(1L, 2L)))
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.geoWithinPolygon;
-    geoWithinCenter:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.geoWithinPolygon;
+  geoWithinCenter:
     - input:
-          javascript: "{x: {$geoWithin: {$center: [ [1, 2], 5 ]}}}"
-          python: "{'x': {'$geoWithin': {'$center': [[1, 2], 5]}}}"
+        shell: '{x: {$geoWithin: {$center: [ [1, 2], 5 ]}}}'
       output:
-          java: geoWithinCenter("x", 1L, 2L, 5L)
-          object: "{x: {$geoWithin: {$center: [ [1, 2], 5 ]}}}"
+        java: 'geoWithinCenter("x", 1L, 2L, 5L)'
       imports: import static com.mongodb.client.model.Filters.geoWithinCenter;
-    geoWithinCenterSphere:
+  geoWithinCenterSphere:
     - input:
-          javascript: "{x: {$geoWithin: {$centerSphere: [ [1, 2], 5 ]}}}"
-          python: "{'x': {'$geoWithin': {'$centerSphere': [[1, 2], 5]}}}"
+        shell: '{x: {$geoWithin: {$centerSphere: [ [1, 2], 5 ]}}}'
       output:
-          java: geoWithinCenterSphere("x", 1L, 2L, 5L)
-          object: "{x: {$geoWithin: {$centerSphere: [ [1, 2], 5 ]}}}"
+        java: 'geoWithinCenterSphere("x", 1L, 2L, 5L)'
       imports: import static com.mongodb.client.model.Filters.geoWithinCenterSphere;
-    geoIntersects:
+  geoIntersects:
     - input:
-          javascript: '{x: {$geoIntersects: {$geometry: {type: "Point", coordinates: [1,
-        2]}}}}'
-          python: "{'x': {'$geoIntersects': {'$geometry': {'type': 'Point', 'coordinates':
-        [1, 2]}}}}"
+        shell: >-
+          {x: {$geoIntersects: {$geometry: {type: "Point", coordinates: [1,
+          2]}}}}
       output:
-          java: geoIntersects("x", new Point(new Position(1L, 2L)))
-          object: '{x: {$geoIntersects: {$geometry: {type: "Point", coordinates: [1,
-        2]}}}}'
+        java: 'geoIntersects("x", new Point(new Position(1L, 2L)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.geoIntersects;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
-    near:
+        import static com.mongodb.client.model.Filters.geoIntersects;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
+  near:
     - input:
-          javascript: '{x: {$near: {$geometry: {type: "Point", coordinates: [1, 2]}, $minDistance:
-        10, $maxDistance: 100}}}'
-          python: "{'x': {'$near': {'$geometry': {'type': 'Point', 'coordinates': [1,
-        2]}, '$minDistance': 10, '$maxDistance': 100}}}"
+        shell: >-
+          {x: {$near: {$geometry: {type: "Point", coordinates: [1, 2]},
+          $minDistance: 10, $maxDistance: 100}}}
       output:
-          java: near("x", new Point(new Position(1L, 2L)), 100L, 10L)
-          object: '{x: {$near: {$geometry: {type: "Point", coordinates: [1, 2]}, $minDistance:
-        10, $maxDistance: 100}}}'
+        java: 'near("x", new Point(new Position(1L, 2L)), 100L, 10L)'
       imports: |-
-          import static com.mongodb.client.model.Filters.near;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
-    nearSphere:
+        import static com.mongodb.client.model.Filters.near;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
+  nearSphere:
     - input:
-          javascript: '{x: {$nearSphere: {$geometry: {type: "Point", coordinates: [1,
-        2]}, $minDistance: 10, $maxDistance: 100}}}'
-          python: "{'x': {'$nearSphere': {'$geometry': {'type': 'Point', 'coordinates':
-        [1, 2]}, '$minDistance': 10, '$maxDistance': 100}}}"
+        shell: >-
+          {x: {$nearSphere: {$geometry: {type: "Point", coordinates: [1, 2]},
+          $minDistance: 10, $maxDistance: 100}}}
       output:
-          java: nearSphere("x", new Point(new Position(1L, 2L)), 100L, 10L)
-          object: '{x: {$nearSphere: {$geometry: {type: "Point", coordinates: [1,
-        2]}, $minDistance: 10, $maxDistance: 100}}}'
+        java: 'nearSphere("x", new Point(new Position(1L, 2L)), 100L, 10L)'
       imports: |-
-          import static com.mongodb.client.model.Filters.nearSphere;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
-    sum:
+        import static com.mongodb.client.model.Filters.nearSphere;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
+  sum:
     - input:
-          javascript: "{x: {$sum: 1}}"
-          python: "{'x': {'$sum': 1}}"
+        shell: '{x: {$sum: 1}}'
       output:
-          java: sum("x", 1L)
-          object: "{x: {$sum: 1}}"
+        java: 'sum("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.sum;
-    avg:
+  avg:
     - input:
-          javascript: "{x: {$avg: 1}}"
-          python: "{'x': {'$avg': 1}}"
+        shell: '{x: {$avg: 1}}'
       output:
-          java: avg("x", 1L)
-          object: "{x: {$avg: 1}}"
+        java: 'avg("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.avg;
-    first:
+  first:
     - input:
-          javascript: "{x: {$first: 1}}"
-          python: "{'x': {'$first': 1}}"
+        shell: '{x: {$first: 1}}'
       output:
-          java: first("x", 1L)
-          object: "{x: {$first: 1}}"
+        java: 'first("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.first;
-    last:
+  last:
     - input:
-          javascript: "{x: {$last: 1}}"
-          python: "{'x': {'$last': 1}}"
+        shell: '{x: {$last: 1}}'
       output:
-          java: last("x", 1L)
-          object: "{x: {$last: 1}}"
+        java: 'last("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.last;
-    max:
+  max:
     - input:
-          javascript: "{x: {$max: 1}}"
-          python: "{'x': {'$max': 1}}"
+        shell: '{x: {$max: 1}}'
       output:
-          java: max("x", 1L)
-          object: "{x: {$max: 1}}"
+        java: 'max("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.max;
-    min:
+  min:
     - input:
-          javascript: "{x: {$min: 1}}"
-          python: "{'x': {'$min': 1}}"
+        shell: '{x: {$min: 1}}'
       output:
-          java: min("x", 1L)
-          object: "{x: {$min: 1}}"
+        java: 'min("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.min;
-    push:
+  push:
     - input:
-          javascript: "{x: {$push: 1}}"
-          python: "{'x': {'$push': 1}}"
+        shell: '{x: {$push: 1}}'
       output:
-          java: push("x", 1L)
-          object: "{x: {$push: 1}}"
+        java: 'push("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.push;
-    addToSet:
+  addToSet:
     - input:
-          javascript: "{x: {$addToSet: 1}}"
-          python: "{'x': {'$addToSet': 1}}"
+        shell: '{x: {$addToSet: 1}}'
       output:
-          java: addToSet("x", 1L)
-          object: "{x: {$addToSet: 1}}"
+        java: 'addToSet("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.addToSet;
-    stdDevPop:
+  stdDevPop:
     - input:
-          javascript: "{x: {$stdDevPop: 1}}"
-          python: "{'x': {'$stdDevPop': 1}}"
+        shell: '{x: {$stdDevPop: 1}}'
       output:
-          java: stdDevPop("x", 1L)
-          object: "{x: {$stdDevPop: 1}}"
+        java: 'stdDevPop("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.stdDevPop;
-    stdDevSamp:
+  stdDevSamp:
     - input:
-          javascript: "{x: {$stdDevSamp: 1}}"
-          python: "{'x': {'$stdDevSamp': 1}}"
+        shell: '{x: {$stdDevSamp: 1}}'
       output:
-          java: stdDevSamp("x", 1L)
-          object: "{x: {$stdDevSamp: 1}}"
+        java: 'stdDevSamp("x", 1L)'
       imports: import static com.mongodb.client.model.Accumulators.stdDevSamp;
-    match:
+  match:
     - input:
-          javascript: "{ $match: {x: 1} }"
-          python: "{'$match': {'x': 1}}"
+        shell: '{ $match: {x: 1} }'
       output:
-          java: match(eq("x", 1L))
-          object: "{ $match: {x: 1} }"
+        java: 'match(eq("x", 1L))'
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.match;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.match;
     - input:
-          javascript: "{ $match: {x: 1, y: 2} }"
-          python: "{'$match': {'x': 1, 'y': 2}}"
+        shell: '{ $match: {x: 1, y: 2} }'
       output:
-          java: match(and(eq("x", 1L), eq("y", 2L)))
-          object: "{ $match: {x: 1, y: 2} }"
+        java: 'match(and(eq("x", 1L), eq("y", 2L)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.match;
-    project:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.match;
+  project:
     - input:
-          javascript: "{ $project: { z: 1 } }"
-          python: "{'$project': {'z': 1}}"
+        shell: '{ $project: { z: 1 } }'
       output:
-          java: project(include("z"))
-          object: "{ $project: { z: 1 } }"
+        java: project(include("z"))
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.include;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.include;
     - input:
-          javascript: "{ $project: { z: 1 , y: true} }"
-          python: "{'$project': {'z': 1, 'y': True}}"
+        shell: '{ $project: { z: 1 , y: true} }'
       output:
-          java: project(include("z", "y"))
-          object: "{ $project: { z: 1 , y: true} }"
+        java: 'project(include("z", "y"))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.include;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.include;
     - input:
-          javascript: "{ $project: { z: false } }"
-          python: "{'$project': {'z': False}}"
+        shell: '{ $project: { z: false } }'
       output:
-          java: project(exclude("z"))
-          object: "{ $project: { z: false } }"
+        java: project(exclude("z"))
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.exclude;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.exclude;
     - input:
-          javascript: "{ $project: { z: 1, y: false } }"
-          python: "{'$project': {'z': 1, 'y': False}}"
+        shell: '{ $project: { z: 1, y: false } }'
       output:
-          java: project(fields(include("z"), exclude("y")))
-          object: "{ $project: { z: 1, y: false } }"
+        java: 'project(fields(include("z"), exclude("y")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.exclude;
-          import static com.mongodb.client.model.Projections.fields;
-          import static com.mongodb.client.model.Projections.include;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.exclude;
+        import static com.mongodb.client.model.Projections.fields;
+        import static com.mongodb.client.model.Projections.include;
     - input:
-          javascript: "{ $project: { _id: 0 } }"
-          python: "{'$project': {'_id': 0}}"
+        shell: '{ $project: { _id: 0 } }'
       output:
-          java: project(excludeId())
-          object: "{ $project: { _id: 0 } }"
+        java: project(excludeId())
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.excludeId;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.excludeId;
     - input:
-          javascript: "{ $project: { x: true, y: false, _id: 0 } }"
-          python: "{'$project': {'x': True, 'y': False, '_id': 0}}"
+        shell: '{ $project: { x: true, y: false, _id: 0 } }'
       output:
-          java: project(fields(include("x"), exclude("y"), excludeId()))
-          object: "{ $project: { x: true, y: false, _id: 0 } }"
+        java: 'project(fields(include("x"), exclude("y"), excludeId()))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.exclude;
-          import static com.mongodb.client.model.Projections.excludeId;
-          import static com.mongodb.client.model.Projections.fields;
-          import static com.mongodb.client.model.Projections.include;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.exclude;
+        import static com.mongodb.client.model.Projections.excludeId;
+        import static com.mongodb.client.model.Projections.fields;
+        import static com.mongodb.client.model.Projections.include;
     - input:
-          javascript: "{ $project: { z: { a: 9 } } }"
-          python: "{'$project': {'z': {'a': 9}}}"
+        shell: '{ $project: { z: { a: 9 } } }'
       output:
-          java: project(computed("z", eq("a", 9L)))
-          object: "{ $project: { z: { a: 9 } } }"
+        java: 'project(computed("z", eq("a", 9L)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.computed;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.computed;
     - input:
-          javascript: '{ $project: { z: "$z"} }'
-          python: "{'$project': {'z': '$z'}}"
+        shell: '{ $project: { z: "$z"} }'
       output:
-          java: project(computed("z", "$z"))
-          object: '{ $project: { z: "$z"} }'
+        java: 'project(computed("z", "$z"))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.project;
-          import static com.mongodb.client.model.Projections.computed;
-    sample:
+        import static com.mongodb.client.model.Aggregates.project;
+        import static com.mongodb.client.model.Projections.computed;
+  sample:
     - input:
-          javascript: "{ $sample: { size: 1 } }"
-          python: "{'$sample': {'size': 1}}"
+        shell: '{ $sample: { size: 1 } }'
       output:
-          java: sample(1L)
-          object: "{ $sample: { size: 1 } }"
+        java: sample(1L)
       imports: import static com.mongodb.client.model.Aggregates.sample;
-    sort:
+  sort:
     - input:
-          javascript: "{ $sort: { x: 1, y: -1 } }"
-          python: "{'$sort': {'x': 1, 'y': -1}}"
+        shell: '{ $sort: { x: 1, y: -1 } }'
       output:
-          java: sort(orderBy(ascending("x"), descending("y")))
-          object: "{ $sort: { x: 1, y: -1 } }"
+        java: 'sort(orderBy(ascending("x"), descending("y")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.sort;
-          import static com.mongodb.client.model.Sorts.ascending;
-          import static com.mongodb.client.model.Sorts.descending;
-          import static com.mongodb.client.model.Sorts.orderBy;
+        import static com.mongodb.client.model.Aggregates.sort;
+        import static com.mongodb.client.model.Sorts.ascending;
+        import static com.mongodb.client.model.Sorts.descending;
+        import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-          javascript: '{ $sort: { x: 1, y: -1, z: { $meta: "textScore" } } }'
-          python: "{'$sort': {'x': 1, 'y': -1, 'z': {'$meta': 'textScore'}}}"
+        shell: '{ $sort: { x: 1, y: -1, z: { $meta: "textScore" } } }'
       output:
-          java: sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))
-          object: '{ $sort: { x: 1, y: -1, z: { $meta: "textScore" } } }'
+        java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.sort;
-          import static com.mongodb.client.model.Sorts.ascending;
-          import static com.mongodb.client.model.Sorts.descending;
-          import static com.mongodb.client.model.Sorts.metaTextScore;
-          import static com.mongodb.client.model.Sorts.orderBy;
+        import static com.mongodb.client.model.Aggregates.sort;
+        import static com.mongodb.client.model.Sorts.ascending;
+        import static com.mongodb.client.model.Sorts.descending;
+        import static com.mongodb.client.model.Sorts.metaTextScore;
+        import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-          javascript: "{ $sort: { x: 1, y: -1, z: { '$meta': 'textScore' } } }"
-          python: "{'$sort': {'x': 1, 'y': -1, 'z': {'$meta': 'textScore'}}}"
+        shell: '{ $sort: { x: 1, y: -1, z: { ''$meta'': ''textScore'' } } }'
       output:
-          java: sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))
-          object: "{ $sort: { x: 1, y: -1, z: { '$meta': 'textScore' } } }"
+        java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.sort;
-          import static com.mongodb.client.model.Sorts.ascending;
-          import static com.mongodb.client.model.Sorts.descending;
-          import static com.mongodb.client.model.Sorts.metaTextScore;
-          import static com.mongodb.client.model.Sorts.orderBy;
+        import static com.mongodb.client.model.Aggregates.sort;
+        import static com.mongodb.client.model.Sorts.ascending;
+        import static com.mongodb.client.model.Sorts.descending;
+        import static com.mongodb.client.model.Sorts.metaTextScore;
+        import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-          javascript: '{ $sort: { x: 1, y: -1, z: { "$meta": "textScore" } } }'
-          python: "{'$sort': {'x': 1, 'y': -1, 'z': {'$meta': 'textScore'}}}"
+        shell: '{ $sort: { x: 1, y: -1, z: { "$meta": "textScore" } } }'
       output:
-          java: sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))
-          object: '{ $sort: { x: 1, y: -1, z: { "$meta": "textScore" } } }'
+        java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.sort;
-          import static com.mongodb.client.model.Sorts.ascending;
-          import static com.mongodb.client.model.Sorts.descending;
-          import static com.mongodb.client.model.Sorts.metaTextScore;
-          import static com.mongodb.client.model.Sorts.orderBy;
+        import static com.mongodb.client.model.Aggregates.sort;
+        import static com.mongodb.client.model.Sorts.ascending;
+        import static com.mongodb.client.model.Sorts.descending;
+        import static com.mongodb.client.model.Sorts.metaTextScore;
+        import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-          javascript: "{ $sort: { x: 1, y: -1, z: { $meta: 'textScore' } } }"
-          python: "{'$sort': {'x': 1, 'y': -1, 'z': {'$meta': 'textScore'}}}"
+        shell: '{ $sort: { x: 1, y: -1, z: { $meta: ''textScore'' } } }'
       output:
-          java: sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))
-          object: "{ $sort: { x: 1, y: -1, z: { $meta: 'textScore' } } }"
+        java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.sort;
-          import static com.mongodb.client.model.Sorts.ascending;
-          import static com.mongodb.client.model.Sorts.descending;
-          import static com.mongodb.client.model.Sorts.metaTextScore;
-          import static com.mongodb.client.model.Sorts.orderBy;
-    skip:
+        import static com.mongodb.client.model.Aggregates.sort;
+        import static com.mongodb.client.model.Sorts.ascending;
+        import static com.mongodb.client.model.Sorts.descending;
+        import static com.mongodb.client.model.Sorts.metaTextScore;
+        import static com.mongodb.client.model.Sorts.orderBy;
+  skip:
     - input:
-          javascript: "{ $skip: 10 }"
-          python: "{'$skip': 10}"
+        shell: '{ $skip: 10 }'
       output:
-          java: skip(10L)
-          object: "{ $skip: 10 }"
+        java: skip(10L)
       imports: import static com.mongodb.client.model.Aggregates.skip;
-    limit:
+  limit:
     - input:
-          javascript: "{ $limit: 1 }"
-          python: "{'$limit': 1}"
+        shell: '{ $limit: 1 }'
       output:
-          java: limit(1L)
-          object: "{ $limit: 1 }"
+        java: limit(1L)
       imports: import static com.mongodb.client.model.Aggregates.limit;
-    lookup:
+  lookup:
     - input:
-          javascript: "{ $lookup: {from: 'fromColl',localField: 'localF',foreignField:
-        'foreignF',as: 'outputF',} }"
-          python: "{'$lookup': {'from': 'fromColl', 'localField': 'localF', 'foreignField':
-        'foreignF', 'as': 'outputF'}}"
+        shell: >-
+          { $lookup: {from: 'fromColl',localField: 'localF',foreignField:
+          'foreignF',as: 'outputF',} }
       output:
-          java: lookup("fromColl", "localF", "foreignF", "outputF")
-          object: "{ $lookup: {from: 'fromColl',localField: 'localF',foreignField:
-        'foreignF',as: 'outputF',} }"
+        java: 'lookup("fromColl", "localF", "foreignF", "outputF")'
       imports: import static com.mongodb.client.model.Aggregates.lookup;
-    group:
+  group:
     - input:
-          javascript: '{ $group: { _id: "idField" } }'
-          python: "{'$group': {'_id': 'idField'}}"
+        shell: '{ $group: { _id: "idField" } }'
       output:
-          java: group("idField")
-          object: '{ $group: { _id: "idField" } }'
+        java: group("idField")
       imports: import static com.mongodb.client.model.Aggregates.group;
     - input:
-          javascript: '{ $group: { _id: "idField", total: { $sum: "$idField" }, average:
-        { $avg: "$idField" } } }'
-          python: "{'$group': {'_id': 'idField', 'total': {'$sum': '$idField'}, 'average':
-        {'$avg': '$idField'}}}"
+        shell: >-
+          { $group: { _id: "idField", total: { $sum: "$idField" }, average: {
+          $avg: "$idField" } } }
       output:
-          java: group("idField", sum("total", "$idField"), avg("average", "$idField"))
-          object: '{ $group: { _id: "idField", total: { $sum: "$idField" }, average:
-        { $avg: "$idField" } } }'
+        java: 'group("idField", sum("total", "$idField"), avg("average", "$idField"))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.group;
-          import static com.mongodb.client.model.Accumulators.avg;
-          import static com.mongodb.client.model.Accumulators.sum;
-    unwind:
+        import static com.mongodb.client.model.Aggregates.group;
+        import static com.mongodb.client.model.Accumulators.avg;
+        import static com.mongodb.client.model.Accumulators.sum;
+  unwind:
     - input:
-          javascript: '{ $unwind: "$field" }'
-          python: "{'$unwind': '$field'}"
+        shell: '{ $unwind: "$field" }'
       output:
-          java: unwind("$field")
-          object: '{ $unwind: "$field" }'
+        java: unwind("$field")
       imports: import static com.mongodb.client.model.Aggregates.unwind;
     - input:
-          javascript: '{ $unwind: { path: "$field"} }'
-          python: "{'$unwind': {'path': '$field'}}"
+        shell: '{ $unwind: { path: "$field"} }'
       output:
-          java: unwind("$field")
-          object: '{ $unwind: { path: "$field"} }'
+        java: unwind("$field")
       imports: import static com.mongodb.client.model.Aggregates.unwind;
     - input:
-          javascript: '{ $unwind: { path: "$field", includeArrayIndex: "element" } }'
-          python: "{'$unwind': {'path': '$field', 'includeArrayIndex': 'element'}}"
+        shell: '{ $unwind: { path: "$field", includeArrayIndex: "element" } }'
       output:
-          java: unwind("$field", new UnwindOptions().includeArrayIndex("element"))
-          object: '{ $unwind: { path: "$field", includeArrayIndex: "element" } }'
+        java: 'unwind("$field", new UnwindOptions().includeArrayIndex("element"))'
       imports: |-
-          import static com.mongodb.client.model.Aggregates.unwind;
-          import com.mongodb.client.model.UnwindOptions;
+        import static com.mongodb.client.model.Aggregates.unwind;
+        import com.mongodb.client.model.UnwindOptions;
     - input:
-          javascript: '{ $unwind: { path: "$field", includeArrayIndex: "element", preserveNullAndEmptyArrays:
-        true } }'
-          python: "{'$unwind': {'path': '$field', 'includeArrayIndex': 'element', 'preserveNullAndEmptyArrays':
-        True}}"
+        shell: >-
+          { $unwind: { path: "$field", includeArrayIndex: "element",
+          preserveNullAndEmptyArrays: true } }
       output:
-          java: unwind("$field", new UnwindOptions().includeArrayIndex("element").preserveNullAndEmptyArrays(true))
-          object: '{ $unwind: { path: "$field", includeArrayIndex: "element", preserveNullAndEmptyArrays:
-        true } }'
+        java: >-
+          unwind("$field", new
+          UnwindOptions().includeArrayIndex("element").preserveNullAndEmptyArrays(true))
       imports: |-
-          import static com.mongodb.client.model.Aggregates.unwind;
-          import com.mongodb.client.model.UnwindOptions;
-    out:
+        import static com.mongodb.client.model.Aggregates.unwind;
+        import com.mongodb.client.model.UnwindOptions;
+  out:
     - input:
-          javascript: '{ $out: "coll" }'
-          python: "{'$out': 'coll'}"
+        shell: '{ $out: "coll" }'
       output:
-          java: out("coll")
-          object: '{ $out: "coll" }'
+        java: out("coll")
       imports: import static com.mongodb.client.model.Aggregates.out;
-    graphLookup:
+  graphLookup:
     - input:
-          javascript: '{ $graphLookup: {from: "collection",startWith: "$expr",connectFromField:
-        "fromF",connectToField: "toF",as: "asF" } }'
-          python: "{'$graphLookup': {'from': 'collection', 'startWith': '$expr', 'connectFromField':
-        'fromF', 'connectToField': 'toF', 'as': 'asF'}}"
+        shell: >-
+          { $graphLookup: {from: "collection",startWith:
+          "$expr",connectFromField: "fromF",connectToField: "toF",as: "asF" } }
       output:
-          java: graphLookup("collection", "$expr", "fromF", "toF", "asF")
-          object: '{ $graphLookup: {from: "collection",startWith: "$expr",connectFromField:
-        "fromF",connectToField: "toF",as: "asF" } }'
+        java: 'graphLookup("collection", "$expr", "fromF", "toF", "asF")'
       imports: import static com.mongodb.client.model.Aggregates.graphLookup;
     - input:
-          javascript: '{ $graphLookup: {from: "collection",startWith: "$expr",connectFromField:
-        "fromF",connectToField: "toF",as: "asF", maxDepth: 10, depthField: "depthF",restrictSearchWithMatch:
-        { x: 1 } } }'
-          python: "{'$graphLookup': {'from': 'collection', 'startWith': '$expr', 'connectFromField':
-        'fromF', 'connectToField': 'toF', 'as': 'asF', 'maxDepth': 10, 'depthField':
-        'depthF', 'restrictSearchWithMatch': {'x': 1}}}"
+        shell: >-
+          { $graphLookup: {from: "collection",startWith:
+          "$expr",connectFromField: "fromF",connectToField: "toF",as: "asF",
+          maxDepth: 10, depthField: "depthF",restrictSearchWithMatch: { x: 1 } }
+          }
       output:
-          java: graphLookup("collection", "$expr", "fromF", "toF", "asF", new GraphLookupOptions().maxDepth(10L).depthField("depthF").restrictSearchWithMatch(eq("x",
-              1L)))
-          object: '{ $graphLookup: {from: "collection",startWith: "$expr",connectFromField:
-        "fromF",connectToField: "toF",as: "asF", maxDepth: 10, depthField: "depthF",restrictSearchWithMatch:
-        { x: 1 } } }'
+        java: >-
+          graphLookup("collection", "$expr", "fromF", "toF", "asF", new
+          GraphLookupOptions().maxDepth(10L).depthField("depthF").restrictSearchWithMatch(eq("x",
+          1L)))
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.graphLookup;
-          import com.mongodb.client.model.GraphLookupOptions;
-    sortByCount:
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.graphLookup;
+        import com.mongodb.client.model.GraphLookupOptions;
+  sortByCount:
     - input:
-          javascript: "{ $sortByCount: '$expr' }"
-          python: "{'$sortByCount': '$expr'}"
+        shell: '{ $sortByCount: ''$expr'' }'
       output:
-          java: sortByCount("$expr")
-          object: "{ $sortByCount: '$expr' }"
+        java: sortByCount("$expr")
       imports: import static com.mongodb.client.model.Aggregates.sortByCount;
     - input:
-          javascript: "{ $sortByCount: { '$floor': '$x' } }"
-          python: "{'$sortByCount': {'$floor': '$x'}}"
+        shell: '{ $sortByCount: { ''$floor'': ''$x'' } }'
       output:
-          java: sortByCount(eq("$floor", "$x"))
-          object: "{ $sortByCount: { '$floor': '$x' } }"
+        java: 'sortByCount(eq("$floor", "$x"))'
       imports: |-
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.sortByCount;
-    replaceRoot:
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.sortByCount;
+  replaceRoot:
     - input:
-          javascript: "{ $replaceRoot: { newRoot: { x: 'newDoc' } } }"
-          python: "{'$replaceRoot': {'newRoot': {'x': 'newDoc'}}}"
+        shell: '{ $replaceRoot: { newRoot: { x: ''newDoc'' } } }'
       output:
-          java: replaceRoot(new Document("x", "newDoc"))
-          object: "{ $replaceRoot: { newRoot: { x: 'newDoc' } } }"
+        java: 'replaceRoot(new Document("x", "newDoc"))'
       imports: |-
-          import org.bson.Document;
-          import static com.mongodb.client.model.Aggregates.replaceRoot;
-    addFields:
+        import org.bson.Document;
+        import static com.mongodb.client.model.Aggregates.replaceRoot;
+  addFields:
     - input:
-          javascript: "{ $addFields: { x: 1, y: {z: 2} } }"
-          python: "{'$addFields': {'x': 1, 'y': {'z': 2}}}"
+        shell: '{ $addFields: { x: 1, y: {z: 2} } }'
       output:
-          java: addFields(new Field("x", 1L), new Field("y", new Document("z", 2L)))
-          object: "{ $addFields: { x: 1, y: {z: 2} } }"
+        java: 'addFields(new Field("x", 1L), new Field("y", new Document("z", 2L)))'
       imports: |-
-          import org.bson.Document;
-          import static com.mongodb.client.model.Aggregates.addFields;
-          import com.mongodb.client.model.Field;
-    count:
+        import org.bson.Document;
+        import static com.mongodb.client.model.Aggregates.addFields;
+        import com.mongodb.client.model.Field;
+  count:
     - input:
-          javascript: "{ $count: 'field' }"
-          python: "{'$count': 'field'}"
+        shell: '{ $count: ''field'' }'
       output:
-          java: count("field")
-          object: "{ $count: 'field' }"
+        java: count("field")
       imports: import static com.mongodb.client.model.Aggregates.count;
-    bucket:
+  bucket:
     - input:
-          javascript: "{$bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ],} }"
-          python: "{'$bucket': {'groupBy': '$expr', 'boundaries': [0, 10, 20]}}"
+        shell: '{$bucket: { groupBy: ''$expr'', boundaries: [ 0, 10, 20 ],} }'
       output:
-          java: bucket("$expr", Arrays.asList(0L, 10L, 20L))
-          object: "{$bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ],} }"
+        java: 'bucket("$expr", Arrays.asList(0L, 10L, 20L))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Aggregates.bucket;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Aggregates.bucket;
     - input:
-          javascript: "{ $bucket: {groupBy: '$expr', boundaries: [ 0, 10, 20 ], output:{output1:
-        { $sum: 1 }} } }"
-          python: "{'$bucket': {'groupBy': '$expr', 'boundaries': [0, 10, 20], 'output':
-        {'output1': {'$sum': 1}}}}"
+        shell: >-
+          { $bucket: {groupBy: '$expr', boundaries: [ 0, 10, 20 ],
+          output:{output1: { $sum: 1 }} } }
       output:
-          java: bucket("$expr", Arrays.asList(0L, 10L, 20L), new BucketOptions().output(sum("output1",
-              1L)))
-          object: "{ $bucket: {groupBy: '$expr', boundaries: [ 0, 10, 20 ], output:{output1:
-        { $sum: 1 }} } }"
+        java: >-
+          bucket("$expr", Arrays.asList(0L, 10L, 20L), new
+          BucketOptions().output(sum("output1", 1L)))
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Aggregates.bucket;
-          import static com.mongodb.client.model.Accumulators.sum;
-          import com.mongodb.client.model.BucketOptions;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Aggregates.bucket;
+        import static com.mongodb.client.model.Accumulators.sum;
+        import com.mongodb.client.model.BucketOptions;
     - input:
-          javascript: "{ $bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ], default:
-        'default', output:{ 'output1': { $sum: 1 } } } }"
-          python: "{'$bucket': {'groupBy': '$expr', 'boundaries': [0, 10, 20], 'default':
-        'default', 'output': {'output1': {'$sum': 1}}}}"
+        shell: >-
+          { $bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ], default:
+          'default', output:{ 'output1': { $sum: 1 } } } }
       output:
-          java: bucket("$expr", Arrays.asList(0L, 10L, 20L), new BucketOptions().defaultBucket("default").output(sum("output1",
-              1L)))
-          object: "{ $bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ], default:
-        'default', output:{ 'output1': { $sum: 1 } } } }"
+        java: >-
+          bucket("$expr", Arrays.asList(0L, 10L, 20L), new
+          BucketOptions().defaultBucket("default").output(sum("output1", 1L)))
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Aggregates.bucket;
-          import static com.mongodb.client.model.Accumulators.sum;
-          import com.mongodb.client.model.BucketOptions;
-    bucketAuto:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Aggregates.bucket;
+        import static com.mongodb.client.model.Accumulators.sum;
+        import com.mongodb.client.model.BucketOptions;
+  bucketAuto:
     - input:
-          javascript: '{ $bucketAuto: {groupBy: "$expr", buckets: 88 } }'
-          python: "{'$bucketAuto': {'groupBy': '$expr', 'buckets': 88}}"
+        shell: '{ $bucketAuto: {groupBy: "$expr", buckets: 88 } }'
       output:
-          java: bucketAuto("$expr", 88L)
-          object: '{ $bucketAuto: {groupBy: "$expr", buckets: 88 } }'
+        java: 'bucketAuto("$expr", 88L)'
       imports: import static com.mongodb.client.model.Aggregates.bucketAuto;
     - input:
-          javascript: '{ $bucketAuto: { groupBy: "$expr", buckets: 88, output:{    ''output1'':
-        { $sum: 1 }}, granularity: ''POWERSOF2'' }}'
-          python: "{'$bucketAuto': {'groupBy': '$expr', 'buckets': 88, 'output': {'output1':
-        {'$sum': 1}}, 'granularity': 'POWERSOF2'}}"
+        shell: >-
+          { $bucketAuto: { groupBy: "$expr", buckets: 88, output:{    'output1':
+          { $sum: 1 }}, granularity: 'POWERSOF2' }}
       output:
-          java: bucketAuto("$expr", 88L, new BucketAutoOptions().output(sum("output1",
-              1L)).granularity(BucketGranularity.fromString("POWERSOF2")))
-          object: '{ $bucketAuto: { groupBy: "$expr", buckets: 88, output:{    ''output1'':
-        { $sum: 1 }}, granularity: ''POWERSOF2'' }}'
+        java: >-
+          bucketAuto("$expr", 88L, new BucketAutoOptions().output(sum("output1",
+          1L)).granularity(BucketGranularity.fromString("POWERSOF2")))
       imports: |-
-          import static com.mongodb.client.model.Aggregates.bucketAuto;
-          import static com.mongodb.client.model.Accumulators.sum;
-          import com.mongodb.client.model.BucketAutoOptions;
-    facet:
+        import static com.mongodb.client.model.Aggregates.bucketAuto;
+        import static com.mongodb.client.model.Accumulators.sum;
+        import com.mongodb.client.model.BucketAutoOptions;
+  facet:
     - input:
-          javascript: "{ $facet: { output1: [{ $match: {x: 1} }] } }"
-          python: "{'$facet': {'output1': [{'$match': {'x': 1}}]}}"
+        shell: '{ $facet: { output1: [{ $match: {x: 1} }] } }'
       output:
-          java: facet(new Facet("output1", Arrays.asList(match(eq("x", 1L)))))
-          object: "{ $facet: { output1: [{ $match: {x: 1} }] } }"
+        java: 'facet(new Facet("output1", Arrays.asList(match(eq("x", 1L)))))'
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.facet;
-          import static com.mongodb.client.model.Aggregates.match;
-          import com.mongodb.client.model.Facet;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.facet;
+        import static com.mongodb.client.model.Aggregates.match;
+        import com.mongodb.client.model.Facet;
     - input:
-          javascript: "{ $facet: { output1: [{ $match: {x: 1} }], output2: [{$sample:
-        {size: 10} }] } }"
-          python: "{'$facet': {'output1': [{'$match': {'x': 1}}], 'output2': [{'$sample':
-        {'size': 10}}]}}"
+        shell: >-
+          { $facet: { output1: [{ $match: {x: 1} }], output2: [{$sample: {size:
+          10} }] } }
       output:
-          java: facet(new Facet("output1", Arrays.asList(match(eq("x", 1L)))), new Facet("output2",
-              Arrays.asList(sample(10L))))
-          object: "{ $facet: { output1: [{ $match: {x: 1} }], output2: [{$sample:
-        {size: 10} }] } }"
+        java: >-
+          facet(new Facet("output1", Arrays.asList(match(eq("x", 1L)))), new
+          Facet("output2", Arrays.asList(sample(10L))))
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.eq;
-          import static com.mongodb.client.model.Aggregates.facet;
-          import static com.mongodb.client.model.Aggregates.match;
-          import static com.mongodb.client.model.Aggregates.sample;
-          import com.mongodb.client.model.Facet;
-    collStats:
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.eq;
+        import static com.mongodb.client.model.Aggregates.facet;
+        import static com.mongodb.client.model.Aggregates.match;
+        import static com.mongodb.client.model.Aggregates.sample;
+        import com.mongodb.client.model.Facet;
+  collStats:
     - input:
-          javascript: "{ $collStats: { latencyStats: { histograms: true } } }"
-          python: "{'$collStats': {'latencyStats': {'histograms': True}}}"
+        shell: '{ $collStats: { latencyStats: { histograms: true } } }'
       output:
-          java: eq("$collStats", eq("latencyStats", eq("histograms", true)))
-          object: "{ $collStats: { latencyStats: { histograms: true } } }"
+        java: 'eq("$collStats", eq("latencyStats", eq("histograms", true)))'
       imports: import static com.mongodb.client.model.Filters.eq;
-    currentOp:
+  currentOp:
     - input:
-          javascript: "{ $currentOp : { allUsers: true, idleSessions: true } }"
-          python: "{'$currentOp': {'allUsers': True, 'idleSessions': True}}"
+        shell: '{ $currentOp : { allUsers: true, idleSessions: true } }'
       output:
-          java: eq("$currentOp", and(eq("allUsers", true), eq("idleSessions", true)))
-          object: "{ $currentOp : { allUsers: true, idleSessions: true } }"
+        java: 'eq("$currentOp", and(eq("allUsers", true), eq("idleSessions", true)))'
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-    geoNear:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+  geoNear:
     - input:
-          javascript: '{$geoNear: { spherical: true, limit: 10, num: 100, maxDistance:
-        1000, query: {x: 1}, near: {$geometry: {type: "Point", coordinates: [1, 2]}}}}'
-          python: "{'$geoNear': {'spherical': True, 'limit': 10, 'num': 100, 'maxDistance':
-        1000, 'query': {'x': 1}, 'near': {'$geometry': {'type': 'Point', 'coordinates':
-        [1, 2]}}}}"
+        shell: >-
+          {$geoNear: { spherical: true, limit: 10, num: 100, maxDistance: 1000,
+          query: {x: 1}, near: {$geometry: {type: "Point", coordinates: [1,
+          2]}}}}
       output:
-          java: eq("$geoNear", and(eq("spherical", true), eq("limit", 10L), eq("num",
-              100L), eq("maxDistance", 1000L), eq("query", eq("x", 1L)), eq("near", new
-              Point(new Position(1L, 2L)))))
-          object: '{$geoNear: { spherical: true, limit: 10, num: 100, maxDistance:
-        1000, query: {x: 1}, near: {$geometry: {type: "Point", coordinates: [1, 2]}}}}'
+        java: >-
+          eq("$geoNear", and(eq("spherical", true), eq("limit", 10L), eq("num",
+          100L), eq("maxDistance", 1000L), eq("query", eq("x", 1L)), eq("near",
+          new Point(new Position(1L, 2L)))))
       imports: |-
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
-          import com.mongodb.client.model.geojson.Point;
-          import com.mongodb.client.model.geojson.Position;
-    indexStats:
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;
+        import com.mongodb.client.model.geojson.Point;
+        import com.mongodb.client.model.geojson.Position;
+  indexStats:
     - input:
-          javascript: "{ $indexStats: { } }"
-          python: "{'$indexStats': {}}"
+        shell: '{ $indexStats: { } }'
       output:
-          java: eq("$indexStats", new Document())
-          object: "{ $indexStats: { } }"
+        java: 'eq("$indexStats", new Document())'
       imports: |-
-          import org.bson.Document;
-          import static com.mongodb.client.model.Filters.eq;
-    listLocalSessions:
+        import org.bson.Document;
+        import static com.mongodb.client.model.Filters.eq;
+  listLocalSessions:
     - input:
-          javascript: "{ $listLocalSessions: { allUsers: true } }"
-          python: "{'$listLocalSessions': {'allUsers': True}}"
+        shell: '{ $listLocalSessions: { allUsers: true } }'
       output:
-          java: eq("$listLocalSessions", eq("allUsers", true))
-          object: "{ $listLocalSessions: { allUsers: true } }"
+        java: 'eq("$listLocalSessions", eq("allUsers", true))'
       imports: import static com.mongodb.client.model.Filters.eq;
-    listSessions:
+  listSessions:
     - input:
-          javascript: "{ $listSessions: { allUsers: true } }"
-          python: "{'$listSessions': {'allUsers': True}}"
+        shell: '{ $listSessions: { allUsers: true } }'
       output:
-          java: eq("$listSessions", eq("allUsers", true))
-          object: "{ $listSessions: { allUsers: true } }"
+        java: 'eq("$listSessions", eq("allUsers", true))'
       imports: import static com.mongodb.client.model.Filters.eq;
-    redact:
+  redact:
     - input:
-          javascript: "{$redact: {$cond: { if: { $eq: [ '$level', 5 ] }, then: '$$PRUNE',
-        else: '$$DESCEND'} }}"
-          python: "{'$redact': {'$cond': {'if': {'$eq': ['$level', 5]}, 'then': '$$PRUNE',
-        'else': '$$DESCEND'}}}"
+        shell: >-
+          {$redact: {$cond: { if: { $eq: [ '$level', 5 ] }, then: '$$PRUNE',
+          else: '$$DESCEND'} }}
       output:
-          java: eq("$redact", eq("$cond", and(eq("if", Arrays.asList("$level", 5L)), eq("then",
-                    "$$PRUNE"), eq("else", "$$DESCEND"))))
-          object: "{$redact: {$cond: { if: { $eq: [ '$level', 5 ] }, then: '$$PRUNE',
-        else: '$$DESCEND'} }}"
+        java: >-
+          eq("$redact", eq("$cond", and(eq("if", Arrays.asList("$level", 5L)),
+          eq("then", "$$PRUNE"), eq("else", "$$DESCEND"))))
       imports: |-
-          import java.util.Arrays;
-          import static com.mongodb.client.model.Filters.and;
-          import static com.mongodb.client.model.Filters.eq;
+        import java.util.Arrays;
+        import static com.mongodb.client.model.Filters.and;
+        import static com.mongodb.client.model.Filters.eq;

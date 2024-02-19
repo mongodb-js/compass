@@ -1,7 +1,6 @@
 import type { Reducer } from 'redux';
-import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';
+import { fetchItems } from './aggregations-queries-items';
 
 export type UpdateItemAttributes = {
   name: string;
@@ -33,7 +32,6 @@ type EditItemCancelledAction = {
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
   id: string;
-  payload: FavoriteQuery | SavedPipeline;
 };
 
 export type Actions =
@@ -80,19 +78,22 @@ export const updateItem =
     if (!item) {
       return;
     }
-    const payload =
-      item.type === 'query'
-        ? await queryStorage.updateAttributes(id, {
-            _name: attributes.name,
-            _dateModified: new Date(),
-          })
-        : await pipelineStorage.updateAttributes(id, attributes);
+
+    if (item.type === 'query') {
+      await queryStorage?.updateAttributes(id, {
+        _name: attributes.name,
+        _dateModified: new Date(),
+      });
+    } else {
+      await pipelineStorage?.updateAttributes(id, attributes);
+    }
 
     dispatch({
       type: ActionTypes.EditItemUpdated,
       id,
-      payload,
     });
+
+    await dispatch(fetchItems());
   };
 
 export default reducer;
