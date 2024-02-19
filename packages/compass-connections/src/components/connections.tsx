@@ -104,6 +104,7 @@ function Connections({
   connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
+  // @TODO: Extract to a prop COMPASS-7397
   const connectionStorage = connectionStorageLocator();
 
   const {
