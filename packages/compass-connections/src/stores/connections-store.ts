@@ -219,8 +219,8 @@ async function loadConnections(
   try {
     const [favoriteConnections, recentConnections] = await Promise.all([
       connectionRepository.listFavoriteConnections(),
-      connectionRepository.listRecentConnections
-        ? connectionRepository.listRecentConnections?.()
+      connectionRepository.listNonFavoriteConnections
+        ? connectionRepository.listNonFavoriteConnections?.()
         : Promise.resolve([]),
     ]);
 

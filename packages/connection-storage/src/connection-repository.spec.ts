@@ -87,7 +87,7 @@ describe('CompassConnectionProvider', function () {
     });
   });
 
-  describe('#listRecentConnections', function () {
+  describe('#listNonFavoriteConnections', function () {
     it('should return non favourite connections as disconnected', async function () {
       const provider = new ConnectionRepository(
         mockStorageWithConnections([
@@ -104,7 +104,7 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listRecentConnections();
+      const connections = await provider.listNonFavoriteConnections();
       expect(connections.length).to.equal(1);
       expect(connections[0].id).to.equal('1');
       expect(connections[0].favorite?.name).to.equal('not webscale');
@@ -118,7 +118,7 @@ describe('CompassConnectionProvider', function () {
         ]).storage
       );
 
-      const connections = await provider.listRecentConnections();
+      const connections = await provider.listNonFavoriteConnections();
       expect(connections.length).to.equal(2);
       expect(connections[0].id).to.equal('1');
       expect(connections[1].id).to.equal('2');

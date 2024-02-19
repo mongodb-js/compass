@@ -21,7 +21,7 @@ export class ConnectionRepository {
       .sort(ConnectionRepository.sortedAlphabetically);
   }
 
-  async listRecentConnections(): Promise<ConnectionInfo[]> {
+  async listNonFavoriteConnections(): Promise<ConnectionInfo[]> {
     const allConnections = await this.storage.loadAll();
     return allConnections
       .filter(
