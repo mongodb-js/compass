@@ -208,8 +208,8 @@ describe('Collection Rename Modal', () => {
       const modal = new RenameCollectionModal(browser);
       await modal.isVisible();
 
-      // enter the new name - 'bar' already exists
-      await modal.enterNewCollectionName('bar');
+      // enter the new name - collections cannot have `$` in the name
+      await modal.enterNewCollectionName('bar$');
 
       // submit the form and confirm submission
       await modal.submitButton.click();

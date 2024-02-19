@@ -3,6 +3,7 @@ import '../setup-hadron-distribution';
 
 import { app, dialog, crashReporter } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
+import { handleUnhandledRejection } from './handle-unhandled-rejection';
 import { initialize as initializeElectronRemote } from '@electron/remote/main';
 import {
   doImportConnections,
@@ -100,6 +101,8 @@ async function main(): Promise<void> {
     }
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on('uncaughtException', handleUncaughtException);
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    process.on('unhandledRejection', handleUnhandledRejection);
   } else {
     if (errorOutDueToAdditionalCommandLineFlags) {
       process.stderr.write(

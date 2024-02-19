@@ -5,6 +5,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
+import {
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {
@@ -16,6 +20,8 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     },
   },
   instance: { on() {}, removeListener() {} } as any,
+  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+  recentQueryStorageAccess: compassRecentQueryStorageAccess,
 });
 
 const testErrorMessage =
