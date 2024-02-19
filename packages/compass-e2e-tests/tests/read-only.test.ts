@@ -1,4 +1,9 @@
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -10,6 +15,12 @@ import { getStageOperators } from '../helpers/read-stage-operators';
 describe('readOnly: true / Read-Only Edition', function () {
   let tmpdir: string;
   let i = 0;
+
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
 
   beforeEach(async function () {
     tmpdir = path.join(

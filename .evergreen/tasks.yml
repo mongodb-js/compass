@@ -157,6 +157,7 @@ tasks:
         vars:
           compass_distribution: compass-isolated
 
+
   - name: test-packaged-app-40x-community
     tags: ['required-for-publish', 'run-on-pr']
     commands:
@@ -414,5 +415,24 @@ tasks:
       - func: test-packaged-app
         vars: 
           mongodb_version: 'latest-alpha-enterprise'
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+
+  - name: test-web-sandbox-firefox
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: test-web-sandbox
+        vars: 
+          mongodb_version: 'latest-alpha-enterprise'
+          browser_name: 'firefox'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
