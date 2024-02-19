@@ -1,13 +1,11 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { CompassAtlasAuthService } from './atlas-auth-service';
-import type { CompassOidcIpcClient } from './renderer';
+import type { CompassAuthService } from './main';
 
-function getAtlasAuthService(
-  ipc: Partial<ReturnType<typeof CompassOidcIpcClient['getInstance']>>
-) {
+function getAtlasAuthService(ipc: Partial<typeof CompassAuthService>) {
   const atlasAuthService = new CompassAtlasAuthService();
-  (atlasAuthService as any)['atlasIpcClient'] = ipc;
+  (atlasAuthService as any)['_ipc'] = ipc;
   return atlasAuthService;
 }
 

@@ -11,10 +11,7 @@ import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   AtlasService,
-  AtlasHttpApiClient,
-  CompassOidcIpcClient,
   CompassAtlasAuthService,
-  getAtlasConfig,
 } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
@@ -93,6 +90,7 @@ import { setupIntercom } from './intercom';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -224,20 +222,19 @@ const Application = View.extend({
       },
     };
 
-    const atlasHttpClient = new AtlasHttpApiClient(
-      getAtlasConfig(defaultPreferencesInstance),
-      async () => ({
-        Authorization: `Bearer ${await CompassOidcIpcClient.getInstance().getToken()}`,
-      })
-    );
+    const atlasAuthService = new CompassAtlasAuthService();
 
     const atlasService = new AtlasService(
-      atlasHttpClient,
+      atlasAuthService,
       defaultPreferencesInstance,
-      createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE')
+      createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE'),
+      {
+        defaultHeaders: {
+          'User-Agent': `${getAppName()}/${getAppVersion()}`,
+        },
+      }
     );
 
-    const atlasAuthService = new CompassAtlasAuthService();
     const atlasAiService = new AtlasAiService(
       atlasService,
       atlasAuthService,

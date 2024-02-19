@@ -1,7 +1,8 @@
 import { EventEmitter } from 'events';
 import type { AtlasUserConfig } from './user-config-store';
 import type { AtlasUserInfo } from './util';
-import { CompassOidcIpcClient } from './renderer';
+import { ipcRenderer } from 'hadron-ipc';
+import type { CompassAuthService as AtlasServiceMain } from './main';
 
 type ArgsWithSignal<T = Record<string, unknown>> = T & { signal?: AbortSignal };
 type SignInPrompt = 'none' | 'ai-promo-modal';
@@ -24,6 +25,10 @@ export abstract class AtlasAuthService extends EventEmitter {
   ): Promise<AtlasUserInfo>;
   abstract signOut(): Promise<void>;
   abstract isAuthenticated(opts?: ArgsWithSignal): Promise<boolean>;
+  abstract getAuthHeaders(
+    opts?: ArgsWithSignal
+  ): Promise<Record<string, string>>;
+
   abstract getUserInfo(opts?: ArgsWithSignal): Promise<AtlasUserInfo>;
   abstract updateUserConfig(config: AtlasUserConfig): Promise<void>;
 
@@ -69,20 +74,49 @@ export abstract class AtlasAuthService extends EventEmitter {
 }
 
 export class CompassAtlasAuthService extends AtlasAuthService {
-  private readonly atlasIpcClient = CompassOidcIpcClient.getInstance();
+  private _ipc = ipcRenderer?.createInvoke<
+    typeof AtlasServiceMain,
+    | 'getUserInfo'
+    | 'isAuthenticated'
+    | 'signIn'
+    | 'signOut'
+    | 'updateAtlasUserConfig'
+    | 'maybeGetToken'
+  >('AtlasService', [
+    'getUserInfo',
+    'isAuthenticated',
+    'signIn',
+    'signOut',
+    'updateAtlasUserConfig',
+    'maybeGetToken',
+  ]);
+
+  private get ipc() {
+    if (!this._ipc) {
+      throw new Error('IPC not available');
+    }
+    return this._ipc;
+  }
+
+  async getAuthHeaders(opts: ArgsWithSignal = {}) {
+    return {
+      Authorization: `Bearer ${await this.ipc.maybeGetToken(opts)}`,
+    };
+  }
+
   isAuthenticated(opts?: ArgsWithSignal) {
-    return this.atlasIpcClient.isAuthenticated(opts);
+    return this.ipc.isAuthenticated(opts);
   }
   signOut() {
-    return this.atlasIpcClient.signOut();
+    return this.ipc.signOut();
   }
   signIn(opts?: ArgsWithSignal<{ promptType?: SignInPrompt }>) {
-    return this.atlasIpcClient.signIn(opts);
+    return this.ipc.signIn(opts);
   }
   getUserInfo(opts?: ArgsWithSignal) {
-    return this.atlasIpcClient.getUserInfo(opts);
+    return this.ipc.getUserInfo(opts);
   }
   updateUserConfig(config: AtlasUserConfig) {
-    return this.atlasIpcClient.updateAtlasUserConfig({ config });
+    return this.ipc.updateAtlasUserConfig({ config });
   }
 }

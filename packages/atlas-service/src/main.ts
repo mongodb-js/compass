@@ -27,6 +27,7 @@ import { SecretStore } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
+import { getAtlasConfig } from './util';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -40,7 +41,6 @@ const TOKEN_TYPE_TO_HINT = {
   refreshToken: 'refresh_token',
 } as const;
 
-export { getAtlasConfig } from './util';
 export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
   return {
     // AUID is shared Cloud user identificator that can be tracked through
@@ -49,7 +49,7 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
   };
 }
 
-export class AtlasService {
+export class CompassAuthService {
   private constructor() {
     // singleton
   }
@@ -167,12 +167,9 @@ export class AtlasService {
     );
   }
 
-  static init(
-    config: AtlasServiceConfig,
-    preferences: PreferencesAccess
-  ): Promise<void> {
+  static init(preferences: PreferencesAccess): Promise<void> {
     this.preferences = preferences;
-    this.config = config;
+    this.config = getAtlasConfig(preferences);
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
         this.ipcMain.createHandle('AtlasService', this, [

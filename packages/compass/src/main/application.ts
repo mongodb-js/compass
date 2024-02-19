@@ -15,7 +15,7 @@ import type {
   PreferencesAccess,
 } from 'compass-preferences-model';
 import { setupPreferencesAndUser } from 'compass-preferences-model';
-import { AtlasService, getAtlasConfig } from '@mongodb-js/atlas-service/main';
+import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -113,7 +113,7 @@ class CompassApplication {
     }
 
     this.setupCORSBypass();
-    void this.setupAtlasService();
+    void this.setupCompassAuthService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme(this);
@@ -131,12 +131,10 @@ class CompassApplication {
     return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
-  private static async setupAtlasService() {
-    const atlasServiceConfig = getAtlasConfig(this.preferences);
-    await AtlasService.init(atlasServiceConfig, this.preferences);
-
+  private static async setupCompassAuthService() {
+    await CompassAuthService.init(this.preferences);
     this.addExitHandler(() => {
-      return AtlasService.onExit();
+      return CompassAuthService.onExit();
     });
   }
 

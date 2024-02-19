@@ -1,26 +1,35 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { AtlasHttpApiClient } from './atlas-http-api-client';
-import { throwIfNetworkTrafficDisabled, throwIfNotOk } from './util';
+import type { AtlasAuthService } from './atlas-auth-service';
+import type { AtlasServiceConfig } from './util';
+import {
+  getAtlasConfig,
+  throwIfNetworkTrafficDisabled,
+  throwIfNotOk,
+} from './util';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
+type AtlasServiceOptions = {
+  defaultHeaders: Record<string, string>;
+};
+
 export class AtlasService {
+  private config: AtlasServiceConfig;
   constructor(
-    private readonly atlasHttpClient: AtlasHttpApiClient,
+    private readonly authService: AtlasAuthService,
     private readonly preferences: PreferencesAccess,
-    private readonly logger: LoggerAndTelemetry
-  ) {}
-  privateUnAuthEndpoint(path: string) {
-    return this.atlasHttpClient.privateUnAuthEndpoint(path);
+    private readonly logger: LoggerAndTelemetry,
+    private readonly options?: AtlasServiceOptions
+  ) {
+    this.config = getAtlasConfig(preferences);
   }
-  privateAtlasEndpoint(path: string) {
-    return this.atlasHttpClient.privateAtlasEndpoint(path);
+  privateUnAuthEndpoint(path: string): string {
+    return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
   }
-  private async makeFetch(
-    httpFetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>,
-    url: RequestInfo,
-    init?: RequestInit
-  ): Promise<Response> {
+  privateAtlasEndpoint(path: string): string {
+    return `${this.config.atlasApiBaseUrl}/${path}`;
+  }
+  async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
     throwIfAborted(init?.signal as AbortSignal);
     this.logger.log.info(
@@ -32,7 +41,13 @@ export class AtlasService {
       }
     );
     try {
-      const res = await httpFetch(url, init);
+      const res = await fetch(url, {
+        ...init,
+        headers: {
+          ...this.options?.defaultHeaders,
+          ...init?.headers,
+        },
+      });
       await throwIfNotOk(res);
       return res;
     } catch (err) {
@@ -48,41 +63,18 @@ export class AtlasService {
       throw err;
     }
   }
-  async unAuthenticatedFetch(url: RequestInfo, init?: RequestInit) {
-    return this.makeFetch(
-      this.atlasHttpClient.unAuthenticatedFetch.bind(this.atlasHttpClient),
-      url,
-      init
-    );
-  }
-  async unAuthenticatedFetchJson<T>(
+
+  async authenticatedFetch(
     url: RequestInfo,
     init?: RequestInit
-  ): Promise<T> {
-    const response = await this.unAuthenticatedFetch(url, {
+  ): Promise<Response> {
+    const authHeaders = await this.authService.getAuthHeaders();
+    return this.fetch(url, {
       ...init,
       headers: {
         ...init?.headers,
-        Accept: 'application/json',
+        ...authHeaders,
       },
     });
-    return await response.json();
-  }
-  async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
-    return this.makeFetch(
-      this.atlasHttpClient.fetch.bind(this.atlasHttpClient),
-      url,
-      init
-    );
-  }
-  async fetchJson<T>(url: RequestInfo, init?: RequestInit): Promise<T> {
-    const response = await this.fetch(url, {
-      ...init,
-      headers: {
-        ...init?.headers,
-        Accept: 'application/json',
-      },
-    });
-    return await response.json();
   }
 }

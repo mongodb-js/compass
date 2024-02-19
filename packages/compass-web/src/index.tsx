@@ -53,9 +53,7 @@ import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provid
 import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 import {
   AtlasService,
-  AtlasHttpApiClient,
   AtlasAuthService,
-  getAtlasConfig,
   type AtlasUserInfo,
 } from '@mongodb-js/atlas-service/renderer';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -74,8 +72,11 @@ class CloudAtlasAuthService extends AtlasAuthService {
     throw new Error('CloudAtlasAuthService.getUserInfo not implemented');
   }
   updateUserConfig(): Promise<void> {
-    // this.emit('user-config-changed', updatedConfig);
+    // this.emit('user-config-changed', config);
     throw new Error('CloudAtlasAuthService.updateUserConfig not implemented');
+  }
+  getAuthHeaders() {
+    return Promise.resolve({});
   }
 }
 
@@ -184,7 +185,7 @@ const CompassWeb = ({
 
   const atlasAiService = useMemo(() => {
     const atlasService = new AtlasService(
-      new AtlasHttpApiClient(getAtlasConfig(preferencesAccess.current)),
+      atlasAuthService,
       preferencesAccess.current,
       createLoggerAndTelemetry('ATLAS-SERVICE')
     );

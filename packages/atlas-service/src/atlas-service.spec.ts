@@ -4,27 +4,32 @@ import { AtlasService } from './atlas-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasHttpApiClient } from './atlas-http-api-client';
+import { CompassAtlasAuthService } from './atlas-auth-service';
+
+const ATLAS_CONFIG = {
+  atlasApiBaseUrl: 'http://example.com/api/private',
+  atlasApiUnauthBaseUrl: 'http://api.example.com',
+  atlasLogin: {
+    clientId: 'some-client-id',
+    issuer: 'http://example.com/oauth2/default',
+  },
+  authPortalUrl: 'http://example.com/account/login',
+};
 
 function getAtlasService(
   preferences: PreferencesAccess,
   getAuthHeadersFn?: () => Promise<Record<string, string>>
 ) {
-  const config = {
-    atlasApiBaseUrl: 'http://example.com/api/private',
-    atlasApiUnauthBaseUrl: 'http://api.example.com',
-    atlasLogin: {
-      clientId: 'some-client-id',
-      issuer: 'http://example.com/oauth2/default',
-    },
-    authPortalUrl: 'http://example.com/account/login',
-  };
+  const authService = new CompassAtlasAuthService();
+  authService['getAuthHeaders'] = getAuthHeadersFn as any;
 
-  return new AtlasService(
-    new AtlasHttpApiClient(config, getAuthHeadersFn),
+  const atlasService = new AtlasService(
+    authService,
     preferences,
     createNoopLoggerAndTelemetry()
   );
+  atlasService['config'] = ATLAS_CONFIG;
+  return atlasService;
 }
 
 describe('AtlasService', function () {
@@ -64,7 +69,7 @@ describe('AtlasService', function () {
     global.fetch = fetchStub;
 
     try {
-      await atlasService.unAuthenticatedFetch('https://example.com');
+      await atlasService.fetch('https://example.com');
       expect.fail('Expected fetch to throw');
     } catch (err) {
       expect(err).to.have.property('message', '500: Internal Server Error');
@@ -76,7 +81,7 @@ describe('AtlasService', function () {
     c.abort();
 
     try {
-      await atlasService.unAuthenticatedFetch('https://example.com', {
+      await atlasService.fetch('https://example.com', {
         signal: c.signal,
       });
       expect.fail('Expected fetch to throw as the signal was aborted');
@@ -93,34 +98,11 @@ describe('AtlasService', function () {
       json: () => Promise.resolve(expectedData),
     });
     global.fetch = fetchStub;
-    const response = await atlasService.unAuthenticatedFetch(
-      'https://example.com'
-    );
+    const response = await atlasService.fetch('https://example.com');
     const data = await response.json();
 
     expect(fetchStub.calledOnce).to.be.true;
     expect(data).to.deep.equal(expectedData);
-  });
-
-  it('should fetch JSON data from unAuthenticatedFetchJson', async function () {
-    const expectedData = { data: 'test' };
-    const fetchStub = sandbox.stub().resolves({
-      status: 200,
-      ok: true,
-      json: () => Promise.resolve(expectedData),
-    });
-    global.fetch = fetchStub;
-    const data = await atlasService.unAuthenticatedFetchJson(
-      'https://example.com'
-    );
-
-    expect(data).to.deep.equal(expectedData);
-
-    expect(fetchStub.calledOnce).to.be.true;
-    expect(fetchStub.firstCall.args[1].headers).to.have.property(
-      'Accept',
-      'application/json'
-    );
   });
 
   it('should fetch data from fetch', async function () {
@@ -135,7 +117,9 @@ describe('AtlasService', function () {
       Authorization: 'Bearer super-secret',
     });
     const atlasService = getAtlasService(preferences, getAuthHeadersFn);
-    const response = await atlasService.fetch('https://example.com');
+    const response = await atlasService.authenticatedFetch(
+      'https://example.com'
+    );
     const data = await response.json();
 
     expect(fetchStub.calledOnce).to.be.true;
@@ -144,34 +128,6 @@ describe('AtlasService', function () {
     expect(fetchStub.firstCall.args[1].headers).to.have.property(
       'Authorization',
       'Bearer super-secret'
-    );
-    expect(getAuthHeadersFn.calledOnce).to.be.true;
-  });
-
-  it('should fetch JSON data from fetchJson', async function () {
-    const expectedData = { data: 'test' };
-    const fetchStub = sandbox.stub().resolves({
-      status: 200,
-      ok: true,
-      json: () => Promise.resolve(expectedData),
-    });
-    global.fetch = fetchStub;
-    const getAuthHeadersFn = sandbox.stub().resolves({
-      Authorization: 'Bearer super-secret',
-    });
-    const atlasService = getAtlasService(preferences, getAuthHeadersFn);
-    const data = await atlasService.fetchJson('https://example.com');
-
-    expect(fetchStub.calledOnce).to.be.true;
-    expect(data).to.deep.equal(expectedData);
-
-    expect(fetchStub.firstCall.args[1].headers).to.have.property(
-      'Authorization',
-      'Bearer super-secret'
-    );
-    expect(fetchStub.firstCall.args[1].headers).to.have.property(
-      'Accept',
-      'application/json'
     );
     expect(getAuthHeadersFn.calledOnce).to.be.true;
   });

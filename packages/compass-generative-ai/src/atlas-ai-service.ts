@@ -84,7 +84,6 @@ export class AtlasAiService {
     if (userInfo.enabledAIFeature) {
       return;
     }
-    await this.atlasAuthService.signIn();
     const confirmed = await showOptInConfirmation();
 
     await this.atlasAuthService.updateUserConfig({
@@ -102,7 +101,12 @@ export class AtlasAiService {
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getPreferencesUser().id;
     const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
-    const body = await this.atlasService.unAuthenticatedFetchJson(url);
+    const res = await this.atlasService.fetch(url, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    const body = await res.json();
     this.validateAIFeatureEnablementResponse(body);
     return body;
   }
@@ -172,16 +176,18 @@ export class AtlasAiService {
     }
 
     const url = this.atlasService.privateAtlasEndpoint(uri);
-    const res = await this.atlasService.fetchJson<T>(url, {
+    const res = await this.atlasService.authenticatedFetch(url, {
       signal,
       method: 'POST',
       body: msgBody,
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
     });
-    validationFn(res);
-    return res;
+    const data = await res.json();
+    validationFn(data);
+    return data;
   };
 
   async getAggregationFromUserInput(input: GenerativeAiInput) {

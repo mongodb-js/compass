@@ -38,19 +38,20 @@ class MockAtlasAuthService extends AtlasAuthService {
   async signOut() {
     return Promise.resolve();
   }
+  async getAuthHeaders() {
+    return Promise.resolve({});
+  }
 }
 
 class MockAtlasService {
-  constructor(private readonly preferences: PreferencesAccess) {}
-  logger = createNoopLoggerAndTelemetry();
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
   privateAtlasEndpoint = (url: string) => [BASE_URL, url].join('/');
-  unAuthenticatedFetchJson = async <T>(url: string, init?: RequestInit) => {
-    return (await (await fetch(url, init)).json()) as T;
+  authenticatedFetch = (url: string, init: RequestInit) => {
+    return fetch(url, init);
   };
-  fetchJson = async <T>(url: string, init?: RequestInit) => {
-    return (await (await fetch(url, init)).json()) as T;
+  fetch = (url: string, init: RequestInit) => {
+    return fetch(url, init);
   };
 }
 
@@ -66,7 +67,7 @@ describe('AtlasAiService', function () {
     preferences['getPreferencesUser'] = () => PREFERENCES_USER;
 
     atlasAiService = new AtlasAiService(
-      new MockAtlasService(preferences) as any,
+      new MockAtlasService() as any,
       new MockAtlasAuthService(),
       preferences,
       createNoopLoggerAndTelemetry()

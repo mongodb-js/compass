@@ -1,6 +1,6 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasService, getTrackingUserInfo } from './main';
+import { CompassAuthService, getTrackingUserInfo } from './main';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -14,7 +14,7 @@ function getListenerCount(emitter: EventEmitter) {
   }, 0);
 }
 
-describe('AtlasServiceMain', function () {
+describe('CompassAuthServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 
   const mockFetch = sandbox.stub().callsFake((url: string) => {
@@ -53,7 +53,7 @@ describe('AtlasServiceMain', function () {
           .resolves({ accessToken: '4321' }),
       },
     },
-    logger: AtlasService['oidcPluginLogger'],
+    logger: CompassAuthService['oidcPluginLogger'],
     serialize: sandbox.stub(),
     destroy: sandbox.stub(),
   };
@@ -68,31 +68,31 @@ describe('AtlasServiceMain', function () {
     authPortalUrl: 'http://example.com',
   };
 
-  const fetch = AtlasService['fetch'];
-  const ipcMain = AtlasService['ipcMain'];
-  const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
-  const userStore = AtlasService['atlasUserConfigStore'];
-
+  const fetch = CompassAuthService['fetch'];
+  const ipcMain = CompassAuthService['ipcMain'];
+  const createPlugin = CompassAuthService['createMongoDBOIDCPlugin'];
+  const userStore = CompassAuthService['atlasUserConfigStore'];
+  const authConfig = CompassAuthService['config'];
   let preferences: PreferencesAccess;
 
   beforeEach(async function () {
-    AtlasService['ipcMain'] = {
+    CompassAuthService['ipcMain'] = {
       handle: sandbox.stub(),
       broadcast: sandbox.stub(),
       createHandle: sandbox.stub(),
     };
-    AtlasService['fetch'] = mockFetch as any;
-    AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
-    AtlasService['atlasUserConfigStore'] =
+    CompassAuthService['fetch'] = mockFetch as any;
+    CompassAuthService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
+    CompassAuthService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
 
-    AtlasService['config'] = defaultConfig;
+    CompassAuthService['config'] = defaultConfig;
 
-    AtlasService['setupPlugin']();
-    AtlasService['attachOidcPluginLoggerEvents']();
+    CompassAuthService['setupPlugin']();
+    CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = await createSandboxFromDefaultPreferences();
-    AtlasService['preferences'] = preferences;
+    CompassAuthService['preferences'] = preferences;
     await preferences.savePreferences({
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: true,
@@ -102,21 +102,22 @@ describe('AtlasServiceMain', function () {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   afterEach(async function () {
-    AtlasService['fetch'] = fetch;
-    AtlasService['atlasUserConfigStore'] = userStore;
-    AtlasService['ipcMain'] = ipcMain;
-    AtlasService['initPromise'] = null;
-    AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
-    AtlasService['oidcPluginLogger'].removeAllListeners();
-    AtlasService['signInPromise'] = null;
-    AtlasService['currentUser'] = null;
+    CompassAuthService['fetch'] = fetch;
+    CompassAuthService['atlasUserConfigStore'] = userStore;
+    CompassAuthService['ipcMain'] = ipcMain;
+    CompassAuthService['initPromise'] = null;
+    CompassAuthService['createMongoDBOIDCPlugin'] = createPlugin;
+    CompassAuthService['oidcPluginLogger'].removeAllListeners();
+    CompassAuthService['signInPromise'] = null;
+    CompassAuthService['currentUser'] = null;
+    CompassAuthService['config'] = authConfig;
 
     sandbox.resetHistory();
   });
 
   describe('signIn', function () {
     it('should sign in using oidc plugin', async function () {
-      const userInfo = await AtlasService.signIn();
+      const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
@@ -127,12 +128,12 @@ describe('AtlasServiceMain', function () {
     });
 
     it('should debounce inflight sign in requests', async function () {
-      void AtlasService.signIn();
-      void AtlasService.signIn();
-      void AtlasService.signIn();
-      void AtlasService.signIn();
+      void CompassAuthService.signIn();
+      void CompassAuthService.signIn();
+      void CompassAuthService.signIn();
+      void CompassAuthService.signIn();
 
-      await AtlasService.signIn();
+      await CompassAuthService.signIn();
 
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
@@ -143,13 +144,13 @@ describe('AtlasServiceMain', function () {
     });
 
     it('should fail with oidc-plugin error first if auth failed', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
+      CompassAuthService['fetch'] = sandbox.stub().resolves({
         ok: false,
         json: sandbox.stub().rejects(),
         status: 401,
         statusText: 'Unauthorized',
       });
-      AtlasService['plugin'] = {
+      CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
             REQUEST_TOKEN_CALLBACK: sandbox
@@ -165,7 +166,7 @@ describe('AtlasServiceMain', function () {
       } as any;
 
       try {
-        await AtlasService.signIn();
+        await CompassAuthService.signIn();
         expect.fail('Expected AtlasService.signIn to throw');
       } catch (err) {
         expect(err).to.have.property(
@@ -178,40 +179,40 @@ describe('AtlasServiceMain', function () {
 
   describe('isAuthenticated', function () {
     it('should return true if token is active', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
+      CompassAuthService['fetch'] = sandbox.stub().resolves({
         ok: true,
         json() {
           return Promise.resolve({ active: true });
         },
       }) as any;
 
-      expect(await AtlasService.isAuthenticated()).to.eq(true);
+      expect(await CompassAuthService.isAuthenticated()).to.eq(true);
     });
 
     it('should return false if token is inactive', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
+      CompassAuthService['fetch'] = sandbox.stub().resolves({
         ok: true,
         json() {
           return Promise.resolve({ active: false });
         },
       }) as any;
 
-      expect(await AtlasService.isAuthenticated()).to.eq(false);
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
     });
 
     it('should return false if checking token fails', async function () {
-      AtlasService['fetch'] = sandbox
+      CompassAuthService['fetch'] = sandbox
         .stub()
         .resolves({ ok: false, status: 500 }) as any;
 
-      expect(await AtlasService.isAuthenticated()).to.eq(false);
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
     });
 
     it('should throw if aborted signal is passed', async function () {
       const c = new AbortController();
       c.abort(new Error('Aborted'));
       try {
-        await AtlasService.isAuthenticated({ signal: c.signal });
+        await CompassAuthService.isAuthenticated({ signal: c.signal });
         expect.fail('Expected isAuthenticated to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted');
@@ -275,8 +276,11 @@ describe('AtlasServiceMain', function () {
 
   describe('init', function () {
     it('should setup the plugin', async function () {
-      const setupPluginSpy = sandbox.spy(AtlasService as any, 'setupPlugin');
-      await AtlasService.init(defaultConfig, preferences);
+      const setupPluginSpy = sandbox.spy(
+        CompassAuthService as any,
+        'setupPlugin'
+      );
+      await CompassAuthService.init(preferences);
       expect(setupPluginSpy).to.have.been.calledOnce;
     });
   });
@@ -295,7 +299,7 @@ describe('AtlasServiceMain', function () {
     ]) {
       it(`${methodName} should throw`, async function () {
         try {
-          await (AtlasService as any)[methodName]({});
+          await (CompassAuthService as any)[methodName]({});
           expect.fail(`Expected ${methodName} to throw`);
         } catch (err) {
           expect(err).to.have.property(
@@ -310,29 +314,30 @@ describe('AtlasServiceMain', function () {
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();
-      AtlasService['openExternal'] = sandbox.stub().resolves();
-      AtlasService['oidcPluginLogger'] = logger;
-      AtlasService['currentUser'] = {
+      CompassAuthService['openExternal'] = sandbox.stub().resolves();
+      CompassAuthService['oidcPluginLogger'] = logger;
+      CompassAuthService['currentUser'] = {
         sub: '1234',
       } as any;
-      await AtlasService.init(defaultConfig, preferences);
+      await CompassAuthService.init(preferences);
+      CompassAuthService['config'] = defaultConfig;
       expect(getListenerCount(logger)).to.eq(26);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
-      await AtlasService.signOut();
+      await CompassAuthService.signOut();
       expect(getListenerCount(logger)).to.eq(0);
-      expect(logger).to.not.eq(AtlasService['oidcPluginLogger']);
+      expect(logger).to.not.eq(CompassAuthService['oidcPluginLogger']);
       expect(mockOidcPlugin.destroy).to.have.been.calledOnce;
-      expect(AtlasService['fetch']).to.have.been.calledOnceWith(
+      expect(CompassAuthService['fetch']).to.have.been.calledOnceWith(
         'http://example.com/v1/revoke?client_id=1234abcd'
       );
-      expect(AtlasService['openExternal']).to.have.been.calledOnce;
+      expect(CompassAuthService['openExternal']).to.have.been.calledOnce;
     });
 
     it('should throw when called before sign in', async function () {
       try {
-        await AtlasService.signOut();
+        await CompassAuthService.signOut();
         expect.fail('Expected signOut to throw');
       } catch (err) {
         expect(err).to.have.property(
