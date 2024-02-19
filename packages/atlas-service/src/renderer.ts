@@ -78,10 +78,11 @@ export class AtlasIpcClient {
   }
 }
 
+export { AtlasSignIn } from './components/atlas-signin';
+
 export { AtlasServiceError, getAtlasConfig } from './util';
 export type { AtlasUserConfig } from './user-config-store';
 export type { AtlasUserInfo, IntrospectInfo, Token } from './util';
-export { AtlasSignIn } from './components/atlas-signin';
 export { AtlasService } from './atlas-service';
 export { AtlasHttpApiClient } from './atlas-http-api-client';
 export {

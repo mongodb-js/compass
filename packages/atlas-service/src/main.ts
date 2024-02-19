@@ -64,7 +64,7 @@ export class AtlasService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  public static fetch = async (
+  private static fetch = async (
     url: RequestInfo,
     init: RequestInit = {}
   ): Promise<Response> => {
