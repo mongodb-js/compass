@@ -25,7 +25,7 @@ export class AtlasService {
     throwIfAborted(init?.signal as AbortSignal);
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_297),
-      'ErrorAwareAtlasHttpApiClient',
+      'AtlasService',
       'Making a fetch',
       {
         url,
@@ -38,7 +38,7 @@ export class AtlasService {
     } catch (err) {
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_298),
-        'ErrorAwareAtlasHttpApiClient',
+        'AtlasService',
         'Fetch errored',
         {
           url,

@@ -11,7 +11,7 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   AtlasService,
   AtlasHttpApiClient,
-  AtlasIpcClient,
+  CompassOidcIpcClient,
   CompassAtlasAuthService,
   getAtlasConfig,
 } from '@mongodb-js/atlas-service/renderer';
@@ -191,7 +191,7 @@ const Application = View.extend({
     const atlasHttpClient = new AtlasHttpApiClient(
       getAtlasConfig(defaultPreferencesInstance),
       async () => ({
-        Authorization: `Bearer ${await AtlasIpcClient.getInstance().getToken()}`,
+        Authorization: `Bearer ${await CompassOidcIpcClient.getInstance().getToken()}`,
       })
     );
 

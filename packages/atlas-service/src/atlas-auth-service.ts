@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import type { AtlasUserConfig } from './user-config-store';
 import type { AtlasUserInfo } from './util';
-import { AtlasIpcClient } from './renderer';
+import { CompassOidcIpcClient } from './renderer';
 
 type ArgsWithSignal<T = Record<string, unknown>> = T & { signal?: AbortSignal };
 type SignInPrompt = 'none' | 'ai-promo-modal';
@@ -69,7 +69,7 @@ export abstract class AtlasAuthService extends EventEmitter {
 }
 
 export class CompassAtlasAuthService extends AtlasAuthService {
-  private readonly atlasIpcClient = AtlasIpcClient.getInstance();
+  private readonly atlasIpcClient = CompassOidcIpcClient.getInstance();
   isAuthenticated(opts?: ArgsWithSignal) {
     return this.atlasIpcClient.isAuthenticated(opts);
   }

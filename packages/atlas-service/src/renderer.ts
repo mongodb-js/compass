@@ -7,7 +7,7 @@ import {
   signInWithoutPrompt,
 } from './store/atlas-signin-reducer';
 
-export class AtlasIpcClient {
+export class CompassOidcIpcClient {
   private _ipc = ipcRenderer?.createInvoke<
     typeof AtlasServiceMain,
     | 'getUserInfo'
@@ -66,13 +66,13 @@ export class AtlasIpcClient {
     }
   }
 
-  private static instance: AtlasIpcClient;
+  private static instance: CompassOidcIpcClient;
   private constructor() {
     // private constructor
   }
   static getInstance() {
     if (!this.instance) {
-      this.instance = new AtlasIpcClient();
+      this.instance = new CompassOidcIpcClient();
     }
     return this.instance;
   }

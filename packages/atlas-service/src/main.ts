@@ -72,7 +72,7 @@ export class AtlasService {
     this.throwIfNetworkTrafficDisabled();
     throwIfAborted(init.signal as AbortSignal);
     log.info(
-      mongoLogId(1_001_000_292),
+      mongoLogId(1_001_000_299),
       'AtlasService',
       'Making an unauthenticated fetch',
       { url }
@@ -88,7 +88,7 @@ export class AtlasService {
       await throwIfNotOk(res);
       return res;
     } catch (err) {
-      log.info(mongoLogId(1_001_000_291), 'AtlasService', 'Fetch errored', {
+      log.info(mongoLogId(1_001_000_301), 'AtlasService', 'Fetch errored', {
         url,
         err,
       });

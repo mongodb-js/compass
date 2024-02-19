@@ -115,7 +115,7 @@ export class AtlasAiService {
         !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       this.logger.log.info(
-        this.logger.mongoLogId(1_001_000_293),
+        this.logger.mongoLogId(1_001_000_300),
         'AtlasService',
         'Fetched if the AI feature is enabled',
         {
