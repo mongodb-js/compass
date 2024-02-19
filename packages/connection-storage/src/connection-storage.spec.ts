@@ -83,7 +83,7 @@ describe('ConnectionStorage', function () {
     const testDate = new Date('2023-11-17T00:00:00.000Z');
 
     const endOfKeytarDate = new Date(testDate);
-    endOfKeytarDate.setMonth(endOfKeytarDate.getMonth() + 3);
+    endOfKeytarDate.setMonth(endOfKeytarDate.getMonth() + 6);
 
     // Based on milestone #2 of Move from keytar to Electron safeStorage,
     // we should remove keytar in 3 months from now. And as such, we are

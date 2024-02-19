@@ -18,10 +18,6 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -30,6 +26,12 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type {
+  FavoriteQueryStorageAccess,
+  FavoriteQueryStorage,
+  RecentQueryStorageAccess,
+  RecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/provider';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -43,10 +45,12 @@ type QueryBarServices = {
   logger: LoggerAndTelemetry;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
+  favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
 
-// TODO(COMPASS-7412, COMPASS-7411): those don't have service injectors
-// implemented yet, so we're keeping them separate from the type above
+// TODO(COMPASS-7412): this doesn't have service injector
+// implemented yet, so we're keeping it separate from the type above
 type QueryBarExtraServices = {
   atlasAuthService?: AtlasAuthService;
   favoriteQueryStorage?: FavoriteQueryStorage;
@@ -68,8 +72,8 @@ export type QueryBarExtraArgs = {
   dataService: Pick<QueryBarDataService, 'sample'>;
   atlasAuthService: AtlasAuthService;
   preferences: PreferencesAccess;
-  favoriteQueryStorage: FavoriteQueryStorage;
-  recentQueryStorage: RecentQueryStorage;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
   atlasAiService: AtlasAiService;
 };
@@ -113,11 +117,13 @@ export function activatePlugin(
     preferences,
     logger,
     atlasAuthService,
-    recentQueryStorage = new RecentQueryStorage({ namespace }),
-    favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
     atlasAiService,
+    favoriteQueryStorageAccess,
+    recentQueryStorageAccess,
   } = services;
 
+  const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
+  const recentQueryStorage = recentQueryStorageAccess?.getStorage();
   const store = configureStore(
     {
       namespace: namespace ?? '',

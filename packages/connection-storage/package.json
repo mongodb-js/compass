@@ -56,7 +56,7 @@
     "@mongodb-js/compass-logging": "^1.2.12",
     "@mongodb-js/compass-user-data": "^0.1.15",
     "@mongodb-js/compass-utils": "^0.5.11",
-    "bson": "^6.2.0",
+    "bson": "^6.3.0",
     "electron": "^28.2.1",
     "hadron-ipc": "^3.2.10",
     "keytar": "^7.9.0",

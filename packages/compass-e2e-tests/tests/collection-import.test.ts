@@ -218,14 +218,14 @@ describe('Collection import', function () {
     );
 
     // Add field data
-    const keyInput = await browser.$(
-      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`
+    await browser.setValueVisible(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`,
+      'bar'
     );
-    await keyInput.setValue('bar');
-    const valueInput = await browser.$(
-      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
+    await browser.setValueVisible(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`,
+      '42'
     );
-    await valueInput.setValue('42');
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
@@ -639,10 +639,9 @@ describe('Collection import', function () {
       .waitForDisplayed();
 
     // extract all the type fields and check them
-    const fieldNameElements = await browser.$$(Selectors.ImportFieldLabel);
-    const fieldNames = await Promise.all(
-      fieldNameElements.map((el) => el.getText())
-    );
+    const fieldNames = await browser
+      .$$(Selectors.ImportFieldLabel)
+      .map((el) => el.getText());
 
     try {
       expect(fieldNames).to.deep.equal([

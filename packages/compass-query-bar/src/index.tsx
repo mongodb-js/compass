@@ -15,6 +15,10 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  favoriteQueryStorageAccessLocator,
+  recentQueryStorageAccessLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -42,6 +46,8 @@ const QueryBarPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-QUERY-BAR-UI'),
     atlasAiService: atlasAiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
+    favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
+    recentQueryStorageAccess: recentQueryStorageAccessLocator,
   }
 );
 

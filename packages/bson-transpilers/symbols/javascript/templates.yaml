@@ -27,14 +27,14 @@ Templates:
 
             const exportMode = spec.exportMode;
             delete spec.exportMode;
-            
+
             const args = {};
             Object.keys(spec).forEach((k) => {
                 if (k !== 'options') {
                     args[k in translateKey ? translateKey[k] : k] = spec[k];
                 }
             });
-            
+
             let cmd;
             let defs;
             if (exportMode == 'Delete Query') {
@@ -47,7 +47,7 @@ Templates:
                 defs = `const agg = ${agg};\n`;
             } else if (!cmd) {
                 let opts = '';
-                
+
                 if (Object.keys(args).length > 0) {
                     defs = Object.keys(args).reduce((s, k) => {
                         if (k !== 'filter') {
@@ -220,24 +220,12 @@ Templates:
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toString()`;
-        }
-    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
-    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.getTimestamp()`;
-        }
-    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate null
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
     BinaryLengthTemplate: &BinaryLengthTemplate null

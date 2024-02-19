@@ -16,10 +16,7 @@ import {
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
-import {
-  usePreference,
-  useIsAIFeatureEnabled,
-} from 'compass-preferences-model/provider';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import {
@@ -46,6 +43,10 @@ import type {
   RootState,
 } from '../stores/query-bar-store';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
+import {
+  useFavoriteQueryStorageAccess,
+  useRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage/provider';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -215,9 +216,10 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     return filterHasContent;
   }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
-  const enableSavedAggregationsQueries = usePreference(
-    'enableSavedAggregationsQueries'
-  );
+  const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
+  const recentQueryStorageAvailable = !!useRecentQueryStorageAccess();
+  const enableSavedAggregationsQueries =
+    favoriteQueryStorageAvailable && recentQueryStorageAvailable;
 
   return (
     <form

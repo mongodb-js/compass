@@ -6,7 +6,6 @@ import type { Telemetry } from '../helpers/telemetry';
 import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import type { Element, ElementArray } from 'webdriverio';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
@@ -28,9 +27,8 @@ async function getRecentQueries(
     await history.waitForDisplayed();
   }
 
-  let queryTags;
   await browser.waitUntil(async () => {
-    queryTags = await browser.$$(
+    const queryTags = await browser.$$(
       '[data-testid="query-history-query-attributes"]'
     );
     // Usually we expect to find some recents and the most common failure is
@@ -42,14 +40,13 @@ async function getRecentQueries(
     return true;
   });
 
-  return Promise.all(
-    (queryTags as unknown as ElementArray).map(async (queryTag) => {
-      const attributeTags = await queryTag.$$(
-        '[data-testid="query-history-query-attribute"]'
-      );
+  return await browser
+    .$$('[data-testid="query-history-query-attributes"]')
+    .map(async (queryTag: WebdriverIO.Element) => {
       const attributes: RecentQuery = {};
-      await Promise.all(
-        attributeTags.map(async (attributeTag: Element<'async'>) => {
+      await queryTag
+        .$$('[data-testid="query-history-query-attribute"]')
+        .map(async (attributeTag) => {
           const labelTag = await attributeTag.$(
             '[data-testid="query-history-query-label"]'
           );
@@ -57,11 +54,9 @@ async function getRecentQueries(
           const key = await labelTag.getText();
           const value = await preTag.getText();
           attributes[key] = value;
-        })
-      );
+        });
       return attributes;
-    })
-  );
+    });
 }
 
 async function navigateToTab(browser: CompassBrowser, tabName: string) {
@@ -80,7 +75,10 @@ async function navigateToTab(browser: CompassBrowser, tabName: string) {
   await tabSelectedSelectorElement.waitForDisplayed();
 }
 
-async function waitForJSON(browser: CompassBrowser, element: Element<'async'>) {
+async function waitForJSON(
+  browser: CompassBrowser,
+  element: WebdriverIO.Element
+) {
   // Sometimes the line numbers end up in the text for some reason. Probably
   // because we get the text before the component is properly initialised.
   await browser.waitUntil(async () => {
@@ -328,14 +326,11 @@ import org.bson.conversions.Bson;
 import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import com.mongodb.client.FindIterable;
-
 /*
  * Requires the MongoDB Java Driver.
  * https://mongodb.github.io/mongo-java-driver
  */
-
 Bson filter = eq("i", 5L);
-
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
         "mongodb://localhost:27091/test"
@@ -362,7 +357,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const input = await document.$(
       `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
-    await input.setValue('42');
+    await browser.setValueVisible(input, '42');
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
@@ -487,8 +482,9 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.SelectTableView);
 
     const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await document.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}'\) 33 0$/
+    const text = (await document.getText()).replace(/\s+/g, ' ');
+    expect(text).to.match(
+      /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
     );
 
     const value = await document.$('[col-id="j"] .element-value');
@@ -497,7 +493,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const input = await document.$(
       '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
     );
-    await input.setValue('-100');
+    await browser.setValueVisible(input, '-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
@@ -513,7 +509,7 @@ FindIterable<Document> result = collection.find(filter);`);
       '.ag-center-cols-clipper .ag-row-first'
     );
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}'\) 33 -100$/
+      /^ObjectId\('[a-f0-9]{24}('\))? 33 -100$/
     );
   });
 

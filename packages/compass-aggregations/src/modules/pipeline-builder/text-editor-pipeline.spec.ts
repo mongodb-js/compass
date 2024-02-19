@@ -10,7 +10,7 @@ import type { PipelineBuilderThunkDispatch } from '..';
 import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
 import { mockDataService } from '../../../test/mocks/data-service';
 
 function createStore(
@@ -47,7 +47,7 @@ function createStore(
         atlasAuthService: {} as any,
         atlasAiService: {} as any,
         pipelineBuilder,
-        pipelineStorage: new PipelineStorage(),
+        pipelineStorage: new CompassPipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
         preferences: {

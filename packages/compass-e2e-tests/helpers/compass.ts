@@ -10,6 +10,7 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
+import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
@@ -317,17 +318,6 @@ export class Compass {
   }
 
   async stop(): Promise<void> {
-    // TODO: we don't have main logs to write :(
-    /*
-    const mainLogs = [];
-    const mainLogPath = path.join(
-      LOG_PATH,
-      `electron-main.${name}.log`
-    );
-    debug(`Writing application main process log to ${mainLogPath}`);
-    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
-    */
-
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${this.name}.json`
@@ -532,7 +522,6 @@ async function startCompass(
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
     chromeArgs.push(`--app=${COMPASS_PATH}`);
-    //process.chdir(COMPASS_PATH); // TODO: do we need this?
   }
 
   // https://peter.sh/experiments/chromium-command-line-switches/
@@ -541,46 +530,15 @@ async function startCompass(
     ...CHROME_STARTUP_FLAGS,
     `--user-data-dir=${defaultUserDataDir}`,
 
-    // chomedriver options
-    // TODO: cant get this to work
-    //`--log-path=${chromedriverLogPath}`,
-    //'--verbose',
-
-    // electron/chromium options
-    // TODO: cant get this to work either
-    //'--enable-logging=file',
-    //`--log-file=${chromedriverLogPath}`,
-    //'--log-level=INFO',
-    //'--v=1',
-    // --vmodule=pattern
-
     // by default make sure we get the welcome modal
     ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
 
     ...(opts.extraSpawnArgs ?? [])
   );
 
-  // Electron on Windows interprets its arguments in a weird way where
-  // the second positional argument inserted by webdriverio (about:blank)
-  // throws it off and won't let it start because it then interprets the first
-  // positional argument as an app path.
-  if (
-    process.platform === 'win32' &&
-    chromeArgs.some((arg) => !arg.startsWith('--'))
-  ) {
-    chromeArgs.push('--');
-  }
-
-  // webdriverio automatically prepends '--' to options that do not already have it.
-  // We need the ability to pass positional arguments, though.
-  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
-  (chromeArgs as any).map = function () {
-    return [...this];
-  };
-
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'info' as const,
+    logLevel: 'warn' as const, // info is super verbose from webdriverio 8 onwards
     outputDir: webdriverLogPath,
   };
 
@@ -613,27 +571,16 @@ async function startCompass(
 
   const options = {
     capabilities: {
-      browserName: 'chrome',
+      browserName: 'chromium',
+      browserVersion: '120.0.6099.227', // TODO(COMPASS-7639): this must always be the corresponding chromium version for the electron version
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
-      // more chrome options
-      /*
-      'loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      },
-      'goog:loggingPrefs': {
-        browser: 'ALL',
-        driver: 'ALL'
-      }
-      */
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts,
   };
 
   debug('Starting compass via webdriverio with the following configuration:');
@@ -642,7 +589,7 @@ async function startCompass(
   let browser: CompassBrowser;
 
   try {
-    browser = await remote(options);
+    browser = (await remote(options)) as CompassBrowser;
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
@@ -783,13 +730,14 @@ export async function rebuildNativeModules(
     await fs.readFile(fullElectronPath, 'utf8')
   ).version;
 
-  await rebuild({
+  const rebuildOptions: RebuildOptions = {
     ...rebuildConfig,
     electronVersion,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
     projectRootPath: path.resolve(compassPath, '..', '..'),
-  });
+  };
+  await rebuild(rebuildOptions);
 }
 
 export async function compileCompassAssets(
@@ -812,13 +760,15 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
       metadata = require('mongodb-compass/dist/target.json');
     }
     // Double-checking that Compass app path exists, not only the metadata
-    await fs.stat(metadata.appPath);
+    await fs.stat(metadata.appPath as string);
     debug('Existing Compass found', metadata);
     return metadata;
-  } catch (e: any) {
+  } catch (e: unknown) {
     debug('Existing Compass build not found', e);
     throw new Error(
-      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${e.message}`
+      `Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests: ${
+        (e as Error).message
+      }`
     );
   }
 }
@@ -912,6 +862,11 @@ export async function init(
   const compass = await startCompass(pathName(name ?? formattedDate()), opts);
 
   const { browser } = compass;
+
+  // larger window for more consistent results
+  await browser.execute(() => {
+    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  });
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
@@ -1039,4 +994,28 @@ export function subtestTitle(
   // is for.
   const title = test?.fullTitle() ?? formattedDate();
   return `${title}_${step}`;
+}
+
+export function positionalArgs(positionalArgs: string[]) {
+  return function wrapBinary(binary: string): string {
+    process.env.BINARY = binary;
+
+    process.env.POSITIONAL_ARGS =
+      process.platform === 'win32'
+        ? positionalArgs.join('_varsep_')
+        : positionalArgs.join(' ');
+
+    const wrapperPath =
+      process.platform === 'win32'
+        ? path.join(__dirname, '..', 'positional-args', 'positional-args.exe')
+        : path.join(__dirname, '..', 'scripts', 'positional-args.sh');
+
+    console.log({
+      binary: process.env.BINARY,
+      args: process.env.POSITIONAL_ARGS,
+      wrapperPath,
+    });
+
+    return wrapperPath;
+  };
 }

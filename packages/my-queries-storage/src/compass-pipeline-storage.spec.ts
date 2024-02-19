@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
 import { pipelines as PipelineFixtures } from '../test/fixtures/index';
-import { PipelineStorage } from './pipeline-storage';
+import { CompassPipelineStorage } from './compass-pipeline-storage';
 
 const getEnsuredFilePath = async (tmpDir: string, fileId: string) => {
   await fs.mkdir(path.join(tmpDir, 'SavedPipelines'), { recursive: true });
@@ -15,13 +15,13 @@ const createPipeline = async (tmpDir: string, data: any) => {
   await fs.writeFile(filePath, JSON.stringify(data));
 };
 
-describe('PipelineStorage', function () {
+describe('CompassPipelineStorage', function () {
   let tmpDir: string;
-  let pipelineStorage: PipelineStorage;
+  let pipelineStorage: CompassPipelineStorage;
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'saved-pipelines-tests'));
-    pipelineStorage = new PipelineStorage(tmpDir);
+    pipelineStorage = new CompassPipelineStorage(tmpDir);
   });
 
   afterEach(async function () {

@@ -195,8 +195,8 @@ describe('Collection Rename Modal', () => {
       const modal = new RenameCollectionModal(browser);
       await modal.isVisible();
 
-      // enter the new name - 'bar' already exists
-      await modal.enterNewCollectionName('bar');
+      // enter the new name - collections cannot have `$` in the name
+      await modal.enterNewCollectionName('bar$');
 
       // submit the form and confirm submission
       await modal.submitButton.click();
@@ -353,10 +353,10 @@ describe('Collection Rename Modal', () => {
       // Save the ran query
       await browser.hover(Selectors.QueryHistoryRecentItem);
       await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
-      const favoriteQueryNameField = await browser.$(
-        Selectors.QueryHistoryFavoriteItemNameField
+      await browser.setValueVisible(
+        Selectors.QueryHistoryFavoriteItemNameField,
+        favoriteQueryName
       );
-      await favoriteQueryNameField.setValue(favoriteQueryName);
       await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
     });
 
@@ -381,9 +381,7 @@ describe('Collection Rename Modal', () => {
       const history = await browser.$(Selectors.QueryBarHistory);
       await history.waitForDisplayed();
 
-      const button = await browser.$(Selectors.QueryHistoryFavoritesButton);
-      await browser.debug();
-      await button.clickVisible();
+      await browser.clickVisible(Selectors.QueryHistoryFavoritesButton);
 
       await browser.$(Selectors.QueryHistoryFavoriteItem).waitForDisplayed();
 

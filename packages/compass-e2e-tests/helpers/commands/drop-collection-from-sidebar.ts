@@ -8,10 +8,7 @@ export async function dropCollectionFromSidebar(
 ): Promise<void> {
   // search for the collecton in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  const sidebarFilterInputElement = await browser.$(
-    Selectors.SidebarFilterInput
-  );
-  await sidebarFilterInputElement.setValue(collectionName);
+  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
   const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
   await dbElement.waitForDisplayed();
 

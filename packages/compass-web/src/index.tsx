@@ -145,7 +145,6 @@ const CompassWeb = ({
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
-      enableSavedAggregationsQueries: false,
       enableGenAIFeatures: false,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,

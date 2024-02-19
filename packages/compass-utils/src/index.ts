@@ -8,3 +8,4 @@ export {
   isCancelError,
   throwIfAborted,
 } from './cancellable-promise';
+export { intercomTrack, IntercomTrackingEvent } from './intercom-track';

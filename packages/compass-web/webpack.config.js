@@ -126,15 +126,18 @@ module.exports = async (env, args) => {
     path: config.output.path,
     filename: config.output.filename,
     library: {
-      name: 'CompassWeb',
-      type: 'commonjs2',
+      type: 'commonjs-static',
     },
   };
 
   return merge(config, {
     externals: {
-      // TODO(ticket): move mongodb-browser from mms to the monorepo and package
-      // it too
+      react: 'commonjs2 react',
+      'react-dom': 'commonjs2 react-dom',
+
+      // TODO(CLOUDP-228421): move mongodb-browser from mms to the monorepo and
+      // package it too
+      bson: 'commonjs2 bson',
       mongodb: 'commonjs2 mongodb',
     },
   });

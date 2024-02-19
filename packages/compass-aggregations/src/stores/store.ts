@@ -11,7 +11,6 @@ import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
@@ -37,6 +36,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -60,10 +60,6 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * the stage wizard to populate the dropdown for $lookup use-case.
      */
     collections: CollectionInfo[];
-    /**
-     * Storage service for saved aggregations
-     */
-    pipelineStorage: PipelineStorage;
   }>;
 
 export type AggregationsPluginServices = {
@@ -76,6 +72,7 @@ export type AggregationsPluginServices = {
   logger: LoggerAndTelemetry;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
+  pipelineStorage?: PipelineStorage;
 };
 
 export function activateAggregationsPlugin(
@@ -90,6 +87,7 @@ export function activateAggregationsPlugin(
     logger,
     atlasAiService,
     atlasAuthService,
+    pipelineStorage,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -116,8 +114,6 @@ export function activateAggregationsPlugin(
     preferences,
     initialPipelineSource
   );
-
-  const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)

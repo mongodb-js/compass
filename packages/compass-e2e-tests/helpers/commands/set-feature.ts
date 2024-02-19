@@ -10,7 +10,7 @@ export async function setFeature<K extends keyof UserPreferences>(
     async (_name, _value) => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       await require('electron').ipcRenderer.invoke('compass:save-preferences', {
-        [_name]: _value,
+        [_name]: _value === null ? undefined : _value,
       });
     },
     name,
