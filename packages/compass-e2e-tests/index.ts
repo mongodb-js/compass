@@ -20,6 +20,9 @@ import {
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
 
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
