@@ -21,9 +21,9 @@ type MyQueriesServices = {
   instance: MongoDBInstance;
   globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
-  pipelineStorage: PipelineStorage;
+  pipelineStorage?: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
+  favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
 };
 
 export function configureStore({
@@ -48,7 +48,7 @@ export function configureStore({
         instance,
         logger,
         pipelineStorage,
-        queryStorage: favoriteQueryStorageAccess.getStorage(),
+        queryStorage: favoriteQueryStorageAccess?.getStorage(),
         workspaces,
       })
     )
@@ -63,7 +63,7 @@ type SavedQueryAggregationExtraArgs = Omit<
   MyQueriesServices,
   'locateFavoriteQueryStorage'
 > & {
-  queryStorage: FavoriteQueryStorage;
+  queryStorage?: FavoriteQueryStorage;
 };
 
 export type SavedQueryAggregationThunkAction<

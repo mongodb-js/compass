@@ -73,7 +73,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  pipelineStorage: PipelineStorage;
+  pipelineStorage?: PipelineStorage;
 };
 
 export function activateAggregationsPlugin(

@@ -115,7 +115,6 @@ const CompassWeb = ({
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
-      enableSavedAggregationsQueries: false,
       ...initialPreferences,
     })
   );
