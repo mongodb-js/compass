@@ -32,6 +32,10 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
       ObjectId: bson.ObjectId,
       BSONSymbol: bson.BSONSymbol,
       Timestamp: bson.Timestamp,
+      Decimal128: bson.Decimal128,
+      Long: bson.Long,
+      Int32: bson.Int32,
+      Double: bson.Double,
       Code: function(c, s) {
         return new bson.Code(c, s);
       },
@@ -94,7 +98,6 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
     } catch (error) {
       throw new BsonTranspilersRuntimeError(error.message);
     }
-
     if ('emitNumberDecimal' in this) {
       return this.emitNumberDecimal(ctx, decstr);
     }

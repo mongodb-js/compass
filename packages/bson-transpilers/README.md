@@ -3,18 +3,20 @@
 [![downloads][5]][6]
 
 Transpilers for building BSON documents in any language. Current support
-provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell`, `python`, `ruby` and `go` as outputs.
-
-> ⚠️&nbsp;&nbsp;`shell` output produces code that is compatible only with legacy `mongo` shell not the new `mongosh` shell. See [COMPASS-4930](https://jira.mongodb.org/browse/COMPASS-4930) for some additional context
+provided for `shell` as inputs. `java`, `c#`, `node`, `shell`, `python`, `ruby` and `go` as outputs.
 
 See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
+
+**NOTES:**
+1. A version of the code with support for `python` with corresponding test cases has been removed to avoid bundling and supporting unused code, however it can be still be found in https://github.com/mongodb-js/compass/tree/80cf701e44cd966207f956fac69e8233861b1cd5/packages/bson-transpilers.
+2. The `shell` output is disabled as is essentially the only input in use and it produces code that is compatible only with legacy `mongo` shell not the new `mongosh` shell. See [COMPASS-4930](https://jira.mongodb.org/browse/COMPASS-4930) for some additional context.
 
 # Usage
 
 ```js
 const transpiler = require('bson-transpilers');
 
-const input = 'javascript';
+const input = 'shell';
 const output = 'java';
 
 const string =`

@@ -14,8 +14,8 @@ import os from 'os';
 import path from 'path';
 import QueryHistory from '.';
 import {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
+  CompassFavoriteQueryStorage,
+  CompassRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import { configureStore } from '../../stores/query-bar-store';
@@ -46,8 +46,8 @@ const FAVORITE_QUERY = {
 };
 
 function createStore(basepath: string) {
-  const favoriteQueryStorage = new FavoriteQueryStorage({ basepath });
-  const recentQueryStorage = new RecentQueryStorage({ basepath });
+  const favoriteQueryStorage = new CompassFavoriteQueryStorage({ basepath });
+  const recentQueryStorage = new CompassRecentQueryStorage({ basepath });
 
   const store = configureStore(
     {

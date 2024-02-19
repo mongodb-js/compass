@@ -14,6 +14,10 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import {
+  IntercomTrackingEvent,
+  intercomTrack,
+} from '@mongodb-js/compass-utils';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
@@ -199,6 +203,14 @@ function GenerativeAIInput({
   const darkMode = useDarkMode();
   const guideCueRef = useRef<HTMLInputElement>(null);
 
+  const handleSubmit = useCallback(
+    (aiPromptText: string) => {
+      intercomTrack(IntercomTrackingEvent.submittedNlPrompt);
+      onSubmitText(aiPromptText);
+    },
+    [onSubmitText]
+  );
+
   const onTextInputKeyDown = useCallback(
     (evt: React.KeyboardEvent<HTMLInputElement>) => {
       if (evt.key === 'Enter') {
@@ -206,12 +218,12 @@ function GenerativeAIInput({
         if (!aiPromptText) {
           return;
         }
-        onSubmitText(aiPromptText);
+        handleSubmit(aiPromptText);
       } else if (evt.key === 'Escape') {
         isFetching ? onCancelRequest() : onClose();
       }
     },
-    [aiPromptText, onClose, onSubmitText, isFetching, onCancelRequest]
+    [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
   );
 
   useEffect(() => {
@@ -299,7 +311,7 @@ function GenerativeAIInput({
               disabled={!aiPromptText}
               data-testid="ai-generate-button"
               onClick={() =>
-                isFetching ? onCancelRequest() : onSubmitText(aiPromptText)
+                isFetching ? onCancelRequest() : handleSubmit(aiPromptText)
               }
             >
               {isFetching ? (

@@ -1,6 +1,6 @@
 import type { SavedQueryAggregationThunkAction } from './index';
 import { EJSON } from 'bson';
-import { type FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 
 function formatQuery(query: FavoriteQuery) {
   const { collation, filter, limit, project, skip, sort } = query;
