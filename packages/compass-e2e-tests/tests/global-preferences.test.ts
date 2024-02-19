@@ -4,6 +4,7 @@ import {
   cleanup,
   runCompassOnce,
   positionalArgs,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -31,6 +32,12 @@ async function getCheckboxAndBannerState(
 describe('Global preferences', function () {
   let tmpdir: string;
   let i = 0;
+
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
 
   beforeEach(async function () {
     tmpdir = path.join(

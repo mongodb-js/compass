@@ -6,6 +6,7 @@ import {
   MONGODB_TEST_SERVER_PORT,
   Selectors,
   serverSatisfies,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { disconnect } from '../helpers/commands';
@@ -153,6 +154,10 @@ describe.skip('Search Indexes', function () {
   let collectionName: string;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     // $search works with server 4.2 or more
     if (!serverSatisfies('>= 4.1.11')) {
       this.skip();
@@ -164,6 +169,9 @@ describe.skip('Search Indexes', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
     await cleanup(compass);
   });
 

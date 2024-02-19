@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   positionalArgs,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -14,6 +15,10 @@ describe('forceConnectionOptions', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([
         '--forceConnectionOptions.appName=testAppName',
@@ -23,6 +28,10 @@ describe('forceConnectionOptions', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
   });
 
