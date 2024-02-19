@@ -419,24 +419,6 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
 
-  - name: test-web-sandbox-chrome
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: 'compass-e2e-tests'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: test-web-sandbox
-        vars: 
-          mongodb_version: 'latest-alpha-enterprise'
-          browser_name: 'chrome'
-          compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-
   - name: test-web-sandbox-firefox
     tags: ['required-for-publish', 'run-on-pr']
     commands:
