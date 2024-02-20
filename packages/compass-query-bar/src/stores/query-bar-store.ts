@@ -42,8 +42,8 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
-  favoriteQueryStorageAccess: FavoriteQueryStorageAccess;
-  recentQueryStorageAccess: RecentQueryStorageAccess;
+  favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
 
 // TODO(COMPASS-7412): this doesn't have service injector
@@ -67,8 +67,8 @@ export type QueryBarExtraArgs = {
   dataService: Pick<QueryBarDataService, 'sample'>;
   atlasService: AtlasService;
   preferences: PreferencesAccess;
-  favoriteQueryStorage: FavoriteQueryStorage;
-  recentQueryStorage: RecentQueryStorage;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
 };
 
@@ -115,8 +115,8 @@ export function activatePlugin(
     atlasService = new AtlasService(),
   } = services;
 
-  const favoriteQueryStorage = favoriteQueryStorageAccess.getStorage();
-  const recentQueryStorage = recentQueryStorageAccess.getStorage();
+  const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
+  const recentQueryStorage = recentQueryStorageAccess?.getStorage();
   const store = configureStore(
     {
       namespace: namespace ?? '',

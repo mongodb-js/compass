@@ -53,7 +53,6 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
-    enableSavedAggregationsQueries: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -675,17 +674,6 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short:
         'Enable preview input limit and collation options in aggregation view',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-
-  enableSavedAggregationsQueries: {
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable saving and opening saved aggregations and queries',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

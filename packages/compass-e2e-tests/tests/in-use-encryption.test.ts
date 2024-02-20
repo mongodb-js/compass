@@ -5,6 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -26,6 +27,12 @@ async function refresh(browser: CompassBrowser) {
 }
 
 describe('CSFLE / QE', function () {
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
+
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
