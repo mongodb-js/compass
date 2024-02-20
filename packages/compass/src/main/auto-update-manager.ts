@@ -263,21 +263,22 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.Disabled,
     ],
     enter: async function (updateManager, fromState, updateInfo: UpdateInfo) {
+      const automaticCheck =
+        fromState ===
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
       log.info(
         mongoLogId(1001000127),
         'AutoUpdateManager',
         'Update available',
-        { automaticCheck: true }
+        { automaticCheck }
       );
 
       let answer: PromptForUpdateResult;
-      if (
-        fromState ===
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck &&
-        !updateManager.isDowngradedCompassInstallation()
-      )
+      if (automaticCheck && !updateManager.isDowngradedCompassInstallation()) {
         answer = 'update';
-      else answer = await promptForUpdate(updateInfo.from, updateInfo.to);
+      } else {
+        answer = await promptForUpdate(updateInfo.from, updateInfo.to);
+      }
 
       this.maybeInterrupt();
 
@@ -285,8 +286,7 @@ const STATE_UPDATE: Record<
         updateManager.setState(
           AutoUpdateManagerState.DownloadingUpdate,
           updateInfo,
-          fromState !==
-            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+          !automaticCheck
         );
         return;
       }
@@ -435,7 +435,7 @@ const STATE_UPDATE: Record<
   },
   [AutoUpdateManagerState.Restarting]: {
     nextStates: [],
-    enter: function (_updateManager, _fromState, updateInfo: UpdateInfo) {
+    enter: function () {
       log.info(
         mongoLogId(1_001_000_166),
         'AutoUpdateManager',
@@ -444,7 +444,7 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      track('Application Restart Accepted', { update_version: updateInfo.to });
+      track('Application Restart Accepted');
 
       this.maybeInterrupt();
 
@@ -590,6 +590,14 @@ class CompassAutoUpdateManager {
     this.currentActionAbortController.abort();
   }
 
+  private static handleIpcUpdateDownloadRestartConfirmed() {
+    this.setState(AutoUpdateManagerState.Restarting);
+  }
+
+  private static handleIpcUpdateDownloadRestartDismissed() {
+    this.setState(AutoUpdateManagerState.RestartDismissed);
+  }
+
   private static _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
@@ -635,13 +643,15 @@ class CompassAutoUpdateManager {
       this.setState(AutoUpdateManagerState.UserPromptedManualCheck);
     });
 
-    ipcMain?.handle('autoupdate:update-download-restart-confirmed', () => {
-      this.setState(AutoUpdateManagerState.Restarting);
-    });
+    ipcMain?.handle(
+      'autoupdate:update-download-restart-confirmed',
+      this.handleIpcUpdateDownloadRestartConfirmed
+    );
 
-    ipcMain?.handle('autoupdate:update-download-restart-dismissed', () => {
-      this.setState(AutoUpdateManagerState.RestartDismissed);
-    });
+    ipcMain?.handle(
+      'autoupdate:update-download-restart-dismissed',
+      this.handleIpcUpdateDownloadRestartDismissed
+    );
 
     const { preferences } = compassApp;
     this.preferences = preferences;
