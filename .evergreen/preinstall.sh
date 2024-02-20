@@ -43,11 +43,21 @@ if [ -n "$IS_WINDOWS" ]; then
     cd ..
     .evergreen/node-gyp-bug-workaround.sh
 else
-    echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
+    if [ -n "$IS_RHEL" ]; then
+        echo "Installing unoffocial nodejs compiled for glibc 2.17 v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
 
-    bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
-        -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz" \
-        --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz"
+        bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
+            -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz" \
+            --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz"
+            --url "https://unofficial-builds.nodejs.org/download/release/${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH-glibc-217.tar.gz"
+    else
+        echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
+
+        bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
+            -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz" \
+            --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz"
+    fi
+
     cd .deps
     tar xzf node-v$NODE_JS_VERSION-$PLATFORM-$ARCH.tar.gz --strip-components=1
 
