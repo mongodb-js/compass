@@ -3,7 +3,12 @@ import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -23,6 +28,10 @@ describe('Collection ai query', function () {
   let clearRequests: () => void;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 
     // Start a mock server to pass an ai response.
@@ -54,6 +63,10 @@ describe('Collection ai query', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await stopMockAtlasServer();
 
     delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE;

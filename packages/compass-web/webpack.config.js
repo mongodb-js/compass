@@ -99,7 +99,7 @@ module.exports = async (env, args) => {
     return merge(config, {
       devServer: {
         hot: true,
-        open: true,
+        open: process.env.OPEN_BROWSER !== 'false',
         magicHtml: false,
         historyApiFallback: {
           rewrites: [{ from: /./, to: 'index.html' }],

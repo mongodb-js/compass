@@ -16,6 +16,14 @@ import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import {
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+} from '@mongodb-js/my-queries-storage/provider';
+import {
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 
 const noop = () => {
   /* no op */
@@ -45,16 +53,20 @@ describe('QueryBar Component', function () {
 
     render(
       <PreferencesProvider value={preferences}>
-        <Provider store={store}>
-          <QueryBar
-            buttonLabel="Apply"
-            onApply={noop}
-            onReset={noop}
-            showExportToLanguageButton
-            resultId="123"
-            {...props}
-          />
-        </Provider>
+        <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+          <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
+            <Provider store={store}>
+              <QueryBar
+                buttonLabel="Apply"
+                onApply={noop}
+                onReset={noop}
+                showExportToLanguageButton
+                resultId="123"
+                {...props}
+              />
+            </Provider>
+          </RecentQueryStorageProvider>
+        </FavoriteQueryStorageProvider>
       </PreferencesProvider>
     );
   };
