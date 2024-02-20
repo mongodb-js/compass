@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Feb 19 2024.
+This document was automatically generated on Tue Feb 20 2024.
 
 ## List of dependencies
 
@@ -244,7 +244,7 @@ This document was automatically generated on Mon Feb 19 2024.
 | **[domify](#4360a769ee10e827f9ae503aa7ea9aeb9039932fa02ac938316df303704a7fb1)**                                             | 1.4.1        | MIT                                 |
 | **[dset](#0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d)**                                               | 3.1.3        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
-| **[ejson-shell-parser](#1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7)**                                 | 2.0.0        | MIT                                 |
+| **[ejson-shell-parser](#88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b)**                                 | 2.0.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
 | **[electron](#fbe31ba116fedfb4c83039ff76fc6f1f617048e031e4b0f3bf2bf6a9102389f1)**                                           | 28.2.1       | MIT                                 |
@@ -20757,9 +20757,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7"></a>
+<a id="88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b"></a>
 
-### [ejson-shell-parser](https://www.npmjs.com/package/ejson-shell-parser) (version 2.0.0)
+### [ejson-shell-parser](https://www.npmjs.com/package/ejson-shell-parser) (version 2.0.1)
 
 License tags: MIT
 
