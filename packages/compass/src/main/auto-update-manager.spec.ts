@@ -10,7 +10,6 @@ import type { DownloadItem } from 'electron';
 import { dialog } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
-import { getOsInfo } from '@mongodb-js/get-os-info';
 
 CompassAutoUpdateManager.autoUpdateOptions = {
   endpoint: 'http://example.com',
