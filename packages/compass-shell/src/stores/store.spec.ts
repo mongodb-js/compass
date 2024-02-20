@@ -67,7 +67,7 @@ describe('CompassShellStore [Store]', function () {
       expect(runtimeState.runtime).to.equal(null);
     });
 
-    it.skip('emits mongosh events to the appRegistry', async function () {
+    it('emits mongosh events to the appRegistry', async function () {
       store.onEnableShellChanged(true);
       let eventReceived = false;
       appRegistry.on('mongosh:setCtx', () => {
