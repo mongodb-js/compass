@@ -13,8 +13,8 @@ export type RenameCollectionPluginServices = {
   dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
-  queryStorage: FavoriteQueryStorageAccess;
-  pipelineStorage: PipelineStorage;
+  queryStorage?: FavoriteQueryStorageAccess;
+  pipelineStorage?: PipelineStorage;
 };
 
 export function activateRenameCollectionPlugin(
@@ -27,18 +27,20 @@ export function activateRenameCollectionPlugin(
     pipelineStorage,
   }: RenameCollectionPluginServices
 ) {
-  async function loadSavedQueriesAndAggregations(oldNamespace: string) {
+  async function loadSavedQueriesAndAggregations(
+    oldNamespace: string
+  ): Promise<boolean> {
     const pipelineExists = await pipelineStorage
-      .loadAll()
+      ?.loadAll()
       .then((pipelines) =>
         pipelines.some(({ namespace }) => namespace === oldNamespace)
       );
     const queryExists = await queryStorage
-      .getStorage()
+      ?.getStorage()
       .loadAll()
       .then((queries) => queries.some(({ _ns }) => _ns === oldNamespace));
 
-    return pipelineExists || queryExists;
+    return Boolean(pipelineExists || queryExists);
   }
 
   const store = legacy_createStore(
@@ -65,7 +67,7 @@ export function activateRenameCollectionPlugin(
           })
         );
       })
-      .catch((e) => {
+      .catch(() => {
         store.dispatch(
           open({
             db: ns.database,
