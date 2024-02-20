@@ -152,7 +152,7 @@ describe('Collection documents tab', function () {
     });
 
     const queries = await getRecentQueries(browser, true);
-    expect(queries).to.deep.include.members([{ Filter: '{\n i: 5\n}' }]);
+    expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
   });
 
   it('supports advanced find operations', async function () {
@@ -184,11 +184,11 @@ describe('Collection documents tab', function () {
     const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
-        Filter: '{\n i: {\n  $gt: 5\n }\n}',
+        Filter: '{\n  i: {\n    $gt: 5\n  }\n}',
         Limit: '50',
-        Project: '{\n _id: 0\n}',
+        Project: '{\n  _id: 0\n}',
         Skip: '5',
-        Sort: '{\n i: -1\n}',
+        Sort: '{\n  i: -1\n}',
       },
     ]);
   });
@@ -231,7 +231,7 @@ describe('Collection documents tab', function () {
     const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
-        Filter: "{\n $where: 'function() { return sleep(10000) || true; }'\n}",
+        Filter: "{\n  $where: 'function() { return sleep(10000) || true; }'\n}",
       },
     ]);
   });

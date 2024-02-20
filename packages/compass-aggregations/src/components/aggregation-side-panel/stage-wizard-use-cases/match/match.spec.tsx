@@ -593,7 +593,7 @@ describe('match', function () {
       const onChangeSpy = Sinon.spy();
       render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
       setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'name');
-      expect(onChangeSpy.lastCall.args).deep.equal(["{\n name: ''\n}", null]);
+      expect(onChangeSpy.lastCall.args).deep.equal(["{\n  name: ''\n}", null]);
     });
 
     it('should call onChange with an error if there was an error during the conversion to stage', function () {
