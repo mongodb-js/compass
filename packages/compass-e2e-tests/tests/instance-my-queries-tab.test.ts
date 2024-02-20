@@ -37,7 +37,7 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-describe.only('Instance my queries tab', function () {
+describe('Instance my queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
