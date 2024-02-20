@@ -14,7 +14,7 @@ import {
   type ConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
 
-import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/providers';
+import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 
 const noop = (): any => {
   /* no-op */

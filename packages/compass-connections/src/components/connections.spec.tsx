@@ -25,7 +25,7 @@ import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
 import {
   ConnectionRepositoryContext,
   ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/providers';
+} from '@mongodb-js/connection-storage/provider';
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {

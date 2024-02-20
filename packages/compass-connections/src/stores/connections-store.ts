@@ -11,7 +11,7 @@ import {
   type ConnectionInfo,
   type ConnectionRepository,
 } from '@mongodb-js/connection-storage/main';
-import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/providers';
+import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
