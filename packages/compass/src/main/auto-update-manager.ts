@@ -32,10 +32,8 @@ function getSystemArch() {
     : process.arch;
 }
 
-let isMismatchedArchDarwin_Cache: boolean;
 function isMismatchedArchDarwin(): boolean {
-  return (isMismatchedArchDarwin_Cache ??=
-    process.platform === 'darwin' && getSystemArch() !== process.arch);
+  return process.platform === 'darwin' && getSystemArch() !== process.arch;
 }
 
 type PromptForUpdateResult = 'download' | 'update' | 'cancel';
