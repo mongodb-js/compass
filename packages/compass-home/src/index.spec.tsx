@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import { once } from 'events';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
@@ -11,6 +12,7 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
 
 const createDataService = () => ({
   getConnectionString() {
@@ -42,13 +44,21 @@ const createDataService = () => ({
 describe('Home [Component]', function () {
   const testAppRegistry = new AppRegistry();
 
-  const Home = CompassHomePlugin.withMockServices({
-    globalAppRegistry: testAppRegistry,
-    localAppRegistry: testAppRegistry,
-    pipelineStorage: new CompassPipelineStorage(),
-    favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-    recentQueryStorageAccess: compassRecentQueryStorageAccess,
-  });
+  const Home = (props: ComponentProps<typeof CompassHomePlugin>) => {
+    const Component = CompassHomePlugin.withMockServices({
+      globalAppRegistry: testAppRegistry,
+      localAppRegistry: testAppRegistry,
+      pipelineStorage: new CompassPipelineStorage(),
+      favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+      recentQueryStorageAccess: compassRecentQueryStorageAccess,
+      atlasAiService: {},
+    });
+    return (
+      <AtlasAuthServiceProvider value={{ on() {}, removeListener() {} } as any}>
+        <Component {...props} />
+      </AtlasAuthServiceProvider>
+    );
+  };
 
   before(function () {
     // Skip these tests if we're not running in an electron runtime.
