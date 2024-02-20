@@ -92,7 +92,7 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(url.searchParams.get('release')).to.exist;
 
-      const isLinux = (await getOsInfo()).os_linux_release;
+      const isLinux = process.platform === 'linux';
       if (isLinux) {
         expect(url.searchParams.get('os_linux_dist')).to.exist;
         expect(url.searchParams.get('os_linux_release')).to.exist;
