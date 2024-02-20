@@ -55,13 +55,13 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
+    "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
-    "global-jsdom": "^8.3.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^17.0.1",
@@ -69,8 +69,7 @@
   },
   "dependencies": {
     "compass-preferences-model": "^2.17.4",
-    "@mongodb-js/compass-logging": "^1.2.12",
-    "electron-mocha": "^12.2.0"
+    "@mongodb-js/compass-logging": "^1.2.12"
   },
   "peerDependencies": {
     "compass-preferences-model": "^2.17.4",
