@@ -44,7 +44,7 @@ if [ -n "$IS_WINDOWS" ]; then
     .evergreen/node-gyp-bug-workaround.sh
 else
     if [ -n "$IS_RHEL" ]; then
-        echo "Installing unoffocial nodejs compiled for glibc 2.17 v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
+        echo "Installing unofficial nodejs compiled for glibc 2.17 v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
 
         bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
             -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz" \
