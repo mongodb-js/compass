@@ -267,9 +267,11 @@ export const openSelectedItem =
       const newNamespace = `${selectedDatabase}.${selectedCollection}`;
 
       if (selectedItem.type === 'aggregation') {
-        await pipelineStorage.updateAttributes(id, { namespace: newNamespace });
+        await pipelineStorage?.updateAttributes(id, {
+          namespace: newNamespace,
+        });
       } else if (selectedItem.type === 'query') {
-        await queryStorage.updateAttributes(id, { _ns: newNamespace });
+        await queryStorage?.updateAttributes(id, { _ns: newNamespace });
       }
     }
 
