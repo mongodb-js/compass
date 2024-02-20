@@ -80,7 +80,7 @@
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "ejson-shell-parser": "^2.0.0",
+    "ejson-shell-parser": "^2.0.1",
     "electron": "^28.2.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",

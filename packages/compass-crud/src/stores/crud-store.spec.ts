@@ -17,8 +17,8 @@ import {
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
-  FavoriteQueryStorage,
-  RecentQueryStorage,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -188,6 +188,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -287,6 +289,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -342,6 +346,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -390,6 +396,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -437,6 +445,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -552,6 +562,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -836,6 +848,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -943,6 +957,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -980,6 +996,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1061,6 +1079,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1220,6 +1240,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1393,6 +1415,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1566,6 +1590,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1751,6 +1777,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1794,6 +1822,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1834,6 +1864,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -1872,6 +1904,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -1950,6 +1984,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -1997,6 +2033,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2041,6 +2079,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2087,6 +2127,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2140,6 +2182,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2208,6 +2252,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2317,6 +2363,8 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2737,7 +2785,8 @@ describe('store', function () {
   });
 
   describe('saveUpdateQuery', function () {
-    const favoriteQueriesStorage = new FavoriteQueryStorage();
+    const favoriteQueriesStorage =
+      compassFavoriteQueryStorageAccess.getStorage();
 
     let saveQueryStub;
     let store: CrudStore;
@@ -2753,7 +2802,6 @@ describe('store', function () {
           isTimeSeries: false,
           namespace: 'compass-crud.testview',
           noRefreshOnConfigure: true,
-          favoriteQueriesStorage: favoriteQueriesStorage,
         },
         {
           dataService,
@@ -2762,6 +2810,12 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: {
+            getStorage() {
+              return favoriteQueriesStorage;
+            },
+          },
+          recentQueryStorageAccess: compassRecentQueryStorageAccess,
         },
         createActivateHelpers()
       );
@@ -2819,6 +2873,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2906,6 +2962,8 @@ describe('store', function () {
             instance,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+            recentQueryStorageAccess: compassRecentQueryStorageAccess,
           },
           createActivateHelpers()
         );
@@ -2941,7 +2999,7 @@ describe('store', function () {
   });
 
   describe('saveRecentQueryQuery', function () {
-    const recentQueriesStorage = new RecentQueryStorage();
+    const recentQueriesStorage = compassRecentQueryStorageAccess.getStorage();
 
     let saveQueryStub;
     let store: CrudStore;
@@ -2957,7 +3015,6 @@ describe('store', function () {
           isTimeSeries: false,
           namespace: 'compass-crud.testview',
           noRefreshOnConfigure: true,
-          recentQueriesStorage: recentQueriesStorage,
         },
         {
           dataService,
@@ -2966,6 +3023,12 @@ describe('store', function () {
           instance,
           preferences,
           logger: createNoopLoggerAndTelemetry(),
+          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+          recentQueryStorageAccess: {
+            getStorage() {
+              return recentQueriesStorage;
+            },
+          },
         },
         createActivateHelpers()
       );

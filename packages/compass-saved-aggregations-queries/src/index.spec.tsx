@@ -11,6 +11,10 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { queries, pipelines, DATE } from '../test/fixtures';
 import { MyQueriesPlugin } from '.';
+import type {
+  PipelineStorage,
+  FavoriteQueryStorage,
+} from '@mongodb-js/my-queries-storage/provider';
 
 describe('AggregationsQueriesList', function () {
   const sandbox = Sinon.createSandbox();
@@ -28,8 +32,12 @@ describe('AggregationsQueriesList', function () {
   const Plugin = MyQueriesPlugin.withMockServices({
     dataService,
     instance,
-    queryStorage,
-    pipelineStorage,
+    favoriteQueryStorageAccess: {
+      getStorage() {
+        return queryStorage as unknown as FavoriteQueryStorage;
+      },
+    },
+    pipelineStorage: pipelineStorage as unknown as PipelineStorage,
   });
 
   afterEach(function () {
@@ -185,10 +193,21 @@ describe('AggregationsQueriesList', function () {
 
       const updatedName = 'the updated name';
 
-      // The first item is a query, so we are mocking that
-      queryStorage.updateAttributes.resolves({
-        ...item.query,
-        _name: updatedName,
+      // Post the update we fetch all queries to load the updated query
+      queryStorage.updateAttributes.callsFake((id, attributes) => {
+        expect(id).to.equal(item.id);
+        expect(attributes._name).to.equal(updatedName);
+        queryStorage.loadAll.resolves(
+          queries.map(({ query }) => {
+            if (query._id === item.query._id) {
+              return {
+                ...item.query,
+                _name: updatedName,
+              };
+            }
+            return query;
+          })
+        );
       });
 
       const card = document.querySelector<HTMLElement>(

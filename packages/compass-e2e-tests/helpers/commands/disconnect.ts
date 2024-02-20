@@ -1,8 +1,18 @@
+import { TEST_COMPASS_WEB } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
 import * as Selectors from '../selectors';
 
 export async function disconnect(browser: CompassBrowser): Promise<void> {
+  if (TEST_COMPASS_WEB) {
+    const url = new URL(await browser.getUrl());
+    url.pathname = '/';
+    await browser.navigateTo(url.toString());
+    const element = await browser.$('textarea[title="Connection string"]');
+    await element.waitForDisplayed();
+    return;
+  }
+
   const cancelConnectionButtonElement = await browser.$(
     Selectors.CancelConnectionButton
   );

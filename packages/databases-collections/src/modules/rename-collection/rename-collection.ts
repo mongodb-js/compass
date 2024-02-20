@@ -17,10 +17,15 @@ const HANDLE_ERROR = 'database-collections/rename-collection/HANDLE_ERROR';
 /**
  * Open drop database action creator.
  */
-export const open = (db: string, collection: string) => ({
+export const open = (
+  db: string,
+  collection: string,
+  collections: { name: string }[]
+) => ({
   type: OPEN,
   db,
   collection,
+  collections,
 });
 
 export const close = () => ({
@@ -31,7 +36,7 @@ export const renameRequestInProgress = () => ({
   type: RENAME_REQUEST_IN_PROGRESS,
 });
 
-const handleError = (error: Error) => ({
+const handleError = (error: Error | null) => ({
   type: HANDLE_ERROR,
   error,
 });
@@ -42,6 +47,7 @@ export type RenameCollectionRootState = {
   isRunning: boolean;
   isVisible: boolean;
   databaseName: string;
+  collections: { name: string }[];
 };
 
 const defaultState: RenameCollectionRootState = {
@@ -50,6 +56,7 @@ const defaultState: RenameCollectionRootState = {
   error: null,
   databaseName: '',
   initialCollectionName: '',
+  collections: [],
 };
 
 const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
@@ -62,6 +69,7 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
     return {
       initialCollectionName: action.collection,
       databaseName: action.db,
+      collections: action.collections,
       isVisible: true,
       isRunning: false,
       error: null,
@@ -92,6 +100,17 @@ export const hideModal = (): ThunkAction<
 > => {
   return (dispatch) => {
     dispatch(close());
+  };
+};
+
+export const clearError = (): ThunkAction<
+  void,
+  RenameCollectionRootState,
+  void,
+  AnyAction
+> => {
+  return (dispatch) => {
+    dispatch(handleError(null));
   };
 };
 

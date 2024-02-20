@@ -6,22 +6,26 @@ import { expect } from 'chai';
 
 import configureStore from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
+import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
 
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {
     let toolbar: HTMLElement;
     beforeEach(function () {
       render(
-        <Provider
-          store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
-        >
-          <PipelineToolbar
-            isBuilderView
-            showExportButton
-            showRunButton
-            showExplainButton
-          />
-        </Provider>
+        <PipelineStorageProvider value={new CompassPipelineStorage()}>
+          <Provider
+            store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
+          >
+            <PipelineToolbar
+              isBuilderView
+              showExportButton
+              showRunButton
+              showExplainButton
+            />
+          </Provider>
+        </PipelineStorageProvider>
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });

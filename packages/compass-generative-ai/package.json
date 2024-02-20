@@ -59,10 +59,12 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.21.3",
+    "@mongodb-js/compass-utils": "^0.5.11",
     "react": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.21.3"
+    "@mongodb-js/compass-components": "^1.21.3",
+    "@mongodb-js/compass-utils": "^0.5.11"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.15",
@@ -83,7 +85,7 @@
     "decomment": "^0.9.5",
     "depcheck": "^1.4.1",
     "digest-fetch": "^2.0.3",
-    "ejson-shell-parser": "^2.0.0",
+    "ejson-shell-parser": "^2.0.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",

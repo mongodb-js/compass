@@ -31,7 +31,7 @@ import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
@@ -90,7 +90,7 @@ export type PipelineBuilderExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
-  pipelineStorage: PipelineStorage;
+  pipelineStorage?: PipelineStorage;
   atlasService: AtlasService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;

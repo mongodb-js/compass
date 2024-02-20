@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { screenshotIfFailed } from '../helpers/compass';
+import { TEST_COMPASS_WEB, screenshotIfFailed } from '../helpers/compass';
 import {
   init,
   cleanup,
@@ -35,6 +35,12 @@ describe('Connection Import / Export', function () {
 
   const getTrackedEvents = (): any[] =>
     telemetry.events().filter((e: any) => e.type === 'track');
+
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
 
   beforeEach(async function () {
     telemetry = await startTelemetryServer();

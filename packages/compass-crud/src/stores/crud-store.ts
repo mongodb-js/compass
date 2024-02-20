@@ -13,10 +13,12 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import {
+import type {
+  FavoriteQueryStorageAccess,
   FavoriteQueryStorage,
+  RecentQueryStorageAccess,
   RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
+} from '@mongodb-js/my-queries-storage/provider';
 
 import {
   countDocuments,
@@ -275,8 +277,6 @@ type CrudStoreOptions = Pick<
   | 'isSearchIndexesSupported'
 > & {
   noRefreshOnConfigure?: boolean;
-  favoriteQueriesStorage?: FavoriteQueryStorage;
-  recentQueriesStorage?: RecentQueryStorage;
 };
 
 export type InsertCSFLEState = {
@@ -391,8 +391,8 @@ class CrudStoreImpl
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  favoriteQueriesStorage: FavoriteQueryStorage;
-  recentQueriesStorage: RecentQueryStorage;
+  favoriteQueriesStorage?: FavoriteQueryStorage;
+  recentQueriesStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
   instance: MongoDBInstance;
 
@@ -406,14 +406,15 @@ class CrudStoreImpl
       | 'globalAppRegistry'
       | 'preferences'
       | 'logger'
-    >
+    > & {
+      favoriteQueryStorage?: FavoriteQueryStorage;
+      recentQueryStorage?: RecentQueryStorage;
+    }
   ) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
-    this.favoriteQueriesStorage =
-      options.favoriteQueriesStorage || new FavoriteQueryStorage();
-    this.recentQueriesStorage =
-      options.recentQueriesStorage || new RecentQueryStorage();
+    this.favoriteQueriesStorage = services.favoriteQueryStorage;
+    this.recentQueriesStorage = services.recentQueryStorage;
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
@@ -1195,7 +1196,7 @@ class CrudStoreImpl
       return;
     }
 
-    await this.recentQueriesStorage.saveQuery({
+    await this.recentQueriesStorage?.saveQuery({
       _ns: this.state.ns,
       filter,
       update,
@@ -1918,7 +1919,7 @@ class CrudStoreImpl
       return;
     }
 
-    await this.favoriteQueriesStorage.saveQuery({
+    await this.favoriteQueriesStorage?.saveQuery({
       _name: name,
       _ns: this.state.ns,
       filter,
@@ -1942,6 +1943,8 @@ export type DocumentsPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
+  recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1952,6 +1955,8 @@ export function activateDocumentsPlugin(
     globalAppRegistry,
     preferences,
     logger,
+    favoriteQueryStorageAccess,
+    recentQueryStorageAccess,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1966,6 +1971,8 @@ export function activateDocumentsPlugin(
         globalAppRegistry,
         preferences,
         logger,
+        favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
+        recentQueryStorage: recentQueryStorageAccess?.getStorage(),
       }
     )
   ) as CrudStore;

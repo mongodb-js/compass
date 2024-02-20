@@ -90,6 +90,8 @@ buildvariants:
       - name: test-packaged-app-latest
         depends_on: package-compass
 
+      - name: test-web-sandbox-firefox
+
   - name: windows
     display_name: Windows 10 (Test and Package)
     run_on: windows-vsCurrent-large

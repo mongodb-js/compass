@@ -2,12 +2,25 @@
 import '../setup-hadron-distribution';
 
 import dns from 'dns';
+import ensureError from 'ensure-error';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  CompassFavoriteQueryStorage,
+  CompassPipelineStorage,
+  CompassRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage';
+import {
+  PipelineStorageProvider,
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+  type FavoriteQueryStorageAccess,
+  type RecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage/provider';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -19,15 +32,26 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 }
 
 // Setup error reporting to main process before anything else.
-window.addEventListener('error', (event) => {
+window.addEventListener('error', (event: ErrorEvent) => {
   event.preventDefault();
-  void ipcRenderer?.call(
-    'compass:error:fatal',
-    event.error
-      ? { message: event.error.message, stack: event.error.stack }
-      : { message: event.message, stack: '<no stack available>' }
-  );
+  const error = ensureError(event.error);
+  void ipcRenderer?.call('compass:error:fatal', {
+    message: error.message,
+    stack: error.stack,
+  });
 });
+
+window.addEventListener(
+  'unhandledrejection',
+  (event: PromiseRejectionEvent) => {
+    event.preventDefault();
+    const error = ensureError(event.reason);
+    void ipcRenderer?.call('compass:rejection:fatal', {
+      message: error.message,
+      stack: error.stack,
+    });
+  }
+);
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
@@ -178,16 +202,38 @@ const Application = View.extend({
       preferences: defaultPreferencesInstance,
     };
 
+    const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
+      getStorage(options) {
+        return new CompassFavoriteQueryStorage(options);
+      },
+    };
+
+    const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
+      getStorage(options) {
+        return new CompassRecentQueryStorage(options);
+      },
+    };
+
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
           <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <AppRegistryProvider>
-              <CompassHomePlugin
-                appName={remote.app.getName()}
-                getAutoConnectInfo={getAutoConnectInfo}
-              ></CompassHomePlugin>
-            </AppRegistryProvider>
+            <PipelineStorageProvider value={new CompassPipelineStorage()}>
+              <FavoriteQueryStorageProvider
+                value={favoriteQueryStorageProviderValue}
+              >
+                <RecentQueryStorageProvider
+                  value={recentQueryStorageProviderValue}
+                >
+                  <AppRegistryProvider>
+                    <CompassHomePlugin
+                      appName={remote.app.getName()}
+                      getAutoConnectInfo={getAutoConnectInfo}
+                    ></CompassHomePlugin>
+                  </AppRegistryProvider>
+                </RecentQueryStorageProvider>
+              </FavoriteQueryStorageProvider>
+            </PipelineStorageProvider>
           </LoggerAndTelemetryProvider>
         </PreferencesProvider>
       </React.StrictMode>,
