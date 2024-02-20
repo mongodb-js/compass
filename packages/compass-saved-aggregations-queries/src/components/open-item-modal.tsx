@@ -173,6 +173,7 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
           checked={updateNamespace}
           onChange={() => setUpdateNamespace(!updateNamespace)}
           label={`Update this ${itemType} with the newly selected namespace`}
+          data-testid="update-query-aggregation-checkbox"
         />
       </div>
     </FormModal>
