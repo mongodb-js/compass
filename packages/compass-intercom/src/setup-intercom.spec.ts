@@ -10,7 +10,6 @@ import {
   createSandboxFromDefaultPreferences,
   type User,
 } from 'compass-preferences-model';
-import 'global-jsdom/register';
 
 const mockUser: User = {
   id: 'user-123',
@@ -48,8 +47,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
-    fetchMock = sinon.stub();
-    window.fetch = fetchMock;
+    fetchMock = sinon.stub(window, 'fetch');
     // NOTE: we use 301 since intercom will redirects
     // to the actual location of the widget script
     fetchMock.resolves(new Response('', { status: 301 }));
@@ -67,7 +65,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
     process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
-    fetchMock.reset();
+    fetchMock.restore();
   });
 
   describe('when it can be enabled', function () {
