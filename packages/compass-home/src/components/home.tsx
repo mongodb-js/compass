@@ -48,7 +48,7 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
   ConnectionStorageContext,
   ConnectionRepositoryContextProvider,
-} from '@mongodb-js/connection-storage/main';
+} from '@mongodb-js/connection-storage/providers';
 
 resetGlobalCSS();
 

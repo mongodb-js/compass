@@ -9,9 +9,9 @@ import type { DataService, connect } from 'mongodb-data-service';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
-  connectionRepositoryLocator,
   type ConnectionRepository,
 } from '@mongodb-js/connection-storage/main';
+import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/providers';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';

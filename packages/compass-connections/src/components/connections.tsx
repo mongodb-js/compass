@@ -14,10 +14,8 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import {
-  type ConnectionInfo,
-  connectionStorageLocator,
-} from '@mongodb-js/connection-storage/renderer';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { connectionStorageLocator } from '@mongodb-js/connection-storage/providers';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';

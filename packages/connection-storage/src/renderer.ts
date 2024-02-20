@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'hadron-ipc';
-import { createContext, useContext } from 'react';
 
 import type { ConnectionStorage as ConnectionStorageMain } from './connection-storage';
 export type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -57,19 +56,4 @@ export class ConnectionStorage {
   static get exportConnections() {
     return this.ipc.exportConnections;
   }
-}
-
-export const ConnectionStorageContext = createContext<
-  typeof ConnectionStorage | null
->(null);
-
-export function connectionStorageLocator(): typeof ConnectionStorage {
-  const connectionStorage = useContext(ConnectionStorageContext);
-  if (!connectionStorage) {
-    throw new Error(
-      'Could not find the current ConnectionStorage. Did you forget to setup the ConnectionStorageContext?'
-    );
-  }
-
-  return connectionStorage;
 }
