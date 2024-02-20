@@ -38,15 +38,14 @@ describe('CompassAtlasAuthService', function () {
   });
 
   it('calls signIn on ipc', async function () {
+    const c = new AbortController();
     const signInStub = sandbox.stub();
     const atlasAuthService = getAtlasAuthService({
       signIn: signInStub,
     });
-    await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
+    await atlasAuthService.signIn({ signal: c.signal });
     expect(signInStub.calledOnce).to.be.true;
-    expect(signInStub.firstCall.firstArg).to.deep.equal({
-      promptType: 'ai-promo-modal',
-    });
+    expect(signInStub.firstCall.firstArg).to.deep.equal({ signal: c.signal });
   });
 
   it('calls getUserInfo on ipc', async function () {
