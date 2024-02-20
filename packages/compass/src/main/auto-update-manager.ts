@@ -32,20 +32,24 @@ function getSystemArch() {
     : process.arch;
 }
 
+let isMismatchedArchDarwin_Cache: boolean;
+function isMismatchedArchDarwin(): boolean {
+  return (isMismatchedArchDarwin_Cache ??=
+    process.platform === 'darwin' && getSystemArch() !== process.arch);
+}
+
 type PromptForUpdateResult = 'download' | 'update' | 'cancel';
 async function promptForUpdate(
   from: string,
   to: string
 ): Promise<PromptForUpdateResult> {
-  const isMismatchedArchDarwin =
-    process.platform === 'darwin' && getSystemArch() !== process.arch;
   const commonOptions = {
     icon: COMPASS_ICON,
     title: 'New version available',
     message: 'A new version of Compass is available to install',
   };
 
-  if (!isMismatchedArchDarwin) {
+  if (!isMismatchedArchDarwin()) {
     const answer = await dialog.showMessageBox({
       ...commonOptions,
       detail: `Compass ${to} is available. You are currently using ${from}. Would you like to download and install it now?`,
@@ -274,7 +278,11 @@ const STATE_UPDATE: Record<
       );
 
       let answer: PromptForUpdateResult;
-      if (automaticCheck && !updateManager.isDowngradedCompassInstallation()) {
+      if (
+        automaticCheck &&
+        !updateManager.isDowngradedCompassInstallation() &&
+        !isMismatchedArchDarwin()
+      ) {
         answer = 'update';
       } else {
         answer = await promptForUpdate(updateInfo.from, updateInfo.to);
@@ -645,12 +653,12 @@ class CompassAutoUpdateManager {
 
     ipcMain?.handle(
       'autoupdate:update-download-restart-confirmed',
-      this.handleIpcUpdateDownloadRestartConfirmed
+      this.handleIpcUpdateDownloadRestartConfirmed.bind(this)
     );
 
     ipcMain?.handle(
       'autoupdate:update-download-restart-dismissed',
-      this.handleIpcUpdateDownloadRestartDismissed
+      this.handleIpcUpdateDownloadRestartDismissed.bind(this)
     );
 
     const { preferences } = compassApp;

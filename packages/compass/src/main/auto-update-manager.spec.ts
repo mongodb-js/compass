@@ -243,7 +243,7 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
             AutoUpdateManagerState.UpdateAvailable,
             AutoUpdateManagerState.ManualDownload
           )
