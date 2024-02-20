@@ -3,6 +3,11 @@ import type { AtlasUserConfig } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 import { ipcRenderer } from 'hadron-ipc';
 import type { CompassAuthService as AtlasServiceMain } from './main';
+import {
+  signInWithModalPrompt,
+  signInWithoutPrompt,
+} from './store/atlas-signin-reducer';
+import { getStore } from './store/atlas-signin-store';
 
 type ArgsWithSignal<T = Record<string, unknown>> = T & { signal?: AbortSignal };
 type SignInPrompt = 'none' | 'ai-promo-modal';
@@ -110,8 +115,18 @@ export class CompassAtlasAuthService extends AtlasAuthService {
   signOut() {
     return this.ipc.signOut();
   }
-  signIn(opts?: ArgsWithSignal<{ promptType?: SignInPrompt }>) {
-    return this.ipc.signIn(opts);
+  signIn({
+    promptType,
+    signal,
+  }: ArgsWithSignal<{ promptType?: SignInPrompt }> = {}) {
+    switch (promptType) {
+      case 'none':
+        return getStore().dispatch(signInWithoutPrompt({ signal }));
+      case 'ai-promo-modal':
+        return getStore().dispatch(signInWithModalPrompt({ signal }));
+      default:
+        return this.ipc.signIn({ signal });
+    }
   }
   getUserInfo(opts?: ArgsWithSignal) {
     return this.ipc.getUserInfo(opts);

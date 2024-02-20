@@ -26,6 +26,9 @@ export class MockAtlasAuthService extends AtlasAuthService {
   async signOut() {
     return Promise.resolve();
   }
+  getAuthHeaders() {
+    return Promise.resolve({});
+  }
 }
 
 export class MockAtlasAiService {
