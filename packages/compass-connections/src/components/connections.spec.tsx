@@ -21,11 +21,11 @@ import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
 import {
-  ConnectionRepository,
   ConnectionRepositoryContext,
   ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/main';
+} from '@mongodb-js/connection-storage/providers';
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
