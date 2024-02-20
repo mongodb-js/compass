@@ -12,8 +12,9 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   ConnectionRepository,
   type ConnectionInfo,
-  ConnectionRepositoryContext,
 } from '@mongodb-js/connection-storage/main';
+
+import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/providers';
 
 const noop = (): any => {
   /* no-op */
