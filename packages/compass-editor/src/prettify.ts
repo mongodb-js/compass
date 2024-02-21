@@ -27,6 +27,7 @@ export function prettify(
           : parser === 'json'
           ? 'json'
           : 'babel',
+      trailingComma: 'none',
       ...formatOptions,
     })
     .trim();
