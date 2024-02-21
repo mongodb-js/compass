@@ -2,16 +2,16 @@ import {
   type Dispatch,
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
 } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import {
-  type ConnectionInfo,
-  type ConnectionRepository,
-} from '@mongodb-js/connection-storage/main';
-import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
@@ -63,14 +63,17 @@ function isOIDCAuth(connectionString: string): boolean {
   return authMechanismString === 'MONGODB-OIDC';
 }
 
+function ensureWellFormedConnectionString(connectionString: string) {
+  new ConnectionString(connectionString);
+}
+
 type State = {
   activeConnectionId?: string;
-  favoriteConnections: ConnectionInfo[];
-  recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
   connectingStatusText: string;
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
+  connections: ConnectionInfo[];
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
   // Additional connection information that is merged with the connection info
@@ -83,10 +86,10 @@ type State = {
 
 export function defaultConnectionsState(): State {
   return {
-    favoriteConnections: [],
-    recentConnections: [],
+    activeConnectionId: undefined,
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
+    connections: [],
     connectionAttempt: null,
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
@@ -126,8 +129,12 @@ type Action =
     }
   | {
       type: 'set-connections';
-      favoriteConnections: ConnectionInfo[];
-      recentConnections: ConnectionInfo[];
+      connections: ConnectionInfo[];
+    }
+  | {
+      type: 'set-connections-and-select';
+      connections: ConnectionInfo[];
+      activeConnectionInfo: ConnectionInfo;
     }
   | {
       type: 'add-connection-merge-info';
@@ -187,8 +194,15 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'set-connections':
       return {
         ...state,
-        favoriteConnections: action.favoriteConnections,
-        recentConnections: action.recentConnections,
+        connections: action.connections,
+        connectionErrorMessage: null,
+      };
+    case 'set-connections-and-select':
+      return {
+        ...state,
+        connections: action.connections,
+        activeConnectionId: action.activeConnectionInfo.id,
+        activeConnectionInfo: action.activeConnectionInfo,
         connectionErrorMessage: null,
       };
     case 'add-connection-merge-info':
@@ -210,25 +224,17 @@ export function connectionsReducer(state: State, action: Action): State {
 async function loadConnections(
   dispatch: Dispatch<{
     type: 'set-connections';
-    favoriteConnections: ConnectionInfo[];
-    recentConnections: ConnectionInfo[];
+    connections: ConnectionInfo[];
   }>,
-  connectionRepository: ConnectionRepository,
+  connectionStorage: typeof ConnectionStorage,
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
-    const [favoriteConnections, recentConnections] = await Promise.all([
-      connectionRepository.listFavoriteConnections(),
-      connectionRepository.listNonFavoriteConnections
-        ? connectionRepository.listNonFavoriteConnections?.()
-        : Promise.resolve([]),
-    ]);
-
+    const loadedConnections = await connectionStorage.loadAll();
     const toBeReSaved: ConnectionInfo[] = [];
+
     // Scrub OIDC tokens from connections when the option to store them has been disabled
     if (!persistOIDCTokens) {
-      const loadedConnections = [...favoriteConnections, ...recentConnections];
-
       for (const connection of loadedConnections) {
         if (connection.connectionOptions.oidc?.serializedState) {
           delete connection.connectionOptions.oidc?.serializedState;
@@ -239,13 +245,12 @@ async function loadConnections(
 
     dispatch({
       type: 'set-connections',
-      favoriteConnections: favoriteConnections,
-      recentConnections: recentConnections,
+      connections: loadedConnections,
     });
 
     await Promise.all(
       toBeReSaved.map(async (connectionInfo) => {
-        await connectionRepository.saveConnection?.(connectionInfo);
+        await connectionStorage.save({ connectionInfo });
       })
     );
   } catch (error) {
@@ -256,6 +261,7 @@ async function loadConnections(
 export function useConnections({
   onConnected,
   isConnected,
+  connectionStorage,
   appName,
   getAutoConnectInfo,
   connectFn,
@@ -265,6 +271,7 @@ export function useConnections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
+  connectionStorage: typeof ConnectionStorage;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: ConnectFn;
   appName: string;
@@ -284,8 +291,6 @@ export function useConnections({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
-  const connectionRepository = connectionRepositoryLocator();
-
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
   const forceConnectionOptions = usePreference('forceConnectionOptions') ?? [];
@@ -295,26 +300,39 @@ export function useConnections({
     connectionsReducer,
     defaultConnectionsState()
   );
-  const {
-    activeConnectionId,
-    connectionAttempt,
-    recentConnections,
-    favoriteConnections,
-  } = state;
+  const { activeConnectionId, connectionAttempt, connections } = state;
+
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
+
+  const { recentConnections, favoriteConnections } = useMemo(() => {
+    const favoriteConnections = (state.connections || [])
+      .filter((connectionInfo) => !!connectionInfo.favorite)
+      .sort((a, b) => {
+        const aName = a.favorite?.name?.toLocaleLowerCase() || '';
+        const bName = b.favorite?.name?.toLocaleLowerCase() || '';
+        return bName < aName ? 1 : -1;
+      });
+
+    const recentConnections = (state.connections || [])
+      .filter((connectionInfo) => !connectionInfo.favorite)
+      .sort((a, b) => {
+        const aTime = a.lastUsed?.getTime() ?? 0;
+        const bTime = b.lastUsed?.getTime() ?? 0;
+        return bTime - aTime;
+      });
+
+    return { recentConnections, favoriteConnections };
+  }, [state.connections]);
 
   async function saveConnectionInfo(
     connectionInfo: ConnectionInfo
   ): Promise<boolean> {
     try {
-      if (connectionRepository.saveConnection) {
-        await connectionRepository.saveConnection?.(connectionInfo);
-        debug(`saved connection with id ${connectionInfo.id || ''}`);
-      } else {
-        debug(
-          `current connection provider does not support saving connections`
-        );
-      }
+      ensureWellFormedConnectionString(
+        connectionInfo?.connectionOptions?.connectionString
+      );
+      await connectionStorage.save({ connectionInfo });
+      debug(`saved connection with id ${connectionInfo.id || ''}`);
 
       return true;
     } catch (err) {
@@ -337,18 +355,13 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    if (!connectionRepository.deleteConnection) {
-      debug(
-        'current connection provider does not support deleting connections'
-      );
-      return;
-    }
-
-    await connectionRepository.deleteConnection(connectionInfo);
-    await loadConnections(dispatch, connectionRepository, {
-      persistOIDCTokens,
+    await connectionStorage.delete({
+      id: connectionInfo.id,
     });
-
+    dispatch({
+      type: 'set-connections',
+      connections: connections.filter((conn) => conn.id !== connectionInfo.id),
+    });
     if (activeConnectionId === connectionInfo.id) {
       const nextActiveConnection = createNewConnectionInfo();
       dispatch({
@@ -365,7 +378,6 @@ export function useConnections({
       shouldSaveConnectionInfo: boolean
     ) => {
       try {
-        dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected(connectionInfo, dataService);
 
         if (!shouldSaveConnectionInfo) return;
@@ -382,8 +394,14 @@ export function useConnections({
           });
         }
 
+        // if a connection has been saved already we only want to update the lastUsed
+        // attribute, otherwise we are going to save the entire connection info.
+        const connectionInfoToBeSaved =
+          (await connectionStorage.load({ id: connectionInfo.id })) ??
+          connectionInfo;
+
         await saveConnectionInfo({
-          ...merge(connectionInfo, mergeConnectionInfo),
+          ...merge(connectionInfoToBeSaved, mergeConnectionInfo),
           lastUsed: new Date(),
         });
 
@@ -396,14 +414,20 @@ export function useConnections({
               // race condition window between load() and save() is as short as possible.
               const mergeConnectionInfo = {
                 connectionOptions: await dataService.getUpdatedSecrets(),
-              } as ConnectionInfo;
+              };
               if (!mergeConnectionInfo) return;
               dispatch({
                 type: 'add-connection-merge-info',
                 id: connectionInfo.id,
                 mergeConnectionInfo,
               });
-              await saveConnectionInfo(mergeConnectionInfo);
+              const currentSavedInfo = await connectionStorage.load({
+                id: connectionInfo.id,
+              });
+              if (!currentSavedInfo) return;
+              await saveConnectionInfo(
+                merge(currentSavedInfo, mergeConnectionInfo)
+              );
             } catch (err: any) {
               log.warn(
                 mongoLogId(1_001_000_195),
@@ -424,7 +448,7 @@ export function useConnections({
     },
     [
       onConnected,
-      connectionRepository,
+      connectionStorage,
       saveConnectionInfo,
       removeConnection,
       persistOIDCTokens,
@@ -433,7 +457,7 @@ export function useConnections({
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
+    void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
 
     if (getAutoConnectInfo) {
       log.info(
@@ -458,9 +482,7 @@ export function useConnections({
 
   useEffectOnChange(() => {
     if (!persistOIDCTokens)
-      void loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
+      void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
   }, [persistOIDCTokens]);
 
   const connect = async (
@@ -623,25 +645,42 @@ export function useConnections({
     },
     async saveConnection(connectionInfo: ConnectionInfo) {
       const saved = await saveConnectionInfo(connectionInfo);
+
       if (!saved) {
         return;
       }
 
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
+      const existingConnectionIndex = connections.findIndex(
+        (connection) => connection.id === connectionInfo.id
+      );
+
+      const newConnections = [...connections];
+
+      if (existingConnectionIndex !== -1) {
+        // Update the existing saved connection.
+        newConnections[existingConnectionIndex] = cloneDeep(connectionInfo);
+      } else {
+        // Add the newly saved connection to our connections list.
+        newConnections.push(cloneDeep(connectionInfo));
+      }
 
       if (activeConnectionId === connectionInfo.id) {
         // Update the active connection if it's currently selected.
         dispatch({
-          type: 'set-active-connection',
-          connectionInfo: cloneDeep(connectionInfo),
+          type: 'set-connections-and-select',
+          connections: newConnections,
+          activeConnectionInfo: cloneDeep(connectionInfo),
         });
         return;
       }
+
+      dispatch({
+        type: 'set-connections',
+        connections: newConnections,
+      });
     },
     setActiveConnectionById(newConnectionId: string) {
-      const connection = [...favoriteConnections, ...recentConnections].find(
+      const connection = connections.find(
         (connection) => connection.id === newConnectionId
       );
       if (connection) {
@@ -663,15 +702,12 @@ export function useConnections({
       if (duplicate.favorite?.name) {
         duplicate.favorite.name += ' (copy)';
       }
-
       saveConnectionInfo(duplicate).then(
-        async () => {
-          await loadConnections(dispatch, connectionRepository, {
-            persistOIDCTokens,
-          });
+        () => {
           dispatch({
-            type: 'set-active-connection',
-            connectionInfo: duplicate,
+            type: 'set-connections-and-select',
+            connections: [...connections, duplicate],
+            activeConnectionInfo: duplicate,
           });
         },
         () => {
@@ -680,27 +716,21 @@ export function useConnections({
       );
     },
     async removeAllRecentsConnections() {
-      if (!connectionRepository.deleteConnection) {
-        debug(
-          'current connection provider does not support deleting connections'
-        );
-        return;
-      }
-
+      const recentConnections = connections.filter((conn) => {
+        return !conn.favorite;
+      });
       await Promise.all(
-        recentConnections.map((info) =>
-          connectionRepository.deleteConnection?.(info)
-        )
+        recentConnections.map(({ id }) => connectionStorage.delete({ id }))
       );
-
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
+      dispatch({
+        type: 'set-connections',
+        connections: connections.filter((conn) => {
+          return conn.favorite;
+        }),
       });
     },
     reloadConnections() {
-      void loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
+      void loadConnections(dispatch, connectionStorage, { persistOIDCTokens });
     },
   };
 }
