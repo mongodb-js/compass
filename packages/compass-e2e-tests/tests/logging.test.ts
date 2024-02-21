@@ -1,10 +1,21 @@
 import { expect } from 'chai';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
 describe('Logging and Telemetry integration', function () {
+  before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+  });
+
   describe('after running an example path through Compass', function () {
     let logs: LogEntry[];
     let telemetry: Telemetry;

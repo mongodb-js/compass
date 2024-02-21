@@ -87,7 +87,7 @@
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
-    "ejson-shell-parser": "^2.0.0",
+    "ejson-shell-parser": "^2.0.1",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",

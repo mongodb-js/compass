@@ -8,6 +8,7 @@ import {
   cleanup,
   screenshotIfFailed,
   outputFilename,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -41,12 +42,20 @@ describe('Collection export', function () {
   let telemetry: Telemetry;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
     await telemetry.stop();
   });

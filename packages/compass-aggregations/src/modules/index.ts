@@ -90,7 +90,7 @@ export type PipelineBuilderExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
-  pipelineStorage: PipelineStorage;
+  pipelineStorage?: PipelineStorage;
   atlasService: AtlasService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
