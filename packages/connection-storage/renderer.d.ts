@@ -1,1 +1,1 @@
-export * from './dist/renderer';
+export * from './dist/renderer.d';

@@ -21,11 +21,6 @@ import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
-import {
-  ConnectionRepositoryContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
@@ -86,24 +81,20 @@ describe('Connections Component', function () {
     beforeEach(function () {
       const mockStorage = getMockConnectionStorage([]);
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
-      const connectionRepository = new ConnectionRepository(mockStorage);
 
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <Connections
-                onConnected={onConnectedSpy}
-                appName="Test App Name"
-              />
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
         </PreferencesProvider>
       );
     });
 
     it('calls once to load the connections', function () {
-      expect(loadConnectionsSpy.callCount).to.equal(2); // favorite + recent
+      expect(loadConnectionsSpy.callCount).to.equal(1);
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -173,21 +164,17 @@ describe('Connections Component', function () {
       ];
       mockStorage = getMockConnectionStorage(connections);
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
-      const connectionRepository = new ConnectionRepository(mockStorage);
 
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  connectFn={mockConnectFn}
-                  appName="Test App Name"
-                />
-              </ToastArea>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectFn={mockConnectFn}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
         </PreferencesProvider>
       );
 
@@ -351,21 +338,15 @@ describe('Connections Component', function () {
       ];
       const mockStorage = getMockConnectionStorage(connections);
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
-      const connectionRepository = new ConnectionRepository(mockStorage);
 
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  connectFn={mockConnectFn}
-                  appName="Test App Name"
-                />
-              </ToastArea>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectFn={mockConnectFn}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
         </PreferencesProvider>
       );
 
@@ -488,21 +469,15 @@ describe('Connections Component', function () {
       sinon
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection1' }]);
-
-      const connectionRepository = new ConnectionRepository(mockStorage);
-
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  appName="Test App Name"
-                />
-              </ToastArea>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
         </PreferencesProvider>
       );
 
@@ -519,21 +494,15 @@ describe('Connections Component', function () {
       sinon
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection2' }]);
-
-      const connectionRepository = new ConnectionRepository(mockStorage);
-
       const { rerender } = render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  appName="Test App Name"
-                />
-              </ToastArea>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
         </PreferencesProvider>
       );
 
@@ -549,17 +518,13 @@ describe('Connections Component', function () {
 
       rerender(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  connectionStorage={mockStorage}
-                  appName="Test App Name"
-                />
-              </ToastArea>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
+          <ToastArea>
+            <Connections
+              onConnected={onConnectedSpy}
+              connectionStorage={mockStorage}
+              appName="Test App Name"
+            />
+          </ToastArea>
         </PreferencesProvider>
       );
 

@@ -23,20 +23,16 @@
     "main.js",
     "main.d.ts",
     "renderer.js",
-    "renderer.d.ts",
-    "provider.js",
-    "provider.d.ts"
+    "renderer.d.ts"
   ],
   "license": "SSPL",
   "exports": {
     "./main": "./main.js",
-    "./renderer": "./renderer.js",
-    "./provider": "./provider.js"
+    "./renderer": "./renderer.js"
   },
   "compass:exports": {
     "./main": "./src/main.ts",
-    "./renderer": "./src/renderer.ts",
-    "./provider": "./src/provider.ts"
+    "./renderer": "./src/renderer.ts"
   },
   "scripts": {
     "bootstrap": "npm run compile",
@@ -67,9 +63,6 @@
     "lodash": "^4.17.21",
     "mongodb-connection-string-url": "^2.6.0"
   },
-  "peerDependencies": {
-    "react": "^17.0.2"
-  },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.15",
     "@mongodb-js/mocha-config-compass": "^1.3.6",
@@ -85,7 +78,6 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
-    "typescript": "^5.0.4",
-    "chai-as-promised": "^7.1.1"
+    "typescript": "^5.0.4"
   }
 }

@@ -99,10 +99,7 @@ describe('auto connection argument parsing', function () {
       [connectionInfo]
     );
     const info = await fn?.();
-    expect(info).to.deep.equal({
-      ...connectionInfo,
-      savedConnectionType: 'favorite',
-    });
+    expect(info).to.deep.equal(connectionInfo);
   });
 
   it('rejects a multi-conection file if one has been specified without an id', async function () {
@@ -179,7 +176,6 @@ describe('auto connection argument parsing', function () {
     expect(info).to.deep.equal({
       ...connectionInfo,
       id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9',
-      savedConnectionType: 'favorite',
     });
   });
 
@@ -238,10 +234,7 @@ describe('auto connection argument parsing', function () {
       [connectionInfo]
     );
     const info = await fn?.();
-    expect(info).to.deep.equal({
-      ...connectionInfo,
-      savedConnectionType: 'favorite',
-    });
+    expect(info).to.deep.equal(connectionInfo);
   });
 
   it('applies username and password if requested', async function () {

@@ -17,11 +17,6 @@ export interface ConnectionInfo {
   favorite?: ConnectionFavoriteOptions;
 
   /**
-   * Saved connection type. Legacy favorite connections will be mapped as 'favorite'.
-   */
-  savedConnectionType?: 'favorite' | 'recent';
-
-  /**
    * The options used to connect
    */
   connectionOptions: ConnectionOptions;
@@ -38,9 +33,3 @@ export interface ConnectionFavoriteOptions {
    */
   color?: string;
 }
-
-export type ConnectionStatus =
-  | 'connected'
-  | 'disconnected'
-  | 'connecting'
-  | 'failed';

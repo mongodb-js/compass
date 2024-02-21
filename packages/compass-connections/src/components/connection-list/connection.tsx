@@ -139,14 +139,14 @@ const colorIndicatorStyles = css({
 });
 
 function FavoriteColorIndicator({
-  color,
+  favorite,
   className,
 }: {
-  color?: string;
+  favorite?: ConnectionInfo['favorite'];
   className?: string;
 }): React.ReactElement {
   const { connectionColorToHex } = useConnectionColor();
-  const favoriteColorHex = connectionColorToHex(color);
+  const favoriteColorHex = connectionColorToHex(favorite?.color);
 
   return (
     <div
@@ -194,7 +194,6 @@ function Connection({
   const connectionTitle = getConnectionTitle(connectionInfo);
   const {
     connectionOptions: { connectionString },
-    savedConnectionType,
     favorite,
     lastUsed,
   } = connectionInfo;
@@ -293,7 +292,7 @@ function Connection({
         onClick={onClick}
         onDoubleClick={() => onDoubleClick(connectionInfo)}
       >
-        <FavoriteColorIndicator color={favorite?.color} />
+        <FavoriteColorIndicator favorite={connectionInfo.favorite} />
         <ConnectionIcon
           color={titleColor}
           connectionString={connectionString}
@@ -301,7 +300,7 @@ function Connection({
         <H3
           className={connectionTitleStyles}
           style={{ color: titleColor }}
-          data-testid={`${savedConnectionType}-connection-title`}
+          data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
           title={connectionTitle}
         >
           {connectionTitle}
@@ -309,7 +308,9 @@ function Connection({
         <Description
           className={connectionDescriptionStyles}
           style={{ color: descriptionColor }}
-          data-testid={`${savedConnectionType}-connection-description`}
+          data-testid={`${
+            favorite ? 'favorite' : 'recent'
+          }-connection-description`}
         >
           {lastUsed ? lastUsed.toLocaleString('default', dateConfig) : 'Never'}
         </Description>
