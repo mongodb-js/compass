@@ -94,6 +94,18 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
+    it('attaches OS metadata as query params to the update request URL', async () => {
+      const url = await CompassAutoUpdateManager.getUpdateCheckURL();
+
+      expect(url.searchParams.get('release')).to.exist;
+
+      const isLinux = process.platform === 'linux';
+      if (isLinux) {
+        expect(url.searchParams.get('os_linux_dist')).to.exist;
+        expect(url.searchParams.get('os_linux_release')).to.exist;
+      }
+    });
+
     it('should check for update and transition to update not available if backend returned nothing', async function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
