@@ -13,13 +13,23 @@ ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
     - '*':
         reason: None Given
-        expires: 2024-07-17T18:27:24.346Z
-        created: 2024-01-18T18:27:24.353Z
+        expires: 2024-03-22T15:43:36.765Z
+        created: 2024-02-21T15:43:36.777Z
   SNYK-JS-AXIOS-6032459:
     - '*':
         reason: Not applicable to axios usage inside node-analytics package
         expires: 2024-10-30T10:18:43.435Z
         created: 2023-10-30T10:18:43.435Z
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: None Given
+        expires: 2024-03-22T15:44:11.367Z
+        created: 2024-02-21T15:44:11.374Z
+  SNYK-JS-IP-6240864:
+    - '*':
+        reason: None Given
+        expires: 2024-03-22T15:44:21.394Z
+        created: 2024-02-21T15:44:21.402Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
