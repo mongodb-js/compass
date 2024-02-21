@@ -314,6 +314,14 @@ describe('CompassShell', function () {
       beforeEach(function () {
         wrapper.setState({ height: 199 });
         wrapper.update();
+
+        // make sure it starts off as we expect
+        const shellDomNode = wrapper
+          .find('[data-testid="shell-content"]')
+          .getDOMNode();
+        const shellDisplayStyle =
+          getComputedStyle(shellDomNode).getPropertyValue('display');
+        expect(shellDisplayStyle, 'before').to.equal('flex');
       });
       context('when the height is updated', function () {
         beforeEach(function () {
@@ -327,7 +335,7 @@ describe('CompassShell', function () {
             .getDOMNode();
           const shellDisplayStyle =
             getComputedStyle(shellDomNode).getPropertyValue('display');
-          expect(shellDisplayStyle).to.equal('flex');
+          expect(shellDisplayStyle, 'after').to.equal('flex');
         });
 
         context('when it hits the lower bound', function () {

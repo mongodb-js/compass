@@ -1,4 +1,4 @@
-import { init, cleanup } from '../helpers/compass';
+import { init, cleanup, TEST_COMPASS_WEB } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -8,6 +8,10 @@ describe('networkTraffic: false / Isolated Edition', function () {
   let i = 0;
 
   before(function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     if (process.platform !== 'linux') {
       // No strace on other platforms
       return this.skip();
@@ -23,6 +27,10 @@ describe('networkTraffic: false / Isolated Edition', function () {
   });
 
   afterEach(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await fs.rmdir(tmpdir, { recursive: true });
   });
 

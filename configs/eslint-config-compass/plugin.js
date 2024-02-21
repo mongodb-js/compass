@@ -20,8 +20,7 @@ module.exports = {
       restrictedProviderImport('mongodb-data-service'),
       restrictedProviderImport('@mongodb-js/compass-logging'),
       restrictedProviderImport('@mongodb-js/compass-app-stores'),
-      // TODO(COMPASS-7411): enable when possible
-      // restrictedProviderImport('@mongodb-js/my-queries-storage'),
+      restrictedProviderImport('@mongodb-js/my-queries-storage'),
       // TODO(COMPASS-7412): enable when possible
       // restrictedProviderImport('@mongodb-js/atlas-service'),
       restrictedProviderImport('compass-preferences-model'),

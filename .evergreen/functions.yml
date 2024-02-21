@@ -534,6 +534,28 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  test-web-sandbox:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_APP_PATH_ORIGINAL: ${appPath}
+          COMPASS_APP_NAME: ${packagerOptions.name}
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          BROWSER_NAME: ${browser_name}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          source .evergreen/start-docker-envs.sh
+          npm run --unsafe-perm --workspace compass-e2e-tests test-web
+
   test-connectivity:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins

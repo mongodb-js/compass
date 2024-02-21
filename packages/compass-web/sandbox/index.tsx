@@ -204,6 +204,7 @@ const App = () => {
             }}
           >
             <TextArea
+              data-testid="connectionString"
               label="Connection string"
               placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
               value={
@@ -259,7 +260,12 @@ const App = () => {
                 </ul>
               </div>
             )}
-            <Button disabled={!canSubmit} variant="primary" type="submit">
+            <Button
+              data-testid="connect-button"
+              disabled={!canSubmit}
+              variant="primary"
+              type="submit"
+            >
               Connect
             </Button>
           </form>

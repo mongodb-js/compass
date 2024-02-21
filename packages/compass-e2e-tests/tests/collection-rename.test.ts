@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
@@ -105,6 +110,10 @@ describe('Collection Rename Modal', () => {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
 
@@ -121,6 +130,10 @@ describe('Collection Rename Modal', () => {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
   });
 
@@ -195,8 +208,8 @@ describe('Collection Rename Modal', () => {
       const modal = new RenameCollectionModal(browser);
       await modal.isVisible();
 
-      // enter the new name - 'bar' already exists
-      await modal.enterNewCollectionName('bar');
+      // enter the new name - collections cannot have `$` in the name
+      await modal.enterNewCollectionName('bar$');
 
       // submit the form and confirm submission
       await modal.submitButton.click();
