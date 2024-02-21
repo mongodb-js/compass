@@ -346,7 +346,7 @@ import com.mongodb.client.FindIterable;
 Bson filter = eq("i", 5L);
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "mongodb://localhost:27091/test"
+        "mongodb://127.0.0.1:27091/test"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("test");

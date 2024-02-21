@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
 
-const CONNECTION_URI = 'mongodb://localhost:27091';
+const CONNECTION_URI = 'mongodb://127.0.0.1:27091';
 
 export async function dropDatabase(db: Db | string) {
   const database = typeof db === 'string' ? client.db(db) : db;

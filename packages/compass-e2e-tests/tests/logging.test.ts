@@ -190,7 +190,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Connecting',
           attr: (actual: any) => {
-            expect(actual.url).to.match(/^mongodb:\/\/localhost:27091/);
+            expect(actual.url).to.match(/^mongodb:\/\/127.0.0.1:27091/);
             expect(actual.csfle).to.equal(null);
           },
         },
@@ -201,7 +201,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'compass-connect',
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
-            expect(actual.uri).to.match(/^mongodb:\/\/localhost:27091/);
+            expect(actual.uri).to.match(/^mongodb:\/\/127.0.0.1:27091/);
             expect(actual.driver.name).to.equal('nodejs');
           },
         },
@@ -225,7 +225,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Server opening',
           attr: {
-            address: 'localhost:27091',
+            address: '127.0.0.1:27091',
           },
         },
         {

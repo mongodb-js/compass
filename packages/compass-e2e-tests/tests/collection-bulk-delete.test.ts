@@ -176,7 +176,7 @@ describe('Bulk Delete', () => {
     expect(text).to.equal(`from pymongo import MongoClient
 # Requires the PyMongo package.
 # https://api.mongodb.com/python/current
-client = MongoClient('mongodb://localhost:27091/test')
+client = MongoClient('mongodb://127.0.0.1:27091/test')
 filter={
     'i': 5
 }

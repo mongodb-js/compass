@@ -284,7 +284,7 @@ describe('Connection screen', function () {
 
   it('can connect using connection form', async function () {
     await browser.connectWithConnectionForm({
-      hosts: ['localhost:27091'],
+      hosts: ['127.0.0.1:27091'],
     });
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -711,7 +711,7 @@ describe('System CA access', function () {
 
     try {
       await browser.connectWithConnectionForm({
-        hosts: ['localhost:27091'],
+        hosts: ['127.0.0.1:27091'],
         sslConnection: 'DEFAULT',
         useSystemCA: true,
       });
@@ -783,7 +783,7 @@ describe('FLE2', function () {
     }
 
     await browser.connectWithConnectionForm({
-      hosts: ['localhost:27091'],
+      hosts: ['127.0.0.1:27091'],
       fleKeyVaultNamespace: 'alena.keyvault',
       fleKey: 'A'.repeat(128),
       fleEncryptedFieldsMap: `{

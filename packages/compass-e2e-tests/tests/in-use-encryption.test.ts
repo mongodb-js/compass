@@ -14,7 +14,7 @@ import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
 
-const CONNECTION_HOSTS = 'localhost:27091';
+const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 async function refresh(browser: CompassBrowser) {

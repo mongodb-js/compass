@@ -10,9 +10,9 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 
-const connectionStringSuccess = 'mongodb://localhost:27091/test';
+const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
 const connectionStringUnreachable =
-  'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
+  'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
 describe('Automatically connecting from the command line', function () {
