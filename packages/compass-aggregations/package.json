@@ -89,7 +89,7 @@
     "mongodb-database-model": "^2.17.4",
     "mongodb-instance-model": "^12.17.4",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^4.0.2",
+    "mongodb-query-parser": "^4.1.0",
     "mongodb-schema": "^12.1.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",

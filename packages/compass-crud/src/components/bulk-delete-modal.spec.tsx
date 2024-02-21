@@ -70,7 +70,7 @@ describe('BulkDeleteModal Component', function () {
   it('shows the provided query', function () {
     renderBulkDeleteModal({ filter: { a: 1 } });
     expect(screen.getByTestId('readonly-filter').textContent).to.equal(
-      '{\n a: 1\n}'
+      '{\n  a: 1\n}'
     );
   });
 
