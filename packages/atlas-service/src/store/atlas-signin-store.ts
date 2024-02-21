@@ -1,12 +1,12 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { AtlasAuthService, AtlasUserConfig } from '../renderer';
+import type { AtlasUserConfig } from '../renderer';
 import reducer, {
   signedOut,
   tokenRefreshFailed,
   userConfigChanged,
 } from './atlas-signin-reducer';
-import { atlasAuthServiceLocator } from '../provider';
+import { atlasAuthServiceLocator, type AtlasAuthService } from '../provider';
 import { ipcRenderer } from 'hadron-ipc';
 
 export function configureStore({

@@ -4,7 +4,7 @@ import { AtlasService } from './atlas-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { CompassAtlasAuthService } from './atlas-auth-service';
+import { CompassAtlasAuthService } from './compass-atlas-auth-service';
 
 const ATLAS_CONFIG = {
   atlasApiBaseUrl: 'http://example.com/api/private',

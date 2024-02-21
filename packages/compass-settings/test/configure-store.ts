@@ -5,7 +5,7 @@ import type {
 import { configureStore as _configureStore } from '../src/stores';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {
@@ -22,6 +22,9 @@ class MockAtlasAuthService extends AtlasAuthService {
   }
   async signOut() {
     return Promise.resolve();
+  }
+  async getAuthHeaders() {
+    return Promise.resolve({});
   }
 }
 

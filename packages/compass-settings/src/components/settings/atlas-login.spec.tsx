@@ -3,14 +3,14 @@ import { EventEmitter } from 'events';
 import { screen, cleanup, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import configureStore from '../../../test/configure-store';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 import { cancelAtlasLoginAttempt, signIn } from '../../stores/atlas-login';
 import { closeModal } from '../../stores/settings';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AtlasLoginSettings', function () {
   const sandbox = Sinon.createSandbox();

@@ -72,7 +72,6 @@
     "@mongodb-js/compass-field-store": "^9.0.17",
     "@mongodb-js/compass-generative-ai": "^0.7.4",
     "@mongodb-js/compass-indexes": "^5.22.4",
-    "@mongodb-js/compass-logging": "^1.2.12",
     "@mongodb-js/compass-query-bar": "^8.24.4",
     "@mongodb-js/compass-schema": "^6.24.4",
     "@mongodb-js/compass-schema-validation": "^6.23.4",

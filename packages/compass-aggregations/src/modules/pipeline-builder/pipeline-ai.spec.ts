@@ -11,7 +11,7 @@ import {
 import { toggleAutoPreview } from '../auto-preview';
 import { MockAtlasAiService } from '../../../test/configure-store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();

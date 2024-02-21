@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { CompassAtlasAuthService } from './atlas-auth-service';
+import { CompassAtlasAuthService } from './compass-atlas-auth-service';
 import type { CompassAuthService } from './main';
 
 function getAtlasAuthService(ipc: Partial<typeof CompassAuthService>) {

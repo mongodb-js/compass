@@ -50,13 +50,8 @@ import type { AllPreferences } from 'compass-preferences-model';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
-import {
-  AtlasService,
-  AtlasAuthService,
-  type AtlasUserInfo,
-} from '@mongodb-js/atlas-service/renderer';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -183,20 +178,6 @@ const CompassWeb = ({
     return new CloudAtlasAuthService();
   }, []);
 
-  const atlasAiService = useMemo(() => {
-    const atlasService = new AtlasService(
-      atlasAuthService,
-      preferencesAccess.current,
-      createLoggerAndTelemetry('ATLAS-SERVICE')
-    );
-    return new AtlasAiService(
-      atlasService,
-      atlasAuthService,
-      preferencesAccess.current,
-      createLoggerAndTelemetry('ATLAS-AI--SERVICE')
-    );
-  }, [atlasAuthService, preferencesAccess.current]);
-
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
   // handling a single connection)
@@ -216,7 +197,7 @@ const CompassWeb = ({
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
         <AtlasAuthServiceProvider value={atlasAuthService}>
-          <AtlasAiServiceProvider value={atlasAiService}>
+          <AtlasAiServiceProvider>
             <AppRegistryProvider>
               <DataServiceProvider value={dataService.current}>
                 <CompassInstanceStorePlugin>

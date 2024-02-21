@@ -3,7 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -35,7 +34,8 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &

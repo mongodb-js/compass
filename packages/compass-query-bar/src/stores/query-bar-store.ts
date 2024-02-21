@@ -18,14 +18,14 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
   FavoriteQueryStorageAccess,
   FavoriteQueryStorage,

@@ -4,8 +4,8 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {

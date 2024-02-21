@@ -6,7 +6,7 @@ import {
 import type {
   AtlasAuthService,
   AtlasService,
-} from '@mongodb-js/atlas-service/renderer';
+} from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { showOptInConfirmation } from './components/ai-opt-in-confirmation';

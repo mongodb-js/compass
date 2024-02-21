@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { AtlasAuthService } from './renderer';
+import type { AtlasAuthService } from './atlas-auth-service';
 
 const AtlasAuthServiceContext = createContext<AtlasAuthService | null>(null);
 
@@ -12,3 +12,6 @@ export function atlasAuthServiceLocator(): AtlasAuthService {
   }
   return service;
 }
+
+export { AtlasAuthService } from './atlas-auth-service';
+export { AtlasService, type AtlasServiceOptions } from './atlas-service';

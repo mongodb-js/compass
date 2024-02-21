@@ -9,13 +9,9 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  AtlasService,
-  CompassAtlasAuthService,
-} from '@mongodb-js/atlas-service/renderer';
+import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { AtlasAiService } from '@mongodb-js/compass-generative-ai';
 import {
   CompassFavoriteQueryStorage,
   CompassPipelineStorage,
@@ -222,26 +218,6 @@ const Application = View.extend({
       },
     };
 
-    const atlasAuthService = new CompassAtlasAuthService();
-
-    const atlasService = new AtlasService(
-      atlasAuthService,
-      defaultPreferencesInstance,
-      createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE'),
-      {
-        defaultHeaders: {
-          'User-Agent': `${getAppName()}/${getAppVersion()}`,
-        },
-      }
-    );
-
-    const atlasAiService = new AtlasAiService(
-      atlasService,
-      atlasAuthService,
-      defaultPreferencesInstance,
-      createLoggerAndTelemetry('COMPASS-ATLAS-AI-SERVICE')
-    );
-
     ReactDOM.render(
       <React.StrictMode>
         <PreferencesProvider value={defaultPreferencesInstance}>
@@ -253,8 +229,14 @@ const Application = View.extend({
                 <RecentQueryStorageProvider
                   value={recentQueryStorageProviderValue}
                 >
-                  <AtlasAuthServiceProvider value={atlasAuthService}>
-                    <AtlasAiServiceProvider value={atlasAiService}>
+                  <AtlasAuthServiceProvider
+                    value={new CompassAtlasAuthService()}
+                  >
+                    <AtlasAiServiceProvider
+                      defaultHttpHeaders={{
+                        'User-Agent': `${getAppName()}/${getAppVersion()}`,
+                      }}
+                    >
                       <AppRegistryProvider>
                         <CompassHomePlugin
                           appName={remote.app.getName()}

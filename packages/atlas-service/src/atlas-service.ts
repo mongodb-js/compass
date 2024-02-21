@@ -9,8 +9,8 @@ import {
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
-type AtlasServiceOptions = {
-  defaultHeaders: Record<string, string>;
+export type AtlasServiceOptions = {
+  defaultHeaders?: Record<string, string>;
 };
 
 export class AtlasService {

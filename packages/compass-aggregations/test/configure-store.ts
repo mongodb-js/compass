@@ -8,7 +8,7 @@ import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 export class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {

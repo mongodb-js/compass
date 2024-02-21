@@ -4,7 +4,7 @@ import { AtlasAiService } from './atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 const ATLAS_USER = {
   enabledAIFeature: true,

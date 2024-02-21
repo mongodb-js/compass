@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { Modal as AtlasSignIn } from './atlas-signin';
 import { configureStore } from '../store/atlas-signin-store';
 import Sinon from 'sinon';
-import type { AtlasAuthService } from '../renderer';
+import type { AtlasAuthService } from '../provider';
 import { expect } from 'chai';
 
 describe('AtlasSignIn', function () {

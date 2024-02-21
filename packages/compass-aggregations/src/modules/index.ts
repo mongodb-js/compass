@@ -1,6 +1,5 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import dataService from './data-service';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
@@ -41,7 +40,8 @@ import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider'
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 /**
  * The main application reducer.
