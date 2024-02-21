@@ -48,7 +48,7 @@ describe('forceConnectionOptions', function () {
       'Some connection options have been overridden through settings: appName'
     );
     await browser.connectWithConnectionString(
-      'mongodb://localhost:27091/?appName=userSpecifiedAppName'
+      'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName'
     );
     const result = await browser.shellEval('db.getMongo()._uri', true);
     expect(new ConnectionString(result).searchParams.get('appName')).to.equal(

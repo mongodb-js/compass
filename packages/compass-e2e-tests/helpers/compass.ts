@@ -60,7 +60,7 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING = `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`;
+export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
 
 export function updateMongoDBServerInfo() {
   try {
