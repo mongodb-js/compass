@@ -206,9 +206,14 @@ function buildStateFromConnectionInfo(
   // Only enable connection string editing (and in particular, doing so in
   // protected connection strings mode) when it's the default connection
   // string and the connection has not been connected to (saved recent/favorite).
-  const isNewDefaultConnection =
+  const isDefaultCnnStr =
     initialConnectionInfo.connectionOptions.connectionString ===
-      defaultConnectionString && !initialConnectionInfo.lastUsed;
+      defaultConnectionString ||
+    initialConnectionInfo.connectionOptions.connectionString ===
+      `${defaultConnectionString}/`;
+
+  const isNewDefaultConnection =
+    isDefaultCnnStr && !initialConnectionInfo.lastUsed;
   return {
     errors: errors,
     enableEditingConnectionString: isNewDefaultConnection,
