@@ -25,11 +25,11 @@ ignore:
         reason: None Given
         expires: 2024-03-22T15:44:11.367Z
         created: 2024-02-21T15:44:11.374Z
-  SNYK-JS-IP-6240864:
+  SNYK-JS-TOUGHCOOKIE-5672873:
     - '*':
         reason: None Given
-        expires: 2024-03-22T15:44:21.394Z
-        created: 2024-02-21T15:44:21.402Z
+        expires: 2024-03-22T16:09:23.013Z
+        created: 2024-02-21T16:09:23.022Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':

@@ -68,7 +68,7 @@
     "mongodb-build-info": "^1.7.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-ns": "^2.4.0",
-    "socks": "^2.7.1",
+    "socks": "^2.7.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
