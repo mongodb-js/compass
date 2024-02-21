@@ -18,10 +18,6 @@ describe('Bulk Delete', () => {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableBulkDeleteOperations'],
@@ -30,9 +26,6 @@ describe('Bulk Delete', () => {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -57,9 +50,11 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
-    // Check the telemetry
-    const openedEvent = await telemetryEntry('Bulk Delete Opened');
-    expect(openedEvent).to.deep.equal({});
+    if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
+      const openedEvent = await telemetryEntry('Bulk Delete Opened');
+      expect(openedEvent).to.deep.equal({});
+    }
 
     // Make sure the query is shown in the modal.
     expect(
@@ -87,9 +82,11 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    // Check the telemetry
-    const executedEvent = await telemetryEntry('Bulk Delete Executed');
-    expect(executedEvent).to.deep.equal({});
+    if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
+      const executedEvent = await telemetryEntry('Bulk Delete Executed');
+      expect(executedEvent).to.deep.equal({});
+    }
 
     // The success toast is displayed
     await browser.$(Selectors.BulkDeleteSuccessToast).waitForDisplayed();
@@ -165,8 +162,10 @@ describe('Bulk Delete', () => {
     // Click the export button
     await browser.clickVisible(Selectors.BulkDeleteModalExportButton);
 
-    const openedEvent = await telemetryEntry('Delete Export Opened');
-    expect(openedEvent).to.deep.equal({});
+    if (!TEST_COMPASS_WEB) {
+      const openedEvent = await telemetryEntry('Delete Export Opened');
+      expect(openedEvent).to.deep.equal({});
+    }
 
     const text = await browser.exportToLanguage('Python', {
       includeImportStatements: true,
@@ -184,12 +183,14 @@ result = client['test']['numbers'].delete_many(
   filter=filter
 )`);
 
-    const exportedEvent = await telemetryEntry('Delete Exported');
-    expect(exportedEvent).to.deep.equal({
-      language: 'python',
-      with_builders: false,
-      with_drivers_syntax: true,
-      with_import_statements: true,
-    });
+    if (!TEST_COMPASS_WEB) {
+      const exportedEvent = await telemetryEntry('Delete Exported');
+      expect(exportedEvent).to.deep.equal({
+        language: 'python',
+        with_builders: false,
+        with_drivers_syntax: true,
+        with_import_statements: true,
+      });
+    }
   });
 });
