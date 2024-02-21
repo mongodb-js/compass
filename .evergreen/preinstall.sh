@@ -48,7 +48,7 @@ else
 
         bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
             -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH.tar.gz" \
-            --url "https://unofficial-builds.nodejs.org/download/release/${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH-glibc-217.tar.gz"
+            --url "https://unofficial-builds.nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-$ARCH-glibc-217.tar.gz"
     else
         echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
 
