@@ -1,4 +1,7 @@
-import { ATLAS_SEARCH_TEMPLATES } from '@mongodb-js/mongodb-constants';
+import {
+  ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_SEARCH_TEMPLATE,
+} from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
@@ -18,6 +21,9 @@ function normalizedTemplateNamed(name: string) {
   //
   return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
+
+const NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE =
+  ATLAS_VECTOR_SEARCH_TEMPLATE.snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 
 function renderBaseSearchIndexModal(
   props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>
@@ -129,6 +135,50 @@ describe('Base Search Index Modal', function () {
           name: 'default',
           definition: {},
           type: 'vectorSearch',
+        });
+      });
+
+      it('resets the template on type switch', async function () {
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          {
+            // leafygreen adds pointer-events: none on actually clickable elements
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE);
+        });
+
+        userEvent.click(
+          screen.getByTestId('search-index-type-search-button'),
+          undefined,
+          {
+            // leafygreen adds pointer-events: none on actually clickable elements
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(
+            normalizedTemplateNamed('Dynamic field mappings')
+          );
+        });
+        userEvent.click(
+          screen.getByRole('button', { name: 'Create Search Index' })
+        );
+        expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+          name: 'default',
+          definition: { mappings: { dynamic: true } },
+          type: 'search',
         });
       });
     });

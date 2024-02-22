@@ -37,6 +37,7 @@ import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
+  ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
@@ -201,6 +202,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   useEffect(() => {
     if (isModalOpen) {
+      setSearchIndexType('search');
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
       setParsingError(undefined);
@@ -263,10 +265,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       if (value === 'vectorSearch') {
         onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
       } else {
-        onSearchIndexDefinitionChanged(DEFAULT_INDEX_DEFINITION);
+        onChangeTemplate(ATLAS_SEARCH_TEMPLATES[0]);
       }
     },
-    [setSearchIndexType, onChangeTemplate, onSearchIndexDefinitionChanged]
+    [setSearchIndexType, onChangeTemplate]
   );
 
   const fields = useAutocompleteFields(namespace);
