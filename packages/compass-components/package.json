@@ -79,7 +79,7 @@
     "@react-aria/visually-hidden": "^3.3.1",
     "@react-stately/tooltip": "^3.0.5",
     "bson": "^6.3.0",
-    "focus-trap-react": "^10.2.3",
+    "focus-trap-react": "^9.0.2",
     "hadron-document": "^8.4.7",
     "hadron-type-checker": "^7.1.1",
     "is-electron-renderer": "^2.0.1",
