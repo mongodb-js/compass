@@ -24,7 +24,7 @@ async function snykTest(cwd) {
           '--dev',
           `--json-file-output=${tmpPath}`,
         ],
-        { cwd, stdio: 'inherit' }
+        { cwd }
       );
     } catch (err) {
       console.warn(err);
