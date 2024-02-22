@@ -339,7 +339,6 @@ function Home({
       });
     }
     function onAutoupdateFailed() {
-      closeToast('update-download');
       openToast('update-download', {
         variant: 'warning',
         title: 'Failed to download Compass update',
