@@ -423,7 +423,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           data-testid="search-index-submit-button"
           variant="primary"
           onClick={onSubmitIndex}
-          disabled={isBusy}
+          disabled={isBusy || !!parsingError}
         >
           {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>

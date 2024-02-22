@@ -10,7 +10,10 @@ import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import React from 'react';
-import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import {
+  getCodemirrorEditorValue,
+  setCodemirrorEditorValue,
+} from '@mongodb-js/compass-editor';
 
 function normalizedTemplateNamed(name: string) {
   const snippet =
@@ -24,6 +27,20 @@ function normalizedTemplateNamed(name: string) {
 
 const NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE =
   ATLAS_VECTOR_SEARCH_TEMPLATE.snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+
+const VALID_ATLAS_SEARCH_INDEX_DEFINITION = {
+  fields: [
+    {
+      type: 'vector',
+      path: 'pineapple',
+      numDimensions: 1000,
+      similarity: 'cosine',
+    },
+  ],
+};
+const VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING = JSON.stringify(
+  VALID_ATLAS_SEARCH_INDEX_DEFINITION
+);
 
 function renderBaseSearchIndexModal(
   props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>
@@ -119,7 +136,7 @@ describe('Base Search Index Modal', function () {
         });
       });
 
-      it('submits the modal with the correct type on create search index', function () {
+      it('submits the modal with the correct type on create search index', async function () {
         userEvent.click(
           screen.getByTestId('search-index-type-vectorSearch-button'),
           undefined,
@@ -128,12 +145,24 @@ describe('Base Search Index Modal', function () {
             skipPointerEventsCheck: true,
           }
         );
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE);
+        });
+
+        // Set the value to something where the create index button is enabled.
+        await setCodemirrorEditorValue(
+          'definition-of-search-index',
+          VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING
+        );
         userEvent.click(
           screen.getByRole('button', { name: 'Create Search Index' })
         );
         expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
           name: 'default',
-          definition: {},
+          definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION,
           type: 'vectorSearch',
         });
       });
