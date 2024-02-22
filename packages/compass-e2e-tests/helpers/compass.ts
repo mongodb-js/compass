@@ -62,7 +62,9 @@ export function skipForWeb(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   reason?: string
 ) {
-  test.skip();
+  if (TEST_COMPASS_WEB) {
+    test.skip();
+  }
 }
 
 function getBrowserName() {
