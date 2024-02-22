@@ -663,6 +663,10 @@ class CompassAutoUpdateManager {
       this.setState(AutoUpdateManagerState.UserPromptedManualCheck);
     });
 
+    this.on('new-state', (state: AutoUpdateManagerState) =>
+      compassApp.emit('auto-updater:new-state', state)
+    );
+
     ipcMain?.on(
       'autoupdate:update-download-restart-confirmed',
       this.handleIpcUpdateDownloadRestartConfirmed.bind(this)
