@@ -65,6 +65,9 @@ export class AtlasAiService {
   }
 
   private async throwIfAINotEnabled() {
+    if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
+      return;
+    }
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
       throw new Error(
         "Compass' AI functionality is not currently enabled. Please try again later."
@@ -149,8 +152,8 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
-    await this.throwIfAINotEnabled();
     await this.initPromise;
+    await this.throwIfAINotEnabled();
     const { signal, ...rest } = input;
     let msgBody = JSON.stringify(rest);
     if (msgBody.length > AI_MAX_REQUEST_SIZE) {

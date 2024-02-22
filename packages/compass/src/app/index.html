@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1" />
-    <% if (process.env.NODE_ENV !== 'development') { %>
+    <% if (process.env.NODE_ENV === 'development') { %>
     <meta
       http-equiv="Content-Security-Policy"
       content="
@@ -11,6 +11,7 @@
         'self'
         'unsafe-eval'
         blob:
+        <%= process.env.E2E_TESTS_MODE === 'true' && 'http://localhost:*' %>
         https://js.intercomcdn.com
         https://api.intercom.io
         https://api-iam.intercom.io
@@ -42,6 +43,7 @@
         https://gifs.intercomcdn.com;
       style-src * 'unsafe-inline';
       connect-src
+      <%= process.env.E2E_TESTS_MODE === 'true' && 'http://localhost:*' %>
         https://compass-maps.mongodb.com
         https://api.intercom.io
         https://api-iam.intercom.io

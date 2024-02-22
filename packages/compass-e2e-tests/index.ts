@@ -147,6 +147,7 @@ function cleanup() {
 }
 
 async function main() {
+  process.env.E2E_TESTS_MODE = 'true';
   await setup();
 
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
