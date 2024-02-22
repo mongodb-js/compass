@@ -9,6 +9,8 @@ const execFile = promisify(childProcess.execFile);
 async function snykTest(cwd) {
   const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
 
+  let execErr;
+
   try {
     console.info(`testing ${cwd} ...`);
     await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
@@ -27,14 +29,16 @@ async function snykTest(cwd) {
         { cwd }
       );
     } catch (err) {
-      console.warn(err);
+      execErr = err;
     }
 
     const res = JSON.parse(await fs.readFile(tmpPath));
     console.info(`testing ${cwd} done.`);
     return res;
   } catch (err) {
-    console.error(`testing ${cwd} failed. ${err.message}`);
+    console.error(
+      `testing ${cwd} failed. ${err.message}. Exec error: ${execErr}`
+    );
   } finally {
     try {
       await fs.rm(tmpPath);
