@@ -121,7 +121,7 @@ describe('Instance databases tab', function () {
       }
 
       // go hover somewhere else to give the next attempt a fighting chance
-      await browser.hover(Selectors.SidebarTitle);
+      await browser.hover(Selectors.Sidebar);
       return false;
     });
 
