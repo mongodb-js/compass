@@ -1,10 +1,12 @@
 import chai from 'chai';
+import { MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -17,10 +19,6 @@ describe('Instance sidebar', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -31,10 +29,6 @@ describe('Instance sidebar', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
@@ -43,6 +37,11 @@ describe('Instance sidebar', function () {
   });
 
   it('has a connection info modal with connection info', async function () {
+    if (TEST_COMPASS_WEB) {
+      // these actions don't exist in compass-web
+      this.skip();
+    }
+
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionClusterInfo);
 
@@ -192,8 +191,16 @@ describe('Instance sidebar', function () {
   it('can refresh the databases', async function () {
     const db = 'test';
     const coll = `coll_${Date.now()}`;
-    await browser.shellEval(`use ${db};`);
-    await browser.shellEval(`db.createCollection('${coll}');`);
+
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    await mongoClient.connect();
+    try {
+      const database = mongoClient.db(db);
+      await database.createCollection(coll);
+    } finally {
+      await mongoClient.close();
+    }
+
     await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
     await browser.clickVisible(Selectors.sidebarDatabase(db));
     const collectionElement = await browser.$(
