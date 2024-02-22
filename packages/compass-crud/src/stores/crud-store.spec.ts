@@ -1051,7 +1051,7 @@ describe('store', function () {
         'open-query-export-to-language',
         (options, exportMode) => {
           expect(exportMode).to.equal('Delete Query');
-          expect(options).to.deep.equal({ filter: '{\n query: 1\n}' });
+          expect(options).to.deep.equal({ filter: '{\n  query: 1\n}' });
 
           done();
         }

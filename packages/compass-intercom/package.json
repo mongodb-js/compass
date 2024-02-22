@@ -1,6 +1,6 @@
 {
-  "name": "@mongodb-js/ssh-tunnel",
-  "description": "Yet another ssh tunnel based on ssh2",
+  "name": "@mongodb-js/compass-intercom",
+  "description": "Intercom scripts and utils for Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "2.1.11",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -21,7 +21,7 @@
   "files": [
     "dist"
   ],
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
@@ -36,11 +36,12 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
@@ -54,27 +55,23 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
-    "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
-    "@types/node-fetch": "^2.5.8",
     "@types/sinon-chai": "^3.2.5",
-    "@types/ssh2": "^1.11.8",
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
+    "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
-    "mocha": "^10.2.0",
-    "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "sinon": "^9.2.3",
-    "socks": "^2.7.3",
+    "sinon": "^17.0.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.2.12",
-    "socksv5": "0.0.6",
-    "ssh2": "^1.12.0"
+    "compass-preferences-model": "^2.17.4",
+    "@mongodb-js/compass-logging": "^1.2.12"
+  },
+  "peerDependencies": {
+    "compass-preferences-model": "^2.17.4",
+    "@mongodb-js/compass-logging": "^1.2.12"
   }
 }
