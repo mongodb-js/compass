@@ -1,5 +1,6 @@
-// THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
+// THESE IMPORTS SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import '../setup-hadron-distribution';
+import './csp';
 
 import dns from 'dns';
 import ensureError from 'ensure-error';

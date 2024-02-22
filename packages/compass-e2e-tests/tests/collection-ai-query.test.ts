@@ -1,4 +1,4 @@
-import chai from 'chai';
+import { expect } from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -15,8 +15,6 @@ import { createNumbersCollection } from '../helpers/insert-data';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import type { MockAtlasServerResponse } from '../helpers/atlas-service';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
-
-const { expect } = chai;
 
 describe('Collection ai query', function () {
   let compass: Compass;

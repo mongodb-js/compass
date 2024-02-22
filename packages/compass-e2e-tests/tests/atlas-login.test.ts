@@ -116,9 +116,6 @@ describe('Atlas Login', function () {
       'browserCommandForOIDCAuth',
       getTestBrowserShellCommand()
     );
-    await browser.setFeature('cloudFeatureRolloutAccess', {
-      GEN_AI_COMPASS: true,
-    });
   });
 
   afterEach(async function () {
