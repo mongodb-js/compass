@@ -38,7 +38,7 @@
     "@types/chai-as-promised": "^7.1.4",
     "@types/cross-spawn": "^6.0.2",
     "@types/puppeteer": "^5.4.4",
-    "@wdio/types": "^8.28.6",
+    "@wdio/types": "^8.32.2",
     "bson": "^6.3.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
@@ -67,7 +67,7 @@
     "semver": "^7.5.4",
     "tree-kill": "^1.2.2",
     "ts-node": "^10.9.1",
-    "webdriverio": "^8.28.8",
+    "webdriverio": "^8.32.3",
     "xvfb-maybe": "^0.2.1"
   }
 }
