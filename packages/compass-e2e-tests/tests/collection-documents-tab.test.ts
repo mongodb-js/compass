@@ -3,7 +3,12 @@ import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
@@ -107,6 +112,10 @@ describe('Collection documents tab', function () {
   let maxTimeMSBefore: string;
 
   before(async function () {
+    if (TEST_COMPASS_WEB) {
+      this.skip();
+    }
+
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -120,6 +129,10 @@ describe('Collection documents tab', function () {
   });
 
   after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -152,7 +165,7 @@ describe('Collection documents tab', function () {
     });
 
     const queries = await getRecentQueries(browser, true);
-    expect(queries).to.deep.include.members([{ Filter: '{\n i: 5\n}' }]);
+    expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
   });
 
   it('supports advanced find operations', async function () {
@@ -184,11 +197,11 @@ describe('Collection documents tab', function () {
     const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
-        Filter: '{\n i: {\n  $gt: 5\n }\n}',
+        Filter: '{\n  i: {\n    $gt: 5\n  }\n}',
         Limit: '50',
-        Project: '{\n _id: 0\n}',
+        Project: '{\n  _id: 0\n}',
         Skip: '5',
-        Sort: '{\n i: -1\n}',
+        Sort: '{\n  i: -1\n}',
       },
     ]);
   });
@@ -231,7 +244,7 @@ describe('Collection documents tab', function () {
     const queries = await getRecentQueries(browser, true);
     expect(queries).to.deep.include.members([
       {
-        Filter: "{\n $where: 'function() { return sleep(10000) || true; }'\n}",
+        Filter: "{\n  $where: 'function() { return sleep(10000) || true; }'\n}",
       },
     ]);
   });

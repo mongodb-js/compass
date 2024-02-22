@@ -8,6 +8,8 @@ import { Provider } from 'react-redux';
 
 import configureStore from '../../../../test/configure-store';
 import { PipelineHeader } from '.';
+import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
 
 describe('PipelineHeader', function () {
   let container: HTMLElement;
@@ -15,16 +17,18 @@ describe('PipelineHeader', function () {
   beforeEach(function () {
     onToggleOptionsSpy = spy();
     render(
-      <Provider store={configureStore()}>
-        <PipelineHeader
-          isOpenPipelineVisible
-          isOptionsVisible
-          showRunButton
-          showExportButton
-          showExplainButton
-          onToggleOptions={onToggleOptionsSpy}
-        />
-      </Provider>
+      <PipelineStorageProvider value={new CompassPipelineStorage()}>
+        <Provider store={configureStore()}>
+          <PipelineHeader
+            isOpenPipelineVisible
+            isOptionsVisible
+            showRunButton
+            showExportButton
+            showExplainButton
+            onToggleOptions={onToggleOptionsSpy}
+          />
+        </Provider>
+      </PipelineStorageProvider>
     );
     container = screen.getByTestId('pipeline-header');
   });

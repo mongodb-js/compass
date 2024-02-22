@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Feb 16 2024.
+This document was automatically generated on Wed Feb 21 2024.
 
 ## List of dependencies
 
@@ -244,7 +244,7 @@ This document was automatically generated on Fri Feb 16 2024.
 | **[domify](#4360a769ee10e827f9ae503aa7ea9aeb9039932fa02ac938316df303704a7fb1)**                                             | 1.4.1        | MIT                                 |
 | **[dset](#0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d)**                                               | 3.1.3        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
-| **[ejson-shell-parser](#1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7)**                                 | 2.0.0        | MIT                                 |
+| **[ejson-shell-parser](#88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b)**                                 | 2.0.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
 | **[electron](#fbe31ba116fedfb4c83039ff76fc6f1f617048e031e4b0f3bf2bf6a9102389f1)**                                           | 28.2.1       | MIT                                 |
@@ -436,7 +436,7 @@ This document was automatically generated on Fri Feb 16 2024.
 | **[mongodb-connection-string-url](#7bbccf16a972bb2208b5a46266eb78ee7c89fd0a2bf98725e81ecad559779304)**                      | 3.0.0        | Apache-2.0                          |
 | **[mongodb-log-writer](#92b9322261e5c6d1ebe6fbd92f6328ec309a3d462531f2d8213c4762033cc793)**                                 | 1.4.0        | Apache-2.0                          |
 | **[mongodb-ns](#d99637af4fc3f4918f33167526619cdfd8cdf31550f209f0c885f2f47c550209)**                                         | 2.4.0        | MIT                                 |
-| **[mongodb-query-parser](#9096e7b102eaecdb9da20e59f22c5f6a0d6b72419e99c93ac50fbf4bb9bcd419)**                               | 4.0.2        | Apache-2.0                          |
+| **[mongodb-query-parser](#475f226ad5c57945be66396bd97b752099ba71cc2350a213899f459d7e99e816)**                               | 4.1.0        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                     | 0.2.2        | Apache-2.0                          |
 | **[mongodb-schema](#041a4a595a251da29bf373cbdd533b1e238cc51175c3d4913028c03431ddd4d2)**                                     | 12.1.0       | Apache-2.0                          |
 | **[mongodb](#c116bfc939298c83929cd04590ed64397e2fd922ccbb305fb98e2ff8d2214918)**                                            | 6.3.0        | Apache-2.0                          |
@@ -20757,9 +20757,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="1d4694ba430009acb84cb34d7d2f60a89bdb1f8fc199574ccb0c34b6c7e389a7"></a>
+<a id="88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b"></a>
 
-### [ejson-shell-parser](https://www.npmjs.com/package/ejson-shell-parser) (version 2.0.0)
+### [ejson-shell-parser](https://www.npmjs.com/package/ejson-shell-parser) (version 2.0.1)
 
 License tags: MIT
 
@@ -28907,9 +28907,9 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="9096e7b102eaecdb9da20e59f22c5f6a0d6b72419e99c93ac50fbf4bb9bcd419"></a>
+<a id="475f226ad5c57945be66396bd97b752099ba71cc2350a213899f459d7e99e816"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.0.2)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.1.0)
 
 License tags: Apache-2.0
 
