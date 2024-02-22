@@ -4,8 +4,7 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import { RenameCollectionPlugin } from '..';
-import { render, cleanup, screen } from '@testing-library/react';
-import { setTimeout } from 'timers/promises';
+import { render, cleanup, screen, waitFor } from '@testing-library/react';
 
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();
@@ -52,9 +51,7 @@ describe('RenameCollectionPlugin', function () {
       database: 'foo',
       collection: 'bar',
     });
-
-    // Hacky, but there are async operations that happen as a result of `open-rename-collection`.
-    await setTimeout(0);
+    await waitFor(() => screen.getByText('Rename collection'));
 
     expect(screen.getByRole('heading', { name: 'Rename collection' })).to.exist;
   });

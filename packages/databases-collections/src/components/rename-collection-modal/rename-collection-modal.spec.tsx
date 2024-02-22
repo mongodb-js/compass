@@ -1,11 +1,16 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 
 import { RenameCollectionPlugin } from '../..';
 import AppRegistry from 'hadron-app-registry';
-import { setTimeout } from 'timers/promises';
 
 describe('RenameCollectionModal [Component]', function () {
   const sandbox = Sinon.createSandbox();
@@ -45,8 +50,7 @@ describe('RenameCollectionModal [Component]', function () {
         collection: 'bar',
       });
 
-      // Hacky, but there are async operations that happen as a result of `open-rename-collection`.
-      await setTimeout(0);
+      await waitFor(() => screen.getByText('Rename collection'));
     });
 
     afterEach(function () {
@@ -161,8 +165,7 @@ describe('RenameCollectionModal [Component]', function () {
             collection: 'bar',
           });
 
-          // Hacky, but there are async operations that happen as a result of `open-rename-collection`.
-          await setTimeout(0);
+          await waitFor(() => screen.getByText('Rename collection'));
 
           const submitButton = screen.getByTestId('submit-button');
           const input = screen.getByTestId('rename-collection-name-input');

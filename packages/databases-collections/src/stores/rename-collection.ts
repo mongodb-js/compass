@@ -27,7 +27,7 @@ export function activateRenameCollectionPlugin(
     pipelineStorage,
   }: RenameCollectionPluginServices
 ) {
-  async function loadSavedQueriesAndAggregations(
+  async function checkIfSavedQueriesAndAggregationsExist(
     oldNamespace: string
   ): Promise<boolean> {
     const pipelineExists = await pipelineStorage
@@ -56,7 +56,7 @@ export function activateRenameCollectionPlugin(
   const onRenameCollection = (ns: { database: string; collection: string }) => {
     const collections: { name: string }[] =
       instance.databases.get(ns.database)?.collections ?? [];
-    loadSavedQueriesAndAggregations(`${ns.database}.${ns.collection}`)
+    checkIfSavedQueriesAndAggregationsExist(`${ns.database}.${ns.collection}`)
       .then((areSavedQueriesAndAggregationsImpacted) => {
         store.dispatch(
           open({

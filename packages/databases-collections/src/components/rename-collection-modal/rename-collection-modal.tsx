@@ -8,7 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
@@ -38,6 +38,13 @@ const progressContainerStyles = css({
 
 type ModalState = 'input-form' | 'confirmation-screen';
 
+const bannerTextStyles = css({
+  marginTop: 0,
+  marginBottom: 0,
+  '&:not(:last-child)': {
+    marginBottom: spacing[2],
+  },
+});
 function ConfirmationModalContent({
   areSavedQueriesAndAggregationsImpacted,
 }: {
@@ -45,18 +52,17 @@ function ConfirmationModalContent({
 }) {
   return (
     <Banner variant="warning" data-testid="rename-collection-modal-warning">
-      Renaming collection will result in loss of any unsaved queries, filters or
-      aggregation pipeline.
+      <p className={bannerTextStyles}>
+        Renaming collection will result in loss of any unsaved queries, filters
+        or aggregation pipeline.
+      </p>
       {areSavedQueriesAndAggregationsImpacted && (
-        <Fragment>
-          <br />
-          <br />
+        <p className={bannerTextStyles}>
           <b>
-            {' '}
             Additionally, any saved queries or aggregations targeting this
             collection will need to be remapped to the new namespace.
           </b>
-        </Fragment>
+        </p>
       )}
     </Banner>
   );
