@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -15,10 +15,7 @@ describe('showKerberosPasswordField', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // connection form unavailable on compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'connection form unavailable on compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -29,9 +26,7 @@ describe('showKerberosPasswordField', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
   });

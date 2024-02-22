@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { TEST_COMPASS_WEB, screenshotIfFailed } from '../helpers/compass';
+import { screenshotIfFailed, skipForWeb } from '../helpers/compass';
 import {
   init,
   cleanup,
@@ -37,10 +37,7 @@ describe('Connection Import / Export', function () {
     telemetry.events().filter((e: any) => e.type === 'track');
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // export connections not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'export connections not available in compass-web');
   });
 
   beforeEach(async function () {

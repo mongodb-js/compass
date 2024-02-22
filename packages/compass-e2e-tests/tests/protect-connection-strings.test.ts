@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
@@ -38,10 +38,7 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // connection form not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'connection form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -49,9 +46,7 @@ describe('protectConnectionStrings', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await browser.setFeature('protectConnectionStrings', false);
     await cleanup(compass);

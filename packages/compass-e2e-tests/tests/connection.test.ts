@@ -11,7 +11,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -251,20 +251,14 @@ describe('Connection screen', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'connect form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      return;
-    }
+    skipForWeb(this);
 
     return cleanup(compass);
   });
@@ -635,10 +629,7 @@ describe('Connection screen', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'not applicable to compass-web');
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
@@ -703,10 +694,7 @@ describe('SRV connectivity', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('System CA access', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'not applicable to compass-web');
   });
 
   it('allows using the system certificate store for connections', async function () {
@@ -761,10 +749,7 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'connect form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -775,10 +760,7 @@ describe('FLE2', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      // connect form not available in compass-web
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
   });

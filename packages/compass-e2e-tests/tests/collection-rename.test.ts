@@ -4,7 +4,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
@@ -110,10 +110,7 @@ describe('Collection Rename Modal', () => {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // feature flags not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'feature flags not yet available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -131,9 +128,7 @@ describe('Collection Rename Modal', () => {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
   });

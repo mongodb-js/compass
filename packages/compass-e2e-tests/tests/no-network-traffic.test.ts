@@ -1,4 +1,4 @@
-import { init, cleanup, TEST_COMPASS_WEB } from '../helpers/compass';
+import { init, cleanup, skipForWeb } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -8,10 +8,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
   let i = 0;
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // cli params not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'cli params not available in compass-web');
 
     if (process.platform !== 'linux') {
       // No strace on other platforms
@@ -28,9 +25,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
   });
 
   afterEach(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await fs.rmdir(tmpdir, { recursive: true });
   });

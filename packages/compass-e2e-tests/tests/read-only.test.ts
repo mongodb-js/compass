@@ -2,7 +2,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -17,10 +17,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   let i = 0;
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // settings modal not available on compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'settings modal not available on compass-web');
   });
 
   beforeEach(async function () {

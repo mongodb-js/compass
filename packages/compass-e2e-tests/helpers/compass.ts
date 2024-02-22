@@ -50,6 +50,14 @@ let MONGODB_USE_ENTERPRISE =
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
 
+export function skipForWeb(
+  test: Mocha.Runnable | Mocha.Context,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  reason?: string
+) {
+  test.skip();
+}
+
 function getBrowserName() {
   return process.env.BROWSER_NAME ?? 'chrome';
 }

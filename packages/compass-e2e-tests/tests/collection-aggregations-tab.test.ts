@@ -7,7 +7,7 @@ import {
   screenshotIfFailed,
   outputFilename,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -501,10 +501,10 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     before(function () {
-      if (TEST_COMPASS_WEB) {
-        // we don't support getFeature() and setFeature() in compass-web yet
-        this.skip();
-      }
+      skipForWeb(
+        this,
+        "we don't support getFeature() and setFeature() in compass-web yet"
+      );
     });
 
     let maxTimeMSBefore: any;
@@ -823,10 +823,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
-    if (TEST_COMPASS_WEB) {
-      // export is not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'export is not yet available in compass-web');
 
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
@@ -1102,10 +1099,7 @@ describe('Collection aggregations tab', function () {
 
   describe('saving pipelines', function () {
     before(function () {
-      if (TEST_COMPASS_WEB) {
-        // saved pipelines not yet available in compass-web
-        this.skip();
-      }
+      skipForWeb(this, 'saved pipelines not yet available in compass-web');
     });
 
     const name = 'test agg 1';

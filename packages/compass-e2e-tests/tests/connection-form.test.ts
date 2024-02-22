@@ -6,7 +6,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -20,19 +20,14 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // no connect form in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'no connect form in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
   });

@@ -4,7 +4,7 @@ import {
   cleanup,
   runCompassOnce,
   positionalArgs,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -34,10 +34,7 @@ describe('Global preferences', function () {
   let i = 0;
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // global preferences not available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'global preferences not available in compass-web');
   });
 
   beforeEach(async function () {

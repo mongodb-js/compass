@@ -8,7 +8,7 @@ import {
   cleanup,
   screenshotIfFailed,
   outputFilename,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -42,10 +42,7 @@ describe('Collection export', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // export not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'export not yet available in compass-web');
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -53,9 +50,7 @@ describe('Collection export', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
     await telemetry.stop();

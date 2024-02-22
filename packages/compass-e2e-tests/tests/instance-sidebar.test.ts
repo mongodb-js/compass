@@ -5,8 +5,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_STRING,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -37,10 +37,7 @@ describe('Instance sidebar', function () {
   });
 
   it('has a connection info modal with connection info', async function () {
-    if (TEST_COMPASS_WEB) {
-      // these actions don't exist in compass-web
-      this.skip();
-    }
+    skipForWeb(this, "these actions don't exist in compass-web");
 
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionClusterInfo);

@@ -163,6 +163,7 @@ describe('Bulk Delete', () => {
     await browser.clickVisible(Selectors.BulkDeleteModalExportButton);
 
     if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
       const openedEvent = await telemetryEntry('Delete Export Opened');
       expect(openedEvent).to.deep.equal({});
     }
@@ -184,6 +185,7 @@ result = client['test']['numbers'].delete_many(
 )`);
 
     if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
       const exportedEvent = await telemetryEntry('Delete Exported');
       expect(exportedEvent).to.deep.equal({
         language: 'python',

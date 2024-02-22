@@ -2,7 +2,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 
@@ -10,9 +10,7 @@ describe('Intercom integration', function () {
   let compass: Compass;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'not available in compass-web yet');
 
     compass = await init(this.test?.fullTitle(), { firstRun: true });
   });
@@ -22,9 +20,7 @@ describe('Intercom integration', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     // clean up if it failed during the before hook
     await cleanup(compass);

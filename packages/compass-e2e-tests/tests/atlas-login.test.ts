@@ -4,7 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   Selectors,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -41,10 +41,8 @@ describe('Atlas Login', function () {
   let stopMockAtlasServer: () => Promise<void>;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // atlast-login not supported in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'atlas-login not supported in compass-web');
+
     // Start a mock server to pass an ai response.
     const { endpoint, stop } = await startMockAtlasServiceServer();
     stopMockAtlasServer = stop;
@@ -126,9 +124,7 @@ describe('Atlas Login', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await oidcMockProvider?.close();
     delete process.env.COMPASS_CLIENT_ID_OVERRIDE;

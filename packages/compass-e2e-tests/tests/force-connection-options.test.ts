@@ -4,7 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   positionalArgs,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -15,10 +15,7 @@ describe('forceConnectionOptions', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // cli parameters not supported in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'cli parameters not supported in compass-web');
 
     compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([
@@ -29,9 +26,7 @@ describe('forceConnectionOptions', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
   });

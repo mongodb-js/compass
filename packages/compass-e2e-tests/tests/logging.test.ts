@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -11,10 +11,7 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
 describe('Logging and Telemetry integration', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      // telemetry not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'telemetry not yet available in compass-web');
   });
 
   describe('after running an example path through Compass', function () {

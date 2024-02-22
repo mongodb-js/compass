@@ -7,7 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -28,10 +28,7 @@ describe('Collection ai query', function () {
   let clearRequests: () => void;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // ai queries not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'ai queries not yet available in compass-web');
 
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 
@@ -64,9 +61,7 @@ describe('Collection ai query', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await stopMockAtlasServer();
 

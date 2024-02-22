@@ -5,7 +5,7 @@ import {
   screenshotIfFailed,
   runCompassOnce,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -63,10 +63,7 @@ describe('OIDC integration', function () {
   ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // feature flags not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'feature flags not yet available in compass-web');
 
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
@@ -162,9 +159,7 @@ describe('OIDC integration', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cluster?.close();
     await oidcMockProvider?.close();

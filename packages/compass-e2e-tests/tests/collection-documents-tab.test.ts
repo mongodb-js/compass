@@ -8,6 +8,7 @@ import {
   cleanup,
   screenshotIfFailed,
   TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -122,8 +123,8 @@ describe('Collection documents tab', function () {
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
-    // setFeature/getFeature is not supported in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // setFeature/getFeature is not supported in compass-web yet
       maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
     }
   });
@@ -134,8 +135,8 @@ describe('Collection documents tab', function () {
   });
 
   afterEach(async function () {
-    // setFeature/getFeature is not supported in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // setFeature/getFeature is not supported in compass-web yet
       await browser.setFeature('maxTimeMS', maxTimeMSBefore);
     }
     await screenshotIfFailed(compass, this.currentTest);
@@ -151,8 +152,8 @@ describe('Collection documents tab', function () {
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    // TODO(COMPASS-7653): no telemetry in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
       const queryExecutedEvent = await telemetryEntry('Query Executed');
       expect(queryExecutedEvent).to.deep.equal({
         changed_maxtimems: false,
@@ -166,8 +167,8 @@ describe('Collection documents tab', function () {
       });
     }
 
-    // no query history in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
     }
@@ -188,8 +189,8 @@ describe('Collection documents tab', function () {
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 20 of 50');
 
-    // TODO(COMPASS-7653): no telemetry in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
       const queryExecutedEvent = await telemetryEntry('Query Executed');
       expect(queryExecutedEvent).to.deep.equal({
         changed_maxtimems: false,
@@ -203,8 +204,8 @@ describe('Collection documents tab', function () {
       });
     }
 
-    // no query history in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
         {
@@ -253,8 +254,8 @@ describe('Collection documents tab', function () {
     const displayText = await documentListActionBarMessageElement.getText();
     expect(displayText).to.equal('1 – 1 of 1');
 
-    // no query history in compass-web yet
     if (!TEST_COMPASS_WEB) {
+      // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
         {
@@ -267,10 +268,7 @@ describe('Collection documents tab', function () {
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      if (TEST_COMPASS_WEB) {
-        // preferences modal not supported in compass-web
-        this.skip();
-      }
+      skipForWeb(this, 'preferences modal not supported in compass-web');
 
       if (maxTimeMSMode === 'preference') {
         await browser.openSettingsModal();

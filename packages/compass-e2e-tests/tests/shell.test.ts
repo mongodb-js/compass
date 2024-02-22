@@ -5,7 +5,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -17,10 +17,7 @@ describe('Shell', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // shell not available on compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'shell not available on compass-web');
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -28,9 +25,7 @@ describe('Shell', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
     await telemetry.stop();

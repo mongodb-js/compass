@@ -7,7 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
@@ -97,10 +97,7 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      // import not yet available in compass-web
-      this.skip();
-    }
+    skipForWeb(this, 'import not yet available in compass-web');
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -114,9 +111,7 @@ describe('Collection import', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
+    skipForWeb(this);
 
     await cleanup(compass);
     await telemetry.stop();
