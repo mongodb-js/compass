@@ -108,7 +108,7 @@ describe('Bulk Update', () => {
 
     expect(toastText).to.contain('1 document has been updated.');
     // We close the toast
-    await browser.$(Selectors.BulkUpdateSuccessToastDismissButton).click();
+    await browser.clickVisible(Selectors.BulkUpdateSuccessToastDismissButton);
 
     await browser
       .$(Selectors.BulkUpdateSuccessToast)
@@ -130,6 +130,11 @@ describe('Bulk Update', () => {
   });
 
   it('can save an update query as a favourite and return to it', async function () {
+    if (TEST_COMPASS_WEB) {
+      // can't use saved queries in compass-web yet
+      this.skip();
+    }
+
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.

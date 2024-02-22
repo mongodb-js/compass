@@ -97,7 +97,7 @@ describe('Bulk Delete', () => {
 
     expect(toastText).to.contain('1 document has been deleted.');
     // We close the toast
-    await browser.$(Selectors.BulkDeleteSuccessToastDismissButton).click();
+    await browser.clickVisible(Selectors.BulkDeleteSuccessToastDismissButton);
 
     await browser
       .$(Selectors.BulkDeleteSuccessToast)
