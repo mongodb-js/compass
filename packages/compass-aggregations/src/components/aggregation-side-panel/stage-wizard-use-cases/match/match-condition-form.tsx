@@ -184,6 +184,9 @@ const MatchConditionForm = ({
       <div className={valueInputStyles}>
         <TextInput
           placeholder={LABELS.valueInput}
+          // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
+          aria-labelledby=""
+          data-testid="match-stage-expected-value-input"
           aria-label={LABELS.valueInput}
           value={condition.value}
           onChange={handleValueChange}
