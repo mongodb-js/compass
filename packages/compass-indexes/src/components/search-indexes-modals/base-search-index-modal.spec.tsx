@@ -25,9 +25,6 @@ function normalizedTemplateNamed(name: string) {
   return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
 
-const NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE =
-  ATLAS_VECTOR_SEARCH_TEMPLATE.snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
-
 const VALID_ATLAS_SEARCH_INDEX_DEFINITION = {
   fields: [
     {
@@ -149,7 +146,7 @@ describe('Base Search Index Modal', function () {
           const indexDef = getCodemirrorEditorValue(
             'definition-of-search-index'
           );
-          expect(indexDef).to.equal(NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE);
+          expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         });
 
         // Set the value to something where the create index button is enabled.
@@ -181,7 +178,7 @@ describe('Base Search Index Modal', function () {
           const indexDef = getCodemirrorEditorValue(
             'definition-of-search-index'
           );
-          expect(indexDef).to.equal(NORMALIZED_ATLAS_VECTOR_SEARCH_TEMPLATE);
+          expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         });
 
         userEvent.click(
@@ -201,6 +198,8 @@ describe('Base Search Index Modal', function () {
             normalizedTemplateNamed('Dynamic field mappings')
           );
         });
+        // Ensure the state is updated when the ace snippet changes.
+        await new Promise((resolve) => setTimeout(resolve, 10));
         userEvent.click(
           screen.getByRole('button', { name: 'Create Search Index' })
         );

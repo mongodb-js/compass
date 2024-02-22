@@ -263,12 +263,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
       // Set the template.
       if (value === 'vectorSearch') {
+        setIndexDefinition(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
       } else {
+        setIndexDefinition(ATLAS_SEARCH_TEMPLATES[0].snippet);
         onChangeTemplate(ATLAS_SEARCH_TEMPLATES[0]);
       }
     },
-    [setSearchIndexType, onChangeTemplate]
+    [setSearchIndexType, onChangeTemplate, setIndexDefinition]
   );
 
   const fields = useAutocompleteFields(namespace);
