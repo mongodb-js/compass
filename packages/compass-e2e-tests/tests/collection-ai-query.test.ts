@@ -8,6 +8,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -61,7 +62,9 @@ describe('Collection ai query', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await stopMockAtlasServer();
 

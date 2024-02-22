@@ -9,6 +9,7 @@ import {
   screenshotIfFailed,
   outputFilename,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -50,7 +51,9 @@ describe('Collection export', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await cleanup(compass);
     await telemetry.stop();

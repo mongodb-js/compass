@@ -3,6 +3,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 
@@ -20,7 +21,9 @@ describe('Intercom integration', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     // clean up if it failed during the before hook
     await cleanup(compass);

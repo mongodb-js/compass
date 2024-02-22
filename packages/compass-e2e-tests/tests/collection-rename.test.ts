@@ -5,6 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
@@ -128,7 +129,9 @@ describe('Collection Rename Modal', () => {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await cleanup(compass);
   });

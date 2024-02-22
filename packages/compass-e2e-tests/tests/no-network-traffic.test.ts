@@ -1,4 +1,9 @@
-import { init, cleanup, skipForWeb } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  skipForWeb,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -25,7 +30,9 @@ describe('networkTraffic: false / Isolated Edition', function () {
   });
 
   afterEach(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await fs.rmdir(tmpdir, { recursive: true });
   });

@@ -12,6 +12,7 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -258,7 +259,9 @@ describe('Connection screen', function () {
   });
 
   after(function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     return cleanup(compass);
   });
@@ -760,7 +763,9 @@ describe('FLE2', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await cleanup(compass);
   });

@@ -5,6 +5,7 @@ import {
   screenshotIfFailed,
   Selectors,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -124,7 +125,9 @@ describe('Atlas Login', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await oidcMockProvider?.close();
     delete process.env.COMPASS_CLIENT_ID_OVERRIDE;

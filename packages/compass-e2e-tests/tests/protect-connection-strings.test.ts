@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
@@ -46,7 +47,9 @@ describe('protectConnectionStrings', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await browser.setFeature('protectConnectionStrings', false);
     await cleanup(compass);

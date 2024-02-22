@@ -6,6 +6,7 @@ import {
   runCompassOnce,
   serverSatisfies,
   skipForWeb,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -159,7 +160,9 @@ describe('OIDC integration', function () {
   });
 
   after(async function () {
-    skipForWeb(this);
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
 
     await cluster?.close();
     await oidcMockProvider?.close();

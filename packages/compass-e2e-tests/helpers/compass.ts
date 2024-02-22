@@ -52,15 +52,14 @@ export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
-Reason is optional so you can fill it in and have it show up in search results
-in a scannable manner yet leave it out for after() and afterEach() hooks where
-the reason is inevitably duplicated. It is not being output at present because
-the tests will be logged as pending anyway.
+Reason is there so you can fill it in and have it show up in search results
+in a scannable manner. It is not being output at present because the tests will
+be logged as pending anyway.
 */
 export function skipForWeb(
   test: Mocha.Runnable | Mocha.Context,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  reason?: string
+  reason: string
 ) {
   if (TEST_COMPASS_WEB) {
     test.skip();
