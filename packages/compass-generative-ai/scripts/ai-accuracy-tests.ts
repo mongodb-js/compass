@@ -17,20 +17,23 @@
 //   AI_TESTS_BACKEND=atlas-local \
 //     node scripts/ai-accuracy-tests/index.js
 
-const { MongoCluster } = require('mongodb-runner');
-const fs = require('fs').promises;
-const os = require('os');
-const assert = require('assert');
-const ejsonShellParser = require('ejson-shell-parser');
-const { MongoClient } = require('mongodb');
-const { EJSON } = require('bson');
-const { getSimplifiedSchema } = require('mongodb-schema');
-const path = require('path');
-const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
-const DigestClient = require('digest-fetch');
-const nodeFetch = require('node-fetch');
-const decomment = require('decomment');
+import { MongoCluster } from 'mongodb-runner';
+import { promises as fs } from 'fs';
+import os from 'os';
+import assert from 'assert';
+import ejsonShellParser from 'ejson-shell-parser';
+import { MongoClient } from 'mongodb';
+import { EJSON } from 'bson';
+import type { Document } from 'bson';
+import { getSimplifiedSchema } from 'mongodb-schema';
+import path from 'path';
+import util from 'util';
+import { execFile as callbackExecFile } from 'child_process';
+import DigestClient from 'digest-fetch';
+import nodeFetch from 'node-fetch';
+import decomment from 'decomment';
+
+const execFile = util.promisify(callbackExecFile);
 
 const DEFAULT_ATTEMPTS_PER_TEST = 10;
 const DEFAULT_MIN_ACCURACY = 0.8;
@@ -51,7 +54,8 @@ const monorepoRoot = path.join(__dirname, '..', '..', '..');
 const TEST_RESULTS_DB = 'test_generative_ai_accuracy_evergreen';
 const TEST_RESULTS_COL = 'evergreen_runs';
 
-let PQueue;
+// p-queue has to be dynamically imported.
+let PQueue: any;
 
 const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
@@ -60,6 +64,14 @@ const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
 const USE_SAMPLE_DOCS = process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
 const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
+
+type AITestError = Error & {
+  errorCode?: string;
+  status?: number;
+  query?: string;
+  prompt?: string;
+  causedBy?: Error;
+};
 
 if (!['atlas-dev', 'atlas-local', 'compass'].includes(BACKEND)) {
   throw new Error('Unknown backend');
@@ -82,7 +94,7 @@ const fetch = (() => {
   }
 
   return nodeFetch;
-})();
+})() as typeof nodeFetch;
 
 const backendBaseUrl =
   process.env.AI_TESTS_BACKEND_URL ||
@@ -94,8 +106,21 @@ const backendBaseUrl =
 
 let httpErrors = 0;
 
-async function fetchAtlasPrivateApi(path, init = {}) {
-  const url = `${backendBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+type TestResult = {
+  Type: string;
+  'User Input': string;
+  Namespace: string;
+  Accuracy: number;
+  // 'Prompt Tokens': usageStats[0]?.promptTokens,
+  // 'Completion Tokens': usageStats[0]?.completionTokens,
+  Pass: '✗' | '✓';
+};
+
+async function fetchAtlasPrivateApi(
+  urlPath: string,
+  init: Partial<Parameters<typeof fetch>[1]> = {}
+) {
+  const url = `${backendBaseUrl}${urlPath.startsWith('/') ? urlPath : `/${urlPath}`}`;
 
   return await fetch(url, {
     ...init,
@@ -114,7 +139,7 @@ async function fetchAtlasPrivateApi(path, init = {}) {
 
       const errorCode = data?.errorCode || '-';
 
-      const error = new Error(
+      const error: AITestError = new Error(
         `Request failed: ${res.status} - ${res.statusText}: ${errorCode}`
       );
 
@@ -127,26 +152,34 @@ async function fetchAtlasPrivateApi(path, init = {}) {
     });
 }
 
-function generateFindQuery(options) {
+type QueryOptions = {
+  schema: any;
+  collectionName: string;
+  databaseName: string;
+  sampleDocuments: Document[] | undefined;
+  userInput: string;
+};
+
+function generateFindQuery(options: QueryOptions) {
   return fetchAtlasPrivateApi('/ai/api/v1/mql-query', {
     method: 'POST',
     body: JSON.stringify(options),
   });
 }
 
-function generateAggregation(options) {
+function generateAggregation(options: QueryOptions) {
   return fetchAtlasPrivateApi('/ai/api/v1/mql-aggregation', {
     method: 'POST',
     body: JSON.stringify(options),
   });
 }
 
-const parseShellString = (shellSyntaxString) => {
+const parseShellString = (shellSyntaxString?: string) => {
   if (shellSyntaxString === null || shellSyntaxString === undefined) {
     return shellSyntaxString;
   }
 
-  const parsed = ejsonShellParser.default(decomment(shellSyntaxString));
+  const parsed = ejsonShellParser(decomment(shellSyntaxString));
 
   if (!parsed) {
     throw new Error(`Failed to parse shell syntax: \n"${shellSyntaxString}"`);
@@ -155,14 +188,19 @@ const parseShellString = (shellSyntaxString) => {
   return parsed;
 };
 
-let cluster;
-let mongoClient;
+let cluster: MongoCluster;
+let mongoClient: MongoClient;
 
 const generateMQL = async ({
   type,
   databaseName,
   collectionName,
   userInput,
+}: {
+  type: string;
+  databaseName: string;
+  collectionName: string;
+  userInput: string;
 }) => {
   const collection = mongoClient.db(databaseName).collection(collectionName);
   const schema = await getSimplifiedSchema(collection.find());
@@ -187,6 +225,18 @@ const generateMQL = async ({
   });
 };
 
+type UsageStats = { promptTokens: number; completionTokens: number };
+
+type TestOptions = {
+  type: string;
+  databaseName: string;
+  collectionName: string;
+  userInput: string;
+  assertResponse?: (responseContent: any) => Promise<void>;
+  assertResult?: (responseContent: Document[]) => Promise<void> | void;
+  acceptAggregationResponse?: boolean;
+};
+
 // eslint-disable-next-line complexity
 const runOnce = async (
   {
@@ -197,8 +247,8 @@ const runOnce = async (
     assertResponse,
     assertResult,
     acceptAggregationResponse,
-  },
-  usageStats
+  }: TestOptions,
+  usageStats: UsageStats[]
 ) => {
   const response = await generateMQL({
     type,
@@ -256,18 +306,18 @@ const runOnce = async (
 
       await assertResult(result);
     }
-  } catch (error) {
-    const newError = new Error('Inaccurate query generated');
+  } catch (error: unknown) {
+    const newError: AITestError = new Error('Inaccurate query generated');
     newError.errorCode = 'INACCURATE_QUERY_GENERATED';
-    newError.query = error.message;
+    newError.query = (error as Error).message;
     newError.prompt = response.prompt;
-    newError.causedBy = error;
+    newError.causedBy = error as Error;
     throw error;
   }
 };
 
-const runTest = async (testOptions) => {
-  const usageStats = [];
+const runTest = async (testOptions: TestOptions) => {
+  const usageStats: UsageStats[] = [];
   const attempts = ATTEMPTS_PER_TEST;
   let fails = 0;
   let timeouts = 0;
@@ -277,7 +327,7 @@ const runTest = async (testOptions) => {
     if (timeouts >= MAX_TIMEOUTS_PER_TEST) {
       throw new Error('Too many timeouts');
     }
-    let startTime = Date.now();
+    const startTime = Date.now();
 
     if (
       attempts > 0 &&
@@ -295,8 +345,8 @@ const runTest = async (testOptions) => {
       await runOnce(testOptions, usageStats);
 
       console.info('OK');
-    } catch (e) {
-      if (e.errorCode === 'GATEWAY_TIMEOUT') {
+    } catch (e: unknown) {
+      if ((e as AITestError).errorCode === 'GATEWAY_TIMEOUT') {
         i--;
         timeouts++;
 
@@ -315,12 +365,15 @@ const runTest = async (testOptions) => {
   return { accuracy, timeouts, usageStats };
 };
 
-const fixtures = {};
+const fixtures: {
+  [dbName: string]: {
+    [colName: string]: Document
+  }
+} = {};
 
 async function setup() {
   // p-queue is ESM package only.
   PQueue = (await import('p-queue')).default;
-
   cluster = await MongoCluster.start({
     tmpDir: os.tmpdir(),
     topology: 'standalone',
@@ -359,21 +412,21 @@ async function teardown() {
   await cluster?.close();
 }
 
-const isDeepStrictEqualTo = (expected) => (actual) =>
+const isDeepStrictEqualTo = (expected: any) => (actual: any) =>
   assert.deepStrictEqual(actual, expected);
 
-const isDeepStrictEqualToFixtures = (db, coll, comparator) => (actual) => {
+const isDeepStrictEqualToFixtures = (db: string, coll: string, comparator: (document: Document) => boolean) => (actual: any) => {
   const expected = fixtures[db][coll].filter(comparator);
   assert.deepStrictEqual(actual, expected);
 };
 
-const anyOf = (assertions) => (actual) => {
-  const errors = [];
+const anyOf = (assertions: ((result: any) => void)[]) => (actual: any) => {
+  const errors: Error[] = [];
   for (const assertion of assertions) {
     try {
       assertion(actual);
     } catch (e) {
-      errors.push(e);
+      errors.push(e as Error);
     }
   }
 
@@ -385,13 +438,10 @@ const anyOf = (assertions) => (actual) => {
 /**
  * Insert the generative ai results to a db
  * so we can track how they perform overtime.
- * @param {Array} results
- * @param {Boolean} anyFailed
- * @param {Number} httpsErrors
  */
-async function pushResultsToDB(results, anyFailed, httpErrors) {
+async function pushResultsToDB(results: TestResult[], anyFailed: boolean, httpErrors: number) {
   const client = new MongoClient(
-    process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING
+    process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING || ''
   );
 
   try {
@@ -426,7 +476,7 @@ const tests = [
     assertResult: isDeepStrictEqualToFixtures(
       'netflix',
       'movies',
-      (doc) => doc._id.$oid === '573b864df29313caabe35593'
+      (doc: Document) => doc._id.$oid === '573b864df29313caabe35593'
     ),
   },
   {
@@ -499,7 +549,7 @@ const tests = [
     assertResult: isDeepStrictEqualToFixtures(
       'berlin',
       'cocktailbars',
-      (doc) => doc._id.$oid === '5ca652bf56618187558b4de3'
+      (doc: Document) => doc._id.$oid === '5ca652bf56618187558b4de3'
     ),
   },
   {
@@ -511,7 +561,7 @@ const tests = [
     assertResult: isDeepStrictEqualToFixtures(
       'sample_airbnb',
       'listingsAndReviews',
-      (doc) => doc._id === '10115921'
+      (doc: Document) => doc._id === '10115921'
     ),
   },
   {
@@ -638,7 +688,7 @@ const tests = [
 async function main() {
   try {
     await setup();
-    const results = [];
+    const results: TestResult[] = [];
 
     let anyFailed = false;
 
@@ -652,7 +702,7 @@ async function main() {
           accuracy,
           // usageStats
         } = await runTest(test);
-        const minAccuracy = test.minAccuracy ?? DEFAULT_MIN_ACCURACY;
+        const minAccuracy = DEFAULT_MIN_ACCURACY;
         const failed = accuracy < minAccuracy;
 
         results.push({
@@ -695,4 +745,4 @@ async function main() {
   }
 }
 
-main();
+void main();
