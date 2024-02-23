@@ -52,7 +52,7 @@ describe('BulkUpdateModal Component', function () {
 
     // filter
     expect(screen.getByTestId('readonly-filter').textContent).to.equal(
-      '{\n a: 1\n}'
+      '{\n  a: 1\n}'
     );
 
     // update

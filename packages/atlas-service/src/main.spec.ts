@@ -1,12 +1,12 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { CompassAuthService, getTrackingUserInfo } from './main';
+import { CompassAuthService } from './main';
+import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
-import type { AtlasUserInfo } from './util';
-import { throwIfNotOk } from './util';
+import * as util from './util';
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -75,6 +75,14 @@ describe('CompassAuthServiceMain', function () {
   const authConfig = CompassAuthService['config'];
   let preferences: PreferencesAccess;
 
+  let getTrackingUserInfoStub: Sinon.SinonStubbedMember<
+    typeof util.getTrackingUserInfo
+  >;
+
+  before(function () {
+    getTrackingUserInfoStub = sandbox.stub(util, 'getTrackingUserInfo');
+  });
+
   beforeEach(async function () {
     CompassAuthService['ipcMain'] = {
       handle: sandbox.stub(),
@@ -115,8 +123,15 @@ describe('CompassAuthServiceMain', function () {
     sandbox.resetHistory();
   });
 
+  after(function () {
+    sandbox.restore();
+  });
+
   describe('signIn', function () {
     it('should sign in using oidc plugin', async function () {
+      const atlasUid = 'abcdefgh';
+      getTrackingUserInfoStub.returns({ auid: atlasUid });
+
       const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
@@ -125,6 +140,9 @@ describe('CompassAuthServiceMain', function () {
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
       expect(userInfo).to.have.property('sub', '1234');
+      expect(preferences.getPreferences().telemetryAtlasUserId).to.equal(
+        atlasUid
+      );
     });
 
     it('should debounce inflight sign in requests', async function () {
@@ -345,19 +363,6 @@ describe('CompassAuthServiceMain', function () {
           "Can't sign out if not signed in yet"
         );
       }
-    });
-  });
-
-  describe('getTrackingUserInfo', function () {
-    it('should return required tracking info from user info', function () {
-      expect(
-        getTrackingUserInfo({
-          sub: '1234',
-          primaryEmail: 'test@example.com',
-        } as AtlasUserInfo)
-      ).to.deep.eq({
-        auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
-      });
     });
   });
 });

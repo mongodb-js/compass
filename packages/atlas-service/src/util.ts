@@ -2,6 +2,7 @@ import type * as plugin from '@mongodb-js/oidc-plugin';
 import type { AtlasUserConfig } from './user-config-store';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
+import { createHash } from 'crypto';
 
 export type AtlasUserInfo = {
   sub: string;
@@ -161,4 +162,12 @@ export function getAtlasConfig(
     envConfig,
     config[atlasServiceBackendPreset]
   ) as typeof envConfig & typeof config[keyof typeof config];
+}
+
+export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
+  return {
+    // AUID is shared Cloud user identificator that can be tracked through
+    // various MongoDB properties
+    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
+  };
 }

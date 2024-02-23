@@ -47,10 +47,11 @@ describe('setupIntercom', function () {
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
-    fetchMock = sinon.stub(window, 'fetch');
+    fetchMock = sinon.stub();
+    window.fetch = fetchMock;
     // NOTE: we use 301 since intercom will redirects
     // to the actual location of the widget script
-    fetchMock.resolves(new Response('', { status: 301 }));
+    fetchMock.resolves({ status: 301 } as Response);
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableFeedbackPanel: true,
@@ -65,7 +66,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
     process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
-    fetchMock.restore();
+    fetchMock.reset();
   });
 
   describe('when it can be enabled', function () {
@@ -127,7 +128,7 @@ describe('setupIntercom', function () {
     });
 
     it('will not enable the script when intercom is unreachable', async function () {
-      fetchMock.resolves(new Response('', { status: 500 }));
+      fetchMock.resolves({ status: 500 } as Response);
       await expectSetupGetsSkipped();
     });
   });

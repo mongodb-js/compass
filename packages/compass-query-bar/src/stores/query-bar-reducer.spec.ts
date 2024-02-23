@@ -109,15 +109,15 @@ describe('queryBarReducer', function () {
       expect(getField('filter'))
         .to.have.property('value')
         .deep.eq({ _id: '123' });
-      expect(getField('filter')).to.have.property('string', "{_id: '123'}");
+      expect(getField('filter')).to.have.property('string', '{ _id: "123" }');
       expect(getField('filter')).to.have.property('valid', true);
 
       expect(getField('project')).to.have.property('value').deep.eq({ _id: 1 });
-      expect(getField('project')).to.have.property('string', '{_id: 1}');
+      expect(getField('project')).to.have.property('string', '{ _id: 1 }');
       expect(getField('project')).to.have.property('valid', true);
 
       expect(getField('sort')).to.have.property('value').deep.eq({ _id: -1 });
-      expect(getField('sort')).to.have.property('string', '{_id: -1}');
+      expect(getField('sort')).to.have.property('string', '{ _id: -1 }');
       expect(getField('sort')).to.have.property('valid', true);
 
       expect(getField('skip')).to.have.property(
@@ -217,7 +217,7 @@ describe('queryBarReducer', function () {
         .deep.eq(newQuery.filter);
       expect(store.getState().queryBar).to.have.nested.property(
         'fields.filter.string',
-        '{_id: 2}'
+        '{ _id: 2 }'
       );
 
       expect(store.getState().queryBar)
@@ -225,7 +225,7 @@ describe('queryBarReducer', function () {
         .deep.eq(newQuery.sort);
       expect(store.getState().queryBar).to.have.nested.property(
         'fields.sort.string',
-        '{_id: -1}'
+        '{ _id: -1 }'
       );
     });
   });

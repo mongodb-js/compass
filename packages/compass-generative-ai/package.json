@@ -66,6 +66,7 @@
     "compass-preferences-model": "^2.17.4",
     "@mongodb-js/compass-logging": "^1.2.12",
     "@mongodb-js/atlas-service": "^0.14.4",
+    "@mongodb-js/compass-intercom": "^0.1.0",
     "react": "*"
   },
   "dependencies": {
@@ -73,7 +74,8 @@
     "@mongodb-js/compass-utils": "^0.5.11",
     "@mongodb-js/compass-logging": "^1.2.12",
     "@mongodb-js/atlas-service": "^0.14.4",
-    "compass-preferences-model": "^2.17.4"
+    "compass-preferences-model": "^2.17.4",
+    "@mongodb-js/compass-intercom": "^0.1.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.15",

@@ -83,7 +83,7 @@ import './menu-renderer';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { setupIntercom } from './intercom';
+import { setupIntercom } from '@mongodb-js/compass-intercom';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
