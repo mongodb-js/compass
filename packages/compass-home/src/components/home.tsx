@@ -9,6 +9,10 @@ import {
   resetGlobalCSS,
   Body,
   useConfirmationModal,
+  openToast,
+  ButtonVariant,
+  Button,
+  spacing,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
@@ -94,6 +98,17 @@ const globalLightThemeStyles = css({
 const globalDarkThemeStyles = css({
   backgroundColor: palette.black,
   color: palette.white,
+});
+
+const restartPromptToastStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  div: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 'auto',
+    padding: spacing[1],
+  },
 });
 
 type State = {
@@ -283,6 +298,80 @@ function Home({
     },
     [setIsWelcomeOpen, appRegistry]
   );
+
+  useEffect(() => {
+    function onAutoupdateStarted() {
+      openToast('update-download', {
+        variant: 'progress',
+        title: 'Compass update is in progress',
+      });
+    }
+    function onAutoupdateFailed() {
+      openToast('update-download', {
+        variant: 'warning',
+        title: 'Failed to download Compass update',
+        description: 'Downloading a newer Compass version failed',
+      });
+    }
+    function onAutoupdateSucess() {
+      openToast('update-download', {
+        variant: 'note',
+        title: 'Restart to start newer Compass version',
+        description: (
+          <div className={restartPromptToastStyles}>
+            <div>
+              Continuing to use Compass without restarting may cause some of the
+              features to not work as intended.
+            </div>
+            <div>
+              <Button
+                variant={ButtonVariant.Primary}
+                onClick={() => {
+                  void hadronIpc.ipcRenderer?.call(
+                    'autoupdate:update-download-restart-confirmed'
+                  );
+                }}
+              >
+                Restart Compass
+              </Button>
+            </div>
+          </div>
+        ),
+        dismissible: true,
+        onClose: () => {
+          void hadronIpc.ipcRenderer?.call(
+            'autoupdate:update-download-restart-dismissed'
+          );
+        },
+      });
+    }
+    hadronIpc.ipcRenderer?.on(
+      'autoupdate:update-download-in-progress',
+      onAutoupdateStarted
+    );
+    hadronIpc.ipcRenderer?.on(
+      'autoupdate:update-download-failed',
+      onAutoupdateFailed
+    );
+    hadronIpc.ipcRenderer?.on(
+      'autoupdate:update-download-success',
+      onAutoupdateSucess
+    );
+    return () => {
+      hadronIpc.ipcRenderer?.removeListener(
+        'autoupdate:update-download-in-progress',
+        onAutoupdateStarted
+      );
+      hadronIpc.ipcRenderer?.removeListener(
+        'autoupdate:update-download-failed',
+        onAutoupdateFailed
+      );
+      hadronIpc.ipcRenderer?.removeListener(
+        'autoupdate:update-download-success',
+        onAutoupdateSucess
+      );
+    };
+  }, []);
 
   return (
     <FileInputBackendProvider

@@ -90,6 +90,8 @@ buildvariants:
       - name: test-packaged-app-latest
         depends_on: package-compass
 
+      - name: test-web-sandbox-chrome
+
       - name: test-web-sandbox-firefox
 
   - name: windows
