@@ -34,7 +34,7 @@ let client: MongoClient;
 before(async () => {
   client = new MongoClient(CONNECTION_URI);
   await client.connect();
-  console.log('Connected successfully to server for inserting data');
+  console.log(`Connected successfully to ${CONNECTION_URI} for inserting data`);
 });
 
 after(async () => {

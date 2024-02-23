@@ -3,6 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -38,9 +39,7 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'connection form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

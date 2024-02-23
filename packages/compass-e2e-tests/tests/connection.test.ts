@@ -11,6 +11,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -251,9 +252,7 @@ describe('Connection screen', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'connect form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -633,9 +632,7 @@ describe('Connection screen', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'not applicable to compass-web');
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
@@ -700,9 +697,7 @@ describe('SRV connectivity', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('System CA access', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'not applicable to compass-web');
   });
 
   it('allows using the system certificate store for connections', async function () {
@@ -757,9 +752,7 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'connect form not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
