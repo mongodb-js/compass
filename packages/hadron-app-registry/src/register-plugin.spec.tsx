@@ -2,9 +2,14 @@ import React, { createContext, useContext } from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { AppRegistryProvider, registerHadronPlugin } from './';
+import {
+  AppRegistryProvider,
+  registerHadronPlugin,
+  createActivateHelpers,
+} from './';
 import { createStore } from 'redux';
 import { connect } from 'react-redux';
+import { EventEmitter } from 'events';
 
 describe('registerHadronPlugin', function () {
   afterEach(cleanup);
@@ -123,5 +128,37 @@ describe('registerHadronPlugin', function () {
       </AppRegistryProvider>
     );
     expect(activate.firstCall.args[1]).to.have.property('blah', dummy);
+  });
+});
+
+describe('ActivateHelpers', function () {
+  describe('on', function () {
+    it('should subscribe to event emitter', function () {
+      const helpers = createActivateHelpers();
+      const emitter = new EventEmitter();
+      expect(emitter.listenerCount('foo')).to.eq(0);
+      helpers.on(emitter, 'foo', () => {});
+      expect(emitter.listenerCount('foo')).to.eq(1);
+    });
+  });
+
+  describe('cleanup', function () {
+    it('should remove listeners registered with on', function () {
+      const helpers = createActivateHelpers();
+      const emitter = new EventEmitter();
+      helpers.on(emitter, 'foo', () => {});
+      helpers.cleanup();
+      expect(emitter.listenerCount('foo')).to.eq(0);
+    });
+  });
+
+  describe('addCleanup', function () {
+    it('should add custom cleanup function and call it when cleanup is called', function () {
+      const helpers = createActivateHelpers();
+      const cleanupFn = sinon.spy();
+      helpers.addCleanup(cleanupFn);
+      helpers.cleanup();
+      expect(cleanupFn).to.have.been.calledOnce;
+    });
   });
 });

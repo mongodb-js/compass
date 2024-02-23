@@ -44,9 +44,10 @@ class ActivateHelpersImpl {
     evt: string,
     fn: (...args: any) => any
   ) => {
-    emitter.on(evt, (...args) => void fn(...args));
+    const voidFn = (...args: any) => void fn(...args);
+    emitter.on(evt, voidFn);
     this.addCleanup(() => {
-      emitter.removeListener(evt, fn);
+      emitter.removeListener(evt, voidFn);
     });
   };
 
