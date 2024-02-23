@@ -14,6 +14,7 @@ export type State = {
   collections: string[];
   selectedCollection: string | null;
   collectionsStatus: Status;
+  updateItemNamespace: boolean;
 };
 
 const INITIAL_STATE: State = {
@@ -26,6 +27,7 @@ const INITIAL_STATE: State = {
   collections: [],
   selectedCollection: null,
   collectionsStatus: 'initial',
+  updateItemNamespace: false,
 };
 
 export enum ActionTypes {
@@ -40,6 +42,7 @@ export enum ActionTypes {
   LoadCollections = 'compass-saved-aggregations-queries/loadCollections',
   LoadCollectionsSuccess = 'compass-saved-aggregations-queries/loadCollectionsSuccess',
   LoadCollectionsError = 'compass-saved-aggregations-queries/loadCollectionsError',
+  UpdateNamespaceChecked = 'compass-saved-aggregations-queries/updateNamespaceChecked',
 }
 
 type OpenModalAction = {
@@ -92,6 +95,11 @@ type LoadCollectionsErrorAction = {
   type: ActionTypes.LoadCollectionsError;
 };
 
+type UpdateNamespaceChecked = {
+  type: ActionTypes.UpdateNamespaceChecked;
+  updateItemNamespace: boolean;
+};
+
 export type Actions =
   | OpenModalAction
   | CloseModalAction
@@ -103,7 +111,8 @@ export type Actions =
   | SelectCollectionAction
   | LoadCollectionsAction
   | LoadCollectionsErrorAction
-  | LoadCollectionsSuccessAction;
+  | LoadCollectionsSuccessAction
+  | UpdateNamespaceChecked;
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -165,10 +174,20 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
         collections: action.collections,
         collectionsStatus: 'ready',
       };
+    case ActionTypes.UpdateNamespaceChecked:
+      return {
+        ...state,
+        updateItemNamespace: action.updateItemNamespace,
+      };
     default:
       return state;
   }
 };
+
+export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
+  type: ActionTypes.UpdateNamespaceChecked,
+  updateItemNamespace,
+});
 
 const openModal =
   (selectedItem: Item): SavedQueryAggregationThunkAction<Promise<void>> =>
@@ -249,13 +268,25 @@ export const openSavedItem =
     dispatch(openItem(item, database, collection));
   };
 
+export const updateNamespaceChecked =
+  (updateNamespaceChecked: boolean): SavedQueryAggregationThunkAction<void> =>
+  (dispatch) => {
+    dispatch({
+      type: ActionTypes.UpdateNamespaceChecked,
+      updateNamespaceChecked,
+    });
+  };
+
 export const openSelectedItem =
-  (
-    updateItemNamespace: boolean
-  ): SavedQueryAggregationThunkAction<Promise<void>> =>
+  (): SavedQueryAggregationThunkAction<Promise<void>> =>
   async (dispatch, getState, { queryStorage, pipelineStorage }) => {
     const {
-      openItem: { selectedItem, selectedDatabase, selectedCollection },
+      openItem: {
+        selectedItem,
+        selectedDatabase,
+        selectedCollection,
+        updateItemNamespace,
+      },
     } = getState();
 
     if (!selectedItem || !selectedDatabase || !selectedCollection) {

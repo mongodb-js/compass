@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Checkbox,
   FormModal,
@@ -7,7 +7,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
 import {
@@ -15,6 +15,7 @@ import {
   openSelectedItem,
   selectCollection,
   selectDatabase,
+  updateItemNamespaceChecked,
 } from '../stores/open-item';
 
 type AsyncItemsSelectProps = {
@@ -99,7 +100,8 @@ type OpenItemModalProps = {
   itemName: string;
   isModalOpen: boolean;
   isSubmitDisabled: boolean;
-  onSubmit(updateItemNamespace: boolean): void;
+  updateItemNamespace: boolean;
+  onSubmit(): void;
   onClose(): void;
 };
 
@@ -137,15 +139,16 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   itemName,
   isModalOpen,
   isSubmitDisabled,
+  updateItemNamespace,
   onClose,
   onSubmit,
 }) => {
-  const [updateNamespace, setUpdateNamespace] = useState(false);
+  const dispatch = useDispatch();
   return (
     <FormModal
       open={isModalOpen}
       onCancel={onClose}
-      onSubmit={() => onSubmit(updateNamespace)}
+      onSubmit={() => onSubmit()}
       title="Select a Namespace"
       submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
@@ -170,8 +173,10 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
         </div>
         <Checkbox
           className={checkbox}
-          checked={updateNamespace}
-          onChange={() => setUpdateNamespace(!updateNamespace)}
+          checked={updateItemNamespace}
+          onChange={(event) => {
+            dispatch(updateItemNamespaceChecked(event.target.checked));
+          }}
           label={`Update this ${itemType} with the newly selected namespace`}
           data-testid="update-query-aggregation-checkbox"
         />
@@ -183,7 +188,12 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
 const mapState: MapStateToProps<
   Pick<
     OpenItemModalProps,
-    'isModalOpen' | 'isSubmitDisabled' | 'namespace' | 'itemType' | 'itemName'
+    | 'isModalOpen'
+    | 'isSubmitDisabled'
+    | 'namespace'
+    | 'itemType'
+    | 'itemName'
+    | 'updateItemNamespace'
   >,
   Record<string, never>,
   RootState
@@ -193,6 +203,7 @@ const mapState: MapStateToProps<
     selectedDatabase,
     selectedCollection,
     selectedItem: item,
+    updateItemNamespace,
   },
 }) => {
   return {
@@ -201,6 +212,7 @@ const mapState: MapStateToProps<
     namespace: `${item?.database ?? ''}.${item?.collection ?? ''}`,
     itemName: item?.name ?? '',
     itemType: item?.type ?? '',
+    updateItemNamespace,
   };
 };
 
