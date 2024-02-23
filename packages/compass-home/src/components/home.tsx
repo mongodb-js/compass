@@ -10,7 +10,6 @@ import {
   Body,
   useConfirmationModal,
   openToast,
-  closeToast,
   ButtonVariant,
   Button,
   spacing,
@@ -188,18 +187,21 @@ function Home({
     }
   });
 
-  function onDataServiceConnected(
-    err: Error | undefined | null,
-    ds: DataService,
-    connectionInfo: ConnectionInfo
-  ) {
-    connectedDataService.current = ds;
-    ds.addReauthenticationHandler(reauthenticationHandler.current);
-    dispatch({
-      type: 'connected',
-      connectionInfo: connectionInfo,
-    });
-  }
+  const onDataServiceConnected = useCallback(
+    (
+      err: Error | undefined | null,
+      ds: DataService,
+      connectionInfo: ConnectionInfo
+    ) => {
+      connectedDataService.current = ds;
+      ds.addReauthenticationHandler(reauthenticationHandler.current);
+      dispatch({
+        type: 'connected',
+        connectionInfo: connectionInfo,
+      });
+    },
+    []
+  );
 
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
