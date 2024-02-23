@@ -34,11 +34,13 @@ export function activateRenameCollectionPlugin(
       ?.loadAll()
       .then((pipelines) =>
         pipelines.some(({ namespace }) => namespace === oldNamespace)
-      );
+      )
+      .catch(() => false);
     const queryExists = await queryStorage
       ?.getStorage()
       .loadAll()
-      .then((queries) => queries.some(({ _ns }) => _ns === oldNamespace));
+      .then((queries) => queries.some(({ _ns }) => _ns === oldNamespace))
+      .catch(() => false);
 
     return Boolean(pipelineExists || queryExists);
   }
@@ -56,27 +58,18 @@ export function activateRenameCollectionPlugin(
   const onRenameCollection = (ns: { database: string; collection: string }) => {
     const collections: { name: string }[] =
       instance.databases.get(ns.database)?.collections ?? [];
-    checkIfSavedQueriesAndAggregationsExist(`${ns.database}.${ns.collection}`)
-      .then((areSavedQueriesAndAggregationsImpacted) => {
-        store.dispatch(
-          open({
-            db: ns.database,
-            collection: ns.collection,
-            collections,
-            areSavedQueriesAndAggregationsImpacted,
-          })
-        );
-      })
-      .catch(() => {
-        store.dispatch(
-          open({
-            db: ns.database,
-            collection: ns.collection,
-            collections,
-            areSavedQueriesAndAggregationsImpacted: false,
-          })
-        );
-      });
+    void checkIfSavedQueriesAndAggregationsExist(
+      `${ns.database}.${ns.collection}`
+    ).then((areSavedQueriesAndAggregationsImpacted) => {
+      store.dispatch(
+        open({
+          db: ns.database,
+          collection: ns.collection,
+          collections,
+          areSavedQueriesAndAggregationsImpacted,
+        })
+      );
+    });
   };
   globalAppRegistry.on('open-rename-collection', onRenameCollection);
 
