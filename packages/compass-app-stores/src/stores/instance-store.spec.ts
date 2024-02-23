@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { createInstanceStore } from './instance-store';
-import { once } from 'events';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -47,21 +46,28 @@ describe('InstanceStore [Store]', function () {
   let store: ReturnType<typeof createInstanceStore>;
   let instance: MongoDBInstance;
 
-  let emitSpy: any;
   let initialInstanceRefreshedPromise: Promise<unknown>;
   let sandbox: sinon.SinonSandbox;
+
+  function waitForInstanceRefresh(): Promise<void> {
+    return new Promise((resolve) => {
+      if (instance.refreshingStatus === 'ready') {
+        resolve();
+      }
+      instance.on('change:refreshingStatus', () => {
+        if (instance.refreshingStatus === 'ready') {
+          resolve();
+        }
+      });
+    });
+  }
 
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
     sandbox = sinon.createSandbox();
 
-    emitSpy = sandbox.spy(globalAppRegistry, 'emit');
     dataService = createDataService();
     const logger = createNoopLoggerAndTelemetry();
-    initialInstanceRefreshedPromise = once(
-      globalAppRegistry,
-      'instance-refreshed'
-    );
 
     store = createInstanceStore(
       {
@@ -72,20 +78,13 @@ describe('InstanceStore [Store]', function () {
       createActivateHelpers()
     );
     instance = store.state.instance;
+
+    initialInstanceRefreshedPromise = waitForInstanceRefresh();
   });
 
   afterEach(function () {
-    emitSpy = null;
     sandbox.restore();
     store.deactivate();
-  });
-
-  context('when data service connects', function () {
-    it('emits instance-refreshed event', async function () {
-      await initialInstanceRefreshedPromise;
-      const events = emitSpy.args.map(([evtName]: any) => evtName);
-      expect(events).to.eql(['instance-created', 'instance-refreshed']);
-    });
   });
 
   context('on refresh data', function () {
@@ -99,21 +98,11 @@ describe('InstanceStore [Store]', function () {
         '1.2.3'
       );
       globalAppRegistry.emit('refresh-data');
-      await once(globalAppRegistry, 'instance-refreshed');
+      await waitForInstanceRefresh();
     });
 
     it('calls instance model fetch', function () {
       expect(instance).to.have.nested.property('build.version', '3.2.1');
-    });
-
-    it('emits instance-changed event', function () {
-      const events = emitSpy.args.map(([evtName]: any) => evtName);
-      expect(events).to.eql([
-        'instance-created',
-        'instance-refreshed',
-        'refresh-data',
-        'instance-refreshed',
-      ]);
     });
   });
 

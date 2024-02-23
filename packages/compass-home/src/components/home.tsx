@@ -16,12 +16,15 @@ import {
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Welcome from '@mongodb-js/compass-welcome';
-import { ipcRenderer } from 'hadron-ipc';
+import * as hadronIpc from 'hadron-ipc';
 import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import React, {
   useCallback,
@@ -147,23 +150,29 @@ function reducer(state: State, action: Action): State {
 }
 
 function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-  void ipcRenderer?.call('window:show-collection-submenu', { isReadOnly });
+  void hadronIpc.ipcRenderer?.call('window:show-collection-submenu', {
+    isReadOnly,
+  });
 }
 
 function hideCollectionSubMenu() {
-  void ipcRenderer?.call('window:hide-collection-submenu');
+  void hadronIpc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
 function notifyMainProcessOfDisconnect() {
-  void ipcRenderer?.call('compass:disconnected');
+  void hadronIpc.ipcRenderer?.call('compass:disconnected');
 }
 
 function Home({
   appName,
   getAutoConnectInfo,
+  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+  __TEST_CONNECTION_STORAGE,
 }: {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
+  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
@@ -187,39 +196,15 @@ function Home({
     }
   });
 
-  const onDataServiceConnected = useCallback(
-    (
-      err: Error | undefined | null,
-      ds: DataService,
-      connectionInfo: ConnectionInfo
-    ) => {
-      connectedDataService.current = ds;
-      ds.addReauthenticationHandler(reauthenticationHandler.current);
-      dispatch({
-        type: 'connected',
-        connectionInfo: connectionInfo,
-      });
+  const onConnected = useCallback(
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      connectedDataService.current = dataService;
+      dataService.addReauthenticationHandler(reauthenticationHandler.current);
+
+      dispatch({ type: 'connected', connectionInfo: connectionInfo });
     },
     []
   );
-
-  const onConnected = useCallback(
-    (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      appRegistry.emit(
-        'data-service-connected',
-        null, // No error connecting.
-        dataService,
-        connectionInfo
-      );
-    },
-    [appRegistry]
-  );
-
-  const onDataServiceDisconnected = useCallback(() => {
-    dispatch({
-      type: 'disconnected',
-    });
-  }, []);
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -227,42 +212,23 @@ function Home({
         // We aren't connected.
         return;
       }
-
       await connectedDataService.current.disconnect();
       connectedDataService.current = undefined;
 
-      appRegistry.emit('data-service-disconnected');
+      dispatch({ type: 'disconnected' });
     }
 
     function onDisconnect() {
       void handleDisconnectClicked();
     }
 
-    ipcRenderer?.on('app:disconnect', onDisconnect);
+    hadronIpc.ipcRenderer?.on('app:disconnect', onDisconnect);
 
     return () => {
       // Clean up the ipc listener.
-      ipcRenderer?.removeListener('app:disconnect', onDisconnect);
+      hadronIpc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
-  }, [appRegistry, onDataServiceDisconnected]);
-
-  useEffect(() => {
-    // Setup app registry listeners.
-    appRegistry.on('data-service-connected', onDataServiceConnected);
-    appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
-
-    return () => {
-      // Clean up the app registry listeners.
-      appRegistry.removeListener(
-        'data-service-connected',
-        onDataServiceConnected
-      );
-      appRegistry.removeListener(
-        'data-service-disconnected',
-        onDataServiceDisconnected
-      );
-    };
-  }, [appRegistry, onDataServiceDisconnected, onDataServiceConnected]);
+  }, [appRegistry]);
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
@@ -361,7 +327,7 @@ function Home({
               <Button
                 variant={ButtonVariant.Primary}
                 onClick={() => {
-                  void ipcRenderer?.call(
+                  void hadronIpc.ipcRenderer?.call(
                     'autoupdate:update-download-restart-confirmed'
                   );
                 }}
@@ -373,28 +339,34 @@ function Home({
         ),
         dismissible: true,
         onClose: () => {
-          void ipcRenderer?.call(
+          void hadronIpc.ipcRenderer?.call(
             'autoupdate:update-download-restart-dismissed'
           );
         },
       });
     }
-    ipcRenderer?.on(
+    hadronIpc.ipcRenderer?.on(
       'autoupdate:update-download-in-progress',
       onAutoupdateStarted
     );
-    ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
-    ipcRenderer?.on('autoupdate:update-download-success', onAutoupdateSucess);
+    hadronIpc.ipcRenderer?.on(
+      'autoupdate:update-download-failed',
+      onAutoupdateFailed
+    );
+    hadronIpc.ipcRenderer?.on(
+      'autoupdate:update-download-success',
+      onAutoupdateSucess
+    );
     return () => {
-      ipcRenderer?.removeListener(
+      hadronIpc.ipcRenderer?.removeListener(
         'autoupdate:update-download-in-progress',
         onAutoupdateStarted
       );
-      ipcRenderer?.removeListener(
+      hadronIpc.ipcRenderer?.removeListener(
         'autoupdate:update-download-failed',
         onAutoupdateFailed
       );
-      ipcRenderer?.removeListener(
+      hadronIpc.ipcRenderer?.removeListener(
         'autoupdate:update-download-success',
         onAutoupdateSucess
       );
@@ -439,6 +411,8 @@ function Home({
             getAutoConnectInfo={
               hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
             }
+            connectFn={__TEST_MONGODB_DATA_SERVICE_CONNECT_FN}
+            connectionStorage={__TEST_CONNECTION_STORAGE}
           />
         </div>
       </div>
