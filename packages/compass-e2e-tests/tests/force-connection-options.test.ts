@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   positionalArgs,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -15,9 +16,7 @@ describe('forceConnectionOptions', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'cli parameters not supported in compass-web');
 
     compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([
@@ -47,7 +46,7 @@ describe('forceConnectionOptions', function () {
       'Some connection options have been overridden through settings: appName'
     );
     await browser.connectWithConnectionString(
-      'mongodb://localhost:27091/?appName=userSpecifiedAppName'
+      'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName'
     );
     const result = await browser.shellEval('db.getMongo()._uri', true);
     expect(new ConnectionString(result).searchParams.get('appName')).to.equal(

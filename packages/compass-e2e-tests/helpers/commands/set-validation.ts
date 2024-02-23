@@ -26,4 +26,9 @@ export async function setValidation(
   await updateValidationButtonElement.waitForDisplayed({
     reverse: true,
   });
+
+  // wait a bit because the buttons that will update the documents are
+  // debounce-rerendered and if we act on them too fast then they will be
+  // replaced
+  await browser.pause(2000);
 }

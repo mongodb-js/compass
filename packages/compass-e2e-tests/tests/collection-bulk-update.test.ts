@@ -7,6 +7,7 @@ import {
   cleanup,
   screenshotIfFailed,
   TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -18,10 +19,6 @@ describe('Bulk Update', () => {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableBulkUpdateOperations'],
@@ -30,10 +27,6 @@ describe('Bulk Update', () => {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -58,11 +51,13 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    // Check the telemetry
-    const openedEvent = await telemetryEntry('Bulk Update Opened');
-    expect(openedEvent).to.deep.equal({
-      isUpdatePreviewSupported: true,
-    });
+    if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
+      const openedEvent = await telemetryEntry('Bulk Update Opened');
+      expect(openedEvent).to.deep.equal({
+        isUpdatePreviewSupported: true,
+      });
+    }
 
     // Make sure the query is shown in the modal.
     expect(
@@ -114,17 +109,19 @@ describe('Bulk Update', () => {
 
     expect(toastText).to.contain('1 document has been updated.');
     // We close the toast
-    await browser.$(Selectors.BulkUpdateSuccessToastDismissButton).click();
+    await browser.clickVisible(Selectors.BulkUpdateSuccessToastDismissButton);
 
     await browser
       .$(Selectors.BulkUpdateSuccessToast)
       .waitForDisplayed({ reverse: true });
 
-    // Check the telemetry
-    const executedEvent = await telemetryEntry('Bulk Update Executed');
-    expect(executedEvent).to.deep.equal({
-      isUpdatePreviewSupported: true,
-    });
+    if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
+      const executedEvent = await telemetryEntry('Bulk Update Executed');
+      expect(executedEvent).to.deep.equal({
+        isUpdatePreviewSupported: true,
+      });
+    }
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
     const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
@@ -134,6 +131,8 @@ describe('Bulk Update', () => {
   });
 
   it('can save an update query as a favourite and return to it', async function () {
+    skipForWeb(this, "can't use saved queries in compass-web yet");
+
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.
@@ -162,11 +161,13 @@ describe('Bulk Update', () => {
     await browser.$(Selectors.BulkUpdateFavouriteSaveButton).waitForEnabled();
     await browser.clickVisible(Selectors.BulkUpdateFavouriteSaveButton);
 
-    // Check the telemetry
-    const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
-    expect(favoritedEvent).to.deep.equal({
-      isUpdatePreviewSupported: true,
-    });
+    if (!TEST_COMPASS_WEB) {
+      // Check the telemetry
+      const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
+      expect(favoritedEvent).to.deep.equal({
+        isUpdatePreviewSupported: true,
+      });
+    }
 
     // Close the modal
     await browser.clickVisible(Selectors.BulkUpdateCancelButton);

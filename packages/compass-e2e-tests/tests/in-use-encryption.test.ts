@@ -5,7 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -14,7 +14,7 @@ import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
 
-const CONNECTION_HOSTS = 'localhost:27091';
+const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 async function refresh(browser: CompassBrowser) {
@@ -28,9 +28,7 @@ async function refresh(browser: CompassBrowser) {
 
 describe('CSFLE / QE', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'not available in compass-web');
   });
 
   describe('server version gte 4.2.20 and not a linux platform', function () {
