@@ -17,7 +17,7 @@ void (async () => {
   try {
     const index = process.argv.indexOf('--connectionString') ?? -1;
     const connectionString =
-      index === -1 ? 'mongodb://localhost:27091' : process.argv[index + 1];
+      index === -1 ? 'mongodb://127.0.0.1:27091' : process.argv[index + 1];
     console.log(JSON.stringify(await getServerVersion(connectionString)));
   } catch (err) {
     const { name, message } = err as Error;

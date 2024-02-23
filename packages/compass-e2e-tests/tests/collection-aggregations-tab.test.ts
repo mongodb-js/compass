@@ -7,7 +7,7 @@ import {
   screenshotIfFailed,
   outputFilename,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -147,9 +147,6 @@ describe('Collection aggregations tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -176,9 +173,6 @@ describe('Collection aggregations tab', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
     await cleanup(compass);
   });
 
@@ -506,6 +500,13 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('maxTimeMS', function () {
+    before(function () {
+      skipForWeb(
+        this,
+        "we don't support getFeature() and setFeature() in compass-web yet"
+      );
+    });
+
     let maxTimeMSBefore: any;
 
     beforeEach(async function () {
@@ -822,6 +823,8 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
+    skipForWeb(this, 'export is not yet available in compass-web');
+
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
@@ -1095,6 +1098,10 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('saving pipelines', function () {
+    before(function () {
+      skipForWeb(this, 'saved pipelines not yet available in compass-web');
+    });
+
     const name = 'test agg 1';
     beforeEach(async function () {
       await saveAggregationPipeline(browser, name, [

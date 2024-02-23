@@ -1,18 +1,13 @@
 import { expect } from 'chai';
-import {
-  init,
-  cleanup,
-  positionalArgs,
-  TEST_COMPASS_WEB,
-} from '../helpers/compass';
+import { init, cleanup, positionalArgs, skipForWeb } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 
-const connectionStringSuccess = 'mongodb://localhost:27091/test';
+const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
 const connectionStringUnreachable =
-  'mongodb://localhost:27091/test?tls=true&serverSelectionTimeoutMS=10';
+  'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
 describe('Automatically connecting from the command line', function () {
@@ -20,9 +15,7 @@ describe('Automatically connecting from the command line', function () {
   let i = 0;
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'cli parameters not supported in compass-web');
   });
 
   beforeEach(async function () {
