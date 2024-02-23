@@ -320,8 +320,10 @@ function Home({
       createFileInputBackend={electronFileInputBackendRef.current}
     >
       {isConnected && connectedDataService.current && (
-        // AppRegistry scope for a connected application
-        <AppRegistryProvider>
+        <AppRegistryProvider
+          key={connectedDataService.current.id}
+          scopeName="Connected Application"
+        >
           <DataServiceProvider value={connectedDataService.current}>
             <CompassInstanceStorePlugin>
               <FieldStorePlugin>

@@ -195,6 +195,8 @@ export interface DataService {
     listener: DataServiceEventMap[K]
   ): this;
 
+  readonly id: number;
+
   /*** Connection ***/
 
   /**
@@ -993,6 +995,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
     if (logger) {
       this._unboundLogger = Object.assign(logger, { mongoLogId });
     }
+  }
+
+  get id() {
+    return this._id;
   }
 
   on(...args: Parameters<DataService['on']>) {

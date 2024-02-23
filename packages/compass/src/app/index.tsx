@@ -225,7 +225,7 @@ const Application = View.extend({
                 <RecentQueryStorageProvider
                   value={recentQueryStorageProviderValue}
                 >
-                  <AppRegistryProvider>
+                  <AppRegistryProvider scopeName="Application Root">
                     <CompassHomePlugin
                       appName={remote.app.getName()}
                       getAutoConnectInfo={getAutoConnectInfo}

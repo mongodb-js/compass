@@ -199,6 +199,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           <WorkspaceTabStateProvider id={activeTab.id}>
             <AppRegistryProvider
               key={activeTab.id}
+              scopeName="Workspace Tab"
               localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
               deactivateOnUnmount={false}
             >
