@@ -16,7 +16,14 @@ describe('rename collection module', function () {
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
   };
-
+  const favoriteQueries = {
+    getStorage: () => ({
+      loadAll: sandbox.stub().resolves([]),
+    }),
+  };
+  const pipelineStorage = {
+    loadAll: sandbox.stub().resolves([]),
+  };
   const instanceModel = {
     databases: {
       get: function () {
@@ -31,6 +38,8 @@ describe('rename collection module', function () {
     globalAppRegistry: appRegistry,
     dataService,
     instance: instanceModel as any,
+    queryStorage: favoriteQueries as any,
+    pipelineStorage: pipelineStorage as any,
   };
 
   context('when the modal is visible', function () {
@@ -41,6 +50,8 @@ describe('rename collection module', function () {
           globalAppRegistry: appRegistry,
           dataService,
           instance: instanceModel as any,
+          queryStorage: favoriteQueries as any,
+          pipelineStorage: pipelineStorage as any,
         }
       );
       store = plugin.store;
