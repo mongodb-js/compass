@@ -51,12 +51,14 @@
     "@mongodb-js/compass-components": "^1.21.3",
     "@mongodb-js/compass-workspaces": "^0.4.4",
     "compass-preferences-model": "^2.17.4",
+    "mongodb-ns": "^2.4.0",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.21.3",
     "@mongodb-js/compass-workspaces": "^0.4.4",
-    "compass-preferences-model": "^2.17.4"
+    "compass-preferences-model": "^2.17.4",
+    "mongodb-ns": "^2.4.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-logging": "^1.2.12",
