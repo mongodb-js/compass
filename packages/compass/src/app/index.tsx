@@ -25,6 +25,7 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import semver from 'semver';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -238,7 +239,7 @@ const Application = View.extend({
                         'User-Agent': `${getAppName()}/${getAppVersion()}`,
                       }}
                     >
-                      <AppRegistryProvider>
+                      <AppRegistryProvider scopeName="Application Root">
                         <CompassHomePlugin
                           appName={remote.app.getName()}
                           getAutoConnectInfo={getAutoConnectInfo}
@@ -258,10 +259,15 @@ const Application = View.extend({
     document.querySelector('#loading-placeholder')?.remove();
   },
   updateAppVersion: async function () {
-    const { lastKnownVersion } = defaultPreferencesInstance.getPreferences();
+    const { lastKnownVersion, highestInstalledVersion } =
+      defaultPreferencesInstance.getPreferences();
     this.previousVersion = lastKnownVersion || '0.0.0';
+    this.highestInstalledVersion =
+      semver.sort([highestInstalledVersion || '0.0.0', APP_VERSION])?.[1] ??
+      APP_VERSION;
     await defaultPreferencesInstance.savePreferences({
       lastKnownVersion: APP_VERSION,
+      highestInstalledVersion: this.highestInstalledVersion,
     });
   },
 });

@@ -6,6 +6,7 @@ import {
   MONGODB_TEST_SERVER_PORT,
   Selectors,
   serverSatisfies,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -154,9 +155,7 @@ describe.skip('Search Indexes', function () {
   let collectionName: string;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'search indexes disabled on compass-web');
 
     // $search works with server 4.2 or more
     if (!serverSatisfies('>= 4.1.11')) {

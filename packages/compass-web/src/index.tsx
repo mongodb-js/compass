@@ -198,7 +198,7 @@ const CompassWeb = ({
       <PreferencesProvider value={preferencesAccess.current}>
         <AtlasAuthServiceProvider value={atlasAuthService}>
           <AtlasAiServiceProvider>
-            <AppRegistryProvider>
+            <AppRegistryProvider scopeName="Compass Web Root">
               <DataServiceProvider value={dataService.current}>
                 <CompassInstanceStorePlugin>
                   <FieldStorePlugin>

@@ -37,9 +37,9 @@ function getTopologyDescription(
 
 export function createInstanceStore(
   {
-    globalAppRegistry: appRegistry,
+    globalAppRegistry,
     dataService,
-    logger: { debug },
+    logger: { log, mongoLogId },
   }: {
     dataService: DataService;
     logger: LoggerAndTelemetry;
@@ -57,19 +57,17 @@ export function createInstanceStore(
 
     try {
       await instance.refresh({ dataService, ...refreshOptions });
-
-      appRegistry.emit('instance-refreshed', {
-        instance,
-        dataService,
-        errorMessage: '',
-      });
     } catch (err: any) {
-      appRegistry.emit('instance-refreshed', {
-        instance,
-        dataService,
-        errorMessage: err.message,
-      });
-
+      log.warn(
+        mongoLogId(1_001_000_295),
+        'Instance Store',
+        'Failed to refresh instance',
+        {
+          message: (err as Error).message,
+          connectionId: dataService.id,
+          isFirstRun,
+        }
+      );
       // The `instance.refresh` method is catching all expected errors: we treat
       // a lot of metadata as optional so failing to fetch it shouldn't throw.
       // In most cases if this failed on subsequent runs, user is probably
@@ -92,16 +90,28 @@ export function createInstanceStore(
     }
   }
 
-  // Event emitted when the Databases grid needs to be refreshed
-  // We additionally refresh the list of collections as well
-  // since there is the side navigation which could be in expanded mode
+  // Event emitted when the Databases grid needs to be refreshed. We
+  // additionally refresh the list of collections as well since there is the
+  // side navigation which could be in expanded mode
   async function refreshDatabases() {
-    await instance.fetchDatabases({ dataService, force: true });
-    await Promise.allSettled(
-      instance.databases.map((db) =>
-        db.fetchCollections({ dataService, force: true })
-      )
-    );
+    try {
+      await instance.fetchDatabases({ dataService, force: true });
+      await Promise.allSettled(
+        instance.databases.map((db) =>
+          db.fetchCollections({ dataService, force: true })
+        )
+      );
+    } catch (err: any) {
+      log.warn(
+        mongoLogId(1_001_000_296),
+        'Instance Store',
+        'Failed to refresh databases',
+        {
+          message: (err as Error).message,
+          connectionId: dataService.id,
+        }
+      );
+    }
   }
 
   async function fetchAllCollections() {
@@ -174,11 +184,7 @@ export function createInstanceStore(
 
   addCleanup(() => {
     instance.removeAllListeners();
-    appRegistry.emit('instance-destroyed', { instance: null });
   });
-
-  debug('instance-created');
-  appRegistry.emit('instance-created', { instance });
 
   void refreshInstance({
     fetchDatabases: true,
@@ -197,22 +203,22 @@ export function createInstanceStore(
 
   on(dataService, 'topologyDescriptionChanged', onTopologyDescriptionChanged);
 
-  on(appRegistry, 'sidebar-expand-database', (dbName: string) => {
+  on(globalAppRegistry, 'sidebar-expand-database', (dbName: string) => {
     void instance.databases.get(dbName)?.fetchCollections({ dataService });
   });
 
-  on(appRegistry, 'sidebar-filter-navigation-list', fetchAllCollections);
+  on(globalAppRegistry, 'sidebar-filter-navigation-list', fetchAllCollections);
 
-  on(appRegistry, 'refresh-data', refreshInstance);
+  on(globalAppRegistry, 'refresh-data', refreshInstance);
 
-  on(appRegistry, 'database-dropped', (dbName: string) => {
+  on(globalAppRegistry, 'database-dropped', (dbName: string) => {
     const db = instance.databases.remove(dbName);
     if (db) {
       MongoDBInstance.removeAllListeners(db);
     }
   });
 
-  on(appRegistry, 'collection-dropped', (namespace: string) => {
+  on(globalAppRegistry, 'collection-dropped', (namespace: string) => {
     const { database } = toNS(namespace);
     const db = instance.databases.get(database);
     const coll = db?.collections.get(namespace, '_id');
@@ -236,10 +242,10 @@ export function createInstanceStore(
     }
   });
 
-  on(appRegistry, 'refresh-databases', refreshDatabases);
+  on(globalAppRegistry, 'refresh-databases', refreshDatabases);
 
   on(
-    appRegistry,
+    globalAppRegistry,
     'collection-renamed',
     ({ from, to }: { from: string; to: string }) => {
       const { database, collection } = toNS(from);
@@ -250,16 +256,20 @@ export function createInstanceStore(
     }
   );
 
-  on(appRegistry, 'document-deleted', refreshNamespaceStats);
-  on(appRegistry, 'document-inserted', refreshNamespaceStats);
-  on(appRegistry, 'import-finished', refreshNamespaceStats);
-
-  on(appRegistry, 'collection-created', maybeAddAndRefreshCollectionModel);
-
-  on(appRegistry, 'view-created', maybeAddAndRefreshCollectionModel);
+  on(globalAppRegistry, 'document-deleted', refreshNamespaceStats);
+  on(globalAppRegistry, 'document-inserted', refreshNamespaceStats);
+  on(globalAppRegistry, 'import-finished', refreshNamespaceStats);
 
   on(
-    appRegistry,
+    globalAppRegistry,
+    'collection-created',
+    maybeAddAndRefreshCollectionModel
+  );
+
+  on(globalAppRegistry, 'view-created', maybeAddAndRefreshCollectionModel);
+
+  on(
+    globalAppRegistry,
     'agg-pipeline-out-executed',
     // null means the out / merge stage destination wasn't a namespace in the
     // same cluster
@@ -271,7 +281,7 @@ export function createInstanceStore(
     }
   );
 
-  on(appRegistry, 'view-edited', (namespace: string) => {
+  on(globalAppRegistry, 'view-edited', (namespace: string) => {
     const { database } = toNS(namespace);
     void instance.databases
       .get(database)

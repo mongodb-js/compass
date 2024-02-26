@@ -7,6 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -26,9 +27,7 @@ describe('Collection ai query', function () {
   let clearRequests: () => void;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'ai queries not yet available in compass-web');
 
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 
