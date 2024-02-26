@@ -32,11 +32,6 @@ import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
 import React, {
   useCallback,
@@ -383,11 +378,15 @@ function Home({
     };
   }, []);
 
+  const connectionStorage =
+    __TEST_CONNECTION_STORAGE === undefined
+      ? ConnectionStorage
+      : __TEST_CONNECTION_STORAGE;
   return (
     <FileInputBackendProvider
       createFileInputBackend={electronFileInputBackendRef.current}
     >
-      <ConnectionStorageContext.Provider value={ConnectionStorage}>
+      <ConnectionStorageContext.Provider value={connectionStorage}>
         <ConnectionRepositoryContextProvider>
           {isConnected && connectedDataService.current && (
             <AppRegistryProvider
@@ -424,7 +423,6 @@ function Home({
                   hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
                 }
                 connectFn={__TEST_MONGODB_DATA_SERVICE_CONNECT_FN}
-                connectionStorage={__TEST_CONNECTION_STORAGE}
               />
             </div>
           </div>
