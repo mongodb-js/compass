@@ -1,11 +1,8 @@
 import React from 'react';
-import { Button, Icon, css } from '@mongodb-js/compass-components';
+import { Button, Icon } from '@mongodb-js/compass-components';
+import { createButton } from './items-grid';
 
 export type ItemType = 'database' | 'collection';
-
-const createButton = css({
-  whiteSpace: 'nowrap',
-});
 
 export function useCreateControls(
   itemType: ItemType,

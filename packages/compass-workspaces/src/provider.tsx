@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
 import type {
   OpenWorkspaceOptions,
@@ -9,8 +9,6 @@ import {
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
-import toNS from 'mongodb-ns';
-import type { BreadcrumbItems } from '@mongodb-js/compass-components';
 
 function useWorkspacesStore() {
   try {
@@ -225,72 +223,6 @@ export function useActiveWorkspace() {
   // ... but return the value from the service so that it can be mocked in tests
   // if needed
   return service.getActiveWorkspace();
-}
-
-export function useWorkspaceBreadcrumbs(): BreadcrumbItems {
-  const workspace = useActiveWorkspace();
-  const {
-    openDatabasesWorkspace,
-    openCollectionsWorkspace,
-    openCollectionWorkspace,
-  } = useOpenWorkspace();
-  return useMemo(() => {
-    switch (workspace?.type) {
-      case 'Databases':
-        return [
-          {
-            name: 'Cluster',
-            onClick: () => openDatabasesWorkspace(),
-          },
-        ];
-      case 'Collections':
-        return [
-          {
-            name: 'Cluster',
-            onClick: () => openDatabasesWorkspace(),
-          },
-          {
-            name: toNS(workspace.namespace).database,
-            onClick: () =>
-              openCollectionsWorkspace(toNS(workspace.namespace).database),
-          },
-        ];
-      case 'Collection':
-        return [
-          {
-            name: 'Cluster',
-            onClick: () => openDatabasesWorkspace(),
-          },
-          {
-            name: toNS(workspace.namespace).database,
-            onClick: () =>
-              openCollectionsWorkspace(toNS(workspace.namespace).database),
-          },
-          // When viewing a view, show the source namespace first
-          workspace.sourceName && {
-            name: toNS(workspace.sourceName).collection,
-            onClick: () => openCollectionWorkspace(workspace.sourceName!),
-          },
-          // Show the current namespace
-          {
-            name: toNS(workspace.namespace).collection,
-            onClick: () => openCollectionWorkspace(workspace.namespace),
-          },
-          // When editing a view, show the view namespace last
-          workspace.editViewName && {
-            name: toNS(workspace.editViewName).collection,
-            onClick: () => openCollectionWorkspace(workspace.editViewName!),
-          },
-        ].filter(Boolean) as BreadcrumbItems;
-      default:
-        return [];
-    }
-  }, [
-    workspace,
-    openDatabasesWorkspace,
-    openCollectionsWorkspace,
-    openCollectionWorkspace,
-  ]);
 }
 
 export const workspacesServiceLocator = useWorkspacesService;

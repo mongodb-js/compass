@@ -226,10 +226,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       const ns = `${database}.${viewName}`;
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
       globalAppRegistry.emit('view-created', ns);
-      workspaces.openCollectionWorkspace(ns, {
-        newTab: true,
-        sourceName: viewSource,
-      });
+      workspaces.openCollectionWorkspace(ns, { newTab: true });
       dispatch(reset());
     } catch (e) {
       dispatch(stopWithError(e as Error));

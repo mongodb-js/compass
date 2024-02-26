@@ -16,6 +16,7 @@ function renderCollectionHeader(
       isClustered={false}
       isFLE={false}
       namespace="test.test"
+      stats={null}
       {...props}
     />
   );
@@ -33,8 +34,12 @@ describe('CollectionHeader [Component]', function () {
       expect(screen.getByTestId('collection-header')).to.exist;
     });
 
-    it('renders breadcrumbs', function () {
-      expect(screen.getByTestId('breadcrumbs')).to.exist;
+    it('renders the db name', function () {
+      expect(screen.getByTestId('collection-header-title-db')).to.exist;
+    });
+
+    it('renders the collection name', function () {
+      expect(screen.getByTestId('collection-header-title-collection')).to.exist;
     });
 
     it('does not render the readonly badge', function () {
@@ -65,8 +70,12 @@ describe('CollectionHeader [Component]', function () {
       expect(screen.getByTestId('collection-header')).to.exist;
     });
 
-    it('renders breadcrumbs', function () {
-      expect(screen.getByTestId('breadcrumbs')).to.exist;
+    it('renders the db name', function () {
+      expect(screen.getByTestId('collection-header-title-db')).to.exist;
+    });
+
+    it('renders the collection name', function () {
+      expect(screen.getByTestId('collection-header-title-collection')).to.exist;
     });
 
     it('renders the source collection', function () {
