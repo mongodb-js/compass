@@ -5,6 +5,6 @@
  **/
 export default function revealFile(fileName: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-  const { shell }: typeof import('electron') = require('electron');
-  shell.showItemInFolder(fileName);
+  const electron: typeof import('electron') = require('electron');
+  electron.ipcRenderer.send('show-file', fileName);
 }
