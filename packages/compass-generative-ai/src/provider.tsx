@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { AtlasAiService } from './atlas-ai-service';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { AtlasServiceOptions } from '@mongodb-js/atlas-service/provider';
 import {
   atlasAuthServiceLocator,
@@ -19,7 +19,7 @@ export const AtlasAiServiceProvider: React.FC<AtlasAiServiceProviderProps> = ({
   defaultHttpHeaders,
   children,
 }) => {
-  const logger = createLoggerAndTelemetryLocator('ATLAS-AI-SERVICE')();
+  const logger = useLoggerAndTelemetry('ATLAS-AI-SERVICE');
   const preferences = preferencesLocator();
   const atlasAuthService = atlasAuthServiceLocator();
 
