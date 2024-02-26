@@ -25,7 +25,8 @@ describe('TabNavBar Component', function () {
       onTabClickedSpy = sinon.spy();
       render(
         <TabNavBar
-          tabs={['one', 'two', 'three', <p key={'four'}>four</p>]}
+          tabNames={['one', 'two', 'three', 'four']}
+          tabLabels={['one', 'two', 'three', <p key={'four'}>four</p>]}
           views={views}
           aria-label="Test tabs label"
           onTabClicked={onTabClickedSpy}
