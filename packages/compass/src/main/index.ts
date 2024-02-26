@@ -24,7 +24,7 @@ initializeElectronRemote();
 installEarlyLoggingListener();
 installEarlyOpenUrlListener();
 
-process.title = `${app.getName()} ${app.getVersion()}`;
+process.title = app.getName();
 
 void main();
 
