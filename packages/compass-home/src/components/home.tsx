@@ -27,7 +27,6 @@ import {
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
-import { ipcRenderer } from 'hadron-ipc';
 import type {
   DataService,
   ReauthenticationHandler,
