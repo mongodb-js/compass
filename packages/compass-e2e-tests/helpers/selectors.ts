@@ -443,9 +443,6 @@ export const collectionCardClickable = (
 
 // Collection screen
 export const CollectionTab = '[data-testid="collection-tabs"]';
-export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
-export const CollectionHeaderNamespace =
-  '[data-testid="collection-header-namespace"]';
 export const CollectionTabStats = (
   tabName: 'documents' | 'indexes'
 ): string => {
@@ -474,11 +471,10 @@ export const collectionContent = (tabName: string): string => {
   const tn = tabName.toLowerCase().replace(/ /g, '-');
   return `[data-testid="${tn}-content"]`;
 };
-export const collectionHeaderTitle = (
-  dbName: string,
-  collectionName: string
-): string => {
-  return `${CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
+export const collectionHeader = (namespace?: string) => {
+  return `[data-testid="collection-header"]${
+    namespace ? `[title="${namespace}"]` : ''
+  }`;
 };
 
 // Documents tab

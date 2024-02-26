@@ -172,8 +172,9 @@ describe('Collection Rename Modal', () => {
       await collectionElement.waitForDisplayed();
       await collectionElement.click();
 
+      const headerSelector = Selectors.collectionHeader();
       // wait until the collection tab has loaded
-      await browser.$(Selectors.CollectionHeaderNamespace).waitForDisplayed();
+      await browser.$(headerSelector).waitForDisplayed();
 
       // open the rename collection flow from the sidebar
       await browser.hover(collectionSelector);
@@ -181,10 +182,10 @@ describe('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.RenameCollectionButton);
       await renameCollectionSuccessFlow(browser, newName);
 
-      await browser.$(Selectors.CollectionHeaderNamespace).waitForDisplayed();
+      await browser.$(headerSelector).waitForDisplayed();
       await browser.waitUntil(async () => {
         const collectionHeaderContent = await browser
-          .$(Selectors.CollectionHeaderNamespace)
+          .$(headerSelector)
           .getText();
         return (
           collectionHeaderContent.includes(newName) &&
