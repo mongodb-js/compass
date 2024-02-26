@@ -16,6 +16,9 @@ const defaultCSP = {
     'https://widget.intercom.io',
     'https://js.intercomcdn.com',
     'https://uploads.intercomcdn.com',
+    'https://cloud.mongodb.com',
+    'https://cloud-dev.mongodb.com',
+    'https://compass.mongodb.com',
     'https://uploads.intercomusercontent.com',
   ],
   'img-src': [
@@ -47,6 +50,9 @@ const defaultCSP = {
     'https://js.intercomcdn.com',
     'https://uploads.intercomcdn.com',
     'https://uploads.intercomusercontent.com',
+    'https://cloud.mongodb.com',
+    'https://cloud-dev.mongodb.com',
+    'https://compass.mongodb.com',
     'https://ip-ranges.amazonaws.com',
   ],
   'child-src': [
