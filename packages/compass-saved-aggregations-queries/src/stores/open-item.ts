@@ -198,7 +198,7 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { logger: { track }, workspaces, instance }) => {
+  (_dispatch, _getState, { logger: { track }, workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -209,10 +209,6 @@ const openItem =
       }
     );
 
-    const collectionModel = instance.databases
-      .get(database)
-      ?.collections.get(collection, 'name');
-
     workspaces.openCollectionWorkspace(`${database}.${collection}`, {
       initialAggregation:
         item.type === 'aggregation' ? item.aggregation : undefined,
@@ -221,7 +217,6 @@ const openItem =
           ? item.query
           : undefined,
       newTab: true,
-      sourceName: collectionModel?.sourceName ?? undefined,
     });
   };
 

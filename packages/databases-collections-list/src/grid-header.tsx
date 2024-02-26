@@ -1,6 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { css, cx, spacing, Breadcrumbs } from '@mongodb-js/compass-components';
-import { useWorkspaceBreadcrumbs } from '@mongodb-js/compass-workspaces/provider';
+import type { BreadcrumbItem } from '@mongodb-js/compass-components';
+import toNS from 'mongodb-ns';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 const gridControlItemStyles = css({
   flex: 'none',
@@ -67,8 +69,22 @@ const breadcrumbStyles = css({
   display: 'flex',
 });
 
-export const GridHeader = () => {
-  const breadcrumbItems = useWorkspaceBreadcrumbs();
+export const GridHeader = ({ namespace }: { namespace?: string }) => {
+  const { openDatabasesWorkspace, openCollectionsWorkspace } =
+    useOpenWorkspace();
+
+  const breadcrumbItems = useMemo(() => {
+    return [
+      {
+        name: 'Cluster',
+        onClick: () => openDatabasesWorkspace(),
+      },
+      namespace && {
+        name: toNS(namespace).database,
+        onClick: () => openCollectionsWorkspace(toNS(namespace).database),
+      },
+    ].filter(Boolean) as BreadcrumbItem[];
+  }, [namespace, openDatabasesWorkspace, openCollectionsWorkspace]);
   return (
     <div className={containerStyles}>
       <div className={breadcrumbStyles}>

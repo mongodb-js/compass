@@ -8,17 +8,15 @@ import {
   useDarkMode,
   Breadcrumbs,
 } from '@mongodb-js/compass-components';
+import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
 import type { CollectionState } from '../../modules/collection-tab';
 import { CollectionBadge } from './badges';
-import {
-  useOpenWorkspace,
-  useWorkspaceBreadcrumbs,
-} from '@mongodb-js/compass-workspaces/provider';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { connect } from 'react-redux';
 
 const collectionHeaderStyles = css({
@@ -87,7 +85,47 @@ export const CollectionHeader: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
-  const { openCollectionWorkspace, openEditViewWorkspace } = useOpenWorkspace();
+  const {
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+    openDatabasesWorkspace,
+    openCollectionsWorkspace,
+  } = useOpenWorkspace();
+
+  const breadcrumbItems = useMemo(() => {
+    return [
+      {
+        name: 'Cluster',
+        onClick: () => openDatabasesWorkspace(),
+      },
+      {
+        name: toNS(namespace).database,
+        onClick: () => openCollectionsWorkspace(toNS(namespace).database),
+      },
+      // When viewing a view, show the source namespace first
+      sourceName && {
+        name: toNS(sourceName).collection,
+        onClick: () => openCollectionWorkspace(sourceName),
+      },
+      // Show the current namespace
+      {
+        name: toNS(namespace).collection,
+        onClick: () => openCollectionWorkspace(namespace),
+      },
+      // When editing a view, show the view namespace last
+      editViewName && {
+        name: toNS(editViewName).collection,
+        onClick: () => openCollectionWorkspace(editViewName),
+      },
+    ].filter(Boolean) as BreadcrumbItem[];
+  }, [
+    namespace,
+    sourceName,
+    editViewName,
+    openDatabasesWorkspace,
+    openCollectionsWorkspace,
+    openCollectionWorkspace,
+  ]);
 
   const ns = toNS(namespace);
   const database = ns.database;
@@ -96,7 +134,6 @@ export const CollectionHeader: React.FunctionComponent<
     showInsights && sourcePipeline?.length
       ? getInsightsForPipeline(sourcePipeline, isAtlas)
       : [];
-  const breadcrumbItems = useWorkspaceBreadcrumbs();
   return (
     <div
       title={`${database}.${collection}`}
@@ -126,7 +163,7 @@ export const CollectionHeader: React.FunctionComponent<
         }}
         onReturnToViewClicked={() => {
           if (editViewName) {
-            openCollectionWorkspace(editViewName, { sourceName: namespace });
+            openCollectionWorkspace(editViewName);
           }
         }}
         sourceName={sourceName}

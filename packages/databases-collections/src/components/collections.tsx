@@ -59,14 +59,6 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     _onCreateCollectionClick(toNS(namespace).database);
   }, [namespace, _onCreateCollectionClick]);
 
-  const onCollectionClick = useCallback(
-    (id: string) => {
-      const sourceName = collections.find((c) => c._id === id)?.source?._id;
-      openCollectionWorkspace(id, { sourceName });
-    },
-    [collections, openCollectionWorkspace]
-  );
-
   if (collectionsLoadingStatus === 'error') {
     return (
       <div className={collectionsErrorStyles}>
@@ -80,11 +72,17 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    { onCollectionClick, onRefreshClick },
+    { onCollectionClick: openCollectionWorkspace, onRefreshClick },
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 
-  return <CollectionsList collections={collections} {...actions} />;
+  return (
+    <CollectionsList
+      collections={collections}
+      namespace={namespace}
+      {...actions}
+    />
+  );
 };
 
 const ConnectedCollections = connect(

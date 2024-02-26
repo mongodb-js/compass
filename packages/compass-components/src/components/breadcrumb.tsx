@@ -5,10 +5,10 @@ import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { Link, Icon, Body } from './leafygreen';
 
-export type BreadcrumbItems = Array<{
+export type BreadcrumbItem = {
   name: string;
   onClick: () => void;
-}>;
+};
 
 const breadcrumbStyles = css({
   display: 'flex',
@@ -40,7 +40,7 @@ const lastItemStylesDark = css({
   color: palette.gray.base,
 });
 
-export const Breadcrumbs = ({ items }: { items: BreadcrumbItems }) => {
+export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
   const darkMode = useDarkMode();
   return (
     <div className={breadcrumbStyles} data-testid="breadcrumbs">

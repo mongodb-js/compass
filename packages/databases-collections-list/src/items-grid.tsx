@@ -65,6 +65,7 @@ interface RenderItem<T> {
 
 type ItemsGridProps<T> = {
   itemType: 'collection' | 'database';
+  namespace?: string;
   itemGridWidth: number;
   itemGridHeight: number;
   itemListWidth?: number;
@@ -80,6 +81,7 @@ type ItemsGridProps<T> = {
 
 export const ItemsGrid = <T extends Item>({
   itemType,
+  namespace,
   itemGridWidth,
   itemGridHeight,
   itemListWidth = itemGridWidth,
@@ -146,7 +148,7 @@ export const ItemsGrid = <T extends Item>({
         renderItem={renderItem}
         itemKey={(index: number) => sortedItems[index]._id}
         headerHeight={CONTROLS_HEIGHT}
-        renderHeader={() => <GridHeader />}
+        renderHeader={() => <GridHeader namespace={namespace} />}
         classNames={{
           container,
           header: controls,
