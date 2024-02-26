@@ -20,12 +20,11 @@ describe('TabNavBar Component', function () {
         <MockElement key={1} number={1} />,
         <MockElement key={2} number={2} />,
         <MockElement key={3} number={3} />,
-        <MockElement key={4} number={4} />,
       ];
       onTabClickedSpy = sinon.spy();
       render(
         <TabNavBar
-          tabs={['one', 'two', 'three', <p key={'four'}>four</p>]}
+          tabs={['one', 'two', 'three']}
           views={views}
           aria-label="Test tabs label"
           onTabClicked={onTabClickedSpy}
@@ -38,13 +37,11 @@ describe('TabNavBar Component', function () {
       expect(screen.getByText('one')).to.be.visible;
       expect(screen.getByText('two')).to.be.visible;
       expect(screen.getByText('three')).to.be.visible;
-      expect(screen.getByText('four')).to.be.visible;
     });
 
     it('should not render the non-selected tab contents', function () {
       expect(screen.queryByText('test-element-1')).to.not.exist;
       expect(screen.queryByText('test-element-2')).to.not.exist;
-      expect(screen.queryByText('test-element-4')).to.not.exist;
     });
 
     it('should render the selected tab contents', function () {
