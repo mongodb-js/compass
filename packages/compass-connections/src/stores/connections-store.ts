@@ -395,6 +395,7 @@ export function useConnections({
               // Get updated secrets first (and not in parallel) so that the
               // race condition window between load() and save() is as short as possible.
               const mergeConnectionInfo = {
+                id: connectionInfo.id,
                 connectionOptions: await dataService.getUpdatedSecrets(),
               } as ConnectionInfo;
               if (!mergeConnectionInfo) return;

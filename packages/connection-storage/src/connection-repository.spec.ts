@@ -163,6 +163,39 @@ describe('CompassConnectionProvider', function () {
       });
     });
 
+    it('should merge oidc connection info if exists', async function () {
+      const { storage, saveStub } = mockStorageWithConnections([
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          connectionOptions: {
+            connectionString:
+              'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
+          },
+        },
+      ]);
+
+      const provider = new ConnectionRepository(storage);
+      const connectionToSave = {
+        id: '1',
+        connectionOptions: { oidc: { serializedState: 'someNewState' } },
+      };
+
+      await provider.saveConnection(connectionToSave);
+
+      expect(saveStub).to.have.been.calledOnceWith({
+        connectionInfo: {
+          id: '1',
+          savedConnectionType: 'favorite',
+          connectionOptions: {
+            connectionString:
+              'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
+            oidc: { serializedState: 'someNewState' },
+          },
+        },
+      });
+    });
+
     it('should not save a new connection if it has an invalid connection string', async function () {
       const { storage, saveStub } = mockStorage();
       const provider = new ConnectionRepository(storage);
