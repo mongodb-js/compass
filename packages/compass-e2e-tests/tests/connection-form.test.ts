@@ -6,6 +6,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -20,9 +21,7 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'no connect form in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -101,7 +100,7 @@ describe('Connection form', function () {
   });
 
   it('parses and formats a URI for multiple hosts', async function () {
-    const connectionString = 'mongodb://localhost:27017,localhost:27091/';
+    const connectionString = 'mongodb://localhost:27017,127.0.0.1:27091/';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
@@ -110,7 +109,7 @@ describe('Connection form', function () {
     const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
-      hosts: ['localhost:27017', 'localhost:27091'],
+      hosts: ['localhost:27017', '127.0.0.1:27091'],
       authMethod: 'DEFAULT',
       defaultAuthMechanism: 'DEFAULT',
       proxyMethod: 'none',
@@ -688,7 +687,7 @@ describe('Connection form', function () {
     // Fill in a valid URI
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://localhost:27091/test'
+      'mongodb://127.0.0.1:27091/test'
     );
 
     // Save & Connect

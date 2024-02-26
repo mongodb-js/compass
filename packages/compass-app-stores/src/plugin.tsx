@@ -59,7 +59,7 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
       return {
         store,
         deactivate: () => {
-          helpers.cleanup();
+          store.deactivate();
         },
       };
     },

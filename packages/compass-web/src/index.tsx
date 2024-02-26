@@ -162,7 +162,7 @@ const CompassWeb = ({
   return (
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
-        <AppRegistryProvider>
+        <AppRegistryProvider scopeName="Compass Web Root">
           <DataServiceProvider value={dataService.current}>
             <CompassInstanceStorePlugin>
               <FieldStorePlugin>

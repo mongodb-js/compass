@@ -4,6 +4,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
@@ -110,9 +111,7 @@ describe('Collection Rename Modal', () => {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'feature flags not yet available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

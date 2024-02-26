@@ -1,10 +1,11 @@
 import { expect } from 'chai';
+import { MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -18,10 +19,6 @@ describe('Instance databases tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -34,10 +31,6 @@ describe('Instance databases tab', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
@@ -128,7 +121,7 @@ describe('Instance databases tab', function () {
       }
 
       // go hover somewhere else to give the next attempt a fighting chance
-      await browser.hover(Selectors.SidebarTitle);
+      await browser.hover(Selectors.Sidebar);
       return false;
     });
 
@@ -147,27 +140,37 @@ describe('Instance databases tab', function () {
   it('can refresh the list of databases using refresh controls', async function () {
     const db = 'my-instance-database';
     const coll = 'my-collection';
-    // Create the database and refresh
-    await browser.shellEval(`use ${db};`);
-    await browser.shellEval(`db.createCollection('${coll}');`);
-    await browser.navigateToInstanceTab('Databases');
-    await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
-
     const dbSelector = Selectors.databaseCard(db);
-    await browser.scrollToVirtualItem(
-      Selectors.DatabasesTable,
-      dbSelector,
-      'grid'
-    );
-    await browser.$(dbSelector).waitForDisplayed();
 
-    // Drop it and refresh again
-    console.log({
-      'db.dropDatabase()': await browser.shellEval('db.dropDatabase();'),
-    });
-    console.log({
-      'show databases': await browser.shellEval('show databases'),
-    });
+    // Create the database and refresh
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    await mongoClient.connect();
+    try {
+      const database = mongoClient.db(db);
+      await database.createCollection(coll);
+
+      await browser.navigateToInstanceTab('Databases');
+      await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
+
+      await browser.scrollToVirtualItem(
+        Selectors.DatabasesTable,
+        dbSelector,
+        'grid'
+      );
+      await browser.$(dbSelector).waitForDisplayed();
+
+      // Drop it and refresh again
+      console.log({
+        'database.dropDatabase()': await database.dropDatabase(),
+      });
+      console.log({
+        'database.admin().listDatabases()': (
+          await database.admin().listDatabases()
+        ).databases,
+      });
+    } finally {
+      await mongoClient.close();
+    }
 
     // looks like if you refresh too fast the database appears in the list but
     // the stats never load, so just pause for bit first
