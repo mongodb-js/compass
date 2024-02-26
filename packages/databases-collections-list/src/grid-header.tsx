@@ -76,6 +76,7 @@ export const GridHeader = ({ namespace }: { namespace?: string }) => {
   const breadcrumbItems = useMemo(() => {
     return [
       {
+        // TODO (COMPASS-7684): add connection name
         name: 'Cluster',
         onClick: () => openDatabasesWorkspace(),
       },
