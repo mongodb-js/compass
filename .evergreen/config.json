@@ -141,6 +141,14 @@
       ],
       "test-web-sandbox": [
         {
+          "name": "chrome",
+          "vars": {
+            "mongodb_version": "latest-alpha-enterprise",
+            "browser_name": "chrome"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large", "windows-vsCurrent-large"]
+        },
+        {
           "name": "firefox",
           "vars": {
             "mongodb_version": "latest-alpha-enterprise",

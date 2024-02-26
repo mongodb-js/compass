@@ -10,17 +10,8 @@ import type { DownloadItem } from 'electron';
 import { dialog } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
-
-CompassAutoUpdateManager.autoUpdateOptions = {
-  endpoint: 'http://example.com',
-  platform: 'darwin',
-  arch: 'x64',
-  product: 'compass',
-  channel: 'dev',
-  version: '0.0.0',
-  updateCheckInterval: 0,
-  initialUpdateDelay: 0,
-};
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { ipcMain } from 'hadron-ipc';
 
 function setStateAndWaitForUpdate(
   initial: AutoUpdateManagerState,
@@ -34,15 +25,17 @@ function setStateAndWaitForUpdate(
       if (newState === expected) {
         resolved = true;
         CompassAutoUpdateManager.off('new-state', resolveWhenState);
-        CompassAutoUpdateManager['currentStateTransition']?.finally(() => {
+        Promise.resolve(
+          CompassAutoUpdateManager['currentStateTransition']
+        ).finally(() => {
           CompassAutoUpdateManager['currentActionAbortController'].abort();
           resolve(true);
         });
       }
     }
     CompassAutoUpdateManager['state'] = initial;
-    CompassAutoUpdateManager.setState(setTo, {});
     CompassAutoUpdateManager.on('new-state', resolveWhenState);
+    CompassAutoUpdateManager.setState(setTo, {});
     void wait(timeout).then(() => {
       if (resolved) {
         return;
@@ -60,6 +53,21 @@ function setStateAndWaitForUpdate(
 describe('CompassAutoUpdateManager', function () {
   const sandbox = Sinon.createSandbox();
 
+  beforeEach(async function () {
+    CompassAutoUpdateManager.autoUpdateOptions = {
+      endpoint: 'http://example.com',
+      platform: 'darwin',
+      arch: 'x64',
+      product: 'compass',
+      channel: 'dev',
+      version: '0.0.0',
+      updateCheckInterval: 0,
+      initialUpdateDelay: 0,
+    };
+    CompassAutoUpdateManager.preferences =
+      await createSandboxFromDefaultPreferences();
+  });
+
   afterEach(function () {
     sandbox.restore();
     CompassAutoUpdateManager['state'] = AutoUpdateManagerState.Initial;
@@ -70,7 +78,7 @@ describe('CompassAutoUpdateManager', function () {
 
   it('should not allow undefined state transitions', function () {
     const initialState = CompassAutoUpdateManager['state'];
-    CompassAutoUpdateManager.setState(AutoUpdateManagerState.ReadyToUpdate);
+    CompassAutoUpdateManager.setState(AutoUpdateManagerState.UpdateAvailable);
     expect(CompassAutoUpdateManager['state']).to.eq(initialState);
     CompassAutoUpdateManager.setState(AutoUpdateManagerState.Restarting);
     expect(CompassAutoUpdateManager['state']).to.eq(initialState);
@@ -86,6 +94,18 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
+    it('attaches OS metadata as query params to the update request URL', async () => {
+      const url = await CompassAutoUpdateManager.getUpdateCheckURL();
+
+      expect(url.searchParams.get('release')).to.exist;
+
+      const isLinux = process.platform === 'linux';
+      if (isLinux) {
+        expect(url.searchParams.get('os_linux_dist')).to.exist;
+        expect(url.searchParams.get('os_linux_release')).to.exist;
+      }
+    });
+
     it('should check for update and transition to update not available if backend returned nothing', async function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
@@ -96,7 +116,7 @@ describe('CompassAutoUpdateManager', function () {
       expect(
         await setStateAndWaitForUpdate(
           AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
           AutoUpdateManagerState.NoUpdateAvailable
         )
       ).to.eq(true);
@@ -114,7 +134,7 @@ describe('CompassAutoUpdateManager', function () {
       expect(
         await setStateAndWaitForUpdate(
           AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
           AutoUpdateManagerState.UpdateAvailable
         )
       ).to.eq(true);
@@ -130,7 +150,7 @@ describe('CompassAutoUpdateManager', function () {
         });
 
       CompassAutoUpdateManager.setState(
-        AutoUpdateManagerState.CheckingForUpdates
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
       );
       CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
 
@@ -150,14 +170,24 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
-    it('should start downloading update if user confirms update install', async function () {
+    it('should start downloading update without prompt for automatic updates', async function () {
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerState.UpdateAvailable,
+          AutoUpdateManagerState.DownloadingUpdate
+        )
+      ).to.eq(true);
+    });
+
+    it('should start downloading manual update if user confirms update install', async function () {
       const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
         return Promise.resolve({ response: 0, checkboxChecked: false });
       });
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
           AutoUpdateManagerState.UpdateAvailable,
           AutoUpdateManagerState.DownloadingUpdate
         )
@@ -173,7 +203,7 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
           AutoUpdateManagerState.UpdateAvailable,
           AutoUpdateManagerState.UpdateDismissed
         )
@@ -182,13 +212,13 @@ describe('CompassAutoUpdateManager', function () {
       expect(stub).to.be.calledOnce;
     });
 
-    it('should ignore user input and go to disabled when autoupdate is disabled', async function () {
+    it('should ignore user input and go to disabled when autoupdate is disabled while prompting user', async function () {
       const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
         return wait(100, { response: 0, checkboxChecked: false });
       });
 
       CompassAutoUpdateManager['state'] =
-        AutoUpdateManagerState.CheckingForUpdates;
+        AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
       CompassAutoUpdateManager.setState(
         AutoUpdateManagerState.UpdateAvailable,
         {}
@@ -225,7 +255,7 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
             AutoUpdateManagerState.UpdateAvailable,
             AutoUpdateManagerState.ManualDownload
           )
@@ -241,7 +271,7 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
             AutoUpdateManagerState.UpdateAvailable,
             AutoUpdateManagerState.DownloadingUpdate
           )
@@ -257,7 +287,7 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
             AutoUpdateManagerState.UpdateAvailable,
             AutoUpdateManagerState.UpdateDismissed
           )
@@ -274,40 +304,50 @@ describe('CompassAutoUpdateManager', function () {
     });
 
     it('should restart the app if user confirms', async function () {
-      const showBoxStub = sandbox
-        .stub(dialog, 'showMessageBox')
-        .callsFake(() => {
-          return Promise.resolve({ response: 0, checkboxChecked: false });
+      const restartToastIpcPrompt = sandbox
+        .stub(ipcMain!, 'broadcastFocused')
+        .callsFake((arg) => {
+          expect(arg).to.equal('autoupdate:update-download-success');
+          setTimeout(() => {
+            CompassAutoUpdateManager[
+              'handleIpcUpdateDownloadRestartConfirmed'
+            ]();
+          });
         });
 
       expect(
         await setStateAndWaitForUpdate(
           AutoUpdateManagerState.DownloadingUpdate,
-          AutoUpdateManagerState.ReadyToUpdate,
+          AutoUpdateManagerState.PromptForRestart,
           AutoUpdateManagerState.Restarting
         )
       ).to.eq(true);
 
-      expect(showBoxStub).to.be.calledOnce;
+      expect(restartToastIpcPrompt).to.be.calledOnce;
       expect(autoUpdater.quitAndInstall).to.be.calledOnce;
     });
 
     it('should transition to restart dismissed if user does not confirm restart', async function () {
-      const showBoxStub = sandbox
-        .stub(dialog, 'showMessageBox')
-        .callsFake(() => {
-          return Promise.resolve({ response: 1, checkboxChecked: false });
+      const restartToastIpcPrompt = sandbox
+        .stub(ipcMain!, 'broadcastFocused')
+        .callsFake((arg) => {
+          expect(arg).to.equal('autoupdate:update-download-success');
+          setTimeout(() => {
+            CompassAutoUpdateManager[
+              'handleIpcUpdateDownloadRestartDismissed'
+            ]();
+          });
         });
 
       expect(
         await setStateAndWaitForUpdate(
           AutoUpdateManagerState.DownloadingUpdate,
-          AutoUpdateManagerState.ReadyToUpdate,
+          AutoUpdateManagerState.PromptForRestart,
           AutoUpdateManagerState.RestartDismissed
         )
       ).to.eq(true);
 
-      expect(showBoxStub).to.be.calledOnce;
+      expect(restartToastIpcPrompt).to.be.calledOnce;
     });
   });
 });

@@ -1,6 +1,8 @@
-import { stringify, validate } from 'mongodb-query-parser';
+import { toJSString, validate } from 'mongodb-query-parser';
 import type { UserPreferences } from 'compass-preferences-model';
 import { isEqual } from 'lodash';
+import { prettify } from '@mongodb-js/compass-editor';
+
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -89,8 +91,13 @@ export function mapQueryToFormFields(
         if (!isQueryProperty(key)) {
           return null;
         }
-        const valueAsString =
-          typeof _value === 'undefined' ? '' : stringify(_value) || '';
+        let valueAsString =
+          typeof _value === 'undefined' ? '' : toJSString(_value, 0) || '';
+
+        valueAsString = prettify(valueAsString, 'javascript-expression', {
+          trailingComma: 'none',
+        });
+
         const value = validateField(key, valueAsString, preferences);
         const valid: boolean = value !== false;
         if (onlyValid && !valid) {
