@@ -446,36 +446,29 @@ export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-testid="document-count-value"]';
+export const CollectionTabStats = (
+  tabName: 'documents' | 'indexes'
+): string => {
+  return `[data-testid="${tabName}-tab-with-stats"] [data-testid="collection-stats"]`;
+};
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
-export const TooltipDocumentsCountValue =
-  '[data-testid="tooltip-documents-count"]';
-export const TooltipDocumentsStorageSize =
-  '[data-testid="tooltip-documents-storage-size"]';
-export const TooltipDocumentsAvgSize =
-  '[data-testid="tooltip-documents-avg-size"]';
-export const IndexCountValue = '[data-testid="index-count-value"]';
-export const TooltipIndexesCount = '[data-testid="tooltip-indexes-count"]';
-export const TooltipIndexesTotalSize =
-  '[data-testid="tooltip-indexes-total-size"]';
-export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
 export const collectionSubTab = (
   tabName: string,
   selected?: boolean
 ): string => {
-  const selector = `${CollectionTab} [name="${tabName}"]`;
+  const tabSelector = `[data-testid="${tabName}-tab-button"]`;
 
   if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
+    return `${CollectionTab} [aria-selected="true"] ${tabSelector}`;
   }
 
   if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
+    return `${CollectionTab} [aria-selected="false"] ${tabSelector}`;
   }
 
-  return selector;
+  return `${CollectionTab} ${tabSelector}`;
 };
 export const collectionContent = (tabName: string): string => {
   const tn = tabName.toLowerCase().replace(/ /g, '-');

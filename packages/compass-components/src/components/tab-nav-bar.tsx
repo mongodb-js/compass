@@ -41,7 +41,8 @@ type TabNavBarProps = {
   'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
-  tabs: React.ReactNode[];
+  tabNames: string[];
+  tabLabels: React.ReactNode[];
   views: React.ReactElement[];
   onTabClicked: (tabIndex: number) => void;
 };
@@ -55,7 +56,8 @@ function TabNavBar({
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
-  tabs,
+  tabNames,
+  tabLabels,
   views,
   onTabClicked,
 }: TabNavBarProps): React.ReactElement | null {
@@ -73,18 +75,19 @@ function TabNavBar({
           data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
-          // Note: we cast the (tabIndex: number) => void to React.Dispatch<React.SetStateAction<number>>
-          // here as a result of leafygreen's type strictness.
-          setSelected={
-            onTabClicked as React.Dispatch<React.SetStateAction<number>>
-          }
+          setSelected={onTabClicked}
           selected={activeTabIndex}
         >
-          {tabs.map((tab, idx) => (
+          {tabLabels.map((tab, idx) => (
             <Tab
               className="test-tab-nav-bar-tab"
               key={`tab-${idx}`}
-              name={tab}
+              // LG name for tab is also set as the button name and if its a
+              // react element, its not set properly. So here we are wrapping
+              // the tab name in a span and setting the data-testid on the span
+              name={
+                <span data-testid={`${tabNames[idx]}-tab-button`}>{tab}</span>
+              }
             />
           ))}
         </Tabs>
@@ -97,11 +100,10 @@ function TabNavBar({
                 [tabStyles]: true,
                 [hiddenStyles]: idx !== activeTabIndex,
               })}
-              key={`tab-content-${idx}`}
-              // key={`tab-content-${tabs[idx]}`}
-              // data-testid={`${tabs[idx]
-              //   .toLowerCase()
-              //   .replace(/ /g, '-')}-content`}
+              key={`tab-content-${tabNames[idx]}`}
+              data-testid={`${tabNames[idx]
+                .toLowerCase()
+                .replace(/ /g, '-')}-content`}
             >
               {view}
             </div>

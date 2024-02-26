@@ -51,12 +51,14 @@ const tabTitleWithStatsStyles = css({
 const TabTitleWithStats = ({
   title,
   statsComponent,
+  'data-testid': dataTestId,
 }: {
   title: string;
   statsComponent: React.ReactNode;
+  'data-testid'?: string;
 }) => {
   return (
-    <div className={tabTitleWithStatsStyles}>
+    <div data-testid={dataTestId} className={tabTitleWithStatsStyles}>
       {title}
       {statsComponent}
     </div>
@@ -136,7 +138,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           <TabNavBar
             data-testid="collection-tabs"
             aria-label="Collection Tabs"
-            tabs={tabs.map((tab) => {
+            tabNames={tabs.map((tab) => tab.name)}
+            tabLabels={tabs.map((tab) => {
               // We don't show stats, when the collection is a timeseries or a view
               // or when the view is being edited
               const hideStats =
@@ -146,6 +149,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
               if (!hideStats && tab.name === 'Documents') {
                 return (
                   <TabTitleWithStats
+                    data-testid="documents-tab-with-stats"
                     title={tab.name}
                     statsComponent={<CollectionDocumentsStats stats={stats} />}
                   />
@@ -154,6 +158,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
               if (!hideStats && tab.name === 'Indexes') {
                 return (
                   <TabTitleWithStats
+                    data-testid="indexes-tab-with-stats"
                     title={tab.name}
                     statsComponent={<CollectionIndexesStats stats={stats} />}
                   />
