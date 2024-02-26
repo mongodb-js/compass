@@ -7,7 +7,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
 import {
@@ -103,6 +103,7 @@ type OpenItemModalProps = {
   updateItemNamespace: boolean;
   onSubmit(): void;
   onClose(): void;
+  onUpdateNamespaceChecked(checked: boolean): void;
 };
 
 const modalContent = css({
@@ -142,8 +143,8 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   updateItemNamespace,
   onClose,
   onSubmit,
+  onUpdateNamespaceChecked,
 }) => {
-  const dispatch = useDispatch();
   return (
     <FormModal
       open={isModalOpen}
@@ -175,7 +176,7 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
           className={checkbox}
           checked={updateItemNamespace}
           onChange={(event) => {
-            dispatch(updateItemNamespaceChecked(event.target.checked));
+            onUpdateNamespaceChecked(event.target.checked);
           }}
           label={`Update this ${itemType} with the newly selected namespace`}
           data-testid="update-query-aggregation-checkbox"
@@ -217,11 +218,12 @@ const mapState: MapStateToProps<
 };
 
 const mapDispatch: MapDispatchToProps<
-  Pick<OpenItemModalProps, 'onSubmit' | 'onClose'>,
+  Pick<OpenItemModalProps, 'onSubmit' | 'onClose' | 'onUpdateNamespaceChecked'>,
   Record<string, never>
 > = {
   onSubmit: openSelectedItem,
   onClose: closeModal,
+  onUpdateNamespaceChecked: updateItemNamespaceChecked,
 };
 
 export default connect(mapState, mapDispatch)(OpenItemModal);
