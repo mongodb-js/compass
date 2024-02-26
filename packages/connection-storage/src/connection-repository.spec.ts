@@ -178,7 +178,11 @@ describe('CompassConnectionProvider', function () {
       const provider = new ConnectionRepository(storage);
       const connectionToSave = {
         id: '1',
-        connectionOptions: { oidc: { serializedState: 'someNewState' } },
+        connectionOptions: {
+          connectionString:
+            'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
+          oidc: { serializedState: 'someNewState' },
+        },
       };
 
       await provider.saveConnection(connectionToSave);
