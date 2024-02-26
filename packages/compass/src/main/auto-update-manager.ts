@@ -667,6 +667,11 @@ class CompassAutoUpdateManager {
       compassApp.emit('auto-updater:new-state', state)
     );
 
+    compassApp.on(
+      'menu-request-restart',
+      this.setState.bind(this, AutoUpdateManagerState.Restarting)
+    );
+
     ipcMain?.on(
       'autoupdate:update-download-restart-confirmed',
       this.handleIpcUpdateDownloadRestartConfirmed.bind(this)

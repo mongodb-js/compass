@@ -277,6 +277,10 @@ class CompassApplication {
     handler: (state: AutoUpdateManagerState) => void
   ): typeof CompassApplication;
   static on(
+    event: 'menu-request-restart',
+    handler: () => void
+  ): typeof CompassApplication;
+  static on(
     event: string,
     handler: (...args: unknown[]) => void
   ): typeof CompassApplication {
@@ -292,6 +296,7 @@ class CompassApplication {
     event: 'auto-updater:new-state',
     state: AutoUpdateManagerState
   ): boolean;
+  static emit(event: 'menu-request-restart'): boolean;
   static emit(event: string, ...args: unknown[]): boolean {
     return this.emitter.emit(event, ...args);
   }

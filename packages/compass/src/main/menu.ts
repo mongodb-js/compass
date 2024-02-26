@@ -63,7 +63,7 @@ function updateSubmenu(
     : {
         label: 'Restart',
         click() {
-          // TODO(....): restart compass on click
+          compassApp.emit('menu-request-restart');
         },
       };
 }
