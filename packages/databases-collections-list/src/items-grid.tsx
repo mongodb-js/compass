@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   css,
-  cx,
   spacing,
   VirtualGrid,
   useSortControls,
@@ -14,6 +13,7 @@ import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
 import { useRefreshControls } from './use-refresh';
+import { GridHeader, ControlsContext, CONTROLS_HEIGHT } from './grid-header';
 
 type Item = { _id: string } & Record<string, unknown>;
 
@@ -41,14 +41,6 @@ const controls = css({
   display: 'flex',
   padding: spacing[3],
   gap: spacing[2],
-  flex: 'none',
-});
-
-export const createButton = css({
-  whiteSpace: 'nowrap',
-});
-
-const control = css({
   flex: 'none',
 });
 
@@ -84,51 +76,6 @@ type ItemsGridProps<T> = {
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
   renderItem: RenderItem<T>;
-};
-
-const CONTROLS_HEIGHT = (spacing[5] as number) + 36;
-
-const pushRight = css({
-  marginLeft: 'auto',
-});
-
-// We use this context to pass components that are aware of outer state of the
-// v-list to the list header. This is needed so that we can define this outer
-// component outside of the list component scope and avoid constant re-mounts
-// when component constructor is re-created. We do this so that controls can be
-// part of the list header and scroll up when the list is scrolled
-const ControlsContext = React.createContext<{
-  createControls: React.ReactElement | null;
-  refreshControls: React.ReactElement | null;
-  viewTypeControls: React.ReactElement | null;
-  sortControls: React.ReactElement | null;
-}>({
-  createControls: null,
-  refreshControls: null,
-  viewTypeControls: null,
-  sortControls: null,
-});
-
-const GridControls = () => {
-  const { createControls, refreshControls, viewTypeControls, sortControls } =
-    useContext(ControlsContext);
-
-  return (
-    <>
-      {createControls && (
-        <div className={control} data-testid="create-controls">
-          {createControls}
-        </div>
-      )}
-      {refreshControls && (
-        <div className={control} data-testid="refresh-controls">
-          {refreshControls}
-        </div>
-      )}
-      <div className={cx(control, pushRight)}>{viewTypeControls}</div>
-      <div className={control}>{sortControls}</div>
-    </>
-  );
 };
 
 export const ItemsGrid = <T extends Item>({
@@ -199,7 +146,7 @@ export const ItemsGrid = <T extends Item>({
         renderItem={renderItem}
         itemKey={(index: number) => sortedItems[index]._id}
         headerHeight={CONTROLS_HEIGHT}
-        renderHeader={GridControls}
+        renderHeader={() => <GridHeader />}
         classNames={{
           container,
           header: controls,

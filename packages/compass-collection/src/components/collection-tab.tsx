@@ -1,7 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
-import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
+import {
+  css,
+  ErrorBoundary,
+  spacing,
+  TabNavBar,
+} from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
@@ -11,6 +16,10 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import {
+  CollectionDocumentsStats,
+  CollectionIndexesStats,
+} from './collection-tab-stats';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -35,10 +44,30 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
+const tabTitleWithStatsStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+});
+const TabTitleWithStats = ({
+  title,
+  statsComponent,
+}: {
+  title: string;
+  statsComponent: React.ReactNode;
+}) => {
+  return (
+    <div className={tabTitleWithStatsStyles}>
+      {title}
+      {statsComponent}
+    </div>
+  );
+};
+
 type CollectionTabProps = CollectionTabOptions & {
   currentTab: string;
   collectionMetadata: CollectionMetadata;
   onTabClick(name: string): void;
+  stats: CollectionState['stats'];
 };
 
 const CollectionTabWithMetadata: React.FunctionComponent<
@@ -53,6 +82,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   editViewName,
   collectionMetadata,
   onTabClick,
+  stats,
 }) => {
   const { log, mongoLogId, track } = useLoggerAndTelemetry(
     'COMPASS-COLLECTION-TAB-UI'
@@ -107,6 +137,28 @@ const CollectionTabWithMetadata: React.FunctionComponent<
             data-testid="collection-tabs"
             aria-label="Collection Tabs"
             tabs={tabs.map((tab) => {
+              // We don't show stats, when the collection is a timeseries or a view
+              // or when the view is being edited
+              const hideStats =
+                collectionMetadata.isTimeSeries ||
+                collectionMetadata.sourceName ||
+                editViewName;
+              if (!hideStats && tab.name === 'Documents') {
+                return (
+                  <TabTitleWithStats
+                    title={tab.name}
+                    statsComponent={<CollectionDocumentsStats stats={stats} />}
+                  />
+                );
+              }
+              if (!hideStats && tab.name === 'Indexes') {
+                return (
+                  <TabTitleWithStats
+                    title={tab.name}
+                    statsComponent={<CollectionIndexesStats stats={stats} />}
+                  />
+                );
+              }
               return tab.name;
             })}
             views={tabs.map((tab) => {
@@ -166,6 +218,7 @@ const ConnectedCollectionTab = connect(
       namespace: state.namespace,
       currentTab: state.currentTab,
       collectionMetadata: state.metadata,
+      stats: state.stats,
     };
   },
   {
