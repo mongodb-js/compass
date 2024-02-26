@@ -187,3 +187,4 @@ export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
 export { PerformanceSignals } from './components/signals';
 export { ToastBody } from './components/toast-body';
 export { CompassComponentsProvider } from './components/compass-components-provider';
+export { type BreadcrumbItems, Breadcrumbs } from './components/breadcrumb';

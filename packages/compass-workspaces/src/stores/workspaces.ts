@@ -429,6 +429,7 @@ export type OpenWorkspaceOptions =
           | 'initialPipeline'
           | 'initialPipelineText'
           | 'editViewName'
+          | 'sourceName'
         >
       >);
 

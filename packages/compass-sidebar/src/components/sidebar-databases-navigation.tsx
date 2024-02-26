@@ -42,18 +42,23 @@ function SidebarDatabasesNavigation({
   const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
   const onNamespaceAction = useCallback(
     (ns: string, action: Actions) => {
+      if (action === 'select-database') {
+        return openCollectionsWorkspace(ns);
+      }
+      const coll = findCollection(ns, databases);
       switch (action) {
-        case 'select-database':
-          openCollectionsWorkspace(ns);
-          return;
         case 'select-collection':
-          openCollectionWorkspace(ns);
+          openCollectionWorkspace(ns, {
+            sourceName: coll?.sourceName ?? undefined,
+          });
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, { newTab: true });
+          openCollectionWorkspace(ns, {
+            sourceName: coll?.sourceName ?? undefined,
+            newTab: true,
+          });
           return;
         case 'modify-view': {
-          const coll = findCollection(ns, databases);
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(coll._id, {
               sourceName: coll.sourceName,

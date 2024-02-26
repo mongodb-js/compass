@@ -23,6 +23,7 @@ export type CollectionWorkspace = {
   initialPipelineText?: string;
   initialAggregation?: unknown;
   editViewName?: string;
+  sourceName?: string;
 };
 
 export type AnyWorkspace =

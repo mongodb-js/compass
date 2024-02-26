@@ -41,7 +41,7 @@ type TabNavBarProps = {
   'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
-  tabs: string[];
+  tabs: React.ReactNode[];
   views: React.ReactElement[];
   onTabClicked: (tabIndex: number) => void;
 };
@@ -97,10 +97,11 @@ function TabNavBar({
                 [tabStyles]: true,
                 [hiddenStyles]: idx !== activeTabIndex,
               })}
-              key={`tab-content-${tabs[idx]}`}
-              data-testid={`${tabs[idx]
-                .toLowerCase()
-                .replace(/ /g, '-')}-content`}
+              key={`tab-content-${idx}`}
+              // key={`tab-content-${tabs[idx]}`}
+              // data-testid={`${tabs[idx]
+              //   .toLowerCase()
+              //   .replace(/ /g, '-')}-content`}
             >
               {view}
             </div>

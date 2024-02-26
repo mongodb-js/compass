@@ -111,7 +111,9 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       });
       debug('selecting namespace', viewNamespace);
       globalAppRegistry.emit('view-edited', viewNamespace);
-      workspaces.openCollectionWorkspace(viewNamespace);
+      workspaces.openCollectionWorkspace(viewNamespace, {
+        sourceName: state.namespace,
+      });
     } catch (e: any) {
       debug('Unexpected error updating view', e);
       dispatch(updateViewErrorOccured(e));
