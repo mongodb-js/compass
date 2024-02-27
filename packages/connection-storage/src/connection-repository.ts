@@ -8,7 +8,11 @@ type ConnectionStorageFacade = Pick<
   'loadAll' | 'load' | 'save' | 'delete'
 >;
 
-type PartialConnectionInfo = Partial<ConnectionInfo> &
+type DeepPartial<T> = T extends object
+  ? { [P in keyof T]?: DeepPartial<T[P]> }
+  : T;
+
+export type PartialConnectionInfo = DeepPartial<ConnectionInfo> &
   Pick<ConnectionInfo, 'id'>;
 
 export class ConnectionRepository {

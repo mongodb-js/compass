@@ -10,6 +10,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
   type ConnectionRepository,
+  type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
 import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
@@ -304,7 +305,7 @@ export function useConnections({
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
 
   async function saveConnectionInfo(
-    connectionInfo: ConnectionInfo
+    connectionInfo: PartialConnectionInfo
   ): Promise<boolean> {
     try {
       if (connectionRepository.saveConnection) {
