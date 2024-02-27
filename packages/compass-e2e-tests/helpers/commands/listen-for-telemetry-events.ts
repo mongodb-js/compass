@@ -6,6 +6,7 @@ export async function listenForTelemetryEvents(
   browser: CompassBrowser,
   telemetry: Telemetry
 ): Promise<(eventName: string) => Promise<any>> {
+  await telemetry.pollForEvents?.(browser);
   const existingEventCount = telemetry.events().length;
 
   function lookupNewEvent(eventName: string): any {
@@ -16,7 +17,8 @@ export async function listenForTelemetryEvents(
   return async (eventName) => {
     let ev: { properties?: any } | undefined;
 
-    await browser.waitUntil(() => {
+    await browser.waitUntil(async () => {
+      await telemetry.pollForEvents?.(browser);
       ev = lookupNewEvent(eventName);
       return !!ev;
     });

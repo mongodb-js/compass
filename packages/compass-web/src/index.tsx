@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import createDebug from 'debug';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
 import { AppRegistryProvider } from 'hadron-app-registry';
@@ -48,6 +49,10 @@ import {
 } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { MongoLogWriter } from 'mongodb-log-writer';
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -98,6 +103,12 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
+const tracking: { event: string; properties: any }[] = [];
+const logging: { name: string; component: string; args: any[] }[] = [];
+
+(globalThis as any).tracking = tracking;
+(globalThis as any).logging = logging;
+
 const CompassWeb = ({
   darkMode,
   connectionString,
@@ -121,6 +132,40 @@ const CompassWeb = ({
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
   const dataService = useRef<DataService>();
+
+  const loggerProvider = useRef({
+    createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
+      const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
+        return (...args: any[]) => {
+          logging.push({ name, component, args });
+        };
+      };
+
+      const track = (event: string, properties: any) => {
+        tracking.push({ event, properties });
+      };
+
+      const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
+
+      return {
+        log: {
+          component,
+          get unbound() {
+            return this as unknown as MongoLogWriter;
+          },
+          write: () => true,
+          debug: logger('debug'),
+          info: logger('info'),
+          warn: logger('warn'),
+          error: logger('error'),
+          fatal: logger('fatal'),
+        },
+        debug,
+        track,
+        mongoLogId,
+      };
+    },
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -162,66 +207,70 @@ const CompassWeb = ({
   return (
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
-        <AppRegistryProvider scopeName="Compass Web Root">
-          <DataServiceProvider value={dataService.current}>
-            <CompassInstanceStorePlugin>
-              <FieldStorePlugin>
-                <WorkspacesProvider
-                  value={[
-                    DatabasesWorkspaceTab,
-                    CollectionsWorkspaceTab,
-                    CollectionWorkspace,
-                  ]}
-                >
-                  <CollectionTabsProvider
-                    queryBar={CompassQueryBarPlugin}
-                    tabs={[
-                      CompassDocumentsPlugin,
-                      CompassAggregationsPlugin,
-                      CompassSchemaPlugin,
-                      CompassIndexesPlugin,
-                      CompassSchemaValidationPlugin,
-                    ]}
-                    modals={[
-                      ExplainPlanCollectionTabModal,
-                      DropIndexCollectionTabModal,
-                      CreateIndexCollectionTabModal,
-                      ExportToLanguageCollectionTabModal,
+        <LoggerAndTelemetryProvider value={loggerProvider.current}>
+          <AppRegistryProvider scopeName="Compass Web Root">
+            <DataServiceProvider value={dataService.current}>
+              <CompassInstanceStorePlugin>
+                <FieldStorePlugin>
+                  <WorkspacesProvider
+                    value={[
+                      DatabasesWorkspaceTab,
+                      CollectionsWorkspaceTab,
+                      CollectionWorkspace,
                     ]}
                   >
-                    <div
-                      data-testid="compass-web-connected"
-                      className={connectedContainerStyles}
+                    <CollectionTabsProvider
+                      queryBar={CompassQueryBarPlugin}
+                      tabs={[
+                        CompassDocumentsPlugin,
+                        CompassAggregationsPlugin,
+                        CompassSchemaPlugin,
+                        CompassIndexesPlugin,
+                        CompassSchemaValidationPlugin,
+                      ]}
+                      modals={[
+                        ExplainPlanCollectionTabModal,
+                        DropIndexCollectionTabModal,
+                        CreateIndexCollectionTabModal,
+                        ExportToLanguageCollectionTabModal,
+                      ]}
                     >
-                      <WorkspacesPlugin
-                        initialWorkspaceTabs={initialWorkspaceTabs}
-                        openOnEmptyWorkspace={DEFAULT_TAB}
-                        onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                        renderSidebar={() => {
-                          return (
-                            <CompassSidebarPlugin
-                              showConnectionInfo={false}
-                            ></CompassSidebarPlugin>
-                          );
-                        }}
-                        renderModals={() => {
-                          return (
-                            <>
-                              <CreateViewPlugin></CreateViewPlugin>
-                              <CreateNamespacePlugin></CreateNamespacePlugin>
-                              <DropNamespacePlugin></DropNamespacePlugin>
-                              <RenameCollectionPlugin></RenameCollectionPlugin>
-                            </>
-                          );
-                        }}
-                      ></WorkspacesPlugin>
-                    </div>
-                  </CollectionTabsProvider>
-                </WorkspacesProvider>
-              </FieldStorePlugin>
-            </CompassInstanceStorePlugin>
-          </DataServiceProvider>
-        </AppRegistryProvider>
+                      <div
+                        data-testid="compass-web-connected"
+                        className={connectedContainerStyles}
+                      >
+                        <WorkspacesPlugin
+                          initialWorkspaceTabs={initialWorkspaceTabs}
+                          openOnEmptyWorkspace={DEFAULT_TAB}
+                          onActiveWorkspaceTabChange={
+                            onActiveWorkspaceTabChange
+                          }
+                          renderSidebar={() => {
+                            return (
+                              <CompassSidebarPlugin
+                                showConnectionInfo={false}
+                              ></CompassSidebarPlugin>
+                            );
+                          }}
+                          renderModals={() => {
+                            return (
+                              <>
+                                <CreateViewPlugin></CreateViewPlugin>
+                                <CreateNamespacePlugin></CreateNamespacePlugin>
+                                <DropNamespacePlugin></DropNamespacePlugin>
+                                <RenameCollectionPlugin></RenameCollectionPlugin>
+                              </>
+                            );
+                          }}
+                        ></WorkspacesPlugin>
+                      </div>
+                    </CollectionTabsProvider>
+                  </WorkspacesProvider>
+                </FieldStorePlugin>
+              </CompassInstanceStorePlugin>
+            </DataServiceProvider>
+          </AppRegistryProvider>
+        </LoggerAndTelemetryProvider>
       </PreferencesProvider>
     </CompassComponentsProvider>
   );
