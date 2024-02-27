@@ -76,13 +76,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 
-  return (
-    <CollectionsList
-      collections={collections}
-      namespace={namespace}
-      {...actions}
-    />
-  );
+  return <CollectionsList collections={collections} {...actions} />;
 };
 
 const ConnectedCollections = connect(

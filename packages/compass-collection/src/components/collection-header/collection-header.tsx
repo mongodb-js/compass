@@ -88,17 +88,12 @@ export const CollectionHeader: React.FunctionComponent<
   const {
     openCollectionWorkspace,
     openEditViewWorkspace,
-    openDatabasesWorkspace,
     openCollectionsWorkspace,
   } = useOpenWorkspace();
 
   const breadcrumbItems = useMemo(() => {
     return [
-      {
-        // TODO (COMPASS-7684): add connection name
-        name: 'Cluster',
-        onClick: () => openDatabasesWorkspace(),
-      },
+      // TODO (COMPASS-7684): add connection name
       {
         name: toNS(namespace).database,
         onClick: () => openCollectionsWorkspace(toNS(namespace).database),
@@ -123,7 +118,6 @@ export const CollectionHeader: React.FunctionComponent<
     namespace,
     sourceName,
     editViewName,
-    openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
   ]);

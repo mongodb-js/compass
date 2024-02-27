@@ -75,14 +75,12 @@ function collectionPropertyToBadge({
 }
 
 const CollectionsList: React.FunctionComponent<{
-  namespace: string;
   collections: Collection[];
   onCollectionClick(id: string): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
-  namespace,
   collections,
   onCollectionClick,
   onCreateCollectionClick,
@@ -93,7 +91,6 @@ const CollectionsList: React.FunctionComponent<{
     <ItemsGrid
       items={collections}
       itemType="collection"
-      namespace={namespace}
       itemGridWidth={COLLECTION_CARD_WIDTH}
       itemGridHeight={COLLECTION_CARD_HEIGHT}
       itemListHeight={COLLECTION_CARD_LIST_HEIGHT}

@@ -224,7 +224,7 @@ describe('CollectionHeader [Component]', function () {
     context('renders correclty', function () {
       it('for a collection', function () {
         renderCollectionHeader({ namespace: 'db.coll1' });
-        assertBreadcrumbText(['cluster', 'db', 'coll1']);
+        assertBreadcrumbText(['db', 'coll1']);
       });
 
       it('for a view', function () {
@@ -233,7 +233,7 @@ describe('CollectionHeader [Component]', function () {
           sourceName: 'db.coll2',
         });
         // For view: connection-db-sourceCollectionName-viewName
-        assertBreadcrumbText(['cluster', 'db', 'coll2', 'coll1']);
+        assertBreadcrumbText(['db', 'coll2', 'coll1']);
       });
 
       it('for a view when its being edited', function () {
@@ -242,7 +242,7 @@ describe('CollectionHeader [Component]', function () {
           editViewName: 'db.coll1',
         });
         // For view: connection-db-sourceCollectionName-viewName
-        assertBreadcrumbText(['cluster', 'db', 'coll3', 'coll1']);
+        assertBreadcrumbText(['db', 'coll3', 'coll1']);
       });
     });
 
