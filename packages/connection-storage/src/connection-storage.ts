@@ -216,10 +216,17 @@ export class ConnectionStorage {
 
   private static migrateSavedConnectionType(
     connectionInfo: ConnectionInfo
-  ): void {
-    connectionInfo.savedConnectionType ??= connectionInfo.favorite
+  ): ConnectionInfo {
+    const inferedConnectionType = connectionInfo.favorite
       ? 'favorite'
       : 'recent';
+
+    return {
+      ...connectionInfo,
+      savedConnectionType: connectionInfo.savedConnectionType
+        ? connectionInfo.savedConnectionType
+        : inferedConnectionType,
+    };
   }
 
   private static mapStoredConnectionToConnectionInfo({
@@ -237,8 +244,8 @@ export class ConnectionStorage {
         { message: (e as Error).message }
       );
     }
-    const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
-    this.migrateSavedConnectionType(connectionInfo);
+    let connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
+    connectionInfo = this.migrateSavedConnectionType(connectionInfo);
     return deleteCompassAppNameParam(connectionInfo);
   }
 
