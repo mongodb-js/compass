@@ -244,4 +244,117 @@ describe('Instance my queries tab', function () {
     const namespace = await browser.getActiveTabNamespace();
     expect(namespace).to.equal('test.numbers');
   });
+
+  context(
+    'when a user has a saved query associated with a collection that does not exist',
+    function () {
+      const favoriteQueryName = 'list of numbers greater than 10 - query';
+      const newCollectionName = 'numbers-renamed';
+
+      /** saves a query and renames the collection associated with the query, so that the query must be opened with the "select namespace" modal */
+      async function setup() {
+        // Run a query
+        await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+        await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
+          limit: '10',
+        });
+        await browser.clickVisible(Selectors.QueryBarHistoryButton);
+
+        // Wait for the popover to show
+        const history = await browser.$(Selectors.QueryBarHistory);
+        await history.waitForDisplayed();
+
+        // wait for the recent item to show.
+        const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+        await recentCard.waitForDisplayed();
+
+        // Save the ran query
+        await browser.hover(Selectors.QueryHistoryRecentItem);
+        await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
+        await browser.setValueVisible(
+          Selectors.QueryHistoryFavoriteItemNameField,
+          favoriteQueryName
+        );
+        await browser.clickVisible(
+          Selectors.QueryHistorySaveFavoriteItemButton
+        );
+
+        await browser.closeWorkspaceTabs();
+        await browser.navigateToInstanceTab('Databases');
+        await browser.navigateToInstanceTab('My Queries');
+
+        // open the menu
+        await openMenuForQueryItem(browser, favoriteQueryName);
+
+        // copy to clipboard
+        await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
+
+        if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+          await browser.waitUntil(
+            async () => {
+              const text = (await clipboard.read())
+                .replace(/\s+/g, ' ')
+                .replace(/\n/g, '');
+              const isValid =
+                text ===
+                '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
+              if (!isValid) {
+                console.log(text);
+              }
+              return isValid;
+            },
+            { timeoutMsg: 'Expected copy to clipboard to work' }
+          );
+        }
+
+        // rename the collection associated with the query to force the open item modal
+        await browser.shellEval('use test');
+        await browser.shellEval(
+          `db.numbers.renameCollection('${newCollectionName}')`
+        );
+        await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+      }
+      beforeEach(setup);
+
+      it('users can permanently associate a new namespace for an aggregation/query', async function () {
+        await browser.navigateToInstanceTab('My Queries');
+        // browse to the query
+        await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
+
+        // the open item modal - select a new collection
+        const openModal = await browser.$(Selectors.OpenSavedItemModal);
+        await openModal.waitForDisplayed();
+        await browser.selectOption(
+          Selectors.OpenSavedItemDatabaseField,
+          'test'
+        );
+        await browser.selectOption(
+          Selectors.OpenSavedItemCollectionField,
+          newCollectionName
+        );
+
+        await browser.clickParent(
+          '[data-testid="update-query-aggregation-checkbox"]'
+        );
+
+        const confirmOpenButton = await browser.$(
+          Selectors.OpenSavedItemModalConfirmButton
+        );
+        await confirmOpenButton.waitForEnabled();
+
+        await confirmOpenButton.click();
+        await openModal.waitForDisplayed({ reverse: true });
+
+        await browser.navigateToInstanceTab('My Queries');
+
+        const [databaseNameElement, collectionNameElement] = [
+          await browser.$('span=test'),
+          await browser.$(`span=${newCollectionName}`),
+        ];
+
+        await databaseNameElement.waitForDisplayed();
+        await collectionNameElement.waitForDisplayed();
+      });
+    }
+  );
 });
