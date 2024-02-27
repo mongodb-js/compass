@@ -35,7 +35,7 @@
   "compass:exports": {
     "./main": "./src/main.ts",
     "./renderer": "./src/renderer.ts",
-    "./provider": "./src/provider.ts"
+    "./provider": "./src/provider.tsx"
   },
   "scripts": {
     "bootstrap": "npm run compile",
