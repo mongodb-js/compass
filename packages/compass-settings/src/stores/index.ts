@@ -4,7 +4,8 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { PreferencesSandbox } from './preferences-sandbox';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
@@ -18,20 +19,26 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
-type ThunkExtraArg = {
+export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;
-  atlasService: Public<AtlasService>;
+  atlasAuthService: AtlasAuthService;
   logger: LoggerAndTelemetry;
   preferences: PreferencesAccess;
+  atlasAiService: AtlasAiService;
+};
+
+export type SettingsPluginServices = {
+  logger: LoggerAndTelemetry;
+  preferences: PreferencesAccess;
+  atlasAiService: AtlasAiService;
+  atlasAuthService: AtlasAuthService;
 };
 
 export function configureStore(
-  options: Pick<ThunkExtraArg, 'logger' | 'preferences'> &
-    Partial<ThunkExtraArg>
+  options: SettingsPluginServices & Partial<SettingsThunkExtraArgs>
 ) {
   const preferencesSandbox =
     options?.preferencesSandbox ?? new PreferencesSandbox(options.preferences);
-  const atlasService = options?.atlasService ?? new AtlasService();
 
   const store = createStore(
     combineReducers({
@@ -45,25 +52,26 @@ export function configureStore(
       thunk.withExtraArgument({
         preferences: options.preferences,
         preferencesSandbox,
-        atlasService,
         logger: options.logger,
+        atlasAuthService: options.atlasAuthService,
+        atlasAiService: options.atlasAiService,
       })
     )
   );
 
-  atlasService.on('signed-in', () => {
+  options.atlasAuthService.on('signed-in', () => {
     void store.dispatch(getUserInfo());
   });
 
-  atlasService.on('signed-out', () => {
+  options.atlasAuthService.on('signed-out', () => {
     void store.dispatch(atlasServiceSignedOut());
   });
 
-  atlasService.on('token-refresh-failed', () => {
+  options.atlasAuthService.on('token-refresh-failed', () => {
     void store.dispatch(atlasServiceTokenRefreshFailed());
   });
 
-  atlasService.on('user-config-changed', (newConfig) => {
+  options.atlasAuthService.on('user-config-changed', (newConfig) => {
     void store.dispatch(atlasServiceUserConfigChanged(newConfig));
   });
 
@@ -77,21 +85,18 @@ export type RootState = ReturnType<
 export type SettingsThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, RootState, ThunkExtraArg, A>;
+> = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
 const onActivated = (
   _: unknown,
   {
     globalAppRegistry,
-    logger,
-    preferences,
-  }: {
-    globalAppRegistry: AppRegistry;
-    logger: LoggerAndTelemetry;
-    preferences: PreferencesAccess;
+    ...restOfServices
+  }: SettingsPluginServices & {
+    globalAppRegistry: Pick<AppRegistry, 'on' | 'removeListener'>;
   }
 ) => {
-  const store = configureStore({ logger, preferences });
+  const store = configureStore(restOfServices);
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());

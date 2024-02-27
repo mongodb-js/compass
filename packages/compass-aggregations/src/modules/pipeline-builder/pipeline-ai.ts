@@ -193,7 +193,7 @@ export const runAIPipelineGeneration = (
     dispatch,
     getState,
     {
-      atlasService,
+      atlasAiService,
       pipelineBuilder,
       preferences,
       logger: { track, log, mongoLogId },
@@ -248,7 +248,7 @@ export const runAIPipelineGeneration = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasService.getAggregationFromUserInput({
+      jsonResponse = await atlasAiService.getAggregationFromUserInput({
         signal: abortController.signal,
         userInput,
         collectionName,
@@ -389,11 +389,11 @@ export const resetIsAggregationGeneratedFromQuery =
   };
 
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasService }) => {
+  return async (dispatch, _getState, { atlasAuthService, atlasAiService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasService.signIn({ promptType: 'ai-promo-modal' });
-        await atlasService.enableAIFeature();
+        await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasAiService.enableFeature();
       }
       dispatch({
         type: AIPipelineActionTypes.ShowInput,
