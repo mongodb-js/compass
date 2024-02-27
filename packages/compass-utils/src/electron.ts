@@ -21,6 +21,10 @@ export function getAppName(): string | undefined {
   return getElectronApp()?.getName();
 }
 
+export function getAppVersion(): string | undefined {
+  return getElectronApp()?.getVersion();
+}
+
 export function getStoragePath() {
   const basepath = getElectronApp()?.getPath('userData');
   if (!basepath) {
