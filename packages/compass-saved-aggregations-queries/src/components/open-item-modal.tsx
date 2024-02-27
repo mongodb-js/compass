@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Checkbox,
   FormModal,
   Option,
   Select,
@@ -14,6 +15,7 @@ import {
   openSelectedItem,
   selectCollection,
   selectDatabase,
+  updateItemNamespaceChecked,
 } from '../stores/open-item';
 
 type AsyncItemsSelectProps = {
@@ -98,8 +100,10 @@ type OpenItemModalProps = {
   itemName: string;
   isModalOpen: boolean;
   isSubmitDisabled: boolean;
+  updateItemNamespace: boolean;
   onSubmit(): void;
   onClose(): void;
+  onUpdateNamespaceChecked(checked: boolean): void;
 };
 
 const modalContent = css({
@@ -107,6 +111,7 @@ const modalContent = css({
   gridTemplateAreas: `
     'description description'
     'database collection'
+    'checkbox checkbox'
   `,
   gridAutoColumns: '1fr',
   rowGap: spacing[4],
@@ -125,20 +130,26 @@ const collectionSelect = css({
   gridArea: 'collection',
 });
 
+const checkbox = css({
+  gridArea: 'checkbox',
+});
+
 const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   namespace,
   itemType,
   itemName,
   isModalOpen,
   isSubmitDisabled,
+  updateItemNamespace,
   onClose,
   onSubmit,
+  onUpdateNamespaceChecked,
 }) => {
   return (
     <FormModal
       open={isModalOpen}
       onCancel={onClose}
-      onSubmit={onSubmit}
+      onSubmit={() => onSubmit()}
       title="Select a Namespace"
       submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
@@ -161,6 +172,15 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
             label="Collection"
           ></CollectionSelect>
         </div>
+        <Checkbox
+          className={checkbox}
+          checked={updateItemNamespace}
+          onChange={(event) => {
+            onUpdateNamespaceChecked(event.target.checked);
+          }}
+          label={`Update this ${itemType} with the newly selected namespace`}
+          data-testid="update-query-aggregation-checkbox"
+        />
       </div>
     </FormModal>
   );
@@ -169,7 +189,12 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
 const mapState: MapStateToProps<
   Pick<
     OpenItemModalProps,
-    'isModalOpen' | 'isSubmitDisabled' | 'namespace' | 'itemType' | 'itemName'
+    | 'isModalOpen'
+    | 'isSubmitDisabled'
+    | 'namespace'
+    | 'itemType'
+    | 'itemName'
+    | 'updateItemNamespace'
   >,
   Record<string, never>,
   RootState
@@ -179,6 +204,7 @@ const mapState: MapStateToProps<
     selectedDatabase,
     selectedCollection,
     selectedItem: item,
+    updateItemNamespace,
   },
 }) => {
   return {
@@ -187,15 +213,17 @@ const mapState: MapStateToProps<
     namespace: `${item?.database ?? ''}.${item?.collection ?? ''}`,
     itemName: item?.name ?? '',
     itemType: item?.type ?? '',
+    updateItemNamespace,
   };
 };
 
 const mapDispatch: MapDispatchToProps<
-  Pick<OpenItemModalProps, 'onSubmit' | 'onClose'>,
+  Pick<OpenItemModalProps, 'onSubmit' | 'onClose' | 'onUpdateNamespaceChecked'>,
   Record<string, never>
 > = {
   onSubmit: openSelectedItem,
   onClose: closeModal,
+  onUpdateNamespaceChecked: updateItemNamespaceChecked,
 };
 
 export default connect(mapState, mapDispatch)(OpenItemModal);
