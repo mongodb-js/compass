@@ -397,8 +397,7 @@ export function useConnections({
               const mergeConnectionInfo = {
                 id: connectionInfo.id,
                 connectionOptions: await dataService.getUpdatedSecrets(),
-              } as ConnectionInfo;
-              if (!mergeConnectionInfo) return;
+              };
               dispatch({
                 type: 'add-connection-merge-info',
                 id: connectionInfo.id,

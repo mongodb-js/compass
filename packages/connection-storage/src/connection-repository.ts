@@ -8,6 +8,9 @@ type ConnectionStorageFacade = Pick<
   'loadAll' | 'load' | 'save' | 'delete'
 >;
 
+type PartialConnectionInfo = Partial<ConnectionInfo> &
+  Pick<ConnectionInfo, 'id'>;
+
 export class ConnectionRepository {
   // We would inject a specific implementation for Compass and Data Explorer
   constructor(private readonly storage: ConnectionStorageFacade) {}
@@ -30,11 +33,11 @@ export class ConnectionRepository {
       .sort(ConnectionRepository.sortedAlphabetically);
   }
 
-  async saveConnection(info: ConnectionInfo): Promise<ConnectionInfo> {
+  async saveConnection(info: PartialConnectionInfo): Promise<ConnectionInfo> {
     const oldConnectionInfo = await this.storage.load({ id: info.id });
-    const infoToSave = oldConnectionInfo
-      ? merge(oldConnectionInfo, info)
-      : info;
+    const infoToSave = (
+      oldConnectionInfo ? merge(oldConnectionInfo, info) : info
+    ) as ConnectionInfo;
 
     this.ensureWellFormedConnectionString(
       infoToSave.connectionOptions?.connectionString
