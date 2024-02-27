@@ -752,9 +752,6 @@ export async function startBrowser(
     needsCloseWelcomeModal: false,
   });
 
-  // TODO(COMPASS-7653): we need to figure out how to do this for compass-web
-  //await compass.recordLogs();
-
   return compass;
 }
 
