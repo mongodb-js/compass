@@ -24,6 +24,7 @@ export interface RenameCollectionModalProps {
   initialCollectionName: string;
   collections: { name: string }[];
   isRunning: boolean;
+  areSavedQueriesAndAggregationsImpacted: boolean;
   hideModal: () => void;
   renameCollection: (newCollectionName: string) => void;
   clearError: () => void;
@@ -37,11 +38,42 @@ const progressContainerStyles = css({
 
 type ModalState = 'input-form' | 'confirmation-screen';
 
+const bannerTextStyles = css({
+  marginTop: 0,
+  marginBottom: 0,
+  '&:not(:last-child)': {
+    marginBottom: spacing[2],
+  },
+});
+function ConfirmationModalContent({
+  areSavedQueriesAndAggregationsImpacted,
+}: {
+  areSavedQueriesAndAggregationsImpacted: boolean;
+}) {
+  return (
+    <Banner variant="warning" data-testid="rename-collection-modal-warning">
+      <p className={bannerTextStyles}>
+        Renaming collection will result in loss of any unsaved queries, filters
+        or aggregation pipeline.
+      </p>
+      {areSavedQueriesAndAggregationsImpacted && (
+        <p className={bannerTextStyles}>
+          <b>
+            Additionally, any saved queries or aggregations targeting this
+            collection will need to be remapped to the new namespace.
+          </b>
+        </p>
+      )}
+    </Banner>
+  );
+}
+
 function RenameCollectionModal({
   isVisible,
   error,
   initialCollectionName,
   collections,
+  areSavedQueriesAndAggregationsImpacted,
   isRunning,
   hideModal,
   renameCollection,
@@ -147,10 +179,11 @@ function RenameCollectionModal({
         </Banner>
       )}
       {modalState === 'confirmation-screen' && (
-        <Banner variant="info" data-testid="rename-collection-modal-warning">
-          Renaming collection will result in loss of any unsaved queries,
-          filters or aggregation pipeline
-        </Banner>
+        <ConfirmationModalContent
+          areSavedQueriesAndAggregationsImpacted={
+            areSavedQueriesAndAggregationsImpacted
+          }
+        />
       )}
       {isRunning && (
         <Body className={progressContainerStyles}>

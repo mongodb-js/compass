@@ -351,6 +351,10 @@ class CompassWindowManager {
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 
+    ipcMain?.on('show-file', (evt, filename: string) => {
+      shell.showItemInFolder(filename);
+    });
+
     await electronApp.whenReady();
     await onAppReady();
 
