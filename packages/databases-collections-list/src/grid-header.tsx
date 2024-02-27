@@ -4,60 +4,6 @@ import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
-const gridControlItemStyles = css({
-  flex: 'none',
-});
-
-const pushRightStyles = css({
-  marginLeft: 'auto',
-});
-
-const gridControlContainerStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-});
-
-// We use this context to pass components that are aware of outer state of the
-// v-list to the list header. This is needed so that we can define this outer
-// component outside of the list component scope and avoid constant re-mounts
-// when component constructor is re-created. We do this so that controls can be
-// part of the list header and scroll up when the list is scrolled
-export const ControlsContext = React.createContext<{
-  createControls: React.ReactElement | null;
-  refreshControls: React.ReactElement | null;
-  viewTypeControls: React.ReactElement | null;
-  sortControls: React.ReactElement | null;
-}>({
-  createControls: null,
-  refreshControls: null,
-  viewTypeControls: null,
-  sortControls: null,
-});
-
-const GridControls = () => {
-  const { createControls, refreshControls, viewTypeControls, sortControls } =
-    useContext(ControlsContext);
-
-  return (
-    <div className={gridControlContainerStyles}>
-      {createControls && (
-        <div className={gridControlItemStyles} data-testid="create-controls">
-          {createControls}
-        </div>
-      )}
-      {refreshControls && (
-        <div className={gridControlItemStyles} data-testid="refresh-controls">
-          {refreshControls}
-        </div>
-      )}
-      <div className={cx(gridControlItemStyles, pushRightStyles)}>
-        {viewTypeControls}
-      </div>
-      <div className={gridControlItemStyles}>{sortControls}</div>
-    </div>
-  );
-};
-
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -69,10 +15,47 @@ const breadcrumbStyles = css({
   display: 'flex',
 });
 
-export const GridHeader = ({ namespace }: { namespace?: string }) => {
+const gridControlItemStyles = css({
+  flex: 'none',
+});
+
+const pushRightStyles = css({
+  marginLeft: 'auto',
+});
+
+const gridControlsStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+});
+
+// We use this context to pass components that are aware of outer state of the
+// v-list to the list header. This is needed so that we can define this outer
+// component outside of the list component scope and avoid constant re-mounts
+// when component constructor is re-created. We do this so that controls can be
+// part of the list header and scroll up when the list is scrolled
+export const GridHeaderContext = React.createContext<{
+  createControls: React.ReactElement | null;
+  refreshControls: React.ReactElement | null;
+  viewTypeControls: React.ReactElement | null;
+  sortControls: React.ReactElement | null;
+  namespace?: string;
+}>({
+  createControls: null,
+  refreshControls: null,
+  viewTypeControls: null,
+  sortControls: null,
+});
+
+export const GridHeader = () => {
   const { openDatabasesWorkspace, openCollectionsWorkspace } =
     useOpenWorkspace();
-
+  const {
+    createControls,
+    refreshControls,
+    viewTypeControls,
+    sortControls,
+    namespace,
+  } = useContext(GridHeaderContext);
   const breadcrumbItems = useMemo(() => {
     return [
       {
@@ -91,7 +74,22 @@ export const GridHeader = ({ namespace }: { namespace?: string }) => {
       <div className={breadcrumbStyles}>
         <Breadcrumbs items={breadcrumbItems} />
       </div>
-      <GridControls />
+      <div className={gridControlsStyles}>
+        {createControls && (
+          <div className={gridControlItemStyles} data-testid="create-controls">
+            {createControls}
+          </div>
+        )}
+        {refreshControls && (
+          <div className={gridControlItemStyles} data-testid="refresh-controls">
+            {refreshControls}
+          </div>
+        )}
+        <div className={cx(gridControlItemStyles, pushRightStyles)}>
+          {viewTypeControls}
+        </div>
+        <div className={gridControlItemStyles}>{sortControls}</div>
+      </div>
     </div>
   );
 };

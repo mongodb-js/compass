@@ -471,11 +471,7 @@ export const collectionContent = (tabName: string): string => {
   const tn = tabName.toLowerCase().replace(/ /g, '-');
   return `[data-testid="${tn}-content"]`;
 };
-export const collectionHeader = (namespace?: string) => {
-  return `[data-testid="collection-header"]${
-    namespace ? `[title="${namespace}"]` : ''
-  }`;
-};
+export const CollectionHeader = '[data-testid="collection-header"]';
 
 // Documents tab
 export const DocumentListActionBarMessage =

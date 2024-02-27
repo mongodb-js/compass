@@ -15,21 +15,28 @@ const breadcrumbStyles = css({
   gap: spacing[1],
   alignItems: 'center',
   height: spacing[4],
+  minWidth: 0,
 });
 
-const dbLinkLightStyles = css({
+const itemLightStyles = css({
   color: palette.green.dark2,
 });
 
-const dbLinkDarkStyles = css({
+const itemDarkStyles = css({
   color: palette.green.base,
+});
+
+const breadcrumbButtonStyles = css({
+  border: 'none',
+  background: 'none',
+  padding: 0,
+  display: 'block',
 });
 
 const textStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  fontWeight: 'bold',
 });
 
 const lastItemStylesLight = css({
@@ -38,6 +45,10 @@ const lastItemStylesLight = css({
 
 const lastItemStylesDark = css({
   color: palette.gray.base,
+});
+
+const iconStyles = css({
+  flexShrink: 0,
 });
 
 export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
@@ -49,6 +60,7 @@ export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
         if (isLast) {
           return (
             <Body
+              weight="medium"
               className={cx(
                 textStyles,
                 darkMode ? lastItemStylesDark : lastItemStylesLight
@@ -62,20 +74,27 @@ export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
           <>
             <Link
               key={item.name}
-              as="a"
+              as="button"
               hideExternalIcon={true}
-              className={cx(
-                textStyles,
-                darkMode ? dbLinkDarkStyles : dbLinkLightStyles
-              )}
+              className={cx(breadcrumbButtonStyles, textStyles)}
               onClick={item.onClick}
+              title={item.name}
             >
-              {item.name}
+              <Body
+                weight="medium"
+                className={cx(
+                  textStyles,
+                  darkMode ? itemDarkStyles : itemLightStyles
+                )}
+              >
+                {item.name}
+              </Body>
             </Link>
             <Icon
               glyph="ChevronRight"
               size="small"
               color={palette.gray.light1}
+              className={iconStyles}
             />
           </>
         );

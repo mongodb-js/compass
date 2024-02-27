@@ -172,7 +172,7 @@ describe('Collection Rename Modal', () => {
       await collectionElement.waitForDisplayed();
       await collectionElement.click();
 
-      const headerSelector = Selectors.collectionHeader();
+      const headerSelector = Selectors.CollectionHeader;
       // wait until the collection tab has loaded
       await browser.$(headerSelector).waitForDisplayed();
 

@@ -128,16 +128,12 @@ export const CollectionHeader: React.FunctionComponent<
     openCollectionWorkspace,
   ]);
 
-  const ns = toNS(namespace);
-  const database = ns.database;
-  const collection = ns.collection;
   const insights =
     showInsights && sourcePipeline?.length
       ? getInsightsForPipeline(sourcePipeline, isAtlas)
       : [];
   return (
     <div
-      title={`${database}.${collection}`}
       className={cx(
         collectionHeaderStyles,
         darkMode ? collectionHeaderDarkStyles : collectionHeaderLightStyles

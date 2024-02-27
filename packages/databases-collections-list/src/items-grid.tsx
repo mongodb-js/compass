@@ -13,7 +13,7 @@ import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
 import { useRefreshControls } from './use-refresh';
-import { GridHeader, ControlsContext, CONTROLS_HEIGHT } from './grid-header';
+import { GridHeader, GridHeaderContext, CONTROLS_HEIGHT } from './grid-header';
 
 type Item = { _id: string } & Record<string, unknown>;
 
@@ -132,12 +132,13 @@ export const ItemsGrid = <T extends Item>({
     );
 
   return (
-    <ControlsContext.Provider
+    <GridHeaderContext.Provider
       value={{
         createControls,
         refreshControls,
         sortControls: shouldShowControls ? sortControls : null,
         viewTypeControls: shouldShowControls ? viewTypeControls : null,
+        namespace,
       }}
     >
       <VirtualGrid
@@ -148,7 +149,7 @@ export const ItemsGrid = <T extends Item>({
         renderItem={renderItem}
         itemKey={(index: number) => sortedItems[index]._id}
         headerHeight={CONTROLS_HEIGHT}
-        renderHeader={() => <GridHeader namespace={namespace} />}
+        renderHeader={GridHeader}
         classNames={{
           container,
           header: controls,
@@ -157,6 +158,6 @@ export const ItemsGrid = <T extends Item>({
         resetActiveItemOnBlur={false}
         data-testid={`${itemType}-grid`}
       ></VirtualGrid>
-    </ControlsContext.Provider>
+    </GridHeaderContext.Provider>
   );
 };
