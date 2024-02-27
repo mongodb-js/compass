@@ -1,5 +1,6 @@
-// THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
+// THESE IMPORTS SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import '../setup-hadron-distribution';
+import './csp';
 
 import dns from 'dns';
 import ensureError from 'ensure-error';
@@ -9,6 +10,9 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
+import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
   CompassFavoriteQueryStorage,
   CompassPipelineStorage,
@@ -21,6 +25,7 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import semver from 'semver';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -83,6 +88,7 @@ import { setupIntercom } from '@mongodb-js/compass-intercom';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -225,12 +231,22 @@ const Application = View.extend({
                 <RecentQueryStorageProvider
                   value={recentQueryStorageProviderValue}
                 >
-                  <AppRegistryProvider scopeName="Application Root">
-                    <CompassHomePlugin
-                      appName={remote.app.getName()}
-                      getAutoConnectInfo={getAutoConnectInfo}
-                    ></CompassHomePlugin>
-                  </AppRegistryProvider>
+                  <AtlasAuthServiceProvider
+                    value={new CompassAtlasAuthService()}
+                  >
+                    <AtlasAiServiceProvider
+                      defaultHttpHeaders={{
+                        'User-Agent': `${getAppName()}/${getAppVersion()}`,
+                      }}
+                    >
+                      <AppRegistryProvider scopeName="Application Root">
+                        <CompassHomePlugin
+                          appName={remote.app.getName()}
+                          getAutoConnectInfo={getAutoConnectInfo}
+                        ></CompassHomePlugin>
+                      </AppRegistryProvider>
+                    </AtlasAiServiceProvider>
+                  </AtlasAuthServiceProvider>
                 </RecentQueryStorageProvider>
               </FavoriteQueryStorageProvider>
             </PipelineStorageProvider>
@@ -243,10 +259,15 @@ const Application = View.extend({
     document.querySelector('#loading-placeholder')?.remove();
   },
   updateAppVersion: async function () {
-    const { lastKnownVersion } = defaultPreferencesInstance.getPreferences();
+    const { lastKnownVersion, highestInstalledVersion } =
+      defaultPreferencesInstance.getPreferences();
     this.previousVersion = lastKnownVersion || '0.0.0';
+    this.highestInstalledVersion =
+      semver.sort([highestInstalledVersion || '0.0.0', APP_VERSION])?.[1] ??
+      APP_VERSION;
     await defaultPreferencesInstance.savePreferences({
       lastKnownVersion: APP_VERSION,
+      highestInstalledVersion: this.highestInstalledVersion,
     });
   },
 });

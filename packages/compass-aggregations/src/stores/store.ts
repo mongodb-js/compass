@@ -3,7 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -35,6 +34,8 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
@@ -59,10 +60,6 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * the stage wizard to populate the dropdown for $lookup use-case.
      */
     collections: CollectionInfo[];
-    /**
-     * Service for interacting with Atlas-only features
-     */
-    atlasService: AtlasService;
   }>;
 
 export type AggregationsPluginServices = {
@@ -73,6 +70,8 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;
 };
 
@@ -86,6 +85,8 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
+    atlasAiService,
+    atlasAuthService,
     pipelineStorage,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
@@ -113,8 +114,6 @@ export function activateAggregationsPlugin(
     preferences,
     initialPipelineSource
   );
-
-  const atlasService = options.atlasService ?? new AtlasService();
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)
@@ -167,11 +166,12 @@ export function activateAggregationsPlugin(
         localAppRegistry,
         pipelineBuilder,
         pipelineStorage,
-        atlasService,
+        atlasAuthService,
         workspaces,
         instance,
         preferences,
         logger,
+        atlasAiService,
       })
     )
   );
@@ -185,7 +185,7 @@ export function activateAggregationsPlugin(
     )
   );
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasAuthService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

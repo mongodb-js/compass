@@ -37,8 +37,7 @@ describe('aiQueryReducer', function () {
   describe('runAIQuery', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
-        const mockAtlasService = {
-          on: sandbox.stub(),
+        const mockAtlasAiService = {
           getQueryFromUserInput: sandbox
             .stub()
             .resolves({ content: { query: { filter: '{_id: 1}' } } }),
@@ -55,7 +54,8 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
-            atlasService: mockAtlasService,
+            atlasAuthService: { on: sandbox.stub() },
+            atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
           } as any
@@ -65,19 +65,20 @@ describe('aiQueryReducer', function () {
 
         await store.dispatch(runAIQuery('testing prompt'));
 
-        expect(mockAtlasService.getQueryFromUserInput).to.have.been.calledOnce;
+        expect(mockAtlasAiService.getQueryFromUserInput).to.have.been
+          .calledOnce;
         expect(
-          mockAtlasService.getQueryFromUserInput.getCall(0)
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.have.nested.property('args[0].userInput', 'testing prompt');
         expect(
-          mockAtlasService.getQueryFromUserInput.getCall(0)
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.have.nested.property('args[0].collectionName', 'collection');
         expect(
-          mockAtlasService.getQueryFromUserInput.getCall(0)
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.have.nested.property('args[0].databaseName', 'database');
         // Sample documents are currently disabled.
         expect(
-          mockAtlasService.getQueryFromUserInput.getCall(0)
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.not.have.nested.property('args[0].sampleDocuments');
 
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
@@ -88,15 +89,15 @@ describe('aiQueryReducer', function () {
 
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
-        const mockAtlasService = {
-          on: sandbox.stub(),
+        const mockAtlasAiService = {
           getQueryFromUserInput: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
         };
 
         const store = createStore({}, {
-          atlasService: mockAtlasService,
+          atlasAuthService: { on: sandbox.stub() },
+          atlasAiService: mockAtlasAiService,
           dataService: {
             sample() {
               return Promise.resolve([]);
@@ -117,12 +118,12 @@ describe('aiQueryReducer', function () {
       it('resets the store if errs was caused by user being unauthorized', async function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
-        const mockAtlasService = {
-          on: sandbox.stub(),
+        const mockAtlasAiService = {
           getQueryFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({}, {
-          atlasService: mockAtlasService,
+          atlasAuthService: { on: sandbox.stub() },
+          atlasAiService: mockAtlasAiService,
           dataService: {
             sample() {
               return Promise.resolve([]);

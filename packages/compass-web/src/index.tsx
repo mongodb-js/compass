@@ -53,6 +53,32 @@ import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
+import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
+import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
+import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+
+class CloudAtlasAuthService extends AtlasAuthService {
+  signIn() {
+    return this.getUserInfo();
+  }
+  signOut() {
+    return Promise.resolve();
+  }
+  isAuthenticated() {
+    return Promise.resolve(true);
+  }
+  getUserInfo(): Promise<AtlasUserInfo> {
+    throw new Error('CloudAtlasAuthService.getUserInfo not implemented');
+  }
+  updateUserConfig(): Promise<void> {
+    // this.emit('user-config-changed', config);
+    throw new Error('CloudAtlasAuthService.updateUserConfig not implemented');
+  }
+  getAuthHeaders() {
+    return Promise.resolve({});
+  }
+}
 
 type CompassWebProps = {
   darkMode?: boolean;
@@ -126,6 +152,10 @@ const CompassWeb = ({
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
+      enableGenAIFeatures: false,
+      cloudFeatureRolloutAccess: {
+        GEN_AI_COMPASS: false,
+      },
       ...initialPreferences,
     })
   );
@@ -189,6 +219,10 @@ const CompassWeb = ({
     };
   }, [connectionString, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
+  const atlasAuthService = useMemo(() => {
+    return new CloudAtlasAuthService();
+  }, []);
+
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
   // handling a single connection)
@@ -203,75 +237,78 @@ const CompassWeb = ({
       </CompassComponentsProvider>
     );
   }
-
   return (
     <CompassComponentsProvider darkMode={darkMode}>
-      <PreferencesProvider value={preferencesAccess.current}>
-        <LoggerAndTelemetryProvider value={loggerProvider.current}>
-          <AppRegistryProvider scopeName="Compass Web Root">
-            <DataServiceProvider value={dataService.current}>
-              <CompassInstanceStorePlugin>
-                <FieldStorePlugin>
-                  <WorkspacesProvider
-                    value={[
-                      DatabasesWorkspaceTab,
-                      CollectionsWorkspaceTab,
-                      CollectionWorkspace,
-                    ]}
-                  >
-                    <CollectionTabsProvider
-                      queryBar={CompassQueryBarPlugin}
-                      tabs={[
-                        CompassDocumentsPlugin,
-                        CompassAggregationsPlugin,
-                        CompassSchemaPlugin,
-                        CompassIndexesPlugin,
-                        CompassSchemaValidationPlugin,
-                      ]}
-                      modals={[
-                        ExplainPlanCollectionTabModal,
-                        DropIndexCollectionTabModal,
-                        CreateIndexCollectionTabModal,
-                        ExportToLanguageCollectionTabModal,
-                      ]}
-                    >
-                      <div
-                        data-testid="compass-web-connected"
-                        className={connectedContainerStyles}
+      <LoggerAndTelemetryProvider value={loggerProvider.current}>
+        <PreferencesProvider value={preferencesAccess.current}>
+          <AtlasAuthServiceProvider value={atlasAuthService}>
+            <AtlasAiServiceProvider>
+              <AppRegistryProvider scopeName="Compass Web Root">
+                <DataServiceProvider value={dataService.current}>
+                  <CompassInstanceStorePlugin>
+                    <FieldStorePlugin>
+                      <WorkspacesProvider
+                        value={[
+                          DatabasesWorkspaceTab,
+                          CollectionsWorkspaceTab,
+                          CollectionWorkspace,
+                        ]}
                       >
-                        <WorkspacesPlugin
-                          initialWorkspaceTabs={initialWorkspaceTabs}
-                          openOnEmptyWorkspace={DEFAULT_TAB}
-                          onActiveWorkspaceTabChange={
-                            onActiveWorkspaceTabChange
-                          }
-                          renderSidebar={() => {
-                            return (
-                              <CompassSidebarPlugin
-                                showConnectionInfo={false}
-                              ></CompassSidebarPlugin>
-                            );
-                          }}
-                          renderModals={() => {
-                            return (
-                              <>
-                                <CreateViewPlugin></CreateViewPlugin>
-                                <CreateNamespacePlugin></CreateNamespacePlugin>
-                                <DropNamespacePlugin></DropNamespacePlugin>
-                                <RenameCollectionPlugin></RenameCollectionPlugin>
-                              </>
-                            );
-                          }}
-                        ></WorkspacesPlugin>
-                      </div>
-                    </CollectionTabsProvider>
-                  </WorkspacesProvider>
-                </FieldStorePlugin>
-              </CompassInstanceStorePlugin>
-            </DataServiceProvider>
-          </AppRegistryProvider>
-        </LoggerAndTelemetryProvider>
-      </PreferencesProvider>
+                        <CollectionTabsProvider
+                          queryBar={CompassQueryBarPlugin}
+                          tabs={[
+                            CompassDocumentsPlugin,
+                            CompassAggregationsPlugin,
+                            CompassSchemaPlugin,
+                            CompassIndexesPlugin,
+                            CompassSchemaValidationPlugin,
+                          ]}
+                          modals={[
+                            ExplainPlanCollectionTabModal,
+                            DropIndexCollectionTabModal,
+                            CreateIndexCollectionTabModal,
+                            ExportToLanguageCollectionTabModal,
+                          ]}
+                        >
+                          <div
+                            data-testid="compass-web-connected"
+                            className={connectedContainerStyles}
+                          >
+                            <WorkspacesPlugin
+                              initialWorkspaceTabs={initialWorkspaceTabs}
+                              openOnEmptyWorkspace={DEFAULT_TAB}
+                              onActiveWorkspaceTabChange={
+                                onActiveWorkspaceTabChange
+                              }
+                              renderSidebar={() => {
+                                return (
+                                  <CompassSidebarPlugin
+                                    showConnectionInfo={false}
+                                  ></CompassSidebarPlugin>
+                                );
+                              }}
+                              renderModals={() => {
+                                return (
+                                  <>
+                                    <CreateViewPlugin></CreateViewPlugin>
+                                    <CreateNamespacePlugin></CreateNamespacePlugin>
+                                    <DropNamespacePlugin></DropNamespacePlugin>
+                                    <RenameCollectionPlugin></RenameCollectionPlugin>
+                                  </>
+                                );
+                              }}
+                            ></WorkspacesPlugin>
+                          </div>
+                        </CollectionTabsProvider>
+                      </WorkspacesProvider>
+                    </FieldStorePlugin>
+                  </CompassInstanceStorePlugin>
+                </DataServiceProvider>
+              </AppRegistryProvider>
+            </AtlasAiServiceProvider>
+          </AtlasAuthServiceProvider>
+        </PreferencesProvider>
+      </LoggerAndTelemetryProvider>
     </CompassComponentsProvider>
   );
 };
