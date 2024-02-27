@@ -149,10 +149,11 @@ describe('CompassMenu', function () {
         App.emit('new-window', bw);
       });
       describe('darwin', () => {
+        beforeEach(function () {
+          if (process.platform !== 'darwin') this.skip();
+        });
         describe('when the auto updater is in an idle state', () => {
           it('displays `Checking for updates...` in the menu', () => {
-            sinon.stub(process, 'platform').value('darwin');
-
             const idleStates = [
               AutoUpdateManagerState.Initial,
               AutoUpdateManagerState.Disabled,
@@ -218,10 +219,11 @@ describe('CompassMenu', function () {
 
       for (const platform of ['linux', 'win32']) {
         describe(platform, () => {
+          beforeEach(function () {
+            if (process.platform !== platform) this.skip();
+          });
           describe('when the auto updater is in an idle state', () => {
             it('displays `Checking for updates...` in the menu', () => {
-              sinon.stub(process, 'platform').value(platform);
-
               const idleStates = [
                 AutoUpdateManagerState.Initial,
                 AutoUpdateManagerState.Disabled,
