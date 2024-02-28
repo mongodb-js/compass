@@ -4,14 +4,16 @@ set -e
 
 DOCKER_COMPOSE="env MONGODB_VERSION= docker compose"
 
+echo "Checking if docker is available ..."
+
 if ! command -v docker &>/dev/null; then
-  echo "docker could not be found"
-  exit 1
+  echo "  docker could not be found"
+  exit
 elif ! command -v docker compose &>/dev/null; then
-  echo "docker compose could not be found, trying standalone docker-compose as a fallback"
+  echo "  docker compose could not be found, trying standalone docker-compose as a fallback"
   if ! command -v docker-compose &>/dev/null; then
-    echo "docker-compose could not be found"
-    exit 1
+    echo "  docker-compose could not be found"
+    exit
   fi
   # TODO(COMPASS-7687): This is only here because of rhel76 that is old enough
   # that the docker version installed there doesn't include compose. DevProd
@@ -19,7 +21,7 @@ elif ! command -v docker compose &>/dev/null; then
   DOCKER_COMPOSE="env MONGODB_VERSION= docker-compose"
 fi
 
-echo "Docker version"
+echo "Found docker:"
 docker version
 $DOCKER_COMPOSE version
 
