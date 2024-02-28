@@ -26,7 +26,7 @@ describe('atlasSignInReducer', function () {
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       await store.dispatch(restoreSignInState());
       expect(mockAtlasService.isAuthenticated).to.have.been.calledOnce;
@@ -38,7 +38,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       await store.dispatch(restoreSignInState());
       expect(store.getState()).to.have.nested.property(
@@ -52,7 +52,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().rejects(new Error('Whoops!')),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       await store.dispatch(restoreSignInState());
       expect(store.getState()).to.have.nested.property(
@@ -80,7 +80,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       const restorePromise = store.dispatch(restoreSignInState());
       expect(mockAtlasService.isAuthenticated).to.have.been.calledOnce;
@@ -105,7 +105,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       await store.dispatch(signIn());
@@ -122,7 +122,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       await store.dispatch(signIn());
@@ -137,7 +137,7 @@ describe('atlasSignInReducer', function () {
         signIn: sandbox.stub().rejects(new Error('Whooops!')),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       const signInPromise = store.dispatch(signIn());
@@ -153,7 +153,7 @@ describe('atlasSignInReducer', function () {
   describe('cancelSignIn', function () {
     it('should do nothing if no sign in is in progress', function () {
       const store = configureStore({
-        atlasService: {} as any,
+        atlasAuthService: {} as any,
       });
       expect(store.getState()).to.have.nested.property('state', 'initial');
       store.dispatch(cancelSignIn());
@@ -173,7 +173,7 @@ describe('atlasSignInReducer', function () {
           }),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       void store.dispatch(signInWithModalPrompt()).catch(() => {});
@@ -195,7 +195,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       const signInPromise = store.dispatch(signInWithModalPrompt());
@@ -213,7 +213,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       const signInPromise = store.dispatch(signInWithModalPrompt());
@@ -237,7 +237,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       const signInPromise = store.dispatch(signInWithModalPrompt());
@@ -261,7 +261,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
 
       const c = new AbortController();
@@ -290,7 +290,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       await store.dispatch(signInWithoutPrompt());
       expect(store.getState()).to.have.property('state', 'success');
@@ -304,7 +304,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       try {
         await store.dispatch(signInWithoutPrompt());
@@ -330,7 +330,7 @@ describe('atlasSignInReducer', function () {
         emit: sandbox.stub(),
       };
       const store = configureStore({
-        atlasService: mockAtlasService as any,
+        atlasAuthService: mockAtlasService as any,
       });
       const c = new AbortController();
       const signInPromise = store.dispatch(

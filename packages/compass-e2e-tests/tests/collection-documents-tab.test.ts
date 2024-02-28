@@ -152,20 +152,18 @@ describe('Collection documents tab', function () {
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    if (!TEST_COMPASS_WEB) {
-      // Check the telemetry
-      const queryExecutedEvent = await telemetryEntry('Query Executed');
-      expect(queryExecutedEvent).to.deep.equal({
-        changed_maxtimems: false,
-        collection_type: 'collection',
-        has_collation: false,
-        has_limit: false,
-        has_projection: false,
-        has_skip: false,
-        has_sort: false,
-        used_regex: false,
-      });
-    }
+    // Check the telemetry
+    const queryExecutedEvent = await telemetryEntry('Query Executed');
+    expect(queryExecutedEvent).to.deep.equal({
+      changed_maxtimems: false,
+      collection_type: 'collection',
+      has_collation: false,
+      has_limit: false,
+      has_projection: false,
+      has_skip: false,
+      has_sort: false,
+      used_regex: false,
+    });
 
     if (!TEST_COMPASS_WEB) {
       // no query history in compass-web yet
@@ -189,20 +187,18 @@ describe('Collection documents tab', function () {
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('1 – 20 of 50');
 
-    if (!TEST_COMPASS_WEB) {
-      // Check the telemetry
-      const queryExecutedEvent = await telemetryEntry('Query Executed');
-      expect(queryExecutedEvent).to.deep.equal({
-        changed_maxtimems: false,
-        collection_type: 'collection',
-        has_collation: false,
-        has_limit: true,
-        has_projection: true,
-        has_sort: true,
-        has_skip: true,
-        used_regex: false,
-      });
-    }
+    // Check the telemetry
+    const queryExecutedEvent = await telemetryEntry('Query Executed');
+    expect(queryExecutedEvent).to.deep.equal({
+      changed_maxtimems: false,
+      collection_type: 'collection',
+      has_collation: false,
+      has_limit: true,
+      has_projection: true,
+      has_sort: true,
+      has_skip: true,
+      used_regex: false,
+    });
 
     if (!TEST_COMPASS_WEB) {
       // no query history in compass-web yet

@@ -2,12 +2,10 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { stub } from 'sinon';
 import { Provider } from 'react-redux';
 import { OIDCSettings } from './oidc-settings';
-import { configureStore } from '../../stores';
+import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('OIDCSettings', function () {
   let container: HTMLElement;
@@ -18,10 +16,7 @@ describe('OIDCSettings', function () {
   }
 
   beforeEach(async function () {
-    store = configureStore({
-      logger: stub() as any,
-      preferences: await createSandboxFromDefaultPreferences(),
-    });
+    store = configureStore();
     await store.dispatch(fetchSettings());
     const component = () => (
       <Provider store={store}>
