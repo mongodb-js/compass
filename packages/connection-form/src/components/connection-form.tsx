@@ -6,6 +6,7 @@ import type {
 import {
   Banner,
   BannerVariant,
+  Checkbox,
   Description,
   FavoriteIcon,
   Icon,
@@ -13,11 +14,15 @@ import {
   Overline,
   H3,
   spacing,
+  Select,
+  TextInput,
+  Option,
   css,
+  cx,
   ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
-
+import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectionFormActions from './connection-form-actions';
@@ -29,6 +34,10 @@ import {
   ConnectionFormPreferencesContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
+import {
+  CONNECTION_COLOR_CODES,
+  useConnectionColor,
+} from '../hooks/use-connection-color';
 
 const descriptionStyles = css({
   marginTop: spacing[2],
@@ -97,6 +106,118 @@ type ConnectionFormPropsWithoutPreferences = {
   onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
 
+const colorPreviewStyles = css({
+  height: '16px',
+  width: '16px',
+  marginRight: spacing[2],
+});
+
+function ColorCircle({ hexColor }: { hexColor: string }): React.ReactElement {
+  return (
+    <svg
+      className={colorPreviewStyles}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g clip-path="url(#clip0_756_18092)">
+        <line
+          opacity="0.5"
+          x1="16.3536"
+          y1="-0.146447"
+          x2="0.353554"
+          y2="15.8536"
+          stroke="#DB3030"
+        />
+      </g>
+      <rect
+        x="0.5"
+        y="0.5"
+        width="15"
+        height="15"
+        rx="7.5"
+        stroke="#889397"
+        fill={hexColor}
+      />
+      <defs>
+        <clipPath id="clip0_756_18092">
+          <rect width="16" height="16" rx="8" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+const personalisationSectionLayoutStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gridTemplateRows: 'auto',
+  gridTemplateAreas: `
+    'name-input color-input'
+    'favorite-marker favorite-marker'
+  `,
+  gap: spacing[4],
+  marginBottom: spacing[4],
+});
+
+type ConnectionPersonalisationFormProps = {
+  initialFavoriteOptions?: ConnectionFavoriteOption;
+  onChange: (ConnectionFavoriteOptions) => void;
+};
+
+function ConnectionPersonalisationForm({
+  onChange,
+  initialFavoriteOptions,
+}: ConnectionPersonalisationFormProps): React.ReactElement {
+  const showFavoriteActions = useConnectionFormPreference(
+    'showFavoriteActions'
+  );
+
+  const [name, setName] = useState(initialFavoriteOptions?.name || '');
+  const [color, setColor] = useState(
+    initialFavoriteOptions?.color || 'no-color'
+  );
+  const [isFavorite, setFavorite] = useState(!!initialFavoriteOptions);
+
+  const { connectionColorToHex, connectionColorToName } = useConnectionColor();
+
+  return (
+    <div className={personalisationSectionLayoutStyles}>
+      <TextInput value={name} style={{ gridArea: 'name-input' }} label="Name" />
+      <Select
+        style={{ gridArea: 'color-input' }}
+        label="Color"
+        value={color}
+        defaultValue={'no-color'}
+        allowDeselect={false}
+      >
+        <Option value={'no-color'}>
+          <ColorCircle hexColor="transparent" />
+          No Color
+        </Option>
+        {CONNECTION_COLOR_CODES.map((colorCode) => (
+          <Option value={colorCode}>
+            <ColorCircle hexColor={connectionColorToHex(colorCode)} />
+            {connectionColorToName(colorCode)}
+          </Option>
+        ))}
+      </Select>
+      {showFavoriteActions && (
+        <div style={{ gridArea: 'favorite-marker' }}>
+          <Checkbox
+            checked={isFavorite}
+            label={<b>Favorite this connection</b>}
+            description="Favoriting a connection will pin it to the top of your list of
+          connections"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
   preferences?: Partial<ConnectionFormPreferences>;
 };
@@ -109,6 +230,10 @@ function ConnectionForm({
   // the connection info can be saved.
   onSaveConnectionClicked,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   const [
     {
       enableEditingConnectionString: _enableEditingConnectionString,
@@ -211,7 +336,7 @@ function ConnectionForm({
         <div className={formContentContainerStyles}>
           <H3 className={formHeaderStyles}>
             {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-            {showFavoriteActions && (
+            {!isMultiConnectionEnabled && showFavoriteActions && (
               <IconButton
                 type="button"
                 aria-label="Save Connection"
@@ -228,7 +353,7 @@ function ConnectionForm({
           <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
-          {showFavoriteActions && (
+          {!isMultiConnectionEnabled && showFavoriteActions && (
             <IconButton
               aria-label="Save Connection"
               data-testid="edit-favorite-icon-button"
@@ -265,6 +390,12 @@ function ConnectionForm({
             >
               {connectionStringInvalidError.message}
             </Banner>
+          )}
+          {isMultiConnectionEnabled && (
+            <ConnectionPersonalisationForm
+              initialFavoriteOptions={initialConnectionInfo.favorite}
+              onChange={console.log}
+            />
           )}
           {!protectConnectionStrings && (
             <AdvancedConnectionOptions
