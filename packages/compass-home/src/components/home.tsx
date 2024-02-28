@@ -38,7 +38,7 @@ import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
-import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { DataServiceProvider } from 'mongodb-data-service/provider';
@@ -419,7 +419,7 @@ function Home({
       <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
       <CompassSettingsPlugin></CompassSettingsPlugin>
       <CompassFindInPagePlugin></CompassFindInPagePlugin>
-      <AtlasSignIn></AtlasSignIn>
+      <AtlasAuthPlugin></AtlasAuthPlugin>
     </FileInputBackendProvider>
   );
 }

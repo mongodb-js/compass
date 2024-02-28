@@ -187,10 +187,6 @@ const CompassWeb = ({
     };
   }, [connectionString, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
-  const atlasAuthService = useMemo(() => {
-    return new CloudAtlasAuthService();
-  }, []);
-
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
   // handling a single connection)
