@@ -181,7 +181,8 @@ function ConnectionPersonalisationForm({
   );
   const [isFavorite, setFavorite] = useState(!!initialFavoriteOptions);
 
-  const { connectionColorToHex, connectionColorToName } = useConnectionColor();
+  const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
+    useConnectionColor();
 
   return (
     <div className={personalisationSectionLayoutStyles}>
@@ -197,7 +198,7 @@ function ConnectionPersonalisationForm({
           <ColorCircle hexColor="transparent" />
           No Color
         </Option>
-        {CONNECTION_COLOR_CODES.map((colorCode) => (
+        {connectionColorCodes().map((colorCode) => (
           <Option value={colorCode}>
             <ColorCircle hexColor={connectionColorToHex(colorCode)} />
             {connectionColorToName(colorCode)}

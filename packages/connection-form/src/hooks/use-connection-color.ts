@@ -81,6 +81,7 @@ export function legacyColorsToColorCode(
 }
 
 export function useConnectionColor(): {
+  connectionColorCodes: () => ColorCode[];
   connectionColorToHex: (colorCode: string | undefined) => string | undefined;
   connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
@@ -126,10 +127,19 @@ export function useConnectionColor(): {
     'enableNewMultipleConnectionSystem'
   );
 
+  const connectionColorCodes = () => {
+    if (isMultiConnectionEnabled) {
+      return CONNECTION_COLOR_CODES.slice(0, 9);
+    } else {
+      return CONNECTION_COLOR_CODES;
+    }
+  };
+
   return {
     connectionColorToHex: isMultiConnectionEnabled
       ? newColorCodeToHex
       : colorCodeToHex,
     connectionColorToName: colorToName,
+    connectionColorCodes,
   };
 }
