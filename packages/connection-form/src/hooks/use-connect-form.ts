@@ -61,6 +61,7 @@ import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormPreference } from './use-connect-form-preferences';
+import ConnectionString from 'mongodb-connection-string-url';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -206,9 +207,21 @@ function buildStateFromConnectionInfo(
   // Only enable connection string editing (and in particular, doing so in
   // protected connection strings mode) when it's the default connection
   // string and the connection has not been connected to (saved recent/favorite).
+
+  let isDefaultCnnStr = false;
+  try {
+    const parsedCnnUrl = new ConnectionString(
+      initialConnectionInfo.connectionOptions.connectionString
+    );
+    const parsedDefUrl = new ConnectionString(defaultConnectionString);
+
+    isDefaultCnnStr = parsedCnnUrl.href === parsedDefUrl.href;
+  } catch (ex) {
+    // if we can't parse the URL, we assume it is not the default
+  }
+
   const isNewDefaultConnection =
-    initialConnectionInfo.connectionOptions.connectionString ===
-      defaultConnectionString && !initialConnectionInfo.lastUsed;
+    isDefaultCnnStr && !initialConnectionInfo.lastUsed;
   return {
     errors: errors,
     enableEditingConnectionString: isNewDefaultConnection,
