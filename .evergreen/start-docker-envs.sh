@@ -7,6 +7,9 @@ if ! command -v docker &>/dev/null; then
 elif ! command -v docker-compose &>/dev/null; then
   echo "docker-compose could not be found"
 else
+  echo "Docker version"
+  docker version
+
   echo "Starting test environments"
 
   SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
