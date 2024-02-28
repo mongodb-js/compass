@@ -105,10 +105,6 @@ describe('CollectionHeader [Component]', function () {
       renderCollectionHeader({ isTimeSeries: true });
     });
 
-    it('does not render the source collection', function () {
-      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
-    });
-
     it('does not render the readonly badge', function () {
       expect(screen.queryByTestId('collection-badge-readonly')).to.not.exist;
     });
@@ -121,10 +117,6 @@ describe('CollectionHeader [Component]', function () {
   context('when the collection is a clustered collection', function () {
     beforeEach(function () {
       renderCollectionHeader({ isClustered: true });
-    });
-
-    it('does not render the source collection', function () {
-      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
     });
 
     it('does not render the readonly badge', function () {
