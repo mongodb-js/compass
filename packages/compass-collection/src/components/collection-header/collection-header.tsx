@@ -21,11 +21,18 @@ import { connect } from 'react-redux';
 
 const collectionHeaderStyles = css({
   padding: spacing[3],
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: spacing[2],
+});
+
+const breadcrumbStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
 });
 
 const collectionHeaderLightStyles = css({
@@ -85,11 +92,8 @@ export const CollectionHeader: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
-  const {
-    openCollectionWorkspace,
-    openEditViewWorkspace,
-    openCollectionsWorkspace,
-  } = useOpenWorkspace();
+  const { openCollectionWorkspace, openCollectionsWorkspace } =
+    useOpenWorkspace();
 
   const breadcrumbItems = useMemo(() => {
     return [
@@ -134,7 +138,9 @@ export const CollectionHeader: React.FunctionComponent<
       )}
       data-testid="collection-header"
     >
-      <Breadcrumbs items={breadcrumbItems} />
+      <div className={breadcrumbStyles}>
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       {isReadonly && <CollectionBadge type="readonly" />}
       {isTimeSeries && <CollectionBadge type="timeseries" />}
       {isClustered && <CollectionBadge type="clustered" />}
@@ -144,20 +150,9 @@ export const CollectionHeader: React.FunctionComponent<
       <CollectionHeaderActions
         editViewName={editViewName}
         isReadonly={isReadonly}
-        onEditViewClicked={() => {
-          if (sourceName && sourcePipeline) {
-            openEditViewWorkspace(namespace, {
-              sourceName,
-              sourcePipeline,
-            });
-          }
-        }}
-        onReturnToViewClicked={() => {
-          if (editViewName) {
-            openCollectionWorkspace(editViewName);
-          }
-        }}
+        namespace={namespace}
         sourceName={sourceName}
+        sourcePipeline={sourcePipeline}
       />
     </div>
   );

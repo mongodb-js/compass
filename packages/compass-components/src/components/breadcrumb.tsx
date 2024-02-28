@@ -14,7 +14,6 @@ const breadcrumbStyles = css({
   display: 'flex',
   gap: spacing[1],
   alignItems: 'center',
-  height: spacing[4],
   minWidth: 0,
 });
 
