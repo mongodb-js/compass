@@ -8,21 +8,11 @@ import {
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 
-const editViewButtonStyles = css({
-  flex: 'none',
-});
-
 const collectionHeaderActionsStyles = css({
   display: 'flex',
-  marginLeft: 'auto',
   alignItems: 'center',
   overflow: 'hidden',
   gap: spacing[2],
-});
-
-const collectionHeaderActionsReadonlyStyles = css({
-  alignItems: 'center',
-  flex: 'none',
 });
 
 type CollectionHeaderActionsProps = {
@@ -51,7 +41,6 @@ const CollectionHeaderActions: React.FunctionComponent<
       {isReadonly && sourceName && !editViewName && (
         <Button
           data-testid="collection-header-actions-edit-button"
-          className={editViewButtonStyles}
           size={ButtonSize.Small}
           onClick={() => {
             if (sourceName && sourcePipeline) {
@@ -69,7 +58,6 @@ const CollectionHeaderActions: React.FunctionComponent<
       {editViewName && (
         <Button
           data-testid="collection-header-actions-return-to-view-button"
-          className={collectionHeaderActionsReadonlyStyles}
           size={ButtonSize.Small}
           onClick={() => {
             if (editViewName) {

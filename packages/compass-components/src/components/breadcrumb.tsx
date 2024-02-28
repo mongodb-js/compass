@@ -51,10 +51,16 @@ const iconStyles = css({
   flexShrink: 0,
 });
 
-export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
+export const Breadcrumbs = ({
+  items,
+  className,
+}: {
+  items: Array<BreadcrumbItem>;
+  className?: string;
+}) => {
   const darkMode = useDarkMode();
   return (
-    <div className={breadcrumbStyles} data-testid="breadcrumbs">
+    <div className={cx(breadcrumbStyles, className)} data-testid="breadcrumbs">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         if (isLast) {

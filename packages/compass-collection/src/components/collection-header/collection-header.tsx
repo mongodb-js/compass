@@ -43,6 +43,11 @@ const collectionHeaderDarkStyles = css({
   backgroundColor: palette.black,
 });
 
+const actionsStyles = css({
+  flexShrink: 0,
+  marginLeft: 'auto',
+});
+
 type CollectionHeaderProps = {
   namespace: string;
   isReadonly: boolean;
@@ -138,22 +143,22 @@ export const CollectionHeader: React.FunctionComponent<
       )}
       data-testid="collection-header"
     >
-      <div className={breadcrumbStyles}>
-        <Breadcrumbs items={breadcrumbItems} />
-      </div>
+      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
       {isReadonly && <CollectionBadge type="readonly" />}
       {isTimeSeries && <CollectionBadge type="timeseries" />}
       {isClustered && <CollectionBadge type="clustered" />}
       {isFLE && <CollectionBadge type="fle" />}
       {isReadonly && sourceName && <CollectionBadge type="view" />}
       {!!insights.length && <SignalPopover signals={insights} />}
-      <CollectionHeaderActions
-        editViewName={editViewName}
-        isReadonly={isReadonly}
-        namespace={namespace}
-        sourceName={sourceName}
-        sourcePipeline={sourcePipeline}
-      />
+      <div className={actionsStyles}>
+        <CollectionHeaderActions
+          editViewName={editViewName}
+          isReadonly={isReadonly}
+          namespace={namespace}
+          sourceName={sourceName}
+          sourcePipeline={sourcePipeline}
+        />
+      </div>
     </div>
   );
 };
