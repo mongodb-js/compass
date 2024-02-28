@@ -9,6 +9,7 @@ elif ! command -v docker-compose &>/dev/null; then
 else
   echo "Docker version"
   docker version
+  docker-compose version
 
   echo "Starting test environments"
 
