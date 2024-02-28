@@ -34,10 +34,7 @@ import {
   ConnectionFormPreferencesContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
-import {
-  CONNECTION_COLOR_CODES,
-  useConnectionColor,
-} from '../hooks/use-connection-color';
+import { useConnectionColor } from '../hooks/use-connection-color';
 
 const descriptionStyles = css({
   marginTop: spacing[2],
@@ -164,7 +161,15 @@ const personalisationSectionLayoutStyles = css({
 
 type ConnectionPersonalisationFormProps = {
   initialFavoriteOptions?: ConnectionFavoriteOption;
-  onChange: (ConnectionFavoriteOptions) => void;
+  onChange: ({
+    name,
+    color,
+    isFavorite,
+  }: {
+    name: string;
+    color: string;
+    isFavorite: boolean;
+  }) => void;
 };
 
 function ConnectionPersonalisationForm({
@@ -177,22 +182,55 @@ function ConnectionPersonalisationForm({
 
   const [name, setName] = useState(initialFavoriteOptions?.name || '');
   const [color, setColor] = useState(
-    initialFavoriteOptions?.color || 'no-color'
+    initialFavoriteOptions?.color || undefined
   );
   const [isFavorite, setFavorite] = useState(!!initialFavoriteOptions);
+
+  const onChangeName = useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      const name = ev.target.value;
+
+      setName(name);
+      onChange({ name, color, isFavorite });
+    },
+    [color, isFavorite, setName]
+  );
+
+  const onChangeColor = useCallback(
+    (newValue: string) => {
+      const color = newValue === 'no-color' ? undefined : newValue;
+      setColor(color);
+      onChange({ name, color, isFavorite });
+    },
+    [name, isFavorite, setColor]
+  );
+
+  const onChangeFavorite = useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      const isFavorite = ev.target.checked;
+      setFavorite(isFavorite);
+      onChange({ name, color, isFavorite });
+    },
+    [name, color, setFavorite]
+  );
 
   const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
     useConnectionColor();
 
   return (
     <div className={personalisationSectionLayoutStyles}>
-      <TextInput value={name} style={{ gridArea: 'name-input' }} label="Name" />
+      <TextInput
+        value={name}
+        style={{ gridArea: 'name-input' }}
+        onChange={onChangeName}
+        label="Name"
+      />
       <Select
         style={{ gridArea: 'color-input' }}
         label="Color"
-        value={color}
         defaultValue={'no-color'}
         allowDeselect={false}
+        onChange={onChangeColor}
       >
         <Option value={'no-color'}>
           <ColorCircle hexColor="transparent" />
@@ -208,6 +246,7 @@ function ConnectionPersonalisationForm({
       {showFavoriteActions && (
         <div style={{ gridArea: 'favorite-marker' }}>
           <Checkbox
+            onChange={onChangeFavorite}
             checked={isFavorite}
             label={<b>Favorite this connection</b>}
             description="Favoriting a connection will pin it to the top of your list of
@@ -395,7 +434,7 @@ function ConnectionForm({
           {isMultiConnectionEnabled && (
             <ConnectionPersonalisationForm
               initialFavoriteOptions={initialConnectionInfo.favorite}
-              onChange={console.log}
+              onChange={(e) => console.log(e)}
             />
           )}
           {!protectConnectionStrings && (
