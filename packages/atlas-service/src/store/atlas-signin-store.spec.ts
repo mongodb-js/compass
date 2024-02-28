@@ -19,7 +19,7 @@ describe('Atlas Signin Store', () => {
           getUserInfo: () => Promise.resolve({ sub: '1234' }),
         },
       } as unknown as AtlasAuthPluginServices;
-      const { store } = activatePlugin({} as never, services, activateHelpers);
+      const { store } = activatePlugin({}, services, activateHelpers);
       expect(store.getState()).to.have.property('state', 'restoring');
       await waitFor(() => {
         expect(store.getState()).to.have.property('state', 'success');
@@ -32,7 +32,7 @@ describe('Atlas Signin Store', () => {
           isAuthenticated: () => Promise.resolve(false),
         },
       } as unknown as AtlasAuthPluginServices;
-      const { store } = activatePlugin({} as never, services, activateHelpers);
+      const { store } = activatePlugin({}, services, activateHelpers);
       expect(store.getState()).to.have.property('state', 'restoring');
       await waitFor(() => {
         expect(store.getState()).to.have.property('state', 'unauthenticated');
