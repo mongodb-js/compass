@@ -146,7 +146,10 @@ const CollectionTabWithMetadata: React.FunctionComponent<
                 collectionMetadata.isTimeSeries ||
                 collectionMetadata.sourceName ||
                 editViewName;
-              if (!hideStats && tab.name === 'Documents') {
+              if (hideStats) {
+                return tab.name;
+              }
+              if (tab.name === 'Documents') {
                 return (
                   <TabTitleWithStats
                     data-testid="documents-tab-with-stats"
@@ -155,7 +158,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
                   />
                 );
               }
-              if (!hideStats && tab.name === 'Indexes') {
+              if (tab.name === 'Indexes') {
                 return (
                   <TabTitleWithStats
                     data-testid="indexes-tab-with-stats"
