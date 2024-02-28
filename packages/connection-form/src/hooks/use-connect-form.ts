@@ -63,6 +63,13 @@ import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormPreference } from './use-connect-form-preferences';
 import ConnectionString from 'mongodb-connection-string-url';
 
+export type ConnectionPersonalisationOptions = {
+  name: string;
+  color: string;
+  isFavorite: boolean;
+  isNameDirty: boolean;
+};
+
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
   enableEditingConnectionString: boolean;
@@ -70,6 +77,7 @@ export interface ConnectFormState {
   warnings: ConnectionFormWarning[];
   isDirty: boolean;
   allowEditingIfProtected: boolean;
+  personalisationOptions: ConnectionPersonalisationOptions;
 }
 
 type Action =
@@ -92,6 +100,10 @@ function connectFormReducer(
 ): ConnectFormState {
   switch (action.type) {
     case 'set-connection-form-state':
+      console.log('set-connection-form-state', {
+        ...state,
+        ...action.newState,
+      });
       return {
         ...state,
         ...action.newState,
@@ -120,6 +132,14 @@ interface UpdateHostAction {
   type: 'update-host';
   fieldIndex: number;
   newHostValue: string;
+}
+
+interface UpdateConnectionPersonalisationAction {
+  type: 'update-connection-personalisation';
+  name: string;
+  color: string;
+  isFavorite: boolean;
+  isNameDirty: boolean;
 }
 
 type ConnectionFormFieldActions =
@@ -172,7 +192,8 @@ type ConnectionFormFieldActions =
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
   | UpdateCsfleKmsTlsAction
-  | UpdateOIDCAction;
+  | UpdateOIDCAction
+  | UpdateConnectionPersonalisationAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -235,6 +256,12 @@ function buildStateFromConnectionInfo(
       cloneDeep(initialConnectionInfo.connectionOptions)
     ),
     isDirty: false,
+    personalisationOptions: {
+      color: initialConnectionInfo.favorite?.color || undefined,
+      name: initialConnectionInfo.favorite?.name || '',
+      isNameDirty: !!initialConnectionInfo.favorite?.name,
+      isFavorite: initialConnectionInfo.savedConnectionType === 'favorite',
+    },
   };
 }
 
@@ -289,6 +316,32 @@ function handleUpdateHost({
   }
 }
 
+export function handleConnectionFormUpdateForPersonalisation(
+  action: ConnectionFormFieldActions | UpdateConnectionPersonalisationAction,
+  connectionString: string,
+  personalisation: ConnectionPersonalisationOptions
+): ConnectionPersonalisationOptions {
+  const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
+  let name = action.name || personalisation.name;
+  const color = action.color || personalisation.color;
+  const isFavorite = action.isFavorite || personalisation.isFavorite;
+
+  if (!isNameDirty) {
+    try {
+      const parsedConnString = new ConnectionString(connectionString);
+      name = parsedConnString.hosts.join(',');
+    } catch (ex) {
+      // just keep previous value
+    }
+  }
+
+  return {
+    name,
+    color,
+    isFavorite,
+    isNameDirty,
+  };
+}
 // This function handles field updates from the connection form.
 // It performs validity checks and downstream effects. Exported for testing.
 export function handleConnectionFormFieldUpdate(
@@ -329,6 +382,12 @@ export function handleConnectionFormFieldUpdate(
     parsedConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   switch (action.type) {
+    case 'update-connection-personalisation': {
+      return {
+        connectionOptions: currentConnectionOptions,
+        errors: [],
+      };
+    }
     case 'add-new-host': {
       const { fieldIndexToAddAfter } = action;
 
@@ -619,6 +678,14 @@ export function useConnectForm(
         action,
         state.connectionOptions
       );
+
+      const personalisationOptions =
+        handleConnectionFormUpdateForPersonalisation(
+          action,
+          updatedState.connectionOptions?.connectionString || '',
+          state.personalisationOptions
+        );
+
       dispatch({
         type: 'set-connection-form-state',
         newState: {
@@ -632,6 +699,7 @@ export function useConnectForm(
             updatedState.connectionOptions,
             state.connectionOptions
           ),
+          personalisationOptions,
         },
       });
     },
@@ -680,6 +748,7 @@ function setInitialState({
       connectionOptions,
       allowEditingIfProtected,
       enableEditingConnectionString,
+      personalisationOptions,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
@@ -693,6 +762,7 @@ function setInitialState({
         connectionOptions,
         isDirty: false,
         allowEditingIfProtected,
+        personalisationOptions,
       },
     });
   }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);

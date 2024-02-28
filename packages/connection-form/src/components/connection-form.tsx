@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -20,13 +20,18 @@ import {
   css,
   cx,
   ConfirmationModalArea,
+  createGlyphComponent,
+  createIconComponent,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectionFormActions from './connection-form-actions';
-import { useConnectForm } from '../hooks/use-connect-form';
+import {
+  useConnectForm,
+  type ConnectionPersonalisationOptions,
+} from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
@@ -109,43 +114,42 @@ const colorPreviewStyles = css({
   marginRight: spacing[2],
 });
 
-function ColorCircle({ hexColor }: { hexColor: string }): React.ReactElement {
-  return (
-    <svg
-      className={colorPreviewStyles}
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g clip-path="url(#clip0_756_18092)">
-        <line
-          opacity="0.5"
-          x1="16.3536"
-          y1="-0.146447"
-          x2="0.353554"
-          y2="15.8536"
-          stroke="#DB3030"
-        />
-      </g>
-      <rect
-        x="0.5"
-        y="0.5"
-        width="15"
-        height="15"
-        rx="7.5"
-        stroke="#889397"
-        fill={hexColor}
+const ColorCircleGlyph = createGlyphComponent('ColorCircle', (props) => (
+  <svg
+    {...props}
+    className={colorPreviewStyles}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g clip-path="url(#clip0_756_18092)">
+      <line
+        opacity="0.5"
+        x1="16.3536"
+        y1="-0.146447"
+        x2="0.353554"
+        y2="15.8536"
+        stroke="#DB3030"
       />
-      <defs>
-        <clipPath id="clip0_756_18092">
-          <rect width="16" height="16" rx="8" fill="white" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
+    </g>
+    <rect
+      x="0.5"
+      y="0.5"
+      width="15"
+      height="15"
+      rx="7.5"
+      stroke="#889397"
+      fill={props.hexColor}
+    />
+    <defs>
+      <clipPath id="clip0_756_18092">
+        <rect width="16" height="16" rx="8" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+));
 
 const personalisationSectionLayoutStyles = css({
   display: 'grid',
@@ -160,59 +164,58 @@ const personalisationSectionLayoutStyles = css({
 });
 
 type ConnectionPersonalisationFormProps = {
-  initialFavoriteOptions?: ConnectionFavoriteOption;
-  onChange: ({
-    name,
-    color,
-    isFavorite,
-  }: {
-    name: string;
-    color: string;
-    isFavorite: boolean;
-  }) => void;
+  initialValue?: ConnectionPersonalisationOptions;
+  onChange: (ConnectionPersonalisationOptions) => void;
 };
 
 function ConnectionPersonalisationForm({
   onChange,
-  initialFavoriteOptions,
+  initialValue,
 }: ConnectionPersonalisationFormProps): React.ReactElement {
   const showFavoriteActions = useConnectionFormPreference(
     'showFavoriteActions'
   );
 
-  const [name, setName] = useState(initialFavoriteOptions?.name || '');
-  const [color, setColor] = useState(
-    initialFavoriteOptions?.color || undefined
-  );
-  const [isFavorite, setFavorite] = useState(!!initialFavoriteOptions);
+  const [name, setName] = useState(initialValue?.name || '');
+  const [isNameDirty, setNameDirty] = useState(!!initialValue?.isNameDirty);
+  const [color, setColor] = useState(initialValue?.color || undefined);
+  const [isFavorite, setFavorite] = useState(initialValue?.isFavorite);
 
   const onChangeName = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       const name = ev.target.value;
 
       setName(name);
-      onChange({ name, color, isFavorite });
+      setNameDirty(true);
+
+      onChange({ name, color, isFavorite, isNameDirty: true });
     },
-    [color, isFavorite, setName]
+    [color, isFavorite, setName, setNameDirty]
   );
 
   const onChangeColor = useCallback(
     (newValue: string) => {
       const color = newValue === 'no-color' ? undefined : newValue;
+
       setColor(color);
-      onChange({ name, color, isFavorite });
+      onChange({ name, color, isFavorite, isNameDirty });
     },
-    [name, isFavorite, setColor]
+    [name, isFavorite, isNameDirty, setColor]
   );
 
   const onChangeFavorite = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       const isFavorite = ev.target.checked;
+
       setFavorite(isFavorite);
-      onChange({ name, color, isFavorite });
+      onChange({ name, color, isFavorite, isNameDirty });
     },
-    [name, color, setFavorite]
+    [name, color, isNameDirty, setFavorite]
   );
+
+  useEffect(() => {
+    setName(initialValue?.name);
+  }, [initialValue, setName]);
 
   const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
     useConnectionColor();
@@ -228,17 +231,23 @@ function ConnectionPersonalisationForm({
       <Select
         style={{ gridArea: 'color-input' }}
         label="Color"
-        defaultValue={'no-color'}
+        defaultValue={color || 'no-color'}
         allowDeselect={false}
         onChange={onChangeColor}
       >
-        <Option value={'no-color'}>
-          <ColorCircle hexColor="transparent" />
+        <Option
+          glyph={<ColorCircleGlyph hexColor="transparent" />}
+          value={'no-color'}
+        >
           No Color
         </Option>
         {connectionColorCodes().map((colorCode) => (
-          <Option value={colorCode}>
-            <ColorCircle hexColor={connectionColorToHex(colorCode)} />
+          <Option
+            glyph={
+              <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
+            }
+            value={colorCode}
+          >
             {connectionColorToName(colorCode)}
           </Option>
         ))}
@@ -282,6 +291,7 @@ function ConnectionForm({
       warnings: _warnings,
       connectionOptions,
       allowEditingIfProtected,
+      personalisationOptions,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -433,8 +443,13 @@ function ConnectionForm({
           )}
           {isMultiConnectionEnabled && (
             <ConnectionPersonalisationForm
-              initialFavoriteOptions={initialConnectionInfo.favorite}
-              onChange={(e) => console.log(e)}
+              initialValue={personalisationOptions}
+              onChange={(e) =>
+                updateConnectionFormField({
+                  type: 'update-connection-personalisation',
+                  ...e,
+                })
+              }
             />
           )}
           {!protectConnectionStrings && (
