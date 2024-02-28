@@ -193,7 +193,7 @@ export class Compass {
     this.addDebugger();
   }
 
-  async recordLogs(): Promise<void> {
+  async recordElectronLogs(): Promise<void> {
     debug('Setting up renderer log listeners ...');
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
@@ -355,7 +355,7 @@ export class Compass {
     }
   }
 
-  async stop(): Promise<void> {
+  async stopElectron(): Promise<void> {
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${this.name}.json`
@@ -403,18 +403,34 @@ export class Compass {
       return compassLog;
     };
 
-    if (this.logPath) {
-      // not available when testing web
-      // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-      await copyCompassLog();
-    }
+    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+    await copyCompassLog();
 
     debug(`Stopping Compass application [${this.name}]`);
     await this.browser.deleteSession({ shutdownDriver: true });
 
-    if (this.logPath) {
-      // not available when testing web
-      this.logs = (await copyCompassLog()).structured;
+    this.logs = (await copyCompassLog()).structured;
+  }
+
+  async stopBrowser(): Promise<void> {
+    const logging: any[] = await this.browser.execute(function () {
+      return (window as any).logging;
+    });
+    const lines = logging.map((log) => JSON.stringify(log));
+    const text = lines.join('\n');
+    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
+    debug(`Writing Compass application log to ${compassLogPath}`);
+    await fs.writeFile(compassLogPath, text);
+
+    debug(`Stopping Compass application [${this.name}]`);
+    await this.browser.deleteSession({ shutdownDriver: true });
+  }
+
+  async stop(): Promise<void> {
+    if (TEST_COMPASS_WEB) {
+      await this.stopBrowser();
+    } else {
+      await this.stopElectron();
     }
   }
 }
@@ -715,7 +731,7 @@ async function startCompassElectron(
     needsCloseWelcomeModal,
   });
 
-  await compass.recordLogs();
+  await compass.recordElectronLogs();
 
   return compass;
 }
@@ -751,9 +767,6 @@ export async function startBrowser(
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
-
-  // TODO(COMPASS-7653): we need to figure out how to do this for compass-web
-  //await compass.recordLogs();
 
   return compass;
 }

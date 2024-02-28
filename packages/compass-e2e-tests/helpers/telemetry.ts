@@ -3,11 +3,13 @@ import http from 'http';
 import type { AddressInfo } from 'net';
 import { EJSON } from 'bson';
 import type { MongoLogEntry } from 'mongodb-log-writer';
+import { TEST_COMPASS_WEB } from './compass';
+import type { CompassBrowser } from './compass-browser';
 
-// TODO: lots of any here
 export type Telemetry = {
   requests: any[];
   stop: () => Promise<void>;
+  pollForEvents?: (browser: CompassBrowser) => Promise<void>;
   events: () => any[];
   key: string;
   screens: () => string[];
@@ -15,7 +17,44 @@ export type Telemetry = {
 
 export type LogEntry = Omit<MongoLogEntry, 'id'> & { id: number };
 
+function startFakeTelemetry(): Promise<Telemetry> {
+  let tracking: any[] = [];
+  let neverFetched = true;
+
+  const events = (): any[] => {
+    if (neverFetched) {
+      throw new Error("Don't forget to telemetry.pollForEvents(browser);");
+    }
+    return tracking;
+  };
+
+  return Promise.resolve({
+    key: '🔑',
+    requests: [],
+    stop: async () => {
+      // noop
+    },
+    pollForEvents: async (browser: CompassBrowser): Promise<void> => {
+      tracking = await browser.execute(function () {
+        return (window as any).tracking;
+      });
+
+      neverFetched = false;
+    },
+    events,
+    screens: (): any[] => {
+      return events()
+        .filter((entry) => entry.event === 'Screen')
+        .map((entry) => entry.properties.name);
+    },
+  });
+}
+
 export async function startTelemetryServer(): Promise<Telemetry> {
+  if (TEST_COMPASS_WEB) {
+    return startFakeTelemetry();
+  }
+
   const requests: any[] = [];
   const srv = http
     .createServer((req, res) => {
@@ -34,7 +73,7 @@ export async function startTelemetryServer(): Promise<Telemetry> {
     .listen(0);
   await once(srv, 'listening');
 
-  // address() returns either a string or AddresInfo.
+  // address() returns either a string or AddressInfo.
   const address = srv.address() as AddressInfo;
 
   const host = `http://localhost:${address.port}`;
