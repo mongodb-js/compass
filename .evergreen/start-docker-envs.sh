@@ -4,17 +4,17 @@ set -e
 
 if ! command -v docker &>/dev/null; then
   echo "docker could not be found"
-elif ! command -v docker-compose &>/dev/null; then
-  echo "docker-compose could not be found"
+elif ! command -v docker compose &>/dev/null; then
+  echo "docker compose could not be found"
 else
   echo "Docker version"
   docker version
-  docker-compose version
+  docker compose version
 
   echo "Starting test environments"
 
   SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-  DOCKER_COMPOSE="env MONGODB_VERSION= docker-compose"
+  DOCKER_COMPOSE="env MONGODB_VERSION= docker compose"
   LOGS_DIR="$SCRIPT_DIR/logs"
   mkdir -p "$LOGS_DIR"
 
