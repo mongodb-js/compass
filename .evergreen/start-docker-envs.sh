@@ -6,12 +6,12 @@ DOCKER_COMPOSE="env MONGODB_VERSION= docker compose"
 
 echo "Checking if docker is available ..."
 
-if ! command -v docker &>/dev/null; then
+if ! docker version &>/dev/null; then
   echo "  docker could not be found"
   exit
-elif ! command -v docker compose &>/dev/null; then
+elif ! docker compose version &>/dev/null; then
   echo "  docker compose could not be found, trying standalone docker-compose as a fallback"
-  if ! command -v docker-compose &>/dev/null; then
+  if ! docker-compose version &>/dev/null; then
     echo "  docker-compose could not be found"
     exit
   fi
