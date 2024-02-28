@@ -108,7 +108,7 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   );
 };
 
-const WithAtlasServiceProviders: React.FC = ({ children }) => {
+const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasAuthServiceProvider value={new CompassAtlasAuthService()}>
       <AtlasServiceProvider
@@ -124,7 +124,7 @@ const WithAtlasServiceProviders: React.FC = ({ children }) => {
   );
 };
 
-const WithQueryStorageProviders: React.FC = ({ children }) => {
+const WithStorageProviders: React.FC = ({ children }) => {
   const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
     getStorage(options) {
       return new CompassFavoriteQueryStorage(options);
@@ -262,16 +262,16 @@ const Application = View.extend({
     ReactDOM.render(
       <React.StrictMode>
         <WithPreferencesAndLoggerProviders>
-          <WithAtlasServiceProviders>
-            <WithQueryStorageProviders>
+          <WithAtlasProviders>
+            <WithStorageProviders>
               <AppRegistryProvider scopeName="Application Root">
                 <CompassHomePlugin
                   appName={remote.app.getName()}
                   getAutoConnectInfo={getAutoConnectInfo}
                 ></CompassHomePlugin>
               </AppRegistryProvider>
-            </WithQueryStorageProviders>
-          </WithAtlasServiceProviders>
+            </WithStorageProviders>
+          </WithAtlasProviders>
         </WithPreferencesAndLoggerProviders>
       </React.StrictMode>,
       this.queryByHook('layout-container')

@@ -78,7 +78,7 @@ class CloudAtlasAuthService extends AtlasAuthService {
   }
 }
 
-const WithAtlasServiceProviders: React.FC = ({ children }) => {
+const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasAuthServiceProvider value={new CloudAtlasAuthService()}>
       <AtlasServiceProvider>
@@ -205,7 +205,7 @@ const CompassWeb = ({
   return (
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
-        <WithAtlasServiceProviders>
+        <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
             <DataServiceProvider value={dataService.current}>
               <CompassInstanceStorePlugin>
@@ -268,7 +268,7 @@ const CompassWeb = ({
               </CompassInstanceStorePlugin>
             </DataServiceProvider>
           </AppRegistryProvider>
-        </WithAtlasServiceProviders>
+        </WithAtlasProviders>
       </PreferencesProvider>
     </CompassComponentsProvider>
   );
