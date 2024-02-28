@@ -19,7 +19,7 @@ const AtlasServiceContext = createContext<AtlasService | null>(null);
 export const AtlasServiceProvider: React.FC<{
   options?: AtlasServiceOptions;
 }> = ({ options, children }) => {
-  const logger = useLoggerAndTelemetry('ATLAS-AI-SERVICE');
+  const logger = useLoggerAndTelemetry('ATLAS-SERVICE');
   const preferences = preferencesLocator();
   const authService = atlasAuthServiceLocator();
 
