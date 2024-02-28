@@ -34,6 +34,7 @@ const breadcrumbButtonStyles = css({
 });
 
 const textStyles = css({
+  fontWeight: 'bold',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -60,7 +61,6 @@ export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
         if (isLast) {
           return (
             <Body
-              weight="medium"
               className={cx(
                 textStyles,
                 darkMode ? lastItemStylesDark : lastItemStylesLight
@@ -81,7 +81,6 @@ export const Breadcrumbs = ({ items }: { items: Array<BreadcrumbItem> }) => {
               title={item.name}
             >
               <Body
-                weight="medium"
                 className={cx(
                   textStyles,
                   darkMode ? itemDarkStyles : itemLightStyles
