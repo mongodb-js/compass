@@ -446,7 +446,7 @@ This document was automatically generated on Thu Feb 29 2024.
 | **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**                                           | 4.2.0        | MIT                                 |
 | **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**                                   | 1.0.2        | MIT                                 |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                         | 0.6.3        | MIT                                 |
-| **[node-abi](#27522d9e57504f18dd474099cf0d47b02d2bfe9b1b8622687cf42f8d215ccd34)**                                           | 3.54.0       | MIT                                 |
+| **[node-abi](#b592391c5d004993445187a4a54be1c7166b2196d4b31afd2480c608dfcceec6)**                                           | 3.56.0       | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                     | 4.3.0        | MIT                                 |
 | **[node-fetch](#ae6aab546df323cd6f4923b0c8f2d5d7119e13c5d5715a9a4983dccb054acf30)**                                         | 2.6.11       | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                         | 2.6.7        | MIT                                 |
@@ -29804,9 +29804,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="27522d9e57504f18dd474099cf0d47b02d2bfe9b1b8622687cf42f8d215ccd34"></a>
+<a id="b592391c5d004993445187a4a54be1c7166b2196d4b31afd2480c608dfcceec6"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.54.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.56.0)
 
 License tags: MIT
 
