@@ -21,6 +21,7 @@ export type FeatureFlags = {
   enableBulkUpdateOperations: boolean;
   enableBulkDeleteOperations: boolean;
   enableRenameCollectionModal: boolean;
+  enableNewMultipleConnectionSystem: boolean;
 };
 
 export const featureFlags: Required<{
@@ -95,6 +96,18 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',
+    },
+  },
+
+  /**
+   * Feature flag for the new multiple connection UI.
+   * Epic: COMPASS-6410
+   */
+  enableNewMultipleConnectionSystem: {
+    stage: 'development',
+    description: {
+      short: 'Enables support for multiple connections.',
+      long: 'Allows users to open multiple connections in the same window.',
     },
   },
 };
