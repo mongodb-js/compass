@@ -21,8 +21,7 @@ module.exports = {
       restrictedProviderImport('@mongodb-js/compass-logging'),
       restrictedProviderImport('@mongodb-js/compass-app-stores'),
       restrictedProviderImport('@mongodb-js/my-queries-storage'),
-      // TODO(COMPASS-7412): enable when possible
-      // restrictedProviderImport('@mongodb-js/atlas-service'),
+      restrictedProviderImport('@mongodb-js/atlas-service'),
       restrictedProviderImport('compass-preferences-model'),
       {
         paths: require('module').builtinModules,

@@ -1,4 +1,3 @@
-import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import {
   Body,
   CompassComponentsProvider,
@@ -47,6 +46,7 @@ import Workspace from './workspace';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
@@ -428,7 +428,7 @@ function Home({
           <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasSignIn></AtlasSignIn>
+          <AtlasAuthPlugin></AtlasAuthPlugin>
         </ConnectionRepositoryContextProvider>
       </ConnectionStorageContext.Provider>
     </FileInputBackendProvider>
