@@ -27,12 +27,18 @@ import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionFormActions from './connection-form-actions';
+import ConnectionFormActions, {
+  ConnectionFormModalActions,
+} from './connection-form-actions';
 import {
   useConnectForm,
   type ConnectionPersonalisationOptions,
 } from '../hooks/use-connect-form';
-import { validateConnectionOptionsErrors } from '../utils/validation';
+import {
+  ConnectionFormError,
+  ConnectionFormWarning,
+  validateConnectionOptionsErrors,
+} from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
 import {
@@ -320,6 +326,35 @@ function ConnectionForm({
     (error) => error.fieldName === 'connectionString'
   );
 
+  const getConnectionInfoToSave = useCallback(() => {
+    if (isMultiConnectionEnabled) {
+      return {
+        ...cloneDeep(initialConnectionInfo),
+        connectionOptions: cloneDeep(connectionOptions),
+        savedConnectionType: personalisationOptions.isFavorite
+          ? 'favorite'
+          : 'recent',
+        favorite: {
+          name: personalisationOptions.name,
+          color: personalisationOptions.color,
+        },
+      };
+    } else {
+      return {
+        ...cloneDeep(initialConnectionInfo),
+        connectionOptions: cloneDeep(connectionOptions),
+        savedConnectionType: 'favorite',
+        favorite: {
+          ...favoriteInfo,
+        },
+      };
+    }
+  }, [
+    isMultiConnectionEnabled,
+    initialConnectionInfo,
+    connectionOptions,
+    personalisationOptions,
+  ]);
   const onSubmitForm = useCallback(
     (connectionInfo?: ConnectionInfo) => {
       const updatedConnectionOptions = cloneDeep(connectionOptions);
@@ -450,32 +485,47 @@ function ConnectionForm({
           )}
         </div>
         <div className={formFooterStyles}>
-          <ConnectionFormActions
-            errors={connectionStringInvalidError ? [] : errors}
-            warnings={connectionStringInvalidError ? [] : warnings}
-            saveButton={
-              isDirty || !initialConnectionInfo.favorite
-                ? 'enabled'
-                : 'disabled'
-            }
-            saveAndConnectButton={
-              initialConnectionInfo.favorite ? 'hidden' : 'enabled'
-            }
-            onSaveClicked={() => {
-              if (initialConnectionInfo.favorite) {
-                void callOnSaveConnectionClickedAndStoreErrors({
-                  ...cloneDeep(initialConnectionInfo),
-                  connectionOptions: cloneDeep(connectionOptions),
-                });
-              } else {
-                setSaveConnectionModal('save');
+          {isMultiConnectionEnabled && (
+            <ConnectionFormModalActions
+              errors={connectionStringInvalidError ? [] : errors}
+              warnings={connectionStringInvalidError ? [] : warnings}
+              onCancel={() => {}}
+              onSave={() =>
+                callOnSaveConnectionClickedAndStoreErrors?.(
+                  getConnectionInfoToSave()
+                )
               }
-            }}
-            onSaveAndConnectClicked={() => {
-              setSaveConnectionModal('saveAndConnect');
-            }}
-            onConnectClicked={() => onSubmitForm()}
-          />
+              onConnect={() => {}}
+            />
+          )}
+          {!isMultiConnectionEnabled && (
+            <ConnectionFormActions
+              errors={connectionStringInvalidError ? [] : errors}
+              warnings={connectionStringInvalidError ? [] : warnings}
+              saveButton={
+                isDirty || !initialConnectionInfo.favorite
+                  ? 'enabled'
+                  : 'disabled'
+              }
+              saveAndConnectButton={
+                initialConnectionInfo.favorite ? 'hidden' : 'enabled'
+              }
+              onSaveClicked={() => {
+                if (initialConnectionInfo.favorite) {
+                  void callOnSaveConnectionClickedAndStoreErrors({
+                    ...cloneDeep(initialConnectionInfo),
+                    connectionOptions: cloneDeep(connectionOptions),
+                  });
+                } else {
+                  setSaveConnectionModal('save');
+                }
+              }}
+              onSaveAndConnectClicked={() => {
+                setSaveConnectionModal('saveAndConnect');
+              }}
+              onConnectClicked={() => onSubmitForm()}
+            />
+          )}
         </div>
       </form>
       {showFavoriteActions && (
@@ -490,14 +540,7 @@ function ConnectionForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setSaveConnectionModal('hidden');
 
-            const connectionInfo: ConnectionInfo = {
-              ...cloneDeep(initialConnectionInfo),
-              connectionOptions: cloneDeep(connectionOptions),
-              savedConnectionType: 'favorite',
-              favorite: {
-                ...favoriteInfo,
-              },
-            };
+            const connectionInfo = getConnectionInfoToSave();
             await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
 
             if (saveConnectionModal === 'saveAndConnect') {

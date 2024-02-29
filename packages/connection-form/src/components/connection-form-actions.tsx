@@ -118,4 +118,75 @@ function ConnectFormActions({
   );
 }
 
+export type ConnectionFormModalActionsProps = {
+  errors: ConnectionFormError[];
+  warnings: ConnectionFormWarning[];
+
+  onCancel(): void;
+  onSave(): void;
+  onConnect(): void;
+};
+
+export function ConnectionFormModalActions({
+  errors,
+  warnings,
+  onCancel,
+  onSave,
+  onConnect,
+}: ConnectionFormModalActionsProps): React.ReactElement {
+  const showFavoriteActions = useConnectionFormPreference(
+    'showFavoriteActions'
+  );
+
+  return (
+    <div className={cx(formActionStyles)}>
+      {warnings.length > 0 && (
+        <div className={formActionItemStyles}>
+          <WarningSummary
+            data-testid="connection-warnings-summary"
+            warnings={warnings.map((warning) => warning.message)}
+          />
+        </div>
+      )}
+      {errors.length > 0 && (
+        <div className={formActionItemStyles}>
+          <ErrorSummary
+            data-testid="connection-error-summary"
+            errors={errors.map((error) => error.message)}
+          />
+        </div>
+      )}
+      <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
+        <Button
+          data-testid="save-connection-button"
+          variant={ButtonVariant.Default}
+          disabled={false}
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+
+        <div className={saveAndConnectStyles}>
+          <Button
+            data-testid="save-and-connect-button"
+            variant={ButtonVariant.PrimaryOutline}
+            disabled={false}
+            onClick={onSave}
+          >
+            Save
+          </Button>
+        </div>
+
+        <Button
+          data-testid="connect-button"
+          variant={ButtonVariant.Primary}
+          onClick={onConnect}
+        >
+          Connect
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default ConnectFormActions;
