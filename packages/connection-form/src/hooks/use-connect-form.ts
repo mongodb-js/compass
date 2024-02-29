@@ -100,10 +100,6 @@ function connectFormReducer(
 ): ConnectFormState {
   switch (action.type) {
     case 'set-connection-form-state':
-      console.log('set-connection-form-state', {
-        ...state,
-        ...action.newState,
-      });
       return {
         ...state,
         ...action.newState,
@@ -317,7 +313,7 @@ function handleUpdateHost({
 }
 
 export function handleConnectionFormUpdateForPersonalisation(
-  action: ConnectionFormFieldActions | UpdateConnectionPersonalisationAction,
+  action: UpdateConnectionPersonalisationAction,
   connectionString: string,
   personalisation: ConnectionPersonalisationOptions
 ): ConnectionPersonalisationOptions {
@@ -346,9 +342,11 @@ export function handleConnectionFormUpdateForPersonalisation(
 // It performs validity checks and downstream effects. Exported for testing.
 export function handleConnectionFormFieldUpdate(
   action: ConnectionFormFieldActions,
-  currentConnectionOptions: ConnectionOptions
+  currentConnectionOptions: ConnectionOptions,
+  currentPersonalisationOptions: ConnectionPersonalisationOptions
 ): {
   connectionOptions: ConnectionOptions;
+  personalisationOptions?: ConnectionPersonalisationOptions;
   errors?: ConnectionFormError[];
 } {
   if (action.type === 'update-connection-string') {
@@ -384,8 +382,15 @@ export function handleConnectionFormFieldUpdate(
   switch (action.type) {
     case 'update-connection-personalisation': {
       return {
-        connectionOptions: currentConnectionOptions,
-        errors: [],
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+        personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+          action,
+          parsedConnectionStringUrl.toString(),
+          currentPersonalisationOptions
+        ),
       };
     }
     case 'add-new-host': {
@@ -676,15 +681,9 @@ export function useConnectForm(
     (action: ConnectionFormFieldActions) => {
       const updatedState = handleConnectionFormFieldUpdate(
         action,
-        state.connectionOptions
+        state.connectionOptions,
+        state.personalisationOptions
       );
-
-      const personalisationOptions =
-        handleConnectionFormUpdateForPersonalisation(
-          action,
-          updatedState.connectionOptions?.connectionString || '',
-          state.personalisationOptions
-        );
 
       dispatch({
         type: 'set-connection-form-state',
@@ -699,7 +698,6 @@ export function useConnectForm(
             updatedState.connectionOptions,
             state.connectionOptions
           ),
-          personalisationOptions,
         },
       });
     },

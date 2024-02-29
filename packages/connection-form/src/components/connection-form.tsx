@@ -165,11 +165,11 @@ const personalisationSectionLayoutStyles = css({
 
 type ConnectionPersonalisationFormProps = {
   initialValue?: ConnectionPersonalisationOptions;
-  onChange: (ConnectionPersonalisationOptions) => void;
+  updateConnectionFormField: UpdateConnectionFormFieldAction;
 };
 
 function ConnectionPersonalisationForm({
-  onChange,
+  updateConnectionFormField,
   initialValue,
 }: ConnectionPersonalisationFormProps): React.ReactElement {
   const showFavoriteActions = useConnectionFormPreference(
@@ -188,7 +188,13 @@ function ConnectionPersonalisationForm({
       setName(name);
       setNameDirty(true);
 
-      onChange({ name, color, isFavorite, isNameDirty: true });
+      updateConnectionFormField({
+        type: 'update-connection-personalisation',
+        name,
+        color,
+        isFavorite,
+        isNameDirty: true,
+      });
     },
     [color, isFavorite, setName, setNameDirty]
   );
@@ -198,7 +204,13 @@ function ConnectionPersonalisationForm({
       const color = newValue === 'no-color' ? undefined : newValue;
 
       setColor(color);
-      onChange({ name, color, isFavorite, isNameDirty });
+      updateConnectionFormField({
+        type: 'update-connection-personalisation',
+        name,
+        color,
+        isFavorite,
+        isNameDirty,
+      });
     },
     [name, isFavorite, isNameDirty, setColor]
   );
@@ -208,7 +220,13 @@ function ConnectionPersonalisationForm({
       const isFavorite = ev.target.checked;
 
       setFavorite(isFavorite);
-      onChange({ name, color, isFavorite, isNameDirty });
+      updateConnectionFormField({
+        type: 'update-connection-personalisation',
+        name,
+        color,
+        isFavorite,
+        isNameDirty,
+      });
     },
     [name, color, isNameDirty, setFavorite]
   );
@@ -444,12 +462,7 @@ function ConnectionForm({
           {isMultiConnectionEnabled && (
             <ConnectionPersonalisationForm
               initialValue={personalisationOptions}
-              onChange={(e) =>
-                updateConnectionFormField({
-                  type: 'update-connection-personalisation',
-                  ...e,
-                })
-              }
+              updateConnectionFormField={updateConnectionFormField}
             />
           )}
           {!protectConnectionStrings && (
