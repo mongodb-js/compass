@@ -1,6 +1,6 @@
 import type { HadronIpcRenderer } from 'hadron-ipc';
 import { ipcRenderer } from 'hadron-ipc';
-import type { PreferencesAccess } from '.';
+import { getActiveUser, type PreferencesAccess } from '.';
 import type {
   AllPreferences,
   PreferenceStateInformation,
@@ -37,6 +37,10 @@ export const makePreferencesIpc = (
       })
   );
 
+  function getPreferences(): AllPreferences {
+    return { ...cachedPreferences };
+  }
+
   return {
     async savePreferences(
       attributes: Partial<UserPreferences>
@@ -47,9 +51,7 @@ export const makePreferencesIpc = (
     refreshPreferences(): Promise<AllPreferences> {
       return refreshCachedPreferences();
     },
-    getPreferences(): AllPreferences {
-      return { ...cachedPreferences };
-    },
+    getPreferences,
     ensureDefaultConfigurableUserPreferences(): Promise<void> {
       return ipcRenderer.invoke(
         'compass:ensure-default-configurable-user-preferences'
@@ -93,6 +95,9 @@ export const makePreferencesIpc = (
       const props: PreferenceSandboxProperties | undefined =
         await ipcRenderer.invoke('compass:get-preference-sandbox-properties');
       return createSandboxAccessFromProps(props);
+    },
+    getPreferencesUser() {
+      return getActiveUser({ getPreferences });
     },
   };
 };

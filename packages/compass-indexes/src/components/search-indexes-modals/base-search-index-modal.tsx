@@ -37,6 +37,7 @@ import type { Document } from 'mongodb';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
+  ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
@@ -201,6 +202,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   useEffect(() => {
     if (isModalOpen) {
+      setSearchIndexType('search');
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
       setParsingError(undefined);
@@ -261,12 +263,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
       // Set the template.
       if (value === 'vectorSearch') {
+        setIndexDefinition(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
       } else {
-        onSearchIndexDefinitionChanged(DEFAULT_INDEX_DEFINITION);
+        setIndexDefinition(ATLAS_SEARCH_TEMPLATES[0].snippet);
+        onChangeTemplate(ATLAS_SEARCH_TEMPLATES[0]);
       }
     },
-    [setSearchIndexType, onChangeTemplate, onSearchIndexDefinitionChanged]
+    [setSearchIndexType, onChangeTemplate, setIndexDefinition]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -421,7 +425,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           data-testid="search-index-submit-button"
           variant="primary"
           onClick={onSubmitIndex}
-          disabled={isBusy}
+          disabled={isBusy || !!parsingError}
         >
           {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>

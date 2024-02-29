@@ -36,6 +36,7 @@ class CompassTelemetry {
   private static state: 'enabled' | 'disabled' = 'disabled';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
   private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
+  private static telemetryAtlasUserId?: string;
   private static lastReportedScreen = '';
   private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T>
     ? Partial<T>
@@ -79,6 +80,7 @@ class CompassTelemetry {
     }
 
     this.analytics.track({
+      userId: this.telemetryAtlasUserId,
       anonymousId: this.telemetryAnonymousId,
       event: info.event,
       properties: { ...info.properties, ...commonProperties },
@@ -105,6 +107,7 @@ class CompassTelemetry {
       this.telemetryAnonymousId
     ) {
       this.analytics.identify({
+        userId: this.telemetryAtlasUserId,
         anonymousId: this.telemetryAnonymousId,
         traits: {
           ...this._getCommonProperties(),
@@ -127,9 +130,10 @@ class CompassTelemetry {
 
   private static async _init(app: typeof CompassApplication) {
     const { preferences } = app;
-    const { trackUsageStatistics, telemetryAnonymousId } =
+    const { trackUsageStatistics, telemetryAnonymousId, telemetryAtlasUserId } =
       preferences.getPreferences();
     this.telemetryAnonymousId = telemetryAnonymousId ?? '';
+    this.telemetryAtlasUserId = telemetryAtlasUserId;
 
     try {
       this.osInfo = await getOsInfo();
@@ -176,10 +180,21 @@ class CompassTelemetry {
         this.state = 'disabled';
       }
     };
+    const onAtlasUserIdChanged = (value?: string) => {
+      if (value) {
+        this.telemetryAtlasUserId = value;
+        this.identify();
+      }
+    };
+
     onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
     preferences.onPreferenceValueChanged(
       'trackUsageStatistics',
       onTrackUsageStatisticsChanged
+    );
+    preferences.onPreferenceValueChanged(
+      'telemetryAtlasUserId',
+      onAtlasUserIdChanged
     );
 
     process.on('compass:track', (meta: EventInfo) => {

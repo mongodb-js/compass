@@ -1,33 +1,32 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ImportConnectionsModal,
-  ExportConnectionsModal,
-} from '@mongodb-js/compass-connection-import-export';
 import {
   Card,
-  ResizableSidebar,
   ErrorBoundary,
-  spacing,
+  ResizableSidebar,
   css,
   cx,
   palette,
+  spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import {
+  ExportConnectionsModal,
+  ImportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
+import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from 'hadron-app-registry';
-
-import FormHelp from './form-help/form-help';
-import Connecting from './connecting/connecting';
-import { useConnections } from '../stores/connections-store';
-import { cloneDeep } from 'lodash';
-import ConnectionList from './connection-list/connection-list';
-import { LegacyConnectionsModal } from './legacy-connections-modal';
+import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
+import { cloneDeep } from 'lodash';
+import { useConnections } from '../stores/connections-store';
+import Connecting from './connecting/connecting';
+import ConnectionList from './connection-list/connection-list';
+import FormHelp from './form-help/form-help';
+import { LegacyConnectionsModal } from './legacy-connections-modal';
 
 type ConnectFn = typeof connect;
 
@@ -88,7 +87,6 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = ConnectionStorage,
   appName,
   getAutoConnectInfo,
   connectFn = connect,
@@ -99,12 +97,14 @@ function Connections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage?: typeof ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
+  // @TODO: Extract to a prop COMPASS-7397
+  const connectionStorage = connectionStorageLocator();
+
   const {
     state,
     cancelConnectionAttempt,
@@ -121,7 +121,6 @@ function Connections({
   } = useConnections({
     onConnected,
     isConnected,
-    connectionStorage,
     connectFn,
     appName,
     getAutoConnectInfo,

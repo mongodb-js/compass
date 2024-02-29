@@ -58,7 +58,7 @@ export function webpackArgsWithDefaults(
 
   return merge<ConfigArgs>(
     {
-      entry: path.join(cwd, 'src', 'index.js'),
+      entry: args.entry ?? path.join(cwd, 'src', 'index.js'),
       env: {},
       nodeEnv: process.env.NODE_ENV ?? args.mode ?? 'production',
       outputPath: path.join(cwd, 'dist'),

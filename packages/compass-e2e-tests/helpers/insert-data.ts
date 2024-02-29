@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
 
-const CONNECTION_URI = 'mongodb://localhost:27091';
+const CONNECTION_URI = 'mongodb://127.0.0.1:27091';
 
 export async function dropDatabase(db: Db | string) {
   const database = typeof db === 'string' ? client.db(db) : db;
@@ -34,7 +34,7 @@ let client: MongoClient;
 before(async () => {
   client = new MongoClient(CONNECTION_URI);
   await client.connect();
-  console.log('Connected successfully to server for inserting data');
+  console.log(`Connected successfully to ${CONNECTION_URI} for inserting data`);
 });
 
 after(async () => {

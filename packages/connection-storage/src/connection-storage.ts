@@ -55,6 +55,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           .optional()
           .transform((x) => (x !== undefined ? new Date(x) : x)),
         favorite: z.any().optional(),
+        savedConnectionType: z.enum(['favorite', 'recent']).optional(),
         connectionOptions: z.object({
           connectionString: z
             .string()
@@ -213,6 +214,21 @@ export class ConnectionStorage {
       : undefined;
   }
 
+  private static migrateSavedConnectionType(
+    connectionInfo: ConnectionInfo
+  ): ConnectionInfo {
+    const inferedConnectionType = connectionInfo.favorite
+      ? 'favorite'
+      : 'recent';
+
+    return {
+      ...connectionInfo,
+      savedConnectionType: connectionInfo.savedConnectionType
+        ? connectionInfo.savedConnectionType
+        : inferedConnectionType,
+    };
+  }
+
   private static mapStoredConnectionToConnectionInfo({
     connectionInfo: storedConnectionInfo,
     connectionSecrets: storedConnectionSecrets,
@@ -228,7 +244,8 @@ export class ConnectionStorage {
         { message: (e as Error).message }
       );
     }
-    const connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
+    let connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
+    connectionInfo = this.migrateSavedConnectionType(connectionInfo);
     return deleteCompassAppNameParam(connectionInfo);
   }
 

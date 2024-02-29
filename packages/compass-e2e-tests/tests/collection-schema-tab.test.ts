@@ -4,7 +4,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -20,10 +20,6 @@ describe('Collection schema tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -35,10 +31,6 @@ describe('Collection schema tab', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
@@ -75,6 +67,8 @@ describe('Collection schema tab', function () {
 
   for (const enableMaps of [true, false]) {
     it(`can analyze coordinates for a schema (enableMaps = ${enableMaps})`, async function () {
+      skipForWeb(this, "can't toggle features in compass-web");
+
       await browser.setFeature('enableMaps', enableMaps);
       await browser.navigateToCollectionTab('test', 'geospatial', 'Schema');
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);

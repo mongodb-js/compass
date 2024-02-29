@@ -3,6 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -13,9 +14,7 @@ describe('Instance performance tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'performance tab not yet available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

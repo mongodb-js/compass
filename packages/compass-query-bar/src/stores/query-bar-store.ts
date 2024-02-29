@@ -18,13 +18,14 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
   FavoriteQueryStorageAccess,
   FavoriteQueryStorage,
@@ -42,6 +43,8 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
@@ -49,7 +52,9 @@ type QueryBarServices = {
 // TODO(COMPASS-7412): this doesn't have service injector
 // implemented yet, so we're keeping it separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasService;
+  atlasAuthService?: AtlasAuthService;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
 };
 
 export type QueryBarStoreOptions = CollectionTabPluginMetadata;
@@ -65,11 +70,12 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: AtlasService;
+  atlasAuthService: AtlasAuthService;
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
+  atlasAiService: AtlasAiService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -110,9 +116,10 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
+    atlasAuthService,
+    atlasAiService,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
-    atlasService = new AtlasService(),
   } = services;
 
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
@@ -140,9 +147,10 @@ export function activatePlugin(
       globalAppRegistry,
       recentQueryStorage,
       favoriteQueryStorage,
-      atlasService,
+      atlasAuthService,
       preferences,
       logger,
+      atlasAiService,
     }
   );
 
@@ -159,7 +167,7 @@ export function activatePlugin(
     });
   });
 
-  on(atlasService, 'user-config-changed', (config) => {
+  on(atlasAuthService, 'user-config-changed', (config) => {
     if (config.enabledAIFeature === false) {
       store.dispatch(disableAIFeature());
     }

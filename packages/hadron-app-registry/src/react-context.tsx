@@ -19,6 +19,7 @@ type AppRegistryProviderProps =
       localAppRegistry?: never;
       deactivateOnUnmount?: never;
       children: React.ReactNode;
+      scopeName?: string;
     }
   | {
       /**
@@ -46,6 +47,7 @@ type AppRegistryProviderProps =
        */
       deactivateOnUnmount?: boolean;
       children: React.ReactNode;
+      scopeName?: string;
     };
 
 export function AppRegistryProvider({

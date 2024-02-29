@@ -1,6 +1,6 @@
 export type { AmpersandMethodOptions } from './promisify-ampersand-method';
 export { promisifyAmpersandMethod } from './promisify-ampersand-method';
-export { getAppName, getStoragePath } from './electron';
+export { getAppName, getStoragePath, getAppVersion } from './electron';
 export {
   raceWithAbort,
   cancellableWait,
@@ -8,4 +8,3 @@ export {
   isCancelError,
   throwIfAborted,
 } from './cancellable-promise';
-export { intercomTrack, IntercomTrackingEvent } from './intercom-track';

@@ -1,4 +1,4 @@
-import chai from 'chai';
+import { expect } from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -7,6 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -15,8 +16,6 @@ import { createNumbersCollection } from '../helpers/insert-data';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import type { MockAtlasServerResponse } from '../helpers/atlas-service';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
-
-const { expect } = chai;
 
 describe('Collection ai query', function () {
   let compass: Compass;
@@ -28,9 +27,7 @@ describe('Collection ai query', function () {
   let clearRequests: () => void;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'ai queries not yet available in compass-web');
 
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 

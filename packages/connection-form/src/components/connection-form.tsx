@@ -316,9 +316,10 @@ function ConnectionForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setSaveConnectionModal('hidden');
 
-            const connectionInfo = {
+            const connectionInfo: ConnectionInfo = {
               ...cloneDeep(initialConnectionInfo),
               connectionOptions: cloneDeep(connectionOptions),
+              savedConnectionType: 'favorite',
               favorite: {
                 ...favoriteInfo,
               },

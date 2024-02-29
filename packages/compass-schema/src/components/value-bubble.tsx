@@ -26,6 +26,10 @@ const valueBubbleValueStyles = css({
   },
 });
 
+const valueBubblePreWrapStyles = css({
+  whiteSpace: 'pre-wrap',
+});
+
 const valueBubbleDarkModeValueStyles = css({
   backgroundColor: palette.gray.dark2,
   color: palette.gray.light3,
@@ -95,6 +99,7 @@ function ValueBubble({ fieldName, queryValue, value }: ValueBubbleProps) {
           } ${extractedStringValue} ${isValueInQuery ? 'from' : 'to'} query`}
           className={cx(
             valueBubbleValueStyles,
+            isString(value) && valueBubblePreWrapStyles,
             darkMode && valueBubbleDarkModeValueStyles,
             isValueInQuery && valueBubbleValueSelectedStyles
           )}
