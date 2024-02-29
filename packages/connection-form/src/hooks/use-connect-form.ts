@@ -386,6 +386,7 @@ export function handleConnectionFormFieldUpdate(
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
         },
+        source: 'update-connection-personalisation',
         personalisationOptions: handleConnectionFormUpdateForPersonalisation(
           action,
           parsedConnectionStringUrl.toString(),
