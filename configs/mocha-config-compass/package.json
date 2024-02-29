@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@mongodb-js/mocha-config-devtools": "^1.0.0",
-    "@electron/remote": "^2.1.1",
+    "@electron/remote": "^2.1.2",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",
