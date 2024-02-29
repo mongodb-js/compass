@@ -192,7 +192,6 @@ const CompassWeb = ({
       </CompassComponentsProvider>
     );
   }
-
   return (
     <CompassComponentsProvider darkMode={darkMode}>
       <PreferencesProvider value={preferencesAccess.current}>
