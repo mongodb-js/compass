@@ -84,7 +84,7 @@ import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
@@ -109,8 +109,9 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
 };
 
 const WithAtlasProviders: React.FC = ({ children }) => {
+  const authService = useRef(new CompassAtlasAuthService());
   return (
-    <AtlasAuthServiceProvider value={new CompassAtlasAuthService()}>
+    <AtlasAuthServiceProvider value={authService.current}>
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
@@ -125,21 +126,21 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 };
 
 const WithStorageProviders: React.FC = ({ children }) => {
-  const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
+  const pipelineStorage = useRef(new CompassPipelineStorage());
+  const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
       return new CompassFavoriteQueryStorage(options);
     },
-  };
-  const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
+  });
+  const recentQueryStorage = useRef<RecentQueryStorageAccess>({
     getStorage(options) {
       return new CompassRecentQueryStorage(options);
     },
-  };
-
+  });
   return (
-    <PipelineStorageProvider value={new CompassPipelineStorage()}>
-      <FavoriteQueryStorageProvider value={favoriteQueryStorageProviderValue}>
-        <RecentQueryStorageProvider value={recentQueryStorageProviderValue}>
+    <PipelineStorageProvider value={pipelineStorage.current}>
+      <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
+        <RecentQueryStorageProvider value={recentQueryStorage.current}>
           {children}
         </RecentQueryStorageProvider>
       </FavoriteQueryStorageProvider>
