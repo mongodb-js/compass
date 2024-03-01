@@ -458,11 +458,11 @@ export const collectionSubTab = (
   const tabSelector = `[data-testid="${tabName}-tab-button"]`;
 
   if (selected === true) {
-    return `${CollectionTab} [aria-selected="true"] ${tabSelector}`;
+    return `${CollectionTab} [aria-selected="true"]${tabSelector}`;
   }
 
   if (selected === false) {
-    return `${CollectionTab} [aria-selected="false"] ${tabSelector}`;
+    return `${CollectionTab} [aria-selected="false"]${tabSelector}`;
   }
 
   return `${CollectionTab} ${tabSelector}`;
