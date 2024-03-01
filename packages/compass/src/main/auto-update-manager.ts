@@ -337,7 +337,11 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       autoUpdater.once('error', (error) => {
-        updateManager.setState(AutoUpdateManagerState.DownloadingError, error);
+        updateManager.setState(
+          AutoUpdateManagerState.DownloadingError,
+          error,
+          isDownloadForManualCheck
+        );
       });
 
       this.maybeInterrupt();
@@ -430,8 +434,10 @@ const STATE_UPDATE: Record<
   },
   [AutoUpdateManagerState.DownloadingError]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
-    enter: (_updateManager, _fromState, error) => {
-      ipcMain?.broadcast('autoupdate:update-download-failed');
+    enter: (_updateManager, _fromState, error, isDownloadForManualCheck) => {
+      if (isDownloadForManualCheck) {
+        ipcMain?.broadcast('autoupdate:update-download-failed');
+      }
       log.error(
         mongoLogId(1001000129),
         'AutoUpdateManager',
