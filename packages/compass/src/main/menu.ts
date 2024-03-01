@@ -9,6 +9,7 @@ import type { THEMES } from 'compass-preferences-model';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { AutoUpdateManagerState } from './auto-update-manager';
 const { track } = createLoggerAndTelemetry('COMPASS-APP-MENU');
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
@@ -43,7 +44,32 @@ function settingsDialogItem(): MenuItemConstructorOptions {
   };
 }
 
+function updateSubmenu(
+  { updateManagerState }: WindowMenuState,
+  compassApp: typeof CompassApplication
+): MenuItemConstructorOptions {
+  return updateManagerState === 'idle'
+    ? {
+        label: 'Check for updates…',
+        click() {
+          compassApp.emit('check-for-updates');
+        },
+      }
+    : updateManagerState === 'installing updates'
+    ? {
+        label: 'Installing updates…',
+        enabled: false,
+      }
+    : {
+        label: 'Restart',
+        click() {
+          compassApp.emit('menu-request-restart');
+        },
+      };
+}
+
 function darwinCompassSubMenu(
+  windowState: WindowMenuState,
   compassApp: typeof CompassApplication
 ): MenuItemConstructorOptions {
   return {
@@ -53,12 +79,7 @@ function darwinCompassSubMenu(
         label: `About ${app.getName()}`,
         role: 'about',
       },
-      {
-        label: 'Check for updates…',
-        click() {
-          compassApp.emit('check-for-updates');
-        },
-      },
+      updateSubmenu(windowState, compassApp),
       separator(),
       settingsDialogItem(),
       separator(),
@@ -269,6 +290,7 @@ function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
 }
 
 function helpSubMenu(
+  windowState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
   const subMenu = [];
@@ -284,12 +306,7 @@ function helpSubMenu(
   if (process.platform !== 'darwin') {
     subMenu.push(separator());
     subMenu.push(nonDarwinAboutItem());
-    subMenu.push({
-      label: 'Check for updates…',
-      click() {
-        app.emit('check-for-updates');
-      },
-    });
+    subMenu.push(updateSubmenu(windowState, app));
   }
 
   return {
@@ -426,7 +443,7 @@ function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu(app)];
+  const menu: MenuTemplate = [darwinCompassSubMenu(menuState, app)];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
@@ -437,7 +454,7 @@ function darwinMenu(
   }
 
   menu.push(windowSubMenu());
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(menuState, app));
 
   return menu;
 }
@@ -452,14 +469,17 @@ function nonDarwinMenu(
     menu.push(collectionSubMenu(menuState.isReadOnly, app));
   }
 
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(menuState, app));
 
   return menu;
 }
 
+type UpdateManagerState = 'idle' | 'installing updates' | 'ready to restart';
+
 class WindowMenuState {
   showCollection = false;
   isReadOnly = false;
+  updateManagerState: UpdateManagerState = 'idle';
 }
 
 class CompassMenu {
@@ -483,6 +503,31 @@ class CompassMenu {
 
     app.on('new-window', (bw) => {
       this.load(bw);
+    });
+
+    app.on('auto-updater:new-state', (state) => {
+      const updateManagerState = ((): UpdateManagerState => {
+        switch (state) {
+          case AutoUpdateManagerState.Initial:
+          case AutoUpdateManagerState.Disabled:
+          case AutoUpdateManagerState.UserPromptedManualCheck:
+          case AutoUpdateManagerState.CheckingForUpdatesForManualCheck:
+          case AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck:
+          case AutoUpdateManagerState.NoUpdateAvailable:
+          case AutoUpdateManagerState.UpdateAvailable:
+          case AutoUpdateManagerState.UpdateDismissed:
+          case AutoUpdateManagerState.DownloadingError:
+          case AutoUpdateManagerState.Restarting:
+            return 'idle';
+          case AutoUpdateManagerState.ManualDownload:
+          case AutoUpdateManagerState.DownloadingUpdate:
+            return 'installing updates';
+          case AutoUpdateManagerState.RestartDismissed:
+          case AutoUpdateManagerState.PromptForRestart:
+            return 'ready to restart';
+        }
+      })();
+      this.updateMenu({ updateManagerState });
     });
 
     ipcMain?.respondTo({
