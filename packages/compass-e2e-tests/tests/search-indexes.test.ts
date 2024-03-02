@@ -161,9 +161,7 @@ describe.skip('Search Indexes', function () {
     if (!serverSatisfies('>= 4.1.11')) {
       this.skip();
     }
-    compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: ['--enableAtlasSearchIndexManagement'],
-    });
+    compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 

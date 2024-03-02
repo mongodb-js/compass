@@ -50,6 +50,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
+    atlasSearchIndexesLink?: string;
+    enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
@@ -644,6 +646,27 @@ export const storedUserPreferencesProps: Required<{
       .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas-local', 'atlas'])
       .default('atlas'),
     type: 'string',
+  },
+
+  atlasSearchIndexesLink: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Link to the Atlas Search Indexes page in Compass Web UI.',
+    },
+    validator: z.string().optional(),
+    type: 'string',
+  },
+  enableAtlasSearchIndexes: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Atlas Search Indexes',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   enableImportExport: {

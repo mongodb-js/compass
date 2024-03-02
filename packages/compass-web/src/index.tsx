@@ -153,6 +153,8 @@ const CompassWeb = ({
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
+      enableAtlasSearchIndexes: false,
+      atlasSearchIndexesLink: '#/clusters/atlasSearch',
       enableImportExport: false,
       enableGenAIFeatures: false,
       cloudFeatureRolloutAccess: {
