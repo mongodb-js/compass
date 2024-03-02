@@ -197,9 +197,13 @@ export const ValueEditor: React.FunctionComponent<{
   const inputStyle = useMemo(() => {
     if (type === 'String') {
       const lines = val.split('\n');
-      const longestLineCharLength = Math.max(
-        ...lines.map((line) => line.length)
-      );
+      let longestLineCharLength = 0;
+      for (const line of lines) {
+        const length = line.length;
+        if (length > longestLineCharLength) {
+          longestLineCharLength = length;
+        }
+      }
       const width = `${Math.min(
         // Adding one to account for a textarea resize icon button thingie
         longestLineCharLength + 1,

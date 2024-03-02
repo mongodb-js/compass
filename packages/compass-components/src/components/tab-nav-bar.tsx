@@ -82,12 +82,11 @@ function TabNavBar({
             <Tab
               className="test-tab-nav-bar-tab"
               key={`tab-${idx}`}
+              data-testid={`${tabNames[idx]}-tab-button`}
               // LG name for tab is also set as the button name and if its a
               // react element, its not set properly. So here we are wrapping
-              // the tab name in a span and setting the data-testid on the span
-              name={
-                <span data-testid={`${tabNames[idx]}-tab-button`}>{tab}</span>
-              }
+              // the tab name in a span
+              name={<span>{tab}</span>}
             />
           ))}
         </Tabs>
