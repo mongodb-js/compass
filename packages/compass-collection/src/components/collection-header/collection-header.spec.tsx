@@ -77,12 +77,6 @@ describe('CollectionHeader [Component]', function () {
       expect(screen.getByTestId('breadcrumbs')).to.exist;
     });
 
-    it('renders the source collection', function () {
-      const label = screen.getByTestId('collection-view-on');
-      expect(label).to.have.text('view on: orig.coll');
-      expect(label).to.be.visible;
-    });
-
     it('renders the readonly badge', function () {
       expect(screen.getByTestId('collection-badge-readonly')).to.exist;
     });
@@ -95,10 +89,6 @@ describe('CollectionHeader [Component]', function () {
   context('when the collection is readonly but not a view', function () {
     beforeEach(function () {
       renderCollectionHeader({ isReadonly: true, sourceName: undefined });
-    });
-
-    it('does not render the source collection', function () {
-      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
     });
 
     it('renders the readonly badge', function () {
@@ -115,10 +105,6 @@ describe('CollectionHeader [Component]', function () {
       renderCollectionHeader({ isTimeSeries: true });
     });
 
-    it('does not render the source collection', function () {
-      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
-    });
-
     it('does not render the readonly badge', function () {
       expect(screen.queryByTestId('collection-badge-readonly')).to.not.exist;
     });
@@ -131,10 +117,6 @@ describe('CollectionHeader [Component]', function () {
   context('when the collection is a clustered collection', function () {
     beforeEach(function () {
       renderCollectionHeader({ isClustered: true });
-    });
-
-    it('does not render the source collection', function () {
-      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
     });
 
     it('does not render the readonly badge', function () {

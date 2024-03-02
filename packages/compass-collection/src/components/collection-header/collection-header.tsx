@@ -21,11 +21,18 @@ import { connect } from 'react-redux';
 
 const collectionHeaderStyles = css({
   padding: spacing[3],
+  paddingTop: spacing[2],
+  paddingBottom: 0,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: spacing[2],
+});
+
+const breadcrumbStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
 });
 
 const collectionHeaderLightStyles = css({
@@ -34,6 +41,11 @@ const collectionHeaderLightStyles = css({
 
 const collectionHeaderDarkStyles = css({
   backgroundColor: palette.black,
+});
+
+const actionsStyles = css({
+  flexShrink: 0,
+  marginLeft: 'auto',
 });
 
 type CollectionHeaderProps = {
@@ -85,11 +97,8 @@ export const CollectionHeader: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
-  const {
-    openCollectionWorkspace,
-    openEditViewWorkspace,
-    openCollectionsWorkspace,
-  } = useOpenWorkspace();
+  const { openCollectionWorkspace, openCollectionsWorkspace } =
+    useOpenWorkspace();
 
   const breadcrumbItems = useMemo(() => {
     return [
@@ -134,31 +143,22 @@ export const CollectionHeader: React.FunctionComponent<
       )}
       data-testid="collection-header"
     >
-      <Breadcrumbs items={breadcrumbItems} />
+      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
       {isReadonly && <CollectionBadge type="readonly" />}
       {isTimeSeries && <CollectionBadge type="timeseries" />}
       {isClustered && <CollectionBadge type="clustered" />}
       {isFLE && <CollectionBadge type="fle" />}
       {isReadonly && sourceName && <CollectionBadge type="view" />}
       {!!insights.length && <SignalPopover signals={insights} />}
-      <CollectionHeaderActions
-        editViewName={editViewName}
-        isReadonly={isReadonly}
-        onEditViewClicked={() => {
-          if (sourceName && sourcePipeline) {
-            openEditViewWorkspace(namespace, {
-              sourceName,
-              sourcePipeline,
-            });
-          }
-        }}
-        onReturnToViewClicked={() => {
-          if (editViewName) {
-            openCollectionWorkspace(editViewName);
-          }
-        }}
-        sourceName={sourceName}
-      />
+      <div className={actionsStyles}>
+        <CollectionHeaderActions
+          editViewName={editViewName}
+          isReadonly={isReadonly}
+          namespace={namespace}
+          sourceName={sourceName}
+          sourcePipeline={sourcePipeline}
+        />
+      </div>
     </div>
   );
 };
