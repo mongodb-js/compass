@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 const collectionHeaderStyles = css({
   padding: spacing[3],
   paddingTop: spacing[2],
-  paddingBottom: spacing[2],
+  paddingBottom: 0,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
