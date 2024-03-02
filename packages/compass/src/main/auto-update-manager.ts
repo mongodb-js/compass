@@ -359,7 +359,7 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       if (isDownloadForManualCheck) {
-        ipcMain?.broadcastFocused('autoupdate:update-download-in-progress');
+        ipcMain?.broadcast('autoupdate:update-download-in-progress');
       }
       autoUpdater.checkForUpdates();
     },
@@ -379,7 +379,7 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      ipcMain?.broadcastFocused('autoupdate:update-download-success');
+      ipcMain?.broadcast('autoupdate:update-download-success');
     },
   },
   [AutoUpdateManagerState.ManualDownload]: {
@@ -431,7 +431,7 @@ const STATE_UPDATE: Record<
   [AutoUpdateManagerState.DownloadingError]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
     enter: (_updateManager, _fromState, error) => {
-      ipcMain?.broadcastFocused('autoupdate:update-download-failed');
+      ipcMain?.broadcast('autoupdate:update-download-failed');
       log.error(
         mongoLogId(1001000129),
         'AutoUpdateManager',
@@ -663,12 +663,21 @@ class CompassAutoUpdateManager {
       this.setState(AutoUpdateManagerState.UserPromptedManualCheck);
     });
 
-    ipcMain?.handle(
+    this.on('new-state', (state: AutoUpdateManagerState) =>
+      compassApp.emit('auto-updater:new-state', state)
+    );
+
+    compassApp.on(
+      'menu-request-restart',
+      this.setState.bind(this, AutoUpdateManagerState.Restarting)
+    );
+
+    ipcMain?.on(
       'autoupdate:update-download-restart-confirmed',
       this.handleIpcUpdateDownloadRestartConfirmed.bind(this)
     );
 
-    ipcMain?.handle(
+    ipcMain?.on(
       'autoupdate:update-download-restart-dismissed',
       this.handleIpcUpdateDownloadRestartDismissed.bind(this)
     );

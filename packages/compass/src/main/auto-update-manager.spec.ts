@@ -305,7 +305,7 @@ describe('CompassAutoUpdateManager', function () {
 
     it('should restart the app if user confirms', async function () {
       const restartToastIpcPrompt = sandbox
-        .stub(ipcMain!, 'broadcastFocused')
+        .stub(ipcMain!, 'broadcast')
         .callsFake((arg) => {
           expect(arg).to.equal('autoupdate:update-download-success');
           setTimeout(() => {
@@ -329,7 +329,7 @@ describe('CompassAutoUpdateManager', function () {
 
     it('should transition to restart dismissed if user does not confirm restart', async function () {
       const restartToastIpcPrompt = sandbox
-        .stub(ipcMain!, 'broadcastFocused')
+        .stub(ipcMain!, 'broadcast')
         .callsFake((arg) => {
           expect(arg).to.equal('autoupdate:update-download-success');
           setTimeout(() => {

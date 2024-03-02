@@ -6,7 +6,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
   skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -51,13 +50,11 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
-    if (!TEST_COMPASS_WEB) {
-      // Check the telemetry
-      const openedEvent = await telemetryEntry('Bulk Update Opened');
-      expect(openedEvent).to.deep.equal({
-        isUpdatePreviewSupported: true,
-      });
-    }
+    // Check the telemetry
+    const openedEvent = await telemetryEntry('Bulk Update Opened');
+    expect(openedEvent).to.deep.equal({
+      isUpdatePreviewSupported: true,
+    });
 
     // Make sure the query is shown in the modal.
     expect(
@@ -115,13 +112,11 @@ describe('Bulk Update', () => {
       .$(Selectors.BulkUpdateSuccessToast)
       .waitForDisplayed({ reverse: true });
 
-    if (!TEST_COMPASS_WEB) {
-      // Check the telemetry
-      const executedEvent = await telemetryEntry('Bulk Update Executed');
-      expect(executedEvent).to.deep.equal({
-        isUpdatePreviewSupported: true,
-      });
-    }
+    // Check the telemetry
+    const executedEvent = await telemetryEntry('Bulk Update Executed');
+    expect(executedEvent).to.deep.equal({
+      isUpdatePreviewSupported: true,
+    });
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
     const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
@@ -161,13 +156,11 @@ describe('Bulk Update', () => {
     await browser.$(Selectors.BulkUpdateFavouriteSaveButton).waitForEnabled();
     await browser.clickVisible(Selectors.BulkUpdateFavouriteSaveButton);
 
-    if (!TEST_COMPASS_WEB) {
-      // Check the telemetry
-      const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
-      expect(favoritedEvent).to.deep.equal({
-        isUpdatePreviewSupported: true,
-      });
-    }
+    // Check the telemetry
+    const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
+    expect(favoritedEvent).to.deep.equal({
+      isUpdatePreviewSupported: true,
+    });
 
     // Close the modal
     await browser.clickVisible(Selectors.BulkUpdateCancelButton);
