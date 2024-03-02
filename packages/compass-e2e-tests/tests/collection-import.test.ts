@@ -128,7 +128,9 @@ describe('Collection import', function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     async function getDocumentCount() {
-      const countText = await browser.$(Selectors.DocumentCountValue).getText();
+      const countText = await browser
+        .$(Selectors.CollectionTabStats('documents'))
+        .getText();
       return countText ? Number(countText) : null;
     }
 
