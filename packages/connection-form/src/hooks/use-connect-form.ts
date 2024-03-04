@@ -361,6 +361,11 @@ export function handleConnectionFormFieldUpdate(
           newParsedConnectionStringUrl?.toString() ||
           action.newConnectionStringValue,
       },
+      personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+        action,
+        newParsedConnectionStringUrl.toString(),
+        currentPersonalisationOptions
+      ),
       errors,
     };
   }
