@@ -137,10 +137,7 @@ describe('Instance sidebar', function () {
     await browser.addDatabase(dbName, collectionName);
 
     // the app should land on the collection's documents tab
-    const headerSelector = Selectors.collectionHeaderTitle(
-      dbName,
-      collectionName
-    );
+    const headerSelector = Selectors.CollectionHeader;
     await browser.$(headerSelector).waitForDisplayed();
     await browser
       .$(Selectors.collectionSubTab('Documents', true))
@@ -174,10 +171,7 @@ describe('Instance sidebar', function () {
     await browser.addCollection(collectionName);
 
     // the app should land on the collection's documents tab
-    const headerSelector = Selectors.collectionHeaderTitle(
-      dbName,
-      collectionName
-    );
+    const headerSelector = Selectors.CollectionHeader;
     await browser.$(headerSelector).waitForDisplayed();
     const tabSelectedSelector = Selectors.collectionSubTab('Documents', true);
     await browser.$(tabSelectedSelector).waitForDisplayed();

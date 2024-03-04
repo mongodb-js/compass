@@ -5,31 +5,36 @@ import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BulkUpdateModal from './bulk-update-modal';
 
+import { FavoriteQueryStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import { compassFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage';
+
 function renderBulkUpdateModal(
   props?: Partial<React.ComponentProps<typeof BulkUpdateModal>>
 ) {
   return render(
-    <BulkUpdateModal
-      isOpen={true}
-      ns="mydb.mycoll"
-      filter={{ a: 1 }}
-      count={0}
-      updateText="{ $set: {} }"
-      preview={{
-        changes: [
-          {
-            before: { foo: 1 },
-            after: { foo: 1 },
-          },
-        ],
-      }}
-      enablePreview={true}
-      closeBulkUpdateModal={() => {}}
-      updateBulkUpdatePreview={() => {}}
-      runBulkUpdate={() => {}}
-      saveUpdateQuery={() => {}}
-      {...props}
-    />
+    <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+      <BulkUpdateModal
+        isOpen={true}
+        ns="mydb.mycoll"
+        filter={{ a: 1 }}
+        count={0}
+        updateText="{ $set: {} }"
+        preview={{
+          changes: [
+            {
+              before: { foo: 1 },
+              after: { foo: 1 },
+            },
+          ],
+        }}
+        enablePreview={true}
+        closeBulkUpdateModal={() => {}}
+        updateBulkUpdatePreview={() => {}}
+        runBulkUpdate={() => {}}
+        saveUpdateQuery={() => {}}
+        {...props}
+      />
+    </FavoriteQueryStorageProvider>
   );
 }
 
@@ -212,5 +217,32 @@ describe('BulkUpdateModal Component', function () {
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-submit'));
     expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');
+  });
+
+  it('does not render the Save button if there is no saved ', function () {
+    render(
+      <BulkUpdateModal
+        isOpen={true}
+        ns="mydb.mycoll"
+        filter={{ a: 1 }}
+        count={0}
+        updateText="{ $set: {} }"
+        preview={{
+          changes: [
+            {
+              before: { foo: 1 },
+              after: { foo: 1 },
+            },
+          ],
+        }}
+        enablePreview={true}
+        closeBulkUpdateModal={() => {}}
+        updateBulkUpdatePreview={() => {}}
+        runBulkUpdate={() => {}}
+        saveUpdateQuery={() => {}}
+      />
+    );
+
+    expect(screen.queryByTestId('inline-save-query-modal-opener')).to.not.exist;
   });
 });
