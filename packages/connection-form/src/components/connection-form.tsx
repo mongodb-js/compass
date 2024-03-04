@@ -489,7 +489,10 @@ function ConnectionForm({
             <ConnectionFormModalActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
-              onCancel={() => {}}
+              onCancel={() => {
+                // TODO: COMPASS-7659
+                // when this becomes a modal
+              }}
               onSave={() =>
                 callOnSaveConnectionClickedAndStoreErrors?.(
                   getConnectionInfoToSave()
