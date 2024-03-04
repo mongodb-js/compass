@@ -9,7 +9,7 @@ import type {
 import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
-import type { PreferencesAccess } from '.';
+import { getActiveUser, type PreferencesAccess } from '.';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -137,6 +137,13 @@ const makePreferenceMain = (
   async createSandbox(): Promise<PreferencesAccess> {
     const props = await preferences()?.getPreferenceSandboxProperties();
     return createSandboxAccessFromProps(props);
+  },
+  getPreferencesUser() {
+    const prefs = preferences();
+    if (!prefs) {
+      throw new Error('Can not get user');
+    }
+    return getActiveUser(prefs);
   },
 });
 export async function createSandboxAccessFromProps(

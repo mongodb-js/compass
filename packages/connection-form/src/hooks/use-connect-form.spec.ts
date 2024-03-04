@@ -55,6 +55,39 @@ describe('use-connect-form hook', function () {
     });
   });
 
+  describe('enableEditingConnectionString behaviour', function () {
+    const connectionInfo = (connString: string, favorite?: any) => ({
+      id: 'turtle',
+      connectionOptions: {
+        connectionString: connString,
+      },
+      favorite,
+    });
+
+    it("should be true when it's the default connection", function () {
+      const info = connectionInfo('mongodb://localhost:27017');
+      const { result } = renderHook(() => useConnectForm(info, null));
+
+      expect(result.current[0].enableEditingConnectionString).to.equal(true);
+    });
+
+    it("should be true when it's the default connection with a trailing slash", function () {
+      const info = connectionInfo('mongodb://localhost:27017/');
+      const { result } = renderHook(() => useConnectForm(info, null));
+
+      expect(result.current[0].enableEditingConnectionString).to.equal(true);
+    });
+
+    it('should be false when edited and favourite', function () {
+      const info = connectionInfo('mongodb://localhost:27018', {
+        name: 'turtles',
+      });
+      const { result } = renderHook(() => useConnectForm(info, null));
+
+      expect(result.current[0].enableEditingConnectionString).to.equal(false);
+    });
+  });
+
   describe('#handleConnectionFormFieldUpdate', function () {
     describe('add-new-host action', function () {
       describe('when directConnection is not set', function () {

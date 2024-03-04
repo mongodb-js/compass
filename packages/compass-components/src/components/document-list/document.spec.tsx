@@ -28,6 +28,11 @@ describe('Document', function () {
       num: 123,
       date: new Date(0),
       null_value: null,
+      // Regression test for very large numbers of parameters passed to
+      // Math.max(). One test starts to fail at around 62535 line breaks, more
+      // after that. It depends on how much data is already on the stack at that
+      // point.
+      crazy_string: Array.from({ length: 100000 }, () => '\n').join('\n'),
     });
   });
 

@@ -2,6 +2,7 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 import { Preferences, type PreferencesAccess } from './preferences';
 import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
+import { getActiveUser } from './utils';
 
 export class ReadOnlyPreferenceAccess implements PreferencesAccess {
   private _preferences: Preferences;
@@ -44,5 +45,9 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
 
   createSandbox() {
     return Promise.resolve(new ReadOnlyPreferenceAccess(this.getPreferences()));
+  }
+
+  getPreferencesUser() {
+    return getActiveUser(this);
   }
 }

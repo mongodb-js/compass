@@ -6,7 +6,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -18,10 +18,6 @@ describe('Bulk Update', () => {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableBulkUpdateOperations'],
@@ -30,10 +26,6 @@ describe('Bulk Update', () => {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -114,7 +106,7 @@ describe('Bulk Update', () => {
 
     expect(toastText).to.contain('1 document has been updated.');
     // We close the toast
-    await browser.$(Selectors.BulkUpdateSuccessToastDismissButton).click();
+    await browser.clickVisible(Selectors.BulkUpdateSuccessToastDismissButton);
 
     await browser
       .$(Selectors.BulkUpdateSuccessToast)
@@ -134,6 +126,8 @@ describe('Bulk Update', () => {
   });
 
   it('can save an update query as a favourite and return to it', async function () {
+    skipForWeb(this, "can't use saved queries in compass-web yet");
+
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.

@@ -2,7 +2,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -17,9 +17,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   let i = 0;
 
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'settings modal not available on compass-web');
   });
 
   beforeEach(async function () {
@@ -34,7 +32,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
-  it('hides and shows the plus icon on the siderbar to create a database', async function () {
+  it('hides and shows the plus icon on the sidebar to create a database', async function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {

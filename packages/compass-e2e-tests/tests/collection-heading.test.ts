@@ -1,42 +1,26 @@
-import chai from 'chai';
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import {
-  init,
-  cleanup,
-  screenshotIfFailed,
-  TEST_COMPASS_WEB,
-} from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-
-const { expect } = chai;
 
 describe('Collection heading', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-
-    await browser.connectWithConnectionString();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
@@ -59,54 +43,35 @@ describe('Collection heading', function () {
     }
   });
 
-  it('contains the collection stats', async function () {
-    const documentCountValueElement = await browser.$(
-      Selectors.DocumentCountValue
-    );
-    expect(await documentCountValueElement.getText()).to.match(/1(\.0)?k/);
-    const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
-    expect(await indexCountValueElement.getText()).to.equal('1');
+  it('contains the collection documents stats', async function () {
+    const documentStatsSelector = Selectors.CollectionTabStats('documents');
+    const documentCountValueElement = await browser.$(documentStatsSelector);
+    expect(await documentCountValueElement.getText()).to.match(/1(\.0)?K/);
+
+    await browser.hover(documentStatsSelector);
+    const statsTooltip = await browser.$(Selectors.CollectionStatsTooltip);
+    await statsTooltip.waitForDisplayed();
+
+    const tooltipContents = await statsTooltip.getText();
+
+    expect(tooltipContents).to.include('Documents');
+    expect(tooltipContents).to.include('Storage Size');
+    expect(tooltipContents).to.include('Avg. Size');
   });
 
-  it('shows tooltip with storage sizes on hover stats', async function () {
-    const documentCountValue = await browser.$(Selectors.DocumentCountValue);
-    await documentCountValue.waitForDisplayed();
+  it('contains the collection indexes stats', async function () {
+    const indexStatsSelector = Selectors.CollectionTabStats('indexes');
+    const indexCountValueElement = await browser.$(indexStatsSelector);
+    expect(await indexCountValueElement.getText()).to.equal('1');
 
-    await browser.hover(Selectors.DocumentCountValue);
+    await browser.hover(indexStatsSelector);
+    const statsTooltip = await browser.$(Selectors.CollectionStatsTooltip);
+    await statsTooltip.waitForDisplayed();
 
-    const collectionStatsTooltip = await browser.$(
-      Selectors.CollectionStatsTooltip
-    );
-    await collectionStatsTooltip.waitForDisplayed();
+    const tooltipContents = await statsTooltip.getText();
 
-    const tooltipDocumentsCountValue = await browser.$(
-      Selectors.TooltipDocumentsCountValue
-    );
-    expect(await tooltipDocumentsCountValue.getText()).to.include('Documents');
-
-    const tooltipDocumentsStorageSize = await browser.$(
-      Selectors.TooltipDocumentsStorageSize
-    );
-    expect(await tooltipDocumentsStorageSize.getText()).to.include(
-      'Storage Size'
-    );
-
-    const tooltipDocumentsAvgSize = await browser.$(
-      Selectors.TooltipDocumentsAvgSize
-    );
-    expect(await tooltipDocumentsAvgSize.getText()).to.include('Avg. Size');
-
-    const tooltipIndexesCount = await browser.$(Selectors.TooltipIndexesCount);
-    expect(await tooltipIndexesCount.getText()).to.include('Indexes');
-
-    const tooltipIndexesTotalSize = await browser.$(
-      Selectors.TooltipIndexesTotalSize
-    );
-    expect(await tooltipIndexesTotalSize.getText()).to.include('Total Size');
-
-    const tooltipIndexesAvgSize = await browser.$(
-      Selectors.TooltipIndexesAvgSize
-    );
-    expect(await tooltipIndexesAvgSize.getText()).to.include('Avg. Size');
+    expect(tooltipContents).to.include('Indexes');
+    expect(tooltipContents).to.include('Total Size');
+    expect(tooltipContents).to.include('Avg. Size');
   });
 });

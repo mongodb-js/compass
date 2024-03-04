@@ -64,8 +64,10 @@ export type InternalUserPreferences = {
     GEN_AI_COMPASS?: boolean;
   };
   lastKnownVersion: string;
+  highestInstalledVersion?: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
+  telemetryAtlasUserId?: string;
   userCreatedAt: number;
 };
 
@@ -255,6 +257,17 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
   /**
+   * Stores the highest Compass version that has been running on this installation.
+   */
+  highestInstalledVersion: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().default('0.0.0'),
+    type: 'string',
+  },
+  /**
    * Stores whether or not the network opt-in screen has been shown to
    * the user already.
    */
@@ -310,6 +323,17 @@ export const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     validator: z.string().uuid().optional(),
+    type: 'string',
+  },
+  /**
+   * Stores a unique telemetry atlas ID for the current user.
+   */
+  telemetryAtlasUserId: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
     type: 'string',
   },
   /**

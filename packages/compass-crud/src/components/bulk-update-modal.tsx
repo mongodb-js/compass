@@ -33,6 +33,8 @@ import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
+import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+
 const modalContentStyles = css({
   width: '100%',
   maxWidth: '1280px',
@@ -393,6 +395,8 @@ export default function BulkUpdateModal({
   const bulkUpdateUpdateId = useId();
   const disabled = !!(syntaxError || serverError);
 
+  const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
+
   return (
     <Modal
       open={isOpen}
@@ -464,7 +468,12 @@ export default function BulkUpdateModal({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <InlineSaveQueryModal disabled={disabled} onSave={saveUpdateQuery} />
+          {favoriteQueryStorageAvailable && (
+            <InlineSaveQueryModal
+              disabled={disabled}
+              onSave={saveUpdateQuery}
+            />
+          )}
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button

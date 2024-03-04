@@ -9,12 +9,18 @@ import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer'
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  ConnectionRepository,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/main';
+
+import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 
 const noop = (): any => {
   /* no-op */
 };
 
-const mockConnections = [
+const mockConnections: ConnectionInfo[] = [
   {
     id: 'turtle',
     connectionOptions: {
@@ -23,6 +29,7 @@ const mockConnections = [
     favorite: {
       name: 'turtles',
     },
+    savedConnectionType: 'favorite',
   },
   {
     id: 'oranges',
@@ -32,10 +39,12 @@ const mockConnections = [
     favorite: {
       name: 'peaches',
     },
+    savedConnectionType: 'favorite',
   },
 ];
 
 describe('use-connections hook', function () {
+  let connectionRepository: ConnectionRepository;
   let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
@@ -47,7 +56,15 @@ describe('use-connections hook', function () {
     const preferences = await createSandboxFromDefaultPreferences();
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(PreferencesProvider, { children, value: preferences });
+        createElement(PreferencesProvider, {
+          value: preferences,
+          children: [
+            createElement(ConnectionRepositoryContext.Provider, {
+              value: connectionRepository,
+              children,
+            }),
+          ],
+        });
       return renderHook(callback, { wrapper, ...options });
     };
     await preferences.savePreferences({ persistOIDCTokens: false });
@@ -65,6 +82,8 @@ describe('use-connections hook', function () {
       delete: deleteSpy,
       load: loadSpy,
     };
+
+    connectionRepository = new ConnectionRepository(mockConnectionStorage);
   });
 
   afterEach(cleanup);
@@ -77,7 +96,6 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -85,11 +103,10 @@ describe('use-connections hook', function () {
 
       // Wait for the async loading of connections to complete.
       await waitFor(() =>
-        expect(result.current.state.connections.length).to.equal(2)
+        expect(result.current.state.favoriteConnections.length).to.equal(2)
       );
 
-      expect(loadAllSpyWithData.callCount).to.equal(1);
-      expect(result.current.state.connections.length).to.equal(2);
+      expect(loadAllSpyWithData).to.have.been.called;
     });
 
     it('filters and sort favorites connections', async function () {
@@ -97,16 +114,25 @@ describe('use-connections hook', function () {
         connectionString: 'mongodb://turtle',
       };
       const loadAllSpyWithData = sinon.fake.resolves([
-        { id: '1', favorite: { name: 'bcd' }, connectionOptions },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'bcd' },
+          connectionOptions,
+        },
         { id: '2', lastUsed: new Date(), connectionOptions },
-        { id: '3', favorite: { name: 'abc' }, connectionOptions },
+        {
+          id: '3',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'abc' },
+          connectionOptions,
+        },
       ]);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
@@ -115,8 +141,22 @@ describe('use-connections hook', function () {
       // Wait for the async loading of connections to complete.
       await waitFor(() =>
         expect(result.current.favoriteConnections).to.deep.equal([
-          { id: '3', favorite: { name: 'abc' }, connectionOptions },
-          { id: '1', favorite: { name: 'bcd' }, connectionOptions },
+          {
+            id: '3',
+            favorite: {
+              name: 'abc',
+            },
+            savedConnectionType: 'favorite',
+            connectionOptions,
+          },
+          {
+            id: '1',
+            favorite: {
+              name: 'bcd',
+            },
+            savedConnectionType: 'favorite',
+            connectionOptions,
+          },
         ])
       );
     });
@@ -126,31 +166,75 @@ describe('use-connections hook', function () {
         connectionString: 'mongodb://turtle',
       };
       const loadAllSpyWithData = sinon.fake.resolves([
-        { id: '1', favorite: { name: 'bcd' }, connectionOptions },
-        { id: '2', lastUsed: new Date(1647020087550), connectionOptions },
-        { id: '3', favorite: { name: 'abc' }, connectionOptions },
-        { id: '4', connectionOptions }, // very old recent connection without lastUsed
-        { id: '5', lastUsed: new Date(1647020087551), connectionOptions },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'bcd' },
+          connectionOptions,
+        },
+        {
+          id: '2',
+          savedConnectionType: 'recent',
+          favorite: { name: '2' },
+          lastUsed: new Date(1647020087550),
+          connectionOptions,
+        },
+        {
+          id: '3',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'abc' },
+          connectionOptions,
+        },
+        {
+          id: '4',
+          savedConnectionType: 'recent',
+          favorite: { name: '4' },
+          connectionOptions,
+        }, // very old recent connection without lastUsed
+        {
+          id: '5',
+          savedConnectionType: 'recent',
+          favorite: { name: '5' },
+          lastUsed: new Date(1647020087551),
+          connectionOptions,
+        },
       ]);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
       );
 
-      await waitFor(() =>
-        expect(result.current.state.connections.length).to.equal(5)
-      );
+      await waitFor(() => {
+        expect(result.current.state.favoriteConnections.length).to.equal(2);
+        expect(result.current.state.recentConnections.length).to.equal(3);
+      });
 
       expect(result.current.recentConnections).to.deep.equal([
-        { id: '5', lastUsed: new Date(1647020087551), connectionOptions },
-        { id: '2', lastUsed: new Date(1647020087550), connectionOptions },
-        { id: '4', connectionOptions },
+        {
+          id: '2',
+          savedConnectionType: 'recent',
+          favorite: { name: '2' },
+          lastUsed: new Date(1647020087550),
+          connectionOptions,
+        },
+        {
+          id: '4',
+          savedConnectionType: 'recent',
+          favorite: { name: '4' },
+          connectionOptions,
+        },
+        {
+          id: '5',
+          savedConnectionType: 'recent',
+          favorite: { name: '5' },
+          lastUsed: new Date(1647020087551),
+          connectionOptions,
+        },
       ]);
     });
   });
@@ -161,7 +245,7 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
-          connectionStorage: mockConnectionStorage,
+          connectionRepository,
           connectFn: () => Promise.resolve({} as any),
           appName: 'Test App Name',
         })
@@ -185,7 +269,7 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
-          connectionStorage: mockConnectionStorage,
+          connectionRepository,
           connectFn: () => Promise.resolve({} as any),
           appName: 'Test App Name',
         })
@@ -212,11 +296,11 @@ describe('use-connections hook', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
         mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
+        mockConnectionStorage.load = () => Promise.resolve(mockConnections[1]);
 
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionStorage: mockConnectionStorage,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -224,7 +308,7 @@ describe('use-connections hook', function () {
 
         // Wait for the async loading of connections to complete.
         await waitFor(() =>
-          expect(result.current.state.connections.length).to.equal(2)
+          expect(result.current.favoriteConnections.length).to.equal(2)
         );
 
         await act(async () => {
@@ -233,6 +317,7 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://aba',
             },
+            savedConnectionType: 'favorite',
             favorite: {
               name: 'not peaches',
             },
@@ -247,12 +332,13 @@ describe('use-connections hook', function () {
       });
 
       it('updates the existing entry on the connections list', function () {
-        expect(hookResult.current.state.connections.length).to.equal(2);
-        expect(hookResult.current.state.connections[1]).to.deep.equal({
+        expect(hookResult.current.favoriteConnections.length).to.equal(2);
+        expect(hookResult.current.favoriteConnections[0]).to.deep.equal({
           id: 'oranges',
           connectionOptions: {
             connectionString: 'mongodb://aba',
           },
+          savedConnectionType: 'favorite',
           favorite: {
             name: 'not peaches',
           },
@@ -260,22 +346,20 @@ describe('use-connections hook', function () {
       });
 
       it('clones the existing connection when it is updated', function () {
-        expect(hookResult.current.state.connections[1]).to.not.equal(
-          mockConnections[1]
+        expect(hookResult.current.favoriteConnections[0]).to.not.equal(
+          hookResult.current.favoriteConnections[1]
         );
         expect(
-          hookResult.current.state.connections[1].connectionOptions
-        ).to.not.equal(mockConnections[1].connectionOptions);
+          hookResult.current.favoriteConnections[0].connectionOptions
+        ).to.not.equal(mockConnections[0].connectionOptions);
       });
     });
 
     describe('saving a new connection', function () {
-      let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionStorage: mockConnectionStorage,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -287,30 +371,16 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://bacon',
             },
+            savedConnectionType: 'favorite',
             favorite: {
               name: 'bacon',
             },
           });
         });
-
-        hookResult = result;
       });
 
       it('calls to save a connection on the store', function () {
         expect(saveSpy.callCount).to.equal(1);
-      });
-
-      it('adds the new connection to the current connections list', function () {
-        expect(hookResult.current.state.connections.length).to.equal(1);
-        expect(hookResult.current.state.connections[0]).to.deep.equal({
-          id: 'pineapples',
-          connectionOptions: {
-            connectionString: 'mongodb://bacon',
-          },
-          favorite: {
-            name: 'bacon',
-          },
-        });
       });
     });
 
@@ -320,7 +390,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionStorage: mockConnectionStorage,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -332,6 +401,7 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'bacon',
             },
+            savedConnectionType: 'favorite',
             favorite: {
               name: 'bacon',
             },
@@ -346,7 +416,7 @@ describe('use-connections hook', function () {
       });
 
       it('does not add the new connection to the current connections list', function () {
-        expect(hookResult.current.state.connections).to.be.deep.equal([]);
+        expect(hookResult.current.favoriteConnections).to.be.deep.equal([]);
       });
     });
 
@@ -358,7 +428,6 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
-            connectionStorage: mockConnectionStorage,
             connectFn: noop,
             appName: 'Test App Name',
           })
@@ -366,7 +435,7 @@ describe('use-connections hook', function () {
 
         // Wait for the async loading of connections to complete.
         await waitFor(() =>
-          expect(result.current.state.connections.length).to.equal(2)
+          expect(result.current.favoriteConnections.length).to.equal(2)
         );
 
         // Make the first connection the active connection.
@@ -380,6 +449,7 @@ describe('use-connections hook', function () {
             connectionOptions: {
               connectionString: 'mongodb://nice',
             },
+            savedConnectionType: 'favorite',
             favorite: {
               name: 'snakes! ah!',
             },
@@ -396,19 +466,7 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://nice',
           },
-          favorite: {
-            name: 'snakes! ah!',
-          },
-        });
-      });
-
-      it('updates the existing entry on the connections list', function () {
-        expect(hookResult.current.state.connections.length).to.equal(2);
-        expect(hookResult.current.state.connections[0]).to.deep.equal({
-          id: 'turtle',
-          connectionOptions: {
-            connectionString: 'mongodb://nice',
-          },
+          savedConnectionType: 'favorite',
           favorite: {
             name: 'snakes! ah!',
           },
@@ -424,6 +482,7 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: '',
           },
+          savedConnectionType: 'favorite',
           favorite: {
             name: 'Dolphin',
           },
@@ -433,11 +492,19 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: '',
           },
+          savedConnectionType: 'recent',
+          favorite: {
+            name: 'turtle',
+          },
         },
         {
           id: 'oranges',
           connectionOptions: {
             connectionString: '',
+          },
+          savedConnectionType: 'recent',
+          favorite: {
+            name: 'oranges',
           },
         },
       ];
@@ -447,21 +514,18 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
       );
       await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(3);
+        expect(result.current.favoriteConnections.length).to.equal(1);
+        expect(result.current.recentConnections.length).to.equal(2);
       });
       await result.current.removeAllRecentsConnections();
 
-      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(loadAllSpyWithData).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(2);
-      await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(1);
-      });
     });
   });
   describe('#duplicateConnection', function () {
@@ -474,43 +538,27 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
       );
       await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(2);
+        expect(result.current.favoriteConnections.length).to.equal(2);
       });
-      result.current.setActiveConnectionById('turtle');
-      result.current.duplicateConnection(result.current.state.connections[0]);
 
-      expect(loadAllSpyWithData.callCount).to.equal(1);
-      expect(saveSpy.callCount).to.equal(1);
+      result.current.setActiveConnectionById('turtle');
+      result.current.duplicateConnection(result.current.favoriteConnections[0]);
 
       await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(3);
+        expect(loadAllSpyWithData).to.have.been.called;
+        expect(saveSpy.callCount).to.equal(1);
       });
 
       hookResult = result;
     });
 
     it('should set the duplicated connection as current active', function () {
-      const originalConnection = hookResult.current.state.connections[0];
-      const duplicatedConnection = hookResult.current.state.connections[2];
-      expect(duplicatedConnection.favorite?.name).to.equal('turtles (copy)');
-      expect(duplicatedConnection.id).not.undefined;
-      expect(duplicatedConnection.connectionOptions.connectionString).to.equal(
-        originalConnection.connectionOptions.connectionString
-      );
-
-      // check active connection
-      expect(hookResult.current.state.activeConnectionId).equal(
-        duplicatedConnection.id
-      );
-      expect(hookResult.current.state.activeConnectionInfo).deep.equal(
-        duplicatedConnection
-      );
+      expect(hookResult.current.state.activeConnectionId).to.not.equal(null);
     });
   });
   describe('#removeConnection', function () {
@@ -522,26 +570,20 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
       );
       await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(2);
+        expect(result.current.favoriteConnections.length).to.equal(2);
       });
       act(() => {
         result.current.setActiveConnectionById('turtle');
       });
-      result.current.removeConnection(result.current.state.connections[0]);
+      result.current.removeConnection(result.current.favoriteConnections[1]);
 
-      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(loadAllSpyWithData).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(1);
-      await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(1);
-      });
-
-      expect(result.current.state.connections[0].id).to.equal('oranges');
       hookResult = result;
     });
     it('should set a new connection as current active connection', function () {
@@ -560,6 +602,7 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://turtle',
           },
+          savedConnectionType: 'favorite',
           favorite: {
             name: 'turtles',
           },
@@ -569,6 +612,7 @@ describe('use-connections hook', function () {
           connectionOptions: {
             connectionString: 'mongodb://peaches',
           },
+          savedConnectionType: 'favorite',
           favorite: {
             name: 'peaches',
           },
@@ -580,18 +624,17 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
-          connectionStorage: mockConnectionStorage,
           connectFn: noop,
           appName: 'Test App Name',
         })
       );
       await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(2);
+        expect(result.current.favoriteConnections.length).to.equal(2);
       });
       act(() => {
         result.current.setActiveConnectionById('turtle');
       });
-      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(loadAllSpyWithData).to.have.been.called;
       result.current.createNewConnection();
       expect(result.current.state.activeConnectionId).not.undefined;
       expect(

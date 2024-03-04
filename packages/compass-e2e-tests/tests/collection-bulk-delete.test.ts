@@ -2,12 +2,7 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import {
-  init,
-  cleanup,
-  screenshotIfFailed,
-  TEST_COMPASS_WEB,
-} from '../helpers/compass';
+import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -18,10 +13,6 @@ describe('Bulk Delete', () => {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--enableBulkDeleteOperations'],
@@ -30,9 +21,6 @@ describe('Bulk Delete', () => {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -100,7 +88,7 @@ describe('Bulk Delete', () => {
 
     expect(toastText).to.contain('1 document has been deleted.');
     // We close the toast
-    await browser.$(Selectors.BulkDeleteSuccessToastDismissButton).click();
+    await browser.clickVisible(Selectors.BulkDeleteSuccessToastDismissButton);
 
     await browser
       .$(Selectors.BulkDeleteSuccessToast)
@@ -165,6 +153,7 @@ describe('Bulk Delete', () => {
     // Click the export button
     await browser.clickVisible(Selectors.BulkDeleteModalExportButton);
 
+    // Check the telemetry
     const openedEvent = await telemetryEntry('Delete Export Opened');
     expect(openedEvent).to.deep.equal({});
 
@@ -176,7 +165,7 @@ describe('Bulk Delete', () => {
     expect(text).to.equal(`from pymongo import MongoClient
 # Requires the PyMongo package.
 # https://api.mongodb.com/python/current
-client = MongoClient('mongodb://localhost:27091/test')
+client = MongoClient('mongodb://127.0.0.1:27091/test')
 filter={
     'i': 5
 }
@@ -184,6 +173,7 @@ result = client['test']['numbers'].delete_many(
   filter=filter
 )`);
 
+    // Check the telemetry
     const exportedEvent = await telemetryEntry('Delete Exported');
     expect(exportedEvent).to.deep.equal({
       language: 'python',

@@ -7,6 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
@@ -97,9 +98,7 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'import not yet available in compass-web');
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -129,7 +128,9 @@ describe('Collection import', function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     async function getDocumentCount() {
-      const countText = await browser.$(Selectors.DocumentCountValue).getText();
+      const countText = await browser
+        .$(Selectors.CollectionTabStats('documents'))
+        .getText();
       return countText ? Number(countText) : null;
     }
 
