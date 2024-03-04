@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -18,10 +18,8 @@ import {
   TextInput,
   Option,
   css,
-  cx,
   ConfirmationModalArea,
   createGlyphComponent,
-  createIconComponent,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -34,11 +32,7 @@ import {
   useConnectForm,
   type ConnectionPersonalisationOptions,
 } from '../hooks/use-connect-form';
-import {
-  ConnectionFormError,
-  ConnectionFormWarning,
-  validateConnectionOptionsErrors,
-} from '../utils/validation';
+import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
 import {
@@ -130,7 +124,7 @@ const ColorCircleGlyph = createGlyphComponent('ColorCircle', (props) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g clip-path="url(#clip0_756_18092)">
+    <g clipPath="url(#clip0_756_18092)">
       <line
         opacity="0.5"
         x1="16.3536"
@@ -497,12 +491,12 @@ function ConnectionForm({
                 // when this becomes a modal
               }}
               onSave={() =>
-                callOnSaveConnectionClickedAndStoreErrors?.(
+                void callOnSaveConnectionClickedAndStoreErrors?.(
                   getConnectionInfoToSave()
                 )
               }
               onConnect={() => {
-                callOnSaveConnectionClickedAndStoreErrors?.(
+                void callOnSaveConnectionClickedAndStoreErrors?.(
                   getConnectionInfoToSave()
                 );
                 onSubmitForm();
@@ -552,6 +546,8 @@ function ConnectionForm({
             setSaveConnectionModal('hidden');
 
             const connectionInfo = getConnectionInfoToSave();
+            connectionInfo.favorite = favoriteInfo;
+
             await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
 
             if (saveConnectionModal === 'saveAndConnect') {

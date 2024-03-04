@@ -134,10 +134,6 @@ export function ConnectionFormModalActions({
   onSave,
   onConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
-  const showFavoriteActions = useConnectionFormPreference(
-    'showFavoriteActions'
-  );
-
   return (
     <div className={cx(formActionStyles)}>
       {warnings.length > 0 && (

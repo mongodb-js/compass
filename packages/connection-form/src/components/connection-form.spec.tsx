@@ -5,7 +5,6 @@ import {
   cleanup,
   fireEvent,
   getByText,
-  waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
@@ -375,9 +374,11 @@ describe('ConnectionForm Component', function () {
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
   });
 
-  context.only('when multiple connection management is enabled', function () {
+  context('when multiple connection management is enabled', function () {
     beforeEach(async function () {
-      preferences.savePreferences({ enableNewMultipleConnectionSystem: true });
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
       renderForm({
         initialConnectionInfo: DEFAULT_CONNECTION,
         preferences: {
@@ -392,7 +393,7 @@ describe('ConnectionForm Component', function () {
     });
 
     describe('name input', function () {
-      it('should sync with the href of the connection string unless it has been edited', async function () {
+      it('should sync with the href of the connection string unless it has been edited', function () {
         const connectionString = screen.getByTestId('connectionString');
         userEvent.clear(connectionString);
         userEvent.type(connectionString, 'mongodb://webscale:27017');
@@ -403,7 +404,7 @@ describe('ConnectionForm Component', function () {
         expect(personalisationName.value).to.equal('webscale:27017');
       });
 
-      it('should not sync with the href of the connection string when it has been edited', async function () {
+      it('should not sync with the href of the connection string when it has been edited', function () {
         const connectionString = screen.getByTestId('connectionString');
         const personalisationName = screen.getByTestId(
           'personalisation-name-input'
