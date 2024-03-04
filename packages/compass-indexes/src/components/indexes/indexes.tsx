@@ -38,18 +38,14 @@ const containerStyles = css({
 });
 
 const AtlasIndexesBanner = () => {
-  const atlasLink = usePreference('atlasSearchIndexesLink');
-  const link = atlasLink ? (
-    <Link href={atlasLink} target="_blank" hideExternalIcon>
-      Atlas Search
-    </Link>
-  ) : (
-    'Atlas Search'
-  );
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for search indexes?</Body>
-      These indexes can be created and viewed under {link}.
+      These indexes can be created and viewed under{' '}
+      <Link href={'#/clusters/atlasSearch'} target="_blank" hideExternalIcon>
+        Atlas Search
+      </Link>
+      .
     </Banner>
   );
 };
