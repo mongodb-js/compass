@@ -9,6 +9,7 @@ import {
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
+import { createServiceLocator } from 'hadron-app-registry';
 
 function useWorkspacesStore() {
   try {
@@ -225,7 +226,10 @@ export function useActiveWorkspace() {
   return service.getActiveWorkspace();
 }
 
-export const workspacesServiceLocator = useWorkspacesService;
+export const workspacesServiceLocator = createServiceLocator(
+  useWorkspacesService,
+  'workspacesServiceLocator'
+);
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
 export { useTabState } from './components/workspace-tab-state-provider';
