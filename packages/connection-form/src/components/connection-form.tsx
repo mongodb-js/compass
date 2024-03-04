@@ -222,13 +222,15 @@ function ConnectionPersonalisationForm({
   return (
     <div className={personalisationSectionLayoutStyles}>
       <TextInput
-        value={personalisationOptions.name}
         style={{ gridArea: 'name-input' }}
+        value={personalisationOptions.name}
+        data-testid="personalisation-name-input"
         onChange={onChangeName}
         label="Name"
       />
       <Select
         style={{ gridArea: 'color-input' }}
+        data-testid="personalisation-color-input"
         label="Color"
         defaultValue={personalisationOptions.color || 'no-color'}
         allowDeselect={false}
@@ -242,6 +244,7 @@ function ConnectionPersonalisationForm({
         </Option>
         {connectionColorCodes().map((colorCode) => (
           <Option
+            key={colorCode}
             glyph={
               <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
             }
@@ -252,15 +255,15 @@ function ConnectionPersonalisationForm({
         ))}
       </Select>
       {showFavoriteActions && (
-        <div style={{ gridArea: 'favorite-marker' }}>
-          <Checkbox
-            onChange={onChangeFavorite}
-            checked={personalisationOptions.isFavorite}
-            label={<b>Favorite this connection</b>}
-            description="Favoriting a connection will pin it to the top of your list of
-          connections"
-          />
-        </div>
+        <Checkbox
+          style={{ gridArea: 'favorite-marker' }}
+          onChange={onChangeFavorite}
+          data-testid="personalisation-favorite-checkbox"
+          checked={personalisationOptions.isFavorite}
+          label={<b>Favorite this connection</b>}
+          description="Favoriting a connection will pin it to the top of your list of
+        connections"
+        />
       )}
     </div>
   );

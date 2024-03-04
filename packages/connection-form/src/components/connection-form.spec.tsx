@@ -5,9 +5,13 @@ import {
   cleanup,
   fireEvent,
   getByText,
+  waitFor,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
@@ -28,23 +32,30 @@ const noop = (): any => {
 const saveAndConnectText = 'Save & Connect';
 const favoriteText = 'FAVORITE';
 
+let preferences: PreferencesAccess;
 function renderForm(props: Partial<ConnectionFormProps> = {}) {
   return render(
-    <ConnectionForm
-      onConnectClicked={noop}
-      initialConnectionInfo={{
-        id: 'test',
-        connectionOptions: {
-          connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
-        },
-      }}
-      onSaveConnectionClicked={noop}
-      {...props}
-    />
+    <PreferencesProvider value={preferences}>
+      <ConnectionForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
+          },
+        }}
+        onSaveConnectionClicked={noop}
+        {...props}
+      />
+    </PreferencesProvider>
   );
 }
 
 describe('ConnectionForm Component', function () {
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   afterEach(function () {
     cleanup();
   });
@@ -362,5 +373,50 @@ describe('ConnectionForm Component', function () {
     );
 
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
+  });
+
+  context.only('when multiple connection management is enabled', function () {
+    beforeEach(async function () {
+      preferences.savePreferences({ enableNewMultipleConnectionSystem: true });
+      renderForm({
+        initialConnectionInfo: DEFAULT_CONNECTION,
+        preferences: {
+          protectConnectionStringsForNewConnections: false,
+          protectConnectionStrings: false,
+        },
+      });
+    });
+
+    it('should not show the old favorite button', function () {
+      expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
+    });
+
+    describe('name input', function () {
+      it('should sync with the href of the connection string unless it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        userEvent.clear(connectionString);
+        userEvent.type(connectionString, 'mongodb://webscale:27017');
+
+        const personalisationName = screen.getByTestId(
+          'personalisation-name-input'
+        );
+        expect(personalisationName.value).to.equal('webscale:27017');
+      });
+
+      it('should not sync with the href of the connection string when it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        const personalisationName = screen.getByTestId(
+          'personalisation-name-input'
+        );
+
+        userEvent.clear(personalisationName);
+        userEvent.clear(connectionString);
+
+        userEvent.type(personalisationName, 'my happy name');
+        userEvent.type(connectionString, 'mongodb://webscale:27017');
+
+        expect(personalisationName.value).to.equal('my happy name');
+      });
+    });
   });
 });

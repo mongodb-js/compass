@@ -314,7 +314,7 @@ function handleUpdateHost({
 
 export function handleConnectionFormUpdateForPersonalisation(
   action: UpdateConnectionPersonalisationAction,
-  connectionString: string,
+  connectionString?: string,
   personalisation: ConnectionPersonalisationOptions
 ): ConnectionPersonalisationOptions {
   const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
@@ -322,7 +322,7 @@ export function handleConnectionFormUpdateForPersonalisation(
   const color = action.color || personalisation.color;
   const isFavorite = action.isFavorite;
 
-  if (!isNameDirty) {
+  if (!isNameDirty && connectionString) {
     try {
       const parsedConnString = new ConnectionString(connectionString);
       name = parsedConnString.hosts.join(',');
@@ -363,7 +363,7 @@ export function handleConnectionFormFieldUpdate(
       },
       personalisationOptions: handleConnectionFormUpdateForPersonalisation(
         action,
-        newParsedConnectionStringUrl.toString(),
+        newParsedConnectionStringUrl?.toString() || '',
         currentPersonalisationOptions
       ),
       errors,
@@ -377,6 +377,11 @@ export function handleConnectionFormFieldUpdate(
   if (!parsedConnectionStringUrl) {
     return {
       connectionOptions: currentConnectionOptions,
+      personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+        action,
+        undefined,
+        currentPersonalisationOptions
+      ),
       errors: errors,
     };
   }
