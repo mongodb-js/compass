@@ -115,11 +115,9 @@ const colorPreviewStyles = css({
   marginRight: spacing[2],
 });
 
-type ColorCircleGlyphProps = { hexColor?: string };
 const ColorCircleGlyph = createGlyphComponent(
   'ColorCircle',
-  // @ts-expect-error This type can not be refined
-  (props: ColorCircleGlyphProps) => (
+  ({ hexColor, ...props }: React.PropsWithoutRef & { hexColor: string }) => (
     <svg
       {...props}
       className={colorPreviewStyles}
@@ -146,7 +144,7 @@ const ColorCircleGlyph = createGlyphComponent(
         height="15"
         rx="7.5"
         stroke="#889397"
-        fill={props.hexColor}
+        fill={hexColor}
       />
       <defs>
         <clipPath id="clip0_756_18092">
@@ -237,7 +235,6 @@ function ConnectionPersonalisationForm({
         onChange={onChangeColor}
       >
         <Option
-          // @ts-expect-error TypeScript complains because the base type does not have the prop, but it really exists
           glyph={<ColorCircleGlyph hexColor="transparent" />}
           value={'no-color'}
         >
@@ -247,7 +244,6 @@ function ConnectionPersonalisationForm({
           <Option
             key={colorCode}
             glyph={
-              // @ts-expect-error TypeScript complains because the base type does not have the prop, but it really exists
               <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
             }
             value={colorCode}
