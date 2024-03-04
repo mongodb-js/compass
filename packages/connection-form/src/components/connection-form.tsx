@@ -495,7 +495,12 @@ function ConnectionForm({
                   getConnectionInfoToSave()
                 )
               }
-              onConnect={() => {}}
+              onConnect={() => {
+                callOnSaveConnectionClickedAndStoreErrors?.(
+                  getConnectionInfoToSave()
+                );
+                onSubmitForm();
+              }}
             />
           )}
           {!isMultiConnectionEnabled && (

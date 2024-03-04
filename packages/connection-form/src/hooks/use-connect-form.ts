@@ -320,7 +320,7 @@ export function handleConnectionFormUpdateForPersonalisation(
   const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
   let name = action.name || personalisation.name;
   const color = action.color || personalisation.color;
-  const isFavorite = action.isFavorite || personalisation.isFavorite;
+  const isFavorite = action.isFavorite;
 
   if (!isNameDirty) {
     try {
