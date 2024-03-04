@@ -30,7 +30,7 @@ const COLOR_CODES_TO_UI_COLORS_NEW_THEME: Record<ColorCode, string> = {
   color10: palette.gray.light1,
 };
 
-const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
+export const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
   color1: 'Red',
   color2: 'Pink',
   color3: 'Orange',
