@@ -14,6 +14,8 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+const INITIAL_DATABASE_NAMES = ['admin', 'config', 'local', 'test'];
+
 describe('Instance databases tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -42,9 +44,7 @@ describe('Instance databases tab', function () {
     const dbTable = await browser.$(Selectors.DatabasesTable);
     await dbTable.waitForDisplayed();
 
-    const dbSelectors = ['admin', 'config', 'local', 'test'].map(
-      Selectors.databaseCard
-    );
+    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
 
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
@@ -138,9 +138,36 @@ describe('Instance databases tab', function () {
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
+    await browser.navigateToInstanceTab('Databases');
+
+    // Wait for the cards to appear to make sure it started loading
+    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
+
+    for (const dbSelector of dbSelectors) {
+      const found = await browser.scrollToVirtualItem(
+        Selectors.DatabasesTable,
+        dbSelector,
+        'grid'
+      );
+      expect(found, dbSelector).to.be.true;
+    }
+
+    // Wait for the page to finish loading
+    await browser.waitUntil(async () => {
+      return (await browser.$$(Selectors.DatabaseStatLoader)).length === 0;
+    });
+
     const db = 'my-instance-database';
     const coll = 'my-collection';
     const dbSelector = Selectors.databaseCard(db);
+
+    // Make very sure the database doesn't already exist
+    const found = await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      dbSelector,
+      'grid'
+    );
+    expect(found, dbSelector).to.be.false;
 
     // Create the database and refresh
     const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
@@ -149,9 +176,9 @@ describe('Instance databases tab', function () {
       const database = mongoClient.db(db);
       await database.createCollection(coll);
 
-      await browser.navigateToInstanceTab('Databases');
       await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
 
+      // The new database card should appear
       await browser.scrollToVirtualItem(
         Selectors.DatabasesTable,
         dbSelector,
@@ -159,10 +186,14 @@ describe('Instance databases tab', function () {
       );
       await browser.$(dbSelector).waitForDisplayed();
 
-      // Drop it and refresh again
+      // TODO(COMPASS-7695): wait for the skeleton loaders to go away to signal
+      // that it is done refreshing.
+
+      // Drop it
       console.log({
         'database.dropDatabase()': await database.dropDatabase(),
       });
+      // Prove that it is really gone
       console.log({
         'database.admin().listDatabases()': (
           await database.admin().listDatabases()
@@ -172,9 +203,7 @@ describe('Instance databases tab', function () {
       await mongoClient.close();
     }
 
-    // looks like if you refresh too fast the database appears in the list but
-    // the stats never load, so just pause for bit first
-    await browser.pause(1000);
+    // Refresh again and the database card should disappear.
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
     await browser.$(dbSelector).waitForExist({ reverse: true });
   });
