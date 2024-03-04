@@ -31,6 +31,7 @@ import ConnectionFormActions, {
 import {
   useConnectForm,
   type ConnectionPersonalisationOptions,
+  type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
@@ -114,42 +115,47 @@ const colorPreviewStyles = css({
   marginRight: spacing[2],
 });
 
-const ColorCircleGlyph = createGlyphComponent('ColorCircle', (props) => (
-  <svg
-    {...props}
-    className={colorPreviewStyles}
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <g clipPath="url(#clip0_756_18092)">
-      <line
-        opacity="0.5"
-        x1="16.3536"
-        y1="-0.146447"
-        x2="0.353554"
-        y2="15.8536"
-        stroke="#DB3030"
+type ColorCircleGlyphProps = { hexColor?: string };
+const ColorCircleGlyph = createGlyphComponent(
+  'ColorCircle',
+  // @ts-expect-error This type can not be refined
+  (props: ColorCircleGlyphProps) => (
+    <svg
+      {...props}
+      className={colorPreviewStyles}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g clipPath="url(#clip0_756_18092)">
+        <line
+          opacity="0.5"
+          x1="16.3536"
+          y1="-0.146447"
+          x2="0.353554"
+          y2="15.8536"
+          stroke="#DB3030"
+        />
+      </g>
+      <rect
+        x="0.5"
+        y="0.5"
+        width="15"
+        height="15"
+        rx="7.5"
+        stroke="#889397"
+        fill={props.hexColor}
       />
-    </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="15"
-      height="15"
-      rx="7.5"
-      stroke="#889397"
-      fill={props.hexColor}
-    />
-    <defs>
-      <clipPath id="clip0_756_18092">
-        <rect width="16" height="16" rx="8" fill="white" />
-      </clipPath>
-    </defs>
-  </svg>
-));
+      <defs>
+        <clipPath id="clip0_756_18092">
+          <rect width="16" height="16" rx="8" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  )
+);
 
 const personalisationSectionLayoutStyles = css({
   display: 'grid',
@@ -164,8 +170,8 @@ const personalisationSectionLayoutStyles = css({
 });
 
 type ConnectionPersonalisationFormProps = {
-  initialValue?: ConnectionPersonalisationOptions;
-  updateConnectionFormField: UpdateConnectionFormFieldAction;
+  personalisationOptions: ConnectionPersonalisationOptions;
+  updateConnectionFormField: UpdateConnectionFormField;
 };
 
 function ConnectionPersonalisationForm({
@@ -231,6 +237,7 @@ function ConnectionPersonalisationForm({
         onChange={onChangeColor}
       >
         <Option
+          // @ts-expect-error TypeScript complains because the base type does not have the prop, but it really exists
           glyph={<ColorCircleGlyph hexColor="transparent" />}
           value={'no-color'}
         >
@@ -240,6 +247,7 @@ function ConnectionPersonalisationForm({
           <Option
             key={colorCode}
             glyph={
+              // @ts-expect-error TypeScript complains because the base type does not have the prop, but it really exists
               <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
             }
             value={colorCode}
@@ -323,35 +331,41 @@ function ConnectionForm({
     (error) => error.fieldName === 'connectionString'
   );
 
-  const getConnectionInfoToSave = useCallback(() => {
-    if (isMultiConnectionEnabled) {
-      return {
-        ...cloneDeep(initialConnectionInfo),
-        connectionOptions: cloneDeep(connectionOptions),
-        savedConnectionType: personalisationOptions.isFavorite
-          ? 'favorite'
-          : 'recent',
-        favorite: {
-          name: personalisationOptions.name,
-          color: personalisationOptions.color,
-        },
-      };
-    } else {
-      return {
-        ...cloneDeep(initialConnectionInfo),
-        connectionOptions: cloneDeep(connectionOptions),
-        savedConnectionType: 'favorite',
-        favorite: {
-          ...favoriteInfo,
-        },
-      };
-    }
-  }, [
-    isMultiConnectionEnabled,
-    initialConnectionInfo,
-    connectionOptions,
-    personalisationOptions,
-  ]);
+  const getConnectionInfoToSave = useCallback(
+    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => {
+      if (isMultiConnectionEnabled) {
+        return {
+          ...cloneDeep(initialConnectionInfo),
+          connectionOptions: cloneDeep(connectionOptions),
+          savedConnectionType: personalisationOptions.isFavorite
+            ? 'favorite'
+            : 'recent',
+          favorite: {
+            ...(favoriteInfo || {}),
+            name: personalisationOptions.name,
+            color: personalisationOptions.color,
+          },
+        };
+      } else {
+        return {
+          ...cloneDeep(initialConnectionInfo),
+          connectionOptions: cloneDeep(connectionOptions),
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: '',
+            color: undefined,
+            ...favoriteInfo,
+          },
+        };
+      }
+    },
+    [
+      isMultiConnectionEnabled,
+      initialConnectionInfo,
+      connectionOptions,
+      personalisationOptions,
+    ]
+  );
   const onSubmitForm = useCallback(
     (connectionInfo?: ConnectionInfo) => {
       const updatedConnectionOptions = cloneDeep(connectionOptions);
@@ -545,9 +559,7 @@ function ConnectionForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setSaveConnectionModal('hidden');
 
-            const connectionInfo = getConnectionInfoToSave();
-            connectionInfo.favorite = favoriteInfo;
-
+            const connectionInfo = getConnectionInfoToSave(favoriteInfo);
             await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
 
             if (saveConnectionModal === 'saveAndConnect') {

@@ -65,7 +65,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 
 export type ConnectionPersonalisationOptions = {
   name: string;
-  color: string;
+  color?: string;
   isFavorite: boolean;
   isNameDirty: boolean;
 };
@@ -133,7 +133,7 @@ interface UpdateHostAction {
 interface UpdateConnectionPersonalisationAction {
   type: 'update-connection-personalisation';
   name: string;
-  color: string;
+  color?: string;
   isFavorite: boolean;
   isNameDirty: boolean;
 }
@@ -312,11 +312,21 @@ function handleUpdateHost({
   }
 }
 
+function isConnectionUpdatePersonalisationAction(
+  action: ConnectionFormFieldActions
+): action is UpdateConnectionPersonalisationAction {
+  return action.type === 'update-connection-personalisation';
+}
+
 export function handleConnectionFormUpdateForPersonalisation(
-  action: UpdateConnectionPersonalisationAction,
-  connectionString?: string,
-  personalisation: ConnectionPersonalisationOptions
+  action: ConnectionFormFieldActions,
+  personalisation: ConnectionPersonalisationOptions,
+  connectionString?: string
 ): ConnectionPersonalisationOptions {
+  if (!isConnectionUpdatePersonalisationAction(action)) {
+    return personalisation;
+  }
+
   const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
   let name = action.name || personalisation.name;
   const color = action.color || personalisation.color;
@@ -363,8 +373,8 @@ export function handleConnectionFormFieldUpdate(
       },
       personalisationOptions: handleConnectionFormUpdateForPersonalisation(
         action,
-        newParsedConnectionStringUrl?.toString() || '',
-        currentPersonalisationOptions
+        currentPersonalisationOptions,
+        newParsedConnectionStringUrl?.toString() || ''
       ),
       errors,
     };
@@ -379,8 +389,8 @@ export function handleConnectionFormFieldUpdate(
       connectionOptions: currentConnectionOptions,
       personalisationOptions: handleConnectionFormUpdateForPersonalisation(
         action,
-        undefined,
-        currentPersonalisationOptions
+        currentPersonalisationOptions,
+        undefined
       ),
       errors: errors,
     };
@@ -396,11 +406,10 @@ export function handleConnectionFormFieldUpdate(
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
         },
-        source: 'update-connection-personalisation',
         personalisationOptions: handleConnectionFormUpdateForPersonalisation(
           action,
-          parsedConnectionStringUrl.toString(),
-          currentPersonalisationOptions
+          currentPersonalisationOptions,
+          parsedConnectionStringUrl.toString()
         ),
       };
     }
