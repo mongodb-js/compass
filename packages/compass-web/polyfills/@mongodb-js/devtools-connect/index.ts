@@ -23,6 +23,9 @@ export async function connectMongoClient(
         return Promise.resolve('Not Available');
       },
       oidcPlugin: { logger },
+      destroy() {
+        return Promise.resolve();
+      },
     },
   };
 }
