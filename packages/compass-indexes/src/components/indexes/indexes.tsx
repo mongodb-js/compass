@@ -42,10 +42,11 @@ const AtlasIndexesBanner = () => {
     <Banner variant="info">
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
+      {/* todo: COMPASS-7701 add correct link */}
+      {/* #/clusters/atlasSearch/{clusterName} */}
       <Link href={'#/clusters/atlasSearch'} target="_blank" hideExternalIcon>
-        Atlas Search
+        Atlas Search.
       </Link>
-      .
     </Banner>
   );
 };

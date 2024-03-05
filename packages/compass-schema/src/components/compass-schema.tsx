@@ -341,7 +341,10 @@ const PerformanceAdvisorBanner = () => {
         Insight
       </Badge>
       {nbsp}or{nbsp}
-      <Link href="" target="_blank" hideExternalIcon>
+      {/* todo: COMPASS-7701 add correct link */}
+      {/* #/metrics/replicaSet/{clusterId}/advisor */}
+      {/* #/serverless/advisor/{clusterName}/createIndexes */}
+      <Link href="#/" target="_blank" hideExternalIcon>
         Atlas’ Performance Advisor.
       </Link>
     </Banner>
