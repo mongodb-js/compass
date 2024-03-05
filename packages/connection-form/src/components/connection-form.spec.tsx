@@ -32,26 +32,27 @@ const noop = (): any => {
 const saveAndConnectText = 'Save & Connect';
 const favoriteText = 'FAVORITE';
 
-let preferences: PreferencesAccess;
-function renderForm(props: Partial<ConnectionFormProps> = {}) {
-  return render(
-    <PreferencesProvider value={preferences}>
-      <ConnectionForm
-        onConnectClicked={noop}
-        initialConnectionInfo={{
-          id: 'test',
-          connectionOptions: {
-            connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
-          },
-        }}
-        onSaveConnectionClicked={noop}
-        {...props}
-      />
-    </PreferencesProvider>
-  );
-}
-
 describe('ConnectionForm Component', function () {
+  let preferences: PreferencesAccess;
+  function renderForm(props: Partial<ConnectionFormProps> = {}) {
+    return render(
+      <PreferencesProvider value={preferences}>
+        <ConnectionForm
+          onConnectClicked={noop}
+          initialConnectionInfo={{
+            id: 'test',
+            connectionOptions: {
+              connectionString:
+                'mongodb://pineapple:orangutans@localhost:27019',
+            },
+          }}
+          onSaveConnectionClicked={noop}
+          {...props}
+        />
+      </PreferencesProvider>
+    );
+  }
+
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
   });
