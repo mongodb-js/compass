@@ -502,7 +502,7 @@ functions:
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
           cd packages/compass-e2e-tests
-          zip -r coverage.zip coverage
+          zip -qr coverage.zip coverage
 
   test-packaged-app:
     - command: shell.exec
