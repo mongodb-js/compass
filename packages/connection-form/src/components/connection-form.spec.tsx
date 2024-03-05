@@ -5,6 +5,7 @@ import {
   cleanup,
   fireEvent,
   getByText,
+  waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
@@ -393,10 +394,14 @@ describe('ConnectionForm Component', function () {
     });
 
     describe('name input', function () {
-      it('should sync with the href of the connection string unless it has been edited', function () {
+      it('should sync with the href of the connection string unless it has been edited', async function () {
         const connectionString = screen.getByTestId('connectionString');
         userEvent.clear(connectionString);
         userEvent.type(connectionString, 'mongodb://webscale:27017');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://webscale:27017')
+        );
 
         const personalisationName = screen.getByTestId(
           'personalisation-name-input'
@@ -414,7 +419,16 @@ describe('ConnectionForm Component', function () {
         userEvent.clear(connectionString);
 
         userEvent.type(personalisationName, 'my happy name');
+
+        await waitFor(() =>
+          expect(personalisationName.value).to.equal('my happy name')
+        );
+
         userEvent.type(connectionString, 'mongodb://webscale:27017');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://webscale:27017')
+        );
 
         expect(personalisationName.value).to.equal('my happy name');
       });
