@@ -406,30 +406,30 @@ describe('ConnectionForm Component', function () {
           expect(connectionString.value).to.equal('mongodb://myserver:27017/')
         );
 
-        const personalisationName = screen.getByTestId(
-          'personalisation-name-input'
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
         );
-        expect(personalisationName.value).to.equal('myserver:27017');
+        expect(personalizationName.value).to.equal('myserver:27017');
       });
 
       it('should not sync with the href of the connection string when it has been edited', async function () {
         const connectionString = screen.getByTestId('connectionString');
-        const personalisationName = screen.getByTestId(
-          'personalisation-name-input'
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
         );
 
-        userEvent.clear(personalisationName);
+        userEvent.clear(personalizationName);
         userEvent.clear(connectionString);
 
         await waitFor(() => {
-          expect(personalisationName.value).to.equal('');
+          expect(personalizationName.value).to.equal('');
           expect(connectionString.value).to.equal('');
         });
 
-        userEvent.paste(personalisationName, 'my happy name');
+        userEvent.paste(personalizationName, 'my happy name');
 
         await waitFor(() =>
-          expect(personalisationName.value).to.equal('my happy name')
+          expect(personalizationName.value).to.equal('my happy name')
         );
 
         userEvent.paste(connectionString, 'mongodb://webscale:27017/');
@@ -438,7 +438,7 @@ describe('ConnectionForm Component', function () {
           expect(connectionString.value).to.equal('mongodb://webscale:27017/')
         );
 
-        expect(personalisationName.value).to.equal('my happy name');
+        expect(personalizationName.value).to.equal('my happy name');
       });
     });
   });

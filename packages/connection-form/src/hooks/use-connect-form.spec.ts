@@ -903,7 +903,7 @@ describe('use-connect-form hook', function () {
       });
     });
   });
-  describe('personalisationOptions', function () {
+  describe('personalizationOptions', function () {
     describe('with favorite connections', function () {
       const initialConnectionInfo = {
         id: 'turtle',
@@ -921,12 +921,12 @@ describe('use-connect-form hook', function () {
         const { result } = renderHook(() =>
           useConnectForm(initialConnectionInfo, null)
         );
-        expect(result.current[0].personalisationOptions.name).to.equal(
+        expect(result.current[0].personalizationOptions.name).to.equal(
           'turtles'
         );
-        expect(result.current[0].personalisationOptions.isNameDirty).to.be.true;
-        expect(result.current[0].personalisationOptions.isFavorite).to.be.true;
-        expect(result.current[0].personalisationOptions.color).to.be.equal(
+        expect(result.current[0].personalizationOptions.isNameDirty).to.be.true;
+        expect(result.current[0].personalizationOptions.isFavorite).to.be.true;
+        expect(result.current[0].personalizationOptions.color).to.be.equal(
           'color4'
         );
       });
@@ -942,11 +942,11 @@ describe('use-connect-form hook', function () {
             newConnectionStringValue: 'mongodb://localhost:27019',
           },
           initialState.current[0].connectionOptions,
-          initialState.current[0].personalisationOptions
+          initialState.current[0].personalizationOptions
         );
 
-        expect(result.personalisationOptions.name).to.equal('turtles');
-        expect(result.personalisationOptions.isNameDirty).to.be.true;
+        expect(result.personalizationOptions.name).to.equal('turtles');
+        expect(result.personalizationOptions.isNameDirty).to.be.true;
       });
     });
 
@@ -962,11 +962,11 @@ describe('use-connect-form hook', function () {
         const { result } = renderHook(() =>
           useConnectForm(initialConnectionInfo, null)
         );
-        expect(result.current[0].personalisationOptions.name).to.equal('');
-        expect(result.current[0].personalisationOptions.isNameDirty).to.be
+        expect(result.current[0].personalizationOptions.name).to.equal('');
+        expect(result.current[0].personalizationOptions.isNameDirty).to.be
           .false;
-        expect(result.current[0].personalisationOptions.isFavorite).to.be.false;
-        expect(result.current[0].personalisationOptions.color).to.be.equal(
+        expect(result.current[0].personalizationOptions.isFavorite).to.be.false;
+        expect(result.current[0].personalizationOptions.color).to.be.equal(
           undefined
         );
       });
@@ -982,11 +982,11 @@ describe('use-connect-form hook', function () {
             newConnectionStringValue: 'mongodb://localhost:27019',
           },
           initialState.current[0].connectionOptions,
-          initialState.current[0].personalisationOptions
+          initialState.current[0].personalizationOptions
         );
 
-        expect(result.personalisationOptions.name).to.equal('localhost:27019');
-        expect(result.personalisationOptions.isNameDirty).to.be.false;
+        expect(result.personalizationOptions.name).to.equal('localhost:27019');
+        expect(result.personalizationOptions.isNameDirty).to.be.false;
       });
 
       it('should not be infered when the name is dirty', function () {
@@ -1001,14 +1001,14 @@ describe('use-connect-form hook', function () {
           },
           initialState.current[0].connectionOptions,
           {
-            ...initialState.current[0].personalisationOptions,
+            ...initialState.current[0].personalizationOptions,
             name: 'webscale',
             isNameDirty: true,
           }
         );
 
-        expect(result.personalisationOptions.name).to.equal('webscale');
-        expect(result.personalisationOptions.isNameDirty).to.be.true;
+        expect(result.personalizationOptions.name).to.equal('webscale');
+        expect(result.personalizationOptions.isNameDirty).to.be.true;
       });
     });
   });

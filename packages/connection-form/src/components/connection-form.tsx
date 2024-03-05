@@ -30,7 +30,7 @@ import ConnectionFormActions, {
 } from './connection-form-actions';
 import {
   useConnectForm,
-  type ConnectionPersonalisationOptions,
+  type ConnectionPersonalizationOptions,
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
@@ -156,7 +156,7 @@ const ColorCircleGlyph = createGlyphComponent(
   )
 ) as React.FunctionComponent<ColorCircleGlyphProps>;
 
-const personalisationSectionLayoutStyles = css({
+const personalizationSectionLayoutStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
   gridTemplateRows: 'auto',
@@ -168,15 +168,15 @@ const personalisationSectionLayoutStyles = css({
   marginBottom: spacing[4],
 });
 
-type ConnectionPersonalisationFormProps = {
-  personalisationOptions: ConnectionPersonalisationOptions;
+type ConnectionPersonalizationFormProps = {
+  personalizationOptions: ConnectionPersonalizationOptions;
   updateConnectionFormField: UpdateConnectionFormField;
 };
 
-function ConnectionPersonalisationForm({
+function ConnectionPersonalizationForm({
   updateConnectionFormField,
-  personalisationOptions,
-}: ConnectionPersonalisationFormProps): React.ReactElement {
+  personalizationOptions,
+}: ConnectionPersonalizationFormProps): React.ReactElement {
   const showFavoriteActions = useConnectionFormPreference(
     'showFavoriteActions'
   );
@@ -184,54 +184,54 @@ function ConnectionPersonalisationForm({
   const onChangeName = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
-        type: 'update-connection-personalisation',
-        ...personalisationOptions,
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
         name: ev.target.value,
         isNameDirty: true,
       });
     },
-    [updateConnectionFormField, personalisationOptions]
+    [updateConnectionFormField, personalizationOptions]
   );
 
   const onChangeColor = useCallback(
     (newValue: string) => {
       updateConnectionFormField({
-        type: 'update-connection-personalisation',
-        ...personalisationOptions,
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
         color: newValue,
       });
     },
-    [updateConnectionFormField, personalisationOptions]
+    [updateConnectionFormField, personalizationOptions]
   );
 
   const onChangeFavorite = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
-        type: 'update-connection-personalisation',
-        ...personalisationOptions,
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
         isFavorite: ev.target.checked,
       });
     },
-    [updateConnectionFormField, personalisationOptions]
+    [updateConnectionFormField, personalizationOptions]
   );
 
   const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
     useConnectionColor();
 
   return (
-    <div className={personalisationSectionLayoutStyles}>
+    <div className={personalizationSectionLayoutStyles}>
       <TextInput
         style={{ gridArea: 'name-input' }}
-        value={personalisationOptions.name}
-        data-testid="personalisation-name-input"
+        value={personalizationOptions.name}
+        data-testid="personalization-name-input"
         onChange={onChangeName}
         label="Name"
       />
       <Select
         style={{ gridArea: 'color-input' }}
-        data-testid="personalisation-color-input"
+        data-testid="personalization-color-input"
         label="Color"
-        defaultValue={personalisationOptions.color || 'no-color'}
+        defaultValue={personalizationOptions.color || 'no-color'}
         allowDeselect={false}
         onChange={onChangeColor}
       >
@@ -257,8 +257,8 @@ function ConnectionPersonalisationForm({
         <Checkbox
           style={{ gridArea: 'favorite-marker' }}
           onChange={onChangeFavorite}
-          data-testid="personalisation-favorite-checkbox"
-          checked={personalisationOptions.isFavorite}
+          data-testid="personalization-favorite-checkbox"
+          checked={personalizationOptions.isFavorite}
           label={<b>Favorite this connection</b>}
           description="Favoriting a connection will pin it to the top of your list of
         connections"
@@ -292,7 +292,7 @@ function ConnectionForm({
       warnings: _warnings,
       connectionOptions,
       allowEditingIfProtected,
-      personalisationOptions,
+      personalizationOptions,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -334,13 +334,13 @@ function ConnectionForm({
         return {
           ...cloneDeep(initialConnectionInfo),
           connectionOptions: cloneDeep(connectionOptions),
-          savedConnectionType: personalisationOptions.isFavorite
+          savedConnectionType: personalizationOptions.isFavorite
             ? 'favorite'
             : 'recent',
           favorite: {
             ...(favoriteInfo || {}),
-            name: personalisationOptions.name,
-            color: personalisationOptions.color,
+            name: personalizationOptions.name,
+            color: personalizationOptions.color,
           },
         };
       } else {
@@ -360,7 +360,7 @@ function ConnectionForm({
       isMultiConnectionEnabled,
       initialConnectionInfo,
       connectionOptions,
-      personalisationOptions,
+      personalizationOptions,
     ]
   );
   const onSubmitForm = useCallback(
@@ -478,8 +478,8 @@ function ConnectionForm({
             </Banner>
           )}
           {isMultiConnectionEnabled && (
-            <ConnectionPersonalisationForm
-              personalisationOptions={personalisationOptions}
+            <ConnectionPersonalizationForm
+              personalizationOptions={personalizationOptions}
               updateConnectionFormField={updateConnectionFormField}
             />
           )}

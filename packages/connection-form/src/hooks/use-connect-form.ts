@@ -63,7 +63,7 @@ import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormPreference } from './use-connect-form-preferences';
 import ConnectionString from 'mongodb-connection-string-url';
 
-export type ConnectionPersonalisationOptions = {
+export type ConnectionPersonalizationOptions = {
   name: string;
   color?: string;
   isFavorite: boolean;
@@ -77,7 +77,7 @@ export interface ConnectFormState {
   warnings: ConnectionFormWarning[];
   isDirty: boolean;
   allowEditingIfProtected: boolean;
-  personalisationOptions: ConnectionPersonalisationOptions;
+  personalizationOptions: ConnectionPersonalizationOptions;
 }
 
 type Action =
@@ -130,8 +130,8 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
-interface UpdateConnectionPersonalisationAction {
-  type: 'update-connection-personalisation';
+interface UpdateConnectionPersonalizationAction {
+  type: 'update-connection-personalization';
   name: string;
   color?: string;
   isFavorite: boolean;
@@ -189,7 +189,7 @@ type ConnectionFormFieldActions =
   | UpdateCsfleKmsAction
   | UpdateCsfleKmsTlsAction
   | UpdateOIDCAction
-  | UpdateConnectionPersonalisationAction;
+  | UpdateConnectionPersonalizationAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -252,7 +252,7 @@ function buildStateFromConnectionInfo(
       cloneDeep(initialConnectionInfo.connectionOptions)
     ),
     isDirty: false,
-    personalisationOptions: {
+    personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
       name: initialConnectionInfo.favorite?.name || '',
       isNameDirty: !!initialConnectionInfo.favorite?.name,
@@ -312,24 +312,24 @@ function handleUpdateHost({
   }
 }
 
-function isConnectionUpdatePersonalisationAction(
+function isConnectionUpdatePersonalizationAction(
   action: ConnectionFormFieldActions
-): action is UpdateConnectionPersonalisationAction {
-  return action.type === 'update-connection-personalisation';
+): action is UpdateConnectionPersonalizationAction {
+  return action.type === 'update-connection-personalization';
 }
 
-export function handleConnectionFormUpdateForPersonalisation(
+export function handleConnectionFormUpdateForPersonalization(
   action: ConnectionFormFieldActions,
-  personalisation: ConnectionPersonalisationOptions,
+  personalization: ConnectionPersonalizationOptions,
   connectionString?: string
-): ConnectionPersonalisationOptions {
-  if (!isConnectionUpdatePersonalisationAction(action)) {
-    if (!personalisation.isNameDirty && connectionString) {
+): ConnectionPersonalizationOptions {
+  if (!isConnectionUpdatePersonalizationAction(action)) {
+    if (!personalization.isNameDirty && connectionString) {
       try {
         const parsedConnString = new ConnectionString(connectionString);
         const name = parsedConnString.hosts.join(',');
         return {
-          ...personalisation,
+          ...personalization,
           name,
         };
       } catch (ex) {
@@ -337,12 +337,12 @@ export function handleConnectionFormUpdateForPersonalisation(
       }
     }
 
-    return personalisation;
+    return personalization;
   }
 
-  const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
-  const name = action.name || personalisation.name;
-  const color = action.color || personalisation.color;
+  const isNameDirty = action.isNameDirty || personalization.isNameDirty;
+  const name = action.name || personalization.name;
+  const color = action.color || personalization.color;
   const isFavorite = action.isFavorite;
 
   return {
@@ -357,10 +357,10 @@ export function handleConnectionFormUpdateForPersonalisation(
 export function handleConnectionFormFieldUpdate(
   action: ConnectionFormFieldActions,
   currentConnectionOptions: ConnectionOptions,
-  currentPersonalisationOptions: ConnectionPersonalisationOptions
+  currentPersonalizationOptions: ConnectionPersonalizationOptions
 ): {
   connectionOptions: ConnectionOptions;
-  personalisationOptions?: ConnectionPersonalisationOptions;
+  personalizationOptions?: ConnectionPersonalizationOptions;
   errors?: ConnectionFormError[];
 } {
   if (action.type === 'update-connection-string') {
@@ -375,9 +375,9 @@ export function handleConnectionFormFieldUpdate(
           newParsedConnectionStringUrl?.toString() ||
           action.newConnectionStringValue,
       },
-      personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+      personalizationOptions: handleConnectionFormUpdateForPersonalization(
         action,
-        currentPersonalisationOptions,
+        currentPersonalizationOptions,
         newParsedConnectionStringUrl?.toString() || ''
       ),
       errors,
@@ -391,9 +391,9 @@ export function handleConnectionFormFieldUpdate(
   if (!parsedConnectionStringUrl) {
     return {
       connectionOptions: currentConnectionOptions,
-      personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+      personalizationOptions: handleConnectionFormUpdateForPersonalization(
         action,
-        currentPersonalisationOptions,
+        currentPersonalizationOptions,
         undefined
       ),
       errors: errors,
@@ -404,15 +404,15 @@ export function handleConnectionFormFieldUpdate(
     parsedConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   switch (action.type) {
-    case 'update-connection-personalisation': {
+    case 'update-connection-personalization': {
       return {
         connectionOptions: {
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
         },
-        personalisationOptions: handleConnectionFormUpdateForPersonalisation(
+        personalizationOptions: handleConnectionFormUpdateForPersonalization(
           action,
-          currentPersonalisationOptions,
+          currentPersonalizationOptions,
           parsedConnectionStringUrl.toString()
         ),
       };
@@ -706,7 +706,7 @@ export function useConnectForm(
       const updatedState = handleConnectionFormFieldUpdate(
         action,
         state.connectionOptions,
-        state.personalisationOptions
+        state.personalizationOptions
       );
 
       dispatch({
@@ -770,7 +770,7 @@ function setInitialState({
       connectionOptions,
       allowEditingIfProtected,
       enableEditingConnectionString,
-      personalisationOptions,
+      personalizationOptions,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
@@ -784,7 +784,7 @@ function setInitialState({
         connectionOptions,
         isDirty: false,
         allowEditingIfProtected,
-        personalisationOptions,
+        personalizationOptions,
       },
     });
   }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
