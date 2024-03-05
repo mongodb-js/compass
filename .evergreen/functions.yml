@@ -96,7 +96,7 @@ post:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
-        - src/packages/compass-e2e-tests/coverage.tgz
+        - src/coverage.tgz
         - src/.testserver/logs/*
         - src/.evergreen/logs/*
         - src/all-e2e-logs.tgz
