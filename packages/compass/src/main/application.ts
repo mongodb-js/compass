@@ -113,7 +113,7 @@ class CompassApplication {
       return;
     }
 
-    this.setupCORSBypass();
+    await this.setupCORSBypass();
     void this.setupCompassAuthService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
@@ -306,7 +306,7 @@ class CompassApplication {
     return this;
   }
 
-  private static setupCORSBypass() {
+  private static async setupCORSBypass() {
     const CLOUD_URLS_FILTER = {
       urls: [
         '*://cloud.mongodb.com/*',
@@ -339,6 +339,9 @@ class CompassApplication {
       'access-control-expose-headers',
       'access-control-max-age',
     ];
+
+    // Accessing defaultSession is not allowed when app is not ready
+    await app.whenReady();
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
       CLOUD_URLS_FILTER,
