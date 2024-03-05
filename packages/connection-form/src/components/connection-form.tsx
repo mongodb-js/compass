@@ -115,9 +115,10 @@ const colorPreviewStyles = css({
   marginRight: spacing[2],
 });
 
+type ColorCircleGlyphProps = { hexColor?: string };
 const ColorCircleGlyph = createGlyphComponent(
   'ColorCircle',
-  ({ hexColor, ...props }: React.PropsWithoutRef & { hexColor: string }) => (
+  ({ hexColor, ...props }: any & ColorCircleGlyphProps) => (
     <svg
       {...props}
       className={colorPreviewStyles}
@@ -153,7 +154,7 @@ const ColorCircleGlyph = createGlyphComponent(
       </defs>
     </svg>
   )
-);
+) as React.FunctionComponent<ColorCircleGlyphProps>;
 
 const personalisationSectionLayoutStyles = css({
   display: 'grid',
