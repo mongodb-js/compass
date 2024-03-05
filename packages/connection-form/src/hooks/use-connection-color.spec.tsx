@@ -21,7 +21,7 @@ function TestComponent({
   );
 }
 
-describe.only('useConnectionColor', function () {
+describe('useConnectionColor', function () {
   afterEach(cleanup);
 
   it('converts a color code to hex', function () {
