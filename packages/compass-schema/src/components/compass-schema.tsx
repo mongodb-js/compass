@@ -24,32 +24,44 @@ import {
   useDarkMode,
   WorkspaceContainer,
   lighten,
+  Banner,
+  Body,
+  Badge,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
+import { usePreference } from 'compass-preferences-model/provider';
 
-const rootStyles = css`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-grow: 1;
-  flex-shrink: 1;
-`;
+const rootStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  flexGrow: 1,
+  flexShrink: 1,
+});
 
-const loaderStyles = css`
-  height: 100%;
-  display: flex;
-  justify-content: center;
-`;
+const loaderStyles = css({
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+});
 
-const schemaStyles = css`
-  width: 100%;
-  padding: 0 ${spacing[3]}px;
-  flex-grow: 1;
-  overflow: auto;
-`;
+const schemaStyles = css({
+  width: '100%',
+  flexGrow: 1,
+  overflow: 'auto',
+});
+
+const contentStyles = css({
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
+});
 
 const minichartStyles = (darkMode: boolean) => {
   const mcBlue0 = palette.blue.light1;
@@ -314,6 +326,25 @@ const FieldList: React.FunctionComponent<{
   );
 };
 
+const PerformanceAdvisorBanner = () => {
+  return (
+    <Banner variant="info">
+      <Body weight="medium">Looking for schema anti-patterns?</Body>
+      <div>
+        In its place, you may refer to Data Explorer’s performance insights{' '}
+        <Badge variant="blue">
+          <Icon glyph="Bulb" size="small" />
+          Insight
+        </Badge>
+        or{' '}
+        <Link href="" target="_blank" hideExternalIcon>
+          Atlas’ Performance Advisor.
+        </Link>
+      </div>
+    </Banner>
+  );
+};
+
 const Schema: React.FunctionComponent<{
   actions: ReturnType<typeof configureActions>;
   analysisState: AnalysisState;
@@ -351,6 +382,11 @@ const Schema: React.FunctionComponent<{
     actions.startAnalysis();
   }, [actions]);
 
+  const enableHackoladeBanner = usePreference('enableHackoladeBanner');
+  const enablePerformanceAdvisorBanner = usePreference(
+    'enablePerformanceAdvisorBanner'
+  );
+
   return (
     <div className={rootStyles}>
       <WorkspaceContainer
@@ -366,20 +402,23 @@ const Schema: React.FunctionComponent<{
           />
         }
       >
-        <HackoladePromoBanner></HackoladePromoBanner>
-        {analysisState === ANALYSIS_STATE_INITIAL && (
-          <InitialScreen onApplyClicked={onApplyClicked} />
-        )}
-        {analysisState === ANALYSIS_STATE_ANALYZING && (
-          <AnalyzingScreen onCancelClicked={onCancelClicked} />
-        )}
-        {analysisState === ANALYSIS_STATE_COMPLETE && (
-          <FieldList
-            schema={schema}
-            analysisState={analysisState}
-            actions={actions}
-          />
-        )}
+        <div className={contentStyles}>
+          {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
+          {enableHackoladeBanner && <HackoladePromoBanner />}
+          {analysisState === ANALYSIS_STATE_INITIAL && (
+            <InitialScreen onApplyClicked={onApplyClicked} />
+          )}
+          {analysisState === ANALYSIS_STATE_ANALYZING && (
+            <AnalyzingScreen onCancelClicked={onCancelClicked} />
+          )}
+          {analysisState === ANALYSIS_STATE_COMPLETE && (
+            <FieldList
+              schema={schema}
+              analysisState={analysisState}
+              actions={actions}
+            />
+          )}
+        </div>
       </WorkspaceContainer>
     </div>
   );

@@ -53,6 +53,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
+    enableHackoladeBanner: boolean;
+    enablePerformanceAdvisorBanner: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -688,6 +690,29 @@ export const storedUserPreferencesProps: Required<{
         'Enable preview input limit and collation options in aggregation view',
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableHackoladeBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Show Hackolade banner to users for data modeling and schema design',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enablePerformanceAdvisorBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show performance advisor banner to users for performance tuning',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 
