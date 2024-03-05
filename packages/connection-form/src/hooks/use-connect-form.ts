@@ -324,22 +324,26 @@ export function handleConnectionFormUpdateForPersonalisation(
   connectionString?: string
 ): ConnectionPersonalisationOptions {
   if (!isConnectionUpdatePersonalisationAction(action)) {
+    if (!personalisation.isNameDirty && connectionString) {
+      try {
+        const parsedConnString = new ConnectionString(connectionString);
+        const name = parsedConnString.hosts.join(',');
+        return {
+          ...personalisation,
+          name,
+        };
+      } catch (ex) {
+        // just keep previous value
+      }
+    }
+
     return personalisation;
   }
 
   const isNameDirty = action.isNameDirty || personalisation.isNameDirty;
-  let name = action.name || personalisation.name;
+  const name = action.name || personalisation.name;
   const color = action.color || personalisation.color;
   const isFavorite = action.isFavorite;
-
-  if (!isNameDirty && connectionString) {
-    try {
-      const parsedConnString = new ConnectionString(connectionString);
-      name = parsedConnString.hosts.join(',');
-    } catch (ex) {
-      // just keep previous value
-    }
-  }
 
   return {
     name,
