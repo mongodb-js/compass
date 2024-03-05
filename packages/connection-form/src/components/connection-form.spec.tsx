@@ -397,19 +397,22 @@ describe('ConnectionForm Component', function () {
       it('should sync with the href of the connection string unless it has been edited', async function () {
         const connectionString = screen.getByTestId('connectionString');
         userEvent.clear(connectionString);
-        userEvent.type(connectionString, 'mongodb://webscale:27017');
+
+        await waitFor(() => expect(connectionString.value).to.equal(''));
+
+        userEvent.paste(connectionString, 'mongodb://myserver:27017/');
 
         await waitFor(() =>
-          expect(connectionString.value).to.equal('mongodb://webscale:27017')
+          expect(connectionString.value).to.equal('mongodb://myserver:27017/')
         );
 
         const personalisationName = screen.getByTestId(
           'personalisation-name-input'
         );
-        expect(personalisationName.value).to.equal('webscale:27017');
+        expect(personalisationName.value).to.equal('myserver:27017');
       });
 
-      it('should not sync with the href of the connection string when it has been edited', function () {
+      it('should not sync with the href of the connection string when it has been edited', async function () {
         const connectionString = screen.getByTestId('connectionString');
         const personalisationName = screen.getByTestId(
           'personalisation-name-input'
@@ -418,16 +421,21 @@ describe('ConnectionForm Component', function () {
         userEvent.clear(personalisationName);
         userEvent.clear(connectionString);
 
-        userEvent.type(personalisationName, 'my happy name');
+        await waitFor(() => {
+          expect(personalisationName.value).to.equal('');
+          expect(connectionString.value).to.equal('');
+        });
+
+        userEvent.paste(personalisationName, 'my happy name');
 
         await waitFor(() =>
           expect(personalisationName.value).to.equal('my happy name')
         );
 
-        userEvent.type(connectionString, 'mongodb://webscale:27017');
+        userEvent.paste(connectionString, 'mongodb://webscale:27017/');
 
         await waitFor(() =>
-          expect(connectionString.value).to.equal('mongodb://webscale:27017')
+          expect(connectionString.value).to.equal('mongodb://webscale:27017/')
         );
 
         expect(personalisationName.value).to.equal('my happy name');
