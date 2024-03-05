@@ -660,7 +660,7 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: '120.0.6099.227', // TODO(COMPASS-7639): this must always be the corresponding chromium version for the electron version
+      browserVersion: process.env.CHROME_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
