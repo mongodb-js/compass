@@ -63,6 +63,10 @@ const contentStyles = css({
   gap: spacing[3],
 });
 
+const insightsBadgeStyles = css({
+  verticalAlign: 'middle',
+});
+
 const minichartStyles = (darkMode: boolean) => {
   const mcBlue0 = palette.blue.light1;
   const mcBlue1 = lighten(0.075, mcBlue0);
@@ -326,21 +330,20 @@ const FieldList: React.FunctionComponent<{
   );
 };
 
+const nbsp = '\u00a0';
 const PerformanceAdvisorBanner = () => {
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for schema anti-patterns?</Body>
-      <div>
-        In its place, you may refer to Data Explorer’s performance insights{' '}
-        <Badge variant="blue">
-          <Icon glyph="Bulb" size="small" />
-          Insight
-        </Badge>
-        or{' '}
-        <Link href="" target="_blank" hideExternalIcon>
-          Atlas’ Performance Advisor.
-        </Link>
-      </div>
+      In its place, you may refer to Data Explorer’s performance insights{' '}
+      <Badge className={insightsBadgeStyles} variant="blue">
+        <Icon glyph="Bulb" size="small" />
+        Insight
+      </Badge>
+      {nbsp}or{nbsp}
+      <Link href="" target="_blank" hideExternalIcon>
+        Atlas’ Performance Advisor.
+      </Link>
     </Banner>
   );
 };
