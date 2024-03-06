@@ -26,7 +26,10 @@ async function snykTest(cwd) {
           '--dev',
           `--json-file-output=${tmpPath}`,
         ],
-        { cwd }
+        {
+          cwd,
+          maxBuffer: 1024 * 1024 * 5, // 5 MB (default is 1)
+        }
       );
     } catch (err) {
       execErr = err;
@@ -36,9 +39,8 @@ async function snykTest(cwd) {
     console.info(`testing ${cwd} done.`);
     return res;
   } catch (err) {
-    console.error(
-      `testing ${cwd} failed. ${err.message}. Exec error: ${execErr}`
-    );
+    console.error(`Snyk failed to create a json report for ${cwd}:`, execErr);
+    throw new Error(`Testing ${cwd} failed.`);
   } finally {
     try {
       await fs.rm(tmpPath);
