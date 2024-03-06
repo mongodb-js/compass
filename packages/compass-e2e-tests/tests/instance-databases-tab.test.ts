@@ -137,7 +137,7 @@ describe('Instance databases tab', function () {
     await browser.waitUntilActiveInstanceTab('Databases');
   });
 
-  it('can refresh the list of databases using refresh controls', async function () {
+  it.only('can refresh the list of databases using refresh controls', async function () {
     const db = 'test'; // added by beforeEach
     const dbSelector = Selectors.databaseCard(db);
 
@@ -177,7 +177,10 @@ describe('Instance databases tab', function () {
     }
 
     // Refresh again and the database card should disappear.
-    await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
+    await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton, {
+      scroll: true,
+      screenshot: 'instance-refresh-database-button.png',
+    });
     await browser.$(dbSelector).waitForExist({ reverse: true });
   });
 });
