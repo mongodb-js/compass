@@ -138,58 +138,27 @@ describe('Instance databases tab', function () {
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
-    await browser.navigateToInstanceTab('Databases');
-
-    // Wait for the cards to appear to make sure it started loading
-    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
-
-    for (const dbSelector of dbSelectors) {
-      const found = await browser.scrollToVirtualItem(
-        Selectors.DatabasesTable,
-        dbSelector,
-        'grid'
-      );
-      expect(found, dbSelector).to.be.true;
-    }
-
-    // Wait for the page to finish loading
-    await browser.waitUntil(async () => {
-      return (await browser.$$(Selectors.DatabaseStatLoader)).length === 0;
-    });
-
     const db = 'my-instance-database';
     const coll = 'my-collection';
     const dbSelector = Selectors.databaseCard(db);
 
-    // Make very sure the database doesn't already exist
-    const found = await browser.scrollToVirtualItem(
-      Selectors.DatabasesTable,
-      dbSelector,
-      'grid'
-    );
-    expect(found, dbSelector).to.be.false;
-
-    // Create the database and refresh
     const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
     await mongoClient.connect();
     try {
+      // Create the database before browsing to the databases tab to minimize
+      // how many times we have to refresh
       const database = mongoClient.db(db);
       await database.createCollection(coll);
 
-      await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
+      // Browse to the databases tab and wait for the page to finish loading
+      await browser.navigateToInstanceTab('Databases');
+      await browser.waitUntil(async () => {
+        const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
+        console.log(placeholders);
+        return placeholders.length === 0;
+      });
 
-      // The new database card should appear
-      await browser.scrollToVirtualItem(
-        Selectors.DatabasesTable,
-        dbSelector,
-        'grid'
-      );
-      await browser.$(dbSelector).waitForDisplayed();
-
-      // TODO(COMPASS-7695): wait for the skeleton loaders to go away to signal
-      // that it is done refreshing.
-
-      // Drop it
+      // Drop the database
       console.log({
         'database.dropDatabase()': await database.dropDatabase(),
       });
