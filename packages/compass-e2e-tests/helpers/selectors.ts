@@ -41,8 +41,7 @@ export const ConnectionFormTLSONButton =
   'label[for="connection-tls-enabled-ON-radio-button"]';
 export const ConnectionFormTLSOFFButton =
   'label[for="connection-tls-enabled-OFF-radio-button"]';
-export const ConnectionFormInputHost =
-  '[data-testid="connection-host-input-0"]';
+export const ConnectionFormInputHost = '#connection-host-input-0';
 export const ConnectionFormInputSrvRecord =
   'label[for="connection-scheme-srv-radiobox"]';
 export const ConnectionFormDefaultAuthMethodButton =
@@ -59,8 +58,7 @@ export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected
 
 export const ConnectionFormSchemeRadios =
   '#connection-scheme-radio-box-group input[type="radio"]';
-export const ConnectionFormHostInputs =
-  '[aria-labelledby="connection-host-input-label"]';
+export const ConnectionFormHostInputs = '[data-testid="connection-host-input"]';
 export const ConnectionFormDirectConnectionCheckbox =
   '#direct-connection-checkbox';
 export const ConnectionFormAuthenticationMethodRadios =
@@ -162,7 +160,7 @@ export const ConnectionFormInputDefaultDatabase =
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
-  '[data-testid="url-options"] input[aria-labelledby="Enter value"]';
+  '[data-testid="url-options"] input[type="text"]';
 
 export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;

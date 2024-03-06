@@ -27,6 +27,7 @@ import { useDarkMode } from '@mongodb-js/compass-components';
 const tableStyles = css({
   // Required for the `sticky` header.
   height: '100%',
+  paddingTop: spacing[3],
 });
 
 const indexActionsCellClassName = 'index-actions-cell';
@@ -133,7 +134,9 @@ export function IndexesTable<T>({
               className={rowStyles}
               key={row.id}
               row={row}
-              data-testid={`${dataTestId}-row-${row.id}`}
+              data-testid={`${dataTestId}-row-${
+                (row.original as { name?: string }).name ?? row.id
+              }`}
             >
               {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {
                 return (
