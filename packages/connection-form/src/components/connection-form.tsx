@@ -6,6 +6,7 @@ import type {
 import {
   Banner,
   BannerVariant,
+  Checkbox,
   Description,
   FavoriteIcon,
   Icon,
@@ -13,15 +14,25 @@ import {
   Overline,
   H3,
   spacing,
+  Select,
+  TextInput,
+  Option,
   css,
   ConfirmationModalArea,
+  createGlyphComponent,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
-
+import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionFormActions from './connection-form-actions';
-import { useConnectForm } from '../hooks/use-connect-form';
+import ConnectionFormActions, {
+  ConnectionFormModalActions,
+} from './connection-form-actions';
+import {
+  useConnectForm,
+  type ConnectionPersonalizationOptions,
+  type UpdateConnectionFormField,
+} from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
@@ -29,6 +40,7 @@ import {
   ConnectionFormPreferencesContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
+import { useConnectionColor } from '../hooks/use-connection-color';
 
 const descriptionStyles = css({
   marginTop: spacing[2],
@@ -97,6 +109,165 @@ type ConnectionFormPropsWithoutPreferences = {
   onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
 
+const colorPreviewStyles = css({
+  height: '16px',
+  width: '16px',
+  marginRight: spacing[2],
+});
+
+type ColorCircleGlyphProps = { hexColor?: string };
+const ColorCircleGlyph = createGlyphComponent(
+  'ColorCircle',
+  ({ hexColor, ...props }: any & ColorCircleGlyphProps) => (
+    <svg
+      {...props}
+      className={colorPreviewStyles}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g clipPath="url(#clip0_756_18092)">
+        <line
+          opacity="0.5"
+          x1="16.3536"
+          y1="-0.146447"
+          x2="0.353554"
+          y2="15.8536"
+          stroke="#DB3030"
+        />
+      </g>
+      <rect
+        x="0.5"
+        y="0.5"
+        width="15"
+        height="15"
+        rx="7.5"
+        stroke="#889397"
+        fill={hexColor}
+      />
+      <defs>
+        <clipPath id="clip0_756_18092">
+          <rect width="16" height="16" rx="8" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  )
+) as React.FunctionComponent<ColorCircleGlyphProps>;
+
+const personalizationSectionLayoutStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gridTemplateRows: 'auto',
+  gridTemplateAreas: `
+    'name-input color-input'
+    'favorite-marker favorite-marker'
+  `,
+  gap: spacing[4],
+  marginBottom: spacing[4],
+});
+
+type ConnectionPersonalizationFormProps = {
+  personalizationOptions: ConnectionPersonalizationOptions;
+  updateConnectionFormField: UpdateConnectionFormField;
+};
+
+function ConnectionPersonalizationForm({
+  updateConnectionFormField,
+  personalizationOptions,
+}: ConnectionPersonalizationFormProps): React.ReactElement {
+  const showFavoriteActions = useConnectionFormPreference(
+    'showFavoriteActions'
+  );
+
+  const onChangeName = useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      updateConnectionFormField({
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
+        name: ev.target.value,
+        isNameDirty: true,
+      });
+    },
+    [updateConnectionFormField, personalizationOptions]
+  );
+
+  const onChangeColor = useCallback(
+    (newValue: string) => {
+      updateConnectionFormField({
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
+        color: newValue,
+      });
+    },
+    [updateConnectionFormField, personalizationOptions]
+  );
+
+  const onChangeFavorite = useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      updateConnectionFormField({
+        type: 'update-connection-personalization',
+        ...personalizationOptions,
+        isFavorite: ev.target.checked,
+      });
+    },
+    [updateConnectionFormField, personalizationOptions]
+  );
+
+  const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
+    useConnectionColor();
+
+  return (
+    <div className={personalizationSectionLayoutStyles}>
+      <TextInput
+        style={{ gridArea: 'name-input' }}
+        value={personalizationOptions.name}
+        data-testid="personalization-name-input"
+        onChange={onChangeName}
+        label="Name"
+      />
+      <Select
+        style={{ gridArea: 'color-input' }}
+        data-testid="personalization-color-input"
+        label="Color"
+        defaultValue={personalizationOptions.color || 'no-color'}
+        allowDeselect={false}
+        onChange={onChangeColor}
+      >
+        <Option
+          glyph={<ColorCircleGlyph hexColor="transparent" />}
+          value={'no-color'}
+        >
+          No Color
+        </Option>
+        {connectionColorCodes().map((colorCode) => (
+          <Option
+            key={colorCode}
+            glyph={
+              <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
+            }
+            value={colorCode}
+          >
+            {connectionColorToName(colorCode)}
+          </Option>
+        ))}
+      </Select>
+      {showFavoriteActions && (
+        <Checkbox
+          style={{ gridArea: 'favorite-marker' }}
+          onChange={onChangeFavorite}
+          data-testid="personalization-favorite-checkbox"
+          checked={personalizationOptions.isFavorite}
+          label={<b>Favorite this connection</b>}
+          description="Favoriting a connection will pin it to the top of your list of
+        connections"
+        />
+      )}
+    </div>
+  );
+}
+
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
   preferences?: Partial<ConnectionFormPreferences>;
 };
@@ -109,6 +280,10 @@ function ConnectionForm({
   // the connection info can be saved.
   onSaveConnectionClicked,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   const [
     {
       enableEditingConnectionString: _enableEditingConnectionString,
@@ -117,6 +292,7 @@ function ConnectionForm({
       warnings: _warnings,
       connectionOptions,
       allowEditingIfProtected,
+      personalizationOptions,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -152,6 +328,41 @@ function ConnectionForm({
     (error) => error.fieldName === 'connectionString'
   );
 
+  const getConnectionInfoToSave = useCallback(
+    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => {
+      if (isMultiConnectionEnabled) {
+        return {
+          ...cloneDeep(initialConnectionInfo),
+          connectionOptions: cloneDeep(connectionOptions),
+          savedConnectionType: personalizationOptions.isFavorite
+            ? 'favorite'
+            : 'recent',
+          favorite: {
+            ...(favoriteInfo || {}),
+            name: personalizationOptions.name,
+            color: personalizationOptions.color,
+          },
+        };
+      } else {
+        return {
+          ...cloneDeep(initialConnectionInfo),
+          connectionOptions: cloneDeep(connectionOptions),
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: '',
+            color: undefined,
+            ...favoriteInfo,
+          },
+        };
+      }
+    },
+    [
+      isMultiConnectionEnabled,
+      initialConnectionInfo,
+      connectionOptions,
+      personalizationOptions,
+    ]
+  );
   const onSubmitForm = useCallback(
     (connectionInfo?: ConnectionInfo) => {
       const updatedConnectionOptions = cloneDeep(connectionOptions);
@@ -211,7 +422,7 @@ function ConnectionForm({
         <div className={formContentContainerStyles}>
           <H3 className={formHeaderStyles}>
             {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-            {showFavoriteActions && (
+            {!isMultiConnectionEnabled && showFavoriteActions && (
               <IconButton
                 type="button"
                 aria-label="Save Connection"
@@ -226,9 +437,10 @@ function ConnectionForm({
             )}
           </H3>
           <Description className={descriptionStyles}>
-            Connect to a MongoDB deployment
+            {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
+            {isMultiConnectionEnabled && 'Manage your connection settings'}
           </Description>
-          {showFavoriteActions && (
+          {!isMultiConnectionEnabled && showFavoriteActions && (
             <IconButton
               aria-label="Save Connection"
               data-testid="edit-favorite-icon-button"
@@ -266,6 +478,12 @@ function ConnectionForm({
               {connectionStringInvalidError.message}
             </Banner>
           )}
+          {isMultiConnectionEnabled && (
+            <ConnectionPersonalizationForm
+              personalizationOptions={personalizationOptions}
+              updateConnectionFormField={updateConnectionFormField}
+            />
+          )}
           {!protectConnectionStrings && (
             <AdvancedConnectionOptions
               errors={connectionStringInvalidError ? [] : errors}
@@ -276,32 +494,55 @@ function ConnectionForm({
           )}
         </div>
         <div className={formFooterStyles}>
-          <ConnectionFormActions
-            errors={connectionStringInvalidError ? [] : errors}
-            warnings={connectionStringInvalidError ? [] : warnings}
-            saveButton={
-              isDirty || !initialConnectionInfo.favorite
-                ? 'enabled'
-                : 'disabled'
-            }
-            saveAndConnectButton={
-              initialConnectionInfo.favorite ? 'hidden' : 'enabled'
-            }
-            onSaveClicked={() => {
-              if (initialConnectionInfo.favorite) {
-                void callOnSaveConnectionClickedAndStoreErrors({
-                  ...cloneDeep(initialConnectionInfo),
-                  connectionOptions: cloneDeep(connectionOptions),
-                });
-              } else {
-                setSaveConnectionModal('save');
+          {isMultiConnectionEnabled && (
+            <ConnectionFormModalActions
+              errors={connectionStringInvalidError ? [] : errors}
+              warnings={connectionStringInvalidError ? [] : warnings}
+              onCancel={() => {
+                // TODO: COMPASS-7659
+                // when this becomes a modal
+              }}
+              onSave={() =>
+                void callOnSaveConnectionClickedAndStoreErrors?.(
+                  getConnectionInfoToSave()
+                )
               }
-            }}
-            onSaveAndConnectClicked={() => {
-              setSaveConnectionModal('saveAndConnect');
-            }}
-            onConnectClicked={() => onSubmitForm()}
-          />
+              onConnect={() => {
+                void callOnSaveConnectionClickedAndStoreErrors?.(
+                  getConnectionInfoToSave()
+                );
+                onSubmitForm();
+              }}
+            />
+          )}
+          {!isMultiConnectionEnabled && (
+            <ConnectionFormActions
+              errors={connectionStringInvalidError ? [] : errors}
+              warnings={connectionStringInvalidError ? [] : warnings}
+              saveButton={
+                isDirty || !initialConnectionInfo.favorite
+                  ? 'enabled'
+                  : 'disabled'
+              }
+              saveAndConnectButton={
+                initialConnectionInfo.favorite ? 'hidden' : 'enabled'
+              }
+              onSaveClicked={() => {
+                if (initialConnectionInfo.favorite) {
+                  void callOnSaveConnectionClickedAndStoreErrors({
+                    ...cloneDeep(initialConnectionInfo),
+                    connectionOptions: cloneDeep(connectionOptions),
+                  });
+                } else {
+                  setSaveConnectionModal('save');
+                }
+              }}
+              onSaveAndConnectClicked={() => {
+                setSaveConnectionModal('saveAndConnect');
+              }}
+              onConnectClicked={() => onSubmitForm()}
+            />
+          )}
         </div>
       </form>
       {showFavoriteActions && (
@@ -316,14 +557,7 @@ function ConnectionForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setSaveConnectionModal('hidden');
 
-            const connectionInfo: ConnectionInfo = {
-              ...cloneDeep(initialConnectionInfo),
-              connectionOptions: cloneDeep(connectionOptions),
-              savedConnectionType: 'favorite',
-              favorite: {
-                ...favoriteInfo,
-              },
-            };
+            const connectionInfo = getConnectionInfoToSave(favoriteInfo);
             await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
 
             if (saveConnectionModal === 'saveAndConnect') {

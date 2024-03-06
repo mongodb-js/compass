@@ -903,4 +903,113 @@ describe('use-connect-form hook', function () {
       });
     });
   });
+  describe('personalizationOptions', function () {
+    describe('with favorite connections', function () {
+      const initialConnectionInfo = {
+        id: 'turtle',
+        connectionOptions: {
+          connectionString: 'mongodb://turtle',
+        },
+        favorite: {
+          name: 'turtles',
+          color: 'color4',
+        },
+        savedConnectionType: 'favorite',
+      };
+
+      it('should inherit the initial information from the connection information', function () {
+        const { result } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+        expect(result.current[0].personalizationOptions.name).to.equal(
+          'turtles'
+        );
+        expect(result.current[0].personalizationOptions.isNameDirty).to.be.true;
+        expect(result.current[0].personalizationOptions.isFavorite).to.be.true;
+        expect(result.current[0].personalizationOptions.color).to.be.equal(
+          'color4'
+        );
+      });
+
+      it('should not be infered from the connection url when changed', function () {
+        const { result: initialState } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+
+        const result = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-string',
+            newConnectionStringValue: 'mongodb://localhost:27019',
+          },
+          initialState.current[0].connectionOptions,
+          initialState.current[0].personalizationOptions
+        );
+
+        expect(result.personalizationOptions.name).to.equal('turtles');
+        expect(result.personalizationOptions.isNameDirty).to.be.true;
+      });
+    });
+
+    describe('with new connections', function () {
+      const initialConnectionInfo = {
+        id: 'turtle',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      };
+
+      it('should start with an empty state', function () {
+        const { result } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+        expect(result.current[0].personalizationOptions.name).to.equal('');
+        expect(result.current[0].personalizationOptions.isNameDirty).to.be
+          .false;
+        expect(result.current[0].personalizationOptions.isFavorite).to.be.false;
+        expect(result.current[0].personalizationOptions.color).to.be.equal(
+          undefined
+        );
+      });
+
+      it('should be infered from the connection url when changed', function () {
+        const { result: initialState } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+
+        const result = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-string',
+            newConnectionStringValue: 'mongodb://localhost:27019',
+          },
+          initialState.current[0].connectionOptions,
+          initialState.current[0].personalizationOptions
+        );
+
+        expect(result.personalizationOptions.name).to.equal('localhost:27019');
+        expect(result.personalizationOptions.isNameDirty).to.be.false;
+      });
+
+      it('should not be infered when the name is dirty', function () {
+        const { result: initialState } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+
+        const result = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-string',
+            newConnectionStringValue: 'mongodb://localhost:27019',
+          },
+          initialState.current[0].connectionOptions,
+          {
+            ...initialState.current[0].personalizationOptions,
+            name: 'webscale',
+            isNameDirty: true,
+          }
+        );
+
+        expect(result.personalizationOptions.name).to.equal('webscale');
+        expect(result.personalizationOptions.isNameDirty).to.be.true;
+      });
+    });
+  });
 });
