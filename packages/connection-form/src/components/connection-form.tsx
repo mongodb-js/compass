@@ -437,7 +437,8 @@ function ConnectionForm({
             )}
           </H3>
           <Description className={descriptionStyles}>
-            Connect to a MongoDB deployment
+            {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
+            {isMultiConnectionEnabled && 'Manage your connection settings'}
           </Description>
           {!isMultiConnectionEnabled && showFavoriteActions && (
             <IconButton
