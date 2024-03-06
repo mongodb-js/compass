@@ -80,27 +80,27 @@ describe('RenameCollectionModal [Component]', function () {
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: 'baz' } });
-      expect(submitButton).not.to.have.attribute('aria-disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
       fireEvent.change(input, { target: { value: 'bar' } });
-      expect(submitButton).to.have.attribute('aria-disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     it('disables the submit button when the value is empty', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: '' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     it('disables the submit button when the value is exists as a collection in the current database', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: 'my-collection' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     context('when the user has submitted the form', () => {

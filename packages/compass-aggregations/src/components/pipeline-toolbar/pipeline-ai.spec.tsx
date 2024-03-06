@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
+import sinon from 'sinon';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
@@ -69,6 +70,7 @@ describe('PipelineAI Component', function () {
     trackingEvents = [];
     (store as any) = null;
     cleanup();
+    sinon.restore();
   });
 
   describe('when rendered', function () {
@@ -98,6 +100,20 @@ describe('PipelineAI Component', function () {
 
   describe('when a pipeline created from query', function () {
     it('inserts user prompt', function () {
+      // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
+      // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
+      // so that the tabbable check still succeeds in the testing environment.
+      sinon.replace(
+        Element.prototype,
+        'getClientRects',
+        () =>
+          [
+            {
+              /* `tabbable` only checks that an element exists here. */
+            },
+          ] as any
+      );
+
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         ''
       );
@@ -127,6 +143,20 @@ describe('PipelineAI Component', function () {
       });
 
       it('should log a telemetry event with the entered text on submit', async function () {
+        // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
+        // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
+        // so that the tabbable check still succeeds in the testing environment.
+        sinon.replace(
+          Element.prototype,
+          'getClientRects',
+          () =>
+            [
+              {
+                /* `tabbable` only checks that an element exists here. */
+              },
+            ] as any
+        );
+
         // No feedback popover is shown yet.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;

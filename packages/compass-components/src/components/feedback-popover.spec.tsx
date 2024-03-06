@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { expect } from 'chai';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import sinon from 'sinon';
 
 import { FeedbackPopover } from './feedback-popover';
 
@@ -44,9 +45,24 @@ const renderFeedbackPopover = (
 describe('FeedbackPopover', function () {
   afterEach(function () {
     cleanup();
+    sinon.restore();
   });
 
   it('renders the popover and passes feedback when submitted', async function () {
+    // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
+    // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
+    // so that the tabbable check still succeeds in the testing environment.
+    sinon.replace(
+      Element.prototype,
+      'getClientRects',
+      () =>
+        [
+          {
+            /* `tabbable` only checks that an element exists here. */
+          },
+        ] as any
+    );
+
     let feedbackText = '';
     renderFeedbackPopover({
       onSubmitFeedback: (text: string) => {

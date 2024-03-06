@@ -98,9 +98,9 @@ describe('ExportSelectFields [Component]', function () {
     it('should render the add new field enabled', function () {
       const addNewField = screen.getByText('Add new field');
       expect(addNewField).to.be.visible;
-      expect(screen.getByTestId(addNewFieldButtonId)).to.not.have.attribute(
-        'aria-disabled'
-      );
+      expect(
+        screen.getByTestId(addNewFieldButtonId).getAttribute('aria-disabled')
+      ).to.equal('false');
     });
 
     it('should not render the retry button', function () {
