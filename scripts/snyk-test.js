@@ -6,12 +6,25 @@ const { glob } = require('glob');
 const { promisify } = require('util');
 const execFile = promisify(childProcess.execFile);
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function snykTest(cwd) {
   const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
 
   let execErr;
 
   try {
+    if (!(await fileExists(path.join(cwd, `package.json`)))) {
+      return;
+    }
+
     console.info(`testing ${cwd} ...`);
     await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
 
