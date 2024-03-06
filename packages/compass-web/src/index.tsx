@@ -55,6 +55,8 @@ import {
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -88,14 +90,16 @@ const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-type CompassWebProps = {
-  darkMode?: boolean;
-  connectionString: string;
-  initialPreferences?: Partial<AllPreferences>;
-} & Pick<
+type WorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
 >;
+
+type CompassWebProps = {
+  darkMode?: boolean;
+  connectionInfo: ConnectionInfo;
+  initialPreferences?: Partial<AllPreferences>;
+} & WorkspaceProps;
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -129,6 +133,66 @@ function LoadingScreen({ connectionString }: { connectionString: string }) {
   );
 }
 
+function CompassWorkspace({
+  initialWorkspaceTabs,
+  onActiveWorkspaceTabChange,
+}: WorkspaceProps) {
+  return (
+    <WorkspacesProvider
+      value={[
+        DatabasesWorkspaceTab,
+        CollectionsWorkspaceTab,
+        CollectionWorkspace,
+      ]}
+    >
+      <CollectionTabsProvider
+        queryBar={CompassQueryBarPlugin}
+        tabs={[
+          CompassDocumentsPlugin,
+          CompassAggregationsPlugin,
+          CompassSchemaPlugin,
+          CompassIndexesPlugin,
+          CompassSchemaValidationPlugin,
+        ]}
+        modals={[
+          ExplainPlanCollectionTabModal,
+          DropIndexCollectionTabModal,
+          CreateIndexCollectionTabModal,
+          ExportToLanguageCollectionTabModal,
+        ]}
+      >
+        <div
+          data-testid="compass-web-connected"
+          className={connectedContainerStyles}
+        >
+          <WorkspacesPlugin
+            initialWorkspaceTabs={initialWorkspaceTabs}
+            openOnEmptyWorkspace={DEFAULT_TAB}
+            onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+            renderSidebar={() => {
+              return (
+                <CompassSidebarPlugin
+                  showConnectionInfo={false}
+                ></CompassSidebarPlugin>
+              );
+            }}
+            renderModals={() => {
+              return (
+                <>
+                  <CreateViewPlugin></CreateViewPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
+                  <DropNamespacePlugin></DropNamespacePlugin>
+                  <RenameCollectionPlugin></RenameCollectionPlugin>
+                </>
+              );
+            }}
+          ></WorkspacesPlugin>
+        </div>
+      </CollectionTabsProvider>
+    </WorkspacesProvider>
+  );
+}
+
 const DEFAULT_TAB = { type: 'Databases' } as const;
 
 const connectedContainerStyles = css({
@@ -139,7 +203,7 @@ const connectedContainerStyles = css({
 
 const CompassWeb = ({
   darkMode,
-  connectionString,
+  connectionInfo,
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   initialPreferences,
@@ -174,7 +238,7 @@ const CompassWeb = ({
         const connectFn =
           (__TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect) ?? connect;
         ds = await connectFn({
-          connectionOptions: { connectionString },
+          connectionOptions: connectionInfo.connectionOptions,
           signal: controller.signal,
         });
         dataService.current = ds;
@@ -186,7 +250,7 @@ const CompassWeb = ({
     return () => {
       void ds?.disconnect();
     };
-  }, [connectionString, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
+  }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
@@ -198,7 +262,9 @@ const CompassWeb = ({
   if (!connected || !dataService.current) {
     return (
       <CompassComponentsProvider darkMode={darkMode}>
-        <LoadingScreen connectionString={connectionString}></LoadingScreen>
+        <LoadingScreen
+          connectionString={connectionInfo.connectionOptions.connectionString}
+        ></LoadingScreen>
       </CompassComponentsProvider>
     );
   }
@@ -208,64 +274,16 @@ const CompassWeb = ({
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
             <DataServiceProvider value={dataService.current}>
-              <CompassInstanceStorePlugin>
-                <FieldStorePlugin>
-                  <WorkspacesProvider
-                    value={[
-                      DatabasesWorkspaceTab,
-                      CollectionsWorkspaceTab,
-                      CollectionWorkspace,
-                    ]}
-                  >
-                    <CollectionTabsProvider
-                      queryBar={CompassQueryBarPlugin}
-                      tabs={[
-                        CompassDocumentsPlugin,
-                        CompassAggregationsPlugin,
-                        CompassSchemaPlugin,
-                        CompassIndexesPlugin,
-                        CompassSchemaValidationPlugin,
-                      ]}
-                      modals={[
-                        ExplainPlanCollectionTabModal,
-                        DropIndexCollectionTabModal,
-                        CreateIndexCollectionTabModal,
-                        ExportToLanguageCollectionTabModal,
-                      ]}
-                    >
-                      <div
-                        data-testid="compass-web-connected"
-                        className={connectedContainerStyles}
-                      >
-                        <WorkspacesPlugin
-                          initialWorkspaceTabs={initialWorkspaceTabs}
-                          openOnEmptyWorkspace={DEFAULT_TAB}
-                          onActiveWorkspaceTabChange={
-                            onActiveWorkspaceTabChange
-                          }
-                          renderSidebar={() => {
-                            return (
-                              <CompassSidebarPlugin
-                                showConnectionInfo={false}
-                              ></CompassSidebarPlugin>
-                            );
-                          }}
-                          renderModals={() => {
-                            return (
-                              <>
-                                <CreateViewPlugin></CreateViewPlugin>
-                                <CreateNamespacePlugin></CreateNamespacePlugin>
-                                <DropNamespacePlugin></DropNamespacePlugin>
-                                <RenameCollectionPlugin></RenameCollectionPlugin>
-                              </>
-                            );
-                          }}
-                        ></WorkspacesPlugin>
-                      </div>
-                    </CollectionTabsProvider>
-                  </WorkspacesProvider>
-                </FieldStorePlugin>
-              </CompassInstanceStorePlugin>
+              <ConnectionInfoProvider value={connectionInfo}>
+                <CompassInstanceStorePlugin>
+                  <FieldStorePlugin>
+                    <CompassWorkspace
+                      initialWorkspaceTabs={initialWorkspaceTabs}
+                      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                    />
+                  </FieldStorePlugin>
+                </CompassInstanceStorePlugin>
+              </ConnectionInfoProvider>
             </DataServiceProvider>
           </AppRegistryProvider>
         </WithAtlasProviders>
