@@ -802,6 +802,8 @@ functions:
           return_code=$?
           set -e
 
+          echo
+
           # Runs for all the commits on main, including nightly builds:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
             export JIRA_BASE_URL="https://jira.mongodb.org"
@@ -812,6 +814,8 @@ functions:
           else
             cat .sbom/vulnerability-report.md
           fi
+
+          echo
 
           # Fails if the report failed and is not a patch, including release branches:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then

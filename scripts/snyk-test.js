@@ -41,7 +41,7 @@ async function snykTest(cwd) {
         ],
         {
           cwd,
-          maxBuffer: 1024 * 1024 * 5, // 5 MB (default is 1)
+          maxBuffer: 50 /* MB */ * 1024 * 1024, // default is 1 MB
         }
       );
     } catch (err) {
