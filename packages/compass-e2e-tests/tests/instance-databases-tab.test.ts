@@ -138,25 +138,29 @@ describe('Instance databases tab', function () {
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
-    const db = 'my-instance-database';
-    const coll = 'my-collection';
+    const db = 'test'; // added by beforeEach
     const dbSelector = Selectors.databaseCard(db);
 
+    // Browse to the databases tab and wait for the page to finish loading
+    await browser.navigateToInstanceTab('Databases');
+    await browser.waitUntil(async () => {
+      const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
+      return placeholders.length === 0;
+    });
+
+    // Make sure the db card we're going to drop is in there.
+    await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      dbSelector,
+      'grid'
+    );
+    await browser.$(dbSelector).waitForDisplayed();
+
+    // Drop the database using hte driver
     const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
     await mongoClient.connect();
     try {
-      // Create the database before browsing to the databases tab to minimize
-      // how many times we have to refresh
       const database = mongoClient.db(db);
-      await database.createCollection(coll);
-
-      // Browse to the databases tab and wait for the page to finish loading
-      await browser.navigateToInstanceTab('Databases');
-      await browser.waitUntil(async () => {
-        const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
-        console.log(placeholders);
-        return placeholders.length === 0;
-      });
 
       // Drop the database
       console.log({
