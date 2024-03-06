@@ -66,6 +66,7 @@ export const Breadcrumbs = ({
         if (isLast) {
           return (
             <Body
+              key={item.name}
               className={cx(
                 textStyles,
                 darkMode ? lastItemStylesDark : lastItemStylesLight
