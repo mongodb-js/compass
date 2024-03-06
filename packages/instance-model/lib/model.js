@@ -225,15 +225,18 @@ const InstanceModel = AmpersandModel.extend(
       if (!shouldFetch(this.status, force)) {
         return;
       }
+      console.log('instance fetch');
       try {
         const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
         this.set({ status: newStatus });
         const instanceInfo = await dataService.instance();
         this.set({ status: 'ready', statusError: null, ...instanceInfo });
       } catch (err) {
+        console.log('instance fetch error');
         this.set({ status: 'error', statusError: err.message });
         throw err;
       }
+      console.log('instance fetch success');
     },
 
     /**
@@ -245,18 +248,21 @@ const InstanceModel = AmpersandModel.extend(
         return;
       }
       try {
+        console.log('instance fetchDatabases');
         const newStatus =
           this.databasesStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ databasesStatus: newStatus });
         await this.databases.fetch({ dataService });
         this.set({ databasesStatus: 'ready', databasesStatusError: null });
       } catch (err) {
+        console.log('instance fetchingDatabases error', err);
         this.set({
           databasesStatus: 'error',
           databasesStatusError: err.message,
         });
         throw err;
       }
+      console.log('instance fetchingDatabases success');
     },
 
     /**
@@ -285,6 +291,7 @@ const InstanceModel = AmpersandModel.extend(
       fetchCollections = false,
       fetchCollStats = false,
     }) {
+      console.log('instance refresh');
       this.set({
         refreshingStatus:
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
@@ -339,12 +346,15 @@ const InstanceModel = AmpersandModel.extend(
 
         this.set({ refreshingStatus: 'ready', refreshingStatusError: null });
       } catch (err) {
+        console.log('instance refresh error');
         this.set({
           refreshingStatus: 'error',
           refreshingStatusError: err.message,
         });
         throw err;
       }
+
+        console.log('instance refresh success');
     },
 
     async getNamespace({ dataService, database, collection }) {
