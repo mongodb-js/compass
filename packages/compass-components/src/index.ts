@@ -136,6 +136,7 @@ export {
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
+export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
   SignalHooksProvider,

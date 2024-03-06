@@ -2,3 +2,4 @@
 .log
 fixtures/*.csv
 fixtures/*.json
+electron-versions.json
