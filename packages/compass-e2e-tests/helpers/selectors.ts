@@ -400,6 +400,7 @@ export const DatabaseCard = '[data-testid="database-grid-item"]';
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
 export const ServerStats = '.serverstats';
+export const DatabaseStatLoader = `${DatabaseCard} [data-testid="namespace-param-fallback"][data-ready=false]`;
 
 export const databaseCard = (dbName: string): string => {
   return `${DatabaseCard}[data-id="${dbName}"]`;
