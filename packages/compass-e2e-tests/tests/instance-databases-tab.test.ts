@@ -137,7 +137,7 @@ describe('Instance databases tab', function () {
     await browser.waitUntilActiveInstanceTab('Databases');
   });
 
-  it.only('can refresh the list of databases using refresh controls', async function () {
+  it('can refresh the list of databases using refresh controls', async function () {
     const db = 'test'; // added by beforeEach
     const dbSelector = Selectors.databaseCard(db);
 
