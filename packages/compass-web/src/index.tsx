@@ -153,6 +153,7 @@ const CompassWeb = ({
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
+      enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: false,
       cloudFeatureRolloutAccess: {

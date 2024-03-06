@@ -150,6 +150,10 @@ const App = () => {
     setConnectionStringValidationResult,
   ] = useState<null | string>(null);
 
+  (window as any).disconnectCompassWeb = () => {
+    setOpenCompassWeb(false);
+  };
+
   const canSubmit =
     connectionStringValidationResult === null && connectionString !== '';
 

@@ -95,13 +95,13 @@ import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
-  const loggerProviderValue = {
+  const loggerProviderValue = useRef({
     createLogger: createLoggerAndTelemetry,
     preferences: defaultPreferencesInstance,
-  };
+  });
   return (
-    <PreferencesProvider value={loggerProviderValue.preferences}>
-      <LoggerAndTelemetryProvider value={loggerProviderValue}>
+    <PreferencesProvider value={loggerProviderValue.current.preferences}>
+      <LoggerAndTelemetryProvider value={loggerProviderValue.current}>
         {children}
       </LoggerAndTelemetryProvider>
     </PreferencesProvider>
@@ -260,6 +260,15 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
+    const wasNetworkOptInShown =
+      defaultPreferencesInstance.getPreferences().showedNetworkOptIn === true;
+
+    // If we haven't showed welcome modal that points users to network opt in
+    // yet, update preferences with default values to reflect that ...
+    if (!wasNetworkOptInShown) {
+      await defaultPreferencesInstance.ensureDefaultConfigurableUserPreferences();
+    }
+
     ReactDOM.render(
       <React.StrictMode>
         <WithPreferencesAndLoggerProviders>
@@ -269,6 +278,8 @@ const Application = View.extend({
                 <CompassHomePlugin
                   appName={remote.app.getName()}
                   getAutoConnectInfo={getAutoConnectInfo}
+                  // ... and show the welcome modal
+                  isWelcomeModalOpenByDefault={!wasNetworkOptInShown}
                 ></CompassHomePlugin>
               </AppRegistryProvider>
             </WithStorageProviders>

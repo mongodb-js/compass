@@ -47,7 +47,6 @@ describe('IndexesToolbar Component', function () {
     describe('with atlas search index management is disabled', function () {
       beforeEach(async function () {
         await preferences.savePreferences({
-          enableAtlasSearchIndexManagement: false,
           showInsights: true,
         });
 
@@ -68,7 +67,6 @@ describe('IndexesToolbar Component', function () {
       describe('when cluster has Atlas Search available', function () {
         beforeEach(async function () {
           await preferences.savePreferences({
-            enableAtlasSearchIndexManagement: true,
             showInsights: true,
           });
 
@@ -94,7 +92,6 @@ describe('IndexesToolbar Component', function () {
       describe('when cluster does not support Atlas Search', function () {
         beforeEach(async function () {
           await preferences.savePreferences({
-            enableAtlasSearchIndexManagement: true,
             showInsights: true,
           });
 
@@ -178,12 +175,6 @@ describe('IndexesToolbar Component', function () {
   });
 
   describe('allows creating of indexes', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        enableAtlasSearchIndexManagement: true,
-      });
-    });
-
     context('when search indexes is not supported', function () {
       it('calls onCreateRegularIndex when index button is clicked', function () {
         const onCreateRegularIndexSpy = sinon.spy();
@@ -304,7 +295,6 @@ describe('IndexesToolbar Component', function () {
 
     beforeEach(async function () {
       await preferences.savePreferences({
-        enableAtlasSearchIndexManagement: true,
         showInsights: true,
       });
 

@@ -17,7 +17,6 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
-  enableAtlasSearchIndexManagement: boolean;
   enableBulkUpdateOperations: boolean;
   enableBulkDeleteOperations: boolean;
   enableRenameCollectionModal: boolean;
@@ -54,17 +53,6 @@ export const featureFlags: Required<{
     },
   },
 
-  /**
-   * Feature flag for Atlas Search Index Management.
-   * Epic: COMPASS-6599
-   */
-  enableAtlasSearchIndexManagement: {
-    stage: 'released',
-    description: {
-      short: 'Enable Atlas Search Index management.',
-      long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
-    },
-  },
   /**
    * Feature flag bulk updates
    * Epic: COMPASS-6671

@@ -6,6 +6,7 @@ import {
   AppRegistryProvider,
   registerHadronPlugin,
   createActivateHelpers,
+  createServiceLocator,
 } from './';
 import { createStore } from 'redux';
 import { connect } from 'react-redux';
@@ -105,7 +106,7 @@ describe('registerHadronPlugin', function () {
   it('allows registering a plugin with external services dependencies', function () {
     const dummy = { value: 'blah' };
     const blahContext = createContext(dummy);
-    const useBlah = () => useContext(blahContext);
+    const useBlah = createServiceLocator(() => useContext(blahContext));
 
     const connector = connect();
     const component = sinon.stub().callsFake(() => <></>);
