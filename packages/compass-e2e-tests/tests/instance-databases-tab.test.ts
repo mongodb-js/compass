@@ -141,12 +141,8 @@ describe('Instance databases tab', function () {
     const db = 'test'; // added by beforeEach
     const dbSelector = Selectors.databaseCard(db);
 
-    // Browse to the databases tab and wait for the page to finish loading
+    // Browse to the databases tab
     await browser.navigateToInstanceTab('Databases');
-    await browser.waitUntil(async () => {
-      const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
-      return placeholders.length === 0;
-    });
 
     // Make sure the db card we're going to drop is in there.
     await browser.scrollToVirtualItem(
@@ -156,7 +152,13 @@ describe('Instance databases tab', function () {
     );
     await browser.$(dbSelector).waitForDisplayed();
 
-    // Drop the database using hte driver
+    // Wait for the page to finish loading as best as we can
+    await browser.waitUntil(async () => {
+      const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
+      return placeholders.length === 0;
+    });
+
+    // Drop the database using the driver
     const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
     await mongoClient.connect();
     try {
