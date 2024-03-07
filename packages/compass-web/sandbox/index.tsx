@@ -146,7 +146,7 @@ const App = () => {
     return getHistory();
   });
   const [focused, setFocused] = useState(false);
-  const [connectionString, setConnectionString] = useState<string>('');
+  const [connectionString, setConnectionString] = useState('');
   const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
     null
   );
