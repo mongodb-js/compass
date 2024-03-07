@@ -10,4 +10,10 @@ describe('getAtlasSearchIndexesLink', function () {
       '#/clusters/atlasSearch/'
     );
   });
+
+  it('encodes the clusterName', function () {
+    expect(getAtlasSearchIndexesLink({ clusterName: 'a b c' })).to.equal(
+      '#/clusters/atlasSearch/a%20b%20c'
+    );
+  });
 });

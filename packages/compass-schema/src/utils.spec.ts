@@ -4,12 +4,22 @@ import { getAtlasPerformanceAdvisorLink } from './utils';
 describe('compass-schema utils', function () {
   context('getAtlasPerformanceAdvisorLink', function () {
     it('returns the correct link for a serverless cluster', function () {
-      const result = getAtlasPerformanceAdvisorLink({
-        clusterId: '123456',
-        clusterType: 'serverless',
-        clusterName: 'Cluster0',
-      });
-      expect(result).to.equal('#/serverless/advisor/Cluster0/createIndexes');
+      expect(
+        getAtlasPerformanceAdvisorLink({
+          clusterId: '123456',
+          clusterType: 'serverless',
+          clusterName: 'Cluster0',
+        })
+      ).to.equal('#/serverless/advisor/Cluster0/createIndexes');
+
+      expect(
+        getAtlasPerformanceAdvisorLink({
+          clusterId: '123456',
+          clusterType: 'serverless',
+          clusterName: 'Cluster Something',
+        }),
+        'encode cluster name'
+      ).to.equal('#/serverless/advisor/Cluster%20Something/createIndexes');
     });
     it('returns the correct link for other clusters', function () {
       expect(

@@ -3,5 +3,5 @@ import type { AtlasClusterMetadata } from '@mongodb-js/connection-storage/render
 export function getAtlasSearchIndexesLink({
   clusterName,
 }: Pick<AtlasClusterMetadata, 'clusterName'>) {
-  return `#/clusters/atlasSearch/${clusterName}`;
+  return `#/clusters/atlasSearch/${encodeURIComponent(clusterName)}`;
 }
