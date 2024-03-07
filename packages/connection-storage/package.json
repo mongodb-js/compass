@@ -56,12 +56,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/compass-user-data": "^0.1.17",
     "@mongodb-js/compass-utils": "^0.6.1",
+    "@mongodb-js/connection-info": "^0.1.5",
     "bson": "^6.3.0",
     "electron": "^28.2.5",
+    "hadron-app-registry": "^9.1.8",
     "hadron-ipc": "^3.2.12",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
@@ -79,13 +80,13 @@
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
-    "typescript": "^5.0.4",
-    "chai-as-promised": "^7.1.1"
+    "typescript": "^5.0.4"
   }
 }

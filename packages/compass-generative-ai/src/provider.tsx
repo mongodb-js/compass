@@ -6,32 +6,38 @@ import {
   atlasAuthServiceLocator,
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
+import {
+  createServiceLocator,
+  createServiceProvider,
+} from 'hadron-app-registry';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
-export const AtlasAiServiceProvider: React.FC = ({ children }) => {
-  const logger = useLoggerAndTelemetry('ATLAS-AI-SERVICE');
-  const preferences = preferencesLocator();
-  const atlasAuthService = atlasAuthServiceLocator();
-  const atlasService = atlasServiceLocator();
+export const AtlasAiServiceProvider: React.FC = createServiceProvider(
+  function AtlasAiServiceProvider({ children }) {
+    const logger = useLoggerAndTelemetry('ATLAS-AI-SERVICE');
+    const preferences = preferencesLocator();
+    const atlasAuthService = atlasAuthServiceLocator();
+    const atlasService = atlasServiceLocator();
 
-  const aiService = useMemo(() => {
-    return new AtlasAiService(
-      atlasService,
-      atlasAuthService,
-      preferences,
-      logger
+    const aiService = useMemo(() => {
+      return new AtlasAiService(
+        atlasService,
+        atlasAuthService,
+        preferences,
+        logger
+      );
+    }, [atlasAuthService, preferences, logger, atlasService]);
+
+    return (
+      <AtlasAiServiceContext.Provider value={aiService}>
+        {children}
+      </AtlasAiServiceContext.Provider>
     );
-  }, [atlasAuthService, preferences, logger, atlasService]);
+  }
+);
 
-  return (
-    <AtlasAiServiceContext.Provider value={aiService}>
-      {children}
-    </AtlasAiServiceContext.Provider>
-  );
-};
-
-function useAtlasServiceLocator(): AtlasAiService {
+function useAtlasAiServiceContext(): AtlasAiService {
   const service = useContext(AtlasAiServiceContext);
   if (!service) {
     throw new Error('No AtlasAiService available in this context');
@@ -39,5 +45,8 @@ function useAtlasServiceLocator(): AtlasAiService {
   return service;
 }
 
-export const atlasAiServiceLocator = useAtlasServiceLocator;
+export const atlasAiServiceLocator = createServiceLocator(
+  useAtlasAiServiceContext,
+  'atlasAiServiceLocator'
+);
 export { AtlasAiService } from './atlas-ai-service';

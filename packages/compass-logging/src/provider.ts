@@ -4,6 +4,7 @@ import type {
   LoggingAndTelemetryPreferences,
 } from './logger';
 import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
+import { createServiceLocator } from 'hadron-app-registry';
 
 export type { LoggerAndTelemetry } from './logger';
 
@@ -44,7 +45,10 @@ const LoggerAndTelemetryContext = React.createContext<{
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
 export function createLoggerAndTelemetryLocator(component: string) {
-  return useLoggerAndTelemetry.bind(null, component);
+  return createServiceLocator(
+    useLoggerAndTelemetry.bind(null, component),
+    'createLoggerAndTelemetryLocator'
+  );
 }
 
 export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
