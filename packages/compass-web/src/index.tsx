@@ -56,7 +56,7 @@ import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provid
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {

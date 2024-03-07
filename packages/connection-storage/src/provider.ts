@@ -61,7 +61,7 @@ export const connectionRepositoryLocator = createServiceLocator(
 );
 
 const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
-function useConnectionInfoContext() {
+export function useConnectionInfoContext() {
   const connectionInfo = useContext(ConnectionInfoContext);
   if (!connectionInfo) {
     throw new Error(

@@ -27,7 +27,7 @@ import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 const sandboxContainerStyles = css({
   width: '100%',
