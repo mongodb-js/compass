@@ -10,5 +10,7 @@ export function getAtlasPerformanceAdvisorLink({
       clusterName
     )}/createIndexes`;
   }
-  return `#/metrics/${clusterType}/${clusterId}/advisor`;
+  return `#/metrics/${encodeURIComponent(clusterType)}/${encodeURIComponent(
+    clusterId
+  )}/advisor`;
 }
