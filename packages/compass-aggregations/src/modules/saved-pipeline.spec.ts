@@ -3,7 +3,7 @@ import reducer, {
   SAVED_PIPELINE_ADD,
 } from './saved-pipeline';
 import { expect } from 'chai';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@cloud-mongodb-js/my-queries-storage';
 
 describe('saved pipelines module', function () {
   describe('#addSavedPipelines', function () {

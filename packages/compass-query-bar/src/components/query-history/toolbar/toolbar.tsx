@@ -9,7 +9,7 @@ import {
   palette,
   Icon,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { QueryHistoryTab } from '..';
 
 const titleStyles = css({

@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/atlas-service",
+  "name": "@cloud-mongodb-js/atlas-service",
   "description": "Service to handle Atlas sign in and API requests",
   "author": {
     "name": "MongoDB Inc",
@@ -52,10 +52,10 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -73,14 +73,14 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.6",
-    "@mongodb-js/compass-utils": "^0.5.5",
+    "@cloud-mongodb-js/compass-components": "^1.19.0",
+    "@cloud-mongodb-js/compass-logging": "^1.2.6",
+    "@cloud-mongodb-js/compass-utils": "^0.5.5",
     "@mongodb-js/devtools-connect": "^2.4.2",
     "@mongodb-js/oidc-plugin": "^0.3.0",
-    "compass-preferences-model": "^2.15.6",
+    "@cloud-mongodb-js/compass-preferences-model": "^2.15.6",
     "electron": "^25.9.3",
-    "hadron-ipc": "^3.2.4",
+    "@cloud-mongodb-js/hadron-ipc": "^3.2.4",
     "keytar": "^7.9.0",
     "node-fetch": "^2.6.7",
     "react": "^17.0.2",

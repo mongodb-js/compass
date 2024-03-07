@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasService } from '@cloud-mongodb-js/atlas-service/renderer';
 import { PipelineBuilder } from './pipeline-builder';
 import {
   changeStageOperator,
@@ -22,7 +22,7 @@ import {
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@cloud-mongodb-js/my-queries-storage';
 import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';

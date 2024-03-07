@@ -1,6 +1,10 @@
 import React from 'react';
-import { css, DocumentList, spacing } from '@mongodb-js/compass-components';
-import type HadronDocumentType from 'hadron-document';
+import {
+  css,
+  DocumentList,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
+import type HadronDocumentType from '@cloud-mongodb-js/hadron-document';
 
 const insertDocumentStyles = css({
   // We give it a good amount of spacing for dropdown menus.

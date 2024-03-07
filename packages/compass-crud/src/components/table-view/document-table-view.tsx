@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import type { AgGridReactProps } from 'ag-grid-react';
 import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
-import type { Document, Element } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document, Element } from '@cloud-mongodb-js/hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import mongodbns from 'mongodb-ns';
 import BreadcrumbComponent from './breadcrumb';
 import CellRenderer from './cell-renderer';
@@ -17,7 +17,11 @@ import CellEditor from './cell-editor';
 
 import './document-table-view.less';
 import './ag-grid-dist.css';
-import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
+import {
+  cx,
+  spacing,
+  withDarkMode,
+} from '@cloud-mongodb-js/compass-components';
 import type {
   BSONObject,
   CrudActions,
@@ -215,7 +219,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   /**
    * Add a row to the table that represents the update/cancel footer for the
    * row directly above. The row will be a full-width row that has the same
-   * hadron-document as the 'document row' above.
+   * @cloud-mongodb-js/hadron-document as the 'document row' above.
    *
    * @param {RowNode} node - The RowNode for the document row.
    * @param {object} data - The data for the document row.

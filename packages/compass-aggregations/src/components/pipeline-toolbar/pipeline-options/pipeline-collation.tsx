@@ -8,13 +8,13 @@ import {
   spacing,
   TextInput,
   palette,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
 import { DEFAULT_MAX_TIME_MS } from '../../../constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 
 const pipelineOptionsContainerStyles = css({
   paddingTop: spacing[1],

@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-utils",
+  "name": "@cloud-mongodb-js/compass-utils",
   "description": "Utilities for MongoDB Compass Development",
   "author": {
     "name": "MongoDB Inc",
@@ -54,10 +54,10 @@
     "electron": "^25.9.3"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",

@@ -3,7 +3,7 @@ const path = require('path');
 const app = require('../');
 const expect = require('chai').expect;
 
-describe('hadron-app', function() {
+describe('@cloud-mongodb-js/hadron-app', function() {
   describe('extend', function() {
     it('should be extenable', function() {
       app.extend({foo: 'bar'});

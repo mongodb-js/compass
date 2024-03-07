@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Sinon from 'sinon';
 import { SavedPipelines } from './saved-pipelines';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@cloud-mongodb-js/my-queries-storage';
 
 const savedPipelines = [
   {

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
+import type { Signal } from '@cloud-mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -8,18 +8,18 @@ import {
   spacing,
   SignalPopover,
   rafraf,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type {
   Command,
   CompletionWithServerInfo,
   EditorRef,
-} from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryAutocompleter,
-} from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-editor';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 

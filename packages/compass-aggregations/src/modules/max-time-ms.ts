@@ -1,6 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from '@cloud-mongodb-js/compass-preferences-model';
 export const MAX_TIME_MS_CHANGED =
   'aggregations/max-time-ms/MAX_TIME_MS_CHANGED';
 

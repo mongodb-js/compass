@@ -2,8 +2,8 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
-import preferencesAccess from 'compass-preferences-model';
-import type { UserPreferences } from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
+import type { UserPreferences } from '@cloud-mongodb-js/compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 

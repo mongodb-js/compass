@@ -11,7 +11,7 @@ import {
   SegmentedControlOption,
   GuideCue,
   Button,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
 import type { RootState } from '../../../modules';
@@ -19,7 +19,7 @@ import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-m
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { toggleSidePanel } from '../../../modules/side-panel';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 
 const containerStyles = css({

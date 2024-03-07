@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import type { Store } from 'reflux';
-import { ErrorSummary, css, spacing } from '@mongodb-js/compass-components';
+import {
+  ErrorSummary,
+  css,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
 
 const errorContainerStyles = css({
   padding: spacing[2],

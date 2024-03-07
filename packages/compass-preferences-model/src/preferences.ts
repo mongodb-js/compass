@@ -4,11 +4,11 @@ import {
   StoragePreferences,
   type BasePreferencesStorage,
 } from './storage';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import { z } from '@mongodb-js/compass-user-data';
+import { z } from '@cloud-mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 

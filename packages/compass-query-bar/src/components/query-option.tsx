@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
+import type { Signal } from '@cloud-mongodb-js/compass-components';
 import {
   Label,
   TextInput,
@@ -8,7 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
@@ -16,7 +16,7 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const queryOptionStyles = css({

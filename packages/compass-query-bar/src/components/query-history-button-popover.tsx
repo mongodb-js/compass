@@ -6,8 +6,8 @@ import {
   css,
   focusRing,
   spacing,
-} from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+} from '@cloud-mongodb-js/compass-components';
+import { useTrackOnChange } from '@cloud-mongodb-js/compass-logging/provider';
 
 import QueryHistory from './query-history';
 import { fetchSavedQueries } from '../stores/query-bar-reducer';

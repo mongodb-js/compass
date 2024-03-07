@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import type { default as HadronDocumentType } from 'hadron-document';
-import { Element } from 'hadron-document';
+import type { default as HadronDocumentType } from '@cloud-mongodb-js/hadron-document';
+import { Element } from '@cloud-mongodb-js/hadron-document';
 import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';

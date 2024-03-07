@@ -1,4 +1,4 @@
-import type SshTunnel from '@mongodb-js/ssh-tunnel';
+import type SshTunnel from '@cloud-mongodb-js/ssh-tunnel';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -86,7 +86,7 @@ import {
   raceWithAbort,
   createCancelError,
   isCancelError,
-} from '@mongodb-js/compass-utils';
+} from '@cloud-mongodb-js/compass-utils';
 import type {
   IndexDefinition,
   IndexStats,

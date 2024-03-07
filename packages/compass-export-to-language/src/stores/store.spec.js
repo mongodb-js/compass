@@ -1,4 +1,4 @@
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import { expect } from 'chai';
 import configureStore from './';
 

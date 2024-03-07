@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/my-queries-storage",
+  "name": "@cloud-mongodb-js/my-queries-storage",
   "description": "Saved aggregations and queries storage",
   "author": {
     "name": "MongoDB Inc",
@@ -50,10 +50,10 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
@@ -68,8 +68,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-editor": "^0.18.0",
-    "@mongodb-js/compass-user-data": "^0.1.9",
+    "@cloud-mongodb-js/compass-editor": "^0.18.0",
+    "@cloud-mongodb-js/compass-user-data": "^0.1.9",
     "bson": "^6.0.0"
   }
 }

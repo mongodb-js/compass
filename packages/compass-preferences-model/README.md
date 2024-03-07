@@ -1,4 +1,4 @@
-# compass-preferences-model [![][npm_img]][npm_url]
+# @cloud-mongodb-js/compass-preferences-model [![][npm_img]][npm_url]
 
 > compass preferences model.
 
@@ -11,7 +11,7 @@
 ## Installation
 
 ```
-npm install --save compass-preferences-model
+npm install --save @cloud-mongodb-js/compass-preferences-model
 ```
 
 ## Testing
@@ -20,5 +20,5 @@ npm install --save compass-preferences-model
 npm test
 ```
 
-[npm_img]: https://img.shields.io/npm/v/compass-preferences-model.svg
-[npm_url]: https://www.npmjs.org/package/compass-preferences-model
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/compass-preferences-model.svg
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/compass-preferences-model

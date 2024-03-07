@@ -7,11 +7,11 @@ import {
   TextInput,
   ComboboxWithCustomOption,
   ComboboxOption,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@cloud-mongodb-js/mongodb-data-service';
 
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';

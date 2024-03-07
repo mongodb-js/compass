@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
-import { LGGuideCue, spacing, useId } from '@mongodb-js/compass-components';
+import {
+  LGGuideCue,
+  spacing,
+  useId,
+} from '@cloud-mongodb-js/compass-components';
 
 // TODO: Is LG guide cue exported
 

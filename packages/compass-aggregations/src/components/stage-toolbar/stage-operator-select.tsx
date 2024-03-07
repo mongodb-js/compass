@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model';
+import { withPreferences } from '@cloud-mongodb-js/compass-preferences-model';
 import { connect } from 'react-redux';
 
 import {
@@ -7,7 +7,7 @@ import {
   ComboboxOption,
   css,
   spacing,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';

@@ -10,7 +10,7 @@ import {
   SpinLoader,
   IconButton,
   Icon,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { countDocuments } from '../../modules/count-documents';

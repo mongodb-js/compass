@@ -1,4 +1,4 @@
-import { Body, cx, css, spacing } from '@mongodb-js/compass-components';
+import { Body, cx, css, spacing } from '@cloud-mongodb-js/compass-components';
 import React from 'react';
 
 const queryHeadingStyles = css({

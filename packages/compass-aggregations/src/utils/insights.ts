@@ -2,7 +2,7 @@ import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
 import {
   PerformanceSignals,
   type Signal,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 import type { ServerEnvironment } from '../modules/env';
 

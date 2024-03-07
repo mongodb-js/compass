@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasService } from '@cloud-mongodb-js/atlas-service/renderer';
 import { PipelineBuilder } from './pipeline-builder';
 import {
   changeEditorValue,
@@ -10,7 +10,7 @@ import {
 import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@cloud-mongodb-js/my-queries-storage';
 import { mockDataService } from '../../../test/mocks/data-service';
 
 function createStore(

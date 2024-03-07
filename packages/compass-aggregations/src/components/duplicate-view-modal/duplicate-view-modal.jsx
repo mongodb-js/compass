@@ -10,13 +10,13 @@ import {
   spacing,
   Banner,
   TextInput,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const TITLE = 'Duplicate a View';

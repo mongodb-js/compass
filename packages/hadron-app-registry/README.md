@@ -1,17 +1,17 @@
-# hadron-app-registry [![][npm_img]][npm_url]
+# @cloud-mongodb-js/hadron-app-registry [![][npm_img]][npm_url]
 
 > Hadron App Registry
 
 ## Installation
 
 ```
-npm install --save hadron-app-registry
+npm install --save @cloud-mongodb-js/hadron-app-registry
 ```
 
 ### Usage
 
 ```javascript
-const { AppRegistry } = require('hadron-app-registry');
+const { AppRegistry } = require('@cloud-mongodb-js/hadron-app-registry');
 
 var registry = new AppRegistry();
 
@@ -32,5 +32,5 @@ registry.deregisterComponent('Component::MyComponent');
 registry.deregisterStore('Store::MyStore');
 ```
 
-[npm_img]: https://img.shields.io/npm/v/hadron-app-registry.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/hadron-app-registry
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/hadron-app-registry.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/hadron-app-registry

@@ -1,7 +1,7 @@
 /* eslint complexity: [2, 12] */
 const React = require('react');
 const PropTypes = require('prop-types');
-const { palette } = require('@mongodb-js/compass-components');
+const { palette } = require('@cloud-mongodb-js/compass-components');
 const Actions = require('../actions');
 const d3 = require('d3');
 const chartFn = require('../d3/').realTimeLineChart;

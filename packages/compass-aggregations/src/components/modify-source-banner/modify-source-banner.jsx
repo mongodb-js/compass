@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, BadgeVariant } from '@mongodb-js/compass-components';
+import { Badge, BadgeVariant } from '@cloud-mongodb-js/compass-components';
 
 import styles from './modify-source-banner.module.less';
 

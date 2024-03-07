@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
+import {
+  css,
+  Banner,
+  BannerVariant,
+} from '@cloud-mongodb-js/compass-components';
 import type { InsertCSFLEState } from '../stores/crud-store';
 
 export type InsertCSFLEWarningBannerProps = {

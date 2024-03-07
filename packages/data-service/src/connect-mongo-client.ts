@@ -5,7 +5,7 @@ import type {
   DevtoolsConnectOptions,
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
-import type SSHTunnel from '@mongodb-js/ssh-tunnel';
+import type SSHTunnel from '@cloud-mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';

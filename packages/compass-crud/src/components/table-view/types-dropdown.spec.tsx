@@ -1,9 +1,9 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import { Element } from 'hadron-document';
+import { Element } from '@cloud-mongodb-js/hadron-document';
 
-import app from 'hadron-app';
+import app from '@cloud-mongodb-js/hadron-app';
 import TypesDropdown from './types-dropdown';
 
 const selectableTypes = [

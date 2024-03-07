@@ -12,7 +12,7 @@ Setting values via configure:
 import Plugin, {
   configureStore,
   configureActions,
-} from '@mongodb-js/compass-query-bar';
+} from '@cloud-mongodb-js/compass-query-bar';
 
 const actions = configureActions();
 const store = configureStore({

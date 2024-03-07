@@ -8,7 +8,7 @@ import {
   type User,
 } from './storage';
 import { expect } from 'chai';
-import { z } from '@mongodb-js/compass-user-data';
+import { z } from '@cloud-mongodb-js/compass-user-data';
 import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {

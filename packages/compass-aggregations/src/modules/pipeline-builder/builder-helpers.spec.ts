@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import thunk from 'redux-thunk';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import { AtlasService } from '@cloud-mongodb-js/atlas-service/renderer';
 
 import reducer from '..';
 import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
@@ -13,7 +13,7 @@ import {
   mapStoreStagesToStageIdAndType,
 } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
-import { PipelineStorage } from '@mongodb-js/my-queries-storage';
+import { PipelineStorage } from '@cloud-mongodb-js/my-queries-storage';
 
 function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
   const pipelineBuilder = new PipelineBuilder(

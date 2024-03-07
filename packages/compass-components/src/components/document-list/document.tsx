@@ -3,8 +3,8 @@ import { css } from '@leafygreen-ui/emotion';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-} from 'hadron-document';
-import { ElementEvents } from 'hadron-document';
+} from '@cloud-mongodb-js/hadron-document';
+import { ElementEvents } from '@cloud-mongodb-js/hadron-document';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
@@ -100,7 +100,7 @@ const HadronDocument: React.FunctionComponent<{
     <div>
       <div
         className={hadronDocument}
-        data-testid="hadron-document"
+        data-testid="@cloud-mongodb-js/hadron-document"
         data-id={document.uuid}
       >
         <AutoFocusContext.Provider value={autoFocus}>

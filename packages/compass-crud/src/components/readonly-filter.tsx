@@ -7,7 +7,7 @@ import {
   css,
   spacing,
   fontFamilies,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 type QueryLabelProps = {
   tooltip: string;

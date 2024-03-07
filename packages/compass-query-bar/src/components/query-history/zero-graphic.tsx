@@ -4,7 +4,7 @@ import {
   NoSavedItemsIcon,
   css,
   spacing,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const containerStyles = css({
   display: 'flex',

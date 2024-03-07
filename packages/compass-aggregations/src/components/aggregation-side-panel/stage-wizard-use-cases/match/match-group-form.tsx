@@ -13,7 +13,7 @@ import {
   cx,
   Tooltip,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import MatchConditionForm, { createCondition } from './match-condition-form';
 import type { CreateConditionFn } from './match-condition-form';
 import type { WizardComponentProps } from '..';

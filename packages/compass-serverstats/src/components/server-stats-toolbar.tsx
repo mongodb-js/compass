@@ -8,8 +8,8 @@ import {
   spacing,
   palette,
   useDarkMode,
-} from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+} from '@cloud-mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import { expect } from 'chai';
 import sinon from 'sinon';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 import { OutputStage } from './output-stage-preview';
 
 const renderOutputStage = (

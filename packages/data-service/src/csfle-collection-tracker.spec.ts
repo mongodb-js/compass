@@ -4,7 +4,7 @@ import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import type { Binary } from 'bson';
 import connect from './connect';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
 
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');

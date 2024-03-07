@@ -9,9 +9,9 @@ import {
   spacing,
   Button,
   Icon,
-} from '@mongodb-js/compass-components';
-import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model';
+} from '@cloud-mongodb-js/compass-components';
+import { AIExperienceEntry } from '@cloud-mongodb-js/compass-generative-ai';
+import { useIsAIFeatureEnabled } from '@cloud-mongodb-js/compass-preferences-model';
 
 import type { RootState } from '../../../modules';
 import { editPipeline } from '../../../modules/workspace';

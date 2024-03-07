@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { type PipelineBuilderThunkAction } from '.';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 

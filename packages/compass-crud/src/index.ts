@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 
 import Document, { DocumentProps } from './components/document';
 import DocumentList, { DocumentListProps } from './components/document-list';

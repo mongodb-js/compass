@@ -8,7 +8,7 @@ import {
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {

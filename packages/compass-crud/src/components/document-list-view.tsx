@@ -1,10 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
+import {
+  KeylineCard,
+  css,
+  cx,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';
 import Document from './document';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@cloud-mongodb-js/hadron-document';
 import type { BSONObject } from '../stores/crud-store';
 
 const listStyles = css({

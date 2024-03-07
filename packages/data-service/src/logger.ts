@@ -1,5 +1,5 @@
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { mongoLogId, debug as _debug } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { mongoLogId, debug as _debug } from '@cloud-mongodb-js/compass-logging';
 
 export const debug = _debug.extend('data-service');
 

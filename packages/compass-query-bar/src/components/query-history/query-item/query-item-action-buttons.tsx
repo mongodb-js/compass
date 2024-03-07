@@ -1,4 +1,4 @@
-import { Icon, IconButton } from '@mongodb-js/compass-components';
+import { Icon, IconButton } from '@cloud-mongodb-js/compass-components';
 import React from 'react';
 
 type ActionButtonProps = {

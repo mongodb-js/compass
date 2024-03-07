@@ -1,7 +1,9 @@
 const React = require('react');
 const Actions = require('../actions');
-const { Button, Icon } = require('@mongodb-js/compass-components');
-const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { Button, Icon } = require('@cloud-mongodb-js/compass-components');
+const {
+  createLoggerAndTelemetry,
+} = require('@cloud-mongodb-js/compass-logging');
 const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');
 
 // const debug = require('debug')('mongodb-compass:server-stats:detailview-component');

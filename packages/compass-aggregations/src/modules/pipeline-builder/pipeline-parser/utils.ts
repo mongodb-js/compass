@@ -2,8 +2,8 @@ import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
-import { prettify } from '@mongodb-js/compass-editor';
-import type { FormatOptions } from '@mongodb-js/compass-editor';
+import { prettify } from '@cloud-mongodb-js/compass-editor';
+import type { FormatOptions } from '@cloud-mongodb-js/compass-editor';
 
 type ErrorLoc = {
   line: number;
@@ -39,4 +39,4 @@ export function parseShellBSON(source: string): Document[] {
   return parsed;
 }
 
-export { prettify } from '@mongodb-js/compass-editor';
+export { prettify } from '@cloud-mongodb-js/compass-editor';

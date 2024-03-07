@@ -28,13 +28,13 @@ Compass.
 | `CRUD.LoadMoreDocumentsStore` | Triggers when more documents are fetched via scrolling. |
 
 Components from this plugin can be interracted with using
-[hadron-app][hadron-app] and [hadron-app-registry][hadron-app-registry]. Here are
+[@cloud-mongodb-js/hadron-app][@cloud-mongodb-js/hadron-app] and [@cloud-mongodb-js/hadron-app-registry][@cloud-mongodb-js/hadron-app-registry]. Here are
 a few examples of working with `compass-crud`'s `Action` and `Roles`.
 
 Render an editable document in a React component.
 
 ```jsx
-const app = require('hadron-app');
+const app = require('@cloud-mongodb-js/hadron-app');
 const React = require('react');
 
 class MyComponent extends React.Component {
@@ -51,7 +51,7 @@ class MyComponent extends React.Component {
 Render a non-editable pre-expanded document in a React component.
 
 ```jsx
-const app = require('hadron-app');
+const app = require('@cloud-mongodb-js/hadron-app');
 const React = require('react');
 
 class MyComponent extends React.Component {
@@ -68,7 +68,7 @@ class MyComponent extends React.Component {
 Listen to the various CRUD actions.
 
 ```javascript
-const app = require('hadron-app');
+const app = require('@cloud-mongodb-js/hadron-app');
 const CrudActions = app.appRegistry.getAction('CRUD.Actions');
 
 CrudActions.documentRemoved.listen((id) => {
@@ -89,7 +89,7 @@ CrudActions.insertDocument((doc) => {
 ### App Registry Events Emmitted
 
 Various actions within this plugin will emit events for other parts of the
-application can be listened to via [hadron-app-registry][hadron-app-registry].
+application can be listened to via [@cloud-mongodb-js/hadron-app-registry][@cloud-mongodb-js/hadron-app-registry].
 `Local` events are scoped to a `Tab`.
 `Global` events are scoped to the whole Compass application.
 
@@ -165,17 +165,17 @@ we manage: `crud-store`(`./src/stores/crud-store.js`) and
 ## Install
 
 ```shell
-npm install -S @mongodb-js/compass-crud
+npm install -S @cloud-mongodb-js/compass-crud
 ```
 
 ## See Also
 
 - [compass][compass]
-- [hadron-app-registry][hadron-app-registry]
-- [hadron-app][hadron-app]
+- [@cloud-mongodb-js/hadron-app-registry][@cloud-mongodb-js/hadron-app-registry]
+- [@cloud-mongodb-js/hadron-app][@cloud-mongodb-js/hadron-app]
 
-[npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
-[hadron-app]: https://github.com/mongodb-js/compass/packages/hadron-app
-[hadron-app-registry]: https://github.com/mongodb-js/compass/packages/hadron-app-registry
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/compass-crud.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/compass-crud
+[@cloud-mongodb-js/hadron-app]: https://github.com/mongodb-js/compass/packages/hadron-app
+[@cloud-mongodb-js/hadron-app-registry]: https://github.com/mongodb-js/compass/packages/hadron-app-registry
 [compass]: https://github.com/mongodb-js/compass/packages/compass

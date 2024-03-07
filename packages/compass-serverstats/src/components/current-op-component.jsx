@@ -1,7 +1,9 @@
 const timer = require('d3-timer');
 const React = require('react');
 const PropTypes = require('prop-types');
-const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const {
+  createLoggerAndTelemetry,
+} = require('@cloud-mongodb-js/compass-logging');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
 const { track } = createLoggerAndTelemetry('COMPASS-PERFORMANCE-UI');

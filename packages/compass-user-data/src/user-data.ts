@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getStoragePath } from '@mongodb-js/compass-utils';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { getStoragePath } from '@cloud-mongodb-js/compass-utils';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { StoreConnector } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
+import { StoreConnector } from '@cloud-mongodb-js/compass-components';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import type Reflux from 'reflux';
 
 import DocumentList from './document-list';

@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { MongoDBInstance, TopologyDescription } = require('../');
 
-describe('mongodb-instance-model', function () {
+describe('@cloud-mongodb-js/mongodb-instance-model', function () {
   it('should be in initial state when created', function () {
     const instance = new MongoDBInstance({ _id: 'abc' });
     expect(instance).to.have.property('status', 'initial');

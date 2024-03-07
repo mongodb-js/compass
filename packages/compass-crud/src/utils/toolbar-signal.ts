@@ -1,7 +1,7 @@
 import {
   PerformanceSignals,
   type Signal,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 export const getToolbarSignal = (
   query: string,

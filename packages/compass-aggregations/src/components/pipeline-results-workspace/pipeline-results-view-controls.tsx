@@ -7,7 +7,7 @@ import {
   Icon,
   spacing,
   useId,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { ResultsViewType } from './pipeline-results-list';
 

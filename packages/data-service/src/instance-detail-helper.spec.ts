@@ -11,8 +11,8 @@ import {
 
 import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
+import type { MongoCluster } from '@cloud-mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
   const cluster = mochaTestServer();

@@ -5,7 +5,7 @@ import {
   spacing,
   css,
   ListEditor,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import {
   SORT_DIRECTION_OPTIONS,

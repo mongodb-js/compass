@@ -296,10 +296,10 @@ async function createWorkspace({
     ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
     ...(isReact && { dependencies: { react: '*', 'react-dom': '*' } }),
     devDependencies: {
-      '@mongodb-js/eslint-config-compass': '*',
-      '@mongodb-js/mocha-config-compass': '*',
-      '@mongodb-js/prettier-config-compass': '*',
-      '@mongodb-js/tsconfig-compass': '*',
+      '@cloud-mongodb-js/eslint-config-compass': '*',
+      '@cloud-mongodb-js/mocha-config-compass': '*',
+      '@cloud-mongodb-js/prettier-config-compass': '*',
+      '@cloud-mongodb-js/tsconfig-compass': '*',
       '@types/chai': '*',
       '@types/mocha': '*',
       '@types/sinon-chai': '*',
@@ -322,8 +322,8 @@ async function createWorkspace({
         'gen-esm-wrapper': '*',
       }),
       ...(isPlugin && {
-        '@mongodb-js/webpack-config-compass': '*',
-        'hadron-app-registry': '*',
+        '@cloud-mongodb-js/webpack-config-compass': '*',
+        '@cloud-mongodb-js/hadron-app-registry': '*',
         'xvfb-maybe': '*',
       }),
     },
@@ -345,8 +345,8 @@ async function createWorkspace({
 
   const depcheckrcPath = path.join(packagePath, '.depcheckrc');
   const ignores = [
-    '@mongodb-js/prettier-config-compass',
-    '@mongodb-js/tsconfig-compass',
+    '@cloud-mongodb-js/prettier-config-compass',
+    '@cloud-mongodb-js/tsconfig-compass',
     '@types/chai',
     '@types/sinon-chai',
     'sinon',
@@ -360,7 +360,7 @@ async function createWorkspace({
 
   const prettierrcPath = path.join(packagePath, '.prettierrc.json');
   const prettierrcContent = JSON.stringify(
-    '@mongodb-js/prettier-config-compass'
+    '@cloud-mongodb-js/prettier-config-compass'
   );
 
   const prettierIgnorePath = path.join(packagePath, '.prettierignore');
@@ -369,7 +369,7 @@ async function createWorkspace({
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
     {
-      extends: `@mongodb-js/tsconfig-compass/tsconfig.${
+      extends: `@cloud-mongodb-js/tsconfig-compass/tsconfig.${
         isReact ? 'react' : 'common'
       }.json`,
       compilerOptions: {
@@ -398,7 +398,7 @@ async function createWorkspace({
   const eslintrcContent = `
 module.exports = {
   root: true,
-  extends: ['@mongodb-js/eslint-config-compass'],
+  extends: ['@cloud-mongodb-js/eslint-config-compass'],
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
@@ -411,15 +411,15 @@ module.exports = {
   const mocharcPath = path.join(packagePath, '.mocharc.js');
   const mocharcContent = `module.exports = require('${
     isPlugin
-      ? '@mongodb-js/mocha-config-compass/compass-plugin'
+      ? '@cloud-mongodb-js/mocha-config-compass/compass-plugin'
       : isReact
-      ? '@mongodb-js/mocha-config-compass/react'
-      : '@mongodb-js/mocha-config-compass'
+      ? '@cloud-mongodb-js/mocha-config-compass/react'
+      : '@cloud-mongodb-js/mocha-config-compass'
   }');`;
 
   const webpackConfigPath = path.join(packagePath, 'webpack.config.js');
   const webpackConfigContent = `
-const { compassPluginConfig } = require('@mongodb-js/webpack-config-compass');
+const { compassPluginConfig } = require('@cloud-mongodb-js/webpack-config-compass');
 module.exports = compassPluginConfig;
 `;
 
@@ -428,7 +428,7 @@ module.exports = compassPluginConfig;
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
   const indexSrcContent = isPlugin
     ? `
-import type AppRegistry from "hadron-app-registry";
+import type AppRegistry from "@cloud-mongodb-js/hadron-app-registry";
 
 function activate(appRegistry: AppRegistry): void {
   // Register plugin stores, roles, and components

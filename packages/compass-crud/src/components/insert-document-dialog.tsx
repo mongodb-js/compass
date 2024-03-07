@@ -1,7 +1,7 @@
 import { pull } from 'lodash';
 import React from 'react';
-import type Document from 'hadron-document';
-import { Element } from 'hadron-document';
+import type Document from '@cloud-mongodb-js/hadron-document';
+import { Element } from '@cloud-mongodb-js/hadron-document';
 import {
   Banner,
   css,
@@ -10,14 +10,14 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   spacing,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { LoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { withLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging/provider';
 
 /**
  * The insert invalid message.

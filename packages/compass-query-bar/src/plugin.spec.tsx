@@ -1,12 +1,12 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import Sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 
 const mockQueryHistoryRole = {
   name: 'Query History',

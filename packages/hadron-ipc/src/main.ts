@@ -4,7 +4,7 @@ import createDebug from 'debug';
 import { getResponseChannel } from './common';
 import { serializeErrorForIpc } from './serialized-error';
 
-const debug = createDebug('hadron-ipc:main');
+const debug = createDebug('@cloud-mongodb-js/hadron-ipc:main');
 
 const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
   return (

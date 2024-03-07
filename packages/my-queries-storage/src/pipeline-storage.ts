@@ -1,6 +1,6 @@
-import type { Stats } from '@mongodb-js/compass-user-data';
-import { UserData, z } from '@mongodb-js/compass-user-data';
-import { prettify } from '@mongodb-js/compass-editor';
+import type { Stats } from '@cloud-mongodb-js/compass-user-data';
+import { UserData, z } from '@cloud-mongodb-js/compass-user-data';
+import { prettify } from '@cloud-mongodb-js/compass-editor';
 
 function stageToString(
   operator: string,

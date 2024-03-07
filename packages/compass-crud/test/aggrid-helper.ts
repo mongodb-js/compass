@@ -1,4 +1,4 @@
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { ObjectId } from 'bson';

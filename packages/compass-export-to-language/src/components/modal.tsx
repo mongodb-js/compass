@@ -10,8 +10,8 @@ import {
   Banner,
   spacing,
   FormFieldContainer,
-} from '@mongodb-js/compass-components';
-import type { Language } from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
+import type { Language } from '@cloud-mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
 import {
   outputLanguageToCodeLanguage,
@@ -25,7 +25,7 @@ import {
 } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
 const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 

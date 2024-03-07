@@ -6,7 +6,7 @@ import {
   Badge,
   KeylineCard,
   cx,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';

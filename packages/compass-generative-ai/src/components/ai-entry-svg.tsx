@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx, palette } from '@mongodb-js/compass-components';
+import { css, cx, palette } from '@cloud-mongodb-js/compass-components';
 
 export const aiEntrySVGStyles = css({
   alignSelf: 'center',

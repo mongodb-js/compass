@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { css, cx, palette, withDarkMode } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  css,
+  cx,
+  palette,
+  withDarkMode,
+} from '@cloud-mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@cloud-mongodb-js/compass-editor';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css, spacing } from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import type { PipelineMode } from '../../modules/pipeline-builder/pipeline-mode';
 import PipelineBuilderUIWorkspace from './pipeline-builder-ui-workspace';

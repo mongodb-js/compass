@@ -1,5 +1,5 @@
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { localAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export const SAVING_PIPELINE_NAME_CHANGED =

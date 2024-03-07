@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from '@mongodb-js/compass-components';
+import { css } from '@cloud-mongodb-js/compass-components';
 
 const bannerStyles = css({
   display: 'block',

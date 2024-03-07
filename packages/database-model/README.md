@@ -1,4 +1,4 @@
-# mongodb-database-model [![][npm_img]][npm_url]
+# @cloud-mongodb-js/mongodb-database-model [![][npm_img]][npm_url]
 
 > MongoDB database model.
 
@@ -11,7 +11,7 @@
 ## Installation
 
 ```
-npm install --save mongodb-database-model
+npm install --save @cloud-mongodb-js/mongodb-database-model
 ```
 
 ## Testing
@@ -24,6 +24,6 @@ npm test
 
 [![][gitter_img]][gitter_url]
 
-[npm_img]: https://img.shields.io/npm/v/mongodb-database-model.svg
-[npm_url]: https://www.npmjs.org/package/mongodb-database-model
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/mongodb-database-model.svg
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/mongodb-database-model
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg

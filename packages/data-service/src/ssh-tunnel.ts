@@ -2,7 +2,7 @@ import { EventEmitter, once } from 'events';
 import fs from 'fs';
 import crypto from 'crypto';
 import { promisify } from 'util';
-import SSHTunnel from '@mongodb-js/ssh-tunnel';
+import SSHTunnel from '@cloud-mongodb-js/ssh-tunnel';
 import type { MongoClientOptions } from 'mongodb';
 import type { ConnectionSshOptions } from './connection-options';
 import { redactSshTunnelOptions } from './redact';

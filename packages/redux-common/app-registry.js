@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = '@mongodb-js/mongodb-redux-common/app-registry';
+const PREFIX = '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * Local app registry activated.

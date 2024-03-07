@@ -1,9 +1,9 @@
 import type { Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import preferences from 'compass-preferences-model';
-import { openToast } from '@mongodb-js/compass-components';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
+import { openToast } from '@cloud-mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 
 import type { PipelineBuilderThunkAction } from '../';
@@ -11,7 +11,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
-import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServiceError } from '@cloud-mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 

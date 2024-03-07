@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
-import { css } from '@mongodb-js/compass-components';
+import { css } from '@cloud-mongodb-js/compass-components';
 import {
   SortableContext,
   useSortable,

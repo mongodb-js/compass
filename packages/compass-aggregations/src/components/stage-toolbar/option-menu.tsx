@@ -8,7 +8,7 @@ import {
   Icon,
   palette,
   spacing,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import {
   addStage,
   removeStage,

@@ -1,7 +1,7 @@
 import type { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import { showConfirmation } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { showConfirmation } from '@cloud-mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS');
 
 export enum ActionTypes {

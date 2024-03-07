@@ -5,14 +5,14 @@ import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 // @ts-expect-error no types available
 import StateMixin from 'reflux-state-mixin';
-import type { Element } from 'hadron-document';
-import { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Element } from '@cloud-mongodb-js/hadron-document';
+import { Document } from '@cloud-mongodb-js/hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { Stage } from '@mongodb-js/explain-plan-helper';
-import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { capMaxTimeMSAtPreferenceLimit } from '@cloud-mongodb-js/compass-preferences-model';
+import type { Stage } from '@cloud-mongodb-js/explain-plan-helper';
+import { ExplainPlan } from '@cloud-mongodb-js/explain-plan-helper';
 
 import {
   countDocuments,
@@ -30,17 +30,23 @@ import {
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
-import type { DataService, UpdatePreview } from 'mongodb-data-service';
+import type {
+  DataService,
+  UpdatePreview,
+} from '@cloud-mongodb-js/mongodb-data-service';
 import type {
   GridStore,
   GridStoreOptions,
   TableHeaderType,
 } from './grid-store';
 import configureGridStore from './grid-store';
-import type { TypeCastMap } from 'hadron-type-checker';
-import type AppRegistry from 'hadron-app-registry';
+import type { TypeCastMap } from '@cloud-mongodb-js/hadron-type-checker';
+import type AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
-import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation,
+} from '@cloud-mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];

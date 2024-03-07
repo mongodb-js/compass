@@ -22,15 +22,15 @@
 The aggregation builder in Compass actually involves 2 Compass plugins:
 
 - [`<Aggregation />`](https://github.com/mongodb-js/compass-aggregations) Plugin for primary UI
-- [`<ExportToLanguage />`](https://github.com/mongodb-js/compass-export-to-language) Modal plugin that connects `<Aggregation />` to `bson-transpilers` [for actual compiling to another language](https://github.com/mongodb-js/bson-transpilers)
+- [`<ExportToLanguage />`](https://github.com/mongodb-js/compass-export-to-language) Modal plugin that connects `<Aggregation />` to `@cloud-mongodb-js/bson-transpilers` [for actual compiling to another language](https://github.com/mongodb-js/@cloud-mongodb-js/bson-transpilers)
 
 Here's how these 2 plugins come together:
 
 - `./src/modules/export-to-language.js` `appRegistry.emit('open-aggregation-export-to-language', generatePipelineAsString())`
 - [`compass-export-to-language/src/stores/store.js`](https://github.com/mongodb-js/compass-export-to-language/blob/master/src/stores/store.js#L16) Listener for 'export to lang' event via appRegistry and renders its modal.
-- [`compass-export-to-language/src/modules/export-query.js`](https://github.com/mongodb-js/compass-export-to-language/blob/master/src/modules/export-query.js#L56) has reducer for calling `bson-transpilers.compile()` which populates the code in the modal dialog.
+- [`compass-export-to-language/src/modules/export-query.js`](https://github.com/mongodb-js/compass-export-to-language/blob/master/src/modules/export-query.js#L56) has reducer for calling `@cloud-mongodb-js/bson-transpilers.compile()` which populates the code in the modal dialog.
 
-### Usage with a `mongodb-data-service` Provider
+### Usage with a `@cloud-mongodb-js/mongodb-data-service` Provider
 
 See `./examples-data-service-provider.js` for details on what `data-service` functions are used and the applicable options for each.
 
@@ -46,10 +46,10 @@ If you're interested in helping with the Aggregation Builder plugin, we'd be ove
 
 ## Related
 
-- [`<ExportToLanguage />`](https://github.com/mongodb-js/compass-export-to-language) Modal plugin that connects `<Aggregation />` to `bson-transpilers` [for actual compiling to another language](https://github.com/mongodb-js/bson-transpilers)
+- [`<ExportToLanguage />`](https://github.com/mongodb-js/compass-export-to-language) Modal plugin that connects `<Aggregation />` to `@cloud-mongodb-js/bson-transpilers` [for actual compiling to another language](https://github.com/mongodb-js/@cloud-mongodb-js/bson-transpilers)
 - [`mongodb-js/stage-validator`](https://github.com/mongodb-js/stage-validator) Aggregation Pipeline Stage grammar.
-- [`bson-transpilers`](https://github.com/mongodb-js/bson-transpilers) Read the amazing: [Compiler in JavaScript using ANTLR](https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f)
-- [`@mongodb-js/compass-editor`](https://github.com/mongodb-js/compass/tree/main/packages/compass-editor) Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters.
+- [`@cloud-mongodb-js/bson-transpilers`](https://github.com/mongodb-js/@cloud-mongodb-js/bson-transpilers) Read the amazing: [Compiler in JavaScript using ANTLR](https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f)
+- [`@cloud-mongodb-js/compass-editor`](https://github.com/mongodb-js/compass/tree/main/packages/compass-editor) Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters.
 
 ## Usage
 
@@ -60,21 +60,21 @@ conveniently set any values it uses.
 
 This is for:
 
-- `@mongodb-js/compass-aggregations 4.0.0-beta.11`
-- `@mongodb-js/compass-export-to-language 4.0.2`
+- `@cloud-mongodb-js/compass-aggregations 4.0.0-beta.11`
+- `@cloud-mongodb-js/compass-export-to-language 4.0.2`
 
 ### Browser
 
 Setting values via configure:
 
 ```js
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import AggregationsPlugin, {
   configureStore as configureAggregationsStore
-} from '@mongodb-js/compass-aggregations';
+} from '@cloud-mongodb-js/compass-aggregations';
 import ExportToLanguagePlugin, {
   configureStore as configureExportToLanguageStore
-} from '@mongodb-js/compass-export-to-language';
+} from '@cloud-mongodb-js/compass-export-to-language';
 
 const handleOut = (namespace) => {
   window.open(`https://cloud.mongodb.com/${namespace}`, '_new');
@@ -167,7 +167,7 @@ provider.aggregate(namespace, pipeline, options, callback);
 ### App Registry Events Emmitted
 
 Various actions within this plugin will emit events for other parts of the
-application can be listened to via [hadron-app-registry][hadron-app-registry].
+application can be listened to via [@cloud-mongodb-js/hadron-app-registry][@cloud-mongodb-js/hadron-app-registry].
 `Local` events are scoped to a `Tab`.
 `Global` events are scoped to the whole Compass application.
 
@@ -267,7 +267,7 @@ npm run analyze
 ## Install
 
 ```shell
-npm i -S @mongodb-js/compass-aggregations
+npm i -S @cloud-mongodb-js/compass-aggregations
 ```
 
-[hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry
+[@cloud-mongodb-js/hadron-app-registry]: https://github.com/mongodb-js/@cloud-mongodb-js/hadron-app-registry

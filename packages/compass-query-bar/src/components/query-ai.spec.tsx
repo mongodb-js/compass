@@ -15,7 +15,7 @@ import {
 } from '../stores/ai-query-reducer';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 
 const noop = () => {
   /* no op */

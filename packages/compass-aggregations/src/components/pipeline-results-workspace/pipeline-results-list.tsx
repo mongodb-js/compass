@@ -1,8 +1,11 @@
 import React, { useMemo } from 'react';
-import { DocumentListView, DocumentJsonView } from '@mongodb-js/compass-crud';
+import {
+  DocumentListView,
+  DocumentJsonView,
+} from '@cloud-mongodb-js/compass-crud';
 import type { Document } from 'mongodb';
-import HadronDocument from 'hadron-document';
-import { css, spacing } from '@mongodb-js/compass-components';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
+import { css, spacing } from '@cloud-mongodb-js/compass-components';
 
 export type ResultsViewType = 'document' | 'json';
 

@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import type { AnyAction } from 'redux';
 
 /**

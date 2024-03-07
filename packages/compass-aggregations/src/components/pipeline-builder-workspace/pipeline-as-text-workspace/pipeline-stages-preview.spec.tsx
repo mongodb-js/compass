@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 
 const renderStageBanner = (
   props: Partial<ComponentProps<typeof OutputStagePreview>> = {}

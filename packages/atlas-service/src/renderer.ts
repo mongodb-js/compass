@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@cloud-mongodb-js/hadron-ipc';
 import type { AtlasService as AtlasServiceMain } from './main';
 import {
   disableAIFeature,

@@ -1,4 +1,4 @@
-import { css, cx, spacing } from '@mongodb-js/compass-components';
+import { css, cx, spacing } from '@cloud-mongodb-js/compass-components';
 import React from 'react';
 
 const containerQueryName = 'pipeline-toolbar-container';

@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-generative-ai",
+  "name": "@cloud-mongodb-js/compass-generative-ai",
   "productName": "compass-generative-ai",
   "description": "Generative AI aspects for Compass",
   "author": {
@@ -58,18 +58,18 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.19.0",
+    "@cloud-mongodb-js/compass-components": "^1.19.0",
     "react": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.19.0"
+    "@cloud-mongodb-js/compass-components": "^1.19.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.2.5",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/webpack-config-compass": "^1.2.5",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",

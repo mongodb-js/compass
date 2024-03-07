@@ -1,8 +1,8 @@
 import type { Reducer } from 'redux';
-import type { Stage } from '@mongodb-js/explain-plan-helper';
-import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import type { Stage } from '@cloud-mongodb-js/explain-plan-helper';
+import { ExplainPlan } from '@cloud-mongodb-js/explain-plan-helper';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
-import { cancellableWait } from '@mongodb-js/compass-utils';
+import { cancellableWait } from '@cloud-mongodb-js/compass-utils';
 import type { PipelineBuilderThunkAction } from '.';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';

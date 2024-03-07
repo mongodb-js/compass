@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import {
   DocumentList,
   LeafyGreenProvider,
-} from '@mongodb-js/compass-components';
-import type Document from 'hadron-document';
+} from '@cloud-mongodb-js/compass-components';
+import type Document from '@cloud-mongodb-js/hadron-document';
 import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
-import type { Element } from 'hadron-document';
+import type { Element } from '@cloud-mongodb-js/hadron-document';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
 
 export type FullWidthCellRendererProps = Pick<

@@ -3,7 +3,7 @@ import { EventEmitter, once } from 'events';
 import type { Socket } from 'net';
 import type { ClientChannel, ConnectConfig } from 'ssh2';
 import { Client as SshClient } from 'ssh2';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 
 // The socksv5 module is not bundle-able by itself, so we get the
 // subpackages directly

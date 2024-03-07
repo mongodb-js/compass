@@ -8,7 +8,10 @@ import {
   isPlainObject,
   pull,
 } from 'lodash';
-import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
+import {
+  bsonEqual,
+  hasDistinctValue,
+} from '@cloud-mongodb-js/mongodb-query-util';
 import mergeGeoFilter from './merge-geo-filter';
 
 type ClearValueArgs = {

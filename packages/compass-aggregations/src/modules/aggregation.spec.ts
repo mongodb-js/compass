@@ -16,7 +16,7 @@ import type { RootState } from '.';
 import rootReducer from '../modules';
 import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
-import { createCancelError } from '@mongodb-js/compass-utils';
+import { createCancelError } from '@cloud-mongodb-js/compass-utils';
 
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
   const mockedState = {

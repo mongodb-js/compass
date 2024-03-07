@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import type { ItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@cloud-mongodb-js/compass-components';
+import { ItemActionGroup } from '@cloud-mongodb-js/compass-components';
 
 type RowActionsRendererProps = {
   api?: any;

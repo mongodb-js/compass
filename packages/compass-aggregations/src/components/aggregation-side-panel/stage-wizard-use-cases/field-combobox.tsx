@@ -1,7 +1,7 @@
 import {
   ComboboxWithCustomOption,
   ComboboxOption,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import type { ComponentProps } from 'react';
 import type { WizardComponentProps } from '.';

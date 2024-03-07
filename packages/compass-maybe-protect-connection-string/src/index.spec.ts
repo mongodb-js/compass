@@ -1,7 +1,7 @@
 import { maybeProtectConnectionString } from './';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 
 const connectionString = 'mongodb://username:p4ssw0rd@localhost/';
 

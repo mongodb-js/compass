@@ -1,4 +1,4 @@
-# hadron-document [![][npm_img]][npm_url]
+# @cloud-mongodb-js/hadron-document [![][npm_img]][npm_url]
 
 Hadron Document is a wrapper for javascript objects that represent documents
 in a database intended for use with React components. It provides element
@@ -8,7 +8,7 @@ and revert changes to elements directly.
 ## Installation
 
 ```
-npm install --save hadron-document
+npm install --save @cloud-mongodb-js/hadron-document
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ npm install --save hadron-document
 ```javascript
 'use strict';
 
-const { Document } = require('hadron-document');
+const { Document } = require('@cloud-mongodb-js/hadron-document');
 
 var object = {
   _id: 'aphex-twin',
@@ -31,5 +31,5 @@ var object = {
 var doc = new Document(object);
 ```
 
-[npm_img]: https://img.shields.io/npm/v/hadron-document.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/hadron-document
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/hadron-document.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/hadron-document

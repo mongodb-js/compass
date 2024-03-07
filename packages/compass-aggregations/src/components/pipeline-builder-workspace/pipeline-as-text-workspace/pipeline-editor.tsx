@@ -8,18 +8,18 @@ import {
   palette,
   useDarkMode,
   cx,
-} from '@mongodb-js/compass-components';
-import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-components';
+import type { CompletionWithServerInfo } from '@cloud-mongodb-js/compass-editor';
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
-} from '@mongodb-js/compass-editor';
-import type { Annotation } from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-editor';
+import type { Annotation } from '@cloud-mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({

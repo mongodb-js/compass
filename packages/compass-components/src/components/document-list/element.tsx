@@ -10,8 +10,11 @@ import type {
   default as HadronDocumentType,
   Element as HadronElementType,
   Editor as EditorType,
-} from 'hadron-document';
-import { ElementEvents, ElementEditor } from 'hadron-document';
+} from '@cloud-mongodb-js/hadron-document';
+import {
+  ElementEvents,
+  ElementEditor,
+} from '@cloud-mongodb-js/hadron-document';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
@@ -441,7 +444,7 @@ export const HadronElement: React.FunctionComponent<{
     <>
       <div
         data-document-element="true"
-        data-testid="hadron-document-element"
+        data-testid="@cloud-mongodb-js/hadron-document-element"
         data-field={key.value}
         data-id={element.uuid}
         {...elementProps}
@@ -529,7 +532,10 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div {...keyProps} data-testid="hadron-document-element-key">
+        <div
+          {...keyProps}
+          data-testid="@cloud-mongodb-js/hadron-document-element-key"
+        >
           {key.editable ? (
             <KeyEditor
               value={key.value}
@@ -558,7 +564,7 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementDivider} role="presentation">
           {value.decrypted && (
             <span
-              data-testid="hadron-document-element-decrypted-icon"
+              data-testid="@cloud-mongodb-js/hadron-document-element-decrypted-icon"
               title="Encrypted Field"
             >
               <Icon glyph="Key" size="small" />
@@ -567,7 +573,7 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div
           className={elementValue}
-          data-testid="hadron-document-element-value"
+          data-testid="@cloud-mongodb-js/hadron-document-element-value"
         >
           {value.editable ? (
             <ValueEditor
@@ -597,7 +603,7 @@ export const HadronElement: React.FunctionComponent<{
             <div
               data-testid={
                 editable && !editingEnabled
-                  ? 'hadron-document-clickable-value'
+                  ? '@cloud-mongodb-js/hadron-document-clickable-value'
                   : undefined
               }
               onDoubleClick={() => {
@@ -616,7 +622,7 @@ export const HadronElement: React.FunctionComponent<{
         {editable && (
           <div
             className={elementType}
-            data-testid="hadron-document-element-type"
+            data-testid="@cloud-mongodb-js/hadron-document-element-type"
           >
             <TypeEditor
               editing={editingEnabled}

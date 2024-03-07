@@ -1,6 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Icon,
+  css,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
@@ -8,7 +13,7 @@ import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 
 const containerStyles = css({

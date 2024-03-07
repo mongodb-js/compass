@@ -10,7 +10,7 @@ import {
   useDarkMode,
   IconButton,
   SignalPopover,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -20,7 +20,7 @@ import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import type { ServerEnvironment } from '../../modules/env';
 import { createSearchIndex } from '../../modules/search-indexes';
 

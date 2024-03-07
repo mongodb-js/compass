@@ -11,9 +11,9 @@ import {
   useDarkMode,
   SearchInput,
   GuideCue,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 
 import { toggleSidePanel } from '../../modules/side-panel';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';

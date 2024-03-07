@@ -115,8 +115,8 @@ export type HadronPluginComponent<T> = React.FunctionComponent<T> & {
  *
  * @example
  * // app.js
- * import CompassLogging from '@mongodb-js/compass-logging';
- * import { LoggingProvider } from '@mongodb-js/compass-logging/provider';
+ * import CompassLogging from '@cloud-mongodb-js/compass-logging';
+ * import { LoggingProvider } from '@cloud-mongodb-js/compass-logging/provider';
  *
  * ReactDOM.render(
  *   <LoggingProvider service={CompassLogging}>
@@ -125,7 +125,7 @@ export type HadronPluginComponent<T> = React.FunctionComponent<T> & {
  * )
  *
  * // plugin.js
- * import { logging } from '@mongodb-js/compass-logging/provider'
+ * import { logging } from '@cloud-mongodb-js/compass-logging/provider'
  *
  * const PluginWithLogger = registerHadronPlugin({
  *   name: 'LoggingPlugin',

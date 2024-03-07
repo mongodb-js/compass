@@ -7,8 +7,8 @@ import {
   SignalPopover,
   css,
   spacing,
-} from '@mongodb-js/compass-components';
-import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
+} from '@cloud-mongodb-js/compass-components';
+import { AIExperienceEntry } from '@cloud-mongodb-js/compass-generative-ai';
 import type { RootState } from '../../../modules';
 import {
   exportAggregationResults,
@@ -25,7 +25,7 @@ import { openCreateIndexModal } from '../../../modules/insights';
 import {
   usePreference,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
+} from '@cloud-mongodb-js/compass-preferences-model';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({

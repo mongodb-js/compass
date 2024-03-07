@@ -5,7 +5,7 @@ import {
   palette,
   Body,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { SavePipelineCard } from './saved-pipeline-card';
 import {
@@ -14,7 +14,7 @@ import {
   getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import type { RootState } from '../../modules';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@cloud-mongodb-js/my-queries-storage';
 
 const savedPipelinesStyles = css({
   width: '400px',

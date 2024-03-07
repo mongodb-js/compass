@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-explain-compat",
+  "name": "@cloud-mongodb-js/mongodb-explain-compat",
   "version": "3.0.2",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [

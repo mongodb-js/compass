@@ -1,6 +1,6 @@
 import { UUID } from 'bson';
 import { storedUserPreferencesProps } from './preferences';
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { UserData, z } from '@cloud-mongodb-js/compass-user-data';
 
 type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
 export type StoredPreferences = z.output<PreferencesValidator>;

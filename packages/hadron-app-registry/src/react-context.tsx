@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { globalAppRegistry, AppRegistry } from './app-registry';
 import createDebug from 'debug';
-const debug = createDebug('hadron-app-registry:react');
+const debug = createDebug('@cloud-mongodb-js/hadron-app-registry:react');
 
 const GlobalAppRegistryContext = createContext(globalAppRegistry);
 const LocalAppRegistryContext = createContext<AppRegistry | null>(null);

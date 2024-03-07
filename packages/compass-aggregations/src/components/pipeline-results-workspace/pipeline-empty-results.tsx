@@ -3,7 +3,7 @@ import {
   EmptyContent,
   palette,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const ZeroGraphic: React.FunctionComponent = () => {
   const darkMode = useDarkMode();

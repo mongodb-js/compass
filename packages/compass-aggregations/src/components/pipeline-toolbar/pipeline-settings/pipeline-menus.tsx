@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
-import type { MenuAction } from '@mongodb-js/compass-components';
+import { Icon, DropdownMenuButton } from '@cloud-mongodb-js/compass-components';
+import type { MenuAction } from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import {

@@ -1,5 +1,5 @@
 import { stringify, validate } from 'mongodb-query-parser';
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 import { isEqual } from 'lodash';
 import {
   DEFAULT_FIELD_VALUES,

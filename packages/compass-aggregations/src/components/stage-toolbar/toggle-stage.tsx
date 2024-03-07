@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toggle } from '@mongodb-js/compass-components';
+import { Toggle } from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';

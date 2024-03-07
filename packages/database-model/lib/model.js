@@ -2,7 +2,7 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
 const {
   Collection: MongoDbCollectionCollection,
-} = require('mongodb-collection-model');
+} = require('@cloud-mongodb-js/mongodb-collection-model');
 
 function mergeInit(...init) {
   return {
@@ -130,7 +130,7 @@ const DatabaseModel = AmpersandModel.extend(
       collections: MongoDbCollectionCollection,
     },
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService, force = false }) {
@@ -150,7 +150,7 @@ const DatabaseModel = AmpersandModel.extend(
     },
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetchCollections({ dataService, force = false }) {
@@ -217,7 +217,7 @@ const DatabaseCollection = AmpersandCollection.extend(
     model: DatabaseModel,
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {

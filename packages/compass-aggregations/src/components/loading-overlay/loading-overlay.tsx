@@ -8,7 +8,7 @@ import {
   Body,
   palette,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const loadingOverlayStyles = css({
   position: 'absolute',

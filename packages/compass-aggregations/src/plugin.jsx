@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
 import configureStore from './stores/store';
-import { ConfirmationModalArea } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model';
+import { ConfirmationModalArea } from '@cloud-mongodb-js/compass-components';
+import { withPreferences } from '@cloud-mongodb-js/compass-preferences-model';
 
 class AggregationsPlugin extends Component {
   static propTypes = {

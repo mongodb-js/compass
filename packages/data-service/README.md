@@ -1,11 +1,11 @@
-# mongodb-data-service [![][workflow_img]][workflow_url] [![][npm_img]][npm_url] [![][dependabot_img]][dependabot_url]
+# @cloud-mongodb-js/mongodb-data-service [![][workflow_img]][workflow_url] [![][npm_img]][npm_url] [![][dependabot_img]][dependabot_url]
 
 > MongoDB Data Service: an API on top of the [MongoDB Node Driver][driver]
 
 ## Installation
 
 ```
-npm install --save mongodb-data-service
+npm install --save @cloud-mongodb-js/mongodb-data-service
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install --save mongodb-data-service
 ### Creating a new service instance
 
 ```javascript
-const { connect } = require('mongodb-data-service');
+const { connect } = require('@cloud-mongodb-js/mongodb-data-service');
 
 // ...
 
@@ -138,8 +138,8 @@ npm test
 
 [workflow_img]: https://github.com/mongodb-js/data-service/workflows/Check%20and%20Test/badge.svg?event=push
 [workflow_url]: https://github.com/mongodb-js/data-service/actions?query=workflow%3A%22Check+and+Test%22
-[npm_img]: https://img.shields.io/npm/v/mongodb-data-service.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/mongodb-data-service
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/mongodb-data-service.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/mongodb-data-service
 [driver]: https://github.com/mongodb/node-mongodb-native
 [dependabot_img]: https://api.dependabot.com/badges/status?host=github&repo=mongodb-js/data-service
 [dependabot_url]: https://app.dependabot.com/accounts/mongodb-js/repos/51536401

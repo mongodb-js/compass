@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-data-service",
+  "name": "@cloud-mongodb-js/mongodb-data-service",
   "description": "MongoDB Data Service",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": {
@@ -51,11 +51,11 @@
     "mongodb": "^6.0.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.2.6",
-    "@mongodb-js/compass-utils": "^0.5.5",
+    "@cloud-mongodb-js/compass-logging": "^1.2.6",
+    "@cloud-mongodb-js/compass-utils": "^0.5.5",
     "@mongodb-js/devtools-connect": "^2.4.2",
     "@mongodb-js/oidc-plugin": "^0.3.0",
-    "@mongodb-js/ssh-tunnel": "^2.1.4",
+    "@cloud-mongodb-js/ssh-tunnel": "^2.1.4",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.7.0",
     "mongodb-connection-string-url": "^2.6.0",
@@ -64,12 +64,12 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@mongodb-js/compass-test-server": "^0.1.6",
+    "@cloud-mongodb-js/compass-test-server": "^0.1.6",
     "@mongodb-js/devtools-docker-test-envs": "^1.2.5",
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/lodash": "^4.14.188",
     "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",

@@ -6,7 +6,7 @@ import {
   css,
   spacing,
   useId,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const formStyles = css({
   display: 'flex',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css, spacing } from '@cloud-mongodb-js/compass-components';
 import type {
   QueryOption,
   QueryBarRowLayout,

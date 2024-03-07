@@ -1,4 +1,4 @@
-# @mongodb-js/eslint-config-compass
+# @cloud-mongodb-js/eslint-config-compass
 
 > Shared [eslint][eslint] configuration for Compass packages.
 

@@ -6,7 +6,7 @@ import {
   css,
   spacing,
   Link,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { PIPELINE_HELP_URI } from '../../constants';
 
 const containerStyles = css({ textAlign: 'center' });

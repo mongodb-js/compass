@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 
 import {
   DEFAULT_FIELD_VALUES,
@@ -29,7 +29,7 @@ import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
 import type {
   RecentQuery,
   FavoriteQuery,
-} from '@mongodb-js/my-queries-storage';
+} from '@cloud-mongodb-js/my-queries-storage';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type QueryBarState = {

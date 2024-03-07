@@ -13,7 +13,7 @@ import {
   useHotkeys,
   formatHotkey,
   SignalPopover,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -24,7 +24,7 @@ import {
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import { createSearchIndex } from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
 

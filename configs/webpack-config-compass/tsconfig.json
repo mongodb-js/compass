@@ -1,5 +1,5 @@
 {
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "extends": "@cloud-mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "dist",
     "lib": ["ES2020"]

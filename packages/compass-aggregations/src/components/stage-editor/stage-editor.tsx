@@ -4,9 +4,9 @@ import type { MongoServerError } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   createStageAutocompleter,
-} from '@mongodb-js/compass-editor';
-import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+} from '@cloud-mongodb-js/compass-editor';
+import type { Annotation, EditorRef } from '@cloud-mongodb-js/compass-editor';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import {
   css,
   cx,
@@ -14,7 +14,7 @@ import {
   palette,
   Banner,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import {
   changeStageValue,
   pipelineFromStore,

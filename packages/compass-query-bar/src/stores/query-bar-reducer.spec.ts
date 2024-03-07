@@ -16,7 +16,7 @@ import {
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
 import Sinon from 'sinon';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 
 function createStore(opts: Partial<QueryBarStoreOptions>) {
   return configureStore(opts);

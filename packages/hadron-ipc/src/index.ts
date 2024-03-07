@@ -16,7 +16,7 @@ const hadronIpc = (() => {
   if (!isElectron) {
     if (process.env.NODE_ENV !== 'test') {
       // eslint-disable-next-line no-console
-      console.warn('Unsupported environment for hadron-ipc');
+      console.warn('Unsupported environment for @cloud-mongodb-js/hadron-ipc');
     }
     return {};
   }

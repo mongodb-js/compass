@@ -1,7 +1,12 @@
 import React, { useRef } from 'react';
-import { css, spacing, Link, rafraf } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Link,
+  rafraf,
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { EditorRef } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@cloud-mongodb-js/compass-editor';
 import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';

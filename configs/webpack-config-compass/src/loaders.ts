@@ -43,7 +43,7 @@ const browserslistElectronVersion = (() => {
     if (!isLatestBrowserslist()) {
       const errorMessage = `${(e as Error).message}.
 Please update browserslist in webpack-config-compass:
-npm i -S -w @mongodb-js/webpack-config-compass browserslist@latest`;
+npm i -S -w @cloud-mongodb-js/webpack-config-compass browserslist@latest`;
       throw new Error(chalk.red(errorMessage));
     }
 

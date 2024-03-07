@@ -3,7 +3,7 @@ const {
   collectWorkspacesDependencies,
 } = require('./workspace-dependencies');
 
-const compassComponentsWorkspaceName = '@mongodb-js/compass-components';
+const compassComponentsWorkspaceName = '@cloud-mongodb-js/compass-components';
 
 // Checks if any package except "compass-components" try to require
 // a `leafygreen-ui` or `emotion` dependency.

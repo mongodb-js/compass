@@ -4,7 +4,7 @@ const { glob } = require('glob');
 const {
   pluginExternals,
   sharedExternals,
-} = require('@mongodb-js/webpack-config-compass');
+} = require('@cloud-mongodb-js/webpack-config-compass');
 
 function getImportsFromSourceString(sourceString) {
   const imports = [];

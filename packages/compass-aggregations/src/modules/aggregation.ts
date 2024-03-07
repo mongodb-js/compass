@@ -2,10 +2,10 @@ import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
   getPipelineFromBuilderState,

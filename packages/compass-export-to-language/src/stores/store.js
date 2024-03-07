@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+} from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
 
 function getCurrentlyConnectedUri(dataService) {

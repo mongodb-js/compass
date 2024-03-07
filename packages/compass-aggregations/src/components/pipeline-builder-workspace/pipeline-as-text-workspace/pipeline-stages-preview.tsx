@@ -9,7 +9,7 @@ import {
   SpinLoader,
   ButtonVariant,
   ButtonSize,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
 import {
@@ -20,7 +20,7 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../../constants';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 
 const bannerStyles = css({
   alignItems: 'center',

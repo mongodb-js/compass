@@ -1,6 +1,6 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
+import { capMaxTimeMSAtPreferenceLimit } from '@cloud-mongodb-js/compass-preferences-model';
 
 const defaultOptions = {
   promoteValues: false,

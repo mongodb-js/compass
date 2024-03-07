@@ -1,10 +1,10 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
-const app = require('hadron-app');
+const app = require('@cloud-mongodb-js/hadron-app');
 const chai = require('chai');
 const expect = chai.expect;
 const React = require('react');
 const { mount } = require('enzyme');
-const { Banner } = require('@mongodb-js/compass-components');
+const { Banner } = require('@cloud-mongodb-js/compass-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
 const TopStore = require('../../src/stores/top-store');
 const { PerformanceComponent } = require('../../src/components/');

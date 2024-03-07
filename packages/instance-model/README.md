@@ -1,4 +1,4 @@
-# mongodb-instance-model [![][npm_img]][npm_url]
+# @cloud-mongodb-js/mongodb-instance-model [![][npm_img]][npm_url]
 
 > MongoDB instance model.
 
@@ -11,7 +11,7 @@
 ## Installation
 
 ```
-npm install --save mongodb-instance-model
+npm install --save @cloud-mongodb-js/mongodb-instance-model
 ```
 
 ## Testing
@@ -20,5 +20,5 @@ npm install --save mongodb-instance-model
 npm test
 ```
 
-[npm_img]: https://img.shields.io/npm/v/mongodb-instance-model.svg
-[npm_url]: https://www.npmjs.org/package/mongodb-instance-model
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/mongodb-instance-model.svg
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/mongodb-instance-model

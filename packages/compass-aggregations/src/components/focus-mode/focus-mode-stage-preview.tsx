@@ -5,9 +5,9 @@ import {
   SpinLoader,
   spacing,
   Overline,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { Document } from 'mongodb';
-import { DocumentListView } from '@mongodb-js/compass-crud';
+import { DocumentListView } from '@cloud-mongodb-js/compass-crud';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';

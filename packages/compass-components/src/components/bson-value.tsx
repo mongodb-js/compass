@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@cloud-mongodb-js/hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
 import { variantColors } from '@leafygreen-ui/code';

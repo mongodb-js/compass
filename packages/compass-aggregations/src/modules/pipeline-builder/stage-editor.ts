@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { prettify } from '@mongodb-js/compass-editor';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
+import { prettify } from '@cloud-mongodb-js/compass-editor';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -19,7 +19,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { isOutputStage } from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';

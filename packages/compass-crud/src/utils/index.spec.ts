@@ -4,7 +4,7 @@ import {
   objectContainsRegularExpression,
   shouldShowUnboundArrayInsight,
 } from './';
-import Document from 'hadron-document';
+import Document from '@cloud-mongodb-js/hadron-document';
 import { BSON } from 'bson';
 
 describe('objectContainsRegularExpression', function () {

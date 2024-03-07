@@ -10,7 +10,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarStoreOptions } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 
 const noop = () => {
   /* no op */

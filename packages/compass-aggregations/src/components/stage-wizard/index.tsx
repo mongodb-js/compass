@@ -14,7 +14,7 @@ import {
   spacing,
   Badge,
   WarningSummary,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type {
   StageWizardUseCase,
@@ -36,7 +36,7 @@ import { getSchema } from '../../utils/get-schema';
 import { getStageHelpLink } from '../../utils/stage';
 import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 import type { FieldSchema } from '../../utils/get-schema';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@cloud-mongodb-js/hadron-type-checker';
 
 const containerStyles = css({
   display: 'flex',

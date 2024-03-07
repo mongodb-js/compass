@@ -1,6 +1,9 @@
 import { EJSON } from 'bson';
-import TypeChecker from 'hadron-type-checker';
-import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+import TypeChecker from '@cloud-mongodb-js/hadron-type-checker';
+import type {
+  TypeCastMap,
+  TypeCastTypes,
+} from '@cloud-mongodb-js/hadron-type-checker';
 
 const UNCASTED_EMPTY_TYPE_VALUE: {
   [T in TypeCastTypes]: unknown;

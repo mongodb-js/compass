@@ -1,5 +1,9 @@
 import React from 'react';
-import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  KeylineCard,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 

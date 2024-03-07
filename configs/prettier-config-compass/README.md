@@ -1,4 +1,4 @@
-# @mongodb-js/prettier-config-compass
+# @cloud-mongodb-js/prettier-config-compass
 
 > Shared [prettier][prettier] configuration for Compass packages.
 

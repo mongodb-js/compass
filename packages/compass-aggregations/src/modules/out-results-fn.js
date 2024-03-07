@@ -1,4 +1,4 @@
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
 import { getDestinationNamespaceFromStage } from '../utils/stage';
 import { disableFocusMode } from './focus-mode';

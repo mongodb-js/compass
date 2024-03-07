@@ -1,5 +1,5 @@
 const d3 = require('d3');
-const { palette } = require('@mongodb-js/compass-components');
+const { palette } = require('@cloud-mongodb-js/compass-components');
 
 function realTimeMouseOverlay() {
   let prefix = 'serverstats-overlay';

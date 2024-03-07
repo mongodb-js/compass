@@ -1,9 +1,9 @@
 import React from 'react';
 import Reflux from 'reflux';
-import app from 'hadron-app';
-import AppRegistry from 'hadron-app-registry';
+import app from '@cloud-mongodb-js/hadron-app';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import { mount } from 'enzyme';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -50,7 +50,9 @@ describe('<EditableDocument />', function () {
     });
 
     it('renders an editable element for each document element', function () {
-      const component = wrapper.find('[data-testid="hadron-document-element"]');
+      const component = wrapper.find(
+        '[data-testid="@cloud-mongodb-js/hadron-document-element"]'
+      );
       expect(component).to.have.lengthOf(3);
     });
   });

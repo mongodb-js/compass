@@ -8,11 +8,11 @@ import {
   spacing,
   Overline,
   WarningSummary,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
-import { DocumentListView } from '@mongodb-js/compass-crud';
-import HadronDocument from 'hadron-document';
+import { DocumentListView } from '@cloud-mongodb-js/compass-crud';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';

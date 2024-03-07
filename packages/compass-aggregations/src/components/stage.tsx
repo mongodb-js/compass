@@ -9,7 +9,7 @@ import {
   spacing,
   palette,
   rafraf,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { RootState } from '../modules';
 
@@ -18,7 +18,7 @@ import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
-import type { EditorRef } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@cloud-mongodb-js/compass-editor';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 import type { SortableProps } from './pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 

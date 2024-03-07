@@ -5,7 +5,7 @@ import {
   showConfirmation,
   spacing,
   cx,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const paragraphStyles = css({
   marginTop: spacing[3],

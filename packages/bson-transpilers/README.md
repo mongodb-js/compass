@@ -12,7 +12,7 @@ See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBU
 # Usage
 
 ```js
-const transpiler = require('bson-transpilers');
+const transpiler = require('@cloud-mongodb-js/bson-transpilers');
 
 const input = 'javascript';
 const output = 'java';
@@ -55,10 +55,10 @@ the transpiler output will be runnable.
 ### catch (error)
 Any transpiler errors that occur will be thrown. To catch them, wrap the
 `transpiler` in a `try/catch` block.
-- __error.message:__ Message `bson-transpilers` will send back letting you know
+- __error.message:__ Message `@cloud-mongodb-js/bson-transpilers` will send back letting you know
   the transpiler error.
 - __error.stack:__ The usual error stacktrace.
-- __error.code:__ [Error code]() that `bson-transpilers` adds to the error object to
+- __error.code:__ [Error code]() that `@cloud-mongodb-js/bson-transpilers` adds to the error object to
   help you distinguish error types.
 - __error.line:__ If it is a syntax error, will have the line.
 - __error.column:__ If it is a syntax error, will have the column.
@@ -116,7 +116,7 @@ The instance of the `DeclarationStore` constructed by the transpiler class is pa
 ```
 
 ### Errors
-There are a few different error classes thrown by `bson-transpilers`, each with
+There are a few different error classes thrown by `@cloud-mongodb-js/bson-transpilers`, each with
 their own error code:
 
 #### BsonTranspilersArgumentError
@@ -207,11 +207,11 @@ new RegExp('ab+c', 'im')
 #### BsonTranspilersInternalError
 ###### code: E_BSONTRANSPILERS_INTERNAL
 In the case where something has gone wrong within compilation, and an error has
-occured. If you see this error, please create [an issue](https://github.com/mongodb-js/bson-transpilers/issues) on Github!
+occured. If you see this error, please create [an issue](https://github.com/mongodb-js/@cloud-mongodb-js/bson-transpilers/issues) on Github!
 
 # Install
 ```shell
-npm install -S bson-transpilers
+npm install -S @cloud-mongodb-js/bson-transpilers
 ```
 
 ## Contributing
@@ -226,9 +226,9 @@ information on project structure and setting up your environment.
 # License
 [Apache-2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
 
-[1]: https://img.shields.io/npm/v/bson-transpilers.svg?style=flat-square
-[2]: https://npmjs.org/package/bson-transpilers
-[3]: https://img.shields.io/travis/mongodb-js/bson-transpilers/master.svg?style=flat-square
-[4]: https://travis-ci.com/mongodb-js/bson-transpilers
-[5]: http://img.shields.io/npm/dm/bson-transpilers.svg?style=flat-square
-[6]: https://npmjs.org/package/bson-transpilers
+[1]: https://img.shields.io/npm/v/@cloud-mongodb-js/bson-transpilers.svg?style=flat-square
+[2]: https://npmjs.org/package/@cloud-mongodb-js/bson-transpilers
+[3]: https://img.shields.io/travis/mongodb-js/@cloud-mongodb-js/bson-transpilers/master.svg?style=flat-square
+[4]: https://travis-ci.com/mongodb-js/@cloud-mongodb-js/bson-transpilers
+[5]: http://img.shields.io/npm/dm/@cloud-mongodb-js/bson-transpilers.svg?style=flat-square
+[6]: https://npmjs.org/package/@cloud-mongodb-js/bson-transpilers

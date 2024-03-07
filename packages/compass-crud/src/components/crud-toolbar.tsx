@@ -1,6 +1,6 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import {
   Body,
   DropdownMenuButton,
@@ -11,12 +11,12 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
-} from '@mongodb-js/compass-components';
-import type { MenuAction, Signal } from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
+import type { MenuAction, Signal } from '@cloud-mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import type { DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 

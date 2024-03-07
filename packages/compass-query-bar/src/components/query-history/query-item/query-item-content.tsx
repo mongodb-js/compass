@@ -1,5 +1,5 @@
 import React from 'react';
-import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
+import { Body, Code, css, spacing } from '@cloud-mongodb-js/compass-components';
 import { formatQuery } from '../../../utils';
 import { type BaseQuery } from '../../../constants/query-properties';
 

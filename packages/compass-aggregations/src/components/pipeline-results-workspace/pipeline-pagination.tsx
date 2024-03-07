@@ -6,7 +6,7 @@ import {
   spacing,
   Icon,
   Body,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { fetchNextPage, fetchPrevPage } from '../../modules/aggregation';

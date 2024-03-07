@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import type { TypeCastTypes } from 'hadron-type-checker';
-import type { Editor, Element } from 'hadron-document';
-import type Document from 'hadron-document';
+import type { TypeCastTypes } from '@cloud-mongodb-js/hadron-type-checker';
+import type { Editor, Element } from '@cloud-mongodb-js/hadron-document';
+import type Document from '@cloud-mongodb-js/hadron-document';
 import {
   ElementEditor as initEditors,
   getDefaultValueForType,
-} from 'hadron-document';
+} from '@cloud-mongodb-js/hadron-document';
 import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
 import {
@@ -17,7 +17,7 @@ import {
   LeafyGreenProvider,
   spacing,
   TextInput,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type {
   ColumnApi,
   GridApi,

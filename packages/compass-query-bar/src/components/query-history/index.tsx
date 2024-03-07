@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css, spacing } from '@cloud-mongodb-js/compass-components';
 
 import { Toolbar } from './toolbar/toolbar';
 import RecentList from './recent-list';
@@ -7,7 +7,7 @@ import FavoriteList from './favorite-list';
 
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores/query-bar-store';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import { useTrackOnChange } from '@cloud-mongodb-js/compass-logging/provider';
 
 const containerStyle = css({
   display: 'flex',

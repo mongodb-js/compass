@@ -10,8 +10,8 @@ import {
   Subtitle,
   Button,
   palette,
-} from '@mongodb-js/compass-components';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+} from '@cloud-mongodb-js/compass-components';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';

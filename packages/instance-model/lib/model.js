@@ -1,7 +1,7 @@
 const AmpersandModel = require('ampersand-model');
 const {
   Collection: MongoDbDatabaseCollection,
-} = require('mongodb-database-model');
+} = require('@cloud-mongodb-js/mongodb-database-model');
 const TopologyType = require('./topology-type');
 const ServerType = require('./server-type');
 const Environment = require('./environment');
@@ -217,7 +217,7 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService, force = false }) {
@@ -236,7 +236,7 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetchDatabases({ dataService, force = false }) {
@@ -265,7 +265,7 @@ const InstanceModel = AmpersandModel.extend(
      * this check for a namespace and then save it on the model itself and then
      * use that value throughout.
      *
-     * @param {{ ns: string, dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ ns: string, dataService: import('@cloud-mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<boolean>}
      */
     async getIsSearchSupported({

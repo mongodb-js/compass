@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { IconButton, Icon } from '@mongodb-js/compass-components';
+import { IconButton, Icon } from '@cloud-mongodb-js/compass-components';
 import { changeStageCollapsed } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 import sinon from 'sinon';
 import { getInputExpressionMode, runTranspiler } from './transpiler';
 import type { InputExpression } from './transpiler';

@@ -1,5 +1,5 @@
-import type { CollectionCollection } from 'mongodb-collection-model';
-import type { DataService } from 'mongodb-data-service';
+import type { CollectionCollection } from '@cloud-mongodb-js/mongodb-collection-model';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 
 interface Database {
   _id: string;

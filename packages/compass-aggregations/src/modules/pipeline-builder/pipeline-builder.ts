@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';

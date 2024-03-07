@@ -1,10 +1,10 @@
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { openToast } from '@mongodb-js/compass-components';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { openToast } from '@cloud-mongodb-js/compass-components';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { SavedPipeline } from '@cloud-mongodb-js/my-queries-storage';
 import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
@@ -14,7 +14,7 @@ import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import {
   showConfirmation,
   ConfirmationModalVariant,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 

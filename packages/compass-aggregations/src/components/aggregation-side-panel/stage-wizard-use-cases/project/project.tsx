@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
-import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Select,
+  Option,
+  css,
+  spacing,
+} from '@cloud-mongodb-js/compass-components';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 

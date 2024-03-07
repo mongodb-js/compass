@@ -1,6 +1,6 @@
 import React from 'react';
-import { DropdownMenuButton } from '@mongodb-js/compass-components';
-import type { MenuAction } from '@mongodb-js/compass-components';
+import { DropdownMenuButton } from '@cloud-mongodb-js/compass-components';
+import type { MenuAction } from '@cloud-mongodb-js/compass-components';
 
 export type PipelineOutputOption = 'expand' | 'collapse';
 const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [

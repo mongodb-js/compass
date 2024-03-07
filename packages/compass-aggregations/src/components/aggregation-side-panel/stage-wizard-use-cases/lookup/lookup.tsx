@@ -6,7 +6,7 @@ import {
   Combobox,
   ComboboxWithCustomOption,
   ComboboxOption,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';

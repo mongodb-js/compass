@@ -1,4 +1,0 @@
-{
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
-  "compilerOptions": {}
-}

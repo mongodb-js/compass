@@ -1,9 +1,0 @@
-{
-  "uniqueFields": ["_id", "value"],
-  "headerFields": ["_id", "value"],
-  "preview": [
-    ["1", "some string"],
-    ["2", "1234"],
-    ["3", ""]
-  ]
-}

@@ -1,4 +1,4 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { combineReducers } from 'redux';
@@ -33,7 +33,7 @@ import error, {
 import { reset, RESET } from '../create-view/reset';
 import appRegistry, {
   globalAppRegistryEmit,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+} from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 

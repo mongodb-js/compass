@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { useFormattedDate } from '@mongodb-js/compass-components';
+import { useFormattedDate } from '@cloud-mongodb-js/compass-components';
 import {
   deleteRecentQuery,
   saveRecentAsFavorite,
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
 import type { RootState } from '../../stores/query-bar-store';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import type { RecentQuery } from '@cloud-mongodb-js/my-queries-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,
@@ -19,7 +19,7 @@ import {
 } from './query-item';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 

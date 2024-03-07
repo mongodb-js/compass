@@ -7,9 +7,9 @@ import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
-import type { z } from '@mongodb-js/compass-user-data';
+import type { z } from '@cloud-mongodb-js/compass-user-data';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 function getGlobalConfigPaths(): string[] {

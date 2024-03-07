@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Body, Link, Tooltip, css } from '@mongodb-js/compass-components';
+import { Body, Link, Tooltip, css } from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';

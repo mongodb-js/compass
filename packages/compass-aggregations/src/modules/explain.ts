@@ -1,6 +1,6 @@
 import type { PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { localAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 
 export const explainAggregation = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState, { pipelineBuilder }) => {

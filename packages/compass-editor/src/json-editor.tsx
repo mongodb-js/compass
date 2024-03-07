@@ -47,7 +47,7 @@ import {
   closeBracketsKeymap,
   snippetCompletion,
 } from '@codemirror/autocomplete';
-import type { IconGlyph } from '@mongodb-js/compass-components';
+import type { IconGlyph } from '@cloud-mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -57,7 +57,7 @@ import {
   useDarkMode,
   useEffectOnChange,
   codePalette,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';

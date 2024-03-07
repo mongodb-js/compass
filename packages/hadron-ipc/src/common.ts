@@ -1,2 +1,2 @@
 export const getResponseChannel = (methodName: string) =>
-  `hadron-ipc-${methodName}-response`;
+  `@cloud-mongodb-js/hadron-ipc-${methodName}-response`;

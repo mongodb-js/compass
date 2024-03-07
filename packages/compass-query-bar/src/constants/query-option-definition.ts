@@ -1,7 +1,7 @@
-import type { TextInput } from '@mongodb-js/compass-components';
+import type { TextInput } from '@cloud-mongodb-js/compass-components';
 import type { ComponentProps } from 'react';
 import React from 'react';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 import type { QueryProperty } from './query-properties';
 
 export type QueryOption = QueryProperty;

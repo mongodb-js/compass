@@ -28,18 +28,21 @@ import {
   validateAIAggregationResponse,
   validateAIFeatureEnablementResponse,
 } from './util';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { HadronIpcMain } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
+import { throwIfAborted } from '@cloud-mongodb-js/compass-utils';
+import type { HadronIpcMain } from '@cloud-mongodb-js/hadron-ipc';
+import { ipcMain } from '@cloud-mongodb-js/hadron-ipc';
 import {
   createLoggerAndTelemetry,
   mongoLogId,
-} from '@mongodb-js/compass-logging';
-import preferences from 'compass-preferences-model';
+} from '@cloud-mongodb-js/compass-logging';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { getActiveUser, isAIFeatureEnabled } from 'compass-preferences-model';
+import {
+  getActiveUser,
+  isAIFeatureEnabled,
+} from '@cloud-mongodb-js/compass-preferences-model';
 import { spawn } from 'child_process';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');

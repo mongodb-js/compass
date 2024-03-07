@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import Reflux from 'reflux';
-const debug = createDebug('hadron-app-registry:actions');
+const debug = createDebug('@cloud-mongodb-js/hadron-app-registry:actions');
 
 /**
  * The action for an action being deregistered.

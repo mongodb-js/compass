@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/webpack-config-compass",
+  "name": "@cloud-mongodb-js/webpack-config-compass",
   "description": "Shared webpack configuration for Compass application and plugins",
   "author": {
     "name": "MongoDB Inc",
@@ -45,9 +45,9 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/cli-progress": "^3.9.2",
     "@types/html-webpack-plugin": "^3.2.6",
     "@types/mini-css-extract-plugin": "^2.3.0",

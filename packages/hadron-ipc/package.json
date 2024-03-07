@@ -1,5 +1,5 @@
 {
-  "name": "hadron-ipc",
+  "name": "@cloud-mongodb-js/hadron-ipc",
   "description": "Simplified IPC for electron apps.",
   "version": "3.2.4",
   "author": {
@@ -50,10 +50,10 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
     "@types/is-electron-renderer": "^2.0.1",
     "@types/mocha": "^9.0.0",

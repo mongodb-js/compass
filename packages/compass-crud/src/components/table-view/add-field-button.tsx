@@ -6,10 +6,10 @@ import {
   Icon,
   Menu,
   MenuItem,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { CellEditorProps } from './cell-editor';
-import type Document from 'hadron-document';
-import type { Element } from 'hadron-document';
+import type Document from '@cloud-mongodb-js/hadron-document';
+import type { Element } from '@cloud-mongodb-js/hadron-document';
 
 /**
  * The default text.

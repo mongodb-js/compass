@@ -1,8 +1,8 @@
 import type { Reducer } from 'redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -12,8 +12,8 @@ import {
 } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { openToast } from '@mongodb-js/compass-components';
-import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import { openToast } from '@cloud-mongodb-js/compass-components';
+import type { AtlasServiceError } from '@cloud-mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 

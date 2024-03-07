@@ -7,7 +7,7 @@ import {
   Icon,
   KeylineCard,
   spacing,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 type SavePipelineCardProps = {
   id: string;

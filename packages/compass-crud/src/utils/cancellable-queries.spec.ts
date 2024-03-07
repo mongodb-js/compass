@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
+import { connect } from '@cloud-mongodb-js/mongodb-data-service';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
 
 import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 

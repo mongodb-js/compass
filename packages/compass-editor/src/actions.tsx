@@ -1,6 +1,6 @@
-import { cx } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
-import { Button, Icon } from '@mongodb-js/compass-components';
+import { cx } from '@cloud-mongodb-js/compass-components';
+import { css } from '@cloud-mongodb-js/compass-components';
+import { Button, Icon } from '@cloud-mongodb-js/compass-components';
 import React, { useCallback, useEffect, useState } from 'react';
 
 const actionButtonStyle = css({

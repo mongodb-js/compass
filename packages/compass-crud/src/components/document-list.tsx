@@ -10,7 +10,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
 import type { BulkUpdateDialogProps } from './bulk-update-dialog';

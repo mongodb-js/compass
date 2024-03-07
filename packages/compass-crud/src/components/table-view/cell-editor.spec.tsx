@@ -1,9 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import { ObjectId } from 'bson';
-import app from 'hadron-app';
+import app from '@cloud-mongodb-js/hadron-app';
 
 import {
   getNode,

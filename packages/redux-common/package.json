@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/mongodb-redux-common",
+  "name": "@cloud-mongodb-js/mongodb-redux-common",
   "description": "Common Redux Modules for mongodb-js",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": {
@@ -31,7 +31,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "eslint-plugin-react": "^7.24.0",
-    "hadron-app-registry": "^9.0.14",
+    "@cloud-mongodb-js/hadron-app-registry": "^9.0.14",
     "mocha": "^10.2.0",
     "sinon": "^7.2.7"
   }

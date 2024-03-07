@@ -4,8 +4,8 @@ import {
   Tooltip,
   DropdownMenuButton,
   css,
-} from '@mongodb-js/compass-components';
-import type { MenuAction } from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
+import type { MenuAction } from '@cloud-mongodb-js/compass-components';
 
 const tooltipContainerStyles = css({
   display: 'flex',

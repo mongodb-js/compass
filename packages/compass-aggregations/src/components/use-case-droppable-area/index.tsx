@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { css, palette, spacing } from '@mongodb-js/compass-components';
+import { css, palette, spacing } from '@cloud-mongodb-js/compass-components';
 
 // Types
 type UseCaseDroppableAreaProps = {

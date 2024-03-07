@@ -1,4 +1,4 @@
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker from '@cloud-mongodb-js/hadron-type-checker';
 import Events from '../element-events';
 import StandardEditor from './standard';
 import type Element from '../element';

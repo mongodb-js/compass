@@ -1,4 +1,4 @@
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export function maybeProtectConnectionString(connectionString: string): string {

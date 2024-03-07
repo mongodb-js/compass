@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@cloud-mongodb-js/hadron-type-checker';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -31,7 +31,7 @@ export const EditActions: React.FunctionComponent<{
         (onRevert ? (
           <button
             type="button"
-            data-testid="hadron-document-revert"
+            data-testid="@cloud-mongodb-js/hadron-document-revert"
             className={buttonReset}
             aria-label="Revert changes"
             title="Revert changes"
@@ -49,7 +49,7 @@ export const EditActions: React.FunctionComponent<{
         ) : onRemove ? (
           <button
             type="button"
-            data-testid="hadron-document-remove"
+            data-testid="@cloud-mongodb-js/hadron-document-remove"
             className={buttonReset}
             title="Remove field"
             aria-label="Remove field"
@@ -129,7 +129,7 @@ export const AddFieldActions: React.FunctionComponent<{
           <>
             <button
               type="button"
-              data-testid="hadron-document-add-element"
+              data-testid="@cloud-mongodb-js/hadron-document-add-element"
               title="Add field"
               className={cx(buttonReset, addFieldButton)}
               onClick={(evt) => {
@@ -147,7 +147,7 @@ export const AddFieldActions: React.FunctionComponent<{
     >
       {onAddFieldToElement && (
         <MenuItem
-          data-testid="hadron-document-add-child"
+          data-testid="@cloud-mongodb-js/hadron-document-add-child"
           onClick={() => {
             setIsOpen(false);
             onAddFieldToElement();
@@ -161,7 +161,7 @@ export const AddFieldActions: React.FunctionComponent<{
         </MenuItem>
       )}
       <MenuItem
-        data-testid="hadron-document-add-sibling"
+        data-testid="@cloud-mongodb-js/hadron-document-add-sibling"
         onClick={() => {
           setIsOpen(false);
           onAddFieldAfterElement();

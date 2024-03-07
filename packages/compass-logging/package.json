@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-logging",
+  "name": "@cloud-mongodb-js/compass-logging",
   "description": "Shared helpers for logging in Compass packages",
   "author": {
     "name": "MongoDB Inc",
@@ -24,7 +24,7 @@
   ],
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-ipc": "^3.2.4"
+    "@cloud-mongodb-js/hadron-ipc": "^3.2.4"
   },
   "main": "dist/index.js",
   "exports": {
@@ -60,10 +60,10 @@
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/debug": "^4.1.9",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -71,7 +71,7 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-ipc": "^3.2.4",
+    "@cloud-mongodb-js/hadron-ipc": "^3.2.4",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
@@ -79,6 +79,6 @@
     "typescript": "^5.0.4"
   },
   "optionalPeerDependencies": {
-    "compass-preferences-model": "^2.0.0"
+    "@cloud-mongodb-js/compass-preferences-model": "^2.0.0"
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import AppRegistry from 'hadron-app-registry';
-import app from 'hadron-app';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
+import app from '@cloud-mongodb-js/hadron-app';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 

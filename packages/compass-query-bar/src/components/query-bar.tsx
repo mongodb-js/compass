@@ -11,17 +11,17 @@ import {
   Label,
   Link,
   GuideCue,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
-} from '@mongodb-js/compass-generative-ai';
+} from '@cloud-mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
 import {
   usePreference,
   useIsAIFeatureEnabled,
-} from 'compass-preferences-model';
-import type { Signal } from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-preferences-model';
+import type { Signal } from '@cloud-mongodb-js/compass-components';
 
 import {
   OPTION_DEFINITION,

@@ -1,5 +1,5 @@
-import type { TypeCastTypes } from 'hadron-type-checker';
-import TypeChecker from 'hadron-type-checker';
+import type { TypeCastTypes } from '@cloud-mongodb-js/hadron-type-checker';
+import TypeChecker from '@cloud-mongodb-js/hadron-type-checker';
 import Events from '../element-events';
 import type { BSONValue } from '../utils';
 import { fieldStringLen } from '../utils';

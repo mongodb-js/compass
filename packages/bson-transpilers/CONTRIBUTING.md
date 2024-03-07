@@ -1,7 +1,7 @@
-# Contributing to bson-transpilers
+# Contributing to @cloud-mongodb-js/bson-transpilers
 
 ## Setting up your environment
-The `bson-transpilers` package uses
+The `@cloud-mongodb-js/bson-transpilers` package uses
 [ANTLR4](https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md)
 to create a parse tree. As `ANTLR` is written in Java, you will need to set up a
 few tools before being able to compile this locally.
@@ -200,7 +200,7 @@ need rearranging between languages.
 <img alt="indexjs" width="60%" align="right" src="/img-docs/indexjs.jpg"/>
 
 Entry point to the project is `index.js`. It currently exports [two
-APIs](https://github.com/mongodb-js/bson-transpilers#api), compiling a string
+APIs](https://github.com/mongodb-js/@cloud-mongodb-js/bson-transpilers#api), compiling a string
 given `inputLang` and `outputLang`, and accessing language's import statements
 you might need.
 

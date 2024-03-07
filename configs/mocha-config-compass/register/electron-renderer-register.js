@@ -39,7 +39,7 @@ if (isElectronRenderer) {
     }
   }
 
-  // Packages that are using `@mongodb-js/compass-logging` might write to debug
+  // Packages that are using `@cloud-mongodb-js/compass-logging` might write to debug
   // which holds a reference to original console.log that we don't override.
   // This is why we explicitly do it here
   require('debug').log = ipcConsole.log;

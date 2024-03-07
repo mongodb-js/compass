@@ -1,9 +1,12 @@
 import util from 'util';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
-import AppRegistry from 'hadron-app-registry';
-import HadronDocument, { Element } from 'hadron-document';
-import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
+import { connect } from '@cloud-mongodb-js/mongodb-data-service';
+import AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
+import HadronDocument, { Element } from '@cloud-mongodb-js/hadron-document';
+import {
+  MongoDBInstance,
+  TopologyDescription,
+} from '@cloud-mongodb-js/mongodb-instance-model';
 import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
@@ -14,7 +17,7 @@ import configureStore, {
 } from './crud-store';
 import configureActions from '../actions';
 import { Int32 } from 'bson';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
 
 chai.use(chaiAsPromised);
 

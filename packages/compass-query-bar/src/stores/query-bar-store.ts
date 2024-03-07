@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@cloud-mongodb-js/hadron-app-registry';
 import {
   createStore as _createStore,
   applyMiddleware,
@@ -7,7 +7,7 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
@@ -23,8 +23,8 @@ import { getQueryAttributes } from '../utils';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+} from '@cloud-mongodb-js/my-queries-storage';
+import { AtlasService } from '@cloud-mongodb-js/atlas-service/renderer';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;

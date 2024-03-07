@@ -9,7 +9,7 @@ import {
 } from './builder-helpers';
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {

@@ -10,7 +10,7 @@ import {
   cx,
   spacing,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { AISignInImageBanner } from './ai-signin-banner-image';
 import type { AtlasSignInState } from '../store/atlas-signin-reducer';
 import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';

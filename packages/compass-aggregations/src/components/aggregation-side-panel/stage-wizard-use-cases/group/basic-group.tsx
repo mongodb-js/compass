@@ -1,4 +1,4 @@
-import { Body, spacing, css } from '@mongodb-js/compass-components';
+import { Body, spacing, css } from '@cloud-mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { mapFieldsToAccumulatorValue } from '../utils';
 import type { WizardComponentProps } from '..';

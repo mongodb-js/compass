@@ -5,7 +5,7 @@ import {
   SegmentedControlOption,
   useId,
   GuideCue,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import type { DocumentView } from '../stores/crud-store';
 
 type ViewSwitcherProps = {

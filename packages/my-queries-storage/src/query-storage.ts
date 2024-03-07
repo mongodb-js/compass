@@ -1,5 +1,5 @@
 import { UUID, EJSON } from 'bson';
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { UserData, z } from '@cloud-mongodb-js/compass-user-data';
 
 const queryProps = {
   filter: z.any().optional(),

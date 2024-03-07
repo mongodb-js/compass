@@ -1,9 +1,0 @@
-{
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
-  "compilerOptions": {
-    "allowJs": true,
-    "outDir": "dist"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["./src/**/*.spec.*"]
-}

@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-export-to-language",
+  "name": "@cloud-mongodb-js/compass-export-to-language",
   "productName": "compass-export-to-language Plugin",
   "description": "Export MongoDB queries and aggregations to various languages",
   "author": {
@@ -56,34 +56,34 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "*",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.6",
-    "@mongodb-js/mongodb-redux-common": "*",
-    "bson-transpilers": "*",
+    "@cloud-mongodb-js/compass-components": "^1.19.0",
+    "@cloud-mongodb-js/compass-logging": "*",
+    "@cloud-mongodb-js/compass-maybe-protect-connection-string": "^0.13.6",
+    "@cloud-mongodb-js/mongodb-redux-common": "*",
+    "@cloud-mongodb-js/bson-transpilers": "*",
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.19.0",
-    "@mongodb-js/compass-logging": "^1.2.6",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.13.6",
-    "@mongodb-js/mongodb-redux-common": "^2.0.15",
-    "bson-transpilers": "^2.2.0"
+    "@cloud-mongodb-js/compass-components": "^1.19.0",
+    "@cloud-mongodb-js/compass-logging": "^1.2.6",
+    "@cloud-mongodb-js/compass-maybe-protect-connection-string": "^0.13.6",
+    "@cloud-mongodb-js/mongodb-redux-common": "^2.0.15",
+    "@cloud-mongodb-js/bson-transpilers": "^2.2.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.11",
-    "@mongodb-js/mocha-config-compass": "^1.3.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.1",
-    "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.2.5",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
+    "@cloud-mongodb-js/mocha-config-compass": "^1.3.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/webpack-config-compass": "^1.2.5",
     "@types/js-beautify": "^1.13.3",
     "chai": "^4.3.6",
-    "compass-preferences-model": "^2.15.6",
+    "@cloud-mongodb-js/compass-preferences-model": "^2.15.6",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^1.2.4",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.14",
+    "@cloud-mongodb-js/hadron-app-registry": "^9.0.14",
     "js-beautify": "^1.14.7",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",

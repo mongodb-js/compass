@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import type { UpdatePreview } from 'mongodb-data-service';
-import HadronDocument from 'hadron-document';
+import type { UpdatePreview } from '@cloud-mongodb-js/mongodb-data-service';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import { toJSString } from 'mongodb-query-parser';
 import {
   FormModal,
@@ -16,9 +16,9 @@ import {
   Link,
   useDarkMode,
   usePrevious,
-} from '@mongodb-js/compass-components';
-import type { Annotation } from '@mongodb-js/compass-editor';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-components';
+import type { Annotation } from '@cloud-mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@cloud-mongodb-js/compass-editor';
 
 import Document from './document';
 import type { BSONObject } from '../stores/crud-store';

@@ -1,4 +1,4 @@
-import convertExplainCompat from 'mongodb-explain-compat';
+import convertExplainCompat from '@cloud-mongodb-js/mongodb-explain-compat';
 import { getPlannerInfo } from './get-planner-info';
 import { getExecutionStats } from './get-execution-stats';
 import type { ExecutionStats } from './get-execution-stats';

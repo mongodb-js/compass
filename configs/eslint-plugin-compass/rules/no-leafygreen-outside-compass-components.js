@@ -13,10 +13,13 @@ function reportLeafygreenUsage(context, node, source) {
       'Using @leafygreen-ui directly outside @mongodb-js/compass-component package is not allowed',
     suggest: [
       {
-        desc: 'Replace "{{ source }}" with "@mongodb-js/compass-components"',
+        desc: 'Replace "{{ source }}" with "@cloud-mongodb-js/compass-components"',
         data: { source: source.value },
         fix(fixer) {
-          return fixer.replaceText(source, '"@mongodb-js/compass-components"');
+          return fixer.replaceText(
+            source,
+            '"@cloud-mongodb-js/compass-components"'
+          );
         },
       },
     ],
@@ -129,7 +132,7 @@ module.exports = {
     const packageName = getPackageNameForDirname(dirname);
 
     const isCompassComponentsPackage =
-      packageName === '@mongodb-js/compass-components';
+      packageName === '@cloud-mongodb-js/compass-components';
 
     if (isCompassComponentsPackage) {
       return {};

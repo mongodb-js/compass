@@ -1,6 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  WorkspaceContainer,
+} from '@cloud-mongodb-js/compass-components';
 
 import Settings from '../settings';
 import SavingPipelineModal from '../saving-pipeline-modal';

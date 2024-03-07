@@ -1,6 +1,6 @@
 import toNS from 'mongodb-ns';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { globalAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
   getPipelineFromBuilderState,

@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import appRegistry, {
   INITIAL_STATE as APP_REGISTRY_STATE,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+} from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import inputExpression, {
   INITIAL_STATE as INPUT_EXPRESSION_INITIAL_STATE,
 } from './input-expression';

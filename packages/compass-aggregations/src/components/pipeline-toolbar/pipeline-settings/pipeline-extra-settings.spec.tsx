@@ -7,7 +7,7 @@ import type { SinonSandbox } from 'sinon';
 import { spy, createSandbox } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
-import preferences from 'compass-preferences-model';
+import preferences from '@cloud-mongodb-js/compass-preferences-model';
 import sinon from 'sinon';
 
 const renderPipelineExtraSettings = (

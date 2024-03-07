@@ -2,7 +2,7 @@ import {
   isAggregationExplain,
   isShardedAggregationExplain,
   getStageCursorKey,
-} from 'mongodb-explain-compat';
+} from '@cloud-mongodb-js/mongodb-explain-compat';
 
 import type { Stage, IndexInformation } from './index';
 

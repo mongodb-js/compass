@@ -4,7 +4,7 @@ import type { IpcRenderer } from 'electron';
 import createDebug from 'debug';
 import { deserializeErrorFromIpc, isSerializedError } from './serialized-error';
 
-const debug = createDebug('hadron-ipc:renderer');
+const debug = createDebug('@cloud-mongodb-js/hadron-ipc:renderer');
 
 export function call(
   ipcRenderer:

@@ -13,7 +13,7 @@ import {
   palette,
   spacing,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';

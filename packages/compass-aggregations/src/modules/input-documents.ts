@@ -1,6 +1,6 @@
 import type { Document } from 'mongodb';
 import type { AnyAction } from 'redux';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from '@cloud-mongodb-js/compass-preferences-model';
 import type { PipelineBuilderThunkAction } from '.';
 
 export enum ActionTypes {

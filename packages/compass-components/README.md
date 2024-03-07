@@ -1,4 +1,4 @@
-# @mongodb-js/compass-components [![][npm_img]][npm_url]
+# @cloud-mongodb-js/compass-components [![][npm_img]][npm_url]
 
 > A set of React Components which help build Compass
 
@@ -13,5 +13,5 @@
 - https://github.com/mongodb/leafygreen-ui - LeafyGreen UI kit
 - https://www.mongodb.design/ - MongoDB.Design
 
-[npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-components.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-components
+[npm_img]: https://img.shields.io/npm/v/@cloud-mongodb-js/compass-components.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@cloud-mongodb-js/compass-components

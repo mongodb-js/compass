@@ -1,5 +1,5 @@
 {
-  "name": "hadron-type-checker",
+  "name": "@cloud-mongodb-js/hadron-type-checker",
   "description": "Hadron Type Checker",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": {

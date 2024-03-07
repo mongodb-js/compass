@@ -12,8 +12,8 @@ import {
   Body,
   IconButton,
   Icon,
-} from '@mongodb-js/compass-components';
-import { Document } from '@mongodb-js/compass-crud';
+} from '@cloud-mongodb-js/compass-components';
+import { Document } from '@cloud-mongodb-js/compass-crud';
 
 import {
   refreshInputDocuments,

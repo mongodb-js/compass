@@ -1,6 +1,6 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { DataService } from 'mongodb-data-service';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { capMaxTimeMSAtPreferenceLimit } from '@cloud-mongodb-js/compass-preferences-model';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(

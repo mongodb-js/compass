@@ -1,9 +1,9 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast } from '@cloud-mongodb-js/compass-components';
 import type { AtlasUserConfig, AtlasUserInfo } from '../util';
 import type { AtlasService } from '../renderer';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
+import { throwIfAborted } from '@cloud-mongodb-js/compass-utils';
 import { showOptInConfirmation } from '../components/ai-opt-in-confirmation';
 
 export function isAction<A extends AnyAction>(

@@ -1,6 +1,6 @@
 import toNS from 'mongodb-ns';
-import compiler from 'bson-transpilers';
-import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import compiler from '@cloud-mongodb-js/bson-transpilers';
+import { maybeProtectConnectionString } from '@cloud-mongodb-js/compass-maybe-protect-connection-string';
 
 import type { OutputLanguage } from './languages';
 
@@ -97,7 +97,7 @@ export function runTranspiler({
   }
 
   if (includeImports) {
-    // bson-transpilers appears to be stateful, so getImports() has to be called after compile()
+    // @cloud-mongodb-js/bson-transpilers appears to be stateful, so getImports() has to be called after compile()
     const imports = compiler.shell[outputLanguage].getImports(
       mode,
       includeDrivers

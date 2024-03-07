@@ -7,7 +7,7 @@ import {
   useHoverState,
   spacing,
   palette,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 const queryStyles = css({
   padding: spacing[3],

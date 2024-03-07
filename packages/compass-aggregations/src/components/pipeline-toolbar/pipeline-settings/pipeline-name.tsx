@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, Body, Tooltip } from '@mongodb-js/compass-components';
+import { css, Body, Tooltip } from '@cloud-mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 
 const containerStyles = css({

@@ -9,7 +9,7 @@ import {
   spacing,
   palette,
   useScrollbars,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';

@@ -9,7 +9,7 @@ Examples of items that do _not_ belong in this package:
 - Code that depends on other Compass packages
 - Code that depends on packages which require a specific execution environment
 - React Components, CSS templates, etc. (→ `compass-components`)
-- Code for working with MongoDB BSON documents (→ `hadron-document`)
+- Code for working with MongoDB BSON documents (→ `@cloud-mongodb-js/hadron-document`)
 - Debugging utilities (→ `compass-logging`)
 - Scripts for working with the Compass monorepo
 - …

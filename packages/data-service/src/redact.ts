@@ -1,4 +1,4 @@
-import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
+import type { SshTunnelConfig } from '@cloud-mongodb-js/ssh-tunnel';
 import type { ConnectionOptions } from './connection-options';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 export { redactConnectionString };

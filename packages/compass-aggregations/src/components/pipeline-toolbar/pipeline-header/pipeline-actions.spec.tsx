@@ -8,7 +8,7 @@ import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
-import preferencesAccess from 'compass-preferences-model';
+import preferencesAccess from '@cloud-mongodb-js/compass-preferences-model';
 
 describe('PipelineActions', function () {
   afterEach(cleanup);

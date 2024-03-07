@@ -15,7 +15,7 @@ import QueryHistory from '.';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
+} from '@cloud-mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import configureStore from '../../stores/query-bar-store';
 import { UUID } from 'bson';

@@ -1,6 +1,6 @@
-import type Collection from 'mongodb-collection-model';
-import type { DataService } from 'mongodb-data-service';
-import type { Collection as DatabaseCollection } from 'mongodb-database-model';
+import type Collection from '@cloud-mongodb-js/mongodb-collection-model';
+import type { DataService } from '@cloud-mongodb-js/mongodb-data-service';
+import type { Collection as DatabaseCollection } from '@cloud-mongodb-js/mongodb-database-model';
 
 import { ServerType } from './server-type';
 import { TopologyType } from './topology-type';

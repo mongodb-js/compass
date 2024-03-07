@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { openToast } from '@mongodb-js/compass-components';
-import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
+import { openToast } from '@cloud-mongodb-js/compass-components';
+import { GenerativeAIInput } from '@cloud-mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { usePreference } from 'compass-preferences-model';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 
 import {
   changeAIPromptText,

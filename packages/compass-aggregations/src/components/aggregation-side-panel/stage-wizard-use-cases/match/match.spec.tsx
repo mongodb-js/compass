@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
 import { Double } from 'bson';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@cloud-mongodb-js/hadron-type-checker';
 
 import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
@@ -249,7 +249,7 @@ describe('match', function () {
 
     // Note: The purpose of this test is to ensure that we are doing type
     // casting of the values, wether it is correct or not is the responsibility
-    // of hadron-type-checker and is tested there
+    // of @cloud-mongodb-js/hadron-type-checker and is tested there
     it('should cast the value to provided bsonType', function () {
       const condition = createCondition({
         field: 'name',

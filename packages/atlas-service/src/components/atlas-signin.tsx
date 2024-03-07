@@ -4,7 +4,7 @@ import AISignInModal from './ai-signin-modal';
 import type { AtlasServiceStore } from '../store/atlas-signin-store';
 import { getStore } from '../store/atlas-signin-store';
 import { restoreSignInState } from '../store/atlas-signin-reducer';
-import { ConfirmationModalArea } from '@mongodb-js/compass-components';
+import { ConfirmationModalArea } from '@cloud-mongodb-js/compass-components';
 
 export const Modal: React.FunctionComponent<{
   restoreStateOnMount?: boolean;

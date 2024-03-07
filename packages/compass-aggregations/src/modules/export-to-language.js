@@ -1,4 +1,4 @@
-import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { localAppRegistryEmit } from '@cloud-mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
 
 /**

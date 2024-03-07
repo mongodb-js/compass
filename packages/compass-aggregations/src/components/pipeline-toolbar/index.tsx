@@ -5,9 +5,9 @@ import {
   spacing,
   palette,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model';
+import { useIsAIFeatureEnabled } from '@cloud-mongodb-js/compass-preferences-model';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';

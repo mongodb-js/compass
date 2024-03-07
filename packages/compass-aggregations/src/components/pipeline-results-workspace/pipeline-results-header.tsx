@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, Overline, spacing } from '@mongodb-js/compass-components';
+import { css, Overline, spacing } from '@cloud-mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';

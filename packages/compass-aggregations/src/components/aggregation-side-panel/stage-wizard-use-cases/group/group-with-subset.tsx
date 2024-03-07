@@ -5,7 +5,7 @@ import {
   Option,
   spacing,
   TextInput,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { ACCUMULATORS, Completion } from '@mongodb-js/mongodb-constants';

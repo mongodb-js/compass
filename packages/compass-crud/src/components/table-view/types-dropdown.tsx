@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
-import type { TypeCastMap } from 'hadron-type-checker';
-import TypeChecker from 'hadron-type-checker';
+import type { TypeCastMap } from '@cloud-mongodb-js/hadron-type-checker';
+import TypeChecker from '@cloud-mongodb-js/hadron-type-checker';
 import {
   Select,
   Option,
   css,
   spacing,
   cx,
-} from '@mongodb-js/compass-components';
-import type { Element } from 'hadron-document';
+} from '@cloud-mongodb-js/compass-components';
+import type { Element } from '@cloud-mongodb-js/hadron-document';
 
 const castableTypes = TypeChecker.castableTypes(true);
 const selectStyles = css({ minWidth: spacing[3] * 10 });

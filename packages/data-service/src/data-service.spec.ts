@@ -19,7 +19,7 @@ import { createMongoClientMock } from '../test/helpers';
 import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@cloud-mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
 import { range } from 'lodash';
 

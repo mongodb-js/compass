@@ -6,7 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
-} from '@mongodb-js/compass-components';
+} from '@cloud-mongodb-js/compass-components';
 
 import {
   AIEntrySVG,

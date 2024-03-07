@@ -1,6 +1,6 @@
 import React from 'react';
-import { Icon, Button, Tooltip } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
+import { Icon, Button, Tooltip } from '@cloud-mongodb-js/compass-components';
+import { usePreference } from '@cloud-mongodb-js/compass-preferences-model';
 
 type DeleteMenuButtonProps = {
   isWritable: boolean;

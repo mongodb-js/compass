@@ -84,7 +84,7 @@ export const inValueRange = (
   // upper and lower bound. otherwise create a single value array of the
   // original bson type (if available) or the extracted value.
 
-  // NOTE: this package is a copy of https://github.com/mongodb-js/mongodb-query-util/tree/main.
+  // NOTE: this package is a copy of https://github.com/mongodb-js/@cloud-mongodb-js/mongodb-query-util/tree/main.
   // Once we converted the code to typescript, eslint started to complain about the fact
   // that the sum is not happening always between numbers.
   // From tests, it seems expected for d.value to also be a BSON type, and the sum

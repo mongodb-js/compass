@@ -4,7 +4,7 @@ import {
   applyFromHistory,
   deleteFavoriteQuery,
 } from '../../stores/query-bar-reducer';
-import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import type { FavoriteQuery } from '@cloud-mongodb-js/my-queries-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,
@@ -14,7 +14,7 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@cloud-mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');

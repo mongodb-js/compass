@@ -12,14 +12,14 @@ import {
   palette,
   spacing,
   useDarkMode,
-} from '@mongodb-js/compass-components';
-import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+} from '@cloud-mongodb-js/compass-components';
+import type { Document } from '@cloud-mongodb-js/hadron-document';
+import HadronDocument from '@cloud-mongodb-js/hadron-document';
 import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
-} from '@mongodb-js/compass-editor';
-import type { EditorRef, Action } from '@mongodb-js/compass-editor';
+} from '@cloud-mongodb-js/compass-editor';
+import type { EditorRef, Action } from '@cloud-mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 
 const editorStyles = css({
