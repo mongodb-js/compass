@@ -24,6 +24,8 @@ import {
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -37,16 +39,24 @@ const containerStyles = css({
   width: '100%',
 });
 
+const linkTitle = 'Atlas Search.';
 const AtlasIndexesBanner = () => {
+  const { atlasMetadata } = useConnectionInfo();
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
-      {/* todo: COMPASS-7701 add correct link */}
-      {/* #/clusters/atlasSearch/{clusterName} */}
-      <Link href={'#/clusters/atlasSearch'} target="_blank" hideExternalIcon>
-        Atlas Search.
-      </Link>
+      {atlasMetadata ? (
+        <Link
+          href={getAtlasSearchIndexesLink(atlasMetadata)}
+          target="_blank"
+          hideExternalIcon
+        >
+          {linkTitle}
+        </Link>
+      ) : (
+        linkTitle
+      )}
     </Banner>
   );
 };
