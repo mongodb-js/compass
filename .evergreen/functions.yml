@@ -88,7 +88,7 @@ post:
       working_dir: src
       shell: bash
       script: |
-        tar czvf all-e2e-logs.tgz packages/compass-e2e-tests/.log
+        tar czf all-e2e-logs.tgz packages/compass-e2e-tests/.log
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -96,6 +96,7 @@ post:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
+        - src/coverage.tgz
         - src/.testserver/logs/*
         - src/.evergreen/logs/*
         - src/all-e2e-logs.tgz
@@ -499,6 +500,8 @@ functions:
           echo "Running E2E tests while collecting coverage..."
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+
+          tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
   test-packaged-app:
     - command: shell.exec

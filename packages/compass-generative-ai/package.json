@@ -61,19 +61,21 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.22.1",
-    "compass-preferences-model": "^2.18.1",
-    "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/atlas-service": "^0.15.1",
+    "@mongodb-js/compass-components": "^1.22.1",
     "@mongodb-js/compass-intercom": "^0.2.1",
-    "react": "*"
+    "@mongodb-js/compass-logging": "^1.2.14",
+    "compass-preferences-model": "^2.18.1",
+    "hadron-app-registry": "^9.1.8",
+    "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.22.1",
-    "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/atlas-service": "^0.15.1",
+    "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-intercom": "^0.2.1",
+    "@mongodb-js/compass-logging": "^1.2.14",
     "compass-preferences-model": "^2.18.1",
-    "@mongodb-js/compass-intercom": "^0.2.1"
+    "hadron-app-registry": "^9.1.8"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.17",

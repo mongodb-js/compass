@@ -15,7 +15,7 @@ import {
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
+import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
@@ -102,8 +102,10 @@ function Connections({
   connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
-  // @TODO: Extract to a prop COMPASS-7397
-  const connectionStorage = connectionStorageLocator();
+  // TODO(COMPASS-7397): services should not be used directly in render method,
+  // when this code is refactored to use the hadron plugin interface, storage
+  // should be handled through the plugin activation lifecycle
+  const connectionStorage = useConnectionStorageContext();
 
   const {
     state,

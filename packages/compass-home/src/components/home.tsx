@@ -48,11 +48,11 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
   ConnectionStorageContext,
   ConnectionRepositoryContextProvider,
 } from '@mongodb-js/connection-storage/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
 
@@ -170,11 +170,13 @@ function notifyMainProcessOfDisconnect() {
 function Home({
   appName,
   getAutoConnectInfo,
+  isWelcomeModalOpenByDefault = false,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
 }: {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  isWelcomeModalOpenByDefault?: boolean;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
@@ -277,18 +279,9 @@ function Home({
     remote ? createElectronFileInputBackend(remote) : null
   );
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
-  const preferences = preferencesLocator();
-
-  useLayoutEffect(() => {
-    // If we haven't showed welcome modal that points users to network opt in
-    // yet, show the modal and update preferences with default values to reflect
-    // that
-    if (preferences.getPreferences().showedNetworkOptIn === false) {
-      setIsWelcomeOpen(true);
-      void preferences.ensureDefaultConfigurableUserPreferences();
-    }
-  }, [preferences]);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(
+    isWelcomeModalOpenByDefault
+  );
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {
@@ -393,14 +386,16 @@ function Home({
               scopeName="Connected Application"
             >
               <DataServiceProvider value={connectedDataService.current}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <Workspace
-                      connectionInfo={connectionInfo}
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
+                <ConnectionInfoProvider value={connectionInfo}>
+                  <CompassInstanceStorePlugin>
+                    <FieldStorePlugin>
+                      <Workspace
+                        connectionInfo={connectionInfo}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </FieldStorePlugin>
+                  </CompassInstanceStorePlugin>
+                </ConnectionInfoProvider>
               </DataServiceProvider>
             </AppRegistryProvider>
           )}

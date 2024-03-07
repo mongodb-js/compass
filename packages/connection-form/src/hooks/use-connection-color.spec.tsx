@@ -4,6 +4,7 @@ import React from 'react';
 import {
   useConnectionColor,
   CONNECTION_COLOR_CODES,
+  COLOR_CODE_TO_NAME,
 } from './use-connection-color';
 
 function TestComponent({
@@ -11,8 +12,13 @@ function TestComponent({
 }: {
   colorCode: string;
 }): React.ReactElement {
-  const { connectionColorToHex } = useConnectionColor();
-  return <div>{connectionColorToHex(colorCode)}</div>;
+  const { connectionColorToHex, connectionColorToName } = useConnectionColor();
+  return (
+    <>
+      <div>{connectionColorToHex(colorCode)}</div>
+      <div>{connectionColorToName(colorCode)}</div>
+    </>
+  );
 }
 
 describe('useConnectionColor', function () {
@@ -64,5 +70,14 @@ describe('useConnectionColor', function () {
   it('does not convert an unknown hex code', function () {
     const { container } = render(<TestComponent colorCode={'#100000'} />);
     expect(container.firstChild.textContent).to.be.empty;
+  });
+
+  describe('connection color names', function () {
+    for (const [color, name] of Object.entries(COLOR_CODE_TO_NAME)) {
+      it(`${color} is named ${name}`, function () {
+        const { container } = render(<TestComponent colorCode={color} />);
+        expect(container.children[1].textContent).to.equal(name);
+      });
+    }
   });
 });
