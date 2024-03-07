@@ -32,7 +32,6 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { preferencesMaxTimeMSChanged } from '../modules/max-time-ms';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
@@ -173,15 +172,6 @@ export function activateAggregationsPlugin(
         logger,
         atlasAiService,
       })
-    )
-  );
-
-  store.dispatch(
-    preferencesMaxTimeMSChanged(preferences.getPreferences().maxTimeMS)
-  );
-  addCleanup(
-    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
-      store.dispatch(preferencesMaxTimeMSChanged(newValue))
     )
   );
 
