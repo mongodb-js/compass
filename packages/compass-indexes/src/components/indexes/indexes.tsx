@@ -47,11 +47,7 @@ const AtlasIndexesBanner = () => {
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
-        <Link
-          href={getAtlasSearchIndexesLink(atlasMetadata)}
-          target="_blank"
-          hideExternalIcon
-        >
+        <Link href={getAtlasSearchIndexesLink(atlasMetadata)} hideExternalIcon>
           {linkTitle}
         </Link>
       ) : (

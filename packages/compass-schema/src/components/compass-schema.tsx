@@ -348,7 +348,6 @@ const PerformanceAdvisorBanner = () => {
       {atlasMetadata ? (
         <Link
           href={getAtlasPerformanceAdvisorLink(atlasMetadata)}
-          target="_blank"
           hideExternalIcon
         >
           {title}

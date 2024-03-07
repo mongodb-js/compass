@@ -8,5 +8,5 @@ export function getAtlasPerformanceAdvisorLink({
   if (clusterType === 'serverless') {
     return `#/serverless/advisor/${clusterName}/createIndexes`;
   }
-  return `#/metrics/replicaSet/${clusterId}/advisor`;
+  return `#/metrics/${clusterType}/${clusterId}/advisor`;
 }

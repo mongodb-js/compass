@@ -11,13 +11,30 @@ describe('compass-schema utils', function () {
       });
       expect(result).to.equal('#/serverless/advisor/Cluster0/createIndexes');
     });
-    it('returns the correct link for a replica set cluster', function () {
-      const result = getAtlasPerformanceAdvisorLink({
-        clusterId: '123456',
-        clusterType: 'replicaSet',
-        clusterName: 'Cluster0',
-      });
-      expect(result).to.equal('#/metrics/replicaSet/123456/advisor');
+    it('returns the correct link for other clusters', function () {
+      expect(
+        getAtlasPerformanceAdvisorLink({
+          clusterId: '123456',
+          clusterType: 'replicaSet',
+          clusterName: 'Cluster0',
+        })
+      ).to.equal('#/metrics/replicaSet/123456/advisor');
+
+      expect(
+        getAtlasPerformanceAdvisorLink({
+          clusterId: '123456',
+          clusterType: 'cluster',
+          clusterName: 'Cluster0',
+        })
+      ).to.equal('#/metrics/cluster/123456/advisor');
+
+      expect(
+        getAtlasPerformanceAdvisorLink({
+          clusterId: '123456',
+          clusterType: 'host',
+          clusterName: 'Cluster0',
+        })
+      ).to.equal('#/metrics/host/123456/advisor');
     });
   });
 });
