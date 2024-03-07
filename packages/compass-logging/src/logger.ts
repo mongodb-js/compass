@@ -51,11 +51,11 @@ export function createGenericLoggerAndTelemetry(
     // Note that this is mainly a performance optimization, since the main process
     // telemetry code also checks this preference value, so it is safe to fall back to 'true'.
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
-      preferences ??= (
-        await import('@cloud-mongodb-js/compass-preferences-model')
-      ).preferencesAccess;
+      preferences ??=
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
+        (await import('@cloud-mongodb-js/compass-preferences-model'))
+          .preferencesAccess;
     } catch {
       preferences ??= {
         getPreferences() {
