@@ -1,5 +1,12 @@
 import React, { useRef, forwardRef, useCallback, useState } from 'react';
-import { Button, Icon, IconButton, Menu, MenuItem } from './leafygreen';
+import {
+  Button,
+  Icon,
+  IconButton,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+} from './leafygreen';
 import { Tooltip } from './tooltip';
 import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
@@ -11,18 +18,30 @@ export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
   icon: React.ReactChild;
+  variant?: 'default' | 'destructive';
 };
+
+export type ItemSeparator = { separator: true };
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltip?: string;
   tooltipProps?: TooltipProps;
 };
 
-export type MenuAction<Action extends string> = {
-  action: Action;
-  label: string;
-  icon?: React.ReactChild;
-};
+export type MenuAction<Action extends string> =
+  | {
+      action: Action;
+      label: string;
+      icon?: React.ReactChild;
+      variant?: 'default' | 'destructive';
+    }
+  | ItemSeparator;
+
+function isSeparatorMenuAction<T extends string, MA extends MenuAction<T>>(
+  menuAction: MA | ItemSeparator
+): menuAction is ItemSeparator {
+  return (menuAction as any).separator;
+}
 
 const ItemActionButtonSize = {
   XSmall: 'xsmall',
@@ -216,7 +235,13 @@ export function ItemActionMenu<Action extends string>({
           );
         }}
       >
-        {actions.map(({ action, label, icon }) => {
+        {actions.map((menuAction) => {
+          if (isSeparatorMenuAction(menuAction)) {
+            return <MenuSeparator />;
+          }
+
+          const { action, label, icon, variant } = menuAction;
+
           return (
             <MenuItem
               key={action}
@@ -225,6 +250,8 @@ export function ItemActionMenu<Action extends string>({
               data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
+              // @ts-expect-error This will compile when we upgrade leafy-green
+              variant={variant || 'default'}
             >
               {label}
             </MenuItem>
@@ -245,7 +272,7 @@ export function ItemActionGroup<Action extends string>({
   isVisible = true,
   'data-testid': dataTestId,
 }: {
-  actions: GroupedItemAction<Action>[];
+  actions: (GroupedItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
   className?: string;
   iconClassName?: string;
@@ -273,7 +300,12 @@ export function ItemActionGroup<Action extends string>({
       className={cx(actionControlsStyle, className)}
       data-testid={dataTestId}
     >
-      {actions.map(({ action, icon, label, tooltip, tooltipProps }) => {
+      {actions.map((menuItem) => {
+        if (isSeparatorMenuAction(menuItem)) {
+          return <MenuSeparator />;
+        }
+
+        const { action, icon, label, tooltip, tooltipProps } = menuItem;
         const button = (
           <ItemActionButton
             key={action}
@@ -325,7 +357,7 @@ export function ItemActionControls<Action extends string>({
   'data-testid': dataTestId,
 }: {
   isVisible?: boolean;
-  actions: ItemAction<Action>[];
+  actions: (ItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
   className?: string;
   iconSize?: ItemActionButtonSize;
@@ -449,7 +481,12 @@ export function DropdownMenuButton<Action extends string>({
         );
       }}
     >
-      {actions.map(({ action, label, icon }) => {
+      {actions.map((menuAction) => {
+        if (isSeparatorMenuAction(menuAction)) {
+          return <MenuSeparator />;
+        }
+
+        const { action, label, icon } = menuAction;
         return (
           <MenuItem
             active={activeAction === action}
