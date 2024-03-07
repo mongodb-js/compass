@@ -240,8 +240,12 @@ export function SavedConnection({
         style={{ visibility: isHovered ? 'visible' : 'hidden' }}
         className={savedConnectionToolbarStyles}
       >
-        <IconButton aria-label="Connect">
-          <Icon glyph="Connect" onClick={() => onConnect(connectionInfo)} />
+        <IconButton
+          onClick={() => onConnect(connectionInfo)}
+          data-testid="connect-button"
+          aria-label="Connect"
+        >
+          <Icon glyph="Connect" />
         </IconButton>
         <ItemActionControls<Action>
           data-testid="connection-menu"

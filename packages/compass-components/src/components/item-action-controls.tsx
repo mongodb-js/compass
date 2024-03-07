@@ -235,9 +235,9 @@ export function ItemActionMenu<Action extends string>({
           );
         }}
       >
-        {actions.map((menuAction) => {
+        {actions.map((menuAction, idx) => {
           if (isSeparatorMenuAction(menuAction)) {
-            return <MenuSeparator />;
+            return <MenuSeparator key={`separator-${idx}`} />;
           }
 
           const { action, label, icon, variant } = menuAction;
@@ -300,9 +300,9 @@ export function ItemActionGroup<Action extends string>({
       className={cx(actionControlsStyle, className)}
       data-testid={dataTestId}
     >
-      {actions.map((menuItem) => {
+      {actions.map((menuItem, idx) => {
         if (isSeparatorMenuAction(menuItem)) {
-          return <MenuSeparator />;
+          return <MenuSeparator key={`separator-${idx}`} />;
         }
 
         const { action, icon, label, tooltip, tooltipProps } = menuItem;
@@ -481,9 +481,9 @@ export function DropdownMenuButton<Action extends string>({
         );
       }}
     >
-      {actions.map((menuAction) => {
+      {actions.map((menuAction, idx) => {
         if (isSeparatorMenuAction(menuAction)) {
-          return <MenuSeparator />;
+          return <MenuSeparator key={`separator-${idx}`} />;
         }
 
         const { action, label, icon } = menuAction;
