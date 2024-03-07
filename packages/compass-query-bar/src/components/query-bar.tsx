@@ -71,7 +71,7 @@ const queryBarFirstRowStyles = css({
   // to account for their height individually.
   alignItems: 'flex-start',
   gap: spacing[2],
-  paddingLeft: spacing[2],
+  paddingLeft: spacing[1],
 });
 
 const moreOptionsContainerStyles = css({
@@ -231,18 +231,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-apply-id={applyId}
     >
       <div className={queryBarFirstRowStyles}>
-        <div className={documentEditorLabelContainerStyles}>
-          <Label
-            htmlFor={filterQueryOptionId}
-            id="query-bar-option-input-filter-label"
-            className={filterLabelStyles}
-          >
-            <Link href={queryBarDocumentationLink} target="_blank">
-              Filter
-            </Link>
-          </Label>
-          {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
-        </div>
+        {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         <div className={filterContainerStyles}>
           <QueryOptionComponent
             name="filter"
