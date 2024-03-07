@@ -27,6 +27,7 @@ import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -84,7 +85,7 @@ const historyItemButtonStyles = css({
 
 resetGlobalCSS();
 
-function getHistory(): string[] {
+function getHistory(): ConnectionInfo[] {
   try {
     const b64Str = localStorage.getItem('CONNECTIONS_HISTORY');
     if (!b64Str) {
@@ -125,7 +126,7 @@ const logging: { name: string; component: string; args: any[] }[] = [];
 (globalThis as any).tracking = tracking;
 (globalThis as any).logging = logging;
 
-const App = () => {
+function CompassWebApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
     const [, tab, namespace = ''] = window.location.pathname.split('/');
     if (tab === 'databases') {
@@ -139,44 +140,6 @@ const App = () => {
     }
     return { type: 'Databases' };
   });
-  const [connectionsHistory, setConnectionsHistory] = useState<string[]>(() => {
-    return getHistory();
-  });
-  const [focused, setFocused] = useState(false);
-  const [connectionString, setConnectionString] = useState('');
-  const [openCompassWeb, setOpenCompassWeb] = useState(false);
-  const [
-    connectionStringValidationResult,
-    setConnectionStringValidationResult,
-  ] = useState<null | string>(null);
-
-  (window as any).disconnectCompassWeb = () => {
-    setOpenCompassWeb(false);
-  };
-
-  const canSubmit =
-    connectionStringValidationResult === null && connectionString !== '';
-
-  const onChangeConnectionString = useCallback((str: string) => {
-    setConnectionStringValidationResult(validateConnectionString(str));
-    setConnectionString(str);
-  }, []);
-
-  const onConnectClick = useCallback(() => {
-    setOpenCompassWeb(true);
-    setConnectionsHistory((history) => {
-      if (history.includes(connectionString)) {
-        return history;
-      }
-      history.unshift(connectionString);
-      if (history.length > 10) {
-        history.pop();
-      }
-      saveHistory(history);
-      return [...history];
-    });
-  }, [connectionString]);
-
   const loggerProvider = useRef({
     createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
       const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
@@ -210,44 +173,97 @@ const App = () => {
       };
     },
   });
+  return (
+    <Body as="div" className={sandboxContainerStyles}>
+      <LoggerAndTelemetryProvider value={loggerProvider.current}>
+        <ErrorBoundary>
+          <CompassWeb
+            connectionInfo={connectionInfo}
+            initialWorkspaceTabs={[initialTab]}
+            onActiveWorkspaceTabChange={(tab) => {
+              let newPath: string;
+              switch (tab?.type) {
+                case 'Databases':
+                  newPath = '/databases';
+                  break;
+                case 'Collections':
+                  newPath = `/collections/${tab.namespace}`;
+                  break;
+                case 'Collection':
+                  newPath = `/collection/${tab.namespace}`;
+                  break;
+                default:
+                  newPath = '/';
+              }
+              if (newPath) {
+                window.history.replaceState(null, '', newPath);
+              }
+            }}
+          ></CompassWeb>
+        </ErrorBoundary>
+      </LoggerAndTelemetryProvider>
+    </Body>
+  );
+}
 
-  if (openCompassWeb) {
-    return (
-      <Body as="div" className={sandboxContainerStyles}>
-        <LoggerAndTelemetryProvider value={loggerProvider.current}>
-          <ErrorBoundary>
-            <CompassWeb
-              connectionInfo={{
-                id: Math.random().toString(36).substring(10),
-                connectionOptions: {
-                  connectionString,
-                },
-              }}
-              initialWorkspaceTabs={[initialTab]}
-              onActiveWorkspaceTabChange={(tab) => {
-                let newPath: string;
-                switch (tab?.type) {
-                  case 'Databases':
-                    newPath = '/databases';
-                    break;
-                  case 'Collections':
-                    newPath = `/collections/${tab.namespace}`;
-                    break;
-                  case 'Collection':
-                    newPath = `/collection/${tab.namespace}`;
-                    break;
-                  default:
-                    newPath = '/';
-                }
-                if (newPath) {
-                  window.history.replaceState(null, '', newPath);
-                }
-              }}
-            ></CompassWeb>
-          </ErrorBoundary>
-        </LoggerAndTelemetryProvider>
-      </Body>
-    );
+const App = () => {
+  const [connectionsHistory, setConnectionsHistory] = useState<
+    ConnectionInfo[]
+  >(() => {
+    return getHistory();
+  });
+  const [focused, setFocused] = useState(false);
+  const [connectionString, setConnectionString] = useState<string>('');
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
+    null
+  );
+  const [openCompassWeb, setOpenCompassWeb] = useState(false);
+  const [
+    connectionStringValidationResult,
+    setConnectionStringValidationResult,
+  ] = useState<null | string>(null);
+
+  (window as any).disconnectCompassWeb = () => {
+    setOpenCompassWeb(false);
+  };
+
+  const canSubmit =
+    connectionStringValidationResult === null && connectionString !== '';
+
+  const onChangeConnectionString = useCallback((str: string) => {
+    setConnectionStringValidationResult(validateConnectionString(str));
+    setConnectionString(str);
+  }, []);
+
+  const onConnectClick = useCallback(() => {
+    setOpenCompassWeb(true);
+    setConnectionsHistory((history) => {
+      const info = history.find(
+        (info) => info.connectionOptions.connectionString === connectionString
+      );
+      if (info) {
+        setConnectionInfo(info);
+        return history;
+      }
+
+      const newInfo: ConnectionInfo = {
+        id: Math.random().toString(36).slice(2),
+        connectionOptions: {
+          connectionString,
+        },
+      };
+      setConnectionInfo(newInfo);
+      history.unshift(newInfo);
+      if (history.length > 10) {
+        history.pop();
+      }
+      saveHistory(history);
+      return [...history];
+    });
+  }, [connectionString]);
+
+  if (openCompassWeb && connectionInfo) {
+    return <CompassWebApp connectionInfo={connectionInfo} />;
   }
 
   return (
@@ -295,11 +311,11 @@ const App = () => {
               <div>
                 <Label htmlFor="connection-list">Connection history</Label>
                 <ul id="connection-list" className={historyListStyles}>
-                  {connectionsHistory.map((connectionString) => {
+                  {connectionsHistory.map((connectionInfo) => {
                     return (
                       <KeylineCard
                         as="li"
-                        key={connectionString}
+                        key={connectionInfo.id}
                         className={historyListItemStyles}
                         contentStyle="clickable"
                       >
@@ -307,10 +323,14 @@ const App = () => {
                           className={historyItemButtonStyles}
                           type="button"
                           onClick={() => {
-                            onChangeConnectionString(connectionString);
+                            onChangeConnectionString(
+                              connectionInfo.connectionOptions.connectionString
+                            );
                           }}
                         >
-                          {redactConnectionString(connectionString)}
+                          {redactConnectionString(
+                            connectionInfo.connectionOptions.connectionString
+                          )}
                         </button>
                       </KeylineCard>
                     );
