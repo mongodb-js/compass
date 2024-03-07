@@ -90,7 +90,7 @@ const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-type WorkspaceProps = Pick<
+type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
 >;
@@ -99,7 +99,7 @@ type CompassWebProps = {
   darkMode?: boolean;
   connectionInfo: ConnectionInfo;
   initialPreferences?: Partial<AllPreferences>;
-} & WorkspaceProps;
+} & CompassWorkspaceProps;
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -136,7 +136,7 @@ function LoadingScreen({ connectionString }: { connectionString: string }) {
 function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
-}: WorkspaceProps) {
+}: CompassWorkspaceProps) {
   return (
     <WorkspacesProvider
       value={[

@@ -126,7 +126,7 @@ const logging: { name: string; component: string; args: any[] }[] = [];
 (globalThis as any).tracking = tracking;
 (globalThis as any).logging = logging;
 
-function CompassWebApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
+const App = () => {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
     const [, tab, namespace = ''] = window.location.pathname.split('/');
     if (tab === 'databases') {
@@ -140,73 +140,6 @@ function CompassWebApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
     }
     return { type: 'Databases' };
   });
-  const loggerProvider = useRef({
-    createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
-      const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
-        return (...args: any[]) => {
-          logging.push({ name, component, args });
-        };
-      };
-
-      const track = (event: string, properties: any) => {
-        tracking.push({ event, properties });
-      };
-
-      const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
-
-      return {
-        log: {
-          component,
-          get unbound() {
-            return this as unknown as MongoLogWriter;
-          },
-          write: () => true,
-          debug: logger('debug'),
-          info: logger('info'),
-          warn: logger('warn'),
-          error: logger('error'),
-          fatal: logger('fatal'),
-        },
-        debug,
-        track,
-        mongoLogId,
-      };
-    },
-  });
-  return (
-    <Body as="div" className={sandboxContainerStyles}>
-      <LoggerAndTelemetryProvider value={loggerProvider.current}>
-        <ErrorBoundary>
-          <CompassWeb
-            connectionInfo={connectionInfo}
-            initialWorkspaceTabs={[initialTab]}
-            onActiveWorkspaceTabChange={(tab) => {
-              let newPath: string;
-              switch (tab?.type) {
-                case 'Databases':
-                  newPath = '/databases';
-                  break;
-                case 'Collections':
-                  newPath = `/collections/${tab.namespace}`;
-                  break;
-                case 'Collection':
-                  newPath = `/collection/${tab.namespace}`;
-                  break;
-                default:
-                  newPath = '/';
-              }
-              if (newPath) {
-                window.history.replaceState(null, '', newPath);
-              }
-            }}
-          ></CompassWeb>
-        </ErrorBoundary>
-      </LoggerAndTelemetryProvider>
-    </Body>
-  );
-}
-
-const App = () => {
   const [connectionsHistory, setConnectionsHistory] = useState<
     ConnectionInfo[]
   >(() => {
@@ -262,8 +195,72 @@ const App = () => {
     });
   }, [connectionString]);
 
+  const loggerProvider = useRef({
+    createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
+      const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
+        return (...args: any[]) => {
+          logging.push({ name, component, args });
+        };
+      };
+
+      const track = (event: string, properties: any) => {
+        tracking.push({ event, properties });
+      };
+
+      const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
+
+      return {
+        log: {
+          component,
+          get unbound() {
+            return this as unknown as MongoLogWriter;
+          },
+          write: () => true,
+          debug: logger('debug'),
+          info: logger('info'),
+          warn: logger('warn'),
+          error: logger('error'),
+          fatal: logger('fatal'),
+        },
+        debug,
+        track,
+        mongoLogId,
+      };
+    },
+  });
+
   if (openCompassWeb && connectionInfo) {
-    return <CompassWebApp connectionInfo={connectionInfo} />;
+    return (
+      <Body as="div" className={sandboxContainerStyles}>
+        <LoggerAndTelemetryProvider value={loggerProvider.current}>
+          <ErrorBoundary>
+            <CompassWeb
+              connectionInfo={connectionInfo}
+              initialWorkspaceTabs={[initialTab]}
+              onActiveWorkspaceTabChange={(tab) => {
+                let newPath: string;
+                switch (tab?.type) {
+                  case 'Databases':
+                    newPath = '/databases';
+                    break;
+                  case 'Collections':
+                    newPath = `/collections/${tab.namespace}`;
+                    break;
+                  case 'Collection':
+                    newPath = `/collection/${tab.namespace}`;
+                    break;
+                  default:
+                    newPath = '/';
+                }
+                if (newPath) {
+                  window.history.replaceState(null, '', newPath);
+                }
+              }}
+            ></CompassWeb>
+          </ErrorBoundary>
+        </LoggerAndTelemetryProvider>
+      </Body>
+    );
   }
 
   return (
