@@ -6,8 +6,15 @@ type LinkContextValue = {
   utmMedium?: string;
 };
 const LinkContext = React.createContext<LinkContextValue>({});
-export const LinkProvider: React.FC<LinkContextValue> = ({ children }) => {
-  const value: LinkContextValue = {};
+export const LinkProvider: React.FC<LinkContextValue> = ({
+  utmSource,
+  utmMedium,
+  children,
+}) => {
+  const value: LinkContextValue = {
+    utmSource,
+    utmMedium,
+  };
 
   return <LinkContext.Provider value={value}>{children}</LinkContext.Provider>;
 };
