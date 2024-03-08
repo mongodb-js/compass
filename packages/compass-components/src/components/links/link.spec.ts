@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import { urlWithUtmParams, EXCLUDED_MONGODB_HOSTS } from './link';
 
 const params = {
-  utmSource: 'compass', utmMedium: 'product'
+  utmSource: 'compass',
+  utmMedium: 'product',
 };
 
 describe('link', function () {
@@ -37,18 +38,25 @@ describe('link', function () {
       function () {
         it('should return the url with correct utm params set', function () {
           expect(
-            urlWithUtmParams('https://docs.mongodb.com/compass/current/', params)
+            urlWithUtmParams(
+              'https://docs.mongodb.com/compass/current/',
+              params
+            )
           ).to.equal(
             'https://docs.mongodb.com/compass/current/?utm_source=compass&utm_medium=product'
           );
           expect(
-            urlWithUtmParams('https://mongodb.com/docs/anything/?name=compass', params)
+            urlWithUtmParams(
+              'https://mongodb.com/docs/anything/?name=compass',
+              params
+            )
           ).to.equal(
             'https://mongodb.com/docs/anything/?name=compass&utm_source=compass&utm_medium=product'
           );
           expect(
             urlWithUtmParams(
-              'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse',params
+              'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse',
+              params
             )
           ).to.equal(
             'https://mongodb.com/?utm_source=compass&utm_medium=product'
@@ -58,22 +66,22 @@ describe('link', function () {
         it('leaves the url unchanged if there are no utm params set', function () {
           expect(
             urlWithUtmParams('https://docs.mongodb.com/compass/current/', {})
-          ).to.equal(
-            'https://docs.mongodb.com/compass/current/'
-          );
-          expect(
-            urlWithUtmParams('https://mongodb.com/docs/anything/?name=compass', {})
-          ).to.equal(
-            'https://mongodb.com/docs/anything/?name=compass'
-          );
+          ).to.equal('https://docs.mongodb.com/compass/current/');
           expect(
             urlWithUtmParams(
-              'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse', {}
+              'https://mongodb.com/docs/anything/?name=compass',
+              {}
+            )
+          ).to.equal('https://mongodb.com/docs/anything/?name=compass');
+          expect(
+            urlWithUtmParams(
+              'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse',
+              {}
             )
           ).to.equal(
             'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse'
           );
-        })
+        });
       }
     );
   });
