@@ -43,14 +43,11 @@ export const urlWithUtmParams = (
   }
 };
 
-//type LGLinkType = typeof LGLink & {
-//  href?: string,
-//  children: React.ReactNode
-//};
-
-type LGLinkType = React.ComponentProps<typeof LGLink>;
-
-export const Link = ({ href, children, ...rest }: LGLinkType) => {
+export const Link = (({
+  href,
+  children,
+  ...rest
+}: React.ComponentProps<typeof LGLink>) => {
   const { utmSource, utmMedium } = useContext(LinkContext);
 
   if (href) {
@@ -62,4 +59,4 @@ export const Link = ({ href, children, ...rest }: LGLinkType) => {
       {children}
     </LGLink>
   );
-};
+}) as unknown as typeof LGLink;
