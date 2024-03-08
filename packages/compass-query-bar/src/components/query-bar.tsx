@@ -8,8 +8,6 @@ import {
   spacing,
   palette,
   useDarkMode,
-  Label,
-  Link,
 } from '@mongodb-js/compass-components';
 import {
   AIExperienceEntry,
@@ -23,9 +21,7 @@ import {
   OPTION_DEFINITION,
   type QueryOption,
 } from '../constants/query-option-definition';
-import QueryOptionComponent, {
-  documentEditorLabelContainerStyles,
-} from './query-option';
+import QueryOptionComponent from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
 import {
@@ -89,10 +85,6 @@ const filterContainerStyles = css({
   gap: spacing[2],
 });
 
-const filterLabelStyles = css({
-  padding: 0,
-});
-
 const aiEntryContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -111,9 +103,6 @@ const queryAIContainerStyles = css({
   margin: `0px ${spacing[2]}px`,
   marginTop: '2px',
 });
-
-const queryBarDocumentationLink =
-  'https://docs.mongodb.com/compass/current/query/filter/';
 
 const QueryOptionsToggle = connect(
   (state: RootState) => {
