@@ -220,6 +220,7 @@ const CompassWeb = ({
       enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: false,
+      enableNewMultipleConnectionSystem: false,
       enableHackoladeBanner: false,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
