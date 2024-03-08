@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SavedConnection } from './saved-connection';
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const CONNECTION_INFO: ConnectionInfo = {
   id: '1',
@@ -19,11 +19,11 @@ const CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('SavedConnection Component', function () {
-  let onConnect = spy();
-  let onDeleteConnection = spy();
-  let onEditConnection = spy();
-  let onDuplicateConnection = spy();
-  let onToggleFavoriteConnection = spy();
+  const onConnect = spy();
+  const onDeleteConnection = spy();
+  const onEditConnection = spy();
+  const onDuplicateConnection = spy();
+  const onToggleFavoriteConnection = spy();
 
   function doRender(info: ConnectionInfo) {
     return render(
@@ -47,13 +47,17 @@ describe('SavedConnection Component', function () {
   });
 
   it('should render the connection name', function () {
-    const connection = screen.queryByText(CONNECTION_INFO.favorite?.name!!);
+    const connection = screen.queryByText(
+      CONNECTION_INFO.favorite?.name || '<>'
+    );
     expect(connection).to.exist;
   });
 
   describe('connection', function () {
     it('should be visible and clickable when hovering on the connection', async function () {
-      const connection = screen.getByText(CONNECTION_INFO.favorite?.name!!);
+      const connection = screen.getByText(
+        CONNECTION_INFO.favorite?.name || '<>'
+      );
       userEvent.hover(connection);
 
       const connectionButton = await waitFor(() =>
@@ -70,7 +74,9 @@ describe('SavedConnection Component', function () {
 
   describe('context menu', function () {
     beforeEach(async function () {
-      const connection = screen.getByText(CONNECTION_INFO.favorite?.name!!);
+      const connection = screen.getByText(
+        CONNECTION_INFO.favorite?.name || '<>'
+      );
       userEvent.hover(connection);
 
       const contextMenuButton = await waitFor(() =>
@@ -132,7 +138,9 @@ describe('SavedConnection Component', function () {
           };
           doRender(nonFavoriteConnectionInfo);
 
-          const connection = screen.getByText(CONNECTION_INFO.favorite?.name!!);
+          const connection = screen.getByText(
+            CONNECTION_INFO.favorite?.name || '<>'
+          );
           userEvent.hover(connection);
 
           const contextMenuButton = await waitFor(() =>

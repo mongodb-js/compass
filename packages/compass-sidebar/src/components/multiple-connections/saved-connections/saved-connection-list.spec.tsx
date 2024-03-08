@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SavedConnectionList } from './saved-connection-list';
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const FAVOURITE_CONNECTION_INFO: ConnectionInfo = {
   id: '1',
@@ -31,12 +31,12 @@ const NON_FAVOURITE_CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('SavedConnectionList Component', function () {
-  let onConnect = spy();
-  let onNewConnection = spy();
-  let onDeleteConnection = spy();
-  let onEditConnection = spy();
-  let onDuplicateConnection = spy();
-  let onToggleFavoriteConnection = spy();
+  const onConnect = spy();
+  const onNewConnection = spy();
+  const onDeleteConnection = spy();
+  const onEditConnection = spy();
+  const onDuplicateConnection = spy();
+  const onToggleFavoriteConnection = spy();
 
   function doRender(
     favoriteInfo: ConnectionInfo[],
@@ -67,7 +67,7 @@ describe('SavedConnectionList Component', function () {
   it('should render all connections', function () {
     [FAVOURITE_CONNECTION_INFO, NON_FAVOURITE_CONNECTION_INFO].every(
       (connection) => {
-        expect(screen.queryByText(connection.favorite?.name!!)).to.exist;
+        expect(screen.queryByText(connection.favorite?.name || '<>')).to.exist;
       }
     );
   });
