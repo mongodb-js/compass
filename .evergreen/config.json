@@ -45,55 +45,6 @@
       ],
       "test-packaged-app": [
         {
-          "name": "40x-community",
-          "vars": {
-            "mongodb_version": "4.0.x"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
-        },
-        {
-          "name": "40x-enterprise",
-          "vars": {
-            "mongodb_version": "4.0.x-enterprise"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"],
-          "//": "MongoDB 4.0 / 4.2 Enterprise doesn't work on Ubuntu 20.04 without additional dependencies installed, it's easier to use an older machine than install missing dependencies as machines we are using are stateful",
-          "run_on_override": {
-            "ubuntu2004-large": "ubuntu1804-large"
-          }
-        },
-        {
-          "name": "42x-community",
-          "vars": {
-            "mongodb_version": "4.2.x"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
-        },
-        {
-          "name": "42x-enterprise",
-          "vars": {
-            "mongodb_version": "4.2.x-enterprise"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"],
-          "run_on_override": {
-            "ubuntu2004-large": "ubuntu1804-large"
-          }
-        },
-        {
-          "name": "44x-community",
-          "vars": {
-            "mongodb_version": "4.4.x"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
-        },
-        {
-          "name": "44x-enterprise",
-          "vars": {
-            "mongodb_version": "4.4.x-enterprise"
-          },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
-        },
-        {
           "name": "5x-community",
           "vars": {
             "mongodb_version": "5.x.x"

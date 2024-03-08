@@ -49,26 +49,6 @@ buildvariants:
       - name: package-compass-isolated
         run_on: ubuntu1604-large
 
-      - name: test-packaged-app-40x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-40x-enterprise
-        run_on: ubuntu1804-large
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-enterprise
-        run_on: ubuntu1804-large
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-enterprise
-        depends_on: package-compass
-
       - name: test-packaged-app-5x-community
         depends_on: package-compass
 
@@ -110,24 +90,6 @@ buildvariants:
 
       - name: package-compass-isolated
 
-      - name: test-packaged-app-40x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-40x-enterprise
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-enterprise
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-enterprise
-        depends_on: package-compass
-
       - name: test-packaged-app-5x-community
         depends_on: package-compass
 
@@ -164,24 +126,6 @@ buildvariants:
       - name: package-compass-readonly
 
       - name: package-compass-isolated
-
-      - name: test-packaged-app-40x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-40x-enterprise
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-enterprise
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-44x-enterprise
-        depends_on: package-compass
 
       - name: test-packaged-app-5x-community
         depends_on: package-compass
