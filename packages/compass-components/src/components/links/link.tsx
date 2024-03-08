@@ -12,6 +12,7 @@ export const LinkProvider: React.FC<LinkContextValue> = ({ children }) => {
   return <LinkContext.Provider value={value}>{children}</LinkContext.Provider>;
 };
 
+// exported for testing purposes only
 export const EXCLUDED_MONGODB_HOSTS = [
   'compass-maps.mongodb.com',
   'evergreen.mongodb.com',
@@ -19,6 +20,7 @@ export const EXCLUDED_MONGODB_HOSTS = [
   'cloud.mongodb.com',
 ];
 
+// exported for testing purposes only
 export const urlWithUtmParams = (
   urlString: string,
   { utmSource, utmMedium }: { utmSource?: string; utmMedium?: string }
