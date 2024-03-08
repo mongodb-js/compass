@@ -18,7 +18,7 @@ const CONNECTION_INFO: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
-describe.only('SavedConnection Component', function () {
+describe('SavedConnection Component', function () {
   let onConnect = spy();
   let onDeleteConnection = spy();
   let onEditConnection = spy();
