@@ -4,6 +4,7 @@ import { ConfirmationModalArea } from '../hooks/use-confirmation';
 import { ToastArea } from '../hooks/use-toast';
 import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
+import { LinkProvider } from './links/link';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -29,6 +30,9 @@ type CompassComponentsProviderProps = {
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
+} & {
+  utmSource?: string;
+  utmMedium?: string;
 } & React.ComponentProps<typeof SignalHooksProvider>;
 
 const darkModeMediaQuery = (() => {
@@ -85,6 +89,8 @@ export const CompassComponentsProvider = ({
   children,
   onNextGuideGue,
   onNextGuideCueGroup,
+  utmSource,
+  utmMedium,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -110,24 +116,26 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <GuideCueProvider
-        onNext={onNextGuideGue}
-        onNextGroup={onNextGuideCueGroup}
-      >
-        <SignalHooksProvider {...signalHooksProviderProps}>
-          <ConfirmationModalArea>
-            <ToastArea>
-              {typeof children === 'function'
-                ? children({
-                    darkMode,
-                    portalContainerRef: setPortalContainer,
-                    scrollContainerRef: setScrollContainer,
-                  })
-                : children}
-            </ToastArea>
-          </ConfirmationModalArea>
-        </SignalHooksProvider>
-      </GuideCueProvider>
+      <LinkProvider utmSource={utmSource} utmMedium={utmMedium}>
+        <GuideCueProvider
+          onNext={onNextGuideGue}
+          onNextGroup={onNextGuideCueGroup}
+        >
+          <SignalHooksProvider {...signalHooksProviderProps}>
+            <ConfirmationModalArea>
+              <ToastArea>
+                {typeof children === 'function'
+                  ? children({
+                      darkMode,
+                      portalContainerRef: setPortalContainer,
+                      scrollContainerRef: setScrollContainer,
+                    })
+                  : children}
+              </ToastArea>
+            </ConfirmationModalArea>
+          </SignalHooksProvider>
+        </GuideCueProvider>
+      </LinkProvider>
     </LeafyGreenProvider>
   );
 };
