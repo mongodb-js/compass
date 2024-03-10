@@ -19,13 +19,15 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "provider.js"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -60,6 +62,7 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "compass-preferences-model": "^2.18.1",
+    "ensure-error": "^3.0.1",
     "hadron-ipc": "^3.2.12",
     "lodash": "^4.17.21",
     "mongodb": "^6.3.0",

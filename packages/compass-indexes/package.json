@@ -58,6 +58,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-app-stores": "^7.10.1",
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-editor": "^0.21.1",
     "@mongodb-js/compass-field-store": "^9.0.19",
     "@mongodb-js/compass-logging": "^1.2.14",
@@ -102,6 +103,7 @@
   "dependencies": {
     "@mongodb-js/compass-app-stores": "^7.10.1",
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-editor": "^0.21.1",
     "@mongodb-js/compass-field-store": "^9.0.19",
     "@mongodb-js/compass-logging": "^1.2.14",

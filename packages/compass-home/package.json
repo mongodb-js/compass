@@ -62,8 +62,7 @@
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
     "hadron-app-registry": "^9.1.8",
-    "hadron-ipc": "^3.2.12",
-    "mongodb-data-service": "^22.18.1"
+    "hadron-ipc": "^3.2.12"
   },
   "peerDependencies": {
     "@mongodb-js/atlas-service": "^0.15.1",
@@ -95,7 +94,6 @@
     "@mongodb-js/connection-storage": "^0.8.1",
     "hadron-app-registry": "^9.1.8",
     "hadron-ipc": "^3.2.12",
-    "mongodb-data-service": "^22.18.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -117,6 +115,7 @@
     "eventemitter3": "^4.0.0",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
+    "mongodb-data-service": "^22.18.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",

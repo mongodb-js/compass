@@ -17,8 +17,8 @@ import ConnectionForm from '@mongodb-js/connection-form';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
+import type { connect } from 'mongodb-data-service';
+import { useConnectionsManagerContext, ConnectionStatus } from '../provider';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
@@ -86,26 +86,20 @@ const formCardLightThemeStyles = css({
 function Connections({
   appRegistry,
   onConnected,
-  isConnected,
   appName,
   getAutoConnectInfo,
-  connectFn = connect,
 }: {
   appRegistry: AppRegistry;
-  onConnected: (
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) => void;
-  isConnected: boolean;
+  onConnected: (connectionInfo: ConnectionInfo) => void;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionStorage = useConnectionStorageContext();
+  const connectionsManager = useConnectionsManagerContext();
 
   const {
     state,
@@ -122,15 +116,12 @@ function Connections({
     reloadConnections,
   } = useConnections({
     onConnected,
-    isConnected,
-    connectFn,
     appName,
     getAutoConnectInfo,
   });
   const {
     activeConnectionId,
     activeConnectionInfo,
-    connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
     oidcDeviceAuthVerificationUrl,
@@ -249,14 +240,16 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {!!connectionAttempt && !connectionAttempt.isClosed() && (
-        <Connecting
-          oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
-          oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
-          connectingStatusText={connectingStatusText}
-          onCancelConnectionClicked={cancelConnectionAttempt}
-        />
-      )}
+      {activeConnectionId &&
+        connectionsManager.statusOf(activeConnectionId) ===
+          ConnectionStatus.Connecting && (
+          <Connecting
+            oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
+            oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
+            connectingStatusText={connectingStatusText}
+            onCancelConnectionClicked={cancelConnectionAttempt}
+          />
+        )}
       <ImportConnectionsModal
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}

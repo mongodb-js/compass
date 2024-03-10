@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './stores/query-bar-store';
-import type { DataServiceLocator } from 'mongodb-data-service/provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import type { DataServiceLocator } from '@mongodb-js/compass-connections/provider';
+import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import {
   QueryBarComponentProvider,

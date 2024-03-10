@@ -1,3 +1,4 @@
+import sinon from 'sinon';
 import React from 'react';
 import type { ReactWrapper } from 'enzyme';
 import { mount } from 'enzyme';
@@ -6,7 +7,11 @@ import { expect } from 'chai';
 import { CompassShell } from './components/compass-shell';
 import { CompassShellPlugin } from './index';
 import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
-import { DataServiceProvider } from 'mongodb-data-service/provider';
+import {
+  ConnectionsManager,
+  ConnectionsManagerProvider,
+} from '@mongodb-js/compass-connections/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 // Wait until a component is present that is rendered in a limited number
 // of microtask queue iterations. In particular, this does *not* wait for the
@@ -27,9 +32,22 @@ async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
 }
 
 describe('CompassShellPlugin', function () {
+  const dummyConnectionInfo = {
+    id: '1',
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27017',
+    },
+  };
+
   const fakeDataService = {
     getMongoClientConnectionOptions() {},
   } as any;
+
+  const connectionsManager = new ConnectionsManager();
+  sinon.replace(connectionsManager, 'getDataServiceForConnection', () => {
+    return fakeDataService;
+  });
+
   let wrapper: ReactWrapper | null;
 
   afterEach(() => {
@@ -42,9 +60,11 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <DataServiceProvider value={fakeDataService}>
-            <CompassShellPlugin />
-          </DataServiceProvider>
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <ConnectionInfoProvider value={dummyConnectionInfo}>
+              <CompassShellPlugin />
+            </ConnectionInfoProvider>
+          </ConnectionsManagerProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
@@ -65,9 +85,11 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <DataServiceProvider value={fakeDataService}>
-            <CompassShellPlugin />
-          </DataServiceProvider>
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <ConnectionInfoProvider value={dummyConnectionInfo}>
+              <CompassShellPlugin />
+            </ConnectionInfoProvider>
+          </ConnectionsManagerProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
