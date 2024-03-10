@@ -85,6 +85,10 @@ export class ConnectionsManager extends EventEmitter {
     this.notifyConnectionAttemptCancelled(connectionInfoId);
   }
 
+  /**
+   * @param connectionInfo The adjusted ConnectionInfo object that already has
+   * parameters such as appName.
+   */
   async connect(connectionInfo: ConnectionInfo): Promise<void> {
     try {
       if (

@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { connect } from 'mongodb-data-service';
-import type { DataService } from 'mongodb-data-service';
+import type { connect } from 'mongodb-data-service';
 import { AppRegistryProvider } from 'hadron-app-registry';
-import { DataServiceProvider } from 'mongodb-data-service/provider';
+import {
+  ConnectionStatus,
+  ConnectionsManager,
+  ConnectionsManagerProvider,
+} from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
   WorkspacesProvider,
@@ -230,27 +233,24 @@ const CompassWeb = ({
   );
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
-  const dataService = useRef<DataService>();
+  const connectionsManager = useRef(
+    new ConnectionsManager(
+      __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect | undefined
+    )
+  );
 
   useEffect(() => {
-    const controller = new AbortController();
-    let ds: DataService;
+    const connectionsManagerCurrent = connectionsManager.current;
     void (async () => {
       try {
-        const connectFn =
-          (__TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect) ?? connect;
-        ds = await connectFn({
-          connectionOptions: connectionInfo.connectionOptions,
-          signal: controller.signal,
-        });
-        dataService.current = ds;
+        await connectionsManagerCurrent.connect(connectionInfo);
         setConnected(true);
       } catch (err) {
         setConnectionError(err);
       }
     })();
     return () => {
-      void ds?.disconnect();
+      void connectionsManagerCurrent.closeConnection(connectionInfo.id);
     };
   }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
@@ -261,7 +261,11 @@ const CompassWeb = ({
     throw connectionError;
   }
 
-  if (!connected || !dataService.current) {
+  if (
+    !connected ||
+    connectionsManager.current.statusOf(connectionInfo.id) !==
+      ConnectionStatus.Connected
+  ) {
     return (
       <CompassComponentsProvider darkMode={darkMode}>
         <LoadingScreen
@@ -275,7 +279,7 @@ const CompassWeb = ({
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
-            <DataServiceProvider value={dataService.current}>
+            <ConnectionsManagerProvider value={connectionsManager.current}>
               <ConnectionInfoProvider value={connectionInfo}>
                 <CompassInstanceStorePlugin>
                   <FieldStorePlugin>
@@ -286,7 +290,7 @@ const CompassWeb = ({
                   </FieldStorePlugin>
                 </CompassInstanceStorePlugin>
               </ConnectionInfoProvider>
-            </DataServiceProvider>
+            </ConnectionsManagerProvider>
           </AppRegistryProvider>
         </WithAtlasProviders>
       </PreferencesProvider>

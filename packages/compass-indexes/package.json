@@ -67,7 +67,6 @@
     "bson": "^6.3.0",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -88,6 +87,7 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.3.0",
+    "mongodb-data-service": "^22.18.1",
     "mongodb-query-parser": "^4.1.0",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
@@ -111,7 +111,6 @@
     "@mongodb-js/mongodb-constants": "^0.9.0",
     "bson": "^6.3.0",
     "compass-preferences-model": "^2.18.1",
-    "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1"
+    "hadron-app-registry": "^9.1.8"
   }
 }
