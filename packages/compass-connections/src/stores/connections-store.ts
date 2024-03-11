@@ -438,21 +438,41 @@ export function useConnections({
     void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
     void connectWithAutoConnectInfoIfAvailable();
     async function connectWithAutoConnectInfoIfAvailable() {
-      const connectionInfo =
-        typeof getAutoConnectInfo === 'function'
-          ? await getAutoConnectInfo()
-          : getAutoConnectInfo;
-      if (connectionInfo) {
-        log.info(
-          mongoLogId(1_001_000_160),
+      let connectionInfo: ConnectionInfo | undefined;
+      try {
+        connectionInfo =
+          typeof getAutoConnectInfo === 'function'
+            ? await getAutoConnectInfo()
+            : getAutoConnectInfo;
+        if (connectionInfo) {
+          log.info(
+            mongoLogId(1_001_000_160),
+            'Connection Store',
+            'Performing automatic connection attempt'
+          );
+          dispatch({
+            type: 'set-active-connection',
+            connectionInfo,
+          });
+          void connect(connectionInfo, false);
+        }
+      } catch (error) {
+        if (connectionInfo) {
+          trackConnectionFailedEvent(connectionInfo, error as Error);
+        }
+        log.error(
+          mongoLogId(1_001_000_290),
           'Connection Store',
-          'Performing automatic connection attempt'
+          'Error performing connection attempt using auto connect info',
+          {
+            error: (error as Error).message,
+          }
         );
+
         dispatch({
-          type: 'set-active-connection',
-          connectionInfo,
+          type: 'connection-attempt-errored',
+          connectionErrorMessage: (error as Error).message,
         });
-        void connect(connectionInfo, false);
       }
     }
 
@@ -474,39 +494,40 @@ export function useConnections({
     originalConnectionInfo: ConnectionInfo,
     shouldSaveConnectionInfo = true
   ) => {
-    const connectionInfo = merge(
-      cloneDeep(originalConnectionInfo),
-      state.connectionMergeInfos[originalConnectionInfo.id] ?? {}
-    );
-
-    const isOIDCConnectionAttempt = isOIDCAuth(
-      originalConnectionInfo.connectionOptions.connectionString
-    );
-
-    const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-      cloneDeep(connectionInfo),
-      {
-        connectionOptions: adjustConnectionOptionsBeforeConnect({
-          connectionOptions: originalConnectionInfo.connectionOptions,
-          defaultAppName: appName,
-          preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
-          notifyDeviceFlow: !isOIDCConnectionAttempt
-            ? undefined
-            : (deviceFlowInformation: {
-                verificationUrl: string;
-                userCode: string;
-              }) => {
-                dispatch({
-                  type: 'oidc-attempt-connect-notify-device-auth',
-                  verificationUrl: deviceFlowInformation.verificationUrl,
-                  userCode: deviceFlowInformation.userCode,
-                });
-              },
-        }),
-      }
-    );
-
+    let connectionInfo: ConnectionInfo | undefined;
     try {
+      connectionInfo = merge(
+        cloneDeep(originalConnectionInfo),
+        state.connectionMergeInfos[originalConnectionInfo.id] ?? {}
+      );
+
+      const isOIDCConnectionAttempt = isOIDCAuth(
+        originalConnectionInfo.connectionOptions.connectionString
+      );
+
+      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
+        cloneDeep(connectionInfo),
+        {
+          connectionOptions: adjustConnectionOptionsBeforeConnect({
+            connectionOptions: originalConnectionInfo.connectionOptions,
+            defaultAppName: appName,
+            preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
+            notifyDeviceFlow: !isOIDCConnectionAttempt
+              ? undefined
+              : (deviceFlowInformation: {
+                  verificationUrl: string;
+                  userCode: string;
+                }) => {
+                  dispatch({
+                    type: 'oidc-attempt-connect-notify-device-auth',
+                    verificationUrl: deviceFlowInformation.verificationUrl,
+                    userCode: deviceFlowInformation.userCode,
+                  });
+                },
+          }),
+        }
+      );
+
       dispatch({
         type: 'attempt-connect',
         connectingStatusText: `Connecting to ${getConnectionTitle(
