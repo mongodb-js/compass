@@ -1334,7 +1334,9 @@ describe('Collection aggregations tab', function () {
         return (await activeStage.getText()) === 'Stage 2: select';
       });
 
-      await browser.keys('Escape');
+      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
+      await closeButton.click();
+
       await modal.waitForDisplayed({ reverse: true });
     });
 
