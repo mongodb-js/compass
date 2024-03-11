@@ -76,6 +76,7 @@ type State = {
   favoriteConnections: ConnectionInfo[];
   recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
+  connectingConnectionId: string | null;
   connectingStatusText: string;
   connectionErrorMessage: string | null;
   oidcDeviceAuthVerificationUrl: string | null;
@@ -94,6 +95,7 @@ export function defaultConnectionsState(): State {
     recentConnections: [],
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
+    connectingConnectionId: null,
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
     oidcDeviceAuthUserCode: null,
@@ -105,6 +107,7 @@ type Action =
   | {
       type: 'attempt-connect';
       connectingStatusText: string;
+      connectingConnectionId: string;
     }
   | {
       type: 'oidc-attempt-connect-notify-device-auth';
@@ -145,6 +148,7 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'attempt-connect':
       return {
         ...state,
+        connectingConnectionId: action.connectingConnectionId,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
         oidcDeviceAuthVerificationUrl: null,
@@ -153,16 +157,19 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'cancel-connection-attempt':
       return {
         ...state,
+        connectingConnectionId: null,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-succeeded':
       return {
         ...state,
+        connectingConnectionId: null,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-errored':
       return {
         ...state,
+        connectingConnectionId: null,
         connectionErrorMessage: action.connectionErrorMessage,
       };
     case 'oidc-attempt-connect-notify-device-auth':
@@ -266,7 +273,7 @@ export function useConnections({
   state: State;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
-  cancelConnectionAttempt: () => void;
+  cancelConnectionAttempt: (connectionInfoId: string) => void;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
@@ -530,6 +537,7 @@ export function useConnections({
 
       dispatch({
         type: 'attempt-connect',
+        connectingConnectionId: connectionInfo.id,
         connectingStatusText: `Connecting to ${getConnectionTitle(
           connectionInfo
         )}${
@@ -598,13 +606,13 @@ export function useConnections({
     state,
     recentConnections,
     favoriteConnections,
-    cancelConnectionAttempt() {
+    cancelConnectionAttempt(connectionInfoId: string) {
       log.info(
         mongoLogId(1001000005),
         'Connection UI',
         'Canceling connection attempt'
       );
-      connectionsManager.cancelConnectionAttempt(state.activeConnectionInfo.id);
+      connectionsManager.cancelConnectionAttempt(connectionInfoId);
 
       dispatch({
         type: 'cancel-connection-attempt',

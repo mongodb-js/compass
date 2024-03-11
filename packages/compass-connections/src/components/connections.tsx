@@ -18,7 +18,6 @@ import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { connect } from 'mongodb-data-service';
-import { useConnectionsManagerContext, ConnectionStatus } from '../provider';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
@@ -99,7 +98,6 @@ function Connections({
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionStorage = useConnectionStorageContext();
-  const connectionsManager = useConnectionsManagerContext();
 
   const {
     state,
@@ -120,6 +118,7 @@ function Connections({
     getAutoConnectInfo,
   });
   const {
+    connectingConnectionId,
     activeConnectionId,
     activeConnectionInfo,
     connectionErrorMessage,
@@ -240,16 +239,16 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {activeConnectionId &&
-        connectionsManager.statusOf(activeConnectionId) ===
-          ConnectionStatus.Connecting && (
-          <Connecting
-            oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
-            oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
-            connectingStatusText={connectingStatusText}
-            onCancelConnectionClicked={cancelConnectionAttempt}
-          />
-        )}
+      {connectingConnectionId && (
+        <Connecting
+          oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
+          oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
+          connectingStatusText={connectingStatusText}
+          onCancelConnectionClicked={() =>
+            cancelConnectionAttempt(connectingConnectionId)
+          }
+        />
+      )}
       <ImportConnectionsModal
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}
