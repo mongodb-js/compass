@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useConnections } from '@mongodb-js/compass-connections';
+import { useConnections } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
 import { OpenConnectionList } from './open-connections/open-connection-list';
