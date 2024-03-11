@@ -86,6 +86,8 @@ const formCardLightThemeStyles = css({
 function Connections({
   appRegistry,
   onConnected,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   isConnected,
   appName,
   getAutoConnectInfo,
@@ -96,6 +98,8 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   isConnected: boolean;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
@@ -122,6 +126,8 @@ function Connections({
     reloadConnections,
   } = useConnections({
     onConnected,
+    onConnectionFailed,
+    onConnectionAttemptStarted,
     isConnected,
     connectFn,
     appName,

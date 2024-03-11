@@ -40,11 +40,6 @@ module.exports = async (env, args) => {
           '@mongodb-js/devtools-connect'
         ),
 
-        // They are unlikely to be used in a web environment as this information will
-        // be provided somehow else.
-        'resolve-mongodb-srv': false,
-        'mongodb-cloud-info': false,
-
         // TODO(COMPASS-7407): compass-logging
         // hard to disable the whole thing while there are direct dependencies
         // on log-writer

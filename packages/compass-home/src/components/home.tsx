@@ -41,6 +41,11 @@ import React, {
 } from 'react';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
+import {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent,
+} from '../modules/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -204,10 +209,25 @@ function Home({
 
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      trackNewConnectionEvent(connectionInfo, dataService);
       connectedDataService.current = dataService;
       dataService.addReauthenticationHandler(reauthenticationHandler.current);
 
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
+    },
+    []
+  );
+
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo, error: Error) => {
+      trackConnectionFailedEvent(connectionInfo, error);
+    },
+    []
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      trackConnectionAttemptEvent(connectionInfo);
     },
     []
   );
@@ -411,6 +431,8 @@ function Home({
               <Connections
                 appRegistry={appRegistry}
                 onConnected={onConnected}
+                onConnectionFailed={onConnectionFailed}
+                onConnectionAttemptStarted={onConnectionAttemptStarted}
                 isConnected={isConnected}
                 appName={appName}
                 getAutoConnectInfo={
