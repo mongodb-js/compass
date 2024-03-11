@@ -15,4 +15,4 @@ process.exit();
 "
 script_name=write-electron-versions.js
 echo $script >$script_name
-$(node -e "console.log(require('electron'))") --no-sandbox $script_name
+npx electron --no-sandbox $script_name
