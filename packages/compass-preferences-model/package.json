@@ -46,6 +46,7 @@
   "dependencies": {
     "@cloud-mongodb-js/compass-user-data": "^0.1.9",
     "@cloud-mongodb-js/compass-logging": "^1.2.6",
+    "@cloud-mongodb-js/hadron-ipc": "^3.2.4",
     "ampersand-collection-filterable": "^0.3.0",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-state": "5.0.3",
@@ -64,7 +65,6 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "@cloud-mongodb-js/hadron-ipc": "^3.2.4",
     "mocha": "^10.2.0",
     "react": "^17.0.2",
     "sinon": "^9.2.3"
