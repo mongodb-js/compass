@@ -15,13 +15,17 @@ echo "Checking if docker is available ..."
 if docker version &>/dev/null; then
   echo "  docker is available, checking docker compose"
   if docker compose version &>/dev/null; then
+    echo "  docker compose is available"
     HAS_DOCKER=true
     DOCKER_COMPOSE="env MONGODB_VERSION= docker compose"
-  elif docker-compose version &>/dev/null; then
-    HAS_DOCKER=true
-    DOCKER_COMPOSE="env MONGODB_VERSION= docker-compose"
   else
-    echo "  docker compose not found"
+    echo " docker compose could not be found, trying standalone docker-compose as a fallback"
+    if docker-compose version &>/dev/null; then
+      HAS_DOCKER=true
+      DOCKER_COMPOSE="env MONGODB_VERSION= docker-compose"
+    else
+      echo "  docker compose not found"
+    fi
   fi
 fi
 
