@@ -41,6 +41,7 @@ import {
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
 import { useConnectionColor } from '../hooks/use-connection-color';
+import FormHelp from './form-help/form-help';
 
 const descriptionStyles = css({
   marginTop: spacing[2],
@@ -50,10 +51,20 @@ const formStyles = css({
   display: 'contents',
 });
 
-const formContentContainerStyles = css({
+const formContainerStyles = css({
   padding: spacing[4],
   overflowY: 'auto',
   position: 'relative',
+});
+
+const formContentStyles = css({
+  padding: spacing[3],
+  display: 'flex',
+  columnGap: spacing[3],
+});
+
+const formSettingsStyles = css({
+  padding: spacing[1],
 });
 
 const formFooterStyles = css({
@@ -419,7 +430,7 @@ function ConnectionForm({
         // Prevent default html tooltip popups.
         noValidate
       >
-        <div className={formContentContainerStyles}>
+        <div className={formContainerStyles}>
           <H3 className={formHeaderStyles}>
             {initialConnectionInfo.favorite?.name ?? 'New Connection'}
             {!isMultiConnectionEnabled && showFavoriteActions && (
@@ -462,36 +473,43 @@ function ConnectionForm({
               </div>
             </IconButton>
           )}
-          <ConnectionStringInput
-            connectionString={connectionOptions.connectionString}
-            enableEditingConnectionString={enableEditingConnectionString}
-            setEnableEditingConnectionString={setEnableEditingConnectionString}
-            onSubmit={() => onSubmitForm()}
-            updateConnectionFormField={updateConnectionFormField}
-            protectConnectionStrings={protectConnectionStrings}
-          />
-          {connectionStringInvalidError && (
-            <Banner
-              className={connectionStringErrorStyles}
-              variant={BannerVariant.Danger}
-            >
-              {connectionStringInvalidError.message}
-            </Banner>
-          )}
-          {isMultiConnectionEnabled && (
-            <ConnectionPersonalizationForm
-              personalizationOptions={personalizationOptions}
-              updateConnectionFormField={updateConnectionFormField}
-            />
-          )}
-          {!protectConnectionStrings && (
-            <AdvancedConnectionOptions
-              errors={connectionStringInvalidError ? [] : errors}
-              disabled={!!connectionStringInvalidError}
-              updateConnectionFormField={updateConnectionFormField}
-              connectionOptions={connectionOptions}
-            />
-          )}
+          <div className={formContentStyles}>
+            <div className={formSettingsStyles}>
+              <ConnectionStringInput
+                connectionString={connectionOptions.connectionString}
+                enableEditingConnectionString={enableEditingConnectionString}
+                setEnableEditingConnectionString={
+                  setEnableEditingConnectionString
+                }
+                onSubmit={() => onSubmitForm()}
+                updateConnectionFormField={updateConnectionFormField}
+                protectConnectionStrings={protectConnectionStrings}
+              />
+              {connectionStringInvalidError && (
+                <Banner
+                  className={connectionStringErrorStyles}
+                  variant={BannerVariant.Danger}
+                >
+                  {connectionStringInvalidError.message}
+                </Banner>
+              )}
+              {isMultiConnectionEnabled && (
+                <ConnectionPersonalizationForm
+                  personalizationOptions={personalizationOptions}
+                  updateConnectionFormField={updateConnectionFormField}
+                />
+              )}
+              {!protectConnectionStrings && (
+                <AdvancedConnectionOptions
+                  errors={connectionStringInvalidError ? [] : errors}
+                  disabled={!!connectionStringInvalidError}
+                  updateConnectionFormField={updateConnectionFormField}
+                  connectionOptions={connectionOptions}
+                />
+              )}
+            </div>
+            {isMultiConnectionEnabled && <FormHelp />}
+          </div>
         </div>
         <div className={formFooterStyles}>
           {isMultiConnectionEnabled && (

@@ -166,6 +166,9 @@ function Connections({
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
   );
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const preferences = useMemo(
     () => ({
@@ -176,6 +179,7 @@ function Connections({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      isMultiConnectionEnabled,
     }),
     [
       protectConnectionStrings,
@@ -185,6 +189,7 @@ function Connections({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      isMultiConnectionEnabled,
     ]
   );
 
@@ -246,7 +251,7 @@ function Connections({
               </Card>
             </div>
           </ErrorBoundary>
-          <FormHelp />
+          <FormHelp isMultiConnectionEnabled={isMultiConnectionEnabled} />
         </div>
       </div>
       {!!connectionAttempt && !connectionAttempt.isClosed() && (
