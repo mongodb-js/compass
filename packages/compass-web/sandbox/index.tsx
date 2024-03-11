@@ -27,6 +27,7 @@ import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -84,7 +85,7 @@ const historyItemButtonStyles = css({
 
 resetGlobalCSS();
 
-function getHistory(): string[] {
+function getHistory(): ConnectionInfo[] {
   try {
     const b64Str = localStorage.getItem('CONNECTIONS_HISTORY');
     if (!b64Str) {
@@ -139,11 +140,16 @@ const App = () => {
     }
     return { type: 'Databases' };
   });
-  const [connectionsHistory, setConnectionsHistory] = useState<string[]>(() => {
+  const [connectionsHistory, setConnectionsHistory] = useState<
+    ConnectionInfo[]
+  >(() => {
     return getHistory();
   });
   const [focused, setFocused] = useState(false);
   const [connectionString, setConnectionString] = useState('');
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
+    null
+  );
   const [openCompassWeb, setOpenCompassWeb] = useState(false);
   const [
     connectionStringValidationResult,
@@ -165,10 +171,22 @@ const App = () => {
   const onConnectClick = useCallback(() => {
     setOpenCompassWeb(true);
     setConnectionsHistory((history) => {
-      if (history.includes(connectionString)) {
+      const info = history.find(
+        (info) => info.connectionOptions.connectionString === connectionString
+      );
+      if (info) {
+        setConnectionInfo(info);
         return history;
       }
-      history.unshift(connectionString);
+
+      const newInfo: ConnectionInfo = {
+        id: Math.random().toString(36).slice(2),
+        connectionOptions: {
+          connectionString,
+        },
+      };
+      setConnectionInfo(newInfo);
+      history.unshift(newInfo);
       if (history.length > 10) {
         history.pop();
       }
@@ -211,13 +229,13 @@ const App = () => {
     },
   });
 
-  if (openCompassWeb) {
+  if (openCompassWeb && connectionInfo) {
     return (
       <Body as="div" className={sandboxContainerStyles}>
         <LoggerAndTelemetryProvider value={loggerProvider.current}>
           <ErrorBoundary>
             <CompassWeb
-              connectionString={connectionString}
+              connectionInfo={connectionInfo}
               initialWorkspaceTabs={[initialTab]}
               onActiveWorkspaceTabChange={(tab) => {
                 let newPath: string;
@@ -290,11 +308,11 @@ const App = () => {
               <div>
                 <Label htmlFor="connection-list">Connection history</Label>
                 <ul id="connection-list" className={historyListStyles}>
-                  {connectionsHistory.map((connectionString) => {
+                  {connectionsHistory.map((connectionInfo) => {
                     return (
                       <KeylineCard
                         as="li"
-                        key={connectionString}
+                        key={connectionInfo.id}
                         className={historyListItemStyles}
                         contentStyle="clickable"
                       >
@@ -302,10 +320,14 @@ const App = () => {
                           className={historyItemButtonStyles}
                           type="button"
                           onClick={() => {
-                            onChangeConnectionString(connectionString);
+                            onChangeConnectionString(
+                              connectionInfo.connectionOptions.connectionString
+                            );
                           }}
                         >
-                          {redactConnectionString(connectionString)}
+                          {redactConnectionString(
+                            connectionInfo.connectionOptions.connectionString
+                          )}
                         </button>
                       </KeylineCard>
                     );

@@ -1,6 +1,6 @@
 import { createContext, createElement, useMemo, useContext } from 'react';
 import { ConnectionRepository } from './connection-repository';
-import type { ConnectionStorage } from './renderer';
+import type { ConnectionInfo, ConnectionStorage } from './renderer';
 import {
   createServiceLocator,
   createServiceProvider,
@@ -58,4 +58,20 @@ export function useConnectionRepositoryContext() {
 export const connectionRepositoryLocator = createServiceLocator(
   useConnectionRepositoryContext,
   'connectionRepositoryLocator'
+);
+
+const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
+export function useConnectionInfo() {
+  const connectionInfo = useContext(ConnectionInfoContext);
+  if (!connectionInfo) {
+    throw new Error(
+      'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
+    );
+  }
+  return connectionInfo;
+}
+export const ConnectionInfoProvider = ConnectionInfoContext.Provider;
+export const connectionInfoLocator = createServiceLocator(
+  useConnectionInfo,
+  'connectionInfoLocator'
 );
