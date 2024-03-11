@@ -10,8 +10,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 const savedConnectionListStyles = css({
-  maxHeight: '320px',
-  minHeight: '320px',
+  overflowY: 'auto',
+  width: '100%',
+  height: '320px',
+  flex: 'none',
   padding: spacing[3],
   marginTop: 'auto',
 });
