@@ -479,7 +479,7 @@ export function useConnections({
     return () => {
       // When unmounting, clean up any current connection attempts that have
       // not resolved.
-      connectionsManager.cancelAllConnectionAttempt();
+      connectionsManager.cancelAllConnectionAttempts();
     };
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
