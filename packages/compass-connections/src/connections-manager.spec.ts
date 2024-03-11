@@ -115,7 +115,7 @@ describe('ConnectionsManager', function () {
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
           ]);
-          connectionsManager.cancelAllConnectionAttempt();
+          connectionsManager.cancelAllConnectionAttempts();
           expect(onConnectionAttemptCancelled).to.be.calledTwice;
           expect(onConnectionAttemptCancelled.getCall(0).args).to.deep.equal([
             connectedConnectionInfo1.id,
@@ -130,7 +130,7 @@ describe('ConnectionsManager', function () {
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
           ]);
-          connectionsManager.cancelAllConnectionAttempt();
+          connectionsManager.cancelAllConnectionAttempts();
           expect(
             connectionsManager.statusOf(connectedConnectionInfo1.id)
           ).to.equal(ConnectionStatus.Disconnected);
@@ -144,7 +144,7 @@ describe('ConnectionsManager', function () {
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
           ]);
-          connectionsManager.cancelAllConnectionAttempt();
+          connectionsManager.cancelAllConnectionAttempts();
           expect(
             connectionsManager.getDataServiceForConnection(
               connectedConnectionInfo1.id
