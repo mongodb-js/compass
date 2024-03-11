@@ -339,7 +339,7 @@ describe('CompassAuthServiceMain', function () {
       } as any;
       await CompassAuthService.init(preferences);
       CompassAuthService['config'] = defaultConfig;
-      expect(getListenerCount(logger)).to.eq(26);
+      expect(getListenerCount(logger)).to.eq(28);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
