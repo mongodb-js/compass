@@ -179,8 +179,9 @@ function Home({
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
+  const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
   const connectionsManager = useRef(
-    new ConnectionsManager(__TEST_MONGODB_DATA_SERVICE_CONNECT_FN)
+    new ConnectionsManager(__TEST_MONGODB_DATA_SERVICE_CONNECT_FN, log.unbound)
   );
 
   const [

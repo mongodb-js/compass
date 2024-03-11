@@ -62,7 +62,6 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "compass-preferences-model": "^2.18.1",
-    "ensure-error": "^3.0.1",
     "hadron-ipc": "^3.2.12",
     "lodash": "^4.17.21",
     "mongodb": "^6.3.0",

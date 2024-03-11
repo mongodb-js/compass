@@ -1,8 +1,7 @@
 import { EventEmitter } from 'events';
-import ensureError from 'ensure-error';
 import { createConnectionAttempt } from 'mongodb-data-service';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   ConnectionAttempt,
@@ -34,7 +33,7 @@ type ConnectionManagerEventListeners = {
   ) => void;
   [ConnectionsManagerEvents.ConnectionAttemptFailed]: (
     connectionInfoId: ConnectionInfoId,
-    error: Error
+    error: any
   ) => void;
   [ConnectionsManagerEvents.ConnectionDisconnected]: (
     connectionInfoId: ConnectionInfoId
@@ -48,14 +47,15 @@ export enum ConnectionStatus {
   Failed = 'failed',
 }
 
-const { log } = createLoggerAndTelemetry('CONNECTIONS-MANAGER');
-
 export class ConnectionsManager extends EventEmitter {
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
 
-  constructor(private readonly __TEST_CONNECT_FN?: ConnectFn) {
+  constructor(
+    private readonly __TEST_CONNECT_FN?: ConnectFn,
+    private readonly logger?: LoggerAndTelemetry['log']['unbound']
+  ) {
     super();
   }
 
@@ -99,13 +99,13 @@ export class ConnectionsManager extends EventEmitter {
         return;
       }
 
+      this.notifyConnectionAttemptStarted(connectionInfo.id);
       const connectionAttempt = createConnectionAttempt({
-        logger: log.unbound,
+        logger: this.logger,
         connectFn: this.__TEST_CONNECT_FN,
       });
       this.connectionAttempts.set(connectionInfo.id, connectionAttempt);
 
-      this.notifyConnectionAttemptStarted(connectionInfo.id);
       const dataService = await connectionAttempt.connect(
         connectionInfo.connectionOptions
       );
@@ -118,16 +118,16 @@ export class ConnectionsManager extends EventEmitter {
       this.dataServices.set(connectionInfo.id, dataService);
       this.notifyConnectionAttemptSuccessful(connectionInfo.id, dataService);
     } catch (error) {
-      this.notifyConnectionAttemptFailed(connectionInfo.id, ensureError(error));
+      this.notifyConnectionAttemptFailed(connectionInfo.id, error);
       throw error;
     }
   }
 
   async closeConnection(connectionInfoId: ConnectionInfoId): Promise<void> {
     const dataService = this.dataServices.get(connectionInfoId);
-    this.dataServices.delete(connectionInfoId);
     if (dataService) {
       await dataService.disconnect();
+      this.dataServices.delete(connectionInfoId);
       this.notifyConnectionDisconnected(connectionInfoId);
     }
   }
@@ -200,7 +200,7 @@ export class ConnectionsManager extends EventEmitter {
 
   private notifyConnectionAttemptFailed(
     connectionInfoId: ConnectionInfoId,
-    error: Error
+    error: any
   ) {
     this.connectionStatuses.set(connectionInfoId, ConnectionStatus.Failed);
     this.emit(

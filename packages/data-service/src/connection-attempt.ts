@@ -17,14 +17,14 @@ export class ConnectionAttempt {
   _closed = false;
   _connectFn: typeof connect;
   _dataService: DataService | null = null;
-  _logger: UnboundDataServiceImplLogger;
+  _logger: UnboundDataServiceImplLogger | undefined = undefined;
 
   constructor({
     connectFn,
     logger,
   }: {
     connectFn: typeof connect;
-    logger: UnboundDataServiceImplLogger;
+    logger?: UnboundDataServiceImplLogger;
   }) {
     this._logger = logger;
     this._connectFn = connectFn;
@@ -65,7 +65,7 @@ export class ConnectionAttempt {
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err as Error)) {
-        this._logger.debug(
+        this._logger?.debug(
           'Connection Attempt',
           mongoLogId(1_001_000_282),
           'connect',
@@ -75,7 +75,7 @@ export class ConnectionAttempt {
         return;
       }
 
-      this._logger.debug(
+      this._logger?.debug(
         'Connection Attempt',
         mongoLogId(1_001_000_279),
         'connect',
@@ -94,7 +94,7 @@ export class ConnectionAttempt {
     this._closed = true;
 
     if (!this._dataService) {
-      this._logger.debug(
+      this._logger?.debug(
         'Connection Attempt',
         mongoLogId(1_001_000_280),
         'close requested',
@@ -105,7 +105,7 @@ export class ConnectionAttempt {
 
     try {
       await this._dataService.disconnect();
-      this._logger.debug(
+      this._logger?.debug(
         'Connection Attempt',
         mongoLogId(1_001_000_281),
         'close requested',
@@ -114,7 +114,7 @@ export class ConnectionAttempt {
     } catch (err) {
       // When the disconnect fails, we free up the ui and we can
       // silently wait for the timeout if it's still attempting to connect.
-      this._logger.debug(
+      this._logger?.debug(
         'Connection Attempt',
         mongoLogId(1_001_000_283),
         'close requested',
@@ -129,7 +129,7 @@ export function createConnectionAttempt({
   logger,
   connectFn = connect,
 }: {
-  logger: UnboundDataServiceImplLogger;
+  logger?: UnboundDataServiceImplLogger;
   connectFn?: typeof connect;
 }): ConnectionAttempt {
   return new ConnectionAttempt({
