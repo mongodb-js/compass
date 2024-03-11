@@ -99,6 +99,28 @@ export function SavedConnectionList({
             key={conn.id}
           />
         ))}
+        {favoriteConnections.map((conn) => (
+          <SavedConnection
+            onConnect={onConnect}
+            onEditConnection={onEditConnection}
+            onDuplicateConnection={onDuplicateConnection}
+            onToggleFavoriteConnection={onToggleFavoriteConnection}
+            onDeleteConnection={onDeleteConnection}
+            connectionInfo={conn}
+            key={conn.id}
+          />
+        ))}
+        {favoriteConnections.map((conn) => (
+          <SavedConnection
+            onConnect={onConnect}
+            onEditConnection={onEditConnection}
+            onDuplicateConnection={onDuplicateConnection}
+            onToggleFavoriteConnection={onToggleFavoriteConnection}
+            onDeleteConnection={onDeleteConnection}
+            connectionInfo={conn}
+            key={conn.id}
+          />
+        ))}
         {nonFavoriteConnections.map((conn) => (
           <SavedConnection
             onConnect={onConnect}
