@@ -20,11 +20,11 @@ import type { ItemSeparator } from '@mongodb-js/compass-components/lib/component
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
-  fontSize: 14,
-  minWidth: '14px',
-  maxWidth: '14px',
-  minHeight: '14px',
-  maxHeight: '14px',
+  fontSize: spacing[3],
+  minWidth: spacing[3],
+  maxWidth: spacing[3],
+  minHeight: spacing[3],
+  maxHeight: spacing[3],
 });
 
 const savedConnectionStyles = css({
@@ -135,9 +135,9 @@ export function SavedConnection({
   const { openToast } = useToast('compass-connections');
 
   const icon = isLocalhost ? (
-    <Icon className={iconStyles} glyph="Laptop" />
+    <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
   ) : isFavorite ? (
-    <Icon className={iconStyles} glyph="Favorite" />
+    <Icon size={spacing[3]} className={iconStyles} glyph="Favorite" />
   ) : (
     SERVER_ICON
   );

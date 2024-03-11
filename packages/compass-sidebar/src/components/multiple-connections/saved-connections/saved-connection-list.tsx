@@ -10,7 +10,6 @@ import {
 } from '@mongodb-js/compass-components';
 
 const savedConnectionListStyles = css({
-  overflowY: 'auto',
   width: '100%',
   height: '320px',
   flex: 'none',
@@ -20,6 +19,8 @@ const savedConnectionListStyles = css({
 
 const savedConnectionListPaddingStyles = css({
   paddingLeft: spacing[2],
+  overflowY: 'auto',
+  maxHeight: '100%',
 });
 
 const savedConnectionCountStyles = css({
@@ -85,6 +86,28 @@ export function SavedConnectionList({
         </div>
       </header>
       <ul className={savedConnectionListPaddingStyles}>
+        {favoriteConnections.map((conn) => (
+          <SavedConnection
+            onConnect={onConnect}
+            onEditConnection={onEditConnection}
+            onDuplicateConnection={onDuplicateConnection}
+            onToggleFavoriteConnection={onToggleFavoriteConnection}
+            onDeleteConnection={onDeleteConnection}
+            connectionInfo={conn}
+            key={conn.id}
+          />
+        ))}
+        {favoriteConnections.map((conn) => (
+          <SavedConnection
+            onConnect={onConnect}
+            onEditConnection={onEditConnection}
+            onDuplicateConnection={onDuplicateConnection}
+            onToggleFavoriteConnection={onToggleFavoriteConnection}
+            onDeleteConnection={onDeleteConnection}
+            connectionInfo={conn}
+            key={conn.id}
+          />
+        ))}
         {favoriteConnections.map((conn) => (
           <SavedConnection
             onConnect={onConnect}
