@@ -1,5 +1,3 @@
-#! /usr/bin/env bash
-
 #########################################################
 ###                 !!! IMPORTANT !!!                 ###
 ###  THIS SCRIPT IS EXECUTED WITH THE SOURCE COMMAND  ###
