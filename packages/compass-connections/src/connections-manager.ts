@@ -72,7 +72,7 @@ export class ConnectionsManager extends EventEmitter {
     );
   }
 
-  cancelAllConnectionAttempt(): void {
+  cancelAllConnectionAttempts(): void {
     for (const connectionInfoId of this.connectionAttempts.keys()) {
       this.cancelConnectionAttempt(connectionInfoId);
     }
