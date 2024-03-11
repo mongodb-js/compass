@@ -19,20 +19,20 @@ const CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('SavedConnection Component', function () {
-  const onConnect = spy();
-  const onDeleteConnection = spy();
-  const onEditConnection = spy();
-  const onDuplicateConnection = spy();
-  const onToggleFavoriteConnection = spy();
+  const onConnectSpy = spy();
+  const onDeleteConnectionSpy = spy();
+  const onEditConnectionSpy = spy();
+  const onDuplicateConnectionSpy = spy();
+  const onToggleFavoriteConnectionSpy = spy();
 
   function doRender(info: ConnectionInfo) {
     return render(
       <SavedConnection
-        onConnect={onConnect}
-        onEditConnection={onEditConnection}
-        onDeleteConnection={onDeleteConnection}
-        onDuplicateConnection={onDuplicateConnection}
-        onToggleFavoriteConnection={onToggleFavoriteConnection}
+        onConnect={onConnectSpy}
+        onEditConnection={onEditConnectionSpy}
+        onDeleteConnection={onDeleteConnectionSpy}
+        onDuplicateConnection={onDuplicateConnectionSpy}
+        onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
         connectionInfo={info}
       />
     );
@@ -67,7 +67,7 @@ describe('SavedConnection Component', function () {
       userEvent.click(connectionButton);
 
       await waitFor(() => {
-        expect(onConnect).to.have.been.calledWith(CONNECTION_INFO);
+        expect(onConnectSpy).to.have.been.calledWith(CONNECTION_INFO);
       });
     });
   });
@@ -94,10 +94,10 @@ describe('SavedConnection Component', function () {
     });
 
     const testCases: [string, typeof spy][] = [
-      ['Edit connection', onEditConnection],
-      ['Unfavorite', onToggleFavoriteConnection],
-      ['Duplicate', onDuplicateConnection],
-      ['Remove', onDeleteConnection],
+      ['Edit connection', onEditConnectionSpy],
+      ['Unfavorite', onToggleFavoriteConnectionSpy],
+      ['Duplicate', onDuplicateConnectionSpy],
+      ['Remove', onDeleteConnectionSpy],
     ];
 
     testCases.forEach(([actionText, callback]) => {
@@ -152,7 +152,7 @@ describe('SavedConnection Component', function () {
           const button = await waitFor(() => screen.findByText('Favorite'));
           userEvent.click(button);
 
-          expect(onToggleFavoriteConnection).to.have.been.calledWith(
+          expect(onToggleFavoriteConnectionSpy).to.have.been.calledWith(
             nonFavoriteConnectionInfo
           );
         });

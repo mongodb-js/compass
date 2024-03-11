@@ -31,12 +31,12 @@ const NON_FAVOURITE_CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('SavedConnectionList Component', function () {
-  const onConnect = spy();
-  const onNewConnection = spy();
-  const onDeleteConnection = spy();
-  const onEditConnection = spy();
-  const onDuplicateConnection = spy();
-  const onToggleFavoriteConnection = spy();
+  const onConnectSpy = spy();
+  const onNewConnectionSpy = spy();
+  const onDeleteConnectionSpy = spy();
+  const onEditConnectionSpy = spy();
+  const onDuplicateConnectionSpy = spy();
+  const onToggleFavoriteConnectionSpy = spy();
 
   function doRender(
     favoriteInfo: ConnectionInfo[],
@@ -46,12 +46,12 @@ describe('SavedConnectionList Component', function () {
       <SavedConnectionList
         favoriteConnections={favoriteInfo}
         nonFavoriteConnections={nonFavoriteInfo}
-        onNewConnection={onNewConnection}
-        onConnect={onConnect}
-        onEditConnection={onEditConnection}
-        onDeleteConnection={onDeleteConnection}
-        onDuplicateConnection={onDuplicateConnection}
-        onToggleFavoriteConnection={onToggleFavoriteConnection}
+        onNewConnection={onNewConnectionSpy}
+        onConnect={onConnectSpy}
+        onEditConnection={onEditConnectionSpy}
+        onDeleteConnection={onDeleteConnectionSpy}
+        onDuplicateConnection={onDuplicateConnectionSpy}
+        onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
       />
     );
   }
@@ -77,7 +77,7 @@ describe('SavedConnectionList Component', function () {
     userEvent.click(newConnectionButton);
 
     await waitFor(() => {
-      expect(onNewConnection).to.have.been.called;
+      expect(onNewConnectionSpy).to.have.been.called;
     });
   });
 
