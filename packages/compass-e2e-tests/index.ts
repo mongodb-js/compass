@@ -107,18 +107,21 @@ function cleanup() {
   removeUserDataDir();
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   if (!disableStartStop) {
-    debug('Stopping compass-web');
-    try {
-      if (compassWeb.pid) {
-        debug(`killing compass-web [${compassWeb.pid}]`);
-        kill(compassWeb.pid);
-      } else {
-        debug('no pid for compass-web');
+    if (shouldTestCompassWeb) {
+      debug('Stopping compass-web');
+      try {
+        if (compassWeb.pid) {
+          debug(`killing compass-web [${compassWeb.pid}]`);
+          kill(compassWeb.pid);
+        } else {
+          debug('no pid for compass-web');
+        }
+      } catch (e) {
+        debug('Failed to stop compass-web', e);
       }
-    } catch (e) {
-      debug('Failed to stop compass-web', e);
     }
 
     debug('Stopping MongoDB server');

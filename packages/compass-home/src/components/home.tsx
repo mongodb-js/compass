@@ -52,6 +52,7 @@ import {
   ConnectionStorageContext,
   ConnectionRepositoryContextProvider,
 } from '@mongodb-js/connection-storage/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
 
@@ -385,14 +386,16 @@ function Home({
               scopeName="Connected Application"
             >
               <DataServiceProvider value={connectedDataService.current}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <Workspace
-                      connectionInfo={connectionInfo}
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
+                <ConnectionInfoProvider value={connectionInfo}>
+                  <CompassInstanceStorePlugin>
+                    <FieldStorePlugin>
+                      <Workspace
+                        connectionInfo={connectionInfo}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </FieldStorePlugin>
+                  </CompassInstanceStorePlugin>
+                </ConnectionInfoProvider>
               </DataServiceProvider>
             </AppRegistryProvider>
           )}
