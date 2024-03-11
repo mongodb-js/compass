@@ -19,7 +19,6 @@ const openQueryHistoryButtonStyles = css(
     display: 'inline-flex',
     alignItems: 'center',
     padding: spacing[2] - 2, // -2px for border.
-    marginLeft: spacing[1],
     '&:hover': {
       cursor: 'pointer',
     },

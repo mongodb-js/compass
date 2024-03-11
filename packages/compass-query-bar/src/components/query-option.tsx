@@ -33,7 +33,7 @@ const queryOptionLabelStyles = css({
 });
 
 const documentEditorQueryOptionLabelStyles = css(queryOptionLabelStyles, {
-  minWidth: spacing[5] * 3,
+  minWidth: spacing[5] * 2,
 });
 
 const documentEditorOptionStyles = css({
@@ -72,7 +72,7 @@ const queryOptionLabelContainerStyles = css({
 export const documentEditorLabelContainerStyles = css(
   queryOptionLabelContainerStyles,
   {
-    minWidth: spacing[5] * 3,
+    minWidth: spacing[5] * 2,
   }
 );
 
