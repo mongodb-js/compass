@@ -22,11 +22,7 @@ import type { ItemSeparator } from '@mongodb-js/compass-components/lib/component
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
-  fontSize: spacing[3],
-  minWidth: spacing[3],
-  maxWidth: spacing[3],
-  minHeight: spacing[3],
-  maxHeight: spacing[3],
+  flex: 'none',
 });
 
 const savedConnectionStyles = css({
