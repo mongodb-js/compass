@@ -137,6 +137,11 @@ describe('Connections Component', function () {
       const recents = screen.queryAllByTestId('recent-connection');
       expect(recents.length).to.equal(0);
     });
+
+    it('should include the help panels', function () {
+      expect(screen.queryByText(/How do I find my/)).to.be.visible;
+      expect(screen.queryByText(/How do I format my/)).to.be.visible;
+    });
   });
 
   describe('when rendered with saved connections in storage', function () {
@@ -595,11 +600,6 @@ describe('Connections Component', function () {
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
-    });
-
-    it('does not include the help prompts', function () {
-      expect(screen.queryByText(/How do I find my/)).to.be.null;
-      expect(screen.queryByText(/How do I format my/)).to.be.null;
     });
   });
 });

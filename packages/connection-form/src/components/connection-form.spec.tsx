@@ -376,6 +376,11 @@ describe('ConnectionForm Component', function () {
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
   });
 
+  it('should not include the help panels', function () {
+    expect(screen.queryByText(/How do I find my/)).to.be.null;
+    expect(screen.queryByText(/How do I format my/)).to.be.null;
+  });
+
   context('when multiple connection management is enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
