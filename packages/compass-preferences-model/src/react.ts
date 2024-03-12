@@ -9,6 +9,7 @@ import {
 import { type AllPreferences } from './';
 import type { PreferencesAccess } from './preferences';
 import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
+import { createServiceLocator } from 'hadron-app-registry';
 
 const PreferencesContext = createContext<PreferencesAccess>(
   // Our context starts with our read-only preference access but we expect
@@ -18,16 +19,22 @@ const PreferencesContext = createContext<PreferencesAccess>(
 
 export const PreferencesProvider = PreferencesContext.Provider;
 
-export function preferencesLocator(): PreferencesAccess {
+export function usePreferencesContext() {
   return useContext(PreferencesContext);
 }
+
+export const preferencesLocator = createServiceLocator(
+  usePreferencesContext,
+  'preferencesLocator'
+);
+
 export type { PreferencesAccess };
 
 /** Use as: const enableMaps = usePreference('enableMaps', React); */
 export function usePreference<K extends keyof AllPreferences>(
   key: K
 ): AllPreferences[K] {
-  const preferences = preferencesLocator();
+  const preferences = usePreferencesContext();
   const [value, setValue] = useState(preferences.getPreferences()[key]);
   useEffect(() => {
     return preferences.onPreferenceValueChanged(key, (value) => {

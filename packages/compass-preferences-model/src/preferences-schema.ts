@@ -50,9 +50,12 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
+    enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
+    enableHackoladeBanner: boolean;
+    enablePerformanceAdvisorBanner: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -646,6 +649,17 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
 
+  enableAtlasSearchIndexes: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Atlas Search Indexes',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   enableImportExport: {
     ui: true,
     cli: true,
@@ -688,6 +702,29 @@ export const storedUserPreferencesProps: Required<{
         'Enable preview input limit and collation options in aggregation view',
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableHackoladeBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Show Hackolade banner to users for data modeling and schema design',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enablePerformanceAdvisorBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show performance advisor banner to users for performance tuning',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 

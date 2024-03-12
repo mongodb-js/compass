@@ -6,12 +6,25 @@ const { glob } = require('glob');
 const { promisify } = require('util');
 const execFile = promisify(childProcess.execFile);
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function snykTest(cwd) {
   const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
 
   let execErr;
 
   try {
+    if (!(await fileExists(path.join(cwd, `package.json`)))) {
+      return;
+    }
+
     console.info(`testing ${cwd} ...`);
     await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
 
@@ -26,7 +39,10 @@ async function snykTest(cwd) {
           '--dev',
           `--json-file-output=${tmpPath}`,
         ],
-        { cwd }
+        {
+          cwd,
+          maxBuffer: 50 /* MB */ * 1024 * 1024, // default is 1 MB
+        }
       );
     } catch (err) {
       execErr = err;
@@ -36,9 +52,8 @@ async function snykTest(cwd) {
     console.info(`testing ${cwd} done.`);
     return res;
   } catch (err) {
-    console.error(
-      `testing ${cwd} failed. ${err.message}. Exec error: ${execErr}`
-    );
+    console.error(`Snyk failed to create a json report for ${cwd}:`, execErr);
+    throw new Error(`Testing ${cwd} failed.`);
   } finally {
     try {
       await fs.rm(tmpPath);

@@ -5,9 +5,13 @@ import {
   cleanup,
   fireEvent,
   getByText,
+  waitFor,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
@@ -28,23 +32,31 @@ const noop = (): any => {
 const saveAndConnectText = 'Save & Connect';
 const favoriteText = 'FAVORITE';
 
-function renderForm(props: Partial<ConnectionFormProps> = {}) {
-  return render(
-    <ConnectionForm
-      onConnectClicked={noop}
-      initialConnectionInfo={{
-        id: 'test',
-        connectionOptions: {
-          connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
-        },
-      }}
-      onSaveConnectionClicked={noop}
-      {...props}
-    />
-  );
-}
-
 describe('ConnectionForm Component', function () {
+  let preferences: PreferencesAccess;
+  function renderForm(props: Partial<ConnectionFormProps> = {}) {
+    return render(
+      <PreferencesProvider value={preferences}>
+        <ConnectionForm
+          onConnectClicked={noop}
+          initialConnectionInfo={{
+            id: 'test',
+            connectionOptions: {
+              connectionString:
+                'mongodb://pineapple:orangutans@localhost:27019',
+            },
+          }}
+          onSaveConnectionClicked={noop}
+          {...props}
+        />
+      </PreferencesProvider>
+    );
+  }
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   afterEach(function () {
     cleanup();
   });
@@ -362,5 +374,73 @@ describe('ConnectionForm Component', function () {
     );
 
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
+  });
+
+  context('when multiple connection management is enabled', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      renderForm({
+        initialConnectionInfo: DEFAULT_CONNECTION,
+        preferences: {
+          protectConnectionStringsForNewConnections: false,
+          protectConnectionStrings: false,
+        },
+      });
+    });
+
+    it('should not show the old favorite button', function () {
+      expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
+    });
+
+    describe('name input', function () {
+      it('should sync with the href of the connection string unless it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        userEvent.clear(connectionString);
+
+        await waitFor(() => expect(connectionString.value).to.equal(''));
+
+        userEvent.paste(connectionString, 'mongodb://myserver:27017/');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://myserver:27017/')
+        );
+
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
+        );
+        expect(personalizationName.value).to.equal('myserver:27017');
+      });
+
+      it('should not sync with the href of the connection string when it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
+        );
+
+        userEvent.clear(personalizationName);
+        userEvent.clear(connectionString);
+
+        await waitFor(() => {
+          expect(personalizationName.value).to.equal('');
+          expect(connectionString.value).to.equal('');
+        });
+
+        userEvent.paste(personalizationName, 'my happy name');
+
+        await waitFor(() =>
+          expect(personalizationName.value).to.equal('my happy name')
+        );
+
+        userEvent.paste(connectionString, 'mongodb://webscale:27017/');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://webscale:27017/')
+        );
+
+        expect(personalizationName.value).to.equal('my happy name');
+      });
+    });
   });
 });

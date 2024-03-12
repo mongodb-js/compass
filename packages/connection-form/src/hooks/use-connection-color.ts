@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { usePreference } from 'compass-preferences-model/provider';
 import { palette } from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
@@ -14,6 +15,32 @@ const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color8: palette.purple.light2,
   color9: palette.gray.base,
   color10: palette.gray.light1,
+};
+
+const COLOR_CODES_TO_UI_COLORS_NEW_THEME: Record<ColorCode, string> = {
+  color1: '#FFDBDC',
+  color2: '#FBDCEF',
+  color3: '#FFDFB5',
+  color4: '#FFF394',
+  color5: '#D6F1DF',
+  color6: '#CCF3EA',
+  color7: '#D5EFFF',
+  color8: '#E6E7FF',
+  color9: '#F2E2FC',
+  color10: palette.gray.light1,
+};
+
+export const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
+  color1: 'Red',
+  color2: 'Pink',
+  color3: 'Orange',
+  color4: 'Yellow',
+  color5: 'Green',
+  color6: 'Teal',
+  color7: 'Blue',
+  color8: 'Iris',
+  color9: 'Purple',
+  color10: 'Gray',
 };
 
 const LEGACY_COLORS_TO_COLOR_CODE_MAP: Record<string, ColorCode> = {
@@ -33,7 +60,9 @@ export const CONNECTION_COLOR_CODES = Object.keys(
   COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP
 ) as ColorCode[];
 
-function isColorCode(hexOrColorCode: string | undefined): boolean {
+function isColorCode(
+  hexOrColorCode: string | undefined
+): hexOrColorCode is ColorCode {
   return CONNECTION_COLOR_CODES.includes(hexOrColorCode as ColorCode);
 }
 
@@ -45,15 +74,28 @@ export function legacyColorsToColorCode(
   }
 
   if (isColorCode(hexOrColorCode)) {
-    return hexOrColorCode as ColorCode;
+    return hexOrColorCode;
   }
 
   return LEGACY_COLORS_TO_COLOR_CODE_MAP[hexOrColorCode];
 }
 
 export function useConnectionColor(): {
+  connectionColorCodes: () => ColorCode[];
   connectionColorToHex: (colorCode: string | undefined) => string | undefined;
+  connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
+  const newColorCodeToHex = useCallback(
+    (colorCode: string | undefined): string | undefined => {
+      if (!colorCode || !isColorCode(colorCode)) {
+        return;
+      }
+
+      return COLOR_CODES_TO_UI_COLORS_NEW_THEME[colorCode];
+    },
+    []
+  );
+
   const colorCodeToHex = useCallback(
     (colorCode: string | undefined): string | undefined => {
       if (!colorCode) {
@@ -70,7 +112,34 @@ export function useConnectionColor(): {
     []
   );
 
+  const colorToName = useCallback(
+    (colorCode: string | undefined): string | undefined => {
+      if (!colorCode || !isColorCode(colorCode)) {
+        return;
+      }
+
+      return COLOR_CODE_TO_NAME[colorCode];
+    },
+    []
+  );
+
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
+  const connectionColorCodes = () => {
+    if (isMultiConnectionEnabled) {
+      return CONNECTION_COLOR_CODES.slice(0, 9);
+    } else {
+      return CONNECTION_COLOR_CODES;
+    }
+  };
+
   return {
-    connectionColorToHex: colorCodeToHex,
+    connectionColorToHex: isMultiConnectionEnabled
+      ? newColorCodeToHex
+      : colorCodeToHex,
+    connectionColorToName: colorToName,
+    connectionColorCodes,
   };
 }

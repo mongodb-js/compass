@@ -127,6 +127,8 @@ export const NamespaceParam: React.FunctionComponent<{
         }}
         fallback={(shouldRender) => (
           <span
+            data-testid="namespace-param-fallback"
+            data-ready={isReady}
             className={cx(
               namespaceParamValuePlaceholder,
               shouldRender && visible

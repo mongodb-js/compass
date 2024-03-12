@@ -12,7 +12,7 @@ import {
   type ConnectionRepository,
   type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import { connectionRepositoryLocator } from '@mongodb-js/connection-storage/provider';
+import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
@@ -285,7 +285,10 @@ export function useConnections({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
-  const connectionRepository = connectionRepositoryLocator();
+  // TODO(COMPASS-7397): services should not be used directly in render method,
+  // when this code is refactored to use the hadron plugin interface, storage
+  // should be handled through the plugin activation lifecycle
+  const connectionRepository = useConnectionRepositoryContext();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');

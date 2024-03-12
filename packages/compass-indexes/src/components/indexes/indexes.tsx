@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { css, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  Body,
+  Link,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
@@ -17,6 +23,9 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
+import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -24,11 +33,29 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 const containerStyles = css({
   margin: spacing[3],
-  marginTop: 0,
+  gap: spacing[3],
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
 });
+
+const linkTitle = 'Atlas Search.';
+const AtlasIndexesBanner = () => {
+  const { atlasMetadata } = useConnectionInfo();
+  return (
+    <Banner variant="info">
+      <Body weight="medium">Looking for search indexes?</Body>
+      These indexes can be created and viewed under{' '}
+      {atlasMetadata ? (
+        <Link href={getAtlasSearchIndexesLink(atlasMetadata)} hideExternalIcon>
+          {linkTitle}
+        </Link>
+      ) : (
+        linkTitle
+      )}
+    </Banner>
+  );
+};
 
 type IndexesProps = {
   isReadonlyView?: boolean;
@@ -88,6 +115,8 @@ export function Indexes({
     loadIndexes();
   }, [loadIndexes]);
 
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+
   return (
     <div className={containerStyles}>
       <IndexesToolbar
@@ -96,6 +125,7 @@ export function Indexes({
         isRefreshing={isRefreshing}
         onRefreshIndexes={onRefreshIndexes}
       />
+      {!isReadonlyView && !enableAtlasSearchIndexes && <AtlasIndexesBanner />}
       {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
         <RegularIndexesTable />
       )}

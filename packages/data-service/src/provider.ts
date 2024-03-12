@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import type DataService from './data-service';
+import { createServiceLocator } from 'hadron-app-registry';
 
 const DataServiceContext = createContext<DataService | null>(null);
 
@@ -15,15 +16,17 @@ export type DataServiceLocator<
  * available methods on the injected service (only on compilation time, doesn't
  * have the effect otherwise)
  */
-export function dataServiceLocator<
-  K extends keyof DataService = keyof DataService,
-  L extends keyof DataService = K
->(): Pick<DataService, K> & Partial<Pick<DataService, L>> {
-  const ds = useContext(DataServiceContext);
-  if (!ds) {
-    throw new Error('DataService is not available in the component context');
+export const dataServiceLocator = createServiceLocator(
+  function dataServiceLocator<
+    K extends keyof DataService = keyof DataService,
+    L extends keyof DataService = K
+  >(): Pick<DataService, K> & Partial<Pick<DataService, L>> {
+    const ds = useContext(DataServiceContext);
+    if (!ds) {
+      throw new Error('DataService is not available in the component context');
+    }
+    return ds;
   }
-  return ds;
-}
+);
 
 export type { DataService };

@@ -63,6 +63,13 @@ import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormPreference } from './use-connect-form-preferences';
 import ConnectionString from 'mongodb-connection-string-url';
 
+export type ConnectionPersonalizationOptions = {
+  name: string;
+  color?: string;
+  isFavorite: boolean;
+  isNameDirty: boolean;
+};
+
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
   enableEditingConnectionString: boolean;
@@ -70,6 +77,7 @@ export interface ConnectFormState {
   warnings: ConnectionFormWarning[];
   isDirty: boolean;
   allowEditingIfProtected: boolean;
+  personalizationOptions: ConnectionPersonalizationOptions;
 }
 
 type Action =
@@ -122,6 +130,14 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
+interface UpdateConnectionPersonalizationAction {
+  type: 'update-connection-personalization';
+  name: string;
+  color?: string;
+  isFavorite: boolean;
+  isNameDirty: boolean;
+}
+
 type ConnectionFormFieldActions =
   | UpdateConnectionStringAction
   | {
@@ -172,7 +188,8 @@ type ConnectionFormFieldActions =
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
   | UpdateCsfleKmsTlsAction
-  | UpdateOIDCAction;
+  | UpdateOIDCAction
+  | UpdateConnectionPersonalizationAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -235,6 +252,12 @@ function buildStateFromConnectionInfo(
       cloneDeep(initialConnectionInfo.connectionOptions)
     ),
     isDirty: false,
+    personalizationOptions: {
+      color: initialConnectionInfo.favorite?.color || undefined,
+      name: initialConnectionInfo.favorite?.name || '',
+      isNameDirty: !!initialConnectionInfo.favorite?.name,
+      isFavorite: initialConnectionInfo.savedConnectionType === 'favorite',
+    },
   };
 }
 
@@ -289,13 +312,55 @@ function handleUpdateHost({
   }
 }
 
+function isConnectionUpdatePersonalizationAction(
+  action: ConnectionFormFieldActions
+): action is UpdateConnectionPersonalizationAction {
+  return action.type === 'update-connection-personalization';
+}
+
+export function handleConnectionFormUpdateForPersonalization(
+  action: ConnectionFormFieldActions,
+  personalization: ConnectionPersonalizationOptions,
+  connectionString?: string
+): ConnectionPersonalizationOptions {
+  if (!isConnectionUpdatePersonalizationAction(action)) {
+    if (!personalization.isNameDirty && connectionString) {
+      try {
+        const parsedConnString = new ConnectionString(connectionString);
+        const name = parsedConnString.hosts.join(',');
+        return {
+          ...personalization,
+          name,
+        };
+      } catch (ex) {
+        // just keep previous value
+      }
+    }
+
+    return personalization;
+  }
+
+  const isNameDirty = action.isNameDirty || personalization.isNameDirty;
+  const name = action.name || personalization.name;
+  const color = action.color || personalization.color;
+  const isFavorite = action.isFavorite;
+
+  return {
+    name,
+    color,
+    isFavorite,
+    isNameDirty,
+  };
+}
 // This function handles field updates from the connection form.
 // It performs validity checks and downstream effects. Exported for testing.
 export function handleConnectionFormFieldUpdate(
   action: ConnectionFormFieldActions,
-  currentConnectionOptions: ConnectionOptions
+  currentConnectionOptions: ConnectionOptions,
+  currentPersonalizationOptions: ConnectionPersonalizationOptions
 ): {
   connectionOptions: ConnectionOptions;
+  personalizationOptions?: ConnectionPersonalizationOptions;
   errors?: ConnectionFormError[];
 } {
   if (action.type === 'update-connection-string') {
@@ -310,6 +375,11 @@ export function handleConnectionFormFieldUpdate(
           newParsedConnectionStringUrl?.toString() ||
           action.newConnectionStringValue,
       },
+      personalizationOptions: handleConnectionFormUpdateForPersonalization(
+        action,
+        currentPersonalizationOptions,
+        newParsedConnectionStringUrl?.toString() || ''
+      ),
       errors,
     };
   }
@@ -321,6 +391,11 @@ export function handleConnectionFormFieldUpdate(
   if (!parsedConnectionStringUrl) {
     return {
       connectionOptions: currentConnectionOptions,
+      personalizationOptions: handleConnectionFormUpdateForPersonalization(
+        action,
+        currentPersonalizationOptions,
+        undefined
+      ),
       errors: errors,
     };
   }
@@ -329,6 +404,19 @@ export function handleConnectionFormFieldUpdate(
     parsedConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   switch (action.type) {
+    case 'update-connection-personalization': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+        personalizationOptions: handleConnectionFormUpdateForPersonalization(
+          action,
+          currentPersonalizationOptions,
+          parsedConnectionStringUrl.toString()
+        ),
+      };
+    }
     case 'add-new-host': {
       const { fieldIndexToAddAfter } = action;
 
@@ -617,8 +705,10 @@ export function useConnectForm(
     (action: ConnectionFormFieldActions) => {
       const updatedState = handleConnectionFormFieldUpdate(
         action,
-        state.connectionOptions
+        state.connectionOptions,
+        state.personalizationOptions
       );
+
       dispatch({
         type: 'set-connection-form-state',
         newState: {
@@ -680,6 +770,7 @@ function setInitialState({
       connectionOptions,
       allowEditingIfProtected,
       enableEditingConnectionString,
+      personalizationOptions,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
@@ -693,6 +784,7 @@ function setInitialState({
         connectionOptions,
         isDirty: false,
         allowEditingIfProtected,
+        personalizationOptions,
       },
     });
   }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
