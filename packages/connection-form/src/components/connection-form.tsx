@@ -58,13 +58,12 @@ const formContainerStyles = css({
 });
 
 const formContentStyles = css({
-  padding: spacing[3],
   display: 'flex',
   columnGap: spacing[3],
 });
 
 const formSettingsStyles = css({
-  padding: spacing[1],
+  width: '100%',
 });
 
 const formFooterStyles = css({

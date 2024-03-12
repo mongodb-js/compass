@@ -574,4 +574,32 @@ describe('Connections Component', function () {
       }).to.throw;
     });
   });
+
+  context('when multiple connection management is enabled', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      const mockStorage = getMockConnectionStorage([]);
+      const connectionRepository = new ConnectionRepository(mockStorage);
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <ConnectionStorageContext.Provider value={mockStorage}>
+            <ConnectionRepositoryContext.Provider value={connectionRepository}>
+              <Connections
+                onConnected={onConnectedSpy}
+                appName="Test App Name"
+              />
+            </ConnectionRepositoryContext.Provider>
+          </ConnectionStorageContext.Provider>
+        </PreferencesProvider>
+      );
+    });
+
+    it('does not include the help prompts', function () {
+      expect(screen.queryByText('How do I find my')).to.be.null;
+      expect(screen.queryByText('How do I format my')).to.be.null;
+    });
+  });
 });

@@ -394,6 +394,11 @@ describe('ConnectionForm Component', function () {
       expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
     });
 
+    it('should include the help panels', function () {
+      expect(screen.queryByText('How do I find my')).to.be.visible;
+      expect(screen.queryByText('How do I format my')).to.be.visible;
+    });
+
     describe('name input', function () {
       it('should sync with the href of the connection string unless it has been edited', async function () {
         const connectionString = screen.getByTestId('connectionString');

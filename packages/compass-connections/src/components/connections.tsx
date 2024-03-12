@@ -179,7 +179,6 @@ function Connections({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
-      isMultiConnectionEnabled,
     }),
     [
       protectConnectionStrings,
@@ -189,7 +188,6 @@ function Connections({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
-      isMultiConnectionEnabled,
     ]
   );
 
