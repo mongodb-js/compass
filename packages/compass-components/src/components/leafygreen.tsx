@@ -5,14 +5,12 @@ import React from 'react';
 // 1. Import the components we use from leafygreen.
 import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
-import Button from '@leafygreen-ui/button';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
 import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
-import IconButton from '@leafygreen-ui/icon-button';
 import {
   AtlasNavGraphic,
   MongoDBLogoMark,
@@ -94,20 +92,18 @@ const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 delete (MarketingModal as React.ComponentType<any>).propTypes;
 delete (Checkbox as React.ComponentType<any>).propTypes;
 
-export { Link, LinkProvider } from './links/link';
+export { Link, Button, IconButton, LinkProvider } from './links/link';
 
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
   Badge,
   Banner,
-  Button,
   Card,
   Checkbox,
   Code,
   ConfirmationModal,
   Icon,
-  IconButton,
   Language,
   Menu,
   MenuItem,

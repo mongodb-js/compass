@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
+import LGButton from '@leafygreen-ui/button';
+import LGIconButton from '@leafygreen-ui/icon-button';
 
 type LinkContextValue = {
   utmSource?: string;
@@ -39,10 +41,10 @@ export const urlWithUtmParams = (
       !EXCLUDED_MONGODB_HOSTS.includes(url.hostname);
 
     if (urlShouldHaveUtmParams) {
-      if (utmSource) {
+      if (utmSource && !url.searchParams.has('utm_source')) {
         url.searchParams.set('utm_source', utmSource);
       }
-      if (utmMedium) {
+      if (utmMedium && !url.searchParams.has('utm_medium')) {
         url.searchParams.set('utm_medium', utmMedium);
       }
     }
@@ -69,3 +71,39 @@ export const Link = (({
     </LGLink>
   );
 }) as unknown as typeof LGLink;
+
+export const Button = (({
+  href,
+  children,
+  ...rest
+}: React.ComponentProps<typeof LGButton>) => {
+  const { utmSource, utmMedium } = useContext(LinkContext);
+
+  if (href) {
+    href = urlWithUtmParams(href as string, { utmSource, utmMedium });
+  }
+
+  return (
+    <LGButton href={href} {...rest}>
+      {children}
+    </LGButton>
+  );
+}) as unknown as typeof LGButton;
+
+export const IconButton = (({
+  href,
+  children,
+  ...rest
+}: React.ComponentProps<typeof LGIconButton>) => {
+  const { utmSource, utmMedium } = useContext(LinkContext);
+
+  if (href) {
+    href = urlWithUtmParams(href as string, { utmSource, utmMedium });
+  }
+
+  return (
+    <LGIconButton href={href} {...rest}>
+      {children}
+    </LGIconButton>
+  );
+}) as unknown as typeof LGIconButton;
