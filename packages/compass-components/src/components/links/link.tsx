@@ -80,7 +80,7 @@ export const Button = (({
   const { utmSource, utmMedium } = useContext(LinkContext);
 
   if (href) {
-    href = urlWithUtmParams(href as string, { utmSource, utmMedium });
+    href = urlWithUtmParams(href, { utmSource, utmMedium });
   }
 
   return (
@@ -98,7 +98,7 @@ export const IconButton = (({
   const { utmSource, utmMedium } = useContext(LinkContext);
 
   if (href) {
-    href = urlWithUtmParams(href as string, { utmSource, utmMedium });
+    href = urlWithUtmParams(href, { utmSource, utmMedium });
   }
 
   return (
