@@ -619,7 +619,7 @@ export function useConnections({
         });
       } catch (error) {
         log.error(
-          mongoLogId(1_001_000_299),
+          mongoLogId(1_001_000_303),
           'Connection UI',
           'Canceling connection attempt failed',
           {
