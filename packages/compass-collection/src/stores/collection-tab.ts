@@ -12,12 +12,17 @@ import type Collection from 'mongodb-collection-model';
 import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import { CollectionTabs, type CollectionTab } from '../types';
 
 export type CollectionTabOptions = {
   /**
    * Collection namespace
    */
   namespace: string;
+  /**
+   * Collection sub tab
+   */
+  subTab: CollectionTab;
   /**
    * Initial query to be set in the query bar
    */
@@ -49,13 +54,7 @@ export type CollectionTabServices = {
 };
 
 export function activatePlugin(
-  {
-    namespace,
-    initialAggregation,
-    initialPipeline,
-    initialPipelineText,
-    editViewName,
-  }: CollectionTabOptions,
+  { namespace, editViewName, subTab }: CollectionTabOptions,
   services: CollectionTabServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -74,13 +73,6 @@ export function activatePlugin(
     );
   }
 
-  // If aggregation is passed or we opened souce of a view collection to edit
-  // pipeline, select aggregation tab right away
-  const currentTab =
-    initialAggregation || initialPipeline || initialPipelineText || editViewName
-      ? 'Aggregations'
-      : 'Documents';
-
   const store = createStore(
     reducer,
     {
@@ -88,7 +80,7 @@ export function activatePlugin(
       metadata: null,
       stats: pickCollectionStats(collectionModel),
       editViewName,
-      currentTab,
+      currentTab: subTab,
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -100,15 +92,15 @@ export function activatePlugin(
   );
 
   on(localAppRegistry, 'open-create-index-modal', () => {
-    store.dispatch(selectTab('Indexes'));
+    store.dispatch(selectTab(CollectionTabs.Indexes));
   });
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
-    store.dispatch(selectTab('Indexes'));
+    store.dispatch(selectTab(CollectionTabs.Indexes));
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', () => {
-    store.dispatch(selectTab('Aggregations'));
+    store.dispatch(selectTab(CollectionTabs.Aggregations));
   });
 
   on(collectionModel, 'change:status', (model: Collection, status: string) => {

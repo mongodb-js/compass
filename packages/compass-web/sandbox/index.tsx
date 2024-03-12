@@ -22,7 +22,7 @@ import {
 import createDebug from 'debug';
 import { CompassWeb } from '../src/index';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-
+import { CollectionTabs } from '@mongodb-js/compass-collection';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -100,6 +100,21 @@ function getHistory(): ConnectionInfo[] {
   }
 }
 
+function getCollectionSubTab(subTab: string) {
+  switch (subTab) {
+    case 'schema':
+      return CollectionTabs.Schema;
+    case 'indexes':
+      return CollectionTabs.Indexes;
+    case 'aggregations':
+      return CollectionTabs.Aggregations;
+    case 'validation':
+      return CollectionTabs.Validation;
+    default:
+      return CollectionTabs.Documents;
+  }
+}
+
 function saveHistory(history: any) {
   try {
     const bytes = new TextEncoder().encode(JSON.stringify(history));
@@ -128,7 +143,7 @@ const logging: { name: string; component: string; args: any[] }[] = [];
 
 const App = () => {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
-    const [, tab, namespace = ''] = window.location.pathname.split('/');
+    const [, tab, namespace = '', subTab] = window.location.pathname.split('/');
     if (tab === 'databases') {
       return { type: 'Databases' };
     }
@@ -136,7 +151,11 @@ const App = () => {
       return { type: 'Collections', namespace };
     }
     if (tab === 'collection' && namespace) {
-      return { type: 'Collection', namespace };
+      return {
+        type: 'Collection',
+        namespace,
+        subTab: getCollectionSubTab(subTab),
+      };
     }
     return { type: 'Databases' };
   });

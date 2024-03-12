@@ -18,6 +18,7 @@ const defaultMetadata = {
 
 const defaultTabOptions = {
   namespace: defaultMetadata.namespace,
+  subTab: 'Documents',
 };
 
 const mockCollection = {
@@ -62,7 +63,7 @@ describe('Collection Tab Content store', function () {
       {
         ...defaultTabOptions,
         ...options,
-      },
+      } as any,
       {
         dataService,
         globalAppRegistry,

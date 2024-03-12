@@ -1,3 +1,5 @@
+import type { CollectionTab } from '@mongodb-js/compass-collection';
+
 export type MyQueriesWorkspace = {
   type: 'My Queries';
 };
@@ -18,6 +20,7 @@ export type CollectionsWorkspace = {
 export type CollectionWorkspace = {
   type: 'Collection';
   namespace: string;
+  subTab: CollectionTab;
   initialQuery?: unknown;
   initialPipeline?: unknown[];
   initialPipelineText?: string;

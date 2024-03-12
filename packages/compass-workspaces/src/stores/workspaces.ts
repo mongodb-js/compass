@@ -420,7 +420,7 @@ export type OpenWorkspaceOptions =
   | Pick<Workspace<'Databases'>, 'type'>
   | Pick<Workspace<'Performance'>, 'type'>
   | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
-  | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
+  | (Pick<Workspace<'Collection'>, 'type' | 'namespace' | 'subTab'> &
       Partial<
         Pick<
           Workspace<'Collection'>,
