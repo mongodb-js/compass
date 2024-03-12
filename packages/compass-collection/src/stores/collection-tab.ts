@@ -24,22 +24,6 @@ export type CollectionTabOptions = {
    */
   subTab: CollectionTab;
   /**
-   * Initial query to be set in the query bar
-   */
-  initialQuery?: unknown;
-  /**
-   * Initial saved sggregation (stored on disk) to apply to the agg builder
-   */
-  initialAggregation?: unknown;
-  /**
-   * Initial aggregation pipeline to set in the agg builder
-   */
-  initialPipeline?: unknown[];
-  /**
-   * Initial stringified aggregation pipeline to set in the agg builder
-   */
-  initialPipelineText?: string;
-  /**
    * View namespace that can be passed when editing view pipeline in the source
    * collection
    */
