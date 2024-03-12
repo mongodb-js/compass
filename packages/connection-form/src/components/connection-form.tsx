@@ -110,8 +110,8 @@ type ConnectionFormPropsWithoutPreferences = {
 };
 
 const colorPreviewStyles = css({
-  height: '16px',
-  width: '16px',
+  height: spacing[3],
+  width: spacing[3],
   marginRight: spacing[2],
 });
 
@@ -122,8 +122,8 @@ const ColorCircleGlyph = createGlyphComponent(
     <svg
       {...props}
       className={colorPreviewStyles}
-      width="16"
-      height="16"
+      width={spacing[3]}
+      height={spacing[3]}
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -166,6 +166,18 @@ const personalizationSectionLayoutStyles = css({
   `,
   gap: spacing[4],
   marginBottom: spacing[4],
+});
+
+const personalizationNameInputStyles = css({
+  gridArea: 'name-input',
+});
+
+const personalizationColorInputStyles = css({
+  gridArea: 'color-input',
+});
+
+const personalizationFavoriteMarkerStyles = css({
+  gridArea: 'favorite-marker',
 });
 
 type ConnectionPersonalizationFormProps = {
@@ -221,14 +233,14 @@ function ConnectionPersonalizationForm({
   return (
     <div className={personalizationSectionLayoutStyles}>
       <TextInput
-        style={{ gridArea: 'name-input' }}
+        className={personalizationNameInputStyles}
         value={personalizationOptions.name}
         data-testid="personalization-name-input"
         onChange={onChangeName}
         label="Name"
       />
       <Select
-        style={{ gridArea: 'color-input' }}
+        className={personalizationColorInputStyles}
         data-testid="personalization-color-input"
         label="Color"
         defaultValue={personalizationOptions.color || 'no-color'}
@@ -255,7 +267,7 @@ function ConnectionPersonalizationForm({
       </Select>
       {showFavoriteActions && (
         <Checkbox
-          style={{ gridArea: 'favorite-marker' }}
+          className={personalizationFavoriteMarkerStyles}
           onChange={onChangeFavorite}
           data-testid="personalization-favorite-checkbox"
           checked={personalizationOptions.isFavorite}
