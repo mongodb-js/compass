@@ -12,6 +12,10 @@ describe('max-time-ms module', function () {
     } as any);
   });
 
+  it('initializes default max time to preferences value', function () {
+    expect(store.getState().maxTimeMS).to.equal(1000);
+  });
+
   it('dispatches max time changed action', function () {
     store.dispatch(maxTimeMSChanged(100));
     expect(store.getState().maxTimeMS).to.equal(100);
