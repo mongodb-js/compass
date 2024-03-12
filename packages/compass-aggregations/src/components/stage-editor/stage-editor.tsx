@@ -14,6 +14,7 @@ import {
   palette,
   Banner,
   useDarkMode,
+  useLinkContext,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
@@ -103,13 +104,17 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
+  const { utmSource, utmMedium } = useLinkContext();
+
   const completer = useMemo(() => {
     return createStageAutocompleter({
       serverVersion,
       stageOperator: stageOperator ?? undefined,
       fields,
+      utmSource,
+      utmMedium,
     });
-  }, [fields, serverVersion, stageOperator]);
+  }, [fields, serverVersion, stageOperator, utmSource, utmMedium]);
 
   const annotations = useMemo<Annotation[]>(() => {
     if (syntaxError?.loc?.index) {

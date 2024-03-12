@@ -29,7 +29,6 @@ export const EXCLUDED_MONGODB_HOSTS = [
   'cloud.mongodb.com',
 ];
 
-// exported for testing purposes only
 export const urlWithUtmParams = (
   urlString: string,
   { utmSource, utmMedium }: { utmSource?: string; utmMedium?: string }
@@ -54,12 +53,16 @@ export const urlWithUtmParams = (
   }
 };
 
+export function useLinkContext(): LinkContextValue {
+  return useContext(LinkContext);
+}
+
 export const Link = (({
   href,
   children,
   ...rest
 }: React.ComponentProps<typeof LGLink>) => {
-  const { utmSource, utmMedium } = useContext(LinkContext);
+  const { utmSource, utmMedium } = useLinkContext();
 
   if (href) {
     href = urlWithUtmParams(href, { utmSource, utmMedium });
@@ -77,7 +80,7 @@ export const Button = (({
   children,
   ...rest
 }: React.ComponentProps<typeof LGButton>) => {
-  const { utmSource, utmMedium } = useContext(LinkContext);
+  const { utmSource, utmMedium } = useLinkContext();
 
   if (href) {
     href = urlWithUtmParams(href, { utmSource, utmMedium });
@@ -95,7 +98,7 @@ export const IconButton = (({
   children,
   ...rest
 }: React.ComponentProps<typeof LGIconButton>) => {
-  const { utmSource, utmMedium } = useContext(LinkContext);
+  const { utmSource, utmMedium } = useLinkContext();
 
   if (href) {
     href = urlWithUtmParams(href, { utmSource, utmMedium });

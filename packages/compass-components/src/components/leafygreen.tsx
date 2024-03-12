@@ -92,7 +92,9 @@ const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 delete (MarketingModal as React.ComponentType<any>).propTypes;
 delete (Checkbox as React.ComponentType<any>).propTypes;
 
-export { Link, Button, IconButton, LinkProvider } from './links/link';
+// We wrap these so that we can add the utm_source and utm_medium parameters to
+// all hrefs.
+export { Link, Button, IconButton } from './links/link';
 
 // 3. Export the leafygreen components.
 export {
