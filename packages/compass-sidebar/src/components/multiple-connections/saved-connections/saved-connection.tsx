@@ -31,6 +31,7 @@ const savedConnectionStyles = css({
   gap: spacing[2],
   borderRadius: spacing[1],
   padding: spacing[1],
+  paddingLeft: spacing[2],
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',

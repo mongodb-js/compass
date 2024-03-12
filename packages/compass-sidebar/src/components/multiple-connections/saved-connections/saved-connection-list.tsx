@@ -18,7 +18,6 @@ const savedConnectionListStyles = css({
 });
 
 const savedConnectionListPaddingStyles = css({
-  paddingLeft: spacing[2],
   overflowY: 'auto',
   maxHeight: '100%',
 });
