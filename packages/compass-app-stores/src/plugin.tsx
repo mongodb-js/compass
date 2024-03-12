@@ -6,21 +6,24 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { InstanceContext } from './provider';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
-import type { DataService } from 'mongodb-data-service';
-import { createInstanceStore } from './stores';
+import { createInstancesStore } from './stores';
+import {
+  connectionsManagerLocator,
+  type ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
-interface InstanceStoreProviderProps {
+interface MongoDBInstancesProviderProps {
   children: React.ReactNode;
-  instance: MongoDBInstance;
+  instances: Record<ConnectionInfo['id'], MongoDBInstance>;
 }
 
-function InstanceStoreProvider({
+function MongoDBInstancesProvider({
   children,
-  instance,
-}: InstanceStoreProviderProps) {
+  instances,
+}: MongoDBInstancesProviderProps) {
   return (
-    <InstanceContext.Provider value={instance}>
+    <InstanceContext.Provider value={instances}>
       {children}
     </InstanceContext.Provider>
   );
@@ -28,29 +31,32 @@ function InstanceStoreProvider({
 
 export const CompassInstanceStorePlugin = registerHadronPlugin<
   { children: React.ReactNode },
-  { logger: () => LoggerAndTelemetry; dataService: () => DataService }
+  {
+    logger: () => LoggerAndTelemetry;
+    connectionsManager: () => ConnectionsManager;
+  }
 >(
   {
     name: 'CompassInstanceStore',
-    component: InstanceStoreProvider as React.FunctionComponent<
-      Omit<InstanceStoreProviderProps, 'instance'>
+    component: MongoDBInstancesProvider as React.FunctionComponent<
+      Omit<MongoDBInstancesProviderProps, 'instances'>
     >,
     activate(
       _: unknown,
       {
-        dataService,
+        connectionsManager,
         logger,
         globalAppRegistry,
       }: {
-        dataService: DataService;
+        connectionsManager: ConnectionsManager;
         logger: LoggerAndTelemetry;
         globalAppRegistry: AppRegistry;
       },
       helpers: ActivateHelpers
     ) {
-      const store = createInstanceStore(
+      const store = createInstancesStore(
         {
-          dataService,
+          connectionsManager,
           logger,
           globalAppRegistry,
         },
@@ -66,6 +72,6 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
   },
   {
     logger: createLoggerAndTelemetryLocator('COMPASS-INSTANCE-STORE'),
-    dataService: dataServiceLocator,
+    connectionsManager: connectionsManagerLocator,
   }
 );
