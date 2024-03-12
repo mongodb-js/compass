@@ -73,7 +73,11 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'test.bar' })
+        openWorkspace({
+          type: 'Collection',
+          namespace: 'test.bar',
+          subTab: 'Indexes',
+        })
       );
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(3);

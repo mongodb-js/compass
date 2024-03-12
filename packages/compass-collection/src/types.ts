@@ -1,4 +1,4 @@
-export enum CollectionTabs {
+export enum CollectionSubtabs {
   Documents = 'Documents',
   Aggregations = 'Aggregations',
   Schema = 'Schema',
@@ -6,4 +6,4 @@ export enum CollectionTabs {
   Validation = 'Validation',
 }
 
-export type CollectionTab = keyof typeof CollectionTabs;
+export type CollectionSubtab = keyof typeof CollectionSubtabs;

@@ -22,7 +22,7 @@ import {
 import createDebug from 'debug';
 import { CompassWeb } from '../src/index';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-import { CollectionTabs } from '@mongodb-js/compass-collection';
+import { CollectionSubtabs } from '@mongodb-js/compass-collection';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -103,15 +103,15 @@ function getHistory(): ConnectionInfo[] {
 function getCollectionSubTab(subTab: string) {
   switch (subTab) {
     case 'schema':
-      return CollectionTabs.Schema;
+      return CollectionSubtabs.Schema;
     case 'indexes':
-      return CollectionTabs.Indexes;
+      return CollectionSubtabs.Indexes;
     case 'aggregations':
-      return CollectionTabs.Aggregations;
+      return CollectionSubtabs.Aggregations;
     case 'validation':
-      return CollectionTabs.Validation;
+      return CollectionSubtabs.Validation;
     default:
-      return CollectionTabs.Documents;
+      return CollectionSubtabs.Documents;
   }
 }
 

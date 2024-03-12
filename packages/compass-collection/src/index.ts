@@ -27,4 +27,4 @@ export const WorkspaceTab: WorkspaceComponent<'Collection'> = {
 export default CollectionTabPlugin;
 export type { CollectionTabPluginMetadata } from './modules/collection-tab';
 export { CollectionTabsProvider } from './components/collection-tab-provider';
-export { CollectionTabs, type CollectionTab } from './types';
+export { CollectionSubtabs, type CollectionSubtab } from './types';

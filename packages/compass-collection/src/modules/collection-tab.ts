@@ -4,7 +4,7 @@ import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import { CollectionTabs, type CollectionTab } from '../types';
+import { CollectionSubtabs, type CollectionSubtab } from '../types';
 
 type CollectionThunkAction<
   ReturnType,
@@ -33,7 +33,7 @@ export type CollectionState = {
     | 'free_storage_size'
   > | null;
   metadata: CollectionMetadata | null;
-  currentTab: CollectionTab;
+  currentTab: CollectionSubtab;
   editViewName?: string;
 };
 
@@ -71,7 +71,7 @@ const reducer: Reducer<CollectionState> = (
     namespace: '',
     stats: null,
     metadata: null,
-    currentTab: CollectionTabs.Documents,
+    currentTab: CollectionSubtabs.Documents,
   },
   action
 ) => {

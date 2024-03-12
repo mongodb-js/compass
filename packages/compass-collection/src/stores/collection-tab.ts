@@ -12,7 +12,7 @@ import type Collection from 'mongodb-collection-model';
 import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import { CollectionTabs, type CollectionTab } from '../types';
+import { CollectionSubtabs, type CollectionSubtab } from '../types';
 
 export type CollectionTabOptions = {
   /**
@@ -22,7 +22,7 @@ export type CollectionTabOptions = {
   /**
    * Collection sub tab
    */
-  subTab: CollectionTab;
+  subTab: CollectionSubtab;
   /**
    * View namespace that can be passed when editing view pipeline in the source
    * collection
@@ -76,15 +76,15 @@ export function activatePlugin(
   );
 
   on(localAppRegistry, 'open-create-index-modal', () => {
-    store.dispatch(selectTab(CollectionTabs.Indexes));
+    store.dispatch(selectTab(CollectionSubtabs.Indexes));
   });
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
-    store.dispatch(selectTab(CollectionTabs.Indexes));
+    store.dispatch(selectTab(CollectionSubtabs.Indexes));
   });
 
   on(localAppRegistry, 'generate-aggregation-from-query', () => {
-    store.dispatch(selectTab(CollectionTabs.Aggregations));
+    store.dispatch(selectTab(CollectionSubtabs.Aggregations));
   });
 
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
