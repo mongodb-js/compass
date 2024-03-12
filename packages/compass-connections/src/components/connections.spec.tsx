@@ -598,8 +598,8 @@ describe('Connections Component', function () {
     });
 
     it('does not include the help prompts', function () {
-      expect(screen.queryByText('How do I find my')).to.be.null;
-      expect(screen.queryByText('How do I format my')).to.be.null;
+      expect(screen.queryByText(/How do I find my/)).to.be.null;
+      expect(screen.queryByText(/How do I format my/)).to.be.null;
     });
   });
 });

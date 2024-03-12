@@ -395,8 +395,8 @@ describe('ConnectionForm Component', function () {
     });
 
     it('should include the help panels', function () {
-      expect(screen.queryByText('How do I find my')).to.be.visible;
-      expect(screen.queryByText('How do I format my')).to.be.visible;
+      expect(screen.getByText(/How do I find my/)).to.be.visible;
+      expect(screen.getByText(/How do I format my/)).to.be.visible;
     });
 
     describe('name input', function () {
