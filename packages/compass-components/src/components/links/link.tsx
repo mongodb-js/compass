@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, forwardRef } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
 import LGButton from '@leafygreen-ui/button';
 import LGIconButton from '@leafygreen-ui/icon-button';
@@ -75,38 +75,40 @@ export const Link = (({
   );
 }) as unknown as typeof LGLink;
 
-export const Button = (({
-  href,
-  children,
-  ...rest
-}: React.ComponentProps<typeof LGButton>) => {
-  const { utmSource, utmMedium } = useLinkContext();
+export const Button = forwardRef(
+  (
+    { href, children, ...rest }: React.ComponentProps<typeof LGButton>,
+    ref: React.ForwardedRef<HTMLButtonElement>
+  ) => {
+    const { utmSource, utmMedium } = useLinkContext();
 
-  if (href) {
-    href = urlWithUtmParams(href, { utmSource, utmMedium });
+    if (href) {
+      href = urlWithUtmParams(href, { utmSource, utmMedium });
+    }
+
+    return (
+      <LGButton href={href} {...rest} ref={ref}>
+        {children}
+      </LGButton>
+    );
   }
+) as unknown as typeof LGButton;
 
-  return (
-    <LGButton href={href} {...rest}>
-      {children}
-    </LGButton>
-  );
-}) as unknown as typeof LGButton;
+export const IconButton = forwardRef(
+  (
+    { href, children, ...rest }: React.ComponentProps<typeof LGIconButton>,
+    ref: React.ForwardedRef<HTMLAnchorElement>
+  ) => {
+    const { utmSource, utmMedium } = useLinkContext();
 
-export const IconButton = (({
-  href,
-  children,
-  ...rest
-}: React.ComponentProps<typeof LGIconButton>) => {
-  const { utmSource, utmMedium } = useLinkContext();
+    if (href) {
+      href = urlWithUtmParams(href, { utmSource, utmMedium });
+    }
 
-  if (href) {
-    href = urlWithUtmParams(href, { utmSource, utmMedium });
+    return (
+      <LGIconButton href={href} {...rest} ref={ref}>
+        {children}
+      </LGIconButton>
+    );
   }
-
-  return (
-    <LGIconButton href={href} {...rest}>
-      {children}
-    </LGIconButton>
-  );
-}) as unknown as typeof LGIconButton;
+) as unknown as typeof LGIconButton;
