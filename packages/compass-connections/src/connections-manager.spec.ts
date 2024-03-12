@@ -169,7 +169,7 @@ describe('ConnectionsManager', function () {
       );
 
       void connectionsManager.connect(connectedConnectionInfo1);
-      connectionsManager.cancelConnectionAttempt(connectedConnectionInfo1.id);
+      void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       expect(onConnectionCancelled).to.be.calledWithExactly(
         connectedConnectionInfo1.id
       );
@@ -177,7 +177,7 @@ describe('ConnectionsManager', function () {
 
     it('#statusOf should return ConnectionStatus.Disconnected', function () {
       void connectionsManager.connect(connectedConnectionInfo1);
-      connectionsManager.cancelConnectionAttempt(connectedConnectionInfo1.id);
+      void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       expect(connectionsManager.statusOf(connectedConnectionInfo1.id)).to.equal(
         ConnectionStatus.Disconnected
       );
@@ -185,7 +185,7 @@ describe('ConnectionsManager', function () {
 
     it('#getDataServiceForConnection should not return anything for cancelled connection attempt', function () {
       void connectionsManager.connect(connectedConnectionInfo1);
-      connectionsManager.cancelConnectionAttempt(connectedConnectionInfo1.id);
+      void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       expect(
         connectionsManager.getDataServiceForConnection(
           connectedConnectionInfo1.id
@@ -207,9 +207,7 @@ describe('ConnectionsManager', function () {
           );
 
           void connectionsManager.connect(connectedConnectionInfo1);
-          connectionsManager.cancelConnectionAttempt(
-            connectedConnectionInfo1.id
-          );
+          await connectionsManager.closeConnection(connectedConnectionInfo1.id);
           expect(onConnectionCancelled).to.be.calledWithExactly(
             connectedConnectionInfo1.id
           );

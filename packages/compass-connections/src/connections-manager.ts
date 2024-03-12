@@ -74,15 +74,8 @@ export class ConnectionsManager extends EventEmitter {
 
   cancelAllConnectionAttempts(): void {
     for (const connectionInfoId of this.connectionAttempts.keys()) {
-      this.cancelConnectionAttempt(connectionInfoId);
+      this.cancelConnectionAttemptIfAny(connectionInfoId);
     }
-  }
-
-  cancelConnectionAttempt(connectionInfoId: ConnectionInfoId): void {
-    const connectionAttempt = this.connectionAttempts.get(connectionInfoId);
-    connectionAttempt?.cancelConnectionAttempt();
-    this.connectionAttempts.delete(connectionInfoId);
-    this.notifyConnectionAttemptCancelled(connectionInfoId);
   }
 
   /**
@@ -124,6 +117,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   async closeConnection(connectionInfoId: ConnectionInfoId): Promise<void> {
+    this.cancelConnectionAttemptIfAny(connectionInfoId);
     const dataService = this.dataServices.get(connectionInfoId);
     if (dataService) {
       await dataService.disconnect();
@@ -165,6 +159,17 @@ export class ConnectionsManager extends EventEmitter {
     ...args: Parameters<ConnectionManagerEventListeners[T]>
   ): boolean {
     return super.emit(eventName, ...args);
+  }
+
+  private cancelConnectionAttemptIfAny(
+    connectionInfoId: ConnectionInfoId
+  ): void {
+    const connectionAttempt = this.connectionAttempts.get(connectionInfoId);
+    if (connectionAttempt) {
+      connectionAttempt.cancelConnectionAttempt();
+      this.connectionAttempts.delete(connectionInfoId);
+      this.notifyConnectionAttemptCancelled(connectionInfoId);
+    }
   }
 
   private notifyConnectionAttemptStarted(connectionInfoId: ConnectionInfoId) {

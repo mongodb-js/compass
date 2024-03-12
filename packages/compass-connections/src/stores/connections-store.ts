@@ -273,7 +273,7 @@ export function useConnections({
   state: State;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
-  cancelConnectionAttempt: (connectionInfoId: string) => void;
+  cancelConnectionAttempt: (connectionInfoId: string) => Promise<void>;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
@@ -606,17 +606,27 @@ export function useConnections({
     state,
     recentConnections,
     favoriteConnections,
-    cancelConnectionAttempt(connectionInfoId: string) {
+    async cancelConnectionAttempt(connectionInfoId: string) {
       log.info(
         mongoLogId(1001000005),
         'Connection UI',
         'Canceling connection attempt'
       );
-      connectionsManager.cancelConnectionAttempt(connectionInfoId);
-
-      dispatch({
-        type: 'cancel-connection-attempt',
-      });
+      try {
+        await connectionsManager.closeConnection(connectionInfoId);
+        dispatch({
+          type: 'cancel-connection-attempt',
+        });
+      } catch (error) {
+        log.error(
+          mongoLogId(1_001_000_297),
+          'Connection UI',
+          'Canceling connection attempt failed',
+          {
+            error: (error as Error).message,
+          }
+        );
+      }
     },
     connect,
     createNewConnection() {

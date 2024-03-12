@@ -245,7 +245,7 @@ function Connections({
           oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={() =>
-            cancelConnectionAttempt(connectingConnectionId)
+            void cancelConnectionAttempt(connectingConnectionId)
           }
         />
       )}
