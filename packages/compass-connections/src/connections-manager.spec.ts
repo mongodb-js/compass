@@ -9,7 +9,10 @@ import {
 } from './connections-manager';
 
 describe('ConnectionsManager', function () {
-  const connectedDataService1 = { id: 1 } as unknown as DataService;
+  const connectedDataService1 = {
+    id: 1,
+    disconnect() {},
+  } as unknown as DataService;
   const connectedConnectionInfo1 = {
     id: '1',
     connectionOptions: {
@@ -17,7 +20,10 @@ describe('ConnectionsManager', function () {
     },
   };
 
-  const connectedDataService2 = { id: 2 } as unknown as DataService;
+  const connectedDataService2 = {
+    id: 2,
+    disconnect() {},
+  } as unknown as DataService;
   const connectedConnectionInfo2 = {
     id: '2',
     connectionOptions: {
