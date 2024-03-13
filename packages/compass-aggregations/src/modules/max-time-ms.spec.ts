@@ -1,33 +1,28 @@
-import reducer, { maxTimeMSChanged, MAX_TIME_MS_CHANGED } from './max-time-ms';
+import { maxTimeMSChanged } from './max-time-ms';
 import { expect } from 'chai';
+import configureStore from '../../test/configure-store';
 
 describe('max-time-ms module', function () {
-  describe('#maxTimeMSChanged', function () {
-    it('returns the MAX_TIME_MS_CHANGED action', function () {
-      expect(maxTimeMSChanged(100)).to.deep.equal({
-        type: MAX_TIME_MS_CHANGED,
-        maxTimeMS: 100,
-      });
-    });
+  let store: ReturnType<typeof configureStore>;
+  beforeEach(function () {
+    store = configureStore(undefined, undefined, {
+      preferences: {
+        getPreferences: () => ({ maxTimeMS: 1000 }),
+      },
+    } as any);
   });
 
-  describe('#reducer', function () {
-    context('when the action is not limit changed', function () {
-      it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal({
-          current: null,
-          preferencesValue: null,
-        });
-      });
-    });
+  it('initializes default max time to preferences value', function () {
+    expect(store.getState().maxTimeMS).to.equal(1000);
+  });
 
-    context('when the action is maxTimeMSChanged changed', function () {
-      it('returns the new state', function () {
-        expect(reducer(undefined, maxTimeMSChanged(100))).to.deep.equal({
-          current: 100,
-          preferencesValue: null,
-        });
-      });
-    });
+  it('dispatches max time changed action', function () {
+    store.dispatch(maxTimeMSChanged(100));
+    expect(store.getState().maxTimeMS).to.equal(100);
+  });
+
+  it('caps max time at preference limit', function () {
+    store.dispatch(maxTimeMSChanged(9999));
+    expect(store.getState().maxTimeMS).to.equal(1000);
   });
 });

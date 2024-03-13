@@ -6,7 +6,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<void> => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
     const {
       collationString: { value: collation },
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
     } = getState();
 
     localAppRegistry.emit('open-explain-plan-modal', {
