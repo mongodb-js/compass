@@ -81,7 +81,7 @@ class GlobalToastState implements ToastActions {
   clearTimeout(id?: string) {
     if (id) {
       if (this.timeouts.has(id)) {
-        clearTimeout(this.timeouts.get(id)!);
+        clearTimeout(this.timeouts.get(id));
         this.timeouts.delete(id);
       }
     } else {
