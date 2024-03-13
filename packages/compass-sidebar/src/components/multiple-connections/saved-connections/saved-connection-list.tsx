@@ -13,13 +13,15 @@ const savedConnectionListStyles = css({
   width: '100%',
   height: '320px',
   flex: 'none',
+  display: 'flex',
+  flexDirection: 'column',
   padding: spacing[3],
   marginTop: 'auto',
 });
 
 const savedConnectionListPaddingStyles = css({
   overflowY: 'auto',
-  maxHeight: '100%',
+  flexGrow: 1,
 });
 
 const savedConnectionCountStyles = css({
@@ -27,6 +29,7 @@ const savedConnectionCountStyles = css({
 });
 
 const savedConnectionListHeaderStyles = css({
+  flexGrow: 0,
   display: 'flex',
   flexDirection: 'row',
   alignContent: 'center',

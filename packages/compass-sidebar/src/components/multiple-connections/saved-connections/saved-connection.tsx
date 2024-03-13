@@ -248,6 +248,7 @@ export function SavedConnection({
           onClick={() => onConnect(connectionInfo)}
           data-testid="connect-button"
           aria-label="Connect"
+          title="Connect"
         >
           <Icon glyph="Connect" />
         </IconButton>
