@@ -2,7 +2,7 @@
   "name": "@cloud-mongodb-js/mongodb-database-model",
   "description": "MongoDB database model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.15.1",
+  "version": "2.15.2",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -28,16 +28,16 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
+    "@cloud-mongodb-js/mongodb-collection-model": "^5.15.2",
     "ampersand-collection": "^2.0.2",
-    "ampersand-model": "^8.0.1",
-    "@cloud-mongodb-js/mongodb-collection-model": "^5.15.1"
+    "ampersand-model": "^8.0.1"
   },
   "devDependencies": {
-    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
-    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.12",
+    "@cloud-mongodb-js/mongodb-data-service": "^22.15.2",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.2",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "mocha": "^10.2.0",
-    "@cloud-mongodb-js/mongodb-data-service": "^22.15.1"
+    "mocha": "^10.2.0"
   }
 }

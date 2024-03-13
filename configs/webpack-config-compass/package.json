@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -45,9 +45,9 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@cloud-mongodb-js/eslint-config-compass": "^1.0.11",
-    "@cloud-mongodb-js/prettier-config-compass": "^1.0.1",
-    "@cloud-mongodb-js/tsconfig-compass": "^1.0.3",
+    "@cloud-mongodb-js/eslint-config-compass": "^1.0.12",
+    "@cloud-mongodb-js/prettier-config-compass": "^1.0.2",
+    "@cloud-mongodb-js/tsconfig-compass": "^1.0.4",
     "@types/cli-progress": "^3.9.2",
     "@types/html-webpack-plugin": "^3.2.6",
     "@types/mini-css-extract-plugin": "^2.3.0",
