@@ -166,6 +166,9 @@ function Connections({
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
   );
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const preferences = useMemo(
     () => ({
@@ -246,7 +249,7 @@ function Connections({
               </Card>
             </div>
           </ErrorBoundary>
-          <FormHelp />
+          <FormHelp isMultiConnectionEnabled={isMultiConnectionEnabled} />
         </div>
       </div>
       {!!connectionAttempt && !connectionAttempt.isClosed() && (
