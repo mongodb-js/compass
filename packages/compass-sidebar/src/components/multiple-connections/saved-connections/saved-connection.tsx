@@ -118,6 +118,13 @@ type SavedConnectionProps = {
   onToggleFavoriteConnection(connectionInfo: ConnectionInfo): void;
 };
 
+const useConnectionStatus = (
+  connectionInfo: ConnectionInfo
+): ConnectionStatus => {
+  // polyfill
+  return 'failed';
+};
+
 export function SavedConnection({
   connectionInfo,
   onConnect,
