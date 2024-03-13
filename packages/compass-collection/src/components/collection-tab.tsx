@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { type CollectionState, selectTab } from '../modules/collection-tab';
+import type { CollectionState } from '../modules/collection-tab';
 import {
   css,
   ErrorBoundary,
@@ -20,6 +20,7 @@ import {
   CollectionDocumentsStats,
   CollectionIndexesStats,
 } from './collection-tab-stats';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -65,41 +66,45 @@ const TabTitleWithStats = ({
   );
 };
 
-type CollectionTabProps = CollectionTabOptions & {
-  /**
-   * Initial query to be set in the query bar
-   */
-  initialQuery?: unknown;
-  /**
-   * Initial saved sggregation (stored on disk) to apply to the agg builder
-   */
-  initialAggregation?: unknown;
-  /**
-   * Initial aggregation pipeline to set in the agg builder
-   */
-  initialPipeline?: unknown[];
-  /**
-   * Initial stringified aggregation pipeline to set in the agg builder
-   */
-  initialPipelineText?: string;
-  currentTab: string;
+type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
-  onTabClick(name: string): void;
   stats: CollectionState['stats'];
 };
+
+type CollectionTabProps = CollectionTabOptions &
+  ConnectionTabConnectedProps & {
+    /**
+     * Initial query to be set in the query bar
+     */
+    initialQuery?: unknown;
+    /**
+     * Initial saved sggregation (stored on disk) to apply to the agg builder
+     */
+    initialAggregation?: unknown;
+    /**
+     * Initial aggregation pipeline to set in the agg builder
+     */
+    initialPipeline?: unknown[];
+    /**
+     * Initial stringified aggregation pipeline to set in the agg builder
+     */
+    initialPipelineText?: string;
+    subTab: CollectionSubtab;
+    onSelectSubtab(subTab: CollectionSubtab): void;
+  };
 
 const CollectionTabWithMetadata: React.FunctionComponent<
   CollectionTabProps
 > = ({
   namespace,
-  currentTab,
   initialAggregation,
   initialPipeline,
   initialPipelineText,
   initialQuery,
   editViewName,
   collectionMetadata,
-  onTabClick,
+  subTab: currentTab,
+  onSelectSubtab: onTabClick,
   stats,
 }) => {
   const { log, mongoLogId, track } = useLoggerAndTelemetry(
@@ -236,18 +241,12 @@ const CollectionTab = ({
   );
 };
 
-const ConnectedCollectionTab = connect(
-  (state: CollectionState) => {
-    return {
-      namespace: state.namespace,
-      currentTab: state.currentTab,
-      collectionMetadata: state.metadata,
-      stats: state.stats,
-    };
-  },
-  {
-    onTabClick: selectTab,
-  }
-)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
+const ConnectedCollectionTab = connect((state: CollectionState) => {
+  return {
+    namespace: state.namespace,
+    collectionMetadata: state.metadata,
+    stats: state.stats,
+  };
+})(CollectionTab) as unknown as React.FunctionComponent<CollectionTabOptions>;
 
 export default ConnectedCollectionTab;

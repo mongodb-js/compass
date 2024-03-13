@@ -23,12 +23,14 @@ import {
   selectNextTab,
   selectPrevTab,
   selectTab,
+  collectionSubtabSelected,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
+import type { CollectionSubtab } from '../types';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -74,6 +76,7 @@ type CompassWorkspacesProps = {
   onMoveTab(from: number, to: number): void;
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
+  onCollectionSubtabChanged(tabId: string, subtab: CollectionSubtab): void;
 };
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
@@ -87,6 +90,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onMoveTab,
   onCreateTab,
   onCloseTab,
+  onCollectionSubtabChanged,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -171,12 +175,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
-        return <Component {...collectionMetadata}></Component>;
+        return (
+          <Component
+            {...collectionMetadata}
+            onSelectSubtab={(subTab) => onCollectionSubtabChanged(id, subTab)}
+          ></Component>
+        );
       }
       default:
         return null;
     }
-  }, [activeTab, getWorkspacePluginByName]);
+  }, [activeTab, onCollectionSubtabChanged, getWorkspacePluginByName]);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
@@ -244,5 +253,6 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
+    onCollectionSubtabChanged: collectionSubtabSelected,
   }
 )(CompassWorkspaces);

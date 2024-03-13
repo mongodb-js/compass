@@ -21,8 +21,10 @@ import {
 
 import createDebug from 'debug';
 import { CompassWeb } from '../src/index';
-import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-import { CollectionSubtabs } from '@mongodb-js/compass-collection';
+import type {
+  OpenWorkspaceOptions,
+  CollectionSubtab,
+} from '@mongodb-js/compass-workspaces';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -100,18 +102,18 @@ function getHistory(): ConnectionInfo[] {
   }
 }
 
-function getCollectionSubTab(subTab: string) {
-  switch (subTab) {
+function getCollectionSubTab(subTab: string): CollectionSubtab {
+  switch (subTab.toLowerCase()) {
     case 'schema':
-      return CollectionSubtabs.Schema;
+      return 'Schema';
     case 'indexes':
-      return CollectionSubtabs.Indexes;
+      return 'Indexes';
     case 'aggregations':
-      return CollectionSubtabs.Aggregations;
+      return 'Aggregations';
     case 'validation':
-      return CollectionSubtabs.Validation;
+      return 'Validation';
     default:
-      return CollectionSubtabs.Documents;
+      return 'Documents';
   }
 }
 
@@ -266,7 +268,9 @@ const App = () => {
                     newPath = `/collections/${tab.namespace}`;
                     break;
                   case 'Collection':
-                    newPath = `/collection/${tab.namespace}`;
+                    newPath = `/collection/${
+                      tab.namespace
+                    }/${tab.subTab.toLowerCase()}`;
                     break;
                   default:
                     newPath = '/';

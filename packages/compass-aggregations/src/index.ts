@@ -43,7 +43,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
 );
 
 export const CompassAggregationsPlugin = {
-  name: 'Aggregations',
+  name: 'Aggregations' as const,
   component: CompassAggregationsHadronPlugin,
 };
 

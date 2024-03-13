@@ -1,4 +1,9 @@
-import type { CollectionSubtab } from '@mongodb-js/compass-collection';
+export type CollectionSubtab =
+  | 'Documents'
+  | 'Aggregations'
+  | 'Schema'
+  | 'Indexes'
+  | 'Validation';
 
 export type MyQueriesWorkspace = {
   type: 'My Queries';
@@ -21,6 +26,7 @@ export type CollectionWorkspace = {
   type: 'Collection';
   namespace: string;
   subTab: CollectionSubtab;
+  onSelectSubtab(subtab: CollectionSubtab): void;
   initialQuery?: unknown;
   initialPipeline?: unknown[];
   initialPipelineText?: string;

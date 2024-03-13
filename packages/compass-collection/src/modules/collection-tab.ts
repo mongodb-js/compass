@@ -1,24 +1,6 @@
-import type { Reducer, AnyAction } from 'redux';
+import type { Reducer } from 'redux';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type Collection from 'mongodb-collection-model';
-import type { ThunkAction } from 'redux-thunk';
-import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
-import { CollectionSubtabs, type CollectionSubtab } from '../types';
-
-type CollectionThunkAction<
-  ReturnType,
-  Action extends AnyAction = AnyAction
-> = ThunkAction<
-  ReturnType,
-  CollectionState,
-  {
-    globalAppRegistry: AppRegistry;
-    localAppRegistry: AppRegistry;
-    dataService: DataService;
-  },
-  Action
->;
 
 export type CollectionState = {
   namespace: string;
@@ -33,7 +15,6 @@ export type CollectionState = {
     | 'free_storage_size'
   > | null;
   metadata: CollectionMetadata | null;
-  currentTab: CollectionSubtab;
   editViewName?: string;
 };
 
@@ -63,7 +44,6 @@ export function pickCollectionStats(
 enum CollectionActions {
   CollectionStatsFetched = 'compass-collection/CollectionStatsFetched',
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
-  ChangeTab = 'compass-collection/ChangeTab',
 }
 
 const reducer: Reducer<CollectionState> = (
@@ -71,7 +51,6 @@ const reducer: Reducer<CollectionState> = (
     namespace: '',
     stats: null,
     metadata: null,
-    currentTab: CollectionSubtabs.Documents,
   },
   action
 ) => {
@@ -87,12 +66,6 @@ const reducer: Reducer<CollectionState> = (
       metadata: action.metadata,
     };
   }
-  if (action.type === CollectionActions.ChangeTab) {
-    return {
-      ...state,
-      currentTab: action.tabName,
-    };
-  }
   return state;
 };
 
@@ -102,15 +75,6 @@ export const collectionStatsFetched = (collection: Collection) => {
 
 export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
-};
-
-export const selectTab = (
-  tabName: CollectionState['currentTab']
-): CollectionThunkAction<void> => {
-  return (dispatch, _getState, { localAppRegistry }) => {
-    dispatch({ type: CollectionActions.ChangeTab, tabName });
-    localAppRegistry.emit('subtab-changed', tabName);
-  };
 };
 
 export type CollectionTabPluginMetadata = CollectionMetadata & {

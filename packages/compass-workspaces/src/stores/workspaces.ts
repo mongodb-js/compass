@@ -3,7 +3,16 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
-import type { AnyWorkspace, Workspace, WorkspacesServices } from '..';
+import type {
+  CollectionWorkspace,
+  CollectionsWorkspace,
+  DatabasesWorkspace,
+  MyQueriesWorkspace,
+  ServerStatsWorkspace,
+  Workspace,
+  WorkspacesServices,
+  CollectionSubtab,
+} from '..';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 
@@ -51,6 +60,7 @@ export enum WorkspacesActions {
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
+  CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
 }
 
 function isAction<A extends AnyAction>(
@@ -60,7 +70,13 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type WorkspaceTab = { id: string } & AnyWorkspace;
+type WorkspaceTabProps =
+  | MyQueriesWorkspace
+  | ServerStatsWorkspace
+  | DatabasesWorkspace
+  | CollectionsWorkspace
+  | Omit<CollectionWorkspace, 'onSelectSubtab'>;
+export type WorkspaceTab = { id: string } & WorkspaceTabProps;
 
 export type CollectionTabInfo = {
   isTimeSeries: boolean;
@@ -104,8 +120,8 @@ const getInitialState = () => {
 };
 
 const isWorkspaceEqual = (
-  t1: AnyWorkspace & Partial<{ id: string }>,
-  t2: AnyWorkspace & Partial<{ id: string }>
+  t1: WorkspaceTabProps & Partial<{ id: string }>,
+  t2: WorkspaceTabProps & Partial<{ id: string }>
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id1, ...ws1 } = t1;
@@ -403,6 +419,26 @@ const reducer: Reducer<WorkspacesState> = (
     };
   }
 
+  if (
+    isAction<CollectionSubtabSelectedAction>(
+      action,
+      WorkspacesActions.CollectionSubtabSelected
+    )
+  ) {
+    return {
+      ...state,
+      tabs: state.tabs.map((tab) => {
+        if (tab.id === action.tabId) {
+          return {
+            ...tab,
+            subTab: action.subTab,
+          };
+        }
+        return tab;
+      }),
+    };
+  }
+
   return state;
 };
 
@@ -603,6 +639,26 @@ export const databaseRemoved = (
       namespace,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
+  };
+};
+
+type CollectionSubtabSelectedAction = {
+  type: WorkspacesActions.CollectionSubtabSelected;
+  tabId: string;
+  subTab: CollectionSubtab;
+};
+
+export const collectionSubtabSelected = (
+  tabId: string,
+  subTab: CollectionSubtab
+): WorkspacesThunkAction<void, CollectionSubtabSelectedAction> => {
+  return (dispatch) => {
+    getLocalAppRegistryForTab(tabId).emit('subtab-changed', subTab);
+    dispatch({
+      type: WorkspacesActions.CollectionSubtabSelected,
+      tabId,
+      subTab,
+    });
   };
 };
 

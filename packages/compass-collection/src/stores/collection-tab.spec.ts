@@ -1,9 +1,7 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
-import { selectTab } from '../modules/collection-tab';
 import { waitFor } from '@testing-library/react';
 import Sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
 
 const defaultMetadata = {
@@ -18,7 +16,7 @@ const defaultMetadata = {
 
 const defaultTabOptions = {
   namespace: defaultMetadata.namespace,
-  subTab: 'Documents',
+  subTab: 'Documents' as const,
 };
 
 const mockCollection = {
@@ -34,8 +32,6 @@ const mockCollection = {
 describe('Collection Tab Content store', function () {
   const sandbox = Sinon.createSandbox();
 
-  const globalAppRegistry = sandbox.spy(new AppRegistry());
-  const localAppRegistry = sandbox.spy(new AppRegistry());
   const dataService = {} as any;
   const instance = {
     databases: {
@@ -63,11 +59,9 @@ describe('Collection Tab Content store', function () {
       {
         ...defaultTabOptions,
         ...options,
-      } as any,
+      },
       {
         dataService,
-        globalAppRegistry,
-        localAppRegistry,
         instance,
       },
       { on() {}, cleanup() {} } as any
@@ -85,11 +79,11 @@ describe('Collection Tab Content store', function () {
     deactivate();
   });
 
-  describe('selectTab', function () {
-    it('should set active tab', async function () {
-      const store = await configureStore();
-      store.dispatch(selectTab('Documents'));
-      expect(store.getState()).to.have.property('currentTab', 'Documents');
-    });
+  it('sets the namespace', async function () {
+    const store = await configureStore();
+    expect(store.getState()).to.have.property(
+      'namespace',
+      defaultMetadata.namespace
+    );
   });
 });

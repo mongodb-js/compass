@@ -174,4 +174,5 @@ export type {
   Workspace,
   WorkspacePluginProps,
   WorkspaceComponent,
+  CollectionSubtab,
 } from './types';

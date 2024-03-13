@@ -10,7 +10,6 @@ import {
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
-import { CollectionSubtabs } from '@mongodb-js/compass-collection';
 
 function useWorkspacesStore() {
   try {
@@ -161,9 +160,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction(
             {
               type: 'Collection',
-              subTab: isAggregationsSubtab
-                ? CollectionSubtabs.Aggregations
-                : CollectionSubtabs.Documents,
+              subTab: isAggregationsSubtab ? 'Aggregations' : 'Documents',
               namespace,
               ...collectionOptions,
             },
@@ -180,7 +177,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
               namespace: sourceName,
               initialPipeline: sourcePipeline,
               editViewName: viewNamespace,
-              subTab: CollectionSubtabs.Aggregations,
+              subTab: 'Aggregations',
             },
             { newTab }
           )

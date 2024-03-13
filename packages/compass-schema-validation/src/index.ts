@@ -23,6 +23,6 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   }
 );
 export const CompassSchemaValidationPlugin = {
-  name: 'Validation',
+  name: 'Validation' as const,
   component: CompassSchemaValidationHadronPlugin,
 };
