@@ -2,12 +2,14 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React from 'react';
 import { SavedConnection } from './saved-connection';
 import {
+  Button,
   Subtitle,
   Icon,
   IconButton,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { ButtonVariant } from '@mongodb-js/compass-components';
 
 const savedConnectionListStyles = css({
   width: '100%',
@@ -41,6 +43,11 @@ const savedConnectionListHeaderTitleStyles = css({
   marginBottom: 0,
   textTransform: 'uppercase',
   fontSize: '12px',
+});
+
+const firstConnectionBtnStyles = css({
+  width: '100%',
+  marginTop: spacing[3],
 });
 
 type SavedConnectionListProps = {
@@ -87,30 +94,45 @@ export function SavedConnectionList({
           </IconButton>
         </div>
       </header>
-      <ul className={savedConnectionListPaddingStyles}>
-        {favoriteConnections.map((conn) => (
-          <SavedConnection
-            onConnect={onConnect}
-            onEditConnection={onEditConnection}
-            onDuplicateConnection={onDuplicateConnection}
-            onToggleFavoriteConnection={onToggleFavoriteConnection}
-            onDeleteConnection={onDeleteConnection}
-            connectionInfo={conn}
-            key={conn.id}
-          />
-        ))}
-        {nonFavoriteConnections.map((conn) => (
-          <SavedConnection
-            onConnect={onConnect}
-            onEditConnection={onEditConnection}
-            onDuplicateConnection={onDuplicateConnection}
-            onToggleFavoriteConnection={onToggleFavoriteConnection}
-            onDeleteConnection={onDeleteConnection}
-            connectionInfo={conn}
-            key={conn.id}
-          />
-        ))}
-      </ul>
+      {connectionCount ? (
+        <ul className={savedConnectionListPaddingStyles}>
+          {favoriteConnections.map((conn) => (
+            <SavedConnection
+              onConnect={onConnect}
+              onEditConnection={onEditConnection}
+              onDuplicateConnection={onDuplicateConnection}
+              onToggleFavoriteConnection={onToggleFavoriteConnection}
+              onDeleteConnection={onDeleteConnection}
+              connectionInfo={conn}
+              key={conn.id}
+            />
+          ))}
+          {nonFavoriteConnections.map((conn) => (
+            <SavedConnection
+              onConnect={onConnect}
+              onEditConnection={onEditConnection}
+              onDuplicateConnection={onDuplicateConnection}
+              onToggleFavoriteConnection={onToggleFavoriteConnection}
+              onDeleteConnection={onDeleteConnection}
+              connectionInfo={conn}
+              key={conn.id}
+            />
+          ))}
+        </ul>
+      ) : (
+        <div>
+          You have not connected to any deployments
+          <Button
+            className={firstConnectionBtnStyles}
+            data-testid="save-connection-button"
+            variant={ButtonVariant.Primary}
+            leftGlyph={<Icon glyph="Plus" />}
+            onClick={onNewConnection}
+          >
+            Add new connection
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
