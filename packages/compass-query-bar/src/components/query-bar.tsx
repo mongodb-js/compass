@@ -8,8 +8,6 @@ import {
   spacing,
   palette,
   useDarkMode,
-  Label,
-  Link,
 } from '@mongodb-js/compass-components';
 import {
   AIExperienceEntry,
@@ -23,9 +21,7 @@ import {
   OPTION_DEFINITION,
   type QueryOption,
 } from '../constants/query-option-definition';
-import QueryOptionComponent, {
-  documentEditorLabelContainerStyles,
-} from './query-option';
+import QueryOptionComponent from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
 import {
@@ -71,7 +67,7 @@ const queryBarFirstRowStyles = css({
   // to account for their height individually.
   alignItems: 'flex-start',
   gap: spacing[2],
-  paddingLeft: spacing[2],
+  paddingLeft: spacing[1],
 });
 
 const moreOptionsContainerStyles = css({
@@ -87,10 +83,6 @@ const filterContainerStyles = css({
   flexGrow: 1,
   alignItems: 'flex-start',
   gap: spacing[2],
-});
-
-const filterLabelStyles = css({
-  padding: 0,
 });
 
 const aiEntryContainerStyles = css({
@@ -111,9 +103,6 @@ const queryAIContainerStyles = css({
   margin: `0px ${spacing[2]}px`,
   marginTop: '2px',
 });
-
-const queryBarDocumentationLink =
-  'https://docs.mongodb.com/compass/current/query/filter/';
 
 const QueryOptionsToggle = connect(
   (state: RootState) => {
@@ -231,18 +220,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-apply-id={applyId}
     >
       <div className={queryBarFirstRowStyles}>
-        <div className={documentEditorLabelContainerStyles}>
-          <Label
-            htmlFor={filterQueryOptionId}
-            id="query-bar-option-input-filter-label"
-            className={filterLabelStyles}
-          >
-            <Link href={queryBarDocumentationLink} target="_blank">
-              Filter
-            </Link>
-          </Label>
-          {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
-        </div>
+        {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         <div className={filterContainerStyles}>
           <QueryOptionComponent
             name="filter"

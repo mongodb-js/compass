@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Mar 11 2024.
+This document was automatically generated on Tue Mar 12 2024.
 
 ## List of dependencies
 
@@ -325,7 +325,7 @@ This document was automatically generated on Mon Mar 11 2024.
 | **[is-wsl](#133bdb52dad1bbd87bcda9564e6df13fe7c51ae7d67575fea63cf0a2072ac884)**                                             | 2.2.0        | MIT                                 |
 | **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**                                              | 2.0.0        | ISC                                 |
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                               | 2.1.0        | MIT                                 |
-| **[jose](#1c9a4e6acd63a2e0d5844777470f9d4ce80d639d2851eff1f301a7ad967b9787)**                                               | 4.14.4       | MIT                                 |
+| **[jose](#7c6ba2890a65df8d382e1b102b311651675d0ed5fd5443e911c520b18e93f62f)**                                               | 4.15.5       | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**                                            | 3.14.1       | MIT                                 |
 | **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**                                            | 4.1.0        | MIT                                 |
@@ -464,7 +464,7 @@ This document was automatically generated on Mon Mar 11 2024.
 | **[onetime](#5a35b0b7c7570756939e95a639f311d4676b87c61cd74cd94d6609334c2ee1a2)**                                            | 5.1.2        | MIT                                 |
 | **[onetime](#8d8b66854ab397ef1815b6af9e17698a8e5f83b256a1202b74104ee5609c5d99)**                                            | 6.0.0        | MIT                                 |
 | **[open](#6c66626cf6e18f59c76bef1f4ed0c2b541e68592d65325d4fb83a659e3078981)**                                               | 9.1.0        | MIT                                 |
-| **[openid-client](#232ea216b02e0e7447b34f65477e23a91636c8d689c1a6faa398758f243a42d0)**                                      | 5.4.2        | MIT                                 |
+| **[openid-client](#03ada662ee390db4436dc7bd38857b43e2a0407275d27e422ff915ec7738b035)**                                      | 5.6.5        | MIT                                 |
 | **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**                                      | 1.2.1        | MIT                                 |
 | **[papaparse](#a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684)**                                          | 5.3.2        | MIT                                 |
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3        | MIT                                 |
@@ -23695,9 +23695,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="1c9a4e6acd63a2e0d5844777470f9d4ce80d639d2851eff1f301a7ad967b9787"></a>
+<a id="7c6ba2890a65df8d382e1b102b311651675d0ed5fd5443e911c520b18e93f62f"></a>
 
-### [jose](https://www.npmjs.com/package/jose) (version 4.14.4)
+### [jose](https://www.npmjs.com/package/jose) (version 4.15.5)
 
 License tags: MIT
 
@@ -30310,9 +30310,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="232ea216b02e0e7447b34f65477e23a91636c8d689c1a6faa398758f243a42d0"></a>
+<a id="03ada662ee390db4436dc7bd38857b43e2a0407275d27e422ff915ec7738b035"></a>
 
-### [openid-client](https://www.npmjs.com/package/openid-client) (version 5.4.2)
+### [openid-client](https://www.npmjs.com/package/openid-client) (version 5.6.5)
 
 License tags: MIT
 

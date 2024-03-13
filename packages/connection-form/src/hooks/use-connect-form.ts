@@ -341,7 +341,7 @@ export function handleConnectionFormUpdateForPersonalization(
   }
 
   const isNameDirty = action.isNameDirty || personalization.isNameDirty;
-  const name = action.name || personalization.name;
+  const name = action.name !== undefined ? action.name : personalization.name;
   const color = action.color || personalization.color;
   const isFavorite = action.isFavorite;
 
