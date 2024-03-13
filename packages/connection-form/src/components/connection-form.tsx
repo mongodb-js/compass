@@ -64,6 +64,9 @@ const formContentStyles = css({
 
 const formSettingsStyles = css({
   width: '100%',
+  maxHeight: '530px',
+  overflow: 'auto',
+  scrollbarGutter: 'stable',
 });
 
 const formFooterStyles = css({
@@ -115,7 +118,7 @@ type ConnectionFormPropsWithoutPreferences = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
-  onCancel: () => void;
+  onCancel?: () => void;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };

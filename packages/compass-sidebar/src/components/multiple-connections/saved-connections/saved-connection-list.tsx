@@ -33,6 +33,7 @@ const savedConnectionListHeaderStyles = css({
   flexDirection: 'row',
   alignContent: 'center',
   justifyContent: 'space-between',
+  marginBottom: spacing[2],
 });
 
 const savedConnectionListHeaderTitleStyles = css({
@@ -40,6 +41,7 @@ const savedConnectionListHeaderTitleStyles = css({
   marginBottom: 0,
   textTransform: 'uppercase',
   fontSize: '12px',
+  lineHeight: '32px',
 });
 
 const firstConnectionBtnStyles = css({

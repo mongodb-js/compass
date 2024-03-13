@@ -59,6 +59,19 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     []
   );
 
+  const onNewConnectionOpen = useCallback(
+    () => setIsConnectionFormOpen(true),
+    []
+  );
+  const onNewConnectionClose = useCallback(
+    () => setIsConnectionFormOpen(false),
+    []
+  );
+  const onNewConnectionToggle = useCallback(
+    (open: boolean) => setIsConnectionFormOpen(open),
+    []
+  );
+
   const onNewConnectionConnect = useCallback(
     async (connectionInfo) => {
       await connect({
@@ -151,7 +164,7 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}
           onConnect={onConnect}
-          onNewConnection={() => setIsConnectionFormOpen(true)}
+          onNewConnection={onNewConnectionOpen}
           onEditConnection={onEditConnection}
           onDeleteConnection={onDeleteConnection}
           onDuplicateConnection={onDuplicateConnection}
@@ -159,8 +172,8 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
         />
         <ConnectionFormModal
           isOpen={isConnectionFormOpen}
-          setOpen={setIsConnectionFormOpen}
-          onCancel={() => setIsConnectionFormOpen(false)}
+          setOpen={onNewConnectionToggle}
+          onCancel={onNewConnectionClose}
           onConnectClicked={onNewConnectionConnect}
           key={activeConnectionId}
           onSaveConnectionClicked={onSaveNewConnection}
