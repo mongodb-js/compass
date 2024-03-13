@@ -187,6 +187,7 @@ function Home({
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
+  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
   const [
     { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
@@ -209,7 +210,7 @@ function Home({
 
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      trackNewConnectionEvent(connectionInfo, dataService);
+      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
       connectedDataService.current = dataService;
       dataService.addReauthenticationHandler(reauthenticationHandler.current);
 
@@ -220,14 +221,14 @@ function Home({
 
   const onConnectionFailed = useCallback(
     (connectionInfo: ConnectionInfo, error: Error) => {
-      trackConnectionFailedEvent(connectionInfo, error);
+      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
     },
     []
   );
 
   const onConnectionAttemptStarted = useCallback(
     (connectionInfo: ConnectionInfo) => {
-      trackConnectionAttemptEvent(connectionInfo);
+      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
     },
     []
   );

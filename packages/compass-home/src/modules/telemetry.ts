@@ -3,14 +3,12 @@ import {
   configuredKMSProviders,
 } from 'mongodb-data-service/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-
-const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 type HostInformation = {
   is_localhost: boolean;
@@ -44,8 +42,6 @@ async function getPublicCloudInfo(host: string): Promise<{
       public_cloud_name,
     };
   } catch (err) {
-    debug('getCloudInfo failed', err);
-
     return {};
   }
 }
@@ -111,8 +107,7 @@ async function getHostnameForConnection(
 ): Promise<string | null> {
   if (connectionStringData.isSRV) {
     const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
-      (err: Error) => {
-        debug('resolveMongodbSrv failed', err);
+      () => {
         return null;
       }
     );
@@ -157,10 +152,10 @@ async function getConnectionData({
   };
 }
 
-export function trackConnectionAttemptEvent({
-  favorite,
-  lastUsed,
-}: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>): void {
+export function trackConnectionAttemptEvent(
+  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
+  { track, debug }: LoggerAndTelemetry
+): void {
   try {
     const trackEvent = {
       is_favorite: Boolean(favorite),
@@ -175,7 +170,8 @@ export function trackConnectionAttemptEvent({
 
 export function trackNewConnectionEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
-  dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>
+  dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
+  { track, debug }: LoggerAndTelemetry
 ): void {
   try {
     const callback = async () => {
@@ -205,7 +201,8 @@ export function trackNewConnectionEvent(
 
 export function trackConnectionFailedEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
-  connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>
+  connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
+  { track, debug }: LoggerAndTelemetry
 ): void {
   try {
     const callback = async () => {
