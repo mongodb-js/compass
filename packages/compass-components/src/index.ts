@@ -191,6 +191,6 @@ export { CompassComponentsProvider } from './components/compass-components-provi
 export { type BreadcrumbItem, Breadcrumbs } from './components/breadcrumb';
 export {
   urlWithUtmParams,
-  LinkProvider,
-  useLinkContext,
+  RequiredURLSearchParamsProvider,
+  useRequiredURLSearchParams,
 } from './components/links/link';

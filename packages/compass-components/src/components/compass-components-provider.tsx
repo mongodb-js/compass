@@ -4,7 +4,7 @@ import { ConfirmationModalArea } from '../hooks/use-confirmation';
 import { ToastArea } from '../hooks/use-toast';
 import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
-import { LinkProvider } from './links/link';
+import { RequiredURLSearchParamsProvider } from './links/link';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -116,7 +116,10 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <LinkProvider utmSource={utmSource} utmMedium={utmMedium}>
+      <RequiredURLSearchParamsProvider
+        utmSource={utmSource}
+        utmMedium={utmMedium}
+      >
         <GuideCueProvider
           onNext={onNextGuideGue}
           onNextGroup={onNextGuideCueGroup}
@@ -135,7 +138,7 @@ export const CompassComponentsProvider = ({
             </ConfirmationModalArea>
           </SignalHooksProvider>
         </GuideCueProvider>
-      </LinkProvider>
+      </RequiredURLSearchParamsProvider>
     </LeafyGreenProvider>
   );
 };

@@ -8,7 +8,7 @@ import {
   palette,
   useDarkMode,
   cx,
-  useLinkContext,
+  useRequiredURLSearchParams,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -84,7 +84,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;
 
-  const { utmSource, utmMedium } = useLinkContext();
+  const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
   const completer = useMemo(() => {
     return createAggregationAutocompleter({

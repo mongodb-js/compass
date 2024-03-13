@@ -1,33 +1,28 @@
-import React, { useContext, forwardRef } from 'react';
+import React, { useContext, forwardRef, useMemo } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
 import LGButton from '@leafygreen-ui/button';
 import LGIconButton from '@leafygreen-ui/icon-button';
 
-type LinkContextValue = {
+type RequiredURLSearchParamsContextValue = {
   utmSource?: string;
   utmMedium?: string;
 };
-const LinkContext = React.createContext<LinkContextValue>({});
-export const LinkProvider: React.FC<LinkContextValue> = ({
-  utmSource,
-  utmMedium,
-  children,
-}) => {
-  const value: LinkContextValue = {
+const RequiredURLSearchParamsContext =
+  React.createContext<RequiredURLSearchParamsContextValue>({});
+export const RequiredURLSearchParamsProvider: React.FC<
+  RequiredURLSearchParamsContextValue
+> = ({ utmSource, utmMedium, children }) => {
+  const value: RequiredURLSearchParamsContextValue = {
     utmSource,
     utmMedium,
   };
 
-  return <LinkContext.Provider value={value}>{children}</LinkContext.Provider>;
+  return (
+    <RequiredURLSearchParamsContext.Provider value={value}>
+      {children}
+    </RequiredURLSearchParamsContext.Provider>
+  );
 };
-
-// exported for testing purposes only
-export const EXCLUDED_MONGODB_HOSTS = [
-  'compass-maps.mongodb.com',
-  'evergreen.mongodb.com',
-  'downloads.mongodb.com',
-  'cloud.mongodb.com',
-];
 
 export const urlWithUtmParams = (
   urlString: string,
@@ -35,9 +30,7 @@ export const urlWithUtmParams = (
 ): string => {
   try {
     const url = new URL(urlString);
-    const urlShouldHaveUtmParams =
-      /^(.*\.)?mongodb\.com$/.test(url.hostname) &&
-      !EXCLUDED_MONGODB_HOSTS.includes(url.hostname);
+    const urlShouldHaveUtmParams = /^(.*\.)?mongodb\.com$/.test(url.hostname);
 
     if (urlShouldHaveUtmParams) {
       if (utmSource && !url.searchParams.has('utm_source')) {
@@ -53,8 +46,8 @@ export const urlWithUtmParams = (
   }
 };
 
-export function useLinkContext(): LinkContextValue {
-  return useContext(LinkContext);
+export function useRequiredURLSearchParams(): RequiredURLSearchParamsContextValue {
+  return useContext(RequiredURLSearchParamsContext);
 }
 
 export const Link = (({
@@ -62,51 +55,62 @@ export const Link = (({
   children,
   ...rest
 }: React.ComponentProps<typeof LGLink>) => {
-  const { utmSource, utmMedium } = useLinkContext();
+  const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
-  if (href) {
-    href = urlWithUtmParams(href, { utmSource, utmMedium });
-  }
+  const hrefWithParams = useMemo(() => {
+    if (href) {
+      return urlWithUtmParams(href, { utmSource, utmMedium });
+    }
+    return undefined;
+  }, [href, utmSource, utmMedium]);
 
   return (
-    <LGLink href={href} {...rest}>
+    <LGLink href={hrefWithParams} {...rest}>
       {children}
     </LGLink>
   );
 }) as unknown as typeof LGLink;
 
+// eslint-disable-next-line react/display-name
 export const Button = forwardRef(
   (
     { href, children, ...rest }: React.ComponentProps<typeof LGButton>,
     ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
-    const { utmSource, utmMedium } = useLinkContext();
+    const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
-    if (href) {
-      href = urlWithUtmParams(href, { utmSource, utmMedium });
-    }
+    const hrefWithParams = useMemo(() => {
+      if (href) {
+        return urlWithUtmParams(href, { utmSource, utmMedium });
+      }
+      return undefined;
+    }, [href, utmSource, utmMedium]);
 
     return (
-      <LGButton href={href} {...rest} ref={ref}>
+      <LGButton href={hrefWithParams} {...rest} ref={ref}>
         {children}
       </LGButton>
     );
   }
 ) as unknown as typeof LGButton;
 
+// eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
   (
     { href, children, ...rest }: React.ComponentProps<typeof LGIconButton>,
     ref: React.ForwardedRef<HTMLAnchorElement>
   ) => {
-    const { utmSource, utmMedium } = useLinkContext();
+    const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
-    if (href) {
-      href = urlWithUtmParams(href, { utmSource, utmMedium });
-    }
+    const hrefWithParams = useMemo(() => {
+      if (href) {
+        return urlWithUtmParams(href, { utmSource, utmMedium });
+      }
+      return undefined;
+    }, [href, utmSource, utmMedium]);
 
     return (
-      <LGIconButton href={href} {...rest} ref={ref}>
+      <LGIconButton href={hrefWithParams} {...rest} ref={ref}>
         {children}
       </LGIconButton>
     );

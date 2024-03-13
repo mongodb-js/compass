@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { urlWithUtmParams, EXCLUDED_MONGODB_HOSTS } from './link';
+import { urlWithUtmParams } from './link';
 
 const params = {
   utmSource: 'compass',
@@ -19,19 +19,6 @@ describe('link', function () {
         ).to.equal('https://go-mongodb.com/?name=compass');
       });
     });
-
-    context(
-      'when url contains a valid mongodb hostname that is not supposed to have utm params',
-      function () {
-        it('should return the url as it is', function () {
-          EXCLUDED_MONGODB_HOSTS.forEach(function (host) {
-            expect(urlWithUtmParams(`${host}?name=Compass`, params)).to.equal(
-              `${host}?name=Compass`
-            );
-          });
-        });
-      }
-    );
 
     context(
       'when url contains a valid mongodb hostname and is supposed to have utm params',

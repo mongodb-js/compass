@@ -14,7 +14,7 @@ import {
   palette,
   Banner,
   useDarkMode,
-  useLinkContext,
+  useRequiredURLSearchParams,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
@@ -104,7 +104,7 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
-  const { utmSource, utmMedium } = useLinkContext();
+  const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
   const completer = useMemo(() => {
     return createStageAutocompleter({
