@@ -59,7 +59,8 @@ describe('link', function () {
               params
             )
           ).to.equal(
-            'https://mongodb.com/?utm_source=compass&utm_medium=product'
+            // don't override existing vars
+            'https://mongodb.com/?utm_source=shell&utm_medium=anythingelse'
           );
         });
 
