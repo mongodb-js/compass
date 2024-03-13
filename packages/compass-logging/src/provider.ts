@@ -44,8 +44,6 @@ const LoggerAndTelemetryContext = React.createContext<{
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
-export { createLoggerAndTelemetry } from './ipc-logger';
-
 export function createLoggerAndTelemetryLocator(component: string) {
   return createServiceLocator(
     useLoggerAndTelemetry.bind(null, component),
