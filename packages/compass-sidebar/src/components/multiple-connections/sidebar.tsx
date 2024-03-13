@@ -1,9 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  ConnectionInfo,
+  getConnectionTitle,
+} from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
 import { OpenConnectionList } from './open-connections/open-connection-list';
-import { ResizableSidebar, css } from '@mongodb-js/compass-components';
+import {
+  ResizableSidebar,
+  css,
+  Link,
+  useToast,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
@@ -26,6 +35,39 @@ const sidebarStyles = css({
 // eslint-disable-next-line
 const noop_tmp = (() => {}) as any;
 
+type ConnectionErrorToastBodyProps = {
+  info: ConnectionInfo;
+  onReview: () => void;
+};
+
+const connectionErrorToastBodyStyles = css({
+  display: 'flex',
+  alignItems: 'start',
+  gap: spacing[2],
+});
+
+const connectionErrorToastActionMessageStyles = css({
+  marginTop: spacing[1],
+  flexGrow: 0,
+});
+
+function ConnectionErrorToastBody({
+  info,
+  onReview,
+}: ConnectionErrorToastBodyProps): React.ReactElement {
+  return (
+    <div className={connectionErrorToastBodyStyles}>
+      <span>There was a problem connecting to {getConnectionTitle(info)}</span>
+      <Link
+        className={connectionErrorToastActionMessageStyles}
+        hideExternalIcon={true}
+        onClick={onReview}
+      >
+        REVIEW
+      </Link>
+    </div>
+  );
+}
 // Having props here is useful as a placeholder and we will fix it with the first props.
 // eslint-disable-next-line
 export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
@@ -154,13 +196,6 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
       setIsConnectionFormOpen(false);
     },
     [saveConnection]
-  );
-
-  const onEditConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
   );
 
   const onDeleteConnection = useCallback(

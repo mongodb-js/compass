@@ -1,6 +1,7 @@
 import {
   type ConnectionInfo,
   getConnectionTitle,
+  ConnectionStatus,
 } from '@mongodb-js/connection-info';
 import React, { useCallback } from 'react';
 import {
@@ -13,6 +14,7 @@ import {
   useToast,
   useDarkMode,
   palette,
+  WithStatusMarker,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
@@ -23,6 +25,7 @@ const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
   flex: 'none',
+  height: spacing[3],
 });
 
 const savedConnectionStyles = css({
@@ -64,8 +67,8 @@ const ServerIcon = () => {
   return (
     <svg
       className={iconStyles}
-      width="14"
-      height="14"
+      width={spacing[3]}
+      height={spacing[3]}
       viewBox="0 0 14 14"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -118,6 +121,13 @@ type SavedConnectionProps = {
   onToggleFavoriteConnection(connectionInfo: ConnectionInfo): void;
 };
 
+const useConnectionStatus = (
+  connectionInfo: ConnectionInfo
+): ConnectionStatus => {
+  // polyfill
+  return 'failed';
+};
+
 export function SavedConnection({
   connectionInfo,
   onConnect,
@@ -127,6 +137,7 @@ export function SavedConnection({
   onToggleFavoriteConnection,
 }: SavedConnectionProps): React.ReactElement {
   const { connectionColorToHex } = useConnectionColor();
+  const connectionStatus = useConnectionStatus(connectionInfo);
 
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(
@@ -236,7 +247,7 @@ export function SavedConnection({
       }}
       className={savedConnectionStyles}
     >
-      {icon}{' '}
+      <WithStatusMarker status={connectionStatus}>{icon}</WithStatusMarker>{' '}
       <div className={savedConnectionNameStyles}>
         {getConnectionTitle(connectionInfo)}
       </div>
