@@ -2,8 +2,8 @@ import React from 'react';
 import { Subtitle, spacing, css } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
-  maxHeight: '64px',
-  height: '64px',
+  maxHeight: spacing[6],
+  height: spacing[6],
   padding: spacing[3],
 });
 
