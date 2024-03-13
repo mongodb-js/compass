@@ -119,8 +119,11 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
   const onConnect = useCallback(
     // Placeholder for when we implement it
     // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    async (info: ConnectionInfo) => {
+      await connect(info);
+      setActiveConnectionById(info.id);
+    },
+    [connect, setActiveConnectionById]
   );
 
   const onNewConnectionOpen = useCallback(
