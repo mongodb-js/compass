@@ -8,8 +8,10 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import sinon from 'sinon';
+import {
+  createLoggerAndTelemetry,
+  type LoggerAndTelemetry,
+} from '@mongodb-js/compass-logging';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
@@ -40,12 +42,7 @@ describe('connection tracking', function () {
   let loggerAndTelemetry: LoggerAndTelemetry;
 
   before(async function () {
-    loggerAndTelemetry = {
-      debug: sinon.spy(),
-      log: sinon.spy(),
-      mongoLogId: sinon.spy(),
-      track: sinon.spy(),
-    };
+    loggerAndTelemetry = createLoggerAndTelemetry('TEST-CONNECTION');
     // TODO(COMPASS-7397): Proper dependency injection for logger + telemetry would be nice here!
     trackUsageStatistics =
       defaultPreferencesInstance.getPreferences().trackUsageStatistics;
@@ -660,7 +657,11 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connectionInfo, mockDataService);
+    trackNewConnectionEvent(
+      connectionInfo,
+      mockDataService,
+      loggerAndTelemetry
+    );
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
@@ -685,7 +686,11 @@ describe('connection tracking', function () {
 
     const connectionError = new Error();
 
-    trackConnectionFailedEvent(connectionInfo, connectionError);
+    trackConnectionFailedEvent(
+      connectionInfo,
+      connectionError,
+      loggerAndTelemetry
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -730,7 +735,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService);
+    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
     const [{ properties }] = await trackEvent;
 
     const expected = {
