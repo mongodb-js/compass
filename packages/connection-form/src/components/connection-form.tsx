@@ -115,6 +115,7 @@ type ConnectionFormPropsWithoutPreferences = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
+  onCancel: () => void;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
@@ -301,6 +302,7 @@ function ConnectionForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
+  onCancel,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
@@ -527,10 +529,7 @@ function ConnectionForm({
             <ConnectionFormModalActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
-              onCancel={() => {
-                // TODO: COMPASS-7659
-                // when this becomes a modal
-              }}
+              onCancel={onCancel}
               onSave={() =>
                 void callOnSaveConnectionClickedAndStoreErrors?.(
                   getConnectionInfoToSave()
