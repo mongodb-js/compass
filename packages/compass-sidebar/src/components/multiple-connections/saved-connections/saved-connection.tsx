@@ -20,7 +20,7 @@ import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { ItemSeparator } from '@mongodb-js/compass-components/lib/components/item-action-controls';
-
+import { useConnectionStatus } from '../use-connection-status';
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
@@ -119,13 +119,6 @@ type SavedConnectionProps = {
   onDeleteConnection(connectionInfo: ConnectionInfo): void;
   onDuplicateConnection(connectionInfo: ConnectionInfo): void;
   onToggleFavoriteConnection(connectionInfo: ConnectionInfo): void;
-};
-
-const useConnectionStatus = (
-  connectionInfo: ConnectionInfo
-): ConnectionStatus => {
-  // polyfill
-  return 'failed';
 };
 
 export function SavedConnection({
