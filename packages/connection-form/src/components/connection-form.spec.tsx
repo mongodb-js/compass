@@ -376,6 +376,11 @@ describe('ConnectionForm Component', function () {
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
   });
 
+  it('should not include the help panels', function () {
+    expect(screen.queryByText(/How do I find my/)).to.be.null;
+    expect(screen.queryByText(/How do I format my/)).to.be.null;
+  });
+
   context('when multiple connection management is enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
@@ -392,6 +397,11 @@ describe('ConnectionForm Component', function () {
 
     it('should not show the old favorite button', function () {
       expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
+    });
+
+    it('should include the help panels', function () {
+      expect(screen.getByText(/How do I find my/)).to.be.visible;
+      expect(screen.getByText(/How do I format my/)).to.be.visible;
     });
 
     describe('name input', function () {
