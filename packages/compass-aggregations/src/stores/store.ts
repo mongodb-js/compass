@@ -37,7 +37,6 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import { maxTimeMSChanged } from '../modules/max-time-ms';
-import { DEFAULT_MAX_TIME_MS } from '../constants';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -230,9 +229,7 @@ export function activateAggregationsPlugin(
   store.dispatch(updatePipelinePreview());
 
   store.dispatch(
-    maxTimeMSChanged(
-      preferences.getPreferences().maxTimeMS ?? DEFAULT_MAX_TIME_MS
-    )
+    maxTimeMSChanged(preferences.getPreferences().maxTimeMS || null)
   );
 
   return {

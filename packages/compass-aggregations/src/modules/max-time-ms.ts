@@ -4,7 +4,6 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { isAction } from '../utils/is-action';
 import type { PipelineBuilderThunkAction } from '.';
-import { DEFAULT_MAX_TIME_MS } from '../constants';
 
 export const MAX_TIME_MS_CHANGED =
   'aggregations/max-time-ms/MAX_TIME_MS_CHANGED' as const;
@@ -13,9 +12,9 @@ export interface MaxTimeMSChangedAction {
   maxTimeMS: number;
 }
 
-type State = number;
+type State = number | null;
 
-export const INITIAL_STATE: State = DEFAULT_MAX_TIME_MS;
+export const INITIAL_STATE: State = null;
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   if (isAction<MaxTimeMSChangedAction>(action, MAX_TIME_MS_CHANGED)) {
@@ -33,7 +32,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 };
 
 export const maxTimeMSChanged = (
-  value: number
+  value: number | null
 ): PipelineBuilderThunkAction<void> => {
   return (dispatch, _getState, { preferences }) => {
     const maxTimeMS = capMaxTimeMSAtPreferenceLimit(preferences, value);
