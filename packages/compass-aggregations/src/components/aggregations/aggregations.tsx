@@ -65,7 +65,7 @@ const mapStateToProps = (state: RootState) => ({
   settings: state.settings,
   limit: state.limit,
   largeLimit: state.largeLimit,
-  maxTimeMS: state.maxTimeMS.current,
+  maxTimeMS: state.maxTimeMS,
   savingPipeline: state.savingPipeline,
   updateViewError: state.updateViewError,
   workspace: state.workspace,

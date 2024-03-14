@@ -10,8 +10,13 @@ import { createQueryAutocompleter } from './query-autocompleter';
 
 export const createStageAutocompleter = ({
   stageOperator,
+  utmSource,
+  utmMedium,
   ...options
-}: Pick<CompletionOptions, 'fields' | 'serverVersion'> & {
+}: Pick<
+  CompletionOptions,
+  'fields' | 'serverVersion' | 'utmSource' | 'utmMedium'
+> & {
   stageOperator?: string;
 } = {}): CompletionSource => {
   const queryAutocompleter = createQueryAutocompleter(options);
@@ -36,7 +41,10 @@ export const createStageAutocompleter = ({
     if (completion.meta?.startsWith('expr:')) {
       return {
         ...completion,
-        description: `<p>${aggLink(completion.value)} pipeline operator</p>`,
+        description: `<p>${aggLink(completion.value, {
+          utmSource,
+          utmMedium,
+        })} pipeline operator</p>`,
       };
     }
 

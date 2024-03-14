@@ -108,7 +108,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
     const {
       dataService: { dataService },
       namespace: ns,
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
       settings: { sampleSize },
     } = getState();
 

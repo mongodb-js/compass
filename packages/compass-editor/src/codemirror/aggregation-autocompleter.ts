@@ -36,9 +36,14 @@ function getStageNameForToken(
   return null;
 }
 
-export function createAggregationAutocompleter(
-  options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
-) {
+export function createAggregationAutocompleter({
+  utmSource,
+  utmMedium,
+  ...options
+}: Pick<
+  CompletionOptions,
+  'fields' | 'serverVersion' | 'utmSource' | 'utmMedium'
+> = {}) {
   const stageAutocompletions = completer('', { ...options, meta: ['stage'] });
 
   return createAceCompatAutocompleter({
@@ -46,7 +51,12 @@ export function createAggregationAutocompleter(
       const stageOperator = getStageNameForToken(context.state, token);
 
       if (stageOperator) {
-        return createStageAutocompleter({ stageOperator, ...options })(context);
+        return createStageAutocompleter({
+          stageOperator,
+          utmSource,
+          utmMedium,
+          ...options,
+        })(context);
       }
 
       const isInsideBlock =
@@ -60,8 +70,10 @@ export function createAggregationAutocompleter(
             ...completion,
             ...(completion.description && {
               description:
-                `<p>${aggLink(opName)} pipeline stage</p>` +
-                `<p>${completion.description}</p>`,
+                `<p>${aggLink(opName, {
+                  utmSource,
+                  utmMedium,
+                })} pipeline stage</p>` + `<p>${completion.description}</p>`,
             }),
             ...(completion.snippet && {
               snippet: !isInsideBlock
