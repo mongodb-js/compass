@@ -33,6 +33,7 @@ import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useReducer,
   useRef,
   useState,
@@ -203,9 +204,6 @@ function Home({
 
       await connectionsManager.current.closeConnection(connectionInfo.id);
       dispatch({ type: 'disconnected' });
-      updateTitle(appName);
-      hideCollectionSubMenu();
-      notifyMainProcessOfDisconnect();
     }
 
     function onDisconnect() {
@@ -242,6 +240,16 @@ function Home({
     },
     [appName, connectionInfo]
   );
+
+  const onDataServiceDisconnected = useCallback(() => {
+    if (!isConnected) {
+      updateTitle(appName);
+      hideCollectionSubMenu();
+      notifyMainProcessOfDisconnect();
+    }
+  }, [appName, isConnected]);
+
+  useLayoutEffect(onDataServiceDisconnected);
 
   const electronFileInputBackendRef = useRef(
     remote ? createElectronFileInputBackend(remote) : null
