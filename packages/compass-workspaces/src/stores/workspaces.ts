@@ -104,9 +104,7 @@ const getTabId = () => {
   return new ObjectId().toString();
 };
 
-export const getInitialTabState = (
-  workspace: OpenWorkspaceOptions
-): WorkspaceTab => {
+const getInitialTabState = (workspace: OpenWorkspaceOptions): WorkspaceTab => {
   const tabId = getTabId();
   return { id: tabId, ...workspace } as WorkspaceTab;
 };
@@ -165,7 +163,7 @@ const reducer: Reducer<WorkspacesState> = (
   action
 ) => {
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
-    const newTab = getInitialTabState(action.workspace);
+    const newTab = action.workspace;
     if (action.newTab) {
       return {
         ...state,
@@ -177,7 +175,7 @@ const reducer: Reducer<WorkspacesState> = (
     // If current tab type is the same as the new one we're trying to open and
     // the workspaces are not equal, replace the current tab with the new one
     if (
-      activeTab?.type === action.workspace.type &&
+      activeTab?.type === newTab.type &&
       !isWorkspaceEqual(activeTab, newTab)
     ) {
       const activeTabIndex = getActiveTabIndex(state);
@@ -196,7 +194,7 @@ const reducer: Reducer<WorkspacesState> = (
       // select when opening a tab, it might be that we don't need to update the
       // state at all
       (activeTab ? [activeTab, ...state.tabs] : state.tabs).find((tab) => {
-        return isWorkspaceEqual(tab, action.workspace);
+        return isWorkspaceEqual(tab, newTab);
       });
     if (existingTab) {
       if (existingTab.id !== state.activeTabId) {
@@ -222,19 +220,10 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.OpenTabFromCurrentActive
     )
   ) {
-    const currentActiveTab = getActiveTab(state);
-    let newTab: WorkspaceTab;
-    if (!currentActiveTab) {
-      newTab = getInitialTabState(action.defaultTab);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id: _id, ...tabProps } = currentActiveTab;
-      newTab = getInitialTabState(tabProps);
-    }
     return {
       ...state,
-      tabs: [...state.tabs, newTab],
-      activeTabId: newTab.id,
+      tabs: [...state.tabs, action.tab],
+      activeTabId: action.tab.id,
     };
   }
 
@@ -377,30 +366,10 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.CollectionRenamed
     )
   ) {
-    let tabsRenamed = 0;
-    let newActiveTabId = state.activeTabId;
-    const newTabs = state.tabs.map((tab) => {
-      if (tab.type === 'Collection' && tab.namespace === action.from) {
-        tabsRenamed++;
-        const { id, ...workspace } = tab;
-        const newTab = getInitialTabState({
-          ...workspace,
-          namespace: action.to,
-        });
-        if (id === state.activeTabId) {
-          newActiveTabId = newTab.id;
-        }
-        return newTab;
-      }
-      return tab;
-    });
-    if (tabsRenamed === 0) {
-      return state;
-    }
     return {
       ...state,
-      tabs: newTabs,
-      activeTabId: newActiveTabId,
+      tabs: action.tabs,
+      activeTabId: action.activeTabId,
     };
   }
 
@@ -470,7 +439,7 @@ export type OpenWorkspaceOptions =
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
-  workspace: OpenWorkspaceOptions;
+  workspace: WorkspaceTab;
   newTab?: boolean;
 };
 
@@ -528,7 +497,7 @@ export const openWorkspace = (
     }
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
-      workspace: workspaceOptions,
+      workspace: dispatch(setupNewTab(workspaceOptions)),
       newTab: !!tabOptions?.newTab,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
@@ -565,15 +534,26 @@ export const selectNextTab = (): SelectNextTabAction => {
 
 type OpenTabFromCurrentActiveAction = {
   type: WorkspacesActions.OpenTabFromCurrentActive;
-  defaultTab: OpenWorkspaceOptions;
+  tab: WorkspaceTab;
 };
 
 export const openTabFromCurrent = (
   defaultTab?: OpenWorkspaceOptions | null
-): OpenTabFromCurrentActiveAction => {
-  return {
-    type: WorkspacesActions.OpenTabFromCurrentActive,
-    defaultTab: defaultTab ?? { type: 'My Queries' },
+): WorkspacesThunkAction<void, OpenTabFromCurrentActiveAction> => {
+  return (dispatch, getState) => {
+    let newTab: WorkspaceTab;
+    const currentActiveTab = getActiveTab(getState());
+    if (currentActiveTab) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, ...tabProps } = currentActiveTab;
+      newTab = dispatch(setupNewTab(tabProps));
+    } else {
+      newTab = dispatch(setupNewTab(defaultTab ?? { type: 'My Queries' }));
+    }
+    dispatch({
+      type: WorkspacesActions.OpenTabFromCurrentActive,
+      tab: newTab,
+    });
   };
 };
 
@@ -591,8 +571,8 @@ export const closeTab = (
 
 type CollectionRenamedAction = {
   type: WorkspacesActions.CollectionRenamed;
-  from: string;
-  to: string;
+  tabs: WorkspaceTab[];
+  activeTabId: string | null;
 };
 
 export const collectionRenamed = (
@@ -600,9 +580,36 @@ export const collectionRenamed = (
   to: string
 ): WorkspacesThunkAction<void, CollectionRenamedAction> => {
   return (dispatch, getState) => {
-    const oldTabs = getState().tabs;
-    dispatch({ type: WorkspacesActions.CollectionRenamed, from, to });
-    cleanupRemovedTabs(oldTabs, getState().tabs);
+    const { tabs, activeTabId } = getState();
+
+    let tabsRenamed = 0;
+    let newActiveTabId = activeTabId;
+    const newTabs = tabs.map((tab) => {
+      if (tab.type === 'Collection' && tab.namespace === from) {
+        tabsRenamed++;
+        const { id, ...workspace } = tab;
+        const newTab = dispatch(
+          setupNewTab({
+            ...workspace,
+            namespace: to,
+          })
+        );
+        if (id === activeTabId) {
+          newActiveTabId = newTab.id;
+        }
+        return newTab;
+      }
+      return tab;
+    });
+    if (tabsRenamed === 0) {
+      return;
+    }
+    dispatch({
+      type: WorkspacesActions.CollectionRenamed,
+      tabs: newTabs,
+      activeTabId: newActiveTabId,
+    });
+    cleanupRemovedTabs(tabs, getState().tabs);
   };
 };
 
@@ -663,3 +670,22 @@ export const collectionSubtabSelected = (
 };
 
 export default reducer;
+
+function setupNewTab(
+  opts: OpenWorkspaceOptions
+): WorkspacesThunkAction<WorkspaceTab> {
+  return (dispatch) => {
+    const tab = getInitialTabState(opts);
+    const localAppRegistry = getLocalAppRegistryForTab(tab.id);
+    localAppRegistry.on('open-create-index-modal', () => {
+      dispatch(collectionSubtabSelected(tab.id, 'Indexes'));
+    });
+    localAppRegistry.on('open-create-search-index-modal', () => {
+      dispatch(collectionSubtabSelected(tab.id, 'Indexes'));
+    });
+    localAppRegistry.on('generate-aggregation-from-query', () => {
+      dispatch(collectionSubtabSelected(tab.id, 'Aggregations'));
+    });
+    return tab;
+  };
+}
