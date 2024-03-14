@@ -67,6 +67,8 @@ const formSettingsStyles = css({
   maxHeight: '530px',
   overflow: 'auto',
   scrollbarGutter: 'stable',
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
 });
 
 const formFooterStyles = css({
