@@ -429,7 +429,7 @@ export function useConnections({
         connectionInfo =
           typeof getAutoConnectInfo === 'function'
             ? await getAutoConnectInfo()
-            : getAutoConnectInfo;
+            : undefined;
         if (connectionInfo) {
           log.info(
             mongoLogId(1_001_000_160),

@@ -108,6 +108,33 @@ describe('use-connections hook', function () {
 
   afterEach(cleanup);
 
+  describe('#onMount', function () {
+    const getAutoConnectInfo = () =>
+      Promise.resolve({
+        id: 'new',
+        connectionOptions: {
+          connectionString: 'mongodb://new-recent',
+        },
+      });
+    it('allows connecting to a dynamically provided connection info object', async function () {
+      const onConnected = sinon.spy();
+      renderHookWithContext(() =>
+        useConnections({
+          onConnected,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
+          appName: 'Test App Name',
+          getAutoConnectInfo,
+        })
+      );
+
+      await waitFor(() => {
+        expect(onConnected).to.have.been.called;
+      });
+      expect(saveSpy).to.not.have.been.called;
+    });
+  });
+
   describe('#loadConnections', function () {
     it('loads the connections from the connection storage', async function () {
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
@@ -270,7 +297,6 @@ describe('use-connections hook', function () {
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          connectionRepository,
           appName: 'Test App Name',
         })
       );
