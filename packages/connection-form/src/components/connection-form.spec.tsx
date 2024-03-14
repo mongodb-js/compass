@@ -382,7 +382,9 @@ describe('ConnectionForm Component', function () {
   });
 
   context('when multiple connection management is enabled', function () {
+    let onCancel: Sinon.SinonSpy;
     beforeEach(async function () {
+      onCancel = Sinon.spy();
       await preferences.savePreferences({
         enableNewMultipleConnectionSystem: true,
       });
@@ -392,6 +394,7 @@ describe('ConnectionForm Component', function () {
           protectConnectionStringsForNewConnections: false,
           protectConnectionStrings: false,
         },
+        onCancel,
       });
     });
 
@@ -402,6 +405,17 @@ describe('ConnectionForm Component', function () {
     it('should include the help panels', function () {
       expect(screen.getByText(/How do I find my/)).to.be.visible;
       expect(screen.getByText(/How do I format my/)).to.be.visible;
+    });
+
+    it('should show a Cancel button', function () {
+      screen.debug(screen.getByTestId('cancel-button'));
+      const button = screen.queryByRole('button', { name: 'Cancel' });
+
+      expect(button).to.be.visible;
+
+      button?.click();
+
+      expect(onCancel).to.have.been.called;
     });
 
     describe('name input', function () {
