@@ -9,6 +9,7 @@ import type {
   ReauthenticationHandler,
   connect,
 } from 'mongodb-data-service';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -73,6 +74,8 @@ const connectionStatusTransitions: ConnectionStatusTransitions = {
   },
 };
 
+export const CONNECTION_CANCELED_ERR = 'Connection attempt was canceled';
+
 export class ConnectionsManager extends EventEmitter {
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
@@ -109,14 +112,16 @@ export class ConnectionsManager extends EventEmitter {
    * @param connectionInfo The adjusted ConnectionInfo object that already has
    * parameters such as appName.
    */
-  async connect(connectionInfo: ConnectionInfo): Promise<void> {
+  async connect(connectionInfo: ConnectionInfo): Promise<DataService> {
     try {
+      const existingDataService = this.getDataServiceForConnection(
+        connectionInfo.id
+      );
       if (
-        [ConnectionStatus.Connecting, ConnectionStatus.Connected].includes(
-          this.statusOf(connectionInfo.id)
-        )
+        existingDataService &&
+        this.statusOf(connectionInfo.id) === ConnectionStatus.Connected
       ) {
-        return;
+        return existingDataService;
       }
 
       this.updateAndNotifyConnectionStatus(
@@ -135,7 +140,7 @@ export class ConnectionsManager extends EventEmitter {
       );
 
       if (!dataService || connectionAttempt.isClosed()) {
-        return;
+        throw new Error(CONNECTION_CANCELED_ERR);
       }
 
       dataService.addReauthenticationHandler(this.reAuthenticationHandler);
@@ -147,20 +152,30 @@ export class ConnectionsManager extends EventEmitter {
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
         [connectionInfo.id, dataService]
       );
+      return dataService;
     } catch (error) {
-      this.updateAndNotifyConnectionStatus(
-        connectionInfo.id,
-        ConnectionsManagerEvents.ConnectionAttemptFailed,
-        [connectionInfo.id, error]
-      );
+      if ((error as Error).message === CONNECTION_CANCELED_ERR) {
+        this.updateAndNotifyConnectionStatus(
+          connectionInfo.id,
+          ConnectionsManagerEvents.ConnectionAttemptCancelled,
+          [connectionInfo.id]
+        );
+      } else {
+        this.updateAndNotifyConnectionStatus(
+          connectionInfo.id,
+          ConnectionsManagerEvents.ConnectionAttemptFailed,
+          [connectionInfo.id, error]
+        );
+      }
       throw error;
     }
   }
 
   async closeConnection(connectionInfoId: ConnectionInfoId): Promise<void> {
-    if (this.statusOf(connectionInfoId) === ConnectionStatus.Connecting) {
+    const currentStatus = this.statusOf(connectionInfoId);
+    if (currentStatus === ConnectionStatus.Connecting) {
       this.cancelConnectionAttempt(connectionInfoId);
-    } else if (this.statusOf(connectionInfoId) === ConnectionStatus.Connected) {
+    } else if (currentStatus === ConnectionStatus.Connected) {
       const dataService = this.dataServices.get(connectionInfoId);
       if (dataService) {
         await dataService.disconnect();
@@ -172,8 +187,11 @@ export class ConnectionsManager extends EventEmitter {
         );
       }
     } else {
-      throw new Error(
-        'Attempting to close a connection that is neither being connected to, nor connected'
+      this.logger.warn(
+        'ConnectionsManager',
+        mongoLogId(1_001_000_304),
+        'closeConnection',
+        `Attempting to close a connection that is neither being connected to, nor connected but the status is ${currentStatus}`
       );
     }
   }
@@ -218,11 +236,6 @@ export class ConnectionsManager extends EventEmitter {
     if (connectionAttempt) {
       connectionAttempt.cancelConnectionAttempt();
       this.connectionAttempts.delete(connectionInfoId);
-      this.updateAndNotifyConnectionStatus(
-        connectionInfoId,
-        ConnectionsManagerEvents.ConnectionAttemptCancelled,
-        [connectionInfoId]
-      );
     }
   }
 
@@ -234,7 +247,6 @@ export class ConnectionsManager extends EventEmitter {
     const currentStatus = this.statusOf(connectionInfoId);
     const nextStatus =
       connectionStatusTransitions[connectionEvent]?.[currentStatus];
-
     if (nextStatus === undefined) {
       throw new Error(
         `Unexpected state for ConnectionInfoId ${connectionInfoId}. Encountered ${connectionEvent} with currentStatus=${currentStatus}`

@@ -1,6 +1,9 @@
 import { type Dispatch, useCallback, useEffect, useReducer } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
-import { useConnectionsManagerContext, ConnectionStatus } from '../provider';
+import {
+  useConnectionsManagerContext,
+  CONNECTION_CANCELED_ERR,
+} from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
@@ -529,18 +532,9 @@ export function useConnections({
         'Initiating connection attempt'
       );
 
-      await connectionsManager.connect(adjustedConnectionInfoForConnection);
-      const newConnectionDataService =
-        connectionsManager.getDataServiceForConnection(connectionInfo.id);
-      if (
-        !newConnectionDataService ||
-        connectionsManager.statusOf(connectionInfo.id) !==
-          ConnectionStatus.Connected
-      ) {
-        // The connection attempt was either cancelled or failed
-        return;
-      }
-
+      const newConnectionDataService = await connectionsManager.connect(
+        adjustedConnectionInfoForConnection
+      );
       dispatch({
         type: 'connection-attempt-succeeded',
       });
@@ -557,6 +551,13 @@ export function useConnections({
         connectionInfo
       );
     } catch (error) {
+      if ((error as Error).message === CONNECTION_CANCELED_ERR) {
+        dispatch({
+          type: 'cancel-connection-attempt',
+        });
+        return;
+      }
+
       if (connectionInfo) {
         trackConnectionFailedEvent(connectionInfo, error as Error);
       }
@@ -588,9 +589,6 @@ export function useConnections({
       );
       try {
         await connectionsManager.closeConnection(connectionInfoId);
-        dispatch({
-          type: 'cancel-connection-attempt',
-        });
       } catch (error) {
         log.error(
           mongoLogId(1_001_000_303),

@@ -344,7 +344,12 @@ describe('Connections Component', function () {
               return new Promise((resolve) => {
                 // On first call we want this attempt to be cancelled before
                 // this promise resolves.
-                setTimeout(resolve, 20);
+                setTimeout(() => {
+                  resolve({
+                    mockDataService: 'yes',
+                    addReauthenticationHandler() {},
+                  });
+                }, 500);
               });
             }
             return Promise.resolve({

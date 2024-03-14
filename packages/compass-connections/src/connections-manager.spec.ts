@@ -8,10 +8,43 @@ import {
   ConnectionsManagerEvents,
 } from './connections-manager';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
   return new ConnectionsManager(log.unbound, () => {}, mockTestConnectFn);
+}
+
+function canceledPromiseSetup(
+  connectionsToBeConnected: ConnectionInfo[],
+  mockTestConnectFn: typeof connect
+) {
+  let resolveCanceledPromise;
+  const canceledPromise = new Promise((resolve) => {
+    resolveCanceledPromise = resolve;
+  });
+
+  const connectionsManager = new ConnectionsManager(
+    createNoopLoggerAndTelemetry().log.unbound,
+    () => {},
+    mockTestConnectFn
+  );
+
+  const originalConnectFn: typeof connectionsManager.connect =
+    connectionsManager.connect.bind(connectionsManager);
+  let failures = 0;
+  sinon.stub(connectionsManager, 'connect').callsFake((info) => {
+    return originalConnectFn(info).finally(() => {
+      if (++failures === connectionsToBeConnected.length) {
+        resolveCanceledPromise();
+      }
+    });
+  });
+
+  return {
+    canceledPromise,
+    connectionsManager,
+  };
 }
 
 describe('ConnectionsManager', function () {
@@ -42,7 +75,7 @@ describe('ConnectionsManager', function () {
   let mockConnectFn: typeof connect;
 
   beforeEach(function () {
-    mockConnectFn = ({ connectionOptions }) => {
+    mockConnectFn = sinon.stub().callsFake(({ connectionOptions }) => {
       if (
         connectionOptions.connectionString ===
         connectedConnectionInfo1.connectionOptions.connectionString
@@ -51,7 +84,7 @@ describe('ConnectionsManager', function () {
       } else {
         return Promise.resolve(connectedDataService2);
       }
-    };
+    });
     connectionsManager = getConnectionsManager(mockConnectFn);
   });
 
@@ -119,7 +152,21 @@ describe('ConnectionsManager', function () {
       });
 
       context('when all connection attempts are cancelled', function () {
-        it('should emit connection-attempt-cancelled for all attempted connections', function () {
+        let canceledPromise;
+        beforeEach(function () {
+          const connectionsToBeConnected = [
+            connectedConnectionInfo1,
+            connectedConnectionInfo2,
+          ];
+          const {
+            canceledPromise: setupCanceledPromise,
+            connectionsManager: setupConnectionsManager,
+          } = canceledPromiseSetup(connectionsToBeConnected, mockConnectFn);
+          canceledPromise = setupCanceledPromise;
+          connectionsManager = setupConnectionsManager;
+        });
+
+        it('should emit connection-attempt-cancelled for all attempted connections', async function () {
           const onConnectionAttemptCancelled = sinon.stub();
           connectionsManager.on(
             ConnectionsManagerEvents.ConnectionAttemptCancelled,
@@ -128,8 +175,11 @@ describe('ConnectionsManager', function () {
           void Promise.all([
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
-          ]);
+          ]).catch(() => {
+            // noop
+          });
           connectionsManager.cancelAllConnectionAttempts();
+          await canceledPromise;
           expect(onConnectionAttemptCancelled).to.be.calledTwice;
           expect(onConnectionAttemptCancelled.getCall(0).args).to.deep.equal([
             connectedConnectionInfo1.id,
@@ -139,12 +189,15 @@ describe('ConnectionsManager', function () {
           ]);
         });
 
-        it('#statusOf should return disconnected', function () {
+        it('#statusOf should return disconnected', async function () {
           void Promise.all([
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
-          ]);
+          ]).catch(() => {
+            // noop
+          });
           connectionsManager.cancelAllConnectionAttempts();
+          await canceledPromise;
           expect(
             connectionsManager.statusOf(connectedConnectionInfo1.id)
           ).to.equal(ConnectionStatus.Disconnected);
@@ -153,12 +206,15 @@ describe('ConnectionsManager', function () {
           ).to.equal(ConnectionStatus.Disconnected);
         });
 
-        it('#getDataServiceForConnection should not return anything for connecting connection', function () {
+        it('#getDataServiceForConnection should not return anything for canceled connections', async function () {
           void Promise.all([
             connectionsManager.connect(connectedConnectionInfo1),
             connectionsManager.connect(connectedConnectionInfo2),
-          ]);
+          ]).catch(() => {
+            // noop
+          });
           connectionsManager.cancelAllConnectionAttempts();
+          await canceledPromise;
           expect(
             connectionsManager.getDataServiceForConnection(
               connectedConnectionInfo1.id
@@ -175,31 +231,50 @@ describe('ConnectionsManager', function () {
   );
 
   context('when a connection attempt is cancelled', function () {
-    it('should emit connection attempt cancelled event', function () {
+    let canceledPromise;
+    beforeEach(function () {
+      const connectionsToBeConnected = [connectedConnectionInfo1];
+      const {
+        canceledPromise: setupCanceledPromise,
+        connectionsManager: setupConnectionsManager,
+      } = canceledPromiseSetup(connectionsToBeConnected, mockConnectFn);
+      canceledPromise = setupCanceledPromise;
+      connectionsManager = setupConnectionsManager;
+    });
+    it('should emit connection attempt cancelled event', async function () {
       const onConnectionCancelled = sinon.stub();
       connectionsManager.on(
         ConnectionsManagerEvents.ConnectionAttemptCancelled,
         onConnectionCancelled
       );
 
-      void connectionsManager.connect(connectedConnectionInfo1);
+      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
+        //
+      });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
+      await canceledPromise;
       expect(onConnectionCancelled).to.be.calledWithExactly(
         connectedConnectionInfo1.id
       );
     });
 
-    it('#statusOf should return ConnectionStatus.Disconnected', function () {
-      void connectionsManager.connect(connectedConnectionInfo1);
+    it('#statusOf should return ConnectionStatus.Disconnected', async function () {
+      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
+        //
+      });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
+      await canceledPromise;
       expect(connectionsManager.statusOf(connectedConnectionInfo1.id)).to.equal(
         ConnectionStatus.Disconnected
       );
     });
 
-    it('#getDataServiceForConnection should not return anything for cancelled connection attempt', function () {
-      void connectionsManager.connect(connectedConnectionInfo1);
+    it('#getDataServiceForConnection should not return anything for cancelled connection attempt', async function () {
+      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
+        //
+      });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
+      await canceledPromise;
       expect(
         connectionsManager.getDataServiceForConnection(
           connectedConnectionInfo1.id
@@ -210,18 +285,33 @@ describe('ConnectionsManager', function () {
     context(
       'when attempting to connect to a cancelled connection',
       function () {
-        it('should be able to connect', async function () {
-          mockConnectFn = () => Promise.resolve(connectedDataService1);
-          connectionsManager = getConnectionsManager(mockConnectFn);
+        let canceledPromise;
+        beforeEach(function () {
+          const connectionsToBeConnected = [connectedConnectionInfo1];
+          const {
+            canceledPromise: setupCanceledPromise,
+            connectionsManager: setupConnectionsManager,
+          } = canceledPromiseSetup(connectionsToBeConnected, () =>
+            Promise.resolve(connectedDataService1)
+          );
+          canceledPromise = setupCanceledPromise;
+          connectionsManager = setupConnectionsManager;
+        });
 
+        it('should be able to connect', async function () {
           const onConnectionCancelled = sinon.stub();
           connectionsManager.on(
             ConnectionsManagerEvents.ConnectionAttemptCancelled,
             onConnectionCancelled
           );
 
-          void connectionsManager.connect(connectedConnectionInfo1);
+          void connectionsManager
+            .connect(connectedConnectionInfo1)
+            .catch(() => {
+              //
+            });
           await connectionsManager.closeConnection(connectedConnectionInfo1.id);
+          await canceledPromise;
           expect(onConnectionCancelled).to.be.calledWithExactly(
             connectedConnectionInfo1.id
           );
@@ -291,6 +381,12 @@ describe('ConnectionsManager', function () {
             connectedConnectionInfo2.id
           )
         ).to.deep.equal(connectedDataService2);
+      });
+
+      it('should return the connected DataService for an already connected connection', async function () {
+        await connectionsManager.connect(connectedConnectionInfo1);
+        await connectionsManager.connect(connectedConnectionInfo1);
+        expect(mockConnectFn).to.be.calledOnce;
       });
     }
   );
