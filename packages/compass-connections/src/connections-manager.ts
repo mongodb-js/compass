@@ -6,6 +6,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   ConnectionAttempt,
   DataService,
+  ReauthenticationHandler,
   connect,
 } from 'mongodb-data-service';
 
@@ -79,6 +80,7 @@ export class ConnectionsManager extends EventEmitter {
 
   constructor(
     private readonly logger: LoggerAndTelemetry['log']['unbound'],
+    private readonly reAuthenticationHandler: ReauthenticationHandler,
     private readonly __TEST_CONNECT_FN?: ConnectFn
   ) {
     super();
@@ -135,6 +137,8 @@ export class ConnectionsManager extends EventEmitter {
       if (!dataService || connectionAttempt.isClosed()) {
         return;
       }
+
+      dataService.addReauthenticationHandler(this.reAuthenticationHandler);
 
       this.connectionAttempts.delete(connectionInfo.id);
       this.dataServices.set(connectionInfo.id, dataService);

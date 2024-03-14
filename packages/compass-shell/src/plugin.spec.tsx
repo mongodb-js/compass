@@ -12,6 +12,7 @@ import {
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 // Wait until a component is present that is rendered in a limited number
 // of microtask queue iterations. In particular, this does *not* wait for the
@@ -43,7 +44,10 @@ describe('CompassShellPlugin', function () {
     getMongoClientConnectionOptions() {},
   } as any;
 
-  const connectionsManager = new ConnectionsManager();
+  const connectionsManager = new ConnectionsManager(
+    createNoopLoggerAndTelemetry().log.unbound,
+    () => {}
+  );
   sinon.replace(connectionsManager, 'getDataServiceForConnection', () => {
     return fakeDataService;
   });

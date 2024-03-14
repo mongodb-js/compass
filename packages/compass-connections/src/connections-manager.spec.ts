@@ -11,13 +11,14 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
-  return new ConnectionsManager(log.unbound, mockTestConnectFn);
+  return new ConnectionsManager(log.unbound, () => {}, mockTestConnectFn);
 }
 
 describe('ConnectionsManager', function () {
   const connectedDataService1 = {
     id: 1,
     disconnect() {},
+    addReauthenticationHandler() {},
   } as unknown as DataService;
   const connectedConnectionInfo1 = {
     id: '1',
@@ -29,6 +30,7 @@ describe('ConnectionsManager', function () {
   const connectedDataService2 = {
     id: 2,
     disconnect() {},
+    addReauthenticationHandler() {},
   } as unknown as DataService;
   const connectedConnectionInfo2 = {
     id: '2',
@@ -357,6 +359,7 @@ describe('ConnectionsManager', function () {
     const activeDataService = {
       id: '4',
       disconnect() {},
+      addReauthenticationHandler() {},
     } as unknown as DataService;
     beforeEach(function () {
       mockConnectFn = () => Promise.resolve(activeDataService);

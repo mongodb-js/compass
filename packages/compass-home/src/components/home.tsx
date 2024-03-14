@@ -12,6 +12,7 @@ import {
   ButtonVariant,
   Button,
   spacing,
+  showConfirmation,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
@@ -29,7 +30,10 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type { DataService } from 'mongodb-data-service';
+import type {
+  DataService,
+  ReauthenticationHandler,
+} from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
@@ -181,8 +185,24 @@ function Home({
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
+
+  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
+    const confirmed = await showConfirmation({
+      title: 'Authentication expired',
+      description:
+        'You need to re-authenticate to the database in order to continue.',
+    });
+    if (!confirmed) {
+      throw new Error('Reauthentication declined by user');
+    }
+  });
+
   const connectionsManager = useRef(
-    new ConnectionsManager(log.unbound, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN)
+    new ConnectionsManager(
+      log.unbound,
+      reauthenticationHandler.current,
+      __TEST_MONGODB_DATA_SERVICE_CONNECT_FN
+    )
   );
 
   const [

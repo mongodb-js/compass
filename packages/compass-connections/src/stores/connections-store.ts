@@ -1,15 +1,5 @@
-import {
-  type Dispatch,
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-} from 'react';
-import type {
-  DataService,
-  ReauthenticationHandler,
-  connect,
-} from 'mongodb-data-service';
+import { type Dispatch, useCallback, useEffect, useReducer } from 'react';
+import type { DataService, connect } from 'mongodb-data-service';
 import { useConnectionsManagerContext, ConnectionStatus } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
@@ -28,11 +18,7 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import {
-  showConfirmation,
-  useEffectOnChange,
-  useToast,
-} from '@mongodb-js/compass-components';
+import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { UserPreferences } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -300,17 +286,6 @@ export function useConnections({
   );
   const { activeConnectionId, recentConnections, favoriteConnections } = state;
 
-  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
-    const confirmed = await showConfirmation({
-      title: 'Authentication expired',
-      description:
-        'You need to re-authenticate to the database in order to continue.',
-    });
-    if (!confirmed) {
-      throw new Error('Reauthentication declined by user');
-    }
-  });
-
   async function saveConnectionInfo(
     connectionInfo: PartialConnectionInfo
   ): Promise<boolean> {
@@ -374,7 +349,6 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        dataService.addReauthenticationHandler(reauthenticationHandler.current);
         onConnected(connectionInfo);
 
         if (!shouldSaveConnectionInfo) return;

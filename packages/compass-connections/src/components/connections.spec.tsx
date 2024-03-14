@@ -32,7 +32,7 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
-  return new ConnectionsManager(log.unbound, mockTestConnectFn);
+  return new ConnectionsManager(log.unbound, () => {}, mockTestConnectFn);
 }
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
