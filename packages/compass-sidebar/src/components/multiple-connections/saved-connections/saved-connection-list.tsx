@@ -8,6 +8,7 @@ import {
   IconButton,
   css,
   spacing,
+  palette,
 } from '@mongodb-js/compass-components';
 import { ButtonVariant } from '@mongodb-js/compass-components';
 
@@ -18,6 +19,8 @@ const savedConnectionListStyles = css({
   display: 'flex',
   flexDirection: 'column',
   marginTop: 'auto',
+  paddingTop: spacing[2],
+  borderTop: `1px solid ${palette.gray.light2}`,
 });
 
 const savedConnectionListPaddingStyles = css({
