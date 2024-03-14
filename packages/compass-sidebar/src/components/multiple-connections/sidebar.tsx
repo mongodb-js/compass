@@ -74,7 +74,7 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
 
   const onNewConnectionConnect = useCallback(
     (connectionInfo) => {
-      connect({
+      void connect({
         ...cloneDeep(connectionInfo),
       }).then(() => setIsConnectionFormOpen(false));
     },
