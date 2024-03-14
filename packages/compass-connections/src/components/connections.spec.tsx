@@ -404,6 +404,8 @@ describe('Connections Component', function () {
                   <ToastArea>
                     <Connections
                       onConnected={onConnectedSpy}
+                      onConnectionFailed={onConnectionFailedSpy}
+                      onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                       appName="Test App Name"
                     />
                   </ToastArea>
