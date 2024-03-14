@@ -29,23 +29,89 @@ const noop_tmp = (() => {}) as any;
 // Having props here is useful as a placeholder and we will fix it with the first props.
 // eslint-disable-next-line
 export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
+  const { openToast, closeToast } = useToast('multiple-connection-status');
+  let cancelCurrentConnection: (() => void) | undefined = undefined;
+
+  const onEditConnection = useCallback(
+    // Placeholder for when we implement it
+    // eslint-disable-next-line
+    (info: ConnectionInfo) => {
+      console.log('onEditConnection', info);
+    },
+    []
+  );
+
+  const onConnected = useCallback(
+    (info: ConnectionInfo) => {
+      closeToast('connection-status');
+    },
+    [closeToast]
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (info: ConnectionInfo) => {
+      const cancelAndCloseToast = () => {
+        cancelCurrentConnection?.();
+        closeToast('connection-status');
+      };
+
+      openToast('connection-status', {
+        title: `Connecting to ${getConnectionTitle(info)}`,
+        dismissible: true,
+        variant: 'progress',
+        actionElement: (
+          <Link hideExternalIcon={true} onClick={cancelAndCloseToast}>
+            CANCEL
+          </Link>
+        ),
+      });
+    },
+    [openToast, closeToast, cancelCurrentConnection]
+  );
+
+  const onConnectionFailed = useCallback(
+    (info: ConnectionInfo, error: Error) => {
+      const reviewAndCloseToast = () => {
+        closeToast('connection-status');
+        onEditConnection(info);
+      };
+
+      openToast('connection-status', {
+        title: `${error.message}`,
+        description: (
+          <ConnectionErrorToastBody
+            info={info}
+            onReview={reviewAndCloseToast}
+          />
+        ),
+        variant: 'warning',
+        timeout: 5000,
+      });
+    },
+    [openToast, closeToast, onEditConnection]
+  );
+
   const {
+    setActiveConnectionById,
     connect,
     favoriteConnections,
     recentConnections,
     removeConnection,
     saveConnection,
     state,
+    cancelConnectionAttempt,
+    saveConnection,
   } = useConnections({
-    onConnected: noop_tmp, // TODO: COMPASS-7710,
-    onConnectionAttemptStarted: noop_tmp,
-    onConnectionFailed: noop_tmp,
-    appName: '', // TODO: COMPASS-7710
+    onConnected: onConnected, // TODO: COMPASS-7710,
+    onConnectionAttemptStarted: onConnectionAttemptStarted,
+    onConnectionFailed: onConnectionFailed,
+    isConnected: false, // TODO: COMPASS-7710
+    connectFn: undefined, // TODO: COMPASS-7710
+    appName: 'Compass', // TODO: COMPASS-7710
     getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
   });
 
-  const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
-    state;
+  cancelCurrentConnection = cancelConnectionAttempt;
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
@@ -111,8 +177,13 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
   const onToggleFavoriteConnection = useCallback(
     // Placeholder for when we implement it
     // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    (info: ConnectionInfo) => {
+      info.savedConnectionType =
+        info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';
+
+      void saveConnection(info);
+    },
+    [saveConnection]
   );
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
