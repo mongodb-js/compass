@@ -26,7 +26,6 @@ const disabledOverlayStyles = css({
 
 const connectionTabsContainer = css({
   position: 'relative',
-  paddingLeft: spacing[2],
 });
 
 function AdvancedConnectionOptions({
