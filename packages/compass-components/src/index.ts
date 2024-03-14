@@ -189,3 +189,8 @@ export { PerformanceSignals } from './components/signals';
 export { ToastBody } from './components/toast-body';
 export { CompassComponentsProvider } from './components/compass-components-provider';
 export { type BreadcrumbItem, Breadcrumbs } from './components/breadcrumb';
+export {
+  urlWithUtmParams,
+  RequiredURLSearchParamsProvider,
+  useRequiredURLSearchParams,
+} from './components/links/link';

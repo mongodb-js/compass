@@ -453,6 +453,8 @@ function ThemedHome(
           });
         }
       }}
+      utmSource="compass"
+      utmMedium="product"
       onSignalMount={(id) => {
         track('Signal Shown', { id });
       }}
