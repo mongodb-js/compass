@@ -44,6 +44,11 @@ import React, {
 } from 'react';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
+import {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent,
+} from '../modules/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -184,7 +189,7 @@ function Home({
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
-  const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
+  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
   const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
     const confirmed = await showConfirmation({
@@ -199,7 +204,7 @@ function Home({
 
   const connectionsManager = useRef(
     new ConnectionsManager(
-      log.unbound,
+      loggerAndTelemetry.log.unbound,
       reauthenticationHandler.current,
       __TEST_MONGODB_DATA_SERVICE_CONNECT_FN
     )
@@ -212,9 +217,27 @@ function Home({
     ...initialState,
   });
 
-  const onConnected = useCallback((connectionInfo: ConnectionInfo) => {
-    dispatch({ type: 'connected', connectionInfo });
-  }, []);
+  const onConnected = useCallback(
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+      dispatch({ type: 'connected', connectionInfo: connectionInfo });
+    },
+    [loggerAndTelemetry]
+  );
+
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo, error: Error) => {
+      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
+    },
+    [loggerAndTelemetry]
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
+    },
+    [loggerAndTelemetry]
+  );
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -406,6 +429,8 @@ function Home({
                 <Connections
                   appRegistry={appRegistry}
                   onConnected={onConnected}
+                  onConnectionFailed={onConnectionFailed}
+                  onConnectionAttemptStarted={onConnectionAttemptStarted}
                   appName={appName}
                   getAutoConnectInfo={
                     hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
@@ -447,6 +472,8 @@ function ThemedHome(
           });
         }
       }}
+      utmSource="compass"
+      utmMedium="product"
       onSignalMount={(id) => {
         track('Signal Shown', { id });
       }}

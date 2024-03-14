@@ -225,6 +225,7 @@ const CompassWeb = ({
       enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: false,
+      enableNewMultipleConnectionSystem: false,
       enableHackoladeBanner: false,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
@@ -276,13 +277,18 @@ const CompassWeb = ({
     throw connectionError;
   }
 
+  const linkProps = {
+    utmSource: 'DE',
+    utmMedium: 'product',
+  };
+
   if (
     !connected ||
     connectionsManager.current.statusOf(connectionInfo.id) !==
       ConnectionStatus.Connected
   ) {
     return (
-      <CompassComponentsProvider darkMode={darkMode}>
+      <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
         <LoadingScreen
           connectionString={connectionInfo.connectionOptions.connectionString}
         ></LoadingScreen>
@@ -290,7 +296,7 @@ const CompassWeb = ({
     );
   }
   return (
-    <CompassComponentsProvider darkMode={darkMode}>
+    <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">

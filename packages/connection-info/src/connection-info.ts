@@ -1,6 +1,6 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 
-interface AtlasClusterMetadata {
+export interface AtlasClusterMetadata {
   orgId: string;
   /**
    * Project ID that uniquely identifies an Atlas project. Legacy name is "groupId"
@@ -10,7 +10,7 @@ interface AtlasClusterMetadata {
   projectId: string;
   clusterId: string;
   clusterName: string;
-  clusterType: string;
+  clusterType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
   regionalBaseUrl: string;
 }
 

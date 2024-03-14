@@ -14,11 +14,6 @@ import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/p
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  trackConnectionAttemptEvent,
-  trackNewConnectionEvent,
-  trackConnectionFailedEvent,
-} from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
@@ -252,10 +247,17 @@ async function loadConnections(
 
 export function useConnections({
   onConnected,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   appName,
   getAutoConnectInfo,
 }: {
-  onConnected: (connectionInfo: ConnectionInfo) => void;
+  onConnected: (
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) => void;
+  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   appName: string;
 }): {
@@ -352,7 +354,7 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected(connectionInfo);
+        onConnected(connectionInfo, dataService);
 
         if (!shouldSaveConnectionInfo) return;
 
@@ -442,7 +444,7 @@ export function useConnections({
         }
       } catch (error) {
         if (connectionInfo) {
-          trackConnectionFailedEvent(connectionInfo, error as Error);
+          onConnectionFailed(connectionInfo, error as Error);
         }
         log.error(
           mongoLogId(1_001_000_290),
@@ -524,7 +526,7 @@ export function useConnections({
         }`,
       });
 
-      trackConnectionAttemptEvent(connectionInfo);
+      onConnectionAttemptStarted(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
       log.info(
         mongoLogId(1001000004),
@@ -545,7 +547,6 @@ export function useConnections({
         shouldSaveConnectionInfo
       );
 
-      trackNewConnectionEvent(connectionInfo, newConnectionDataService);
       debug(
         'connection attempt succeeded with connection info',
         connectionInfo
@@ -559,7 +560,7 @@ export function useConnections({
       }
 
       if (connectionInfo) {
-        trackConnectionFailedEvent(connectionInfo, error as Error);
+        onConnectionFailed(connectionInfo, error as Error);
       }
       log.error(
         mongoLogId(1_001_000_161),

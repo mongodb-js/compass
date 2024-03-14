@@ -66,6 +66,7 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
     "mongodb-instance-model": "^12.18.1",
@@ -82,6 +83,7 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
     "mongodb-instance-model": "^12.18.1"

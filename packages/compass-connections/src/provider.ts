@@ -1,11 +1,12 @@
 import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import { useConnectionInfoContext } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 import type { DataService } from 'mongodb-data-service';
 import type { ConnectionsManager } from './connections-manager';
 
 export * from './connections-manager';
+export { useConnections } from './stores/connections-store';
 
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
   null
@@ -42,7 +43,7 @@ export const dataServiceLocator = createServiceLocator(
     K extends keyof DataService = keyof DataService,
     L extends keyof DataService = K
   >(): Pick<DataService, K> & Partial<Pick<DataService, L>> {
-    const connectionInfo = useConnectionInfoContext();
+    const connectionInfo = useConnectionInfo();
     if (!connectionInfo) {
       throw new Error(
         'ConnectionInfo for an active connection not available in context. Did you forget to setup ConnectionInfoProvider'

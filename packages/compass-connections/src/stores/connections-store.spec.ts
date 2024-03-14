@@ -116,6 +116,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -152,6 +154,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -222,6 +226,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -262,6 +268,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           connectionRepository,
           appName: 'Test App Name',
         })
@@ -291,6 +299,8 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
+            onConnectionFailed: noop,
+            onConnectionAttemptStarted: noop,
             appName: 'Test App Name',
           })
         );
@@ -349,6 +359,8 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
+            onConnectionFailed: noop,
+            onConnectionAttemptStarted: noop,
             appName: 'Test App Name',
           })
         );
@@ -378,6 +390,8 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
+            onConnectionFailed: noop,
+            onConnectionAttemptStarted: noop,
             appName: 'Test App Name',
           })
         );
@@ -415,6 +429,8 @@ describe('use-connections hook', function () {
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
+            onConnectionFailed: noop,
+            onConnectionAttemptStarted: noop,
             appName: 'Test App Name',
           })
         );
@@ -500,6 +516,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -523,6 +541,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -554,6 +574,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );
@@ -607,6 +629,8 @@ describe('use-connections hook', function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
           appName: 'Test App Name',
         })
       );

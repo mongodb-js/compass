@@ -1,1 +1,1 @@
-export * from './dist/provider';
+module.exports = require('./dist/provider');

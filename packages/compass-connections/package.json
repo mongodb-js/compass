@@ -20,7 +20,8 @@
   },
   "files": [
     "dist",
-    "provider.js"
+    "provider.js",
+    "provider.d.ts"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
@@ -64,7 +65,6 @@
     "compass-preferences-model": "^2.18.1",
     "hadron-ipc": "^3.2.12",
     "lodash": "^4.17.21",
-    "mongodb": "^6.3.0",
     "uuid": "^8.2.0"
   },
   "devDependencies": {
@@ -92,14 +92,12 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb-build-info": "^1.7.0",
-    "mongodb-cloud-info": "^2.1.1",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.18.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "resolve-mongodb-srv": "^1.1.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

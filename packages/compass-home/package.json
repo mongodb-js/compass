@@ -62,7 +62,8 @@
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
     "hadron-app-registry": "^9.1.8",
-    "hadron-ipc": "^3.2.12"
+    "hadron-ipc": "^3.2.12",
+    "mongodb-data-service": "^22.18.1"
   },
   "peerDependencies": {
     "@mongodb-js/atlas-service": "^0.15.1",
@@ -94,6 +95,7 @@
     "@mongodb-js/connection-storage": "^0.8.1",
     "hadron-app-registry": "^9.1.8",
     "hadron-ipc": "^3.2.12",
+    "mongodb-data-service": "^22.18.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -115,14 +117,18 @@
     "eventemitter3": "^4.0.0",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-data-service": "^22.18.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "resolve": "^1.15.1",
     "sinon": "^8.1.1",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "mongodb": "^6.3.0",
+    "mongodb-build-info": "^1.7.0",
+    "resolve-mongodb-srv": "^1.1.2",
+    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-cloud-info": "^2.1.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

@@ -74,6 +74,8 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 describe('Connections Component', function () {
   let preferences: PreferencesAccess;
   let onConnectedSpy: sinon.SinonSpy;
+  let onConnectionFailedSpy: sinon.SinonSpy;
+  let onConnectionAttemptStartedSpy: sinon.SinonSpy;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -82,6 +84,8 @@ describe('Connections Component', function () {
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
+    onConnectionFailedSpy = sinon.spy();
+    onConnectionAttemptStartedSpy = sinon.spy();
   });
 
   afterEach(function () {
@@ -102,6 +106,8 @@ describe('Connections Component', function () {
               <ConnectionsManagerProvider value={getConnectionsManager()}>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   appName="Test App Name"
                 />
               </ConnectionsManagerProvider>
@@ -145,6 +151,11 @@ describe('Connections Component', function () {
 
       const recents = screen.queryAllByTestId('recent-connection');
       expect(recents.length).to.equal(0);
+    });
+
+    it('should include the help panels', function () {
+      expect(screen.queryByText(/How do I find my/)).to.be.visible;
+      expect(screen.queryByText(/How do I format my/)).to.be.visible;
     });
   });
 
@@ -197,6 +208,8 @@ describe('Connections Component', function () {
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                     appName="Test App Name"
                   />
                 </ToastArea>
@@ -530,6 +543,8 @@ describe('Connections Component', function () {
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                     appName="Test App Name"
                   />
                 </ToastArea>
@@ -563,6 +578,8 @@ describe('Connections Component', function () {
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                     appName="Test App Name"
                   />
                 </ToastArea>
@@ -590,7 +607,8 @@ describe('Connections Component', function () {
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
-                    connectionStorage={mockStorage}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                     appName="Test App Name"
                   />
                 </ToastArea>
@@ -609,6 +627,33 @@ describe('Connections Component', function () {
       expect(() => {
         screen.getByTestId('legacy-connections-modal');
       }).to.throw;
+    });
+  });
+
+  context('when multiple connection management is enabled', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      const mockStorage = getMockConnectionStorage([]);
+      const connectionRepository = new ConnectionRepository(mockStorage);
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <ConnectionStorageContext.Provider value={mockStorage}>
+            <ConnectionRepositoryContext.Provider value={connectionRepository}>
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
+                <Connections
+                  onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  appName="Test App Name"
+                />
+              </ConnectionsManagerProvider>
+            </ConnectionRepositoryContext.Provider>
+          </ConnectionStorageContext.Provider>
+        </PreferencesProvider>
+      );
     });
   });
 });

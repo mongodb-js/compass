@@ -17,7 +17,7 @@ import ConnectionForm from '@mongodb-js/connection-form';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { connect } from 'mongodb-data-service';
+import type { connect, DataService } from 'mongodb-data-service';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
@@ -85,11 +85,18 @@ const formCardLightThemeStyles = css({
 function Connections({
   appRegistry,
   onConnected,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   appName,
   getAutoConnectInfo,
 }: {
   appRegistry: AppRegistry;
-  onConnected: (connectionInfo: ConnectionInfo) => void;
+  onConnected: (
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) => void;
+  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement {
@@ -114,6 +121,8 @@ function Connections({
     reloadConnections,
   } = useConnections({
     onConnected,
+    onConnectionFailed,
+    onConnectionAttemptStarted,
     appName,
     getAutoConnectInfo,
   });
@@ -155,6 +164,9 @@ function Connections({
   );
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
+  );
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
   );
 
   const preferences = useMemo(
@@ -236,7 +248,7 @@ function Connections({
               </Card>
             </div>
           </ErrorBoundary>
-          <FormHelp />
+          <FormHelp isMultiConnectionEnabled={isMultiConnectionEnabled} />
         </div>
       </div>
       {connectingConnectionId && (

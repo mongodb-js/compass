@@ -215,7 +215,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
     const {
       autoPreview,
       namespace,
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
       collationString,
       limit,
       largeLimit,
