@@ -182,7 +182,7 @@ function Home({
   const appRegistry = useLocalAppRegistry();
   const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
   const connectionsManager = useRef(
-    new ConnectionsManager(__TEST_MONGODB_DATA_SERVICE_CONNECT_FN, log.unbound)
+    new ConnectionsManager(log.unbound, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN)
   );
 
   const [

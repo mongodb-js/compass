@@ -7,6 +7,12 @@ import {
   ConnectionsManager,
   ConnectionsManagerEvents,
 } from './connections-manager';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+function getConnectionsManager(mockTestConnectFn?: typeof connect) {
+  const { log } = createNoopLoggerAndTelemetry();
+  return new ConnectionsManager(log.unbound, mockTestConnectFn);
+}
 
 describe('ConnectionsManager', function () {
   const connectedDataService1 = {
@@ -44,7 +50,7 @@ describe('ConnectionsManager', function () {
         return Promise.resolve(connectedDataService2);
       }
     };
-    connectionsManager = new ConnectionsManager(mockConnectFn);
+    connectionsManager = getConnectionsManager(mockConnectFn);
   });
 
   context(
@@ -56,7 +62,7 @@ describe('ConnectionsManager', function () {
           await new Promise((resolve) => setTimeout(resolve, 50));
           return await originalMockFn(connectionInfo);
         };
-        connectionsManager = new ConnectionsManager(mockConnectFn);
+        connectionsManager = getConnectionsManager(mockConnectFn);
       });
 
       it('should emit connection-attempt-started event', async function () {
@@ -204,7 +210,7 @@ describe('ConnectionsManager', function () {
       function () {
         it('should be able to connect', async function () {
           mockConnectFn = () => Promise.resolve(connectedDataService1);
-          connectionsManager = new ConnectionsManager(mockConnectFn);
+          connectionsManager = getConnectionsManager(mockConnectFn);
 
           const onConnectionCancelled = sinon.stub();
           connectionsManager.on(
@@ -297,7 +303,7 @@ describe('ConnectionsManager', function () {
     const error = new Error('Connection rejected');
     beforeEach(function () {
       mockConnectFn = () => Promise.reject(error);
-      connectionsManager = new ConnectionsManager(mockConnectFn);
+      connectionsManager = getConnectionsManager(mockConnectFn);
     });
 
     it('should emit connection failed event for the failed connection', async function () {
@@ -354,7 +360,7 @@ describe('ConnectionsManager', function () {
     } as unknown as DataService;
     beforeEach(function () {
       mockConnectFn = () => Promise.resolve(activeDataService);
-      connectionsManager = new ConnectionsManager(mockConnectFn);
+      connectionsManager = getConnectionsManager(mockConnectFn);
     });
 
     it('should emit connection disconnected event', async function () {

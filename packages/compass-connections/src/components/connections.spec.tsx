@@ -8,7 +8,7 @@ import {
   within,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions, connect } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
   ConnectionStorage,
@@ -28,6 +28,12 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+function getConnectionsManager(mockTestConnectFn?: typeof connect) {
+  const { log } = createNoopLoggerAndTelemetry();
+  return new ConnectionsManager(log.unbound, mockTestConnectFn);
+}
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
@@ -89,12 +95,11 @@ describe('Connections Component', function () {
       const mockStorage = getMockConnectionStorage([]);
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
       const connectionRepository = new ConnectionRepository(mockStorage);
-
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
             <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={new ConnectionsManager()}>
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
                 <Connections
                   onConnected={onConnectedSpy}
                   appName="Test App Name"
@@ -176,7 +181,7 @@ describe('Connections Component', function () {
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
       const connectionRepository = new ConnectionRepository(mockStorage);
 
-      const connectionsManager = new ConnectionsManager(() => {
+      const connectionsManager = getConnectionsManager(() => {
         return Promise.resolve({
           mockDataService: 'yes',
           addReauthenticationHandler() {},
@@ -349,7 +354,7 @@ describe('Connections Component', function () {
           }
         );
 
-        const connectionsManager = new ConnectionsManager(mockConnectFn);
+        const connectionsManager = getConnectionsManager(mockConnectFn);
         connectSpyFn = sinon.spy(connectionsManager, 'connect');
         connections = [
           {
@@ -516,7 +521,7 @@ describe('Connections Component', function () {
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
             <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={new ConnectionsManager()}>
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
@@ -549,7 +554,7 @@ describe('Connections Component', function () {
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
             <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={new ConnectionsManager()}>
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}
@@ -576,7 +581,7 @@ describe('Connections Component', function () {
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
             <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={new ConnectionsManager()}>
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
                 <ToastArea>
                   <Connections
                     onConnected={onConnectedSpy}

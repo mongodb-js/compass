@@ -78,8 +78,8 @@ export class ConnectionsManager extends EventEmitter {
   private dataServices = new Map<ConnectionInfoId, DataService>();
 
   constructor(
-    private readonly __TEST_CONNECT_FN?: ConnectFn,
-    private readonly logger?: LoggerAndTelemetry['log']['unbound']
+    private readonly logger: LoggerAndTelemetry['log']['unbound'],
+    private readonly __TEST_CONNECT_FN?: ConnectFn
   ) {
     super();
   }

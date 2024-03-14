@@ -16,11 +16,17 @@ import {
 
 import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService, connect } from 'mongodb-data-service';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const noop = (): any => {
   /* no-op */
 };
+
+function getConnectionsManager(mockTestConnectFn?: typeof connect) {
+  const { log } = createNoopLoggerAndTelemetry();
+  return new ConnectionsManager(log.unbound, mockTestConnectFn);
+}
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -92,7 +98,7 @@ describe('use-connections hook', function () {
     };
 
     connectionRepository = new ConnectionRepository(mockConnectionStorage);
-    connectionsManager = new ConnectionsManager(() =>
+    connectionsManager = getConnectionsManager(() =>
       Promise.resolve({
         mockDataService: 'yes',
         addReauthenticationHandler() {},

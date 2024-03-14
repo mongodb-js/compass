@@ -60,6 +60,7 @@ import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -233,8 +234,10 @@ const CompassWeb = ({
   );
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
+  const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
   const connectionsManager = useRef(
     new ConnectionsManager(
+      log.unbound,
       __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect | undefined
     )
   );
