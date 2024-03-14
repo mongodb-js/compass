@@ -17,9 +17,12 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { DataService } from 'mongodb-data-service/provider';
 
-// Temporary as we don't need props but this placeholder type is useful.
-type MultipleConnectionSidebarProps = Record<string, never>;
+type MultipleConnectionSidebarProps = {
+  appName: string;
+  connectFn?: (ConnectionInfo) => Promise<DataService>;
+};
 
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the
@@ -56,7 +59,7 @@ function ConnectionErrorToastBody({
   onReview,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
-    <div className={connectionErrorToastBodyStyles}>
+    <span className={connectionErrorToastBodyStyles}>
       <span>There was a problem connecting to {getConnectionTitle(info)}</span>
       <Link
         className={connectionErrorToastActionMessageStyles}
@@ -65,12 +68,15 @@ function ConnectionErrorToastBody({
       >
         REVIEW
       </Link>
-    </div>
+    </span>
   );
 }
 // Having props here is useful as a placeholder and we will fix it with the first props.
 // eslint-disable-next-line
-export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
+export function MultipleConnectionSidebar({
+  appName,
+  connectFn,
+}: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   let cancelCurrentConnection: (() => void) | undefined = undefined;
 
@@ -148,8 +154,8 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     onConnectionAttemptStarted: onConnectionAttemptStarted,
     onConnectionFailed: onConnectionFailed,
     isConnected: false, // TODO: COMPASS-7710
-    connectFn: undefined, // TODO: COMPASS-7710
-    appName: 'Compass', // TODO: COMPASS-7710
+    connectFn: connectFn, // TODO: COMPASS-7710
+    appName: appName, // TODO: COMPASS-7710
     getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
   });
 

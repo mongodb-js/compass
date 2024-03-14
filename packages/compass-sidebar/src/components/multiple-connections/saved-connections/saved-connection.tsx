@@ -239,6 +239,7 @@ export function SavedConnection({
         backgroundColor: connectionColorToHex(connectionInfo.favorite?.color),
       }}
       className={savedConnectionStyles}
+      data-testid={`saved-connection-${connectionInfo.id}`}
     >
       <WithStatusMarker status={connectionStatus}>{icon}</WithStatusMarker>{' '}
       <div className={savedConnectionNameStyles}>
