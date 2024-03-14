@@ -66,6 +66,8 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 describe('Connections Component', function () {
   let preferences: PreferencesAccess;
   let onConnectedSpy: sinon.SinonSpy;
+  let onConnectionFailedSpy: sinon.SinonSpy;
+  let onConnectionAttemptStartedSpy: sinon.SinonSpy;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -74,6 +76,8 @@ describe('Connections Component', function () {
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
+    onConnectionFailedSpy = sinon.spy();
+    onConnectionAttemptStartedSpy = sinon.spy();
   });
 
   afterEach(function () {
@@ -94,6 +98,8 @@ describe('Connections Component', function () {
             <ConnectionRepositoryContext.Provider value={connectionRepository}>
               <Connections
                 onConnected={onConnectedSpy}
+                onConnectionFailed={onConnectionFailedSpy}
+                onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                 appName="Test App Name"
               />
             </ConnectionRepositoryContext.Provider>
@@ -187,6 +193,8 @@ describe('Connections Component', function () {
               <ToastArea>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   connectFn={mockConnectFn}
                   appName="Test App Name"
                 />
@@ -365,6 +373,8 @@ describe('Connections Component', function () {
               <ToastArea>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   connectFn={mockConnectFn}
                   appName="Test App Name"
                 />
@@ -503,6 +513,8 @@ describe('Connections Component', function () {
               <ToastArea>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   appName="Test App Name"
                 />
               </ToastArea>
@@ -534,6 +546,8 @@ describe('Connections Component', function () {
               <ToastArea>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   appName="Test App Name"
                 />
               </ToastArea>
@@ -559,6 +573,8 @@ describe('Connections Component', function () {
               <ToastArea>
                 <Connections
                   onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
                   connectionStorage={mockStorage}
                   appName="Test App Name"
                 />

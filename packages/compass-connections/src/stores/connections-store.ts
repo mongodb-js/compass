@@ -17,12 +17,6 @@ import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from 'mongodb-data-service';
 import { createConnectionAttempt } from 'mongodb-data-service';
-
-import {
-  trackConnectionAttemptEvent,
-  trackNewConnectionEvent,
-  trackConnectionFailedEvent,
-} from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
@@ -256,6 +250,8 @@ async function loadConnections(
 
 export function useConnections({
   onConnected,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   isConnected,
   appName,
   getAutoConnectInfo,
@@ -265,6 +261,8 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   isConnected: boolean;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: ConnectFn;
@@ -522,7 +520,7 @@ export function useConnections({
         connectionAttempt: newConnectionAttempt,
       });
 
-      trackConnectionAttemptEvent(connectionInfo);
+      onConnectionAttemptStarted(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
 
       let notifyDeviceFlow:
@@ -575,7 +573,6 @@ export function useConnections({
         shouldSaveConnectionInfo
       );
 
-      trackNewConnectionEvent(connectionInfo, newConnectionDataService);
       debug(
         'connection attempt succeeded with connection info',
         connectionInfo
@@ -583,7 +580,7 @@ export function useConnections({
     } catch (error) {
       connectingConnectionAttempt.current = undefined;
       if (connectionInfo) {
-        trackConnectionFailedEvent(connectionInfo, error as Error);
+        onConnectionFailed(connectionInfo, error as Error);
       }
       log.error(
         mongoLogId(1_001_000_161),
