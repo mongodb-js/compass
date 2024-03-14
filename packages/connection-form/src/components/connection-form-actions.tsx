@@ -155,7 +155,7 @@ export function ConnectionFormModalActions({
       <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
         {onCancel && (
           <Button
-            data-testid="save-connection-button"
+            data-testid="cancel-button"
             variant={ButtonVariant.Default}
             disabled={false}
             onClick={onCancel}
