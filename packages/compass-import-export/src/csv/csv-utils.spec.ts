@@ -756,7 +756,9 @@ describe('parseCSVValue', function () {
         '{"$ref":"namespace","$id":{"$oid":"642af890571e13e609f9069a"}}',
         'ejson'
       )
-    ).to.deep.equal(new DBRef('namespace', new ObjectId()));
+    ).to.deep.equal(
+      new DBRef('namespace', new ObjectId('642af890571e13e609f9069a'))
+    );
 
     expect(parseCSVValue('{"$symbol":"symbol"}', 'ejson')).to.deep.equal(
       new BSONSymbol('symbol')
