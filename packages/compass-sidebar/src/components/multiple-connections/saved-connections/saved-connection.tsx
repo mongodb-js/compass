@@ -3,6 +3,7 @@ import {
   getConnectionTitle,
   ConnectionStatus,
 } from '@mongodb-js/connection-info';
+import { useConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';
 import {
   css,
@@ -20,7 +21,6 @@ import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { ItemSeparator } from '@mongodb-js/compass-components/lib/components/item-action-controls';
-import { useConnectionStatus } from '../use-connection-status';
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
@@ -130,7 +130,7 @@ export function SavedConnection({
   onToggleFavoriteConnection,
 }: SavedConnectionProps): React.ReactElement {
   const { connectionColorToHex } = useConnectionColor();
-  const connectionStatus = useConnectionStatus(connectionInfo);
+  const { status: connectionStatus } = useConnectionStatus(connectionInfo);
 
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(

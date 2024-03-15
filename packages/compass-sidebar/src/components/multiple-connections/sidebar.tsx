@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
 import {
   ConnectionInfo,
@@ -78,28 +78,19 @@ export function MultipleConnectionSidebar({
   connectFn,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
-  let cancelCurrentConnection: (() => void) | undefined = undefined;
+  const cancelCurrentConnectionRef = useRef<() => void>(undefined);
 
-  const onEditConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {
-      console.log('onEditConnection', info);
-    },
-    []
-  );
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
 
-  const onConnected = useCallback(
-    (info: ConnectionInfo) => {
-      closeToast('connection-status');
-    },
-    [closeToast]
-  );
+  const onConnected = useCallback(() => {
+    closeToast('connection-status');
+  }, [closeToast]);
 
   const onConnectionAttemptStarted = useCallback(
     (info: ConnectionInfo) => {
       const cancelAndCloseToast = () => {
-        cancelCurrentConnection?.();
+        cancelCurrentConnectionRef.current?.();
         closeToast('connection-status');
       };
 
@@ -114,14 +105,14 @@ export function MultipleConnectionSidebar({
         ),
       });
     },
-    [openToast, closeToast, cancelCurrentConnection]
+    [openToast, closeToast, cancelCurrentConnectionRef]
   );
 
   const onConnectionFailed = useCallback(
     (info: ConnectionInfo, error: Error) => {
       const reviewAndCloseToast = () => {
         closeToast('connection-status');
-        onEditConnection(info);
+        setIsConnectionFormOpen(true);
       };
 
       openToast('connection-status', {
@@ -136,7 +127,7 @@ export function MultipleConnectionSidebar({
         timeout: 5000,
       });
     },
-    [openToast, closeToast, onEditConnection]
+    [openToast, closeToast, setIsConnectionFormOpen]
   );
 
   const {
@@ -147,31 +138,26 @@ export function MultipleConnectionSidebar({
     cancelConnectionAttempt,
     removeConnection,
     saveConnection,
+    duplicateConnection,
     state,
   } = useConnections({
-    onConnected: onConnected, // TODO: COMPASS-7710,
+    onConnected: onConnected,
     onConnectionAttemptStarted: onConnectionAttemptStarted,
     onConnectionFailed: onConnectionFailed,
-    isConnected: false, // TODO: COMPASS-7710
-    connectFn: connectFn, // TODO: COMPASS-7710
-    appName: appName, // TODO: COMPASS-7710
-    getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
+    isConnected: false,
+    connectFn: connectFn,
+    appName: appName,
   });
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
     state;
 
-  cancelCurrentConnection = cancelConnectionAttempt;
-
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  cancelCurrentConnectionRef.current = cancelConnectionAttempt;
 
   const onConnect = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
     async (info: ConnectionInfo) => {
-      await connect(info);
       setActiveConnectionById(info.id);
+      await connect(info);
     },
     [connect, setActiveConnectionById]
   );
@@ -213,16 +199,25 @@ export function MultipleConnectionSidebar({
     [removeConnection]
   );
 
-  const onDuplicateConnection = useCallback(
+  const onEditConnection = useCallback(
     // Placeholder for when we implement it
     // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    (info: ConnectionInfo) => {
+      setActiveConnectionById(info.id);
+      setIsConnectionFormOpen(true);
+    },
+    [setActiveConnectionById, setIsConnectionFormOpen]
+  );
+
+  const onDuplicateConnection = useCallback(
+    (info: ConnectionInfo) => {
+      duplicateConnection(info);
+      setIsConnectionFormOpen(true);
+    },
+    [duplicateConnection, setIsConnectionFormOpen]
   );
 
   const onToggleFavoriteConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
     (info: ConnectionInfo) => {
       info.savedConnectionType =
         info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';

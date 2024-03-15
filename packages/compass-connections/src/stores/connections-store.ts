@@ -447,6 +447,7 @@ export function useConnections({
         }
       } catch (error) {
         onConnectionFailed(connectionInfo ?? null, error as Error);
+
         log.error(
           mongoLogId(1_001_000_290),
           'Connection Store',
@@ -527,6 +528,7 @@ export function useConnections({
       });
 
       onConnectionAttemptStarted(connectionInfo);
+
       debug('connecting with connectionInfo', connectionInfo);
       log.info(
         mongoLogId(1001000004),
@@ -630,6 +632,7 @@ export function useConnections({
         (connection) => connection.id === newConnectionId
       );
       if (connection) {
+        console.trace('4');
         dispatch({
           type: 'set-active-connection',
           connectionInfo: connection,
