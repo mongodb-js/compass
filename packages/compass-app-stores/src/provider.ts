@@ -1,4 +1,4 @@
-import { useConnectionInfoContext } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
@@ -12,7 +12,7 @@ export const MongoDBInstanceProvider = InstanceContext.Provider;
 
 export const mongoDBInstanceLocator = createServiceLocator(
   function mongoDBInstanceLocator(): MongoDBInstance {
-    const connectionInfo = useConnectionInfoContext();
+    const connectionInfo = useConnectionInfo();
     const instances = useContext(InstanceContext);
     const instance = instances[connectionInfo.id];
     if (!instance) {
