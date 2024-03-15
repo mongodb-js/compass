@@ -447,6 +447,10 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
+          // TODO: re-enable after 7.3/8.0 support is ready
+          if (mode === 'range' && serverSatisfies('>= 8.0')) {
+            return this.skip();
+          }
           const [field, oldValue, newValue] =
             mode !== 'range'
               ? ['phoneNumber', '"30303030"', '"10101010"']
