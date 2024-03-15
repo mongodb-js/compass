@@ -180,12 +180,19 @@ export class ConnectionsManager extends EventEmitter {
       if (dataService) {
         await dataService.disconnect();
         this.dataServices.delete(connectionInfoId);
-        this.updateAndNotifyConnectionStatus(
-          connectionInfoId,
-          ConnectionsManagerEvents.ConnectionDisconnected,
-          [connectionInfoId]
+      } else {
+        this.logger.warn(
+          'ConnectionsManager',
+          mongoLogId(1_001_000_305),
+          'closeConnection',
+          `Started closing connection but found no DataService to disconnect`
         );
       }
+      this.updateAndNotifyConnectionStatus(
+        connectionInfoId,
+        ConnectionsManagerEvents.ConnectionDisconnected,
+        [connectionInfoId]
+      );
     } else {
       this.logger.warn(
         'ConnectionsManager',
