@@ -64,6 +64,11 @@ const formContentStyles = css({
 
 const formSettingsStyles = css({
   width: '100%',
+  maxHeight: '530px',
+  overflow: 'auto',
+  scrollbarGutter: 'stable',
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
 });
 
 const formFooterStyles = css({
@@ -115,6 +120,7 @@ type ConnectionFormPropsWithoutPreferences = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
+  onCancel?: () => void;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
@@ -301,6 +307,7 @@ function ConnectionForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
+  onCancel,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
@@ -527,10 +534,7 @@ function ConnectionForm({
             <ConnectionFormModalActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
-              onCancel={() => {
-                // TODO: COMPASS-7659
-                // when this becomes a modal
-              }}
+              onCancel={onCancel}
               onSave={() =>
                 void callOnSaveConnectionClickedAndStoreErrors?.(
                   getConnectionInfoToSave()

@@ -122,7 +122,7 @@ export type ConnectionFormModalActionsProps = {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
 
-  onCancel(): void;
+  onCancel?(): void;
   onSave(): void;
   onConnect(): void;
 };
@@ -153,14 +153,16 @@ export function ConnectionFormModalActions({
         </div>
       )}
       <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
-        <Button
-          data-testid="save-connection-button"
-          variant={ButtonVariant.Default}
-          disabled={false}
-          onClick={onCancel}
-        >
-          Cancel
-        </Button>
+        {onCancel && (
+          <Button
+            data-testid="cancel-button"
+            variant={ButtonVariant.Default}
+            disabled={false}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        )}
 
         <div className={saveAndConnectStyles}>
           <Button

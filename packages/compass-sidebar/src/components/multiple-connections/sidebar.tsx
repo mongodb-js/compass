@@ -1,10 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
 import { OpenConnectionList } from './open-connections/open-connection-list';
 import { ResizableSidebar, css } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
+import { ConnectionFormModal } from '@mongodb-js/connection-form';
+import { cloneDeep } from 'lodash';
+import { usePreference } from 'compass-preferences-model/provider';
 
 // Temporary as we don't need props but this placeholder type is useful.
 type MultipleConnectionSidebarProps = Record<string, never>;
@@ -26,18 +29,28 @@ const noop_tmp = (() => {}) as any;
 // Having props here is useful as a placeholder and we will fix it with the first props.
 // eslint-disable-next-line
 export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
-  const { favoriteConnections, recentConnections, removeConnection } =
-    useConnections({
-      onConnected: noop_tmp, // TODO: COMPASS-7710,
-      onConnectionAttemptStarted: noop_tmp,
-      onConnectionFailed: noop_tmp,
-      isConnected: true, // TODO: COMPASS-7710
-      connectFn: noop_tmp, // TODO: COMPASS-7710
-      appName: '', // TODO: COMPASS-7710
-      getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
-    });
+  const {
+    connect,
+    favoriteConnections,
+    recentConnections,
+    removeConnection,
+    saveConnection,
+    state,
+  } = useConnections({
+    onConnected: noop_tmp, // TODO: COMPASS-7710,
+    onConnectionAttemptStarted: noop_tmp,
+    onConnectionFailed: noop_tmp,
+    isConnected: true, // TODO: COMPASS-7710
+    connectFn: noop_tmp, // TODO: COMPASS-7710
+    appName: '', // TODO: COMPASS-7710
+    getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
+  });
+
+  const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
+    state;
 
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
 
   const onConnect = useCallback(
     // Placeholder for when we implement it
@@ -46,9 +59,35 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     []
   );
 
-  const onNewConnection = useCallback(() => {
-    // TODO: COMPASS-7710
-  }, []);
+  const onNewConnectionOpen = useCallback(
+    () => setIsConnectionFormOpen(true),
+    []
+  );
+  const onNewConnectionClose = useCallback(
+    () => setIsConnectionFormOpen(false),
+    []
+  );
+  const onNewConnectionToggle = useCallback(
+    (open: boolean) => setIsConnectionFormOpen(open),
+    []
+  );
+
+  const onNewConnectionConnect = useCallback(
+    (connectionInfo) => {
+      void connect({
+        ...cloneDeep(connectionInfo),
+      }).then(() => setIsConnectionFormOpen(false));
+    },
+    [connect]
+  );
+
+  const onSaveNewConnection = useCallback(
+    async (connectionInfo) => {
+      await saveConnection(connectionInfo);
+      setIsConnectionFormOpen(false);
+    },
+    [saveConnection]
+  );
 
   const onEditConnection = useCallback(
     // Placeholder for when we implement it
@@ -78,6 +117,39 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     []
   );
 
+  const protectConnectionStrings = usePreference('protectConnectionStrings');
+  const forceConnectionOptions = usePreference('forceConnectionOptions');
+  const showKerberosPasswordField = usePreference('showKerberosPasswordField');
+  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
+  const enableOidc = usePreference('enableOidc');
+  const enableDebugUseCsfleSchemaMap = usePreference(
+    'enableDebugUseCsfleSchemaMap'
+  );
+  const protectConnectionStringsForNewConnections = usePreference(
+    'protectConnectionStringsForNewConnections'
+  );
+
+  const preferences = useMemo(
+    () => ({
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    }),
+    [
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    ]
+  );
+
   return (
     <ResizableSidebar
       expanded={isExpanded}
@@ -91,11 +163,22 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}
           onConnect={onConnect}
-          onNewConnection={onNewConnection}
+          onNewConnection={onNewConnectionOpen}
           onEditConnection={onEditConnection}
           onDeleteConnection={onDeleteConnection}
           onDuplicateConnection={onDuplicateConnection}
           onToggleFavoriteConnection={onToggleFavoriteConnection}
+        />
+        <ConnectionFormModal
+          isOpen={isConnectionFormOpen}
+          setOpen={onNewConnectionToggle}
+          onCancel={onNewConnectionClose}
+          onConnectClicked={onNewConnectionConnect}
+          key={activeConnectionId}
+          onSaveConnectionClicked={onSaveNewConnection}
+          initialConnectionInfo={activeConnectionInfo}
+          connectionErrorMessage={connectionErrorMessage}
+          preferences={preferences}
         />
       </aside>
     </ResizableSidebar>
