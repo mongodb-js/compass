@@ -256,7 +256,11 @@ class EditableDocument extends React.Component<
    */
   render() {
     return (
-      <div className={documentStyles} data-testid="editable-document">
+      <div
+        className={documentStyles}
+        data-document
+        data-testid="editable-document"
+      >
         <div className={documentContentStyles}>
           <div
             className={documentElementsContainerStyles}

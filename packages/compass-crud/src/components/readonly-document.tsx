@@ -90,7 +90,11 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
    */
   render() {
     return (
-      <div className={documentStyles} data-testid="readonly-document">
+      <div
+        className={documentStyles}
+        data-document
+        data-testid="readonly-document"
+      >
         <div className={documentContentStyles}>
           {this.renderElements()}
           {this.renderActions()}

@@ -100,7 +100,7 @@ export const KeyEditor: React.FunctionComponent<{
               <div className={className}>
                 <input
                   type="text"
-                  data-testid="@cloud-mongodb-js/hadron-document-key-editor"
+                  data-testid="hadron-document-key-editor"
                   value={value}
                   onChange={(evt) => {
                     onChange(evt.currentTarget.value);
@@ -132,7 +132,7 @@ export const KeyEditor: React.FunctionComponent<{
       ) : (
         // Double-click is not accessible so no reason for this to be a button
         <div
-          data-testid="@cloud-mongodb-js/hadron-document-clickable-key"
+          data-testid="hadron-document-clickable-key"
           onDoubleClick={onEditStart}
           className={maxWidth}
           style={{ width }}
@@ -249,7 +249,7 @@ export const ValueEditor: React.FunctionComponent<{
                     className={cx(textareaContainer)}
                   >
                     <textarea
-                      data-testid="@cloud-mongodb-js/hadron-document-value-editor"
+                      data-testid="hadron-document-value-editor"
                       value={val}
                       onChange={(evt) => {
                         onChange(evt.currentTarget.value);
@@ -271,7 +271,7 @@ export const ValueEditor: React.FunctionComponent<{
                 ) : (
                   <input
                     type="text"
-                    data-testid="@cloud-mongodb-js/hadron-document-value-editor"
+                    data-testid="hadron-document-value-editor"
                     value={val}
                     onChange={(evt) => {
                       onChange(evt.currentTarget.value);
@@ -300,7 +300,7 @@ export const ValueEditor: React.FunctionComponent<{
         // Double-click is not accessible so no reason for this to be a button,
         // users won't be able to interact with it anyway
         <div
-          data-testid="@cloud-mongodb-js/hadron-document-clickable-value"
+          data-testid="hadron-document-clickable-value"
           onDoubleClick={onEditStart}
         >
           <BSONValue type={type as any} value={originalValue}></BSONValue>
@@ -371,7 +371,7 @@ export const TypeEditor: React.FunctionComponent<{
           {/* eslint-disable-next-line jsx-a11y/no-onchange */}
           <select
             value={type}
-            data-testid="@cloud-mongodb-js/hadron-document-type-editor"
+            data-testid="hadron-document-type-editor"
             // See ./element.tsx
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={autoFocus}

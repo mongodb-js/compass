@@ -50,9 +50,7 @@ describe('<EditableDocument />', function () {
     });
 
     it('renders an editable element for each document element', function () {
-      const component = wrapper.find(
-        '[data-testid="@cloud-mongodb-js/hadron-document-element"]'
-      );
+      const component = wrapper.find('[data-testid="hadron-document-element"]');
       expect(component).to.have.lengthOf(3);
     });
   });

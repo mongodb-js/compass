@@ -444,7 +444,7 @@ export const HadronElement: React.FunctionComponent<{
     <>
       <div
         data-document-element="true"
-        data-testid="@cloud-mongodb-js/hadron-document-element"
+        data-testid="hadron-document-element"
         data-field={key.value}
         data-id={element.uuid}
         {...elementProps}
@@ -532,10 +532,7 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div
-          {...keyProps}
-          data-testid="@cloud-mongodb-js/hadron-document-element-key"
-        >
+        <div {...keyProps} data-testid="hadron-document-element-key">
           {key.editable ? (
             <KeyEditor
               value={key.value}
@@ -564,7 +561,7 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementDivider} role="presentation">
           {value.decrypted && (
             <span
-              data-testid="@cloud-mongodb-js/hadron-document-element-decrypted-icon"
+              data-testid="hadron-document-element-decrypted-icon"
               title="Encrypted Field"
             >
               <Icon glyph="Key" size="small" />
@@ -573,7 +570,7 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div
           className={elementValue}
-          data-testid="@cloud-mongodb-js/hadron-document-element-value"
+          data-testid="hadron-document-element-value"
         >
           {value.editable ? (
             <ValueEditor
@@ -603,7 +600,7 @@ export const HadronElement: React.FunctionComponent<{
             <div
               data-testid={
                 editable && !editingEnabled
-                  ? '@cloud-mongodb-js/hadron-document-clickable-value'
+                  ? 'hadron-document-clickable-value'
                   : undefined
               }
               onDoubleClick={() => {
@@ -622,7 +619,7 @@ export const HadronElement: React.FunctionComponent<{
         {editable && (
           <div
             className={elementType}
-            data-testid="@cloud-mongodb-js/hadron-document-element-type"
+            data-testid="hadron-document-element-type"
           >
             <TypeEditor
               editing={editingEnabled}

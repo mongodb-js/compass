@@ -100,7 +100,7 @@ const HadronDocument: React.FunctionComponent<{
     <div>
       <div
         className={hadronDocument}
-        data-testid="@cloud-mongodb-js/hadron-document"
+        data-testid="hadron-document"
         data-id={document.uuid}
       >
         <AutoFocusContext.Provider value={autoFocus}>

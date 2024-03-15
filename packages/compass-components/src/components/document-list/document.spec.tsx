@@ -52,9 +52,7 @@ describe('Document', function () {
       const el = document.querySelector<HTMLElement>(
         `[data-id="${doc.get('str').uuid}"]`
       );
-      const keyEditor = within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-key-editor'
-      );
+      const keyEditor = within(el).getByTestId('hadron-document-key-editor');
 
       userEvent.clear(keyEditor);
       userEvent.keyboard('new_name');
@@ -74,7 +72,7 @@ describe('Document', function () {
       );
 
       const valueEditor = within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-value-editor'
+        'hadron-document-value-editor'
       );
 
       userEvent.clear(valueEditor);
@@ -93,7 +91,7 @@ describe('Document', function () {
       );
 
       const valueEditor = within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-value-editor'
+        'hadron-document-value-editor'
       );
 
       userEvent.clear(valueEditor);
@@ -112,7 +110,7 @@ describe('Document', function () {
       );
 
       const valueEditor = within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-value-editor'
+        'hadron-document-value-editor'
       );
 
       userEvent.clear(valueEditor);
@@ -132,9 +130,7 @@ describe('Document', function () {
         `[data-id="${doc.get('num').uuid}"]`
       );
 
-      const typeEditor = within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-type-editor'
-      );
+      const typeEditor = within(el).getByTestId('hadron-document-type-editor');
 
       userEvent.selectOptions(typeEditor, 'String');
       userEvent.tab();
@@ -164,16 +160,12 @@ describe('Document', function () {
       `[data-id="${doc.get('null_value').uuid}"]`
     );
 
-    const typeEditor = within(el).getByTestId(
-      '@cloud-mongodb-js/hadron-document-type-editor'
-    );
+    const typeEditor = within(el).getByTestId('hadron-document-type-editor');
 
     userEvent.selectOptions(typeEditor, 'String');
     userEvent.tab();
 
-    const valueEditor = within(el).getByTestId(
-      '@cloud-mongodb-js/hadron-document-value-editor'
-    );
+    const valueEditor = within(el).getByTestId('hadron-document-value-editor');
 
     userEvent.clear(valueEditor);
     userEvent.keyboard('foo bar');
@@ -190,13 +182,9 @@ describe('Document', function () {
       `[data-id="${doc.get('str').uuid}"]`
     );
 
-    userEvent.dblClick(
-      within(el).getByTestId('@cloud-mongodb-js/hadron-document-clickable-key')
-    );
+    userEvent.dblClick(within(el).getByTestId('hadron-document-clickable-key'));
 
-    const editor = within(el).getByTestId(
-      '@cloud-mongodb-js/hadron-document-key-editor'
-    );
+    const editor = within(el).getByTestId('hadron-document-key-editor');
 
     expect(editor).to.eq(document.activeElement);
   });
@@ -209,14 +197,10 @@ describe('Document', function () {
     );
 
     userEvent.dblClick(
-      within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-clickable-value'
-      )
+      within(el).getByTestId('hadron-document-clickable-value')
     );
 
-    const editor = within(el).getByTestId(
-      '@cloud-mongodb-js/hadron-document-value-editor'
-    );
+    const editor = within(el).getByTestId('hadron-document-value-editor');
 
     expect(editor).to.eq(document.activeElement);
   });
@@ -229,14 +213,10 @@ describe('Document', function () {
     );
 
     userEvent.dblClick(
-      within(el).getByTestId(
-        '@cloud-mongodb-js/hadron-document-clickable-value'
-      )
+      within(el).getByTestId('hadron-document-clickable-value')
     );
 
-    const editor = within(el).getByTestId(
-      '@cloud-mongodb-js/hadron-document-type-editor'
-    );
+    const editor = within(el).getByTestId('hadron-document-type-editor');
 
     expect(editor).to.eq(document.activeElement);
   });

@@ -258,7 +258,7 @@ class CellRenderer
         <div className={cellContainerStyle}>
           {this.props.value.decrypted && (
             <span
-              data-testid="@cloud-mongodb-js/hadron-document-element-decrypted-icon"
+              data-testid="hadron-document-element-decrypted-icon"
               title="Encrypted Field"
               className={decrypdedIconStyles}
             >
