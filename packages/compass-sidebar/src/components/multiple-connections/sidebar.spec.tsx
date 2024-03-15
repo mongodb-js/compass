@@ -41,7 +41,7 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
-describe.only('Multiple Connections Sidebar Component', function () {
+describe('Multiple Connections Sidebar Component', function () {
   const connectionStorage: Pick<
     typeof ConnectionStorage,
     'loadAll' | 'load' | 'save' | 'delete'

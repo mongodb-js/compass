@@ -144,11 +144,10 @@ export function MultipleConnectionSidebar({
     connect,
     favoriteConnections,
     recentConnections,
+    cancelConnectionAttempt,
     removeConnection,
     saveConnection,
     state,
-    cancelConnectionAttempt,
-    saveConnection,
   } = useConnections({
     onConnected: onConnected, // TODO: COMPASS-7710,
     onConnectionAttemptStarted: onConnectionAttemptStarted,
@@ -158,6 +157,9 @@ export function MultipleConnectionSidebar({
     appName: appName, // TODO: COMPASS-7710
     getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
   });
+
+  const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
+    state;
 
   cancelCurrentConnection = cancelConnectionAttempt;
 
