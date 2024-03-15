@@ -54,7 +54,6 @@ const workspacesContainerStyles = css({
   height: '100%',
   gridTemplateColumns: '100%',
   gridTemplateRows: 'auto 1fr',
-  minWidth: '1024px',
 });
 
 const workspacesContentStyles = css({
