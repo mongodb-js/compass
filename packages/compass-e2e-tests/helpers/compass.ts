@@ -121,6 +121,7 @@ export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
+  console.log({ semverCondition, MONGODB_VERSION });
   return (
     semver.satisfies(MONGODB_VERSION, semverCondition, {
       includePrerelease: true,
