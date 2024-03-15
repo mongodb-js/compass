@@ -62,7 +62,7 @@
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/compass-workspaces": "^0.5.1",
     "@mongodb-js/my-queries-storage": "^0.5.1",
-    "bson": "^6.3.0",
+    "bson": "^6.5.0",
     "hadron-app-registry": "^9.1.8",
     "react": "^17.0.2"
   },
@@ -73,8 +73,9 @@
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/compass-workspaces": "^0.5.1",
     "@mongodb-js/my-queries-storage": "^0.5.1",
-    "bson": "^6.3.0",
-    "hadron-app-registry": "^9.1.8"
+    "bson": "^6.5.0",
+    "hadron-app-registry": "^9.1.8",
+    "mongodb-data-service": "^22.18.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.17",
