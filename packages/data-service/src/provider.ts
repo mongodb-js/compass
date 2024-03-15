@@ -30,3 +30,4 @@ export const dataServiceLocator = createServiceLocator(
 );
 
 export type { DataService };
+export { configuredKMSProviders } from './instance-detail-helper';

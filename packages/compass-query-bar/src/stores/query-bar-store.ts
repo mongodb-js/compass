@@ -14,7 +14,6 @@ import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
-  updatePreferencesMaxTimeMS,
 } from './query-bar-reducer';
 import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -105,7 +104,7 @@ export function configureStore(
 export function activatePlugin(
   options: QueryBarStoreOptions,
   services: QueryBarServices & QueryBarExtraServices,
-  { on, addCleanup, cleanup }: ActivateHelpers
+  { on, cleanup }: ActivateHelpers
 ) {
   const { serverVersion, query, namespace } = options;
 
@@ -134,7 +133,6 @@ export function activatePlugin(
         ...getQueryAttributes(query ?? {}),
       }),
       isReadonlyConnection: !instance.isWritable,
-      preferencesMaxTimeMS: preferences.getPreferences().maxTimeMS ?? null,
     },
     {
       dataService: services.dataService ?? {
@@ -152,12 +150,6 @@ export function activatePlugin(
       logger,
       atlasAiService,
     }
-  );
-
-  addCleanup(
-    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
-      store.dispatch(updatePreferencesMaxTimeMS(newValue))
-    )
   );
 
   on(instance, 'change:isWritable', () => {

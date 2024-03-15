@@ -294,7 +294,7 @@ const fetchAggregationData = (
   ) => {
     const {
       namespace,
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
       dataService: { dataService },
       aggregation: { limit, abortController: _abortController, pipeline },
       collationString: { value: collation },
@@ -402,7 +402,7 @@ export const exportAggregationResults =
       const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS.current ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
         collation: collation ?? undefined,
       };

@@ -283,7 +283,7 @@ export const loadStagePreview = (
 
       const {
         namespace,
-        maxTimeMS: { current: maxTimeMS },
+        maxTimeMS,
         collationString,
         limit,
         largeLimit,
@@ -424,7 +424,7 @@ export const runStage = (
         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
       );
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS.current ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
