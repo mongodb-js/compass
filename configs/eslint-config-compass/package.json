@@ -1,6 +1,6 @@
 {
   "name": "@cloud-mongodb-js/eslint-config-compass",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Shared Compass eslint configuration",
   "license": "SSPL",
   "main": "index.js",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.14.3",
-    "@cloud-mongodb-js/eslint-plugin-compass": "^1.0.11",
+    "@cloud-mongodb-js/eslint-plugin-compass": "^1.0.12",
     "@mongodb-js/eslint-config-devtools": "^0.9.9",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",

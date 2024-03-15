@@ -1,6 +1,6 @@
 {
   "name": "@cloud-mongodb-js/bson-transpilers",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "apiVersion": "0.0.1",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
