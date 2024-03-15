@@ -12,6 +12,7 @@ import type {
   QueryProperty,
   BaseQuery,
   QueryFormFields,
+  FormField,
 } from '../constants/query-properties';
 import {
   mapFormFieldsToQuery,
@@ -44,7 +45,6 @@ type QueryBarState = {
   host?: string;
   recentQueries: RecentQuery[];
   favoriteQueries: FavoriteQuery[];
-  preferencesMaxTimeMS: number | null;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -57,7 +57,6 @@ export const INITIAL_STATE: QueryBarState = {
   namespace: '',
   recentQueries: [],
   favoriteQueries: [],
-  preferencesMaxTimeMS: null,
 };
 
 export enum QueryBarActions {
@@ -70,13 +69,7 @@ export enum QueryBarActions {
   ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
   RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
-  UpdatePreferencesMaxTimeMS = 'compass-query-bar/UpdatePreferencesMaxTimeMS',
 }
-
-type UpdatePreferencesMaxTimeMSAction = {
-  type: QueryBarActions.UpdatePreferencesMaxTimeMS;
-  maxTimeMS: number | null;
-};
 
 type ChangeReadonlyConnectionStatusAction = {
   type: QueryBarActions.ChangeReadonlyConnectionStatus;
@@ -94,10 +87,10 @@ export const toggleQueryOptions = (
   return { type: QueryBarActions.ToggleQueryOptions, force };
 };
 
-type ChangeFieldAction = {
+type ChangeFieldAction<T = QueryProperty> = {
   type: QueryBarActions.ChangeField;
-  name: QueryProperty;
-  value: string;
+  name: T;
+  value: FormField<T>;
 };
 
 /**
@@ -117,20 +110,25 @@ const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   };
 };
 
-export const updatePreferencesMaxTimeMS = (
-  maxTimeMS: number | undefined
-): UpdatePreferencesMaxTimeMSAction => {
-  return {
-    type: QueryBarActions.UpdatePreferencesMaxTimeMS,
-    maxTimeMS: maxTimeMS ?? null,
-  };
-};
-
 export const changeField = (
   name: QueryProperty,
-  value: string
-): ChangeFieldAction => {
-  return { type: QueryBarActions.ChangeField, name, value };
+  stringValue: string
+): QueryBarThunkAction<void, ChangeFieldAction> => {
+  return (dispatch, getState, { preferences }) => {
+    const parsedValue = validateField(name, stringValue, {
+      maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
+    });
+    const isValid = parsedValue !== false;
+    dispatch({
+      type: QueryBarActions.ChangeField,
+      name,
+      value: {
+        string: stringValue,
+        valid: isValid,
+        value: isValid ? parsedValue : getState().queryBar.fields[name].value,
+      },
+    });
+  };
 };
 
 type ApplyQueryAction = {
@@ -160,16 +158,21 @@ export const applyQuery = (): QueryBarThunkAction<
 
 type ResetQueryAction = {
   type: QueryBarActions.ResetQuery;
+  fields: QueryFormFields;
 };
 
 export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
-  return (dispatch, getState, { localAppRegistry }) => {
+  return (dispatch, getState, { localAppRegistry, preferences }) => {
     if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
-    dispatch({ type: QueryBarActions.ResetQuery });
+    const fields = mapQueryToFormFields(
+      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      DEFAULT_FIELD_VALUES
+    );
+    dispatch({ type: QueryBarActions.ResetQuery, fields });
     dispatch(emitOnQueryChange());
     const defaultQuery = cloneDeep(DEFAULT_QUERY_VALUES);
     localAppRegistry?.emit('query-reset', defaultQuery);
@@ -179,11 +182,19 @@ export const resetQuery = (): QueryBarThunkAction<
 
 type SetQueryAction = {
   type: QueryBarActions.SetQuery;
-  query: BaseQuery;
+  fields: QueryFormFields;
 };
 
-export const setQuery = (query: BaseQuery): SetQueryAction => {
-  return { type: QueryBarActions.SetQuery, query };
+export const setQuery = (
+  query: BaseQuery
+): QueryBarThunkAction<void, SetQueryAction> => {
+  return (dispatch, getState, { preferences }) => {
+    const fields = mapQueryToFormFields(
+      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      query
+    );
+    dispatch({ type: QueryBarActions.SetQuery, fields });
+  };
 };
 
 export const applyFilterChange = (
@@ -219,16 +230,23 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 
 type ApplyFromHistoryAction = {
   type: QueryBarActions.ApplyFromHistory;
-  query: BaseQuery;
+  fields: QueryFormFields;
 };
 
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document }
 ): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
-  return (dispatch, getState, { localAppRegistry }) => {
+  return (dispatch, getState, { localAppRegistry, preferences }) => {
+    const fields = mapQueryToFormFields(
+      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      {
+        ...DEFAULT_FIELD_VALUES,
+        ...query,
+      }
+    );
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
-      query,
+      fields,
     });
 
     if (query.update) {
@@ -466,32 +484,12 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
-    const newValue = validateField(action.name, action.value, {
-      maxTimeMS: state.preferencesMaxTimeMS ?? undefined,
-    });
-    const valid = newValue !== false;
     return {
       ...state,
       fields: {
         ...state.fields,
-        [action.name]: {
-          string: action.value,
-          valid: valid,
-          value: valid ? newValue : state.fields[action.name].value,
-        },
+        [action.name]: action.value,
       },
-    };
-  }
-
-  if (
-    isAction<UpdatePreferencesMaxTimeMSAction>(
-      action,
-      QueryBarActions.UpdatePreferencesMaxTimeMS
-    )
-  ) {
-    return {
-      ...state,
-      preferencesMaxTimeMS: action.maxTimeMS,
     };
   }
 
@@ -500,10 +498,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
       ...state,
       fields: {
         ...state.fields,
-        ...mapQueryToFormFields(
-          { maxTimeMS: state.preferencesMaxTimeMS ?? undefined },
-          action.query
-        ),
+        ...action.fields,
       },
     };
   }
@@ -520,10 +515,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     return {
       ...state,
       lastAppliedQuery: null,
-      fields: mapQueryToFormFields(
-        { maxTimeMS: state.preferencesMaxTimeMS ?? undefined },
-        DEFAULT_FIELD_VALUES
-      ),
+      fields: action.fields,
     };
   }
 
@@ -532,13 +524,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
-      fields: mapQueryToFormFields(
-        { maxTimeMS: state.preferencesMaxTimeMS ?? undefined },
-        {
-          ...DEFAULT_FIELD_VALUES,
-          ...(action.query ?? {}),
-        }
-      ),
+      fields: action.fields,
     };
   }
 
