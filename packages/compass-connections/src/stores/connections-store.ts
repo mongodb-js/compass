@@ -4,6 +4,7 @@ import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
+import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
@@ -304,10 +305,16 @@ export function useConnections({
       });
     }
 
-    connectionStorage.events?.on('connections-changed', reloadConnections);
+    connectionStorage.events?.on(
+      ConnectionStorageEvents.ConnectionsChanged,
+      reloadConnections
+    );
 
     return () => {
-      connectionStorage.events?.off('connections-changed', reloadConnections);
+      connectionStorage.events?.off(
+        ConnectionStorageEvents.ConnectionsChanged,
+        reloadConnections
+      );
     };
   });
 

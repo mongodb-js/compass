@@ -55,7 +55,7 @@ export class ConnectionStorageBus extends EventEmitter {
 }
 
 export class ConnectionStorage {
-  private static events: ConnectionStorageBus = new ConnectionStorageBus();
+  public static events: ConnectionStorageBus = new ConnectionStorageBus();
 
   private static _ipc = ipcRenderer?.createInvoke<
     typeof ConnectionStorageMain,
