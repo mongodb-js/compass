@@ -12,7 +12,10 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
-  return new ConnectionsManager(log.unbound, () => {}, mockTestConnectFn);
+  return new ConnectionsManager({
+    logger: log.unbound,
+    __TEST_CONNECT_FN: mockTestConnectFn,
+  });
 }
 
 function canceledPromiseSetup(
@@ -24,11 +27,7 @@ function canceledPromiseSetup(
     resolveCanceledPromise = resolve;
   });
 
-  const connectionsManager = new ConnectionsManager(
-    createNoopLoggerAndTelemetry().log.unbound,
-    () => {},
-    mockTestConnectFn
-  );
+  const connectionsManager = getConnectionsManager(mockTestConnectFn);
 
   const originalConnectFn: typeof connectionsManager.connect =
     connectionsManager.connect.bind(connectionsManager);

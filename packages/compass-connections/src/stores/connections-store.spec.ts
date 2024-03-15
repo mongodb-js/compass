@@ -25,7 +25,10 @@ const noop = (): any => {
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
-  return new ConnectionsManager(log.unbound, () => {}, mockTestConnectFn);
+  return new ConnectionsManager({
+    logger: log.unbound,
+    __TEST_CONNECT_FN: mockTestConnectFn,
+  });
 }
 
 const mockConnections: ConnectionInfo[] = [

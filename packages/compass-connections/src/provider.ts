@@ -5,6 +5,7 @@ import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { DataService } from 'mongodb-data-service';
 import type { ConnectionsManager } from './connections-manager';
 
+export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './stores/connections-store';
 

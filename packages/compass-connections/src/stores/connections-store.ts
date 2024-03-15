@@ -480,9 +480,8 @@ export function useConnections({
     originalConnectionInfo: ConnectionInfo,
     shouldSaveConnectionInfo = true
   ) => {
-    let connectionInfo: ConnectionInfo | undefined;
     try {
-      connectionInfo = merge(
+      const connectionInfo = merge(
         cloneDeep(originalConnectionInfo),
         state.connectionMergeInfos[originalConnectionInfo.id] ?? {}
       );
@@ -559,9 +558,7 @@ export function useConnections({
         return;
       }
 
-      if (connectionInfo) {
-        onConnectionFailed(connectionInfo, error as Error);
-      }
+      onConnectionFailed(originalConnectionInfo, error as Error);
       log.error(
         mongoLogId(1_001_000_161),
         'Connection Store',

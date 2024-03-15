@@ -44,10 +44,9 @@ describe('CompassShellPlugin', function () {
     getMongoClientConnectionOptions() {},
   } as any;
 
-  const connectionsManager = new ConnectionsManager(
-    createNoopLoggerAndTelemetry().log.unbound,
-    () => {}
-  );
+  const connectionsManager = new ConnectionsManager({
+    logger: createNoopLoggerAndTelemetry().log.unbound,
+  });
   sinon.replace(connectionsManager, 'getDataServiceForConnection', () => {
     return fakeDataService;
   });

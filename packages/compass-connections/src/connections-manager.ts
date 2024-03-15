@@ -22,7 +22,7 @@ export enum ConnectionsManagerEvents {
   ConnectionDisconnected = 'connection-disconnected',
 }
 
-type ConnectionManagerEventListeners = {
+export type ConnectionManagerEventListeners = {
   [ConnectionsManagerEvents.ConnectionAttemptStarted]: (
     connectionInfoId: ConnectionInfoId
   ) => void;
@@ -77,16 +77,26 @@ const connectionStatusTransitions: ConnectionStatusTransitions = {
 export const CONNECTION_CANCELED_ERR = 'Connection attempt was canceled';
 
 export class ConnectionsManager extends EventEmitter {
+  private readonly logger: LoggerAndTelemetry['log']['unbound'];
+  private readonly reAuthenticationHandler?: ReauthenticationHandler;
+  private readonly __TEST_CONNECT_FN?: ConnectFn;
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
 
-  constructor(
-    private readonly logger: LoggerAndTelemetry['log']['unbound'],
-    private readonly reAuthenticationHandler: ReauthenticationHandler,
-    private readonly __TEST_CONNECT_FN?: ConnectFn
-  ) {
+  constructor({
+    logger,
+    reAuthenticationHandler,
+    __TEST_CONNECT_FN,
+  }: {
+    logger: LoggerAndTelemetry['log']['unbound'];
+    reAuthenticationHandler?: ReauthenticationHandler;
+    __TEST_CONNECT_FN?: ConnectFn;
+  }) {
     super();
+    this.logger = logger;
+    this.reAuthenticationHandler = reAuthenticationHandler;
+    this.__TEST_CONNECT_FN = __TEST_CONNECT_FN;
   }
 
   getDataServiceForConnection(
@@ -143,7 +153,9 @@ export class ConnectionsManager extends EventEmitter {
         throw new Error(CONNECTION_CANCELED_ERR);
       }
 
-      dataService.addReauthenticationHandler(this.reAuthenticationHandler);
+      if (this.reAuthenticationHandler) {
+        dataService.addReauthenticationHandler(this.reAuthenticationHandler);
+      }
 
       this.connectionAttempts.delete(connectionInfo.id);
       this.dataServices.set(connectionInfo.id, dataService);

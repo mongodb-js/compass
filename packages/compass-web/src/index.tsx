@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { ReauthenticationHandler, connect } from 'mongodb-data-service';
+import type { connect } from 'mongodb-data-service';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ConnectionStatus,
@@ -18,7 +18,6 @@ import {
   CompassComponentsProvider,
   SpinLoaderWithLabel,
   css,
-  showConfirmation,
 } from '@mongodb-js/compass-components';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import {
@@ -237,22 +236,13 @@ const CompassWeb = ({
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
   const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
-  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
-    const confirmed = await showConfirmation({
-      title: 'Authentication expired',
-      description:
-        'You need to re-authenticate to the database in order to continue.',
-    });
-    if (!confirmed) {
-      throw new Error('Reauthentication declined by user');
-    }
-  });
   const connectionsManager = useRef(
-    new ConnectionsManager(
-      log.unbound,
-      reauthenticationHandler.current,
-      __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect | undefined
-    )
+    new ConnectionsManager({
+      logger: log.unbound,
+      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as
+        | typeof connect
+        | undefined,
+    })
   );
 
   useEffect(() => {

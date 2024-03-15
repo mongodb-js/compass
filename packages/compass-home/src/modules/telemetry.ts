@@ -1,7 +1,4 @@
-import {
-  type DataService,
-  configuredKMSProviders,
-} from 'mongodb-data-service/provider';
+import { type DataService, configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';

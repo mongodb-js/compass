@@ -19,20 +19,16 @@
   "main": "lib/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./provider": "./lib/provider.js"
+    ".": "./lib/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts",
-    "./provider": "./src/provider.ts"
+    ".": "./src/index.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "package.json",
-    "README.md",
-    "provider.js",
-    "provider.d.ts"
+    "README.md"
   ],
   "scripts": {
     "bootstrap": "npm run compile",

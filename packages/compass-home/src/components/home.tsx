@@ -203,11 +203,11 @@ function Home({
   });
 
   const connectionsManager = useRef(
-    new ConnectionsManager(
-      loggerAndTelemetry.log.unbound,
-      reauthenticationHandler.current,
-      __TEST_MONGODB_DATA_SERVICE_CONNECT_FN
-    )
+    new ConnectionsManager({
+      logger: loggerAndTelemetry.log.unbound,
+      reAuthenticationHandler: reauthenticationHandler.current,
+      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+    })
   );
 
   const [
