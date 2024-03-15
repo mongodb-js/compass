@@ -10,7 +10,10 @@ import {
   type ConnectionRepository,
   type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
+import {
+  useConnectionRepositoryContext,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -275,13 +278,13 @@ export function useConnections({
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
-  reloadConnections: () => void;
 } {
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionRepository = useConnectionRepositoryContext();
   const connectionsManager = useConnectionsManagerContext();
+  const connectionStorage = useConnectionStorageContext();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -293,6 +296,20 @@ export function useConnections({
     defaultConnectionsState()
   );
   const { activeConnectionId, recentConnections, favoriteConnections } = state;
+
+  useEffect(() => {
+    function reloadConnections() {
+      void loadConnections(dispatch, connectionRepository, {
+        persistOIDCTokens,
+      });
+    }
+
+    connectionStorage.events?.on('connections-changed', reloadConnections);
+
+    return () => {
+      connectionStorage.events?.off('connections-changed', reloadConnections);
+    };
+  });
 
   async function saveConnectionInfo(
     connectionInfo: PartialConnectionInfo
@@ -679,11 +696,6 @@ export function useConnections({
       );
 
       await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-    },
-    reloadConnections() {
-      void loadConnections(dispatch, connectionRepository, {
         persistOIDCTokens,
       });
     },
