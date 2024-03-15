@@ -1,1 +1,1 @@
-ignores: ['@mongodb-js/prettier-config-compass']
+ignores: ['@cloud-mongodb-js/prettier-config-compass']

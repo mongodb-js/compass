@@ -1,5 +1,5 @@
 ignores:
- - "@mongodb-js/prettier-config-compass"
+ - "@cloud-mongodb-js/prettier-config-compass"
  - "@mongodb-js/tsconfig-compass"
  - "mongodb-compass"
  # webpack always externalizes 'clipboard' for legacy reasons

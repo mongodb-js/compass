@@ -1,6 +1,6 @@
 ignores: [
   "ts-node",
-  "@mongodb-js/prettier-config-compass",
+  "@cloud-mongodb-js/prettier-config-compass",
   "@mongodb-js/tsconfig-compass",
   "@types/whatwg-url",
   # Optional dependencies of mongodb node driver that we need for testing
