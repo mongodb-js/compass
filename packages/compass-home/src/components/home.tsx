@@ -226,7 +226,7 @@ function Home({
   );
 
   const onConnectionFailed = useCallback(
-    (connectionInfo: ConnectionInfo, error: Error) => {
+    (connectionInfo: ConnectionInfo | null, error: Error) => {
       trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
     },
     [loggerAndTelemetry]

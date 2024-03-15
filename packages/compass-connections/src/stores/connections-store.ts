@@ -256,7 +256,10 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionFailed: (
+    connectionInfo: ConnectionInfo | null,
+    error: Error
+  ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   appName: string;
@@ -443,9 +446,7 @@ export function useConnections({
           void connect(connectionInfo, false);
         }
       } catch (error) {
-        if (connectionInfo) {
-          onConnectionFailed(connectionInfo, error as Error);
-        }
+        onConnectionFailed(connectionInfo ?? null, error as Error);
         log.error(
           mongoLogId(1_001_000_290),
           'Connection Store',

@@ -197,13 +197,14 @@ export function trackNewConnectionEvent(
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { track, debug }: LoggerAndTelemetry
 ): void {
   try {
     const callback = async () => {
-      const connectionData = await getConnectionData(connectionInfo);
+      const connectionData =
+        connectionInfo !== null ? await getConnectionData(connectionInfo) : {};
       const trackEvent = {
         ...connectionData,
         error_code: connectionError.code,

@@ -95,7 +95,10 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionFailed: (
+    connectionInfo: ConnectionInfo | null,
+    error: Error
+  ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
