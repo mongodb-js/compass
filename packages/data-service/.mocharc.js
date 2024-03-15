@@ -1,1 +1,1 @@
-module.exports = require('@mongodb-js/mocha-config-compass');
+module.exports = require('@cloud-mongodb-js/mocha-config-compass');
