@@ -69,7 +69,6 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-data-service": "^22.18.1",
     "prop-types": "^15.7.2",
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",

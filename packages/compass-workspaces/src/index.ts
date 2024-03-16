@@ -18,9 +18,11 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { DataServiceLocator } from '@mongodb-js/compass-connections/provider';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
+import {
+  dataServiceLocator,
+  type DataService,
+  type DataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import toNS from 'mongodb-ns';
 

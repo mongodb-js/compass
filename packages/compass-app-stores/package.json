@@ -74,8 +74,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1",
-    "mongodb-data-service": "^22.18.1"
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.22.1",

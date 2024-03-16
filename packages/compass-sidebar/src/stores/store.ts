@@ -12,7 +12,7 @@ import { setDataService } from '../modules/data-service';
 import { toggleSidebar } from '../modules/is-expanded';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { setIsPerformanceTabSupported } from '../modules/is-performance-tab-supported';
 import type { MongoServerError } from 'mongodb';

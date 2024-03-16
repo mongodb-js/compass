@@ -2,8 +2,10 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
-import type { DataService } from 'mongodb-data-service';
+import {
+  dataServiceLocator,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
 import {
   preferencesLocator,
   type PreferencesAccess,

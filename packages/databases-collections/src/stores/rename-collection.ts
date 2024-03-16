@@ -1,7 +1,7 @@
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type {
