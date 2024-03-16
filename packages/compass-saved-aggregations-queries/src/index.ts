@@ -1,11 +1,11 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   dataServiceLocator,
+  type DataService,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { activatePlugin } from './stores';
 import AggregationsQueriesList from './components/aggregations-queries-list';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';

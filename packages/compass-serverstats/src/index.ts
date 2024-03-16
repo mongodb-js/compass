@@ -1,9 +1,9 @@
 import { PerformanceComponent } from './components';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
   dataServiceLocator,
   type DataServiceLocator,
+  type DataService,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import CurrentOpStore from './stores/current-op-store';
