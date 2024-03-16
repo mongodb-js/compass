@@ -74,8 +74,7 @@
     "@mongodb-js/compass-workspaces": "^0.5.1",
     "@mongodb-js/my-queries-storage": "^0.5.1",
     "bson": "^6.5.0",
-    "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1"
+    "hadron-app-registry": "^9.1.8"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.17",
@@ -98,7 +97,6 @@
     "eslint": "^7.25.0",
     "fuse.js": "^6.5.3",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.18.1",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
