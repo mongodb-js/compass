@@ -8,9 +8,9 @@ import {
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useEffect, useState } from 'react';
 
-export function useConnectionStatus(
-  connectionInfo?: ConnectionInfo
-): [ConnectionStatus] {
+export function useConnectionStatus(connectionInfo?: ConnectionInfo): {
+  status: ConnectionStatus;
+} {
   if (!connectionInfo) {
     connectionInfo = useConnectionInfo();
   }
