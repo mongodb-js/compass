@@ -10,7 +10,7 @@ import {
   ToastProvider,
   useToast as useLeafygreenToast,
 } from '../components/leafygreen';
-import { css } from '@leafygreen-ui/emotion';
+import { STACKED_ELEMENT_STYLES } from '../utils/with-z-index';
 
 export type ToastProperties = Pick<
   ToastProps,
@@ -160,7 +160,6 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
   );
 };
 
-const toastAreaFronLayerStyles = css({ zIndex: 1 });
 const ToastAreaMountedContext = React.createContext(false);
 
 export const ToastArea: React.FunctionComponent = ({ children }) => {
@@ -170,7 +169,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
 
   return (
     <ToastAreaMountedContext.Provider value={true}>
-      <ToastProvider portalClassName={toastAreaFronLayerStyles}>
+      <ToastProvider portalClassName={STACKED_ELEMENT_STYLES}>
         <_ToastArea>{children}</_ToastArea>
       </ToastProvider>
     </ToastAreaMountedContext.Provider>

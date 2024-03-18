@@ -30,7 +30,7 @@ MenuItem.defaultProps = {
 import LeafyGreenModal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
-import Popover from '@leafygreen-ui/popover';
+import UnwrappedPopover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 import {
@@ -67,6 +67,7 @@ import {
 } from '@leafygreen-ui/typography';
 
 import { withDarkMode } from '../hooks/use-theme';
+import { withZIndex } from '../utils/with-z-index';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
@@ -96,6 +97,7 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 // all hrefs.
 export { Link, Button, IconButton } from './links/link';
 
+const Popover = withZIndex(UnwrappedPopover as any) as typeof UnwrappedPopover;
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,

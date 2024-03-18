@@ -3,6 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
 import { useScrollbars } from '../../hooks/use-scrollbars';
+import { withZIndex } from '../../utils/with-z-index';
 
 const contentStyles = css({
   width: '600px',
@@ -37,7 +38,7 @@ const contentFullScreenStyles = css({
   },
 });
 
-function Modal({
+function UnwrappedModal({
   className,
   contentClassName,
   children,
@@ -72,4 +73,5 @@ function Modal({
   );
 }
 
+const Modal = withZIndex(UnwrappedModal);
 export { Modal };
