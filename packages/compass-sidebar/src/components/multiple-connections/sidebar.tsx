@@ -139,6 +139,7 @@ export function MultipleConnectionSidebar({
     removeConnection,
     saveConnection,
     duplicateConnection,
+    createNewConnection,
     state,
   } = useConnections({
     onConnected: onConnected,
@@ -162,10 +163,10 @@ export function MultipleConnectionSidebar({
     [connect, setActiveConnectionById]
   );
 
-  const onNewConnectionOpen = useCallback(
-    () => setIsConnectionFormOpen(true),
-    []
-  );
+  const onNewConnectionOpen = useCallback(() => {
+    createNewConnection();
+    setIsConnectionFormOpen(true);
+  }, []);
   const onNewConnectionClose = useCallback(
     () => setIsConnectionFormOpen(false),
     []
