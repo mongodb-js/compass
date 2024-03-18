@@ -1,7 +1,7 @@
 import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { useConnectionsManagerContext } from '../provider';
 import {
-  type ConnectionStatus,
+  ConnectionStatus,
   ConnectionsManagerEvents,
 } from '../connections-manager';
 
