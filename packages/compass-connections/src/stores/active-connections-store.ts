@@ -1,6 +1,10 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useEffect, useState } from 'react';
 import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionsManagerEvents,
+  useConnectionsManagerContext,
+} from '../provider';
 
 export function useActiveConnections(): ConnectionInfo[] {
   const connectionManager = useConnectionsManagerContext();
@@ -23,12 +27,12 @@ export function useActiveConnections(): ConnectionInfo[] {
     void updateList();
 
     for (const event of Object.values(ConnectionsManagerEvents)) {
-      connectionManager.addListener(event, updateList);
+      connectionManager.addListener(event, () => updateList);
     }
 
     return () => {
       for (const event of Object.values(ConnectionsManagerEvents)) {
-        connectionManager.addListener(event, updateList);
+        connectionManager.addListener(event, () => updateList);
       }
     };
   }, [updateList]);
