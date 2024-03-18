@@ -7,7 +7,7 @@ import databasesReducer, {
 } from '../modules/databases';
 import type AppRegistry from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
 type DatabasesTabServices = {

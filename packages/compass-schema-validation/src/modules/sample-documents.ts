@@ -1,6 +1,6 @@
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { checkValidator } from './validation';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export const SAMPLE_SIZE = 10000;

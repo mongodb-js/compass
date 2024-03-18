@@ -4,8 +4,10 @@ import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
-import type { DataService } from 'mongodb-data-service';
+import {
+  dataServiceLocator,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';

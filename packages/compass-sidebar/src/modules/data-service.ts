@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { RootAction, SidebarThunkAction } from '.';
 
 export const SET_DATASERVICE = 'sidebar/SET_DATASERVICE' as const;

@@ -1,7 +1,7 @@
 import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';

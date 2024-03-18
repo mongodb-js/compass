@@ -65,7 +65,7 @@
     "@mongodb-js/compass-components": "^1.22.1",
     "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-logging": "^1.2.14",
-    "bson": "^6.3.0",
+    "bson": "^6.5.0",
     "hadron-app-registry": "^9.1.8",
     "react": "^17.0.2"
   },
@@ -74,7 +74,7 @@
     "@mongodb-js/compass-components": "^1.22.1",
     "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-logging": "^1.2.14",
-    "bson": "^6.3.0",
+    "bson": "^6.5.0",
     "hadron-app-registry": "^9.1.8"
   },
   "devDependencies": {
