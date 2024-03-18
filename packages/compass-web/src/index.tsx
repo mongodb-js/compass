@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { connect } from 'mongodb-data-service';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
-  ConnectionStatus,
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
@@ -272,35 +271,30 @@ const CompassWeb = ({
     utmMedium: 'product',
   };
 
-  if (
-    !connected ||
-    connectionsManager.current.statusOf(connectionInfo.id) !==
-      ConnectionStatus.Connected
-  ) {
-    return (
-      <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
-        <LoadingScreen
-          connectionString={connectionInfo.connectionOptions.connectionString}
-        ></LoadingScreen>
-      </CompassComponentsProvider>
-    );
-  }
   return (
     <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
             <ConnectionsManagerProvider value={connectionsManager.current}>
-              <ConnectionInfoProvider value={connectionInfo}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <CompassWorkspace
-                      initialWorkspaceTabs={initialWorkspaceTabs}
-                      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                    />
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
-              </ConnectionInfoProvider>
+              <CompassInstanceStorePlugin>
+                <ConnectionInfoProvider value={connectionInfo}>
+                  {connected ? (
+                    <FieldStorePlugin>
+                      <CompassWorkspace
+                        initialWorkspaceTabs={initialWorkspaceTabs}
+                        onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                      />
+                    </FieldStorePlugin>
+                  ) : (
+                    <LoadingScreen
+                      connectionString={
+                        connectionInfo.connectionOptions.connectionString
+                      }
+                    ></LoadingScreen>
+                  )}
+                </ConnectionInfoProvider>
+              </CompassInstanceStorePlugin>
             </ConnectionsManagerProvider>
           </AppRegistryProvider>
         </WithAtlasProviders>
