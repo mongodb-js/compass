@@ -8,7 +8,7 @@ import { activateDocumentsPlugin } from './stores/crud-store';
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,

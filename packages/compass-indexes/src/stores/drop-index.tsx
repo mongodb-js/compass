@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService } from 'mongodb-data-service/provider';
+import type { DataService } from 'mongodb-data-service';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type DropIndexInitialProps = Pick<CollectionTabPluginMetadata, 'namespace'>;

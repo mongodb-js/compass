@@ -2,7 +2,7 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';

@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { WorkerRuntime } from './worker-runtime';
 import type AppRegistry from 'hadron-app-registry';
 import type { RootAction } from '.';
