@@ -10,7 +10,7 @@ export const ConnectionStorageContext = createContext<
   typeof ConnectionStorage | null
 >(null);
 
-export { ConnectionStorage } from './renderer';
+export { type ConnectionStorage } from './renderer';
 
 // TODO(COMPASS-7397): storage context should not be leaking out of the service
 // provider export, but the way the connection plugin is currently implemented
