@@ -34,10 +34,6 @@ const sidebarStyles = css({
   height: '100%',
 });
 
-// TODO We will get rid of this placeholder when expose the necessary props outside
-// eslint-disable-next-line
-const noop_tmp = (() => {}) as any;
-
 type ConnectionErrorToastBodyProps = {
   info: ConnectionInfo;
   onReview: () => void;
