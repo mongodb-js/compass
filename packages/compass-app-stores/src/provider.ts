@@ -4,16 +4,16 @@ import { createServiceLocator } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { createContext, useContext } from 'react';
 
-export const InstanceContext = createContext<
+export const InstancesContext = createContext<
   Record<ConnectionInfo['id'], MongoDBInstance>
 >({});
 
-export const MongoDBInstanceProvider = InstanceContext.Provider;
+export const MongoDBInstanceProvider = InstancesContext.Provider;
 
 export const mongoDBInstanceLocator = createServiceLocator(
   function mongoDBInstanceLocator(): MongoDBInstance {
     const connectionInfo = useConnectionInfo();
-    const instances = useContext(InstanceContext);
+    const instances = useContext(InstancesContext);
     const instance = instances[connectionInfo.id];
     if (!instance) {
       throw new Error('No MongoDBInstance available in this context');

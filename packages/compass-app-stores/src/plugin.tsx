@@ -5,7 +5,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import { InstanceContext } from './provider';
+import { InstancesContext } from './provider';
 import { createInstancesStore } from './stores';
 import {
   connectionsManagerLocator,
@@ -23,9 +23,9 @@ function MongoDBInstancesProvider({
   instances,
 }: MongoDBInstancesProviderProps) {
   return (
-    <InstanceContext.Provider value={instances}>
+    <InstancesContext.Provider value={instances}>
       {children}
-    </InstanceContext.Provider>
+    </InstancesContext.Provider>
   );
 }
 
