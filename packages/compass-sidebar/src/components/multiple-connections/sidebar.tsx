@@ -17,11 +17,11 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { DataService } from 'mongodb-data-service/provider';
+import type { DataService } from 'mongodb-data-service';
 
 type MultipleConnectionSidebarProps = {
   appName: string;
-  connectFn?: (ConnectionInfo) => Promise<DataService>;
+  connectFn?: (info: ConnectionInfo) => Promise<DataService>;
 };
 
 const sidebarStyles = css({
@@ -35,7 +35,7 @@ const sidebarStyles = css({
 });
 
 type ConnectionErrorToastBodyProps = {
-  info: ConnectionInfo;
+  info: ConnectionInfo | null;
   onReview: () => void;
 };
 
@@ -56,14 +56,19 @@ function ConnectionErrorToastBody({
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
-      <span>There was a problem connecting to {getConnectionTitle(info)}</span>
-      <Link
-        className={connectionErrorToastActionMessageStyles}
-        hideExternalIcon={true}
-        onClick={onReview}
-      >
-        REVIEW
-      </Link>
+      <span>
+        There was a problem connecting{' '}
+        {info ? `to ${getConnectionTitle(info)}` : ''}
+      </span>
+      {info && (
+        <Link
+          className={connectionErrorToastActionMessageStyles}
+          hideExternalIcon={true}
+          onClick={onReview}
+        >
+          REVIEW
+        </Link>
+      )}
     </span>
   );
 }
@@ -74,7 +79,7 @@ export function MultipleConnectionSidebar({
   connectFn,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
-  const cancelCurrentConnectionRef = useRef<() => void>(undefined);
+  const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
@@ -86,7 +91,7 @@ export function MultipleConnectionSidebar({
   const onConnectionAttemptStarted = useCallback(
     (info: ConnectionInfo) => {
       const cancelAndCloseToast = () => {
-        cancelCurrentConnectionRef.current?.();
+        cancelCurrentConnectionRef.current?.(info.id);
         closeToast('connection-status');
       };
 
@@ -105,7 +110,7 @@ export function MultipleConnectionSidebar({
   );
 
   const onConnectionFailed = useCallback(
-    (info: ConnectionInfo, error: Error) => {
+    (info: ConnectionInfo | null, error: Error) => {
       const reviewAndCloseToast = () => {
         closeToast('connection-status');
         setIsConnectionFormOpen(true);
@@ -140,9 +145,9 @@ export function MultipleConnectionSidebar({
   } = useConnections({
     onConnected: onConnected,
     onConnectionAttemptStarted: onConnectionAttemptStarted,
-    onConnectionFailed: onConnectionFailed,
-    isConnected: false,
-    connectFn: connectFn,
+    onConnectionFailed(info, error) {
+      void onConnectionFailed(info, error);
+    },
     appName: appName,
   });
 
