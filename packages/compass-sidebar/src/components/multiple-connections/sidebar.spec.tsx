@@ -7,7 +7,6 @@ import {
   cleanup,
   waitFor,
   within,
-  queryByTestId,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MultipleConnectionSidebar } from './sidebar';
@@ -18,16 +17,30 @@ import {
   ConnectionStorageContext,
   type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
-import { DataService } from 'mongodb-data-service/provider';
+import type { DataService } from 'mongodb-data-service';
+import {
+  ConnectionsManagerProvider,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 
-const slowConnection = (response) =>
-  new Promise<DataService>((resolve, reject) => {
-    setTimeout(() => resolve(response(resolve, reject)), 20);
+type PromiseFunction = (
+  resolve: (dataService: DataService) => void,
+  reject: (error: { message: string }) => void
+) => void;
+
+function slowConnection(response: PromiseFunction): Promise<DataService> {
+  return new Promise<DataService>((resolve, reject) => {
+    setTimeout(() => response(resolve, reject), 20);
   });
+}
 
-const andFail = (message: string) => (resolve, reject) => reject({ message });
-const andSucceed = () => (resolve, reject) => resolve({} as DataService);
+function andFail(message: string): PromiseFunction {
+  return (resolve, reject) => reject({ message });
+}
+
+function andSucceed(): PromiseFunction {
+  return (resolve) => resolve({} as DataService);
+}
 
 const savedConnection: ConnectionInfo = {
   id: '12345',
@@ -41,10 +54,13 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
+type ItselfAndStub<T> = {
+  [K in keyof T]: ReturnType<typeof stub>;
+};
+
 describe('Multiple Connections Sidebar Component', function () {
-  const connectionStorage: Pick<
-    typeof ConnectionStorage,
-    'loadAll' | 'load' | 'save' | 'delete'
+  const connectionStorage: ItselfAndStub<
+    Pick<typeof ConnectionStorage, 'loadAll' | 'load' | 'save' | 'delete'>
   > = {
     loadAll: stub(),
     load: stub(),
@@ -55,16 +71,19 @@ describe('Multiple Connections Sidebar Component', function () {
   const connectFn = stub();
 
   function doRender() {
+    const storage = connectionStorage as any as typeof ConnectionStorage;
+    const connectionManager = new ConnectionsManager({
+      logger: {} as any,
+      __TEST_CONNECT_FN: connectFn,
+    });
+
     return render(
       <ToastArea>
-        <ConnectionStorageContext.Provider
-          value={connectionStorage as ConnectionStorage}
-        >
+        <ConnectionStorageContext.Provider value={storage}>
           <ConnectionRepositoryContextProvider>
-            <MultipleConnectionSidebar
-              appName="Sidebar Spec"
-              connectFn={connectFn}
-            />
+            <ConnectionsManagerProvider value={connectionManager}>
+              <MultipleConnectionSidebar appName="Sidebar Spec" />
+            </ConnectionsManagerProvider>
           </ConnectionRepositoryContextProvider>
         </ConnectionStorageContext.Provider>
       </ToastArea>
@@ -92,18 +111,16 @@ describe('Multiple Connections Sidebar Component', function () {
     describe('when successfully connected', function () {
       it('calls the connection function and renders the progress toast', async function () {
         connectFn.returns(slowConnection(andSucceed()));
-        parentSavedConnection = screen.queryByTestId('saved-connection-12345');
+        parentSavedConnection = screen.getByTestId('saved-connection-12345');
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).queryByLabelText(
+        const connectButton = within(parentSavedConnection).getByLabelText(
           'Connect'
         );
 
         userEvent.click(connectButton);
-        const connectingToast = await screen.getByText(
-          'Connecting to localhost'
-        );
+        const connectingToast = screen.getByText('Connecting to localhost');
         expect(connectingToast).to.exist;
         expect(connectFn).to.have.been.called;
 
@@ -117,18 +134,16 @@ describe('Multiple Connections Sidebar Component', function () {
       it('calls the connection function and renders the error toast', async function () {
         connectionStorage.loadAll.returns([savedConnection]);
         connectFn.returns(slowConnection(andFail('Expected failure')));
-        parentSavedConnection = screen.queryByTestId('saved-connection-12345');
+        parentSavedConnection = screen.getByTestId('saved-connection-12345');
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).queryByLabelText(
+        const connectButton = within(parentSavedConnection).getByLabelText(
           'Connect'
         );
 
         userEvent.click(connectButton);
-        const connectingToast = await screen.getByText(
-          'Connecting to localhost'
-        );
+        const connectingToast = screen.getByText('Connecting to localhost');
         expect(connectingToast).to.exist;
         expect(connectFn).to.have.been.called;
 

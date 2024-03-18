@@ -1,7 +1,6 @@
 import {
   type ConnectionInfo,
   getConnectionTitle,
-  ConnectionStatus,
 } from '@mongodb-js/connection-info';
 import { useConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';

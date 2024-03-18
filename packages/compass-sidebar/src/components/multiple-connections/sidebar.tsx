@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
 import {
-  ConnectionInfo,
+  type ConnectionInfo,
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
@@ -17,11 +17,9 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { DataService } from 'mongodb-data-service';
 
 type MultipleConnectionSidebarProps = {
   appName: string;
-  connectFn?: (info: ConnectionInfo) => Promise<DataService>;
 };
 
 const sidebarStyles = css({
@@ -76,7 +74,6 @@ function ConnectionErrorToastBody({
 // eslint-disable-next-line
 export function MultipleConnectionSidebar({
   appName,
-  connectFn,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
@@ -91,7 +88,7 @@ export function MultipleConnectionSidebar({
   const onConnectionAttemptStarted = useCallback(
     (info: ConnectionInfo) => {
       const cancelAndCloseToast = () => {
-        cancelCurrentConnectionRef.current?.(info.id);
+        void cancelCurrentConnectionRef.current?.(info.id);
         closeToast('connection-status');
       };
 
@@ -157,9 +154,9 @@ export function MultipleConnectionSidebar({
   cancelCurrentConnectionRef.current = cancelConnectionAttempt;
 
   const onConnect = useCallback(
-    async (info: ConnectionInfo) => {
+    (info: ConnectionInfo) => {
       setActiveConnectionById(info.id);
-      await connect(info);
+      void connect(info);
     },
     [connect, setActiveConnectionById]
   );
