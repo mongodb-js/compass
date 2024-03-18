@@ -61,4 +61,4 @@ export const dataServiceLocator = createServiceLocator(
   }
 );
 
-export { useConnectionStatus } from './hooks/use-connection-status.ts';
+export { useConnectionStatus } from './hooks/use-connection-status';

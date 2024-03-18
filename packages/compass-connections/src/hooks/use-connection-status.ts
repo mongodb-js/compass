@@ -21,7 +21,11 @@ export function useConnectionStatus(connectionInfo?: ConnectionInfo): {
   );
 
   const updateStatus = () => {
-    setStatus(connectionManager.statusOf(connectionInfo.id));
+    setStatus(
+      connectionInfo
+        ? connectionManager.statusOf(connectionInfo?.id)
+        : ConnectionStatus.Disconnected
+    );
   };
 
   useEffect(() => {
