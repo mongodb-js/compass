@@ -123,7 +123,12 @@
     "react-dom": "^17.0.2",
     "resolve": "^1.15.1",
     "sinon": "^8.1.1",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "mongodb": "^6.5.0",
+    "mongodb-build-info": "^1.7.0",
+    "resolve-mongodb-srv": "^1.1.2",
+    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-cloud-info": "^2.1.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

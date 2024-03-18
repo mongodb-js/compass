@@ -32,6 +32,9 @@ import {
 import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { getAtlasPerformanceAdvisorLink } from '../utils';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const rootStyles = css({
   width: '100%',
@@ -331,7 +334,10 @@ const FieldList: React.FunctionComponent<{
 };
 
 const nbsp = '\u00a0';
+const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
+  const { atlasMetadata } = useConnectionInfo();
+  const { track } = useLoggerAndTelemetry('COMPASS-SCHEMA');
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for schema anti-patterns?</Body>
@@ -341,12 +347,17 @@ const PerformanceAdvisorBanner = () => {
         Insight
       </Badge>
       {nbsp}or{nbsp}
-      {/* todo: COMPASS-7701 add correct link */}
-      {/* #/metrics/replicaSet/{clusterId}/advisor */}
-      {/* #/serverless/advisor/{clusterName}/createIndexes */}
-      <Link href="#/" target="_blank" hideExternalIcon>
-        Atlas’ Performance Advisor.
-      </Link>
+      {atlasMetadata ? (
+        <Link
+          href={getAtlasPerformanceAdvisorLink(atlasMetadata)}
+          onClick={() => track('Performance Advisor Clicked')}
+          hideExternalIcon
+        >
+          {title}
+        </Link>
+      ) : (
+        title
+      )}
     </Banner>
   );
 };

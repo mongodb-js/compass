@@ -53,7 +53,7 @@ export default class CompassShellStore {
         // already check whether Compass telemetry is enabled or not.
         track: ({ event, properties }) => track(`Shell ${event}`, properties),
         flush: () => {
-          /* not needed */
+          return Promise.resolve(); // not needed
         },
       },
       {

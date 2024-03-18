@@ -41,6 +41,11 @@ import React, {
 } from 'react';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
+import {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent,
+} from '../modules/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -182,6 +187,7 @@ function Home({
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const connectedDataService = useRef<DataService>();
+  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
   const [
     { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
@@ -204,10 +210,25 @@ function Home({
 
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
       connectedDataService.current = dataService;
       dataService.addReauthenticationHandler(reauthenticationHandler.current);
 
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
+    },
+    []
+  );
+
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo, error: Error) => {
+      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
+    },
+    []
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
     },
     []
   );
@@ -411,6 +432,8 @@ function Home({
               <Connections
                 appRegistry={appRegistry}
                 onConnected={onConnected}
+                onConnectionFailed={onConnectionFailed}
+                onConnectionAttemptStarted={onConnectionAttemptStarted}
                 isConnected={isConnected}
                 appName={appName}
                 getAutoConnectInfo={
@@ -453,6 +476,8 @@ function ThemedHome(
           });
         }
       }}
+      utmSource="compass"
+      utmMedium="product"
       onSignalMount={(id) => {
         track('Signal Shown', { id });
       }}
