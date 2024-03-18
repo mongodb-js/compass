@@ -75,10 +75,11 @@ describe('InstanceStore [Store]', function () {
     sandbox = sinon.createSandbox();
 
     dataService = createDataService();
-    connectionsManager = new ConnectionsManager(() =>
-      Promise.resolve(dataService)
-    );
     const logger = createNoopLoggerAndTelemetry();
+    connectionsManager = new ConnectionsManager({
+      logger: logger.log.unbound,
+      __TEST_CONNECT_FN: () => Promise.resolve(dataService),
+    });
 
     store = createInstancesStore(
       {
