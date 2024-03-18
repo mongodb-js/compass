@@ -166,7 +166,7 @@ export function MultipleConnectionSidebar({
   const onNewConnectionOpen = useCallback(() => {
     createNewConnection();
     setIsConnectionFormOpen(true);
-  }, []);
+  }, [createNewConnection]);
   const onNewConnectionClose = useCallback(
     () => setIsConnectionFormOpen(false),
     []
