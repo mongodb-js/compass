@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { useConnectionStatus } from './use-connection-status';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
