@@ -88,7 +88,7 @@
     "@mongosh/logging": "^2.2.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^28.2.5",
+    "electron": "^28.2.7",
     "electron-mocha": "^12.2.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
