@@ -73,7 +73,7 @@ describe('Multiple Connections Sidebar Component', function () {
   function doRender() {
     const storage = connectionStorage as any as typeof ConnectionStorage;
     const connectionManager = new ConnectionsManager({
-      logger: {} as any,
+      logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
     });
 
