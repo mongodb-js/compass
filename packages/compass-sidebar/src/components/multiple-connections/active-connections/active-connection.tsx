@@ -8,7 +8,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React, { useCallback } from 'react';
-import SidebarDatabasesNavigation from '../../sidebar-databases-navigation';
 import ServerIcon from '../icons/server-icon';
 
 const iconStyles = css({
@@ -38,7 +37,7 @@ const activeConnectionTitleStyles = css({
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',
-  padding: spacing[1],
+  padding: `${spacing[2]}px ${spacing[1]}px`,
   borderRadius: spacing[1],
 
   '&:hover': {
@@ -145,9 +144,7 @@ export function ActiveConnection({
         </div>
       </div>
       {isExpanded && (
-        <div className={databasesStyles}>
-          <SidebarDatabasesNavigation />
-        </div>
+        <div className={databasesStyles}>Databases placeholder</div>
       )}
     </li>
   );
