@@ -37,7 +37,7 @@ const activeConnectionTitleStyles = css({
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',
-  padding: `${spacing[2]}px ${spacing[1]}px`,
+  padding: spacing[1],
   borderRadius: spacing[1],
 
   '&:hover': {
