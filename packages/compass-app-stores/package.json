@@ -78,16 +78,16 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "mongodb-instance-model": "^12.18.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "mongodb-instance-model": "^12.18.1",
     "react": "^17.0.2"
   },

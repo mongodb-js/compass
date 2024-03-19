@@ -67,7 +67,6 @@ const queryBarFirstRowStyles = css({
   // to account for their height individually.
   alignItems: 'flex-start',
   gap: spacing[2],
-  paddingLeft: spacing[1],
 });
 
 const moreOptionsContainerStyles = css({
@@ -101,6 +100,9 @@ const queryOptionsContainerStyles = css({
 
 const queryAIContainerStyles = css({
   margin: `0px ${spacing[2]}px`,
+});
+
+const visibleAIContainerStyles = css({
   marginTop: '2px',
 });
 
@@ -312,7 +314,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </div>
         )}
       {isAIFeatureEnabled && (
-        <div className={queryAIContainerStyles}>
+        <div
+          className={cx(
+            queryAIContainerStyles,
+            isAIInputVisible && visibleAIContainerStyles
+          )}
+        >
           <QueryAI
             onClose={() => {
               onHideAIInputClick?.();

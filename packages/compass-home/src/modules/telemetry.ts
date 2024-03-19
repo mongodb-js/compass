@@ -1,7 +1,4 @@
-import {
-  type DataService,
-  configuredKMSProviders,
-} from 'mongodb-data-service/provider';
+import { type DataService, configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
@@ -200,13 +197,14 @@ export function trackNewConnectionEvent(
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { track, debug }: LoggerAndTelemetry
 ): void {
   try {
     const callback = async () => {
-      const connectionData = await getConnectionData(connectionInfo);
+      const connectionData =
+        connectionInfo !== null ? await getConnectionData(connectionInfo) : {};
       const trackEvent = {
         ...connectionData,
         error_code: connectionError.code,

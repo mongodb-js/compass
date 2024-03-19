@@ -58,6 +58,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-app-stores": "^7.10.1",
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-databases-navigation": "^1.23.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.16.1",
@@ -65,16 +66,15 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
-    "@mongodb-js/compass-connections": "^1.25.1",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "mongodb-instance-model": "^12.18.1",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-app-stores": "^7.10.1",
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-databases-navigation": "^1.23.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.16.1",
@@ -82,10 +82,8 @@
     "@mongodb-js/connection-form": "^1.23.1",
     "@mongodb-js/connection-info": "^0.1.5",
     "@mongodb-js/connection-storage": "^0.8.1",
-    "@mongodb-js/compass-connections": "^1.25.1",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "mongodb-instance-model": "^12.18.1"
   },
   "devDependencies": {
@@ -111,6 +109,7 @@
     "mocha": "^10.2.0",
     "mongodb": "^6.5.0",
     "mongodb-ns": "^2.4.0",
+    "mongodb-data-service": "^22.18.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",

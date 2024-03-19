@@ -3,7 +3,7 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 
 type CollectionThunkAction<
   ReturnType,

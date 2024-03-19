@@ -40,8 +40,6 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     onConnected: noop_tmp, // TODO: COMPASS-7710,
     onConnectionAttemptStarted: noop_tmp,
     onConnectionFailed: noop_tmp,
-    isConnected: true, // TODO: COMPASS-7710
-    connectFn: noop_tmp, // TODO: COMPASS-7710
     appName: '', // TODO: COMPASS-7710
     getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
   });

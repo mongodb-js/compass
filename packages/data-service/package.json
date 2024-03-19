@@ -19,20 +19,16 @@
   "main": "lib/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./provider": "./lib/provider.js"
+    ".": "./lib/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts",
-    "./provider": "./src/provider.ts"
+    ".": "./src/index.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "package.json",
-    "README.md",
-    "provider.js",
-    "provider.d.ts"
+    "README.md"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
@@ -64,7 +60,6 @@
     "@mongodb-js/devtools-connect": "^2.6.0",
     "@mongodb-js/oidc-plugin": "^0.4.0",
     "@mongodb-js/ssh-tunnel": "^2.1.13",
-    "hadron-app-registry": "^9.1.8",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.7.0",
     "mongodb-connection-string-url": "^2.6.0",
