@@ -1,7 +1,7 @@
 import { Subtitle, css, spacing } from '@mongodb-js/compass-components';
 import React, { useEffect, useState } from 'react';
 import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
-import { OpenConnection } from './open-connection';
+import { ActiveConnection } from './active-connection';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -12,7 +12,7 @@ const activeConnectionsContainerStyles = css({
   padding: spacing[3],
 });
 
-const openConnectionListHeaderStyles = css({
+const activeConnectionListHeaderStyles = css({
   flexGrow: 0,
   display: 'flex',
   flexDirection: 'row',
@@ -20,14 +20,14 @@ const openConnectionListHeaderStyles = css({
   justifyContent: 'space-between',
 });
 
-const openConnectionListHeaderTitleStyles = css({
+const activeConnectionListHeaderTitleStyles = css({
   marginTop: 0,
   marginBottom: 0,
   textTransform: 'uppercase',
   fontSize: '12px',
 });
 
-const openConnectionCountStyles = css({
+const activeConnectionCountStyles = css({
   fontWeight: 'normal',
 });
 
@@ -36,7 +36,7 @@ const activeConnectionsListStyles = css({
   height: '100%',
 });
 
-export function OpenConnectionList(): React.ReactElement {
+export function ActiveConnectionList(): React.ReactElement {
   const activeConnections = useActiveConnections();
   const connectionsCount = activeConnections.length;
   const [collapsed, setCollapsed] = useState<string[]>([]);
@@ -76,17 +76,17 @@ export function OpenConnectionList(): React.ReactElement {
 
   return (
     <div className={activeConnectionsContainerStyles}>
-      <header className={openConnectionListHeaderStyles}>
-        <Subtitle className={openConnectionListHeaderTitleStyles}>
+      <header className={activeConnectionListHeaderStyles}>
+        <Subtitle className={activeConnectionListHeaderTitleStyles}>
           Active connections{' '}
-          <span className={openConnectionCountStyles}>
+          <span className={activeConnectionCountStyles}>
             ({connectionsCount})
           </span>
         </Subtitle>
       </header>
       <ul className={activeConnectionsListStyles}>
         {namedConnections.map((connection) => (
-          <OpenConnection
+          <ActiveConnection
             key={connection.id}
             connection={connection}
             isExpanded={!collapsed.includes(connection.id)}

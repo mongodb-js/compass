@@ -13,13 +13,13 @@ const iconStyles = css({
   flex: 'none',
 });
 
-const openConnectionNameStyles = css({
+const activeConnectionNameStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
 });
 
-const openConnectionTitleStyles = css({
+const activeConnectionTitleStyles = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[2],
@@ -28,7 +28,7 @@ const openConnectionTitleStyles = css({
   marginTop: 'auto',
 });
 
-const openConnectionStyles = css({
+const activeConnectionStyles = css({
   gap: spacing[2],
   padding: spacing[1],
   alignItems: 'center',
@@ -41,7 +41,7 @@ const databasesStyles = css({
   display: 'flex',
 });
 
-export function OpenConnection({
+export function ActiveConnection({
   connection,
   isExpanded,
   onToggle,
@@ -87,12 +87,12 @@ export function OpenConnection({
   return (
     <li
       {...hoverProps}
-      className={openConnectionStyles}
+      className={activeConnectionStyles}
       onClick={onExpand}
       onKeyDown={onKeyDown}
       role="treeitem"
     >
-      <div className={openConnectionTitleStyles}>
+      <div className={activeConnectionTitleStyles}>
         {isExpanded ? (
           <Icon
             size={spacing[3]}
@@ -104,7 +104,7 @@ export function OpenConnection({
           <Icon size={spacing[3]} className={iconStyles} glyph="CaretRight" />
         )}
         {connectionIcon}{' '}
-        <div className={openConnectionNameStyles}>{connection.title}</div>
+        <div className={activeConnectionNameStyles}>{connection.title}</div>
       </div>
       {isExpanded && (
         <div className={databasesStyles}>
