@@ -1,15 +1,14 @@
-import {
-  IconButton,
-  Subtitle,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Subtitle, css, spacing } from '@mongodb-js/compass-components';
 import React, { useEffect, useState } from 'react';
 import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
 import { OpenConnection } from './open-connection';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
 
-const openConnectionsContainerStyles = css({
+const activeConnectionsContainerStyles = css({
+  height: '100%',
   padding: spacing[3],
 });
 
@@ -32,10 +31,18 @@ const openConnectionCountStyles = css({
   fontWeight: 'normal',
 });
 
+const activeConnectionsListStyles = css({
+  listStyle: 'none',
+  height: '100%',
+});
+
 export function OpenConnectionList(): React.ReactElement {
-  const openConnections = useActiveConnections();
-  const connectionsCount = openConnections.length;
+  const activeConnections = useActiveConnections();
+  const connectionsCount = activeConnections.length;
   const [collapsed, setCollapsed] = useState<string[]>([]);
+  const [namedConnections, setNamedConnections] = useState<
+    (ConnectionInfo & { title: string })[]
+  >([]);
 
   const onConnectionToggle = (connectionId: string, isExpanded: boolean) => {
     if (!isExpanded && !collapsed.includes(connectionId))
@@ -52,15 +59,23 @@ export function OpenConnectionList(): React.ReactElement {
   useEffect(() => {
     // cleanup connections that are no longer active
     // if the user connects again, the new connection should be expanded again
-    const newCollapsed = openConnections
+    const newCollapsed = activeConnections
       .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
       .map(({ id }: ConnectionInfo) => id);
-    setCollapsed(newCollapsed as string[]);
+    setCollapsed(newCollapsed);
+
+    const newConnectionList = activeConnections
+      .map((connectionInfo) => ({
+        ...connectionInfo,
+        title: getConnectionTitle(connectionInfo),
+      }))
+      .sort((a, b) => a.title.localeCompare(b.title));
+    setNamedConnections(newConnectionList);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openConnections]);
+  }, [activeConnections]);
 
   return (
-    <div className={openConnectionsContainerStyles}>
+    <div className={activeConnectionsContainerStyles}>
       <header className={openConnectionListHeaderStyles}>
         <Subtitle className={openConnectionListHeaderTitleStyles}>
           Active connections{' '}
@@ -69,16 +84,18 @@ export function OpenConnectionList(): React.ReactElement {
           </span>
         </Subtitle>
       </header>
-      {openConnections.map((connectionInfo: ConnectionInfo) => (
-        <OpenConnection
-          key={connectionInfo.id}
-          connectionInfo={connectionInfo}
-          isExpanded={!collapsed.includes(connectionInfo.id)}
-          onToggle={(isExpanded: boolean) =>
-            onConnectionToggle(connectionInfo.id, isExpanded)
-          }
-        />
-      ))}
+      <ul className={activeConnectionsListStyles}>
+        {namedConnections.map((connection) => (
+          <OpenConnection
+            key={connection.id}
+            connection={connection}
+            isExpanded={!collapsed.includes(connection.id)}
+            onToggle={(isExpanded: boolean) =>
+              onConnectionToggle(connection.id, isExpanded)
+            }
+          />
+        ))}
+      </ul>
     </div>
   );
 }

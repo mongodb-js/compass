@@ -19,7 +19,6 @@ export function useActiveConnections(): ConnectionInfo[] {
       ...(await connectionRepository.listFavoriteConnections()),
       ...(await connectionRepository.listNonFavoriteConnections()),
     ].filter(({ id }) => connectionManager.statusOf(id) === 'connected');
-    // TODO: sort alphabetically
     setActiveConnections(list);
   };
 
@@ -35,7 +34,7 @@ export function useActiveConnections(): ConnectionInfo[] {
         connectionManager.addListener(event, () => updateList);
       }
     };
-  }, [updateList]);
+  }, []);
 
   return activeConnections;
 }
