@@ -4,12 +4,10 @@ import {
   spacing,
   useHoverState,
 } from '@mongodb-js/compass-components';
-import {
-  getConnectionTitle,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React, { useCallback } from 'react';
 import SidebarDatabasesNavigation from '../../sidebar-databases-navigation';
+import ServerIcon from '../icons/server-icon';
 
 const iconStyles = css({
   flex: 'none',
@@ -21,31 +19,52 @@ const openConnectionNameStyles = css({
   whiteSpace: 'nowrap',
 });
 
-const openConnectionStyles = css({
+const openConnectionTitleStyles = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[2],
-  borderRadius: spacing[1],
-  padding: spacing[1],
-  paddingLeft: spacing[2],
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',
 });
 
+const openConnectionStyles = css({
+  gap: spacing[2],
+  padding: spacing[1],
+  alignItems: 'center',
+  marginTop: 'auto',
+  height: '100%',
+});
+
+const databasesStyles = css({
+  height: `calc(100% - ${spacing[3]}px)`,
+  display: 'flex',
+});
+
 export function OpenConnection({
-  connectionInfo,
+  connection,
   isExpanded,
   onToggle,
 }: {
   isExpanded: boolean;
-  connectionInfo: ConnectionInfo;
+  connection: ConnectionInfo & { title: string };
   onToggle: (isExpanded: boolean) => void;
 }): React.ReactElement {
   const [hoverProps] = useHoverState();
-  const onClick = useCallback(() => {
+
+  const isLocalhost = connection.connectionOptions.connectionString.startsWith(
+    'mongodb://localhost'
+  );
+  const isFavorite = connection.savedConnectionType === 'favorite';
+
+  const onExpand = useCallback(() => {
     if (!isExpanded) onToggle(true);
   }, [isExpanded, onToggle]);
+
+  const onCollapse = useCallback(() => {
+    if (isExpanded) onToggle(false);
+  }, [isExpanded, onToggle]);
+
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (
@@ -58,27 +77,40 @@ export function OpenConnection({
     [isExpanded, onToggle]
   );
 
-  const connectionIcon = (
+  const connectionIcon = isLocalhost ? (
+    <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
+  ) : isFavorite ? (
     <Icon size={spacing[3]} className={iconStyles} glyph="Favorite" />
-  ); // TODO: icons
+  ) : (
+    <ServerIcon />
+  );
   return (
     <li
       {...hoverProps}
       className={openConnectionStyles}
-      onClick={onClick}
+      onClick={onExpand}
       onKeyDown={onKeyDown}
       role="treeitem"
     >
-      {isExpanded ? (
-        <Icon size={spacing[3]} className={iconStyles} glyph="CaretDown" />
-      ) : (
-        <Icon size={spacing[3]} className={iconStyles} glyph="CaretRight" />
-      )}
-      {connectionIcon}{' '}
-      <div className={openConnectionNameStyles}>
-        {getConnectionTitle(connectionInfo)}
+      <div className={openConnectionTitleStyles}>
+        {isExpanded ? (
+          <Icon
+            size={spacing[3]}
+            className={iconStyles}
+            glyph="CaretDown"
+            onClick={onCollapse}
+          />
+        ) : (
+          <Icon size={spacing[3]} className={iconStyles} glyph="CaretRight" />
+        )}
+        {connectionIcon}{' '}
+        <div className={openConnectionNameStyles}>{connection.title}</div>
       </div>
-      <SidebarDatabasesNavigation />
+      {isExpanded && (
+        <div className={databasesStyles}>
+          <SidebarDatabasesNavigation />
+        </div>
+      )}
     </li>
   );
 }
