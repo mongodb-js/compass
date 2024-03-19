@@ -312,6 +312,7 @@ class CompassApplication {
         '*://cloud.mongodb.com/*',
         '*://cloud-dev.mongodb.com/*',
         '*://compass.mongodb.com/*',
+        '*://localhost/*',
       ],
     };
 
