@@ -26,12 +26,12 @@ export function useActiveConnections(): ConnectionInfo[] {
     void updateList();
 
     for (const event of Object.values(ConnectionsManagerEvents)) {
-      connectionManager.addListener(event, () => updateList);
+      connectionManager.on(event, () => updateList);
     }
 
     return () => {
       for (const event of Object.values(ConnectionsManagerEvents)) {
-        connectionManager.addListener(event, () => updateList);
+        connectionManager.off(event, () => updateList);
       }
     };
   }, []);

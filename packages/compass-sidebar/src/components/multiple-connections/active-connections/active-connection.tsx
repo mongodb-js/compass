@@ -37,7 +37,7 @@ const activeConnectionStyles = css({
 });
 
 const databasesStyles = css({
-  height: `calc(100% - ${spacing[3]}px)`,
+  height: `calc(100% - ${spacing[4]}px)`,
   display: 'flex',
 });
 
