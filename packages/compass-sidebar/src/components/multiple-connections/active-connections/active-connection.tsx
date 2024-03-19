@@ -1,5 +1,6 @@
 import {
   Icon,
+  IconButton,
   css,
   spacing,
   useHoverState,
@@ -25,7 +26,7 @@ const activeConnectionTitleStyles = css({
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',
-  padding: `${spacing[2]}px ${spacing[1]}px`,
+  padding: spacing[1],
   borderRadius: spacing[1],
 
   '&:hover': {
@@ -54,7 +55,7 @@ export function ActiveConnection({
   connection: ConnectionInfo & { title: string };
   onToggle: (isExpanded: boolean) => void;
 }): React.ReactElement {
-  const [hoverProps] = useHoverState();
+  const [hoverProps, isHovered] = useHoverState();
 
   const isLocalhost = connection.connectionOptions.connectionString.startsWith(
     'mongodb://localhost'
@@ -109,6 +110,15 @@ export function ActiveConnection({
         )}
         {connectionIcon}{' '}
         <div className={activeConnectionNameStyles}>{connection.title}</div>
+        <div style={{ visibility: isHovered ? 'visible' : 'hidden' }}>
+          <IconButton
+            data-testid="options-button"
+            aria-label="Options"
+            title="Options"
+          >
+            <Icon glyph="Ellipsis" />
+          </IconButton>
+        </div>
       </div>
       {isExpanded && (
         <div className={databasesStyles}>Databases placeholder</div>
