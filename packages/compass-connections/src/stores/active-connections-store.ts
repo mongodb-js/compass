@@ -1,5 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManagerEvents,
@@ -14,27 +14,27 @@ export function useActiveConnections(): ConnectionInfo[] {
     []
   );
 
-  const updateList = async () => {
+  const updateList = useCallback(async () => {
     const list = [
       ...(await connectionRepository.listFavoriteConnections()),
       ...(await connectionRepository.listNonFavoriteConnections()),
     ].filter(({ id }) => connectionManager.statusOf(id) === 'connected');
     setActiveConnections(list);
-  };
+  }, []);
 
   useEffect(() => {
     void updateList();
 
     for (const event of Object.values(ConnectionsManagerEvents)) {
-      connectionManager.on(event, () => updateList);
+      connectionManager.on(event, () => void updateList());
     }
 
     return () => {
       for (const event of Object.values(ConnectionsManagerEvents)) {
-        connectionManager.off(event, () => updateList);
+        connectionManager.off(event, () => void updateList());
       }
     };
-  }, []);
+  }, [updateList]);
 
   return activeConnections;
 }

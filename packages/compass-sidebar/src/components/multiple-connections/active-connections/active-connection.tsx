@@ -38,7 +38,6 @@ const activeConnectionStyles = css({
   gap: spacing[2],
   alignItems: 'center',
   marginTop: 'auto',
-  height: '100%',
 });
 
 const databasesStyles = css({
