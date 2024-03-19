@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
+import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
@@ -112,7 +113,7 @@ class CompassApplication {
       return;
     }
 
-    this.setupCORSBypass();
+    await this.setupCORSBypass();
     void this.setupCompassAuthService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
@@ -272,6 +273,14 @@ class CompassApplication {
     handler: () => void
   ): typeof CompassApplication;
   static on(
+    event: 'auto-updater:new-state',
+    handler: (state: AutoUpdateManagerState) => void
+  ): typeof CompassApplication;
+  static on(
+    event: 'menu-request-restart',
+    handler: () => void
+  ): typeof CompassApplication;
+  static on(
     event: string,
     handler: (...args: unknown[]) => void
   ): typeof CompassApplication {
@@ -283,6 +292,11 @@ class CompassApplication {
   static emit(event: 'show-log-file-dialog'): boolean;
   static emit(event: 'new-window', bw: BrowserWindow): boolean;
   static emit(event: 'check-for-updates'): boolean;
+  static emit(
+    event: 'auto-updater:new-state',
+    state: AutoUpdateManagerState
+  ): boolean;
+  static emit(event: 'menu-request-restart'): boolean;
   static emit(event: string, ...args: unknown[]): boolean {
     return this.emitter.emit(event, ...args);
   }
@@ -292,7 +306,7 @@ class CompassApplication {
     return this;
   }
 
-  private static setupCORSBypass() {
+  private static async setupCORSBypass() {
     const CLOUD_URLS_FILTER = {
       urls: [
         '*://cloud.mongodb.com/*',
@@ -325,6 +339,9 @@ class CompassApplication {
       'access-control-expose-headers',
       'access-control-max-age',
     ];
+
+    // Accessing defaultSession is not allowed when app is not ready
+    await app.whenReady();
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
       CLOUD_URLS_FILTER,

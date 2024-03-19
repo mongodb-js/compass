@@ -128,11 +128,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             : isReadonly
             ? 'view'
             : 'collection';
-          const viewOnCollection = sourceName
-            ? toNS(sourceName).collection
-            : null;
-          const subtitle = viewOnCollection
-            ? `${database} > ${viewOnCollection} > ${collection}`
+          // Similar to what we have in the collection breadcrumbs.
+          const subtitle = sourceName
+            ? `${database} > ${toNS(sourceName).collection} > ${collection}`
+            : tab.editViewName
+            ? `${database} > ${collection} > ${
+                toNS(tab.editViewName).collection
+              }`
             : `${database} > ${collection}`;
           return {
             id: tab.id,

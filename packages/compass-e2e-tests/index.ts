@@ -82,6 +82,11 @@ async function setup() {
         };
         compassWeb.stdout.setEncoding('utf8').on('data', listener);
       });
+    } else {
+      debug('Writing electron-versions.json');
+      crossSpawn.sync('scripts/write-electron-versions.sh', [], {
+        stdio: 'inherit',
+      });
     }
   }
 
@@ -102,18 +107,21 @@ function cleanup() {
   removeUserDataDir();
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
+  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   if (!disableStartStop) {
-    debug('Stopping compass-web');
-    try {
-      if (compassWeb.pid) {
-        debug(`killing compass-web [${compassWeb.pid}]`);
-        kill(compassWeb.pid);
-      } else {
-        debug('no pid for compass-web');
+    if (shouldTestCompassWeb) {
+      debug('Stopping compass-web');
+      try {
+        if (compassWeb.pid) {
+          debug(`killing compass-web [${compassWeb.pid}]`);
+          kill(compassWeb.pid);
+        } else {
+          debug('no pid for compass-web');
+        }
+      } catch (e) {
+        debug('Failed to stop compass-web', e);
       }
-    } catch (e) {
-      debug('Failed to stop compass-web', e);
     }
 
     debug('Stopping MongoDB server');
@@ -150,6 +158,22 @@ async function main() {
   await setup();
 
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
+
+  if (!shouldTestCompassWeb) {
+    if (!process.env.CHROME_VERSION) {
+      // written during setup() if disableStartStop is false
+      const versionsJSON = await fs.promises.readFile(
+        'electron-versions.json',
+        'utf8'
+      );
+      const versions = JSON.parse(versionsJSON);
+      process.env.CHROME_VERSION = versions.chrome;
+    }
+    debug(
+      'Chrome version corresponding to Electron:',
+      process.env.CHROME_VERSION
+    );
+  }
 
   // These are mutually exclusive since compass-web is always going to browse to
   // the running webserver.

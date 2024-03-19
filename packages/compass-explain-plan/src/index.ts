@@ -1,8 +1,10 @@
 import ExplainPlanModal from './components/explain-plan-modal';
 import { activatePlugin } from './stores';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { DataServiceLocator } from 'mongodb-data-service/provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 

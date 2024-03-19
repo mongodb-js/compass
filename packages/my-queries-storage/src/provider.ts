@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
+import { createServiceLocator } from 'hadron-app-registry';
 
 export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };
 
@@ -29,12 +30,21 @@ export const FavoriteQueryStorageProvider =
 export const RecentQueryStorageProvider = RecentQueryStorageContext.Provider;
 
 export const usePipelineStorage = () => useContext(PipelineStorageContext);
-export const pipelineStorageLocator = usePipelineStorage;
+export const pipelineStorageLocator = createServiceLocator(
+  usePipelineStorage,
+  'pipelineStorageLocator'
+);
 
 export const useFavoriteQueryStorageAccess = () =>
   useContext(FavoriteQueryStorageContext);
-export const favoriteQueryStorageAccessLocator = useFavoriteQueryStorageAccess;
+export const favoriteQueryStorageAccessLocator = createServiceLocator(
+  useFavoriteQueryStorageAccess,
+  'favoriteQueryStorageAccessLocator'
+);
 
 export const useRecentQueryStorageAccess = () =>
   useContext(RecentQueryStorageContext);
-export const recentQueryStorageAccessLocator = useRecentQueryStorageAccess;
+export const recentQueryStorageAccessLocator = createServiceLocator(
+  useRecentQueryStorageAccess,
+  'recentQueryStorageAccessLocator'
+);

@@ -95,7 +95,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       namespace,
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
       dataService: { dataService },
       collationString: { value: collation },
     } = getState();

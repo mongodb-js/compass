@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Body,
   Icon,
   css,
   cx,
@@ -19,12 +18,6 @@ import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 const containerStyles = css({
   display: 'flex',
   gap: spacing[4],
-  alignItems: 'center',
-});
-
-const pipelineTextAndOpenStyles = css({
-  display: 'flex',
-  gap: spacing[2],
   alignItems: 'center',
 });
 
@@ -119,29 +112,23 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 }) => {
   const isSavingAggregationsEnabled = !!usePipelineStorage();
   return (
-    <div>
-      <div className={containerStyles} data-testid="pipeline-header">
-        <div
-          data-testid="saved-pipelines-popover"
-          className={pipelineTextAndOpenStyles}
-        >
-          <Body weight="medium">Pipeline</Body>
-          {isOpenPipelineVisible && isSavingAggregationsEnabled && (
-            <SavedPipelinesButton></SavedPipelinesButton>
-          )}
-        </div>
-        <div className={pipelineStagesStyles}>
-          <PipelineStages />
-        </div>
-        <div className={pipelineActionStyles}>
-          <PipelineActions
-            onToggleOptions={onToggleOptions}
-            isOptionsVisible={isOptionsVisible}
-            showRunButton={showRunButton}
-            showExportButton={showExportButton}
-            showExplainButton={showExplainButton}
-          />
-        </div>
+    <div className={containerStyles} data-testid="pipeline-header">
+      <div data-testid="saved-pipelines-popover">
+        {isOpenPipelineVisible && isSavingAggregationsEnabled && (
+          <SavedPipelinesButton></SavedPipelinesButton>
+        )}
+      </div>
+      <div className={pipelineStagesStyles}>
+        <PipelineStages />
+      </div>
+      <div className={pipelineActionStyles}>
+        <PipelineActions
+          onToggleOptions={onToggleOptions}
+          isOptionsVisible={isOptionsVisible}
+          showRunButton={showRunButton}
+          showExportButton={showExportButton}
+          showExplainButton={showExplainButton}
+        />
       </div>
     </div>
   );

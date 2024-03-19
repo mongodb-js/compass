@@ -11,7 +11,10 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { CompassHomePlugin } from '@mongodb-js/compass-home';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
-import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
+import {
+  AtlasAuthServiceProvider,
+  AtlasServiceProvider,
+} from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
   CompassFavoriteQueryStorage,
@@ -81,7 +84,7 @@ import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
@@ -90,6 +93,60 @@ import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
+
+const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
+  const loggerProviderValue = useRef({
+    createLogger: createLoggerAndTelemetry,
+    preferences: defaultPreferencesInstance,
+  });
+  return (
+    <PreferencesProvider value={loggerProviderValue.current.preferences}>
+      <LoggerAndTelemetryProvider value={loggerProviderValue.current}>
+        {children}
+      </LoggerAndTelemetryProvider>
+    </PreferencesProvider>
+  );
+};
+
+const WithAtlasProviders: React.FC = ({ children }) => {
+  const authService = useRef(new CompassAtlasAuthService());
+  return (
+    <AtlasAuthServiceProvider value={authService.current}>
+      <AtlasServiceProvider
+        options={{
+          defaultHeaders: {
+            'User-Agent': `${getAppName()}/${getAppVersion()}`,
+          },
+        }}
+      >
+        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+      </AtlasServiceProvider>
+    </AtlasAuthServiceProvider>
+  );
+};
+
+const WithStorageProviders: React.FC = ({ children }) => {
+  const pipelineStorage = useRef(new CompassPipelineStorage());
+  const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
+    getStorage(options) {
+      return new CompassFavoriteQueryStorage(options);
+    },
+  });
+  const recentQueryStorage = useRef<RecentQueryStorageAccess>({
+    getStorage(options) {
+      return new CompassRecentQueryStorage(options);
+    },
+  });
+  return (
+    <PipelineStorageProvider value={pipelineStorage.current}>
+      <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
+        <RecentQueryStorageProvider value={recentQueryStorage.current}>
+          {children}
+        </RecentQueryStorageProvider>
+      </FavoriteQueryStorageProvider>
+    </PipelineStorageProvider>
+  );
+};
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
 (window as any).setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
@@ -203,55 +260,31 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    const loggerProviderValue = {
-      createLogger: createLoggerAndTelemetry,
-      preferences: defaultPreferencesInstance,
-    };
+    const wasNetworkOptInShown =
+      defaultPreferencesInstance.getPreferences().showedNetworkOptIn === true;
 
-    const favoriteQueryStorageProviderValue: FavoriteQueryStorageAccess = {
-      getStorage(options) {
-        return new CompassFavoriteQueryStorage(options);
-      },
-    };
-
-    const recentQueryStorageProviderValue: RecentQueryStorageAccess = {
-      getStorage(options) {
-        return new CompassRecentQueryStorage(options);
-      },
-    };
+    // If we haven't showed welcome modal that points users to network opt in
+    // yet, update preferences with default values to reflect that ...
+    if (!wasNetworkOptInShown) {
+      await defaultPreferencesInstance.ensureDefaultConfigurableUserPreferences();
+    }
 
     ReactDOM.render(
       <React.StrictMode>
-        <PreferencesProvider value={defaultPreferencesInstance}>
-          <LoggerAndTelemetryProvider value={loggerProviderValue}>
-            <PipelineStorageProvider value={new CompassPipelineStorage()}>
-              <FavoriteQueryStorageProvider
-                value={favoriteQueryStorageProviderValue}
-              >
-                <RecentQueryStorageProvider
-                  value={recentQueryStorageProviderValue}
-                >
-                  <AtlasAuthServiceProvider
-                    value={new CompassAtlasAuthService()}
-                  >
-                    <AtlasAiServiceProvider
-                      defaultHttpHeaders={{
-                        'User-Agent': `${getAppName()}/${getAppVersion()}`,
-                      }}
-                    >
-                      <AppRegistryProvider scopeName="Application Root">
-                        <CompassHomePlugin
-                          appName={remote.app.getName()}
-                          getAutoConnectInfo={getAutoConnectInfo}
-                        ></CompassHomePlugin>
-                      </AppRegistryProvider>
-                    </AtlasAiServiceProvider>
-                  </AtlasAuthServiceProvider>
-                </RecentQueryStorageProvider>
-              </FavoriteQueryStorageProvider>
-            </PipelineStorageProvider>
-          </LoggerAndTelemetryProvider>
-        </PreferencesProvider>
+        <WithPreferencesAndLoggerProviders>
+          <WithAtlasProviders>
+            <WithStorageProviders>
+              <AppRegistryProvider scopeName="Application Root">
+                <CompassHomePlugin
+                  appName={remote.app.getName()}
+                  getAutoConnectInfo={getAutoConnectInfo}
+                  // ... and show the welcome modal
+                  isWelcomeModalOpenByDefault={!wasNetworkOptInShown}
+                ></CompassHomePlugin>
+              </AppRegistryProvider>
+            </WithStorageProviders>
+          </WithAtlasProviders>
+        </WithPreferencesAndLoggerProviders>
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );

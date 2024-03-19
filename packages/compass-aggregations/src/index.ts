@@ -8,7 +8,7 @@ import CreateViewModal from './components/create-view-modal';
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type {
   OptionalDataServiceProps,

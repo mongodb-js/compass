@@ -8,6 +8,7 @@ import {
   palette,
   useDarkMode,
   cx,
+  useRequiredURLSearchParams,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -83,12 +84,16 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;
 
+  const { utmSource, utmMedium } = useRequiredURLSearchParams();
+
   const completer = useMemo(() => {
     return createAggregationAutocompleter({
       serverVersion,
       fields: fields.filter((field) => !!field.name),
+      utmSource,
+      utmMedium,
     });
-  }, [serverVersion, fields]);
+  }, [serverVersion, fields, utmSource, utmMedium]);
 
   const onBlurEditor = useCallback(() => {
     if (

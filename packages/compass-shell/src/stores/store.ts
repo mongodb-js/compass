@@ -7,7 +7,7 @@ import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 
 export default class CompassShellStore {
   reduxStore: Store<RootState, RootAction>;
@@ -53,7 +53,7 @@ export default class CompassShellStore {
         // already check whether Compass telemetry is enabled or not.
         track: ({ event, properties }) => track(`Shell ${event}`, properties),
         flush: () => {
-          /* not needed */
+          return Promise.resolve(); // not needed
         },
       },
       {

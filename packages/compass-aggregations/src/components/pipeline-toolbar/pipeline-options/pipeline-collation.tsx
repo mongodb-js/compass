@@ -135,7 +135,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
 const mapState = ({ collationString, maxTimeMS }: RootState) => ({
   collationValue: collationString.text,
   collationHasError: !collationString.isValid,
-  maxTimeMSValue: maxTimeMS.current,
+  maxTimeMSValue: maxTimeMS,
 });
 
 const mapDispatch = {

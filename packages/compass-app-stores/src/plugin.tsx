@@ -6,8 +6,10 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { InstanceContext } from './provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
-import type { DataService } from 'mongodb-data-service';
+import {
+  dataServiceLocator,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
 import { createInstanceStore } from './stores';
 
 interface InstanceStoreProviderProps {

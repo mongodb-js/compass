@@ -1,4 +1,3 @@
-import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import {
   Body,
   CompassComponentsProvider,
@@ -9,11 +8,11 @@ import {
   getScrollbarStyles,
   palette,
   resetGlobalCSS,
-  useConfirmationModal,
   openToast,
   ButtonVariant,
   Button,
   spacing,
+  showConfirmation,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
@@ -27,11 +26,14 @@ import {
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
+import {
+  ConnectionsManagerProvider,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import { DataServiceProvider } from 'mongodb-data-service/provider';
 import React, {
   useCallback,
   useEffect,
@@ -42,17 +44,23 @@ import React, {
 } from 'react';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
+import {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent,
+} from '../modules/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
   ConnectionStorageContext,
   ConnectionRepositoryContextProvider,
 } from '@mongodb-js/connection-storage/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
 
@@ -170,25 +178,19 @@ function notifyMainProcessOfDisconnect() {
 function Home({
   appName,
   getAutoConnectInfo,
+  isWelcomeModalOpenByDefault = false,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
 }: {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  isWelcomeModalOpenByDefault?: boolean;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
-  const connectedDataService = useRef<DataService>();
+  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
-  const [
-    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
-    dispatch,
-  ] = useReducer(reducer, {
-    ...initialState,
-  });
-
-  const { showConfirmation } = useConfirmationModal();
   const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
     const confirmed = await showConfirmation({
       title: 'Authentication expired',
@@ -200,25 +202,50 @@ function Home({
     }
   });
 
+  const connectionsManager = useRef(
+    new ConnectionsManager({
+      logger: loggerAndTelemetry.log.unbound,
+      reAuthenticationHandler: reauthenticationHandler.current,
+      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+    })
+  );
+
+  const [
+    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
+    dispatch,
+  ] = useReducer(reducer, {
+    ...initialState,
+  });
+
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      connectedDataService.current = dataService;
-      dataService.addReauthenticationHandler(reauthenticationHandler.current);
-
+      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
     },
-    []
+    [loggerAndTelemetry]
+  );
+
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo | null, error: Error) => {
+      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
+    },
+    [loggerAndTelemetry]
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
+    },
+    [loggerAndTelemetry]
   );
 
   useEffect(() => {
     async function handleDisconnectClicked() {
-      if (!connectedDataService.current) {
-        // We aren't connected.
+      if (!connectionInfo) {
         return;
       }
-      await connectedDataService.current.disconnect();
-      connectedDataService.current = undefined;
 
+      await connectionsManager.current.closeConnection(connectionInfo.id);
       dispatch({ type: 'disconnected' });
     }
 
@@ -232,7 +259,7 @@ function Home({
       // Clean up the ipc listener.
       hadronIpc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
-  }, [appRegistry]);
+  }, [appRegistry, appName, connectionInfo]);
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
@@ -257,7 +284,7 @@ function Home({
     [appName, connectionInfo]
   );
 
-  const onDataSeviceDisconnected = useCallback(() => {
+  const onDataServiceDisconnected = useCallback(() => {
     if (!isConnected) {
       updateTitle(appName);
       hideCollectionSubMenu();
@@ -265,30 +292,15 @@ function Home({
     }
   }, [appName, isConnected]);
 
-  useLayoutEffect(onDataSeviceDisconnected);
-
-  if (isConnected && !connectedDataService.current) {
-    throw new Error(
-      'Application is connected, but DataService is not available'
-    );
-  }
+  useLayoutEffect(onDataServiceDisconnected);
 
   const electronFileInputBackendRef = useRef(
     remote ? createElectronFileInputBackend(remote) : null
   );
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
-  const preferences = preferencesLocator();
-
-  useLayoutEffect(() => {
-    // If we haven't showed welcome modal that points users to network opt in
-    // yet, show the modal and update preferences with default values to reflect
-    // that
-    if (preferences.getPreferences().showedNetworkOptIn === false) {
-      setIsWelcomeOpen(true);
-      void preferences.ensureDefaultConfigurableUserPreferences();
-    }
-  }, [preferences]);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(
+    isWelcomeModalOpenByDefault
+  );
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {
@@ -387,48 +399,50 @@ function Home({
     >
       <ConnectionStorageContext.Provider value={connectionStorage}>
         <ConnectionRepositoryContextProvider>
-          {isConnected && connectedDataService.current && (
-            <AppRegistryProvider
-              key={connectedDataService.current.id}
-              scopeName="Connected Application"
+          <ConnectionsManagerProvider value={connectionsManager.current}>
+            <ConnectionInfoProvider value={connectionInfo}>
+              {isConnected && connectionInfo && (
+                <AppRegistryProvider
+                  key={connectionInfo.id}
+                  scopeName="Connected Application"
+                >
+                  <CompassInstanceStorePlugin>
+                    <FieldStorePlugin>
+                      <Workspace
+                        connectionInfo={connectionInfo}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </FieldStorePlugin>
+                  </CompassInstanceStorePlugin>
+                </AppRegistryProvider>
+              )}
+            </ConnectionInfoProvider>
+            {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
+            connected so that the connection import/export functionality can still
+            be used through the application menu */}
+            <div
+              className={isConnected ? hiddenStyles : homeViewStyles}
+              data-hidden={isConnected}
+              data-testid="connections"
             >
-              <DataServiceProvider value={connectedDataService.current}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <Workspace
-                      connectionInfo={connectionInfo}
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
-              </DataServiceProvider>
-            </AppRegistryProvider>
-          )}
-          {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
-          connected so that the connection import/export functionality can still
-          be used through the application menu */}
-          <div
-            className={isConnected ? hiddenStyles : homeViewStyles}
-            data-hidden={isConnected}
-            data-testid="connections"
-          >
-            <div className={homePageStyles}>
-              <Connections
-                appRegistry={appRegistry}
-                onConnected={onConnected}
-                isConnected={isConnected}
-                appName={appName}
-                getAutoConnectInfo={
-                  hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-                }
-                connectFn={__TEST_MONGODB_DATA_SERVICE_CONNECT_FN}
-              />
+              <div className={homePageStyles}>
+                <Connections
+                  appRegistry={appRegistry}
+                  onConnected={onConnected}
+                  onConnectionFailed={onConnectionFailed}
+                  onConnectionAttemptStarted={onConnectionAttemptStarted}
+                  appName={appName}
+                  getAutoConnectInfo={
+                    hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          <CompassSettingsPlugin></CompassSettingsPlugin>
-          <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasSignIn></AtlasSignIn>
+            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+            <CompassSettingsPlugin></CompassSettingsPlugin>
+            <CompassFindInPagePlugin></CompassFindInPagePlugin>
+            <AtlasAuthPlugin></AtlasAuthPlugin>
+          </ConnectionsManagerProvider>
         </ConnectionRepositoryContextProvider>
       </ConnectionStorageContext.Provider>
     </FileInputBackendProvider>
@@ -458,6 +472,8 @@ function ThemedHome(
           });
         }
       }}
+      utmSource="compass"
+      utmMedium="product"
       onSignalMount={(id) => {
         track('Signal Shown', { id });
       }}
