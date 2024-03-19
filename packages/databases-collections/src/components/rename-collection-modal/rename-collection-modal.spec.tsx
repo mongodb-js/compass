@@ -133,7 +133,7 @@ describe('RenameCollectionModal [Component]', function () {
           'rename-collection-modal-warning'
         );
         expect(renameCollectionWarningBanner.textContent).to.include(
-          'Renaming collection will result in loss of any unsaved queries, filters or aggregation pipeline.'
+          'Renaming collection will result in loss of any unsaved queries, filters or aggregation pipelines.'
         );
       });
 
