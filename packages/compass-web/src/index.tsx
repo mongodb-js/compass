@@ -97,6 +97,7 @@ type CompassWorkspaceProps = Pick<
 
 type CompassWebProps = {
   darkMode?: boolean;
+  stackedElementZIndex?: number;
   connectionInfo: ConnectionInfo;
   initialPreferences?: Partial<AllPreferences>;
 } & CompassWorkspaceProps;
@@ -195,6 +196,11 @@ function CompassWorkspace({
 
 const DEFAULT_TAB = { type: 'Databases' } as const;
 
+const LINK_PROPS = {
+  utmSource: 'DE',
+  utmMedium: 'product',
+} as const;
+
 const connectedContainerStyles = css({
   width: '100%',
   height: '100%',
@@ -207,6 +213,7 @@ const CompassWeb = ({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   initialPreferences,
+  stackedElementZIndex,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
@@ -255,6 +262,15 @@ const CompassWeb = ({
     };
   }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
+  const compassComponentsProivderProps = useMemo(
+    () => ({
+      darkMode,
+      stackedElementZIndex,
+      ...LINK_PROPS,
+    }),
+    [darkMode, stackedElementZIndex]
+  );
+
   // Re-throw connection error so that parent component can render an
   // appropriate error screen with an error boundary (only relevant while we are
   // handling a single connection)
@@ -262,14 +278,9 @@ const CompassWeb = ({
     throw connectionError;
   }
 
-  const linkProps = {
-    utmSource: 'DE',
-    utmMedium: 'product',
-  };
-
   if (!connected || !dataService.current) {
     return (
-      <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
+      <CompassComponentsProvider {...compassComponentsProivderProps}>
         <LoadingScreen
           connectionString={connectionInfo.connectionOptions.connectionString}
         ></LoadingScreen>
@@ -277,7 +288,7 @@ const CompassWeb = ({
     );
   }
   return (
-    <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
+    <CompassComponentsProvider {...compassComponentsProivderProps}>
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">

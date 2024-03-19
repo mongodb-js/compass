@@ -67,7 +67,7 @@ import {
 } from '@leafygreen-ui/typography';
 
 import { withDarkMode } from '../hooks/use-theme';
-import { withZIndex } from '../utils/with-z-index';
+import { withStackedComponentStyles } from '../hooks/use-stacked-component';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
@@ -97,7 +97,9 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 // all hrefs.
 export { Link, Button, IconButton } from './links/link';
 
-const Popover = withZIndex(UnwrappedPopover as any) as typeof UnwrappedPopover;
+const Popover = withStackedComponentStyles(
+  UnwrappedPopover as any
+) as typeof UnwrappedPopover;
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
