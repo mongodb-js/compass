@@ -1,6 +1,22 @@
-import type { Reducer } from 'redux';
+import type { Reducer, AnyAction } from 'redux';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type Collection from 'mongodb-collection-model';
+import type { ThunkAction } from 'redux-thunk';
+import type AppRegistry from 'hadron-app-registry';
+import type { DataService } from 'mongodb-data-service/provider';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+
+type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
+  R,
+  CollectionState,
+  {
+    localAppRegistry: AppRegistry;
+    dataService: DataService;
+    workspaces: ReturnType<typeof workspacesServiceLocator>;
+  },
+  A
+>;
 
 export type CollectionState = {
   namespace: string;
@@ -75,6 +91,15 @@ export const collectionStatsFetched = (collection: Collection) => {
 
 export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
+};
+
+export const selectTab = (
+  tabName: CollectionSubtab
+): CollectionThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry, workspaces }) => {
+    localAppRegistry.emit('subtab-changed', tabName);
+    workspaces.openCollectionWorkspaceSubtab(tabName);
+  };
 };
 
 export type CollectionTabPluginMetadata = CollectionMetadata & {

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import type { CollectionState } from '../modules/collection-tab';
+import { type CollectionState, selectTab } from '../modules/collection-tab';
 import {
   css,
   ErrorBoundary,
@@ -69,6 +69,7 @@ const TabTitleWithStats = ({
 type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
   stats: CollectionState['stats'];
+  onTabClick: (tab: CollectionSubtab) => void;
 };
 
 type CollectionTabProps = CollectionTabOptions &
@@ -90,7 +91,6 @@ type CollectionTabProps = CollectionTabOptions &
      */
     initialPipelineText?: string;
     subTab: CollectionSubtab;
-    onSelectSubtab(subTab: CollectionSubtab): void;
   };
 
 const CollectionTabWithMetadata: React.FunctionComponent<
@@ -104,7 +104,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   editViewName,
   collectionMetadata,
   subTab: currentTab,
-  onSelectSubtab: onTabClick,
+  onTabClick,
   stats,
 }) => {
   const { log, mongoLogId, track } = useLoggerAndTelemetry(
@@ -241,12 +241,17 @@ const CollectionTab = ({
   );
 };
 
-const ConnectedCollectionTab = connect((state: CollectionState) => {
-  return {
-    namespace: state.namespace,
-    collectionMetadata: state.metadata,
-    stats: state.stats,
-  };
-})(CollectionTab) as unknown as React.FunctionComponent<CollectionTabOptions>;
+const ConnectedCollectionTab = connect(
+  (state: CollectionState) => {
+    return {
+      namespace: state.namespace,
+      collectionMetadata: state.metadata,
+      stats: state.stats,
+    };
+  },
+  {
+    onTabClick: selectTab,
+  }
+)(CollectionTab) as unknown as React.FunctionComponent<CollectionTabOptions>;
 
 export default ConnectedCollectionTab;

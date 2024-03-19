@@ -106,7 +106,9 @@ const getTabId = () => {
   return new ObjectId().toString();
 };
 
-const getInitialTabState = (workspace: OpenWorkspaceOptions): WorkspaceTab => {
+export const getInitialTabState = (
+  workspace: OpenWorkspaceOptions
+): WorkspaceTab => {
   const tabId = getTabId();
   if (workspace.type === 'Collection') {
     const { initialSubtab, ...restOfWorkspace } = workspace;
@@ -173,7 +175,7 @@ const reducer: Reducer<WorkspacesState> = (
   action
 ) => {
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
-    const newTab = action.workspace;
+    const newTab = getInitialTabState(action.workspace);
     if (action.newTab) {
       return {
         ...state,
@@ -230,10 +232,19 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.OpenTabFromCurrentActive
     )
   ) {
+    const currentActiveTab = getActiveTab(state);
+    let newTab: WorkspaceTab;
+    if (!currentActiveTab) {
+      newTab = getInitialTabState(action.defaultTab);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, ...tabProps } = currentActiveTab;
+      newTab = getInitialTabState(tabProps);
+    }
     return {
       ...state,
-      tabs: [...state.tabs, action.tab],
-      activeTabId: action.tab.id,
+      tabs: [...state.tabs, newTab],
+      activeTabId: newTab.id,
     };
   }
 
@@ -376,10 +387,30 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.CollectionRenamed
     )
   ) {
+    let tabsRenamed = 0;
+    let newActiveTabId = state.activeTabId;
+    const newTabs = state.tabs.map((tab) => {
+      if (tab.type === 'Collection' && tab.namespace === action.from) {
+        tabsRenamed++;
+        const { id, ...workspace } = tab;
+        const newTab = getInitialTabState({
+          ...workspace,
+          namespace: action.to,
+        });
+        if (id === state.activeTabId) {
+          newActiveTabId = newTab.id;
+        }
+        return newTab;
+      }
+      return tab;
+    });
+    if (tabsRenamed === 0) {
+      return state;
+    }
     return {
       ...state,
-      tabs: action.tabs,
-      activeTabId: action.activeTabId,
+      tabs: newTabs,
+      activeTabId: newActiveTabId,
     };
   }
 
@@ -449,7 +480,7 @@ export type OpenWorkspaceOptions =
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
-  workspace: WorkspaceTab;
+  workspace: OpenWorkspaceOptions;
   newTab?: boolean;
 };
 
@@ -516,7 +547,7 @@ export const openWorkspace = (
     }
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
-      workspace: dispatch(setupNewTab(workspaceOptions)),
+      workspace: workspaceOptions,
       newTab: !!tabOptions?.newTab,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
@@ -553,26 +584,15 @@ export const selectNextTab = (): SelectNextTabAction => {
 
 type OpenTabFromCurrentActiveAction = {
   type: WorkspacesActions.OpenTabFromCurrentActive;
-  tab: WorkspaceTab;
+  defaultTab: OpenWorkspaceOptions;
 };
 
 export const openTabFromCurrent = (
   defaultTab?: OpenWorkspaceOptions | null
-): WorkspacesThunkAction<void, OpenTabFromCurrentActiveAction> => {
-  return (dispatch, getState) => {
-    let newTab: WorkspaceTab;
-    const currentActiveTab = getActiveTab(getState());
-    if (currentActiveTab) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id: _id, ...tabProps } = currentActiveTab;
-      newTab = dispatch(setupNewTab(tabProps));
-    } else {
-      newTab = dispatch(setupNewTab(defaultTab ?? { type: 'My Queries' }));
-    }
-    dispatch({
-      type: WorkspacesActions.OpenTabFromCurrentActive,
-      tab: newTab,
-    });
+): OpenTabFromCurrentActiveAction => {
+  return {
+    type: WorkspacesActions.OpenTabFromCurrentActive,
+    defaultTab: defaultTab ?? { type: 'My Queries' },
   };
 };
 
@@ -590,8 +610,8 @@ export const closeTab = (
 
 type CollectionRenamedAction = {
   type: WorkspacesActions.CollectionRenamed;
-  tabs: WorkspaceTab[];
-  activeTabId: string | null;
+  from: string;
+  to: string;
 };
 
 export const collectionRenamed = (
@@ -599,36 +619,9 @@ export const collectionRenamed = (
   to: string
 ): WorkspacesThunkAction<void, CollectionRenamedAction> => {
   return (dispatch, getState) => {
-    const { tabs, activeTabId } = getState();
-
-    let tabsRenamed = 0;
-    let newActiveTabId = activeTabId;
-    const newTabs = tabs.map((tab) => {
-      if (tab.type === 'Collection' && tab.namespace === from) {
-        tabsRenamed++;
-        const { id, ...workspace } = tab;
-        const newTab = dispatch(
-          setupNewTab({
-            ...workspace,
-            namespace: to,
-          })
-        );
-        if (id === activeTabId) {
-          newActiveTabId = newTab.id;
-        }
-        return newTab;
-      }
-      return tab;
-    });
-    if (tabsRenamed === 0) {
-      return;
-    }
-    dispatch({
-      type: WorkspacesActions.CollectionRenamed,
-      tabs: newTabs,
-      activeTabId: newActiveTabId,
-    });
-    cleanupRemovedTabs(tabs, getState().tabs);
+    const oldTabs = getState().tabs;
+    dispatch({ type: WorkspacesActions.CollectionRenamed, from, to });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
@@ -677,34 +670,10 @@ type CollectionSubtabSelectedAction = {
 export const collectionSubtabSelected = (
   tabId: string,
   subTab: CollectionSubtab
-): WorkspacesThunkAction<void, CollectionSubtabSelectedAction> => {
-  return (dispatch) => {
-    getLocalAppRegistryForTab(tabId).emit('subtab-changed', subTab);
-    dispatch({
-      type: WorkspacesActions.CollectionSubtabSelected,
-      tabId,
-      subTab,
-    });
-  };
-};
+): CollectionSubtabSelectedAction => ({
+  type: WorkspacesActions.CollectionSubtabSelected,
+  tabId,
+  subTab,
+});
 
 export default reducer;
-
-function setupNewTab(
-  opts: OpenWorkspaceOptions
-): WorkspacesThunkAction<WorkspaceTab> {
-  return (dispatch) => {
-    const tab = getInitialTabState(opts);
-    const localAppRegistry = getLocalAppRegistryForTab(tab.id);
-    localAppRegistry.on('open-create-index-modal', () => {
-      dispatch(collectionSubtabSelected(tab.id, 'Indexes'));
-    });
-    localAppRegistry.on('open-create-search-index-modal', () => {
-      dispatch(collectionSubtabSelected(tab.id, 'Indexes'));
-    });
-    localAppRegistry.on('generate-aggregation-from-query', () => {
-      dispatch(collectionSubtabSelected(tab.id, 'Aggregations'));
-    });
-    return tab;
-  };
-}

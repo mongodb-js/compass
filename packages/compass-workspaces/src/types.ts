@@ -26,7 +26,6 @@ export type CollectionWorkspace = {
   type: 'Collection';
   namespace: string;
   subTab: CollectionSubtab;
-  onSelectSubtab(subtab: CollectionSubtab): void;
   initialQuery?: unknown;
   initialPipeline?: unknown[];
   initialPipelineText?: string;

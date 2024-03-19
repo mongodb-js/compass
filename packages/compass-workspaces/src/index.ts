@@ -7,10 +7,9 @@ import workspacesReducer, {
   collectionRenamed,
   databaseRemoved,
   getActiveTab,
+  getInitialTabState,
   getLocalAppRegistryForTab,
   cleanupLocalAppRegistries,
-  openWorkspace,
-  selectTab,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -65,24 +64,24 @@ export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
   services: WorkspacesServices
 ) {
+  const initialTabs =
+    initialWorkspaceTabs && initialWorkspaceTabs.length > 0
+      ? initialWorkspaceTabs.map((tab) => {
+          return getInitialTabState(tab);
+        })
+      : [];
+
+  prepopulateInstanceModel(initialTabs, services.instance);
+
   const store = createStore(
     workspacesReducer,
     {
-      tabs: [],
-      activeTabId: null,
+      tabs: initialTabs,
+      activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
     },
     applyMiddleware(thunk.withExtraArgument(services))
   );
-
-  if (initialWorkspaceTabs && initialWorkspaceTabs.length > 0) {
-    prepopulateInstanceModel(initialWorkspaceTabs, services.instance);
-    for (const workspace of initialWorkspaceTabs) {
-      store.dispatch(openWorkspace(workspace));
-    }
-    // Mark first tab as active
-    store.dispatch(selectTab(0));
-  }
 
   return store;
 }

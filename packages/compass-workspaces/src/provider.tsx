@@ -68,6 +68,7 @@ export type WorkspacesService = {
         'type' | 'namespace' | 'editViewName' | 'initialSubtab'
       >
   ): void;
+  openCollectionWorkspaceSubtab(this: void, subtab: string): void;
   /**
    * Open "Collection" workspace for a view namespace in a specially handled
    * "Editing view" state
@@ -102,6 +103,7 @@ const noopWorkspacesService = {
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
   openCollectionsWorkspace: throwIfNotTestEnv,
+  openCollectionWorkspaceSubtab: throwIfNotTestEnv,
   openCollectionWorkspace: throwIfNotTestEnv,
   openEditViewWorkspace: throwIfNotTestEnv,
   [kSelector]() {
@@ -161,6 +163,10 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
             { newTab }
           )
         );
+      },
+      openCollectionWorkspaceSubtab(subtab) {
+        // eslint-disable-next-line no-console
+        console.log('openCollectionWorkspaceSubtab', subtab);
       },
       openEditViewWorkspace: (viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};
