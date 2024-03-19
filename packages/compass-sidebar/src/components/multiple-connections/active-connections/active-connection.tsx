@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React, { useCallback } from 'react';
+import SidebarDatabasesNavigation from '../../sidebar-databases-navigation';
 import ServerIcon from '../icons/server-icon';
 
 const iconStyles = css({
@@ -53,7 +54,10 @@ const activeConnectionStyles = css({
 
 const databasesStyles = css({
   height: `calc(100% - ${spacing[4]}px)`,
-  display: 'flex',
+  padding: spacing[1],
+  alignItems: 'center',
+  marginTop: 'auto',
+  height: '100%',
 });
 
 export function ActiveConnection({
@@ -82,8 +86,12 @@ export function ActiveConnection({
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.target === e.currentTarget && [' ', 'Enter'].includes(e.key))
-        onToggle(!isExpanded);
+      if (
+        !isExpanded &&
+        e.target === e.currentTarget &&
+        [' ', 'Enter'].includes(e.key)
+      )
+        onToggle(true);
     },
     [isExpanded, onToggle]
   );
@@ -137,7 +145,9 @@ export function ActiveConnection({
         </div>
       </div>
       {isExpanded && (
-        <div className={databasesStyles}>Databases placeholder</div>
+        <div className={databasesStyles}>
+          <SidebarDatabasesNavigation />
+        </div>
       )}
     </li>
   );
