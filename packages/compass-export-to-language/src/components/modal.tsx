@@ -183,7 +183,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   }
 
   const prettyInput = useMemo(() => {
-    return prettify(input, 'javascript-expression', { trailingComma: 'none' });
+    return prettify(input, 'javascript-expression');
   }, [input]);
 
   return (

@@ -9,7 +9,6 @@ import type { ExportAggregation, ExportQuery } from '../export/export-types';
 
 const codeFormatting: Partial<FormatOptions> = {
   singleQuote: true,
-  trailingComma: 'none',
 };
 
 export function queryAsShellJSString({

@@ -94,9 +94,7 @@ export function mapQueryToFormFields(
         let valueAsString =
           typeof _value === 'undefined' ? '' : toJSString(_value, 0) || '';
 
-        valueAsString = prettify(valueAsString, 'javascript-expression', {
-          trailingComma: 'none',
-        });
+        valueAsString = prettify(valueAsString, 'javascript-expression');
 
         const value = validateField(key, valueAsString, preferences);
         const valid: boolean = value !== false;
