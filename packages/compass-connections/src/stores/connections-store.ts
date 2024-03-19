@@ -1,11 +1,9 @@
-import {
-  type Dispatch,
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-} from 'react';
+import { type Dispatch, useCallback, useEffect, useReducer } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
+import {
+  useConnectionsManagerContext,
+  CONNECTION_CANCELED_ERR,
+} from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
@@ -15,8 +13,7 @@ import {
 import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import type { ConnectionAttempt } from 'mongodb-data-service';
-import { createConnectionAttempt } from 'mongodb-data-service';
+
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
@@ -63,8 +60,8 @@ type State = {
   favoriteConnections: ConnectionInfo[];
   recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
+  connectingConnectionId: string | null;
   connectingStatusText: string;
-  connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
@@ -82,7 +79,7 @@ export function defaultConnectionsState(): State {
     recentConnections: [],
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
-    connectionAttempt: null,
+    connectingConnectionId: null,
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
     oidcDeviceAuthUserCode: null,
@@ -93,8 +90,8 @@ export function defaultConnectionsState(): State {
 type Action =
   | {
       type: 'attempt-connect';
-      connectionAttempt: ConnectionAttempt;
       connectingStatusText: string;
+      connectingConnectionId: string;
     }
   | {
       type: 'oidc-attempt-connect-notify-device-auth';
@@ -135,7 +132,7 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'attempt-connect':
       return {
         ...state,
-        connectionAttempt: action.connectionAttempt,
+        connectingConnectionId: action.connectingConnectionId,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
         oidcDeviceAuthVerificationUrl: null,
@@ -144,19 +141,19 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'cancel-connection-attempt':
       return {
         ...state,
-        connectionAttempt: null,
+        connectingConnectionId: null,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-succeeded':
       return {
         ...state,
-        connectionAttempt: null,
+        connectingConnectionId: null,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-errored':
       return {
         ...state,
-        connectionAttempt: null,
+        connectingConnectionId: null,
         connectionErrorMessage: action.connectionErrorMessage,
       };
     case 'oidc-attempt-connect-notify-device-auth':
@@ -252,34 +249,31 @@ export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  isConnected,
   appName,
   getAutoConnectInfo,
-  connectFn,
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  onConnectionFailed: (connectionInfo: ConnectionInfo, error: Error) => void;
+  onConnectionFailed: (
+    connectionInfo: ConnectionInfo | null,
+    error: Error
+  ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  isConnected: boolean;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn: ConnectFn;
   appName: string;
 }): {
   state: State;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
-  cancelConnectionAttempt: () => void;
-  connect: (
-    connectionInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
-  ) => Promise<void>;
+  cancelConnectionAttempt: (connectionInfoId: string) => Promise<void>;
+  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
-  duplicateConnection: (connectioInfo: ConnectionInfo) => void;
+  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   reloadConnections: () => void;
 } {
@@ -287,6 +281,7 @@ export function useConnections({
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionRepository = useConnectionRepositoryContext();
+  const connectionsManager = useConnectionsManagerContext();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -297,13 +292,7 @@ export function useConnections({
     connectionsReducer,
     defaultConnectionsState()
   );
-  const {
-    activeConnectionId,
-    connectionAttempt,
-    recentConnections,
-    favoriteConnections,
-  } = state;
-  const connectingConnectionAttempt = useRef<ConnectionAttempt>();
+  const { activeConnectionId, recentConnections, favoriteConnections } = state;
 
   async function saveConnectionInfo(
     connectionInfo: PartialConnectionInfo
@@ -436,25 +425,48 @@ export function useConnections({
   useEffect(() => {
     // Load connections after first render.
     void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
+    void connectWithAutoConnectInfoIfAvailable();
+    async function connectWithAutoConnectInfoIfAvailable() {
+      let connectionInfo: ConnectionInfo | undefined;
+      try {
+        connectionInfo =
+          typeof getAutoConnectInfo === 'function'
+            ? await getAutoConnectInfo()
+            : undefined;
+        if (connectionInfo) {
+          log.info(
+            mongoLogId(1_001_000_160),
+            'Connection Store',
+            'Performing automatic connection attempt'
+          );
+          dispatch({
+            type: 'set-active-connection',
+            connectionInfo,
+          });
+          void connect(connectionInfo, false);
+        }
+      } catch (error) {
+        onConnectionFailed(connectionInfo ?? null, error as Error);
+        log.error(
+          mongoLogId(1_001_000_290),
+          'Connection Store',
+          'Error performing connection attempt using auto connect info',
+          {
+            error: (error as Error).message,
+          }
+        );
 
-    if (getAutoConnectInfo) {
-      log.info(
-        mongoLogId(1_001_000_160),
-        'Connection Store',
-        'Performing automatic connection attempt'
-      );
-      void connect(getAutoConnectInfo);
+        dispatch({
+          type: 'connection-attempt-errored',
+          connectionErrorMessage: (error as Error).message,
+        });
+      }
     }
 
     return () => {
       // When unmounting, clean up any current connection attempts that have
       // not resolved.
-      if (
-        connectingConnectionAttempt.current &&
-        !connectingConnectionAttempt.current.isClosed()
-      ) {
-        connectingConnectionAttempt.current.cancelConnectionAttempt();
-      }
+      connectionsManager.cancelAllConnectionAttempts();
     };
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
@@ -466,50 +478,45 @@ export function useConnections({
   }, [persistOIDCTokens]);
 
   const connect = async (
-    getAutoConnectInfo:
-      | ConnectionInfo
-      | (() => Promise<ConnectionInfo | undefined>)
+    originalConnectionInfo: ConnectionInfo,
+    shouldSaveConnectionInfo = true
   ) => {
-    if (connectionAttempt || isConnected) {
-      // Ensure we aren't currently connecting.
-      return;
-    }
-
-    const newConnectionAttempt = createConnectionAttempt({
-      connectFn,
-      logger: log.unbound,
-    });
-    connectingConnectionAttempt.current = newConnectionAttempt;
-
-    let connectionInfo: ConnectionInfo | undefined = undefined;
-    let shouldSaveConnectionInfo = false;
     try {
-      if (typeof getAutoConnectInfo === 'function') {
-        connectionInfo = await getAutoConnectInfo();
-        if (!connectionInfo) {
-          connectingConnectionAttempt.current = undefined;
-          return;
-        }
-
-        dispatch({
-          type: 'set-active-connection',
-          connectionInfo,
-        });
-      } else {
-        connectionInfo = getAutoConnectInfo;
-        shouldSaveConnectionInfo = true;
-      }
-
-      connectionInfo = merge(
-        cloneDeep(connectionInfo),
-        state.connectionMergeInfos[connectionInfo.id] ?? {}
+      const connectionInfo = merge(
+        cloneDeep(originalConnectionInfo),
+        state.connectionMergeInfos[originalConnectionInfo.id] ?? {}
       );
 
       const isOIDCConnectionAttempt = isOIDCAuth(
-        connectionInfo.connectionOptions.connectionString
+        originalConnectionInfo.connectionOptions.connectionString
       );
+
+      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
+        cloneDeep(connectionInfo),
+        {
+          connectionOptions: adjustConnectionOptionsBeforeConnect({
+            connectionOptions: originalConnectionInfo.connectionOptions,
+            defaultAppName: appName,
+            preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
+            notifyDeviceFlow: !isOIDCConnectionAttempt
+              ? undefined
+              : (deviceFlowInformation: {
+                  verificationUrl: string;
+                  userCode: string;
+                }) => {
+                  dispatch({
+                    type: 'oidc-attempt-connect-notify-device-auth',
+                    verificationUrl: deviceFlowInformation.verificationUrl,
+                    userCode: deviceFlowInformation.userCode,
+                  });
+                },
+          }),
+        }
+      );
+
       dispatch({
         type: 'attempt-connect',
+        connectingConnectionId: connectionInfo.id,
         connectingStatusText: `Connecting to ${getConnectionTitle(
           connectionInfo
         )}${
@@ -517,52 +524,19 @@ export function useConnections({
             ? '. Go to the browser to complete authentication.'
             : ''
         }`,
-        connectionAttempt: newConnectionAttempt,
       });
 
       onConnectionAttemptStarted(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
-
-      let notifyDeviceFlow:
-        | ((deviceFlowInformation: {
-            verificationUrl: string;
-            userCode: string;
-          }) => void)
-        | undefined;
-      if (isOIDCConnectionAttempt) {
-        notifyDeviceFlow = (deviceFlowInformation: {
-          verificationUrl: string;
-          userCode: string;
-        }) => {
-          dispatch({
-            type: 'oidc-attempt-connect-notify-device-auth',
-            verificationUrl: deviceFlowInformation.verificationUrl,
-            userCode: deviceFlowInformation.userCode,
-          });
-        };
-      }
-
       log.info(
         mongoLogId(1001000004),
         'Connection UI',
         'Initiating connection attempt'
       );
 
-      const newConnectionDataService = await newConnectionAttempt.connect(
-        adjustConnectionOptionsBeforeConnect({
-          connectionOptions: connectionInfo.connectionOptions,
-          defaultAppName: appName,
-          notifyDeviceFlow,
-          preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
-        })
+      const newConnectionDataService = await connectionsManager.connect(
+        adjustedConnectionInfoForConnection
       );
-      connectingConnectionAttempt.current = undefined;
-
-      if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
-        // The connection attempt was cancelled.
-        return;
-      }
-
       dispatch({
         type: 'connection-attempt-succeeded',
       });
@@ -578,10 +552,14 @@ export function useConnections({
         connectionInfo
       );
     } catch (error) {
-      connectingConnectionAttempt.current = undefined;
-      if (connectionInfo) {
-        onConnectionFailed(connectionInfo, error as Error);
+      if ((error as Error).message === CONNECTION_CANCELED_ERR) {
+        dispatch({
+          type: 'cancel-connection-attempt',
+        });
+        return;
       }
+
+      onConnectionFailed(originalConnectionInfo, error as Error);
       log.error(
         mongoLogId(1_001_000_161),
         'Connection Store',
@@ -602,18 +580,24 @@ export function useConnections({
     state,
     recentConnections,
     favoriteConnections,
-    cancelConnectionAttempt() {
+    async cancelConnectionAttempt(connectionInfoId: string) {
       log.info(
         mongoLogId(1001000005),
         'Connection UI',
         'Canceling connection attempt'
       );
-
-      connectionAttempt?.cancelConnectionAttempt();
-
-      dispatch({
-        type: 'cancel-connection-attempt',
-      });
+      try {
+        await connectionsManager.closeConnection(connectionInfoId);
+      } catch (error) {
+        log.error(
+          mongoLogId(1_001_000_303),
+          'Connection UI',
+          'Canceling connection attempt failed',
+          {
+            error: (error as Error).message,
+          }
+        );
+      }
     },
     connect,
     createNewConnection() {

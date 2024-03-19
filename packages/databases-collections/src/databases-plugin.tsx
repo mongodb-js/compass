@@ -2,9 +2,11 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import Databases from './components/databases';
 import { activatePlugin as activateDatabasesTabPlugin } from './stores/databases-store';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { DataServiceLocator } from 'mongodb-data-service/provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
-import type { DataService } from 'mongodb-data-service';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
 
 export const DatabasesPlugin = registerHadronPlugin(
   {

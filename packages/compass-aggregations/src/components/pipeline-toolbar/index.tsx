@@ -23,7 +23,7 @@ const headerAndOptionsRowStyles = css({
   border: '1px solid',
   borderRadius: '6px',
   borderColor: palette.gray.light2,
-  padding: `${spacing[2]}px ${spacing[2]}px ${spacing[2]}px ${spacing[3]}px`,
+  padding: spacing[2],
   background: palette.white,
 });
 

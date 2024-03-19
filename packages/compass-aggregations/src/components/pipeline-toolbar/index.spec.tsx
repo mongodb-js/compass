@@ -40,8 +40,6 @@ describe('PipelineToolbar', function () {
       const header = within(toolbar).getByTestId('pipeline-header');
       expect(header).to.exist;
 
-      expect(within(header).getByText('Pipeline'), 'shows pipeline text').to
-        .exist;
       expect(
         within(header).getByTestId('pipeline-toolbar-open-pipelines-button'),
         'shows open saved pipelines button'

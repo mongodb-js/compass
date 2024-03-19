@@ -56,32 +56,55 @@ describe('SavedConnectionList Component', function () {
     );
   }
 
-  beforeEach(function () {
-    doRender([FAVOURITE_CONNECTION_INFO], [NON_FAVOURITE_CONNECTION_INFO]);
-  });
+  describe('When saved connections exist', function () {
+    beforeEach(function () {
+      doRender([FAVOURITE_CONNECTION_INFO], [NON_FAVOURITE_CONNECTION_INFO]);
+    });
 
-  afterEach(function () {
-    cleanup();
-  });
+    afterEach(function () {
+      cleanup();
+    });
 
-  it('should render all connections', function () {
-    [FAVOURITE_CONNECTION_INFO, NON_FAVOURITE_CONNECTION_INFO].every(
-      (connection) => {
-        expect(screen.queryByText(connection.favorite?.name || '<>')).to.exist;
-      }
-    );
-  });
+    it('should render all connections', function () {
+      [FAVOURITE_CONNECTION_INFO, NON_FAVOURITE_CONNECTION_INFO].every(
+        (connection) => {
+          expect(screen.queryByText(connection.favorite?.name || '<>')).to
+            .exist;
+        }
+      );
+    });
 
-  it('should allow to create new connections', async function () {
-    const newConnectionButton = screen.getByTestId('new-connection-button');
-    userEvent.click(newConnectionButton);
+    it('should allow to create new connections', async function () {
+      const newConnectionButton = screen.getByTestId('new-connection-button');
+      userEvent.click(newConnectionButton);
 
-    await waitFor(() => {
-      expect(onNewConnectionSpy).to.have.been.called;
+      await waitFor(() => {
+        expect(onNewConnectionSpy).to.have.been.called;
+      });
+    });
+
+    it('should show the number of connections', function () {
+      expect(screen.queryByText('(2)')).to.exist;
+    });
+
+    it('should not show the empty connections message', function () {
+      expect(screen.queryByText('You have not connected to any deployments')).to
+        .be.null;
     });
   });
 
-  it('should show the number of connections', function () {
-    expect(screen.queryByText('(2)')).to.exist;
+  describe('When there are no saved connections', function () {
+    beforeEach(function () {
+      doRender([], []);
+    });
+
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('should show the empty connections message', function () {
+      expect(screen.queryByText('You have not connected to any deployments')).to
+        .be.visible;
+    });
   });
 });

@@ -17,7 +17,6 @@ module.exports = {
     'no-restricted-imports': 'off',
     '@typescript-eslint/no-restricted-imports': [
       'error',
-      restrictedProviderImport('mongodb-data-service'),
       restrictedProviderImport('@mongodb-js/compass-logging'),
       restrictedProviderImport('@mongodb-js/compass-app-stores'),
       restrictedProviderImport('@mongodb-js/my-queries-storage'),
