@@ -75,7 +75,9 @@ type WorkspaceTabProps =
   | ServerStatsWorkspace
   | DatabasesWorkspace
   | CollectionsWorkspace
-  | Omit<CollectionWorkspace, 'onSelectSubtab'>;
+  | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab'> & {
+      subTab: CollectionSubtab;
+    });
 export type WorkspaceTab = { id: string } & WorkspaceTabProps;
 
 export type CollectionTabInfo = {
@@ -106,7 +108,15 @@ const getTabId = () => {
 
 const getInitialTabState = (workspace: OpenWorkspaceOptions): WorkspaceTab => {
   const tabId = getTabId();
-  return { id: tabId, ...workspace } as WorkspaceTab;
+  if (workspace.type === 'Collection') {
+    const { initialSubtab, ...restOfWorkspace } = workspace;
+    return {
+      id: tabId,
+      ...restOfWorkspace,
+      subTab: initialSubtab ?? 'Documents',
+    };
+  }
+  return { id: tabId, ...workspace };
 };
 
 const getInitialState = () => {
@@ -425,7 +435,7 @@ export type OpenWorkspaceOptions =
   | Pick<Workspace<'Databases'>, 'type'>
   | Pick<Workspace<'Performance'>, 'type'>
   | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
-  | (Pick<Workspace<'Collection'>, 'type' | 'namespace' | 'subTab'> &
+  | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
       Partial<
         Pick<
           Workspace<'Collection'>,
@@ -435,7 +445,7 @@ export type OpenWorkspaceOptions =
           | 'initialPipelineText'
           | 'editViewName'
         >
-      >);
+      > & { initialSubtab?: CollectionSubtab });
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
@@ -494,6 +504,15 @@ export const openWorkspace = (
           throw err;
         }
       })();
+      const isAggregationsSubtab = Boolean(
+        workspaceOptions?.initialAggregation ||
+          workspaceOptions?.initialPipeline ||
+          workspaceOptions?.initialPipelineText ||
+          workspaceOptions?.editViewName
+      );
+      if (isAggregationsSubtab) {
+        workspaceOptions.initialSubtab = 'Aggregations';
+      }
     }
     dispatch({
       type: WorkspacesActions.OpenWorkspace,

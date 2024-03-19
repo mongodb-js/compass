@@ -65,7 +65,7 @@ export type WorkspacesService = {
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace' | 'editViewName' | 'subTab'
+        'type' | 'namespace' | 'editViewName' | 'initialSubtab'
       >
   ): void;
   /**
@@ -150,17 +150,11 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
         );
       },
       openCollectionWorkspace: (namespace, options) => {
-        const isAggregationsSubtab = Boolean(
-          options?.initialAggregation ||
-            options?.initialPipeline ||
-            options?.initialPipelineText
-        );
         const { newTab, ...collectionOptions } = options ?? {};
         return store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
-              subTab: isAggregationsSubtab ? 'Aggregations' : 'Documents',
               namespace,
               ...collectionOptions,
             },
@@ -177,7 +171,6 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
               namespace: sourceName,
               initialPipeline: sourcePipeline,
               editViewName: viewNamespace,
-              subTab: 'Aggregations',
             },
             { newTab }
           )
