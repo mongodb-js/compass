@@ -36,15 +36,8 @@ const activeConnectionsListStyles = css({
   height: '100%',
 });
 
-export function ActiveConnectionList({
-  testUseActiveConnections,
-}: {
-  testUseActiveConnections?: () => ConnectionInfo[];
-}): React.ReactElement {
-  //eslint-disable-next-line react-hooks/rules-of-hooks
-  const activeConnections = testUseActiveConnections
-    ? testUseActiveConnections()
-    : useActiveConnections();
+export function ActiveConnectionList(): React.ReactElement {
+  const activeConnections = useActiveConnections();
   const connectionsCount = activeConnections.length;
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
