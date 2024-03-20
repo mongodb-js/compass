@@ -1,6 +1,6 @@
 import { useConnectionsManagerContext } from '../provider';
 import {
-  ConnectionStatus,
+  type ConnectionStatus,
   ConnectionsManagerEvents,
 } from '../connections-manager';
 
