@@ -1,12 +1,16 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useCallback, useEffect, useState } from 'react';
 import { BSON } from 'bson';
-import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
+import {
+  useConnectionRepositoryContext,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManagerEvents,
   useConnectionsManagerContext,
 } from '../provider';
 import isEqual from 'lodash/isEqual';
+import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 
 /**
  * Same as _.isEqual, except it takes key order into account
@@ -22,8 +26,12 @@ function areConnectionsEqual(
 }
 
 export function useActiveConnections(): ConnectionInfo[] {
+  // TODO(COMPASS-7397): services should not be used directly in render method,
+  // when this code is refactored to use the hadron plugin interface, storage
+  // should be handled through the plugin activation lifecycle
   const connectionManager = useConnectionsManagerContext();
   const connectionRepository = useConnectionRepositoryContext();
+  const connectionStorage = useConnectionStorageContext();
 
   const [activeConnections, setActiveConnections] = useState<ConnectionInfo[]>(
     []
@@ -42,14 +50,25 @@ export function useActiveConnections(): ConnectionInfo[] {
   useEffect(() => {
     void updateList();
 
+    // reacting to connection status updates
     for (const event of Object.values(ConnectionsManagerEvents)) {
       connectionManager.on(event, () => void updateList());
     }
+
+    // reacting to connection info updates
+    connectionStorage.events?.on(
+      ConnectionStorageEvents.ConnectionsChanged,
+      updateList
+    );
 
     return () => {
       for (const event of Object.values(ConnectionsManagerEvents)) {
         connectionManager.off(event, () => void updateList());
       }
+      connectionStorage.events?.off(
+        ConnectionStorageEvents.ConnectionsChanged,
+        updateList
+      );
     };
   }, [updateList]);
 
