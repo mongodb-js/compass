@@ -32,7 +32,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "bootstrap": "npm run postcompile",
+    "bootstrap": "npm run compile",
     "compile": "tsc -p tsconfig.json",
     "start": "npm run webpack serve -- --mode development",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
