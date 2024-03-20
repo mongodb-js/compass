@@ -55,7 +55,7 @@ function ConnectingStatusMarker(): React.ReactElement {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M1.64712 6.14088C1.79974 6.34283 2.09302 6.34006 2.27132 6.16038C2.44962 5.9807 2.44376 5.69245 2.30279 5.48221C2.0538 5.1109 1.91667 4.67113 1.91667 4.20833C1.91667 2.94268 2.94268 1.91667 4.20833 1.91667C4.74833 1.91667 5.25651 2.10387 5.65961 2.4344C5.85535 2.5949 6.14175 2.62823 6.33763 2.4679C6.53351 2.30757 6.56426 2.0159 6.37782 1.84468C5.80668 1.32018 5.0449 1 4.20833 1C2.43642 1 1 2.43642 1 4.20833C1 4.93399 1.24091 5.60338 1.64712 6.14088Z"
-        fill={palette.blue.dark1}
+        fill={palette.green.dark1}
       />
     </svg>
   );
@@ -109,7 +109,7 @@ export function WithStatusMarker({
   return (
     <div className={withStatusMarkerStyles}>
       {children}
-      <span aria-label={status} className={withStatusMarkerMarkerStyles}>
+      <span className={withStatusMarkerMarkerStyles}>
         <Marker />
       </span>
     </div>

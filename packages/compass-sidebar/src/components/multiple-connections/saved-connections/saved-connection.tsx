@@ -14,8 +14,8 @@ import {
   useToast,
   useDarkMode,
   palette,
-  WithStatusMarker,
 } from '@mongodb-js/compass-components';
+import { WithStatusMarker } from '../../with-status-marker';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
@@ -61,19 +61,12 @@ type Action =
 
 const WarningIcon = () => {
   return (
-    <svg
+    <Icon
       className={iconStyles}
-      viewBox="0 0 14 14"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M7.75591 1.32437C7.42909 0.72521 6.57091 0.72521 6.24409 1.32437L0.981906 10.9714C0.667855 11.5472 1.08337 12.25 1.73782 12.25H12.2622C12.9166 12.25 13.3321 11.5472 13.0181 10.9714L7.75591 1.32437ZM6.125 4.375C6.125 3.89175 6.51675 3.5 7 3.5C7.48325 3.5 7.875 3.89175 7.875 4.375V7.875C7.875 8.35825 7.48325 8.75 7 8.75C6.51675 8.75 6.125 8.35825 6.125 7.875V4.375ZM7.875 10.5C7.875 10.9832 7.48325 11.375 7 11.375C6.51675 11.375 6.125 10.9832 6.125 10.5C6.125 10.0168 6.51675 9.625 7 9.625C7.48325 9.625 7.875 10.0168 7.875 10.5Z"
-        fill="#FF6960"
-      />
-    </svg>
+      size={spacing[3]}
+      color={palette.red.base}
+      glyph="Warning"
+    />
   );
 };
 

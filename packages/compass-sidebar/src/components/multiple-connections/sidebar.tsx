@@ -72,27 +72,28 @@ function ConnectionErrorToastBody({
 }
 // Having props here is useful as a placeholder and we will fix it with the first props.
 // eslint-disable-next-line
-export function MultipleConnectionSidebar({
-  appName,
-}: MultipleConnectionSidebarProps) {
+export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
 
-  const onConnected = useCallback(() => {
-    closeToast('connection-status');
-  }, [closeToast]);
+  const onConnected = useCallback(
+    (info: ConnectionInfo) => {
+      closeToast(`connection-status-${info.id}`);
+    },
+    [closeToast]
+  );
 
   const onConnectionAttemptStarted = useCallback(
     (info: ConnectionInfo) => {
       const cancelAndCloseToast = () => {
         void cancelCurrentConnectionRef.current?.(info.id);
-        closeToast('connection-status');
+        closeToast(`connection-status-${info.id}`);
       };
 
-      openToast('connection-status', {
+      openToast(`connection-status-${info.id}`, {
         title: `Connecting to ${getConnectionTitle(info)}`,
         dismissible: true,
         variant: 'progress',
@@ -109,11 +110,11 @@ export function MultipleConnectionSidebar({
   const onConnectionFailed = useCallback(
     (info: ConnectionInfo | null, error: Error) => {
       const reviewAndCloseToast = () => {
-        closeToast('connection-status');
+        closeToast(`connection-status-${info?.id ?? ''}`);
         setIsConnectionFormOpen(true);
       };
 
-      openToast('connection-status', {
+      openToast(`connection-status-${info.id}`, {
         title: `${error.message}`,
         description: (
           <ConnectionErrorToastBody
@@ -122,7 +123,6 @@ export function MultipleConnectionSidebar({
           />
         ),
         variant: 'warning',
-        timeout: 5000,
       });
     },
     [openToast, closeToast, setIsConnectionFormOpen]
@@ -145,7 +145,6 @@ export function MultipleConnectionSidebar({
     onConnectionFailed(info, error) {
       void onConnectionFailed(info, error);
     },
-    appName: appName,
   });
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
@@ -199,8 +198,6 @@ export function MultipleConnectionSidebar({
   );
 
   const onEditConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
     (info: ConnectionInfo) => {
       setActiveConnectionById(info.id);
       setIsConnectionFormOpen(true);

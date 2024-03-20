@@ -3,7 +3,6 @@ import { useConnectionStatus } from './use-connection-status';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerEvents,
@@ -26,14 +25,9 @@ describe('useConnectionStatus', function () {
 
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionInfoProvider, {
-          value: CONNECTION_INFO,
-          children: [
-            createElement(ConnectionsManagerProvider, {
-              value: connectionManager,
-              children: children,
-            }),
-          ],
+        createElement(ConnectionsManagerProvider, {
+          value: connectionManager,
+          children: children,
         });
       return renderHook(callback, { wrapper, ...options });
     };
@@ -41,7 +35,9 @@ describe('useConnectionStatus', function () {
 
   describe('status of a connection', function () {
     it('should return it from the connection manager', function () {
-      const { result } = renderHookWithContext(() => useConnectionStatus());
+      const { result } = renderHookWithContext(() =>
+        useConnectionStatus(CONNECTION_INFO)
+      );
       const status = result.current.status;
       expect(status).to.equal('disconnected');
     });
@@ -50,7 +46,9 @@ describe('useConnectionStatus', function () {
       let result: ReturnType<typeof renderHookWithContext>['result'];
 
       beforeEach(function () {
-        const hookResult = renderHookWithContext(() => useConnectionStatus());
+        const hookResult = renderHookWithContext(() =>
+          useConnectionStatus(CONNECTION_INFO)
+        );
         result = hookResult.result;
 
         const connectionManagerInspectable = connectionManager as any;
