@@ -101,7 +101,7 @@ type CompassWorkspaceProps = Pick<
 
 type CompassWebProps = {
   darkMode?: boolean;
-  stackedElementZIndex?: number;
+  stackedElementsZIndex?: number;
   connectionInfo: ConnectionInfo;
   initialPreferences?: Partial<AllPreferences>;
 } & CompassWorkspaceProps;
@@ -217,7 +217,7 @@ const CompassWeb = ({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   initialPreferences,
-  stackedElementZIndex,
+  stackedElementsZIndex,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
@@ -267,13 +267,13 @@ const CompassWeb = ({
     };
   }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
-  const compassComponentsProivderProps = useMemo(
+  const compassComponentsProviderProps = useMemo(
     () => ({
       darkMode,
-      stackedElementZIndex,
+      stackedElementsZIndex,
       ...LINK_PROPS,
     }),
-    [darkMode, stackedElementZIndex]
+    [darkMode, stackedElementsZIndex]
   );
 
   // Re-throw connection error so that parent component can render an
@@ -289,7 +289,7 @@ const CompassWeb = ({
       ConnectionStatus.Connected
   ) {
     return (
-      <CompassComponentsProvider {...compassComponentsProivderProps}>
+      <CompassComponentsProvider {...compassComponentsProviderProps}>
         <LoadingScreen
           connectionString={connectionInfo.connectionOptions.connectionString}
         ></LoadingScreen>
@@ -297,7 +297,7 @@ const CompassWeb = ({
     );
   }
   return (
-    <CompassComponentsProvider {...compassComponentsProivderProps}>
+    <CompassComponentsProvider {...compassComponentsProviderProps}>
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
