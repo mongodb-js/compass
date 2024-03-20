@@ -114,7 +114,7 @@ describe('useActiveConnections', function () {
     });
   });
 
-  it.only('should listen to connections storage updates', async function () {
+  it('should listen to connections storage updates', async function () {
     const loadAllStub = Sinon.stub().resolves(mockConnections);
     mockConnectionStorage = {
       loadAll: loadAllStub,
