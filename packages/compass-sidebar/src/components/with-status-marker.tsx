@@ -97,8 +97,8 @@ const withStatusMarkerStyles = css({
 
 const withStatusMarkerMarkerStyles = css({
   position: 'absolute',
-  right: 0,
-  bottom: 0,
+  right: `-${spacing[1] / 2}px`,
+  bottom: `-${spacing[1] / 2}px`,
 });
 
 export function WithStatusMarker({
