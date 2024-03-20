@@ -19,6 +19,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
 >;
 
 export type CollectionState = {
+  workspaceTabId: string;
   namespace: string;
   stats: Pick<
     Collection,
@@ -64,6 +65,7 @@ enum CollectionActions {
 
 const reducer: Reducer<CollectionState> = (
   state = {
+    workspaceTabId: '',
     namespace: '',
     stats: null,
     metadata: null,
@@ -96,9 +98,12 @@ export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
 export const selectTab = (
   tabName: CollectionSubtab
 ): CollectionThunkAction<void> => {
-  return (_dispatch, _getState, { localAppRegistry, workspaces }) => {
+  return (_dispatch, getState, { localAppRegistry, workspaces }) => {
     localAppRegistry.emit('subtab-changed', tabName);
-    workspaces.openCollectionWorkspaceSubtab(tabName);
+    workspaces.openCollectionWorkspaceSubtab(
+      getState().workspaceTabId,
+      tabName
+    );
   };
 };
 

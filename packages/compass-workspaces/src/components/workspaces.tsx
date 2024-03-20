@@ -161,17 +161,22 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component></Component>;
+        return <Component tabId={activeTab.id}></Component>;
       }
       case 'Collections': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component namespace={activeTab.namespace}></Component>;
+        return (
+          <Component
+            tabId={activeTab.id}
+            namespace={activeTab.namespace}
+          ></Component>
+        );
       }
       case 'Collection': {
         const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
-        return <Component {...collectionMetadata}></Component>;
+        return <Component tabId={id} {...collectionMetadata}></Component>;
       }
       default:
         return null;

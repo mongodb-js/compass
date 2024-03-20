@@ -6,23 +6,28 @@ export type CollectionSubtab =
   | 'Validation';
 
 export type MyQueriesWorkspace = {
+  tabId: string;
   type: 'My Queries';
 };
 
 export type ServerStatsWorkspace = {
+  tabId: string;
   type: 'Performance';
 };
 
 export type DatabasesWorkspace = {
+  tabId: string;
   type: 'Databases';
 };
 
 export type CollectionsWorkspace = {
+  tabId: string;
   type: 'Collections';
   namespace: string;
 };
 
 export type CollectionWorkspace = {
+  tabId: string;
   type: 'Collection';
   namespace: string;
   subTab: CollectionSubtab;

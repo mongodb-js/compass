@@ -71,11 +71,11 @@ function isAction<A extends AnyAction>(
 }
 
 type WorkspaceTabProps =
-  | MyQueriesWorkspace
-  | ServerStatsWorkspace
-  | DatabasesWorkspace
-  | CollectionsWorkspace
-  | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab'> & {
+  | Omit<MyQueriesWorkspace, 'tabId'>
+  | Omit<ServerStatsWorkspace, 'tabId'>
+  | Omit<DatabasesWorkspace, 'tabId'>
+  | Omit<CollectionsWorkspace, 'tabId'>
+  | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab' | 'tabId'> & {
       subTab: CollectionSubtab;
     });
 export type WorkspaceTab = { id: string } & WorkspaceTabProps;

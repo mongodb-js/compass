@@ -16,6 +16,10 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 
 export type CollectionTabOptions = {
   /**
+   * Workspace Tab ID
+   */
+  tabId: string;
+  /**
    * Collection namespace
    */
   namespace: string;
@@ -34,7 +38,7 @@ export type CollectionTabServices = {
 };
 
 export function activatePlugin(
-  { namespace, editViewName }: CollectionTabOptions,
+  { namespace, editViewName, tabId }: CollectionTabOptions,
   services: CollectionTabServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -55,6 +59,7 @@ export function activatePlugin(
   const store = createStore(
     reducer,
     {
+      workspaceTabId: tabId,
       namespace,
       metadata: null,
       stats: pickCollectionStats(collectionModel),

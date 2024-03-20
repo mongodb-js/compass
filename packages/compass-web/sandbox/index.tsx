@@ -156,7 +156,7 @@ const App = () => {
       return {
         type: 'Collection',
         namespace,
-        subTab: getCollectionSubTab(subTab),
+        initialSubtab: getCollectionSubTab(subTab),
       };
     }
     return { type: 'Databases' };

@@ -1,8 +1,11 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
+import { selectTab } from '../modules/collection-tab';
 import { waitFor } from '@testing-library/react';
 import Sinon from 'sinon';
+import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -15,6 +18,7 @@ const defaultMetadata = {
 };
 
 const defaultTabOptions = {
+  tabId: 'workspace-tab-id',
   namespace: defaultMetadata.namespace,
   subTab: 'Documents' as const,
 };
@@ -32,6 +36,7 @@ const mockCollection = {
 describe('Collection Tab Content store', function () {
   const sandbox = Sinon.createSandbox();
 
+  const localAppRegistry = sandbox.spy(new AppRegistry());
   const dataService = {} as any;
   const instance = {
     databases: {
@@ -53,7 +58,8 @@ describe('Collection Tab Content store', function () {
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
   const configureStore = async (
-    options: Partial<CollectionTabOptions> = {}
+    options: Partial<CollectionTabOptions> = {},
+    workspaces: Partial<ReturnType<typeof workspacesServiceLocator>> = {}
   ) => {
     ({ store, deactivate } = activatePlugin(
       {
@@ -62,7 +68,9 @@ describe('Collection Tab Content store', function () {
       },
       {
         dataService,
+        localAppRegistry,
         instance,
+        workspaces: workspaces as any,
       },
       { on() {}, cleanup() {} } as any
     ));
@@ -79,11 +87,17 @@ describe('Collection Tab Content store', function () {
     deactivate();
   });
 
-  it('sets the namespace', async function () {
-    const store = await configureStore();
-    expect(store.getState()).to.have.property(
-      'namespace',
-      defaultMetadata.namespace
-    );
+  describe('selectTab', function () {
+    it('should set active tab', async function () {
+      const openCollectionWorkspaceSubtab = sandbox.spy();
+      const store = await configureStore(undefined, {
+        openCollectionWorkspaceSubtab,
+      });
+      store.dispatch(selectTab('Documents'));
+      expect(openCollectionWorkspaceSubtab).to.have.been.calledWith(
+        'workspace-tab-id',
+        'Documents'
+      );
+    });
   });
 });

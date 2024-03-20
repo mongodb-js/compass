@@ -6,10 +6,12 @@ import type {
   WorkspaceTab,
 } from './stores/workspaces';
 import {
+  collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
+import type { CollectionSubtab } from './types';
 
 function useWorkspacesStore() {
   try {
@@ -68,7 +70,14 @@ export type WorkspacesService = {
         'type' | 'namespace' | 'editViewName' | 'initialSubtab'
       >
   ): void;
-  openCollectionWorkspaceSubtab(this: void, subtab: string): void;
+  /**
+   * Open subTab in "Collection" workspace
+   */
+  openCollectionWorkspaceSubtab(
+    this: void,
+    tabId: string,
+    subtab: CollectionSubtab
+  ): void;
   /**
    * Open "Collection" workspace for a view namespace in a specially handled
    * "Editing view" state
@@ -164,9 +173,8 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           )
         );
       },
-      openCollectionWorkspaceSubtab(subtab) {
-        // eslint-disable-next-line no-console
-        console.log('openCollectionWorkspaceSubtab', subtab);
+      openCollectionWorkspaceSubtab(tabId, subtab) {
+        store.dispatch(collectionSubtabSelected(tabId, subtab));
       },
       openEditViewWorkspace: (viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};
