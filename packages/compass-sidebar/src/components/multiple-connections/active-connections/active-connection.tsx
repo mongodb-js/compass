@@ -85,12 +85,8 @@ export function ActiveConnection({
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (
-        !isExpanded &&
-        e.target === e.currentTarget &&
-        [' ', 'Enter'].includes(e.key)
-      )
-        onToggle(true);
+      if (e.target === e.currentTarget && [' ', 'Enter'].includes(e.key))
+        onToggle(!isExpanded);
     },
     [isExpanded, onToggle]
   );
