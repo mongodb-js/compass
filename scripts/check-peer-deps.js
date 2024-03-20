@@ -256,7 +256,14 @@ async function main() {
 
   function verionToInstall(name) {
     const version = allDependenciesWithVersions.get(name);
-    return version ? `${name}@${minVersion(version)}` : name;
+    const normalisedVersion = (() => {
+      try {
+        return minVersion(version);
+      } catch {
+        return version;
+      }
+    })();
+    return version ? `${name}@${normalisedVersion}` : name;
   }
 
   const prodDepsToInstall = Array.from(shouldBeInProd).map((name) => {
@@ -283,7 +290,7 @@ async function main() {
   }
 
   if (prodDepsToInstall.length > 0) {
-    console.log(' - Moving missing prod dependencies to `dependecies` ...');
+    console.log(' - Moving prod dependencies to `dependecies` ...');
     await execFileAsync('npm', [
       'install',
       '--save-prod',
@@ -292,7 +299,7 @@ async function main() {
   }
 
   if (devDepsToInstall.length) {
-    console.log(' - Moving missing dev dependencies to `devDependecies` ...');
+    console.log(' - Moving dev dependencies to `devDependecies` ...');
     await execFileAsync('npm', ['install', '--save-dev', ...devDepsToInstall]);
   }
 
