@@ -46,7 +46,14 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
         justify="middle"
         delay={500}
         trigger={({ children, ...props }) => (
-          <span {...props}>
+          <span
+            {...props}
+            onClick={() => {
+              // We use these stats in the Collection Tab, and LG does not
+              // bubble up the click event to the parent component, so we
+              // add noop onClick and let it bubble up.
+            }}
+          >
             <Badge>{text}</Badge>
             {children}
           </span>

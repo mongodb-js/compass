@@ -195,6 +195,14 @@ const App = () => {
     });
   }, [connectionString]);
 
+  const onConnectionItemDoubleClick = useCallback(
+    (info: ConnectionInfo) => {
+      setConnectionString(info.connectionOptions.connectionString);
+      onConnectClick();
+    },
+    [onConnectClick]
+  );
+
   const loggerProvider = useRef({
     createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
       const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
@@ -319,6 +327,9 @@ const App = () => {
                         <button
                           className={historyItemButtonStyles}
                           type="button"
+                          onDoubleClick={() =>
+                            onConnectionItemDoubleClick(connectionInfo)
+                          }
                           onClick={() => {
                             onChangeConnectionString(
                               connectionInfo.connectionOptions.connectionString
