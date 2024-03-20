@@ -74,16 +74,6 @@ export function activatePlugin(
     )
   );
 
-  on(collectionModel, 'change:status', (model: Collection, status: string) => {
-    if (status === 'ready') {
-      store.dispatch(collectionStatsFetched(model));
-    }
-  });
-
-  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
-    store.dispatch(collectionMetadataFetched(metadata));
-  });
-
   on(localAppRegistry, 'open-create-index-modal', () => {
     store.dispatch(selectTab('Indexes'));
   });
@@ -94,6 +84,16 @@ export function activatePlugin(
 
   on(localAppRegistry, 'generate-aggregation-from-query', () => {
     store.dispatch(selectTab('Aggregations'));
+  });
+
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  });
+
+  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
+    store.dispatch(collectionMetadataFetched(metadata));
   });
 
   return {

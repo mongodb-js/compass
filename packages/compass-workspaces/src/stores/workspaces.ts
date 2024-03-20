@@ -541,7 +541,7 @@ export const openWorkspace = (
           workspaceOptions?.initialPipelineText ||
           workspaceOptions?.editViewName
       );
-      if (isAggregationsSubtab) {
+      if (isAggregationsSubtab && !workspaceOptions.initialSubtab) {
         workspaceOptions.initialSubtab = 'Aggregations';
       }
     }

@@ -74,10 +74,7 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(
-        openWorkspace({
-          type: 'Collection',
-          namespace: 'test.bar',
-        })
+        openWorkspace({ type: 'Collection', namespace: 'test.bar' })
       );
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(3);
@@ -322,7 +319,7 @@ describe('tabs behavior', function () {
       store.getState().tabs.forEach(({ id }, index) => {
         store.dispatch(collectionSubtabSelected(id, 'Indexes'));
         expect(store.getState().tabs[index]).to.have.property(
-          `subTab`,
+          'subTab',
           'Indexes'
         );
 

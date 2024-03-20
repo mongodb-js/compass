@@ -20,7 +20,6 @@ const defaultMetadata = {
 const defaultTabOptions = {
   tabId: 'workspace-tab-id',
   namespace: defaultMetadata.namespace,
-  subTab: 'Documents' as const,
 };
 
 const mockCollection = {
