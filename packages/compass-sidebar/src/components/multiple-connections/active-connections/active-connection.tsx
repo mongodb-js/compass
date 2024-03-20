@@ -2,6 +2,7 @@ import {
   Icon,
   IconButton,
   css,
+  palette,
   spacing,
   useHoverState,
 } from '@mongodb-js/compass-components';
@@ -11,6 +12,16 @@ import ServerIcon from '../icons/server-icon';
 
 const iconStyles = css({
   flex: 'none',
+});
+
+const toggleBtnStyles = css({
+  color: palette.gray.dark2,
+  backgroundColor: 'none',
+  boxShadow: 'none',
+  '&:hover': {
+    backgroundColor: 'none',
+    boxShadow: 'none',
+  },
 });
 
 const activeConnectionNameStyles = css({
@@ -71,12 +82,8 @@ export function ActiveConnection({
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (
-        !isExpanded &&
-        e.target === e.currentTarget &&
-        [' ', 'Enter'].includes(e.key)
-      )
-        onToggle(true);
+      if (e.target === e.currentTarget && [' ', 'Enter'].includes(e.key))
+        onToggle(!isExpanded);
     },
     [isExpanded, onToggle]
   );
@@ -98,14 +105,24 @@ export function ActiveConnection({
     >
       <div className={activeConnectionTitleStyles}>
         {isExpanded ? (
-          <Icon
-            size={spacing[3]}
-            className={iconStyles}
-            glyph="CaretDown"
+          <IconButton
+            aria-label="Collapse"
+            title="Collapse"
+            tabIndex={-1}
             onClick={onCollapse}
-          />
+            className={toggleBtnStyles}
+          >
+            <Icon size={spacing[3]} className={iconStyles} glyph="CaretDown" />
+          </IconButton>
         ) : (
-          <Icon size={spacing[3]} className={iconStyles} glyph="CaretRight" />
+          <IconButton
+            aria-label="Expand"
+            title="Expand"
+            tabIndex={-1}
+            className={toggleBtnStyles}
+          >
+            <Icon size={spacing[3]} className={iconStyles} glyph="CaretRight" />
+          </IconButton>
         )}
         {connectionIcon}{' '}
         <div className={activeConnectionNameStyles}>{connection.title}</div>
