@@ -47,7 +47,7 @@ export const withStackedComponentStyles = function <
       <WrappedComponent
         ref={ref}
         {...props}
-        className={cx(props.className, stackedElementStyles)}
+        className={cx(stackedElementStyles, props.className)}
       />
     );
   };
