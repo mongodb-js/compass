@@ -4,13 +4,17 @@ import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
+import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
   type ConnectionRepository,
   type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
+import {
+  useConnectionRepositoryContext,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -275,13 +279,13 @@ export function useConnections({
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
-  reloadConnections: () => void;
 } {
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionRepository = useConnectionRepositoryContext();
   const connectionsManager = useConnectionsManagerContext();
+  const connectionStorage = useConnectionStorageContext();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -293,6 +297,26 @@ export function useConnections({
     defaultConnectionsState()
   );
   const { activeConnectionId, recentConnections, favoriteConnections } = state;
+
+  useEffect(() => {
+    function reloadConnections() {
+      void loadConnections(dispatch, connectionRepository, {
+        persistOIDCTokens,
+      });
+    }
+
+    connectionStorage.events?.on(
+      ConnectionStorageEvents.ConnectionsChanged,
+      reloadConnections
+    );
+
+    return () => {
+      connectionStorage.events?.off(
+        ConnectionStorageEvents.ConnectionsChanged,
+        reloadConnections
+      );
+    };
+  });
 
   async function saveConnectionInfo(
     connectionInfo: PartialConnectionInfo
@@ -679,11 +703,6 @@ export function useConnections({
       );
 
       await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-    },
-    reloadConnections() {
-      void loadConnections(dispatch, connectionRepository, {
         persistOIDCTokens,
       });
     },
