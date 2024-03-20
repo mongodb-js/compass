@@ -8,8 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const ATLAS_LINK =
-  'https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1';
+const ATLAS_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
 
 const atlasContainerStyles = css({
   display: 'flex',

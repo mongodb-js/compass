@@ -45,7 +45,10 @@ const columnsStyles = css({
   display: 'grid',
   width: '100%',
   gap: spacing[4],
-  gridTemplateColumns: '2fr 3fr',
+  // make sure the readonly filter field starts scrolling for large/complicated
+  // filters rather than the 1st column taking up all the space and then leaving
+  // nothing for the preview
+  gridTemplateColumns: '475px 1fr',
 });
 
 const queryStyles = css({

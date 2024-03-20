@@ -2,6 +2,7 @@ import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
 import type { CompletionContext } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 import type { EditorState } from '@codemirror/state';
+import { urlWithUtmParams } from '@mongodb-js/compass-components';
 
 export const completeWordsInString = ifIn(['String'], completeAnyWord);
 
@@ -11,9 +12,16 @@ export function resolveTokenAtCursor(context: CompletionContext) {
 
 export type Token = ReturnType<typeof resolveTokenAtCursor>;
 
-export function aggLink(op: string): string {
+export function aggLink(
+  op: string,
+  { utmSource, utmMedium }: { utmSource?: string; utmMedium?: string }
+): string {
   op = op.replace(/^\$/, '');
-  return `<a target="_blank" href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/${op}/">$${op}</a>`;
+  const href = urlWithUtmParams(
+    `https://www.mongodb.com/docs/manual/reference/operator/aggregation/${op}/`,
+    { utmSource, utmMedium }
+  );
+  return `<a target="_blank" href="${href}">$${op}</a>`;
 }
 
 export function padLines(str: string, pad = '  ') {
