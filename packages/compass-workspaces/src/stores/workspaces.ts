@@ -501,40 +501,39 @@ export const openWorkspace = (
 > => {
   return (dispatch, getState, { instance, dataService }) => {
     const oldTabs = getState().tabs;
-    if (
-      workspaceOptions.type === 'Collection' &&
-      !getState().collectionInfo[workspaceOptions.namespace]
-    ) {
-      // Fetching extra meta for collection should not block tab opening
-      void (async () => {
-        const { database, collection } = toNS(workspaceOptions.namespace);
-        try {
-          const coll = await instance.getNamespace({
-            dataService,
-            database,
-            collection,
-          });
-          if (coll) {
-            await coll.fetch({ dataService });
-            dispatch({
-              type: WorkspacesActions.FetchCollectionTabInfo,
-              namespace: workspaceOptions.namespace,
-              info: {
-                isTimeSeries: coll.isTimeSeries,
-                isReadonly: coll.readonly ?? coll.isView,
-                sourceName: coll.sourceName,
-              },
+    if (workspaceOptions.type === 'Collection') {
+      if (!getState().collectionInfo[workspaceOptions.namespace]) {
+        // Fetching extra meta for collection should not block tab opening
+        void (async () => {
+          const { database, collection } = toNS(workspaceOptions.namespace);
+          try {
+            const coll = await instance.getNamespace({
+              dataService,
+              database,
+              collection,
             });
+            if (coll) {
+              await coll.fetch({ dataService });
+              dispatch({
+                type: WorkspacesActions.FetchCollectionTabInfo,
+                namespace: workspaceOptions.namespace,
+                info: {
+                  isTimeSeries: coll.isTimeSeries,
+                  isReadonly: coll.readonly ?? coll.isView,
+                  sourceName: coll.sourceName,
+                },
+              });
+            }
+          } catch (err) {
+            // It's okay if we failed to fetch this optional metadata, this error
+            // can be ignored
+            if ((err as Error).name === 'MongoServerError') {
+              return;
+            }
+            throw err;
           }
-        } catch (err) {
-          // It's okay if we failed to fetch this optional metadata, this error
-          // can be ignored
-          if ((err as Error).name === 'MongoServerError') {
-            return;
-          }
-          throw err;
-        }
-      })();
+        })();
+      }
       const isAggregationsSubtab = Boolean(
         workspaceOptions?.initialAggregation ||
           workspaceOptions?.initialPipeline ||
