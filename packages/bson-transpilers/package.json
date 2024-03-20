@@ -20,7 +20,7 @@
     "test": "mocha",
     "//": "This is explicitly not `npm run test` like in other packages to avoid java compilation that fails in ci",
     "test-ci": "mocha",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint .",
     "check-ci": "npm run check"

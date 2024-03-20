@@ -1,11 +1,11 @@
 {
   "name": "@mongodb-js/compass-field-store",
-  "productName": "compass-field-store Plugin",
   "description": "FieldStore keeps track of available fields in a collection",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
+  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -23,8 +23,7 @@
   "main": "dist/index.js",
   "compass:main": "src/index.tsx",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.tsx"
@@ -32,12 +31,8 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "npm run webpack -- --mode production",
-    "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
+    "compile": "tsc -p tsconfig.json",
     "start": "npm run webpack serve -- --mode development",
-    "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -58,7 +53,6 @@
     "@mongodb-js/mocha-config-compass": "^1.3.7",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.3.5",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^7.0.2",
     "@types/chai": "^4.2.21",
@@ -68,25 +62,20 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
-    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb-schema": "^12.1.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "react": "^17.0.2",
-    "react-redux": "^8.1.3",
-    "redux": "^4.2.1",
     "sinon": "^9.2.3",
+    "typescript": "^5.0.4",
     "xvfb-maybe": "^0.2.1"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
-    "hadron-app-registry": "^9.1.8"
-  },
-  "peerDependencies": {
     "hadron-app-registry": "^9.1.8",
-    "react": "^17.0.2"
-  }
+    "lodash": "^4.17.21",
+    "mongodb-schema": "^12.1.0",
+    "react": "^17.0.2",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1"
+  },
+  "is_compass_plugin": true
 }
