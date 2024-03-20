@@ -1,6 +1,9 @@
-import { palette } from '@leafygreen-ui/palette';
-import { css, keyframes } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
+import {
+  palette,
+  css,
+  keyframes,
+  spacing,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 export type StatusMarker =

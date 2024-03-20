@@ -115,7 +115,7 @@ export function MultipleConnectionSidebar({
         setIsConnectionFormOpen(true);
       };
 
-      openToast(`connection-status-${info.id}`, {
+      openToast(`connection-status-${info?.id}`, {
         title: `${error.message}`,
         description: (
           <ConnectionErrorToastBody
