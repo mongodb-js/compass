@@ -82,7 +82,7 @@ describe('Multiple Connections Sidebar Component', function () {
         <ConnectionStorageContext.Provider value={storage}>
           <ConnectionRepositoryContextProvider>
             <ConnectionsManagerProvider value={connectionManager}>
-              <MultipleConnectionSidebar appName="Sidebar Spec" />
+              <MultipleConnectionSidebar />
             </ConnectionsManagerProvider>
           </ConnectionRepositoryContextProvider>
         </ConnectionStorageContext.Provider>

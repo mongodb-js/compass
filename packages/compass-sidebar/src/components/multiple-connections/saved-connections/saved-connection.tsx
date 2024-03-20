@@ -140,7 +140,7 @@ export function SavedConnection({
   onToggleFavoriteConnection,
 }: SavedConnectionProps): React.ReactElement {
   const { connectionColorToHex } = useConnectionColor();
-  const { status: connectionStatus } = useConnectionStatus(connectionInfo);
+  const { status: connectionStatus } = useConnectionStatus(connectionInfo.id);
 
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(

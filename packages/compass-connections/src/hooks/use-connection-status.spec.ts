@@ -36,7 +36,7 @@ describe('useConnectionStatus', function () {
   describe('status of a connection', function () {
     it('should return it from the connection manager', function () {
       const { result } = renderHookWithContext(() =>
-        useConnectionStatus(CONNECTION_INFO)
+        useConnectionStatus(CONNECTION_INFO.id)
       );
       const status = result.current.status;
       expect(status).to.equal('disconnected');
@@ -47,7 +47,7 @@ describe('useConnectionStatus', function () {
 
       beforeEach(function () {
         const hookResult = renderHookWithContext(() =>
-          useConnectionStatus(CONNECTION_INFO)
+          useConnectionStatus(CONNECTION_INFO.id)
         );
         result = hookResult.result;
 

@@ -18,9 +18,7 @@ import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 
-type MultipleConnectionSidebarProps = {
-  appName: string;
-};
+type MultipleConnectionSidebarProps = object;
 
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the

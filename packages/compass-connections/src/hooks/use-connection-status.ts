@@ -7,16 +7,16 @@ import {
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useEffect, useState } from 'react';
 
-export function useConnectionStatus(connectionInfo: ConnectionInfo): {
+export function useConnectionStatus(connectionInfoId: ConnectionInfo['id']): {
   status: ConnectionStatus;
 } {
   const connectionManager = useConnectionsManagerContext();
   const [status, setStatus] = useState<ConnectionStatus>(
-    connectionManager.statusOf(connectionInfo.id)
+    connectionManager.statusOf(connectionInfoId)
   );
 
   const updateStatus = () => {
-    setStatus(connectionManager.statusOf(connectionInfo.id));
+    setStatus(connectionManager.statusOf(connectionInfoId));
   };
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function useConnectionStatus(connectionInfo: ConnectionInfo): {
         connectionManager.off(event, updateStatus);
       }
     };
-  }, [updateStatus]);
+  }, [updateStatus, connectionInfoId]);
 
   return { status };
 }
