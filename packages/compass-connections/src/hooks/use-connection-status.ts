@@ -15,11 +15,11 @@ export function useConnectionStatus(connectionInfoId: ConnectionInfo['id']): {
     connectionManager.statusOf(connectionInfoId)
   );
 
-  const updateStatus = () => {
-    setStatus(connectionManager.statusOf(connectionInfoId));
-  };
-
   useEffect(() => {
+    const updateStatus = () => {
+      setStatus(connectionManager.statusOf(connectionInfoId));
+    };
+
     for (const event of Object.values(ConnectionsManagerEvents)) {
       connectionManager.on(event, updateStatus);
     }
@@ -29,7 +29,7 @@ export function useConnectionStatus(connectionInfoId: ConnectionInfo['id']): {
         connectionManager.off(event, updateStatus);
       }
     };
-  }, [updateStatus, connectionInfoId]);
+  }, []);
 
   return { status };
 }
