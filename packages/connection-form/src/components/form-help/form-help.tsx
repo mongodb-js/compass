@@ -5,6 +5,7 @@ import {
   Link,
   spacing,
   css,
+  cx,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -18,13 +19,13 @@ const formHelpContainerStyles = css({
 
 const sectionContainerStyles = css({
   backgroundColor: 'var(--theme-background-color)',
+  border: `1px solid var(--theme-border-color)`,
   margin: 0,
   marginBottom: spacing[3],
   padding: spacing[4],
   paddingTop: spacing[3],
   paddingBottom: spacing[3],
   borderRadius: spacing[2],
-  border: `1px solid var(--theme-border-color)`,
 });
 
 const titleStyles = css({
@@ -35,19 +36,22 @@ const descriptionStyles = css({
   marginTop: spacing[2],
 });
 
+const sectionDarkModeStyles = css({
+  '--theme-background-color': palette.blue.dark3,
+  '--theme-border-color': palette.blue.dark2,
+});
+
+const sectionLightModeStyles = css({
+  '--theme-background-color': palette.blue.light3,
+  '--theme-border-color': palette.blue.light2,
+});
+
 function FormHelp(): React.ReactElement {
   const darkMode = useDarkMode();
-  const backgroundColor = darkMode ? palette.blue.dark3 : palette.blue.light3;
-  const borderColor = darkMode ? palette.blue.dark2 : palette.blue.light2;
+  const themeStyles = darkMode ? sectionDarkModeStyles : sectionLightModeStyles;
 
   return (
-    <div
-      style={{
-        '--theme-background-color': backgroundColor,
-        '--theme-border-color': borderColor,
-      }}
-      className={formHelpContainerStyles}
-    >
+    <div className={cx(formHelpContainerStyles, themeStyles)}>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?
