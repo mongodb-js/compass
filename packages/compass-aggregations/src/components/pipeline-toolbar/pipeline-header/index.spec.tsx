@@ -33,10 +33,6 @@ describe('PipelineHeader', function () {
     container = screen.getByTestId('pipeline-header');
   });
 
-  it('renders pipeline text heading', function () {
-    expect(within(container).getByText('Pipeline')).to.exist;
-  });
-
   it('open saved pipelines button', async function () {
     const button = within(container).getByTestId(
       'pipeline-toolbar-open-pipelines-button'

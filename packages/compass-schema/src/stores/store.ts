@@ -20,7 +20,7 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from 'mongodb-data-service';
+import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';

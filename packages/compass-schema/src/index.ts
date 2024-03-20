@@ -1,5 +1,7 @@
-import type { DataServiceLocator } from 'mongodb-data-service/provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 import CompassSchema from './components/compass-schema';

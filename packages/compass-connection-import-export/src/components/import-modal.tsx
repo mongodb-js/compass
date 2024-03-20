@@ -36,14 +36,12 @@ export function ImportConnectionsModal({
   open,
   setOpen,
   favoriteConnections,
-  afterImport,
   trackingProps,
   connectionStorage,
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
   favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
-  afterImport?: () => void;
   trackingProps?: Record<string, unknown>;
   connectionStorage?: typeof ConnectionStorage;
 }): React.ReactElement {
@@ -58,10 +56,9 @@ export function ImportConnectionsModal({
           variant: 'success',
           timeout: TOAST_TIMEOUT_MS,
         });
-        afterImport?.();
       }
     },
-    [afterImport, openToast, setOpen]
+    [openToast, setOpen]
   );
 
   useOpenModalThroughIpc(open, setOpen, 'compass:open-import-connections');

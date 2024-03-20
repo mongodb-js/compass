@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { connect } from 'mongodb-data-service';
-import type { DataService } from 'mongodb-data-service';
+import type { connect } from 'mongodb-data-service';
 import { AppRegistryProvider } from 'hadron-app-registry';
-import { DataServiceProvider } from 'mongodb-data-service/provider';
+import {
+  ConnectionsManager,
+  ConnectionsManagerProvider,
+} from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
   WorkspacesProvider,
@@ -57,6 +59,7 @@ import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -220,6 +223,7 @@ const CompassWeb = ({
       enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: false,
+      enableNewMultipleConnectionSystem: false,
       enableHackoladeBanner: false,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
@@ -230,27 +234,28 @@ const CompassWeb = ({
   );
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<any | null>(null);
-  const dataService = useRef<DataService>();
+  const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
+  const connectionsManager = useRef(
+    new ConnectionsManager({
+      logger: log.unbound,
+      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as
+        | typeof connect
+        | undefined,
+    })
+  );
 
   useEffect(() => {
-    const controller = new AbortController();
-    let ds: DataService;
+    const connectionsManagerCurrent = connectionsManager.current;
     void (async () => {
       try {
-        const connectFn =
-          (__TEST_MONGODB_DATA_SERVICE_CONNECT_FN as typeof connect) ?? connect;
-        ds = await connectFn({
-          connectionOptions: connectionInfo.connectionOptions,
-          signal: controller.signal,
-        });
-        dataService.current = ds;
+        await connectionsManagerCurrent.connect(connectionInfo);
         setConnected(true);
       } catch (err) {
         setConnectionError(err);
       }
     })();
     return () => {
-      void ds?.disconnect();
+      void connectionsManagerCurrent.closeConnection(connectionInfo.id);
     };
   }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
 
@@ -266,32 +271,31 @@ const CompassWeb = ({
     utmMedium: 'product',
   };
 
-  if (!connected || !dataService.current) {
-    return (
-      <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
-        <LoadingScreen
-          connectionString={connectionInfo.connectionOptions.connectionString}
-        ></LoadingScreen>
-      </CompassComponentsProvider>
-    );
-  }
   return (
     <CompassComponentsProvider darkMode={darkMode} {...linkProps}>
       <PreferencesProvider value={preferencesAccess.current}>
         <WithAtlasProviders>
           <AppRegistryProvider scopeName="Compass Web Root">
-            <DataServiceProvider value={dataService.current}>
-              <ConnectionInfoProvider value={connectionInfo}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <CompassWorkspace
-                      initialWorkspaceTabs={initialWorkspaceTabs}
-                      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                    />
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
-              </ConnectionInfoProvider>
-            </DataServiceProvider>
+            <ConnectionsManagerProvider value={connectionsManager.current}>
+              <CompassInstanceStorePlugin>
+                <ConnectionInfoProvider value={connectionInfo}>
+                  {connected ? (
+                    <FieldStorePlugin>
+                      <CompassWorkspace
+                        initialWorkspaceTabs={initialWorkspaceTabs}
+                        onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                      />
+                    </FieldStorePlugin>
+                  ) : (
+                    <LoadingScreen
+                      connectionString={
+                        connectionInfo.connectionOptions.connectionString
+                      }
+                    ></LoadingScreen>
+                  )}
+                </ConnectionInfoProvider>
+              </CompassInstanceStorePlugin>
+            </ConnectionsManagerProvider>
           </AppRegistryProvider>
         </WithAtlasProviders>
       </PreferencesProvider>

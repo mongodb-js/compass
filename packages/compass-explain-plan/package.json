@@ -57,12 +57,12 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-editor": "^0.21.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/explain-plan-helper": "^1.1.10",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -81,12 +81,12 @@
     "d3-flextree": "2.1.2",
     "d3-hierarchy": "^3.1.2",
     "depcheck": "^1.4.1",
-    "electron": "^28.2.5",
+    "electron": "^28.2.7",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "^6.5.0",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -98,11 +98,11 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
     "@mongodb-js/compass-editor": "^0.21.1",
     "@mongodb-js/compass-logging": "^1.2.14",
     "@mongodb-js/explain-plan-helper": "^1.1.10",
     "compass-preferences-model": "^2.18.1",
-    "hadron-app-registry": "^9.1.8",
-    "mongodb-data-service": "^22.18.1"
+    "hadron-app-registry": "^9.1.8"
   }
 }

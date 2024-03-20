@@ -3,9 +3,9 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 
 type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   R,

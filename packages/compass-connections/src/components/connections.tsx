@@ -17,8 +17,7 @@ import ConnectionForm from '@mongodb-js/connection-form';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
+import type { connect, DataService } from 'mongodb-data-service';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
@@ -86,20 +85,23 @@ const formCardLightThemeStyles = css({
 function Connections({
   appRegistry,
   onConnected,
-  isConnected,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   appName,
   getAutoConnectInfo,
-  connectFn = connect,
 }: {
   appRegistry: AppRegistry;
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  isConnected: boolean;
+  onConnectionFailed: (
+    connectionInfo: ConnectionInfo | null,
+    error: Error
+  ) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -119,18 +121,17 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-    reloadConnections,
   } = useConnections({
     onConnected,
-    isConnected,
-    connectFn,
+    onConnectionFailed,
+    onConnectionAttemptStarted,
     appName,
     getAutoConnectInfo,
   });
   const {
+    connectingConnectionId,
     activeConnectionId,
     activeConnectionInfo,
-    connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
     oidcDeviceAuthVerificationUrl,
@@ -252,19 +253,20 @@ function Connections({
           <FormHelp isMultiConnectionEnabled={isMultiConnectionEnabled} />
         </div>
       </div>
-      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+      {connectingConnectionId && (
         <Connecting
           oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
           oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
           connectingStatusText={connectingStatusText}
-          onCancelConnectionClicked={cancelConnectionAttempt}
+          onCancelConnectionClicked={() =>
+            void cancelConnectionAttempt(connectingConnectionId)
+          }
         />
       )}
       <ImportConnectionsModal
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}
         favoriteConnections={favoriteConnections}
-        afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
         connectionStorage={connectionStorage}
       />

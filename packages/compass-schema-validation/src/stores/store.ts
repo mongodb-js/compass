@@ -8,7 +8,7 @@ import { editModeChanged } from '../modules/edit-mode';
 import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
