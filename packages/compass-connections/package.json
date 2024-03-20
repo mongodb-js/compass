@@ -85,7 +85,6 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
-    "hadron-ipc": "^3.2.12",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
