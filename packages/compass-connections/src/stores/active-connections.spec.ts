@@ -83,7 +83,9 @@ describe('useActiveConnections', function () {
   });
 
   it('should return active connections', async function () {
-    mockConnectionStorage = { loadAll: Sinon.stub().resolves([]) } as any;
+    mockConnectionStorage = {
+      loadAll: Sinon.stub().resolves(mockConnections),
+    } as any;
     connectionRepository = new ConnectionRepository(mockConnectionStorage);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
@@ -101,6 +103,10 @@ describe('useActiveConnections', function () {
     connectionRepository = new ConnectionRepository(mockConnectionStorage);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
+
+    await waitFor(() => {
+      expect(result.current).to.have.length(1);
+    });
 
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
     connectionsManager.emit(
