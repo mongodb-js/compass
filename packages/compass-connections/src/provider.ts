@@ -63,3 +63,4 @@ export const dataServiceLocator = createServiceLocator(
 );
 
 export { useConnectionStatus } from './hooks/use-connection-status';
+export { connectionScopedEventEmitterLocator } from './connection-scope-event-emitter';
