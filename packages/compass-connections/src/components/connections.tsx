@@ -237,9 +237,12 @@ function Connections({
               >
                 <ConnectionForm
                   onConnectClicked={(connectionInfo) =>
-                    void connect({
-                      ...cloneDeep(connectionInfo),
-                    })
+                    void connect(
+                      {
+                        ...cloneDeep(connectionInfo),
+                      },
+                      false
+                    )
                   }
                   key={activeConnectionId}
                   onSaveConnectionClicked={saveConnection}
