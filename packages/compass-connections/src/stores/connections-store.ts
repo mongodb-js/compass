@@ -386,7 +386,11 @@ export function useConnections({
         dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected(connectionInfo, dataService);
 
-        if (!shouldSaveConnectionInfo) return;
+        if (!shouldSaveConnectionInfo) {
+          // only update lastUsed
+          await connectionRepository.updateLastUsage(connectionInfo.id);
+          return;
+        }
 
         let mergeConnectionInfo = {};
         if (persistOIDCTokens) {

@@ -51,6 +51,16 @@ export class ConnectionRepository {
     return infoToSave;
   }
 
+  async updateLastUsage(infoId: ConnectionInfo['id']): Promise<void> {
+    const connectionInfo = await this.storage.load({ id: infoId });
+    if (!connectionInfo) {
+      return;
+    }
+
+    connectionInfo.lastUsed = new Date();
+    await this.storage.save({ connectionInfo });
+  }
+
   async deleteConnection(info: ConnectionInfo): Promise<void> {
     await this.storage.delete(info);
   }
