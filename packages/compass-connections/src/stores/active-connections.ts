@@ -58,7 +58,7 @@ export function useActiveConnections(): ConnectionInfo[] {
     // reacting to connection info updates
     connectionStorage.events?.on(
       ConnectionStorageEvents.ConnectionsChanged,
-      updateList
+      () => void updateList
     );
 
     return () => {
@@ -67,7 +67,7 @@ export function useActiveConnections(): ConnectionInfo[] {
       }
       connectionStorage.events?.off(
         ConnectionStorageEvents.ConnectionsChanged,
-        updateList
+        () => void updateList
       );
     };
   }, [updateList]);
