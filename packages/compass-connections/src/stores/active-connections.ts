@@ -37,40 +37,42 @@ export function useActiveConnections(): ConnectionInfo[] {
     []
   );
 
-  const updateList = useCallback(async () => {
-    const list = [
-      ...(await connectionRepository.listFavoriteConnections()),
-      ...(await connectionRepository.listNonFavoriteConnections()),
-    ].filter(({ id }) => connectionManager.statusOf(id) === 'connected');
-    if (!areConnectionsEqual(activeConnections, list)) {
-      setActiveConnections(list);
-    }
-  }, [activeConnections]);
+  const updateList = useCallback(
+    () =>
+      void (async () => {
+        const newList = [
+          ...(await connectionRepository.listFavoriteConnections()),
+          ...(await connectionRepository.listNonFavoriteConnections()),
+        ].filter(({ id }) => connectionManager.statusOf(id) === 'connected');
+        setActiveConnections((prevList) => {
+          return areConnectionsEqual(prevList, newList) ? prevList : newList;
+        });
+      })(),
+    [connectionRepository, connectionManager]
+  );
 
   useEffect(() => {
-    void updateList();
-
     // reacting to connection status updates
     for (const event of Object.values(ConnectionsManagerEvents)) {
-      connectionManager.on(event, () => void updateList());
+      connectionManager.on(event, updateList);
     }
 
     // reacting to connection info updates
     connectionStorage.events?.on(
       ConnectionStorageEvents.ConnectionsChanged,
-      () => void updateList()
+      updateList
     );
 
     return () => {
       for (const event of Object.values(ConnectionsManagerEvents)) {
-        connectionManager.off(event, () => void updateList());
+        connectionManager.off(event, updateList);
       }
       connectionStorage.events?.off(
         ConnectionStorageEvents.ConnectionsChanged,
-        () => void updateList()
+        updateList
       );
     };
-  }, [updateList]);
+  }, [updateList, connectionManager, connectionStorage]);
 
   return activeConnections;
 }
