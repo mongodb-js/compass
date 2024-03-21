@@ -161,16 +161,11 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component tabId={activeTab.id}></Component>;
+        return <Component></Component>;
       }
       case 'Collections': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return (
-          <Component
-            tabId={activeTab.id}
-            namespace={activeTab.namespace}
-          ></Component>
-        );
+        return <Component namespace={activeTab.namespace}></Component>;
       }
       case 'Collection': {
         const Component = getWorkspacePluginByName(activeTab.type);
