@@ -121,7 +121,6 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-    reloadConnections,
   } = useConnections({
     onConnected,
     onConnectionFailed,
@@ -268,7 +267,6 @@ function Connections({
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}
         favoriteConnections={favoriteConnections}
-        afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
         connectionStorage={connectionStorage}
       />

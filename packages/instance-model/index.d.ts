@@ -1,11 +1,12 @@
 import type Collection from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
-
-import { ServerType } from './server-type';
-import { TopologyType } from './topology-type';
 import Database from 'mongodb-database-model';
 import { CollectionCollection } from 'mongodb-collection-model';
+
+// TODO: add real types for these
+declare const ServerType: any;
+declare const TopologyType: any;
 
 interface AuthInfo {
   user: unknown | null;

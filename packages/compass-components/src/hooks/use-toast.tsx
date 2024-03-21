@@ -14,6 +14,7 @@ import { css } from '@leafygreen-ui/emotion';
 
 export type ToastProperties = Pick<
   ToastProps,
+  | 'actionElement'
   | 'title'
   | 'description'
   | 'variant'

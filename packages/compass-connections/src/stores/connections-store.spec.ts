@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import EventEmitter from 'events';
 import { waitFor, cleanup } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -14,7 +15,11 @@ import {
   type ConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
 
-import { ConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionRepositoryContext,
+  ConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
+
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -71,17 +76,23 @@ describe('use-connections hook', function () {
         createElement(PreferencesProvider, {
           value: preferences,
           children: [
-            createElement(ConnectionRepositoryContext.Provider, {
-              value: connectionRepository,
+            createElement(ConnectionStorageContext.Provider, {
+              value: mockConnectionStorage,
               children: [
-                createElement(ConnectionsManagerProvider, {
-                  value: connectionsManager,
-                  children,
+                createElement(ConnectionRepositoryContext.Provider, {
+                  value: connectionRepository,
+                  children: [
+                    createElement(ConnectionsManagerProvider, {
+                      value: connectionsManager,
+                      children,
+                    }),
+                  ],
                 }),
               ],
             }),
           ],
         });
+
       return renderHook(callback, { wrapper, ...options });
     };
     await preferences.savePreferences({ persistOIDCTokens: false });
@@ -447,6 +458,46 @@ describe('use-connections hook', function () {
 
       it('does not add the new connection to the current connections list', function () {
         expect(hookResult.current.favoriteConnections).to.be.deep.equal([]);
+      });
+    });
+
+    describe('state reactivity', function () {
+      let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+
+      beforeEach(function () {
+        mockConnectionStorage.events = new EventEmitter();
+
+        const { result } = renderHookWithContext(() =>
+          useConnections({
+            onConnected: noop,
+            onConnectionFailed: noop,
+            onConnectionAttemptStarted: noop,
+            connectFn: noop,
+            appName: 'Test App Name',
+          })
+        );
+
+        hookResult = result;
+      });
+
+      it('should update connections when received a change event', async function () {
+        const loadAllSpyWithData = sinon.fake.resolves([
+          {
+            id: '1',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'bcd' },
+            connectionOptions: {},
+          },
+        ]);
+
+        mockConnectionStorage.loadAll = loadAllSpyWithData;
+        mockConnectionStorage.events.emit('connections-changed');
+
+        await waitFor(
+          () => expect(mockConnectionStorage.loadAll).to.have.been.called
+        );
+
+        expect(hookResult.current.favoriteConnections.length).to.equal(1);
       });
     });
 

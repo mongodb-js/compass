@@ -2,6 +2,7 @@ import {
   type ConnectionInfo,
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
+import { useConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';
 import {
   css,
@@ -14,15 +15,16 @@ import {
   useDarkMode,
   palette,
 } from '@mongodb-js/compass-components';
+import { WithStatusMarker } from '../../with-status-marker';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { ItemSeparator } from '@mongodb-js/compass-components/lib/components/item-action-controls';
-
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
   flex: 'none',
+  height: spacing[3],
 });
 
 const savedConnectionStyles = css({
@@ -57,6 +59,17 @@ type Action =
   | 'duplicate-connection'
   | 'remove-connection';
 
+const WarningIcon = () => {
+  return (
+    <Icon
+      className={iconStyles}
+      size={spacing[3]}
+      color={palette.red.base}
+      glyph="Warning"
+    />
+  );
+};
+
 const ServerIcon = () => {
   const darkMode = useDarkMode();
   const stroke = darkMode ? palette.white : palette.gray.dark2;
@@ -64,8 +77,8 @@ const ServerIcon = () => {
   return (
     <svg
       className={iconStyles}
-      width="14"
-      height="14"
+      width={spacing[3]}
+      height={spacing[3]}
       viewBox="0 0 14 14"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -127,6 +140,7 @@ export function SavedConnection({
   onToggleFavoriteConnection,
 }: SavedConnectionProps): React.ReactElement {
   const { connectionColorToHex } = useConnectionColor();
+  const { status: connectionStatus } = useConnectionStatus(connectionInfo.id);
 
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(
@@ -138,13 +152,28 @@ export function SavedConnection({
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
   const { openToast } = useToast('compass-connections');
 
-  const icon = isLocalhost ? (
-    <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
-  ) : isFavorite ? (
-    <Icon size={spacing[3]} className={iconStyles} glyph="Favorite" />
-  ) : (
-    <ServerIcon />
-  );
+  let icon: React.ReactElement;
+  if (connectionStatus === 'failed') {
+    icon = <WarningIcon />;
+  } else if (isLocalhost) {
+    icon = (
+      <WithStatusMarker status={connectionStatus}>
+        <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
+      </WithStatusMarker>
+    );
+  } else if (isFavorite) {
+    icon = (
+      <WithStatusMarker status={connectionStatus}>
+        <Icon size={spacing[3]} className={iconStyles} glyph="Favorite" />
+      </WithStatusMarker>
+    );
+  } else {
+    icon = (
+      <WithStatusMarker status={connectionStatus}>
+        <ServerIcon />
+      </WithStatusMarker>
+    );
+  }
 
   async function copyConnectionString(connectionString: string) {
     try {
@@ -235,6 +264,7 @@ export function SavedConnection({
         backgroundColor: connectionColorToHex(connectionInfo.favorite?.color),
       }}
       className={savedConnectionStyles}
+      data-testid={`saved-connection-${connectionInfo.id}`}
     >
       {icon}{' '}
       <div className={savedConnectionNameStyles}>
