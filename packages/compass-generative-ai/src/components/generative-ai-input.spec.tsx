@@ -178,20 +178,6 @@ describe('GenerativeAIInput Component', function () {
       });
 
       it('should have feedback options and call the feedback handler on submit', async function () {
-        // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
-        // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
-        // so that the tabbable check still succeeds in the testing environment.
-        sinon.replace(
-          Element.prototype,
-          'getClientRects',
-          () =>
-            [
-              {
-                /* `tabbable` only checks that an element exists here. */
-              },
-            ] as any
-        );
-
         // No feedback popover is shown yet.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
@@ -233,20 +219,6 @@ describe('GenerativeAIInput Component', function () {
 
   describe('Aggregation created guide cue', function () {
     it('should call the hide guide cue handler on submit', async function () {
-      // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
-      // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
-      // so that the tabbable check still succeeds in the testing environment.
-      sinon.replace(
-        Element.prototype,
-        'getClientRects',
-        () =>
-          [
-            {
-              /* `tabbable` only checks that an element exists here. */
-            },
-          ] as any
-      );
-
       let resetIsAggregationGeneratedFromQueryCalled = false;
 
       renderGenerativeAIInput({

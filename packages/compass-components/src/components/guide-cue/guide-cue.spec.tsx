@@ -62,20 +62,6 @@ describe('GuideCue', function () {
 
   before(function () {
     sandbox.replace(GuideCueGroups, 'GROUP_STEPS_MAP', GROUP_STEPS_MAP);
-
-    // TODO(COMPASS-7713): `tabbable`, used by `focus-trap`, uses some DOM APIs and
-    // does not fully support `jsdom`. Here we mock the `Element.getClientRects()`
-    // so that the tabbable check still succeeds in the testing environment.
-    sandbox.replace(
-      Element.prototype,
-      'getClientRects',
-      () =>
-        [
-          {
-            /* `tabbable` only checks that an element exists here. */
-          },
-        ] as any
-    );
   });
 
   after(function () {

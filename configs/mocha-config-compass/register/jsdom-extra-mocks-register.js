@@ -13,17 +13,23 @@ if (!window.matchMedia) {
   };
 }
 
-// Hack: `EventTarget` in jsdom checks for the `Event` symbol,
-// which new `CustomEvent` does not provide (outside of the dom).
-// We override the global CustomEvent with a modified event so that
-// the check succeeds. This might go away with newer "jsdom" versions.
-(function () {
-  function CustomEvent(eventName, params) {
-    const evt = document.createEvent('HTMLEvents');
-    evt.detail = params.detail;
-    evt.initEvent(eventName);
-    return evt;
-  }
+/**
+ * NB: tabbable requires special overrides to work in jsdom environments as per
+ * documentation
+ *
+ * @see {@link https://github.com/focus-trap/tabbable?tab=readme-ov-file#testing-in-jsdom}
+ */
+const tabbable = require('tabbable');
 
-  global.CustomEvent = CustomEvent;
-})();
+const origTabbable = { ...tabbable };
+
+Object.assign(tabbable, {
+  tabbable: (node, options) =>
+    origTabbable.tabbable(node, { ...options, displayCheck: 'none' }),
+  focusable: (node, options) =>
+    origTabbable.focusable(node, { ...options, displayCheck: 'none' }),
+  isFocusable: (node, options) =>
+    origTabbable.isFocusable(node, { ...options, displayCheck: 'none' }),
+  isTabbable: (node, options) =>
+    origTabbable.isTabbable(node, { ...options, displayCheck: 'none' }),
+});
