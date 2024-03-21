@@ -58,7 +58,7 @@ export function useActiveConnections(): ConnectionInfo[] {
     // reacting to connection info updates
     connectionStorage.events?.on(
       ConnectionStorageEvents.ConnectionsChanged,
-      () => void updateList
+      () => void updateList()
     );
 
     return () => {
