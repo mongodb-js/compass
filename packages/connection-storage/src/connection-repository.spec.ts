@@ -41,7 +41,7 @@ function mockStorage(): StorageContext {
   return mockStorageWithConnections([]);
 }
 
-describe('CompassConnectionProvider', function () {
+describe.only('CompassConnectionRepository', function () {
   describe('#listFavoriteConnections', function () {
     it('should return only favourite connections as disconnected', async function () {
       const provider = new ConnectionRepository(
@@ -227,6 +227,44 @@ describe('CompassConnectionProvider', function () {
       await provider.deleteConnection(connectionToDelete);
 
       expect(deleteStub).to.have.been.calledOnceWith(connectionToDelete);
+    });
+  });
+
+  describe('updateLastUsage', function () {
+    const RealDate = globalThis.Date;
+    const ConstantDate = new RealDate(1);
+
+    beforeEach(function () {
+      globalThis.Date = function () {
+        return ConstantDate;
+      } as any;
+    });
+
+    afterEach(function () {
+      globalThis.Date = RealDate;
+    });
+
+    it('should not update a connection if it does not exist', async function () {
+      const { storage, saveStub } = mockStorage();
+      const provider = new ConnectionRepository(storage);
+      await provider.updateLastUsage('11111_Not_Existing');
+
+      expect(saveStub).to.not.have.been.called;
+    });
+
+    it('should update the connection date if the connection exists', async function () {
+      const { storage, saveStub } = mockStorageWithConnections([
+        { id: '1', lastUsed: new RealDate(0) },
+      ]);
+      const provider = new ConnectionRepository(storage);
+      await provider.updateLastUsage('1');
+
+      expect(saveStub).to.have.been.calledWith({
+        connectionInfo: {
+          id: '1',
+          lastUsed: ConstantDate,
+        },
+      });
     });
   });
 });
