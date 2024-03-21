@@ -24,10 +24,19 @@ import type {
 } from '@mongodb-js/compass-components';
 import { useDarkMode } from '@mongodb-js/compass-components';
 
+const tableWrapperStyles = css({
+  paddingTop: spacing[3],
+  width: '100%',
+  height: '100%',
+});
+
 const tableStyles = css({
+  width: '100%',
   // Required for the `sticky` header.
   height: '100%',
-  paddingTop: spacing[3],
+  // So that the last element has some spacing from the container bottom when
+  // scrolled to the very bottom of the list
+  paddingBottom: spacing[3],
 });
 
 const indexActionsCellClassName = 'index-actions-cell';
@@ -97,69 +106,75 @@ export function IndexesTable<T>({
   const darkMode = useDarkMode();
 
   return (
-    <Table
-      className={tableStyles}
-      data-testid={`${dataTestId}-list`}
-      table={table}
-      ref={tableContainerRef}
-    >
-      <TableHead
-        isSticky
-        className={cx(tableHeadStyles, darkMode && tableHeadDarkModeStyles)}
+    <div className={tableWrapperStyles}>
+      <Table
+        className={tableStyles}
+        data-testid={`${dataTestId}-list`}
+        table={table}
+        ref={tableContainerRef}
       >
-        {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (
-          <HeaderRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => {
-              return (
-                <HeaderCell
-                  className={tableHeadCellStyles}
-                  data-testid={`${dataTestId}-header-${header.id}`}
-                  key={header.id}
-                  header={header}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </HeaderCell>
-              );
-            })}
-          </HeaderRow>
-        ))}
-      </TableHead>
-      <TableBody>
-        {rows.map((row: LeafyGreenTableRow<T>) => {
-          return (
-            <Row
-              className={rowStyles}
-              key={row.id}
-              row={row}
-              data-testid={`${dataTestId}-row-${
-                (row.original as { name?: string }).name ?? row.id
-              }`}
-            >
-              {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {
+        <TableHead
+          isSticky
+          className={cx(tableHeadStyles, darkMode && tableHeadDarkModeStyles)}
+        >
+          {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (
+            <HeaderRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
                 return (
-                  <Cell
-                    className={cx(
-                      cell.column.id === 'actions' && indexActionsCellStyles,
-                      cell.column.id === 'actions' && indexActionsCellClassName
-                    )}
-                    data-testid={`${dataTestId}-${cell.column.id}-field`}
-                    key={cell.id}
+                  <HeaderCell
+                    className={tableHeadCellStyles}
+                    data-testid={`${dataTestId}-header-${header.id}`}
+                    key={header.id}
+                    header={header}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Cell>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </HeaderCell>
                 );
               })}
+            </HeaderRow>
+          ))}
+        </TableHead>
+        <TableBody>
+          {rows.map((row: LeafyGreenTableRow<T>) => {
+            return (
+              <Row
+                className={rowStyles}
+                key={row.id}
+                row={row}
+                data-testid={`${dataTestId}-row-${
+                  (row.original as { name?: string }).name ?? row.id
+                }`}
+              >
+                {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {
+                  return (
+                    <Cell
+                      className={cx(
+                        cell.column.id === 'actions' && indexActionsCellStyles,
+                        cell.column.id === 'actions' &&
+                          indexActionsCellClassName
+                      )}
+                      data-testid={`${dataTestId}-${cell.column.id}-field`}
+                      key={cell.id}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Cell>
+                  );
+                })}
 
-              {row.original.renderExpandedContent && (
-                <ExpandedContent row={row} />
-              )}
-            </Row>
-          );
-        })}
-      </TableBody>
-    </Table>
+                {row.original.renderExpandedContent && (
+                  <ExpandedContent row={row} />
+                )}
+              </Row>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

@@ -33,7 +33,11 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 const containerStyles = css({
-  margin: spacing[3],
+  paddingTop: spacing[3],
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
+  // No padding bottom so that the table can scroll visibly to the bottom
+  paddingBottom: 0,
   gap: spacing[3],
   display: 'flex',
   flexDirection: 'column',
