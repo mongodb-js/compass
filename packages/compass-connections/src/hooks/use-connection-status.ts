@@ -29,7 +29,7 @@ export function useConnectionStatus(connectionInfoId: ConnectionInfo['id']): {
         connectionManager.off(event, updateStatus);
       }
     };
-  }, []);
+  }, [connectionManager, connectionInfoId]);
 
   return { status };
 }
