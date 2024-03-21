@@ -7,7 +7,10 @@ import { getFilteredCompletions } from '@mongodb-js/mongodb-constants';
 export { wrapField } from '@mongodb-js/mongodb-constants';
 
 export type CompletionResult = Completion;
-export type CompletionOptions = CompletionFilterOptions;
+export type CompletionOptions = CompletionFilterOptions & {
+  utmSource?: string;
+  utmMedium?: string;
+};
 
 export function completer(
   prefix = '',

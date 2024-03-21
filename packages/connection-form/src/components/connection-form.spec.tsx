@@ -376,8 +376,15 @@ describe('ConnectionForm Component', function () {
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
   });
 
+  it('should not include the help panels', function () {
+    expect(screen.queryByText(/How do I find my/)).to.be.null;
+    expect(screen.queryByText(/How do I format my/)).to.be.null;
+  });
+
   context('when multiple connection management is enabled', function () {
+    let onCancel: Sinon.SinonSpy;
     beforeEach(async function () {
+      onCancel = Sinon.spy();
       await preferences.savePreferences({
         enableNewMultipleConnectionSystem: true,
       });
@@ -387,11 +394,28 @@ describe('ConnectionForm Component', function () {
           protectConnectionStringsForNewConnections: false,
           protectConnectionStrings: false,
         },
+        onCancel,
       });
     });
 
     it('should not show the old favorite button', function () {
       expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
+    });
+
+    it('should include the help panels', function () {
+      expect(screen.getByText(/How do I find my/)).to.be.visible;
+      expect(screen.getByText(/How do I format my/)).to.be.visible;
+    });
+
+    it('should show a Cancel button', function () {
+      screen.debug(screen.getByTestId('cancel-button'));
+      const button = screen.queryByRole('button', { name: 'Cancel' });
+
+      expect(button).to.be.visible;
+
+      button?.click();
+
+      expect(onCancel).to.have.been.called;
     });
 
     describe('name input', function () {

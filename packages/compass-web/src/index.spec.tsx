@@ -40,6 +40,7 @@ class MockDataService extends EventEmitter {
     return Promise.resolve([mockDb('foo'), mockDb('bar'), mockDb('buz')]);
   }
   disconnect() {}
+  addReauthenticationHandler() {}
 }
 
 describe('CompassWeb', function () {
@@ -63,7 +64,10 @@ describe('CompassWeb', function () {
   ) {
     return render(
       <CompassWeb
-        connectionString="mongodb://localhost:27017"
+        connectionInfo={{
+          id: 'foo',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        }}
         onActiveWorkspaceTabChange={() => {}}
         {...props}
         // @ts-expect-error see component props description

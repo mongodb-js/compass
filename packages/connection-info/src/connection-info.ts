@@ -1,5 +1,19 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 
+export interface AtlasClusterMetadata {
+  orgId: string;
+  /**
+   * Project ID that uniquely identifies an Atlas project. Legacy name is "groupId"
+   * as projects were previously identified as "groups".
+   * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#project-id
+   */
+  projectId: string;
+  clusterId: string;
+  clusterName: string;
+  clusterType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
+  regionalBaseUrl: string;
+}
+
 export interface ConnectionInfo {
   /**
    * Unique ID of the connection.
@@ -25,6 +39,11 @@ export interface ConnectionInfo {
    * The options used to connect
    */
   connectionOptions: ConnectionOptions;
+
+  /**
+   * The metdata for the Atlas cluster
+   */
+  atlasMetadata?: AtlasClusterMetadata;
 }
 
 export interface ConnectionFavoriteOptions {

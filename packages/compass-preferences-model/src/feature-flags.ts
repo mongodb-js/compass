@@ -80,7 +80,7 @@ export const featureFlags: Required<{
    * Feature flag for the rename collection modal.
    */
   enableRenameCollectionModal: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',

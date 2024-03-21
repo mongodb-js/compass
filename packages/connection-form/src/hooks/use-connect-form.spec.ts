@@ -1010,6 +1010,28 @@ describe('use-connect-form hook', function () {
         expect(result.personalizationOptions.name).to.equal('webscale');
         expect(result.personalizationOptions.isNameDirty).to.be.true;
       });
+
+      it('should support empty names', function () {
+        const { result: initialState } = renderHook(() =>
+          useConnectForm(initialConnectionInfo, null)
+        );
+
+        const result = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-string',
+            newConnectionStringValue: 'mongodb://localhost:27019',
+          },
+          initialState.current[0].connectionOptions,
+          {
+            ...initialState.current[0].personalizationOptions,
+            name: '',
+            isNameDirty: true,
+          }
+        );
+
+        expect(result.personalizationOptions.name).to.equal('');
+        expect(result.personalizationOptions.isNameDirty).to.be.true;
+      });
     });
   });
 });

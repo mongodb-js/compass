@@ -5,14 +5,12 @@ import React from 'react';
 // 1. Import the components we use from leafygreen.
 import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
-import Button from '@leafygreen-ui/button';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
 import Code, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
-import IconButton from '@leafygreen-ui/icon-button';
 import {
   AtlasNavGraphic,
   MongoDBLogoMark,
@@ -79,7 +77,6 @@ import {
   InlineKeyCode,
   Disclaimer,
   Overline,
-  Link,
   Label,
   Description,
 } from '@leafygreen-ui/typography';
@@ -99,12 +96,15 @@ Icon.isGlyph = true;
 delete (MarketingModal as React.ComponentType<any>).propTypes;
 delete (Checkbox as React.ComponentType<any>).propTypes;
 
+// We wrap these so that we can add the utm_source and utm_medium parameters to
+// all hrefs.
+export { Link, Button, IconButton } from './links/link';
+
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
   Badge,
   Banner,
-  Button,
   Card,
   Checkbox,
   Code,
@@ -113,7 +113,6 @@ export {
   HeaderCell,
   HeaderRow,
   Icon,
-  IconButton,
   Language,
   Menu,
   MenuItem,
@@ -155,7 +154,6 @@ export {
   Disclaimer,
   Overline,
   Label,
-  Link,
   Description,
   SearchInput,
   InfoSprinkle,

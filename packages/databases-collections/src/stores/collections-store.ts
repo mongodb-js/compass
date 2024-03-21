@@ -4,7 +4,7 @@ import thunk from 'redux-thunk';
 import { collectionsReducer } from '../modules';
 import type AppRegistry from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { collectionsChanged, instanceChanged } from '../modules/collections';
 import type Database from 'mongodb-database-model';
