@@ -249,9 +249,8 @@ describe('Atlas Login', function () {
       await browser.clickVisible(Selectors.DisconnectAtlasAccountButton);
 
       await browser.waitUntil(async () => {
-        return (
-          (await loginStatus.getText()).trim() ===
-          'You must first connect your Atlas account to use this feature.'
+        return (await loginStatus.getText()).includes(
+          'This is a feature powered by generative AI, and may give inaccurate responses'
         );
       });
     });

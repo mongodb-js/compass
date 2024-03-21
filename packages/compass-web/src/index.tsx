@@ -75,10 +75,6 @@ class CloudAtlasAuthService extends AtlasAuthService {
   getUserInfo(): Promise<AtlasUserInfo> {
     throw new Error('CloudAtlasAuthService.getUserInfo not implemented');
   }
-  updateUserConfig(): Promise<void> {
-    // this.emit('user-config-changed', config);
-    throw new Error('CloudAtlasAuthService.updateUserConfig not implemented');
-  }
   getAuthHeaders() {
     return Promise.resolve({});
   }

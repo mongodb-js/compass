@@ -1,11 +1,9 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { AtlasUserConfig } from '../renderer';
 import reducer, {
   restoreSignInState,
   signedOut,
   tokenRefreshFailed,
-  userConfigChanged,
 } from './atlas-signin-reducer';
 import { type AtlasAuthService } from '../provider';
 import { ipcRenderer } from 'hadron-ipc';
@@ -31,13 +29,10 @@ export function activatePlugin(
 
   const onSignedOut = () => store.dispatch(signedOut);
   const onTokenRefreshFailed = () => store.dispatch(tokenRefreshFailed);
-  const onUserConfigChanged = (_evt: unknown, newConfig: AtlasUserConfig) =>
-    store.dispatch(userConfigChanged(newConfig));
 
   if (ipcRenderer) {
     on(ipcRenderer, 'atlas-service-token-refresh-failed', onSignedOut);
     on(ipcRenderer, 'atlas-service-signed-out', onTokenRefreshFailed);
-    on(ipcRenderer, 'atlas-service-user-config-changed', onUserConfigChanged);
   }
 
   addCleanup(() => {
@@ -47,7 +42,6 @@ export function activatePlugin(
         onTokenRefreshFailed
       );
       ipcRenderer.off('atlas-service-signed-out', onSignedOut);
-      ipcRenderer.off('atlas-service-user-config-changed', onUserConfigChanged);
     }
   });
 
