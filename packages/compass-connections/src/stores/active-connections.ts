@@ -67,7 +67,7 @@ export function useActiveConnections(): ConnectionInfo[] {
       }
       connectionStorage.events?.off(
         ConnectionStorageEvents.ConnectionsChanged,
-        () => void updateList
+        () => void updateList()
       );
     };
   }, [updateList]);
