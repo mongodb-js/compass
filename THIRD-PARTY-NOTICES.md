@@ -514,8 +514,7 @@ This document was automatically generated on Thu Mar 21 2024.
 | **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**                                       | 2.1.2        | MIT                                 |
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
-| **[semver](#6bf439b169c3bbcbd26634fc6b5ba7aae612f385f6b5f6e2e42bc6d89518dbfa)**                                             | 5.4.1        | ISC                                 |
-| **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**                                             | 5.7.1        | ISC                                 |
+| **[semver](#130ff131d535cf175f11d330a68bae2ca388d0e168139f383a353ced45a36f0a)**                                             | 5.7.2        | ISC                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
 | **[semver](#91fed21fcd28c91926ebe4e1967f2215934bb8253962246c6ec07b1c308ec8ef)**                                             | 7.6.0        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                               | 0.18.0       | MIT                                 |
@@ -38273,35 +38272,9 @@ License files:
 
 License tags: MIT
 
-<a id="6bf439b169c3bbcbd26634fc6b5ba7aae612f385f6b5f6e2e42bc6d89518dbfa"></a>
+<a id="130ff131d535cf175f11d330a68bae2ca388d0e168139f383a353ced45a36f0a"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 5.4.1)
-
-License tags: ISC
-
-License files:
-
-- LICENSE:
-
-      The ISC License
-
-      Copyright (c) Isaac Z. Schlueter and Contributors
-
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-<a id="e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d"></a>
-
-### [semver](https://www.npmjs.com/package/semver) (version 5.7.1)
+### [semver](https://www.npmjs.com/package/semver) (version 5.7.2)
 
 License tags: ISC
 

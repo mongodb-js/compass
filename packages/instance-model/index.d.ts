@@ -4,9 +4,35 @@ import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 import Database from 'mongodb-database-model';
 import { CollectionCollection } from 'mongodb-collection-model';
 
-// TODO: add real types for these
-declare const ServerType: any;
-declare const TopologyType: any;
+declare const ServerType: {
+  humanize(serverType: string): string;
+  isWritable(serverType: string): boolean;
+  STANDALONE: string;
+  MONGOS: string;
+  POSSIBLE_PRIMARY: string;
+  RS_PRIMARY: string;
+  RS_SECONDARY: string;
+  RS_ARBITER: string;
+  RS_OTHER: string;
+  RS_GHOST: string;
+  UNKNOWN: string;
+  SERVER_TYPES: string;
+  WRITABLE_SERVER_TYPES: string;
+};
+
+declare const TopologyType: {
+  humanize(topologyType: string): string;
+  isWritable(topologyType: string): boolean;
+  isReadable(topologyType: string, readPreference: string): boolean;
+  SINGLE: string;
+  REPLICA_SET_NO_PRIMARY: string;
+  REPLICA_SET_WITH_PRIMARY: string;
+  SHARDED: string;
+  LOAD_BALANCED: string;
+  UNKNOWN: string;
+  TOPOLOGY_TYPES: string;
+  WRITABLE_TOPOLOGY_TYPES: string;
+};
 
 interface AuthInfo {
   user: unknown | null;
