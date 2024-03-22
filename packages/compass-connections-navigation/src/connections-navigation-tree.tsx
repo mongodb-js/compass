@@ -19,6 +19,8 @@ import type { Actions } from './constants';
 import { useVirtualNavigationTree } from './use-virtual-navigation-tree';
 import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { DatabasesPlaceholder } from './databases-placeholder';
+import { ConnectionItem } from './connection-item';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 type Collection = {
   _id: string;
@@ -34,16 +36,36 @@ type Database = {
   collections: Collection[];
 };
 
+type Connection = {
+  connectionInfo: ConnectionInfo;
+  name: string;
+  databasesStatus: string;
+  databasesLength: number;
+  databases: Database[];
+};
+
 type PlaceholderTreeItem = {
   key: string;
   type: 'placeholder';
   id?: string;
 };
 
+type ConnectionTreeItem = {
+  key: string;
+  type: 'connection';
+  level: 1;
+  id: string;
+  name: string;
+  isExpanded: boolean;
+  setSize: number;
+  posInSet: number;
+  connectionInfo: ConnectionInfo;
+};
+
 type DatabaseTreeItem = {
   key: string;
   type: 'database';
-  level: 1;
+  level: 2;
   id: string;
   name: string;
   isExpanded: boolean;
@@ -54,14 +76,18 @@ type DatabaseTreeItem = {
 type CollectionTreeItem = {
   key: string;
   type: 'collection' | 'view' | 'timeseries';
-  level: 2;
+  level: 3;
   id: string;
   name: string;
   setSize: number;
   posInSet: number;
 };
 
-type TreeItem = PlaceholderTreeItem | DatabaseTreeItem | CollectionTreeItem;
+type TreeItem =
+  | PlaceholderTreeItem
+  | ConnectionTreeItem
+  | DatabaseTreeItem
+  | CollectionTreeItem;
 
 type ListItemData = {
   items: TreeItem[];
@@ -75,6 +101,111 @@ type ListItemData = {
 const collectionItemContainer = css({
   position: 'relative',
 });
+
+const connectionToItems = ({
+  connection: { connectionInfo, name, databases },
+  connectionIndex,
+  connectionsLength,
+}: {
+  connection: Connection;
+  connectionIndex: number;
+  connectionsLength: number;
+}): TreeItem[] => {
+  const areDatabasesReady = true; // TODO
+
+  const placeholdersLength = 3; // TODO
+
+  const connectionTI: ConnectionTreeItem = {
+    key: String(connectionIndex),
+    level: 1,
+    id: connectionInfo.id,
+    name,
+    type: 'connection' as const,
+    isExpanded: true, // TODO
+    setSize: connectionsLength,
+    posInSet: connectionIndex + 1,
+    connectionInfo,
+  };
+
+  return ([connectionTI] as TreeItem[]).concat(
+    areDatabasesReady
+      ? databases
+          .map((database, databaseIndex) =>
+            databaseToItems({
+              database,
+              connectionIndex,
+              databaseIndex,
+              databasesLength: databases.length,
+            })
+          )
+          .flat()
+      : Array.from({ length: placeholdersLength }, (_, index) => ({
+          key: `${connectionIndex}-${index}`,
+          type: 'placeholder' as const,
+        }))
+  );
+};
+
+const databaseToItems = ({
+  database: {
+    _id: id,
+    name,
+    collections,
+    collectionsLength,
+    collectionsStatus,
+  },
+  connectionIndex,
+  databaseIndex,
+  databasesLength,
+}: {
+  database: Database;
+  connectionIndex: number;
+  databaseIndex: number;
+  databasesLength: number;
+}): TreeItem[] => {
+  const isExpanded = false; // expanded[id]; // TODO
+
+  const databaseTI: DatabaseTreeItem = {
+    key: `${connectionIndex}-${databaseIndex}`,
+    level: 2,
+    id,
+    name,
+    type: 'database' as const,
+    isExpanded,
+    setSize: databasesLength,
+    posInSet: databaseIndex + 1, // TODO
+  };
+
+  if (!isExpanded) {
+    return [databaseTI] as TreeItem[];
+  }
+
+  const areCollectionsReady = ['ready', 'refreshing', 'error'].includes(
+    collectionsStatus
+  );
+
+  const placeholdersLength = Math.min(
+    collectionsLength,
+    MAX_COLLECTION_PLACEHOLDER_ITEMS
+  );
+
+  return ([databaseTI] as TreeItem[]).concat(
+    areCollectionsReady
+      ? collections.map(({ _id: id, name, type }, index) => ({
+          key: `${connectionIndex}-${databaseIndex}-${index}`,
+          level: 3,
+          id,
+          name,
+          type: type as 'collection' | 'view' | 'timeseries',
+          setSize: collections.length,
+          posInSet: index + 1,
+        }))
+      : Array.from({ length: placeholdersLength }, (_, index) => ({
+          key: `${connectionIndex}-${databaseIndex}-${index}`,
+          type: 'placeholder' as const,
+        }))
+  );
+};
 
 const NavigationItem = memo<{
   index: number;
@@ -91,6 +222,20 @@ const NavigationItem = memo<{
   } = data;
 
   const itemData = items[index];
+
+  if (itemData.type === 'connection') {
+    return (
+      <ConnectionItem
+        style={style}
+        isReadOnly={isReadOnly}
+        isActive={itemData.id === activeNamespace}
+        isTabbable={itemData.id === currentTabbable}
+        onNamespaceAction={onNamespaceAction}
+        onConnectionExpand={() => {}}
+        {...itemData}
+      ></ConnectionItem>
+    );
+  }
 
   if (itemData.type === 'database') {
     return (
@@ -136,14 +281,14 @@ const navigationTree = css({
 });
 
 const DatabasesNavigationTree: React.FunctionComponent<{
-  databases: Database[];
+  connections: Connection[];
   expanded?: Record<string, boolean>;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
   isReadOnly?: boolean;
 }> = ({
-  databases,
+  connections,
   expanded = {},
   activeNamespace = '',
   onDatabaseExpand,
@@ -169,58 +314,16 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   }, [activeNamespace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
-    return databases
-      .map(
-        (
-          { _id: id, name, collections, collectionsLength, collectionsStatus },
-          dbIndex
-        ) => {
-          const isExpanded = expanded[id];
-
-          const database: DatabaseTreeItem = {
-            key: String(dbIndex),
-            level: 1,
-            id,
-            name,
-            type: 'database' as const,
-            isExpanded,
-            setSize: databases.length,
-            posInSet: dbIndex + 1,
-          };
-
-          if (!isExpanded) {
-            return [database] as TreeItem[];
-          }
-
-          const areCollectionsReady = ['ready', 'refreshing', 'error'].includes(
-            collectionsStatus
-          );
-
-          const placeholdersLength = Math.min(
-            collectionsLength,
-            MAX_COLLECTION_PLACEHOLDER_ITEMS
-          );
-
-          return ([database] as TreeItem[]).concat(
-            areCollectionsReady
-              ? collections.map(({ _id: id, name, type }, index) => ({
-                  key: `${dbIndex}-${index}`,
-                  level: 2,
-                  id,
-                  name,
-                  type: type as 'collection' | 'view' | 'timeseries',
-                  setSize: collections.length,
-                  posInSet: index + 1,
-                }))
-              : Array.from({ length: placeholdersLength }, (_, index) => ({
-                  key: `${dbIndex}-${index}`,
-                  type: 'placeholder' as const,
-                }))
-          );
-        }
+    return connections
+      .map((connection, connectionIndex) =>
+        connectionToItems({
+          connection,
+          connectionIndex,
+          connectionsLength: connections.length,
+        })
       )
       .flat();
-  }, [databases, expanded]);
+  }, [connections, expanded]);
 
   const onExpandedChange = useCallback(
     (item, isExpanded) => {
