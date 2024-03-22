@@ -68,20 +68,38 @@ export async function addCollection(
     for (const [key, value] of Object.entries(
       collectionOptions.customCollation
     )) {
+      const valStr = value.toString();
+
       await browser.clickVisible(
         Selectors.createCollectionCustomCollationFieldButton(key)
       );
-      const menu = await browser.$(
+      const menu = browser.$(
         Selectors.createCollectionCustomCollationFieldMenu(key)
       );
       await menu.waitForDisplayed();
-      const span = await menu.$(`span=${value.toString()}`);
-      await span.waitForDisplayed();
-      await span.scrollIntoView();
-      await browser.screenshot(
-        `custom-collation-${key}-${value.toString()}.png`
+      const option = menu.$(`li[value="${valStr}"]`);
+
+      let clickAttempt = 1;
+
+      // Just continue clicking until the value is selected ...
+      await browser.waitUntil(
+        async () => {
+          await browser.clickVisible(option, {
+            scroll: true,
+            screenshot: `custom-collation-${key}-${valStr}-${clickAttempt}.png`,
+          });
+          clickAttempt++;
+          const button = await browser.$(
+            Selectors.createCollectionCustomCollationFieldButton(key)
+          );
+          const selectedValue = await button.getAttribute('value');
+
+          return selectedValue === valStr;
+        },
+        {
+          timeoutMsg: `Failed to select a value "${valStr}" for "${key}" in Select after ${clickAttempt} attempt(s)`,
+        }
       );
-      await span.click();
 
       // make sure the menu disappears before moving on to the next thing
       await menu.waitForDisplayed({ reverse: true });
