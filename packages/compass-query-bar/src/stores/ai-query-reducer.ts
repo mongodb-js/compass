@@ -44,7 +44,6 @@ export const enum AIQueryActionTypes {
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
-  AtlasServiceDisableAIFeature = 'compass-query-bar/ai-query/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -355,23 +354,11 @@ export const cancelAIQuery = (): QueryBarThunkAction<
   };
 };
 
-type AtlasServiceDisableAIFeatureAction = {
-  type: AIQueryActionTypes.AtlasServiceDisableAIFeature;
-};
-
-export const disableAIFeature = (): QueryBarThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(cancelAIQuery());
-    dispatch({ type: AIQueryActionTypes.AtlasServiceDisableAIFeature });
-  };
-};
-
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService, atlasAiService }) => {
+  return async (dispatch, _getState, { atlasAuthService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
-        await atlasAiService.enableFeature();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
@@ -466,17 +453,6 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       // Reset the status after a successful run when the user change's the text.
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
-    };
-  }
-
-  if (
-    isAction<AtlasServiceDisableAIFeatureAction>(
-      action,
-      AIQueryActionTypes.AtlasServiceDisableAIFeature
-    )
-  ) {
-    return {
-      ...initialState,
     };
   }
 
