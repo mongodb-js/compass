@@ -1,9 +1,8 @@
 const childProcess = require('child_process');
 const path = require('path');
 const { promises: fs } = require('fs');
-const os = require('os');
-const { glob } = require('glob');
 const { promisify } = require('util');
+
 const execFile = promisify(childProcess.execFile);
 
 async function fileExists(filePath) {
@@ -15,8 +14,10 @@ async function fileExists(filePath) {
   }
 }
 
-async function snykTest(cwd) {
-  const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
+async function snykTest(cwd = process.cwd()) {
+  const rootPath = path.resolve(__dirname, '..');
+  const shortCwd = path.relative(rootPath, cwd);
+  const outputPath = path.join(cwd, 'snyk-test.json');
 
   let execErr;
 
@@ -25,7 +26,7 @@ async function snykTest(cwd) {
       return;
     }
 
-    console.info(`testing ${cwd} ...`);
+    console.info(`Testing ${shortCwd} ...`);
     await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
 
     try {
@@ -37,7 +38,7 @@ async function snykTest(cwd) {
           '--all-projects',
           '--severity-threshold=low',
           '--dev',
-          `--json-file-output=${tmpPath}`,
+          `--json-file-output=${outputPath}`,
         ],
         {
           cwd,
@@ -48,59 +49,14 @@ async function snykTest(cwd) {
       execErr = err;
     }
 
-    const res = JSON.parse(await fs.readFile(tmpPath));
-    console.info(`testing ${cwd} done.`);
-    return res;
+    console.info(`Testing ${shortCwd} done.`);
   } catch (err) {
-    console.error(`Snyk failed to create a json report for ${cwd}:`, execErr);
-    throw new Error(`Testing ${cwd} failed.`);
-  } finally {
-    try {
-      await fs.rm(tmpPath);
-    } catch (error) {
-      //
-    }
+    console.error(
+      `Snyk failed to create a json report for ${shortCwd}:`,
+      execErr
+    );
+    throw new Error(`Testing ${shortCwd} failed.`);
   }
 }
 
-async function main() {
-  const rootPath = path.resolve(__dirname, '..');
-
-  const { workspaces } = JSON.parse(
-    await fs.readFile(path.join(rootPath, 'package.json'))
-  );
-
-  const packages = (await Promise.all(workspaces.map((w) => glob(w)))).flat();
-
-  const results = [];
-
-  results.push(await snykTest(rootPath));
-
-  for (const location of packages) {
-    const result = await snykTest(location);
-    if (result) {
-      results.push(result);
-    }
-  }
-
-  await fs.mkdir(path.join(rootPath, `.sbom`), { recursive: true });
-
-  await fs.writeFile(
-    path.join(rootPath, `.sbom/snyk-test-result.json`),
-    JSON.stringify(results.flat(), null, 2)
-  );
-
-  await execFile(
-    'npx',
-    [
-      'snyk-to-html',
-      '-i',
-      path.join(rootPath, '.sbom/snyk-test-result.json'),
-      '-o',
-      path.join(rootPath, `.sbom/snyk-test-result.html`),
-    ],
-    { cwd: rootPath }
-  );
-}
-
-main();
+snykTest();
