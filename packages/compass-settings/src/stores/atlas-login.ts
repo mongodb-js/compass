@@ -209,9 +209,9 @@ export const getUserInfo = (): SettingsThunkAction<Promise<void>> => {
   };
 };
 
-export const signOut = (): SettingsThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
-    void atlasAuthService.signOut();
+export const signOut = (): SettingsThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { atlasAuthService }) => {
+    await atlasAuthService.signOut();
     dispatch({ type: AtlasLoginSettingsActionTypes.SignOut });
   };
 };
