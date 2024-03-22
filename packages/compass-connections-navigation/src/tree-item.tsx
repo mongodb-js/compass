@@ -16,6 +16,7 @@ export type VirtualListItemProps = {
 
 export type TreeItemProps = {
   id: string;
+  level: number;
   posInSet: number;
   setSize: number;
   isTabbable: boolean;

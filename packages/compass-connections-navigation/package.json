@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-databases-navigation",
+  "name": "@mongodb-js/compass-connections-navigation",
   "description": "Databases and collections sidebar navigation tree",
   "author": {
     "name": "MongoDB Inc",

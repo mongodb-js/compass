@@ -23,6 +23,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { getItemLevelPaddingClass } from './utils';
 
 const buttonReset = css({
   padding: 0,
@@ -80,7 +81,6 @@ const databaseItem = css({
 const itemButtonWrapper = css({
   height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
-  paddingLeft: spacing[2],
 });
 
 const databaseItemLabel = css({
@@ -97,6 +97,7 @@ export const ConnectionItem: React.FunctionComponent<
 > = ({
   id,
   name,
+  level,
   posInSet,
   setSize,
   isExpanded,
@@ -144,14 +145,9 @@ export const ConnectionItem: React.FunctionComponent<
   const actions: ItemAction<Actions>[] = useMemo(() => {
     return [
       {
-        action: 'create-collection',
-        icon: 'Plus',
-        label: 'Create collection',
-      },
-      {
-        action: 'drop-database',
-        icon: 'Trash',
-        label: 'Drop database',
+        action: 'connection-options', // TODO(COMPASS-7714)
+        icon: 'Ellipsis',
+        label: 'Options',
       },
     ];
   }, []);
@@ -168,7 +164,7 @@ export const ConnectionItem: React.FunctionComponent<
     <ItemContainer
       id={id}
       data-testid={`sidebar-database-${id}`}
-      level={1}
+      level={level}
       setSize={setSize}
       posInSet={posInSet}
       isExpanded={isExpanded}
@@ -180,7 +176,9 @@ export const ConnectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={itemButtonWrapper}>
+        <ItemButtonWrapper
+          className={cx(itemButtonWrapper, getItemLevelPaddingClass(level))}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}
