@@ -22,6 +22,7 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
+import { getItemLevelPaddingClass } from './utils';
 
 const buttonReset = css({
   padding: 0,
@@ -75,7 +76,6 @@ const databaseItem = css({
 const itemButtonWrapper = css({
   height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
-  paddingLeft: spacing[2],
 });
 
 const databaseItemLabel = css({
@@ -92,6 +92,7 @@ export const DatabaseItem: React.FunctionComponent<
 > = ({
   id,
   name,
+  level,
   posInSet,
   setSize,
   isExpanded,
@@ -148,7 +149,7 @@ export const DatabaseItem: React.FunctionComponent<
     <ItemContainer
       id={id}
       data-testid={`sidebar-database-${id}`}
-      level={1}
+      level={level}
       setSize={setSize}
       posInSet={posInSet}
       isExpanded={isExpanded}
@@ -160,7 +161,9 @@ export const DatabaseItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={itemButtonWrapper}>
+        <ItemButtonWrapper
+          className={cx(itemButtonWrapper, getItemLevelPaddingClass(level))}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}

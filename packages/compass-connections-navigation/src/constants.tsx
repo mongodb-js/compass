@@ -12,6 +12,7 @@ export const COLLECTION_ROW_HEIGHT = DATABASE_ROW_HEIGHT;
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
 export type Actions =
+  | 'connection-options'
   | 'select-database'
   | 'drop-database'
   | 'select-collection'
