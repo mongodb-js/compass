@@ -16,7 +16,12 @@ export async function exportToLanguage(
   await exportModal.waitForDisplayed();
 
   // pick the language
-  await browser.$(Selectors.ExportToLanguageLanguageField).click();
+  await browser.waitUntil(async () => {
+    const button = await browser.$(Selectors.ExportToLanguageLanguageField);
+    await browser.clickVisible(button);
+    return (await button.getAttribute('aria-expanded')) === 'true';
+  });
+
   const listBox = await browser.$(Selectors.ExportToLanguageLanguageListbox);
   await listBox.waitForDisplayed();
   const languageElement = await listBox.$(`[value="${language}"]`);
