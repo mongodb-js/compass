@@ -1,4 +1,3 @@
-import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
