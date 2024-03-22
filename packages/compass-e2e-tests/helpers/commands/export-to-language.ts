@@ -56,15 +56,10 @@ export async function exportToLanguage(
     }
   }
 
-  let text = '';
-
-  if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
-    text = await browser.$(Selectors.ExportToLanguageQueryOutput).getText();
-  } else {
-    // copy the text to and from the clipboard so we can return it later
-    await browser.clickVisible(Selectors.ExportToLanguageCopyOutputButton);
-    text = await clipboard.read();
-  }
+  // We are not testing the leafygreen copy button here because clicking it (and
+  // probably the follow-up tooltip that shows up) breaks clicking the close
+  // buttons in the modal and it's hard to coordinate the flow to avoid
+  const text = await browser.$(Selectors.ExportToLanguageQueryOutput).getText();
 
   await browser.screenshot('export-to-language-modal.png');
 
