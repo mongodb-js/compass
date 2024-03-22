@@ -17,6 +17,11 @@ const breadcrumbStyles = css({
   minWidth: 0,
 });
 
+const breadcrumbEntryStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
 const itemLightStyles = css({
   color: palette.green.dark2,
 });
@@ -77,9 +82,8 @@ export const Breadcrumbs = ({
           );
         }
         return (
-          <>
+          <span key={item.name} className={breadcrumbEntryStyles}>
             <Link
-              key={item.name}
               as="button"
               hideExternalIcon={true}
               className={cx(breadcrumbButtonStyles, textStyles)}
@@ -101,7 +105,7 @@ export const Breadcrumbs = ({
               color={palette.gray.light1}
               className={iconStyles}
             />
-          </>
+          </span>
         );
       })}
     </div>
