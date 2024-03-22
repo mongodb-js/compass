@@ -2,7 +2,10 @@ import {
   type ConnectionInfo,
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
-import { useConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import {
+  CanNotOpenConnectionReason,
+  useConnectionStatus,
+} from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';
 import {
   css,
@@ -14,6 +17,7 @@ import {
   useToast,
   useDarkMode,
   palette,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from '../../with-status-marker';
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -123,6 +127,9 @@ const ServerIcon = () => {
 };
 
 type SavedConnectionProps = {
+  canOpenNewConnection: boolean;
+  canNotOpenReason?: CanNotOpenConnectionReason;
+  maximumNumberOfConnectionsOpen: number;
   connectionInfo: ConnectionInfo;
   onConnect(connectionInfo: ConnectionInfo): void;
   onEditConnection(connectionInfo: ConnectionInfo): void;
@@ -132,6 +139,9 @@ type SavedConnectionProps = {
 };
 
 export function SavedConnection({
+  canOpenNewConnection,
+  canNotOpenReason,
+  maximumNumberOfConnectionsOpen,
   connectionInfo,
   onConnect,
   onEditConnection,
@@ -274,14 +284,29 @@ export function SavedConnection({
         style={{ visibility: isHovered ? 'visible' : 'hidden' }}
         className={savedConnectionToolbarStyles}
       >
-        <IconButton
-          onClick={() => onConnect(connectionInfo)}
-          data-testid="connect-button"
-          aria-label="Connect"
-          title="Connect"
+        <Tooltip
+          align="top"
+          justify="middle"
+          enabled={!canOpenNewConnection}
+          trigger={({ children, ...props }) => (
+            <IconButton
+              {...props}
+              disabled={!canOpenNewConnection}
+              onClick={() => onConnect(connectionInfo)}
+              data-testid="connect-button"
+              aria-label="Connect"
+              title="Connect"
+            >
+              <Icon glyph="Connect" />
+              {children}
+            </IconButton>
+          )}
         >
-          <Icon glyph="Connect" />
-        </IconButton>
+          {canNotOpenReason === 'maximum-number-exceeded' &&
+            `Only ${maximumNumberOfConnectionsOpen} connection${
+              maximumNumberOfConnectionsOpen > 1 ? 's' : ''
+            } can be open at the same time.`}
+        </Tooltip>
         <ItemActionControls<Action>
           data-testid="connection-menu"
           onAction={onAction}
