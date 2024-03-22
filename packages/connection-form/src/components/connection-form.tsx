@@ -20,6 +20,9 @@ import {
   css,
   ConfirmationModalArea,
   createGlyphComponent,
+  cx,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -53,6 +56,8 @@ const formStyles = css({
 
 const formContainerStyles = css({
   padding: spacing[4],
+  paddingRight: spacing[3], // this is to leave space for the scrollbarGutter
+  paddingBottom: spacing[1],
   overflowY: 'auto',
   position: 'relative',
 });
@@ -60,15 +65,27 @@ const formContainerStyles = css({
 const formContentStyles = css({
   display: 'flex',
   columnGap: spacing[3],
+  height: `calc(100vh - 310px)`,
+  overflow: 'auto',
+  scrollbarGutter: 'stable',
+});
+
+const formContentLegacyStyles = css({
+  height: 'auto',
 });
 
 const formSettingsStyles = css({
   width: '100%',
-  maxHeight: '530px',
-  overflow: 'auto',
-  scrollbarGutter: 'stable',
   paddingLeft: spacing[1],
   paddingRight: spacing[1],
+});
+
+const formFooterDarkModeStyles = css({
+  borderTop: `1px solid ${palette.gray.dark2}`,
+});
+
+const formFooterLightModeStyles = css({
+  borderTop: `1px solid ${palette.gray.light2}`,
 });
 
 const formFooterStyles = css({
@@ -309,6 +326,7 @@ function ConnectionForm({
   onSaveConnectionClicked,
   onCancel,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+  const isDarkMode = useDarkMode();
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
@@ -491,7 +509,13 @@ function ConnectionForm({
               </div>
             </IconButton>
           )}
-          <div className={formContentStyles}>
+          <div
+            className={
+              isMultiConnectionEnabled
+                ? formContentStyles
+                : cx(formContentStyles, formContentLegacyStyles)
+            }
+          >
             <div className={formSettingsStyles}>
               <ConnectionStringInput
                 connectionString={connectionOptions.connectionString}
@@ -529,7 +553,18 @@ function ConnectionForm({
             {isMultiConnectionEnabled && <FormHelp />}
           </div>
         </div>
-        <div className={formFooterStyles}>
+        <div
+          className={
+            isMultiConnectionEnabled
+              ? cx(
+                  formFooterStyles,
+                  isDarkMode
+                    ? formFooterDarkModeStyles
+                    : formFooterLightModeStyles
+                )
+              : formFooterStyles
+          }
+        >
           {isMultiConnectionEnabled && (
             <ConnectionFormModalActions
               errors={connectionStringInvalidError ? [] : errors}
