@@ -139,6 +139,7 @@ export const toggleDatabaseExpanded =
     forceExpand: boolean
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
+    console.log('database expand', id);
     const { database } = toNS(id);
     const { databases } = getState();
     const expanded = forceExpand ?? !databases.expandedDbList[database];

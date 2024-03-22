@@ -5,7 +5,6 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
-import { ActiveConnectionList } from './active-connections/active-connection-list';
 import {
   ResizableSidebar,
   css,
@@ -17,6 +16,7 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
+import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
 
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the
@@ -254,7 +254,7 @@ export function MultipleConnectionSidebar() {
     <ResizableSidebar data-testid="navigation-sidebar">
       <aside className={sidebarStyles}>
         <SidebarHeader />
-        <ActiveConnectionList />
+        <ActiveConnectionNavigation />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}

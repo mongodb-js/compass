@@ -94,6 +94,7 @@ type ListItemData = {
   isReadOnly: boolean;
   activeNamespace?: string;
   currentTabbable?: string;
+  onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
   onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
   onNamespaceAction(this: void, namespace: string, action: Actions): void;
 };
@@ -106,11 +107,14 @@ const connectionToItems = ({
   connection: { connectionInfo, name, databases },
   connectionIndex,
   connectionsLength,
+  expanded,
 }: {
   connection: Connection;
   connectionIndex: number;
   connectionsLength: number;
+  expanded?: Record<string, false | Record<string, boolean>>;
 }): TreeItem[] => {
+  const isExpanded = !!(expanded && expanded[connectionInfo.id]);
   const areDatabasesReady = true; // TODO
 
   const placeholdersLength = 3; // TODO
@@ -121,23 +125,32 @@ const connectionToItems = ({
     id: connectionInfo.id,
     name,
     type: 'connection' as const,
-    isExpanded: true, // TODO
+    isExpanded,
     setSize: connectionsLength,
     posInSet: connectionIndex + 1,
     connectionInfo,
   };
 
+  if (!isExpanded) {
+    return [connectionTI] as TreeItem[];
+  }
+
   return ([connectionTI] as TreeItem[]).concat(
     areDatabasesReady
       ? databases
-          .map((database, databaseIndex) =>
-            databaseToItems({
+          .map((database, databaseIndex) => {
+            const dbExpanded =
+              expanded && expanded[connectionInfo.id]
+                ? (expanded[connectionInfo.id] as Record<string, boolean>)
+                : {};
+            return databaseToItems({
               database,
               connectionIndex,
               databaseIndex,
               databasesLength: databases.length,
-            })
-          )
+              expanded: dbExpanded,
+            });
+          })
           .flat()
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: `${connectionIndex}-${index}`,
@@ -157,13 +170,15 @@ const databaseToItems = ({
   connectionIndex,
   databaseIndex,
   databasesLength,
+  expanded,
 }: {
   database: Database;
   connectionIndex: number;
   databaseIndex: number;
   databasesLength: number;
+  expanded?: Record<string, boolean>;
 }): TreeItem[] => {
-  const isExpanded = false; // expanded[id]; // TODO
+  const isExpanded = expanded ? expanded[id] : false;
 
   const databaseTI: DatabaseTreeItem = {
     key: `${connectionIndex}-${databaseIndex}`,
@@ -173,7 +188,7 @@ const databaseToItems = ({
     type: 'database' as const,
     isExpanded,
     setSize: databasesLength,
-    posInSet: databaseIndex + 1, // TODO
+    posInSet: databaseIndex + 1,
   };
 
   if (!isExpanded) {
@@ -217,6 +232,7 @@ const NavigationItem = memo<{
     isReadOnly,
     activeNamespace,
     currentTabbable,
+    onConnectionExpand,
     onDatabaseExpand,
     onNamespaceAction,
   } = data;
@@ -231,7 +247,7 @@ const NavigationItem = memo<{
         isActive={itemData.id === activeNamespace}
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
-        onConnectionExpand={() => {}}
+        onConnectionExpand={onConnectionExpand}
         {...itemData}
       ></ConnectionItem>
     );
@@ -282,7 +298,8 @@ const navigationTree = css({
 
 const DatabasesNavigationTree: React.FunctionComponent<{
   connections: Connection[];
-  expanded?: Record<string, boolean>;
+  expanded: Record<string, false | Record<string, boolean>>;
+  onConnectionExpand(id: string, isExpanded: boolean): void;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
@@ -291,6 +308,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   connections,
   expanded = {},
   activeNamespace = '',
+  onConnectionExpand,
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
@@ -320,6 +338,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
           connection,
           connectionIndex,
           connectionsLength: connections.length,
+          expanded,
         })
       )
       .flat();
@@ -361,6 +380,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
       activeNamespace,
       currentTabbable,
       onNamespaceAction,
+      onConnectionExpand,
       onDatabaseExpand,
     };
   }, [
@@ -369,6 +389,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
     activeNamespace,
     currentTabbable,
     onNamespaceAction,
+    onConnectionExpand,
     onDatabaseExpand,
   ]);
 
