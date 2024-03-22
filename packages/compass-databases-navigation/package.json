@@ -37,7 +37,7 @@
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -46,12 +46,10 @@
     "test-ci": "npm run test-cov",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
-  "peerDependencies": {
-    "react": "^17.0.2"
-  },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.22.1",
     "compass-preferences-model": "^2.18.1",
+    "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"
   },
@@ -76,7 +74,6 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4"

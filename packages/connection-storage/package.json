@@ -46,7 +46,7 @@
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -66,9 +66,7 @@
     "hadron-ipc": "^3.2.12",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
-    "mongodb-connection-string-url": "^2.6.0"
-  },
-  "peerDependencies": {
+    "mongodb-connection-string-url": "^2.6.0",
     "react": "^17.0.2"
   },
   "devDependencies": {

@@ -33,7 +33,7 @@
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "bson": "^6.5.0",
-    "debug": "^4.2.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^7.1.2",
     "lodash": "^4.17.21"
@@ -58,6 +57,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "chai": "^4.2.0",
+    "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
