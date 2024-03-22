@@ -50,7 +50,7 @@
     "prepare": "husky install",
     "snyk-test": "concurrently -r \"compass-scripts snyk-test\" \"npx lerna exec 'compass-scripts snyk-test'\"",
     "postsnyk-test": "compass-scripts snyk-report",
-    "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
+    "pregenerate-vulnerability-report": "npm run compile -w packages/compass -- --no-optimization --no-devtool && npm run snyk-test",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues",
     "precommit": "precommit"

@@ -106,6 +106,11 @@ const sharedResolveOptions = (
   };
 };
 
+const sharedOptimizeConfig: Partial<Pick<WebpackConfig, 'optimization'>> =
+  process.env.NO_OPTIMIZATION === 'true'
+    ? { optimization: { minimize: false, mangleExports: false } }
+    : {};
+
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
 ): WebpackConfig {
@@ -115,6 +120,7 @@ export function createElectronMainConfig(
   const config = {
     entry: namedEntry,
     devtool: opts.devtool,
+    ...sharedOptimizeConfig,
     output: {
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].[contenthash].main.js',
@@ -181,6 +187,7 @@ export function createElectronRendererConfig(
   const config = {
     entry: entries,
     devtool: opts.devtool,
+    ...sharedOptimizeConfig,
     output: {
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].[contenthash].renderer.js',
@@ -294,6 +301,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   return {
     entry: entriesToNamedEntries(opts.entry),
     devtool: opts.devtool,
+    ...sharedOptimizeConfig,
     output: {
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].js',

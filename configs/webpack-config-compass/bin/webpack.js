@@ -33,4 +33,11 @@ if (analyze) {
   process.argv = process.argv.filter((key) => key !== '--analyze');
 }
 
+const disableOpmitization = process.argv.includes('--no-optimization');
+
+if (disableOpmitization) {
+  process.env.NO_OPTIMIZATION = 'true';
+  process.argv = process.argv.filter((key) => key !== '--no-optimization');
+}
+
 require(path.resolve(path.dirname(pkgPath), pkg.bin['webpack-cli']));
