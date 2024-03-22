@@ -33,7 +33,10 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
 
   const sidebar = isMultiConnectionEnabled ? (
-    <MultipleConnectionSidebar appName="Compass" />
+    <MultipleConnectionSidebar
+      appName="Compass"
+      activeWorkspace={activeWorkspace}
+    />
   ) : (
     <Sidebar
       showConnectionInfo={showConnectionInfo}

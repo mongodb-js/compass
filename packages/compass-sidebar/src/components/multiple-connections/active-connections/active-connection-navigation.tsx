@@ -31,6 +31,7 @@ function ActiveConnectionNavigation({
   // isDataLake,
   // isWritable,
   expanded,
+  activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
   databases,
   ...navigationProps
@@ -42,6 +43,7 @@ function ActiveConnectionNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
   expanded: Record<string, boolean>;
+  activeWorkspace: { type: string; namespace?: string } | null;
 }): React.ReactElement {
   const activeConnections = useActiveConnections();
   const [collapsed, setCollapsed] = useState<string[]>([]);
@@ -124,6 +126,7 @@ function ActiveConnectionNavigation({
         databasesLength: databases?.length,
         databases,
       }))}
+      activeNamespace={activeWorkspace?.namespace}
       onNamespaceAction={onNamespaceAction}
       onConnectionExpand={onConnectionToggle}
       expanded={namedConnections.reduce(

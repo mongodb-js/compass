@@ -20,6 +20,7 @@ import ActiveConnectionNavigation from './active-connections/active-connection-n
 
 type MultipleConnectionSidebarProps = {
   appName: string;
+  activeWorkspace: { type: string; namespace?: string } | null;
 };
 
 const sidebarStyles = css({
@@ -73,6 +74,7 @@ function ConnectionErrorToastBody({
 
 export function MultipleConnectionSidebar({
   appName,
+  activeWorkspace,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
@@ -266,7 +268,7 @@ export function MultipleConnectionSidebar({
     >
       <aside className={sidebarStyles}>
         <SidebarHeader />
-        <ActiveConnectionNavigation />
+        <ActiveConnectionNavigation activeWorkspace={activeWorkspace} />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}
