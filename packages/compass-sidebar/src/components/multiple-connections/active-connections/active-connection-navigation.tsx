@@ -1,12 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
-import type { Actions } from '@mongodb-js/compass-databases-navigation';
+import {
+  type Actions,
+  ConnectionsNavigationTree,
+} from '@mongodb-js/compass-connections-navigation';
+import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
+import {
+  type ConnectionInfo,
+  getConnectionTitle,
+} from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import type { Database } from '../modules/databases';
-import { toggleDatabaseExpanded } from '../modules/databases';
-import { usePreference } from 'compass-preferences-model/provider';
-import type { RootState, SidebarThunkAction } from '../modules';
+import {
+  type Database,
+  toggleDatabaseExpanded,
+} from '../../../modules/databases';
+import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 function findCollection(ns: string, databases: Database[]) {
@@ -19,27 +27,57 @@ function findCollection(ns: string, databases: Database[]) {
   );
 }
 
-function SidebarDatabasesNavigation({
-  isDataLake,
-  isWritable,
+function ActiveConnectionNavigation({
+  // isDataLake,
+  // isWritable,
+  expanded,
   onNamespaceAction: _onNamespaceAction,
   databases,
-  ...dbNavigationProps
+  ...navigationProps
 }: Omit<
-  React.ComponentProps<typeof DatabasesNavigationTree>,
-  'isReadOnly' | 'databases'
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
+  'isReadOnly' | 'databases' | 'connections' | 'expanded' | 'onConnectionExpand'
 > & {
   databases: Database[];
   isDataLake?: boolean;
   isWritable?: boolean;
-}) {
+  expanded: Record<string, boolean>;
+}): React.ReactElement {
+  const activeConnections = useActiveConnections();
+  const [collapsed, setCollapsed] = useState<string[]>([]);
+  const [namedConnections, setNamedConnections] = useState<
+    { connectionInfo: ConnectionInfo; name: string }[]
+  >([]);
+
   const {
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
-  const preferencesReadOnly = usePreference('readOnly');
-  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+
+  const onConnectionToggle = (connectionId: string) => {
+    if (!collapsed.includes(connectionId))
+      setCollapsed([...collapsed, connectionId]);
+    else {
+      const index = collapsed.indexOf(connectionId);
+      setCollapsed([
+        ...collapsed.slice(0, index),
+        ...collapsed.slice(index + 1),
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    const newConnectionList = activeConnections
+      .map((connectionInfo) => ({
+        connectionInfo,
+        name: getConnectionTitle(connectionInfo),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    setNamedConnections(newConnectionList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeConnections]);
+
   const onNamespaceAction = useCallback(
     (ns: string, action: Actions) => {
       switch (action) {
@@ -78,11 +116,26 @@ function SidebarDatabasesNavigation({
   );
 
   return (
-    <DatabasesNavigationTree
-      {...dbNavigationProps}
-      databases={databases}
+    <ConnectionsNavigationTree
+      connections={namedConnections.map(({ connectionInfo, name }) => ({
+        connectionInfo,
+        name,
+        databasesStatus: 'ready',
+        databasesLength: databases?.length,
+        databases,
+      }))}
       onNamespaceAction={onNamespaceAction}
-      isReadOnly={isReadOnly}
+      onConnectionExpand={onConnectionToggle}
+      expanded={namedConnections.reduce(
+        (obj, { connectionInfo: { id: connectionId } }) => {
+          obj[connectionId] = collapsed.includes(connectionId)
+            ? false
+            : expanded;
+          return obj;
+        },
+        {} as Record<string, false | Record<string, boolean>>
+      )}
+      {...navigationProps}
     />
   );
 }
@@ -104,6 +157,7 @@ function mapStateToProps(state: RootState) {
   );
   const isDataLake = instance?.dataLake.isDataLake;
   const isWritable = instance?.isWritable;
+
   return {
     isReady,
     isDataLake,
@@ -155,4 +209,4 @@ const onNamespaceAction = (
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
-})(SidebarDatabasesNavigation);
+})(ActiveConnectionNavigation);
