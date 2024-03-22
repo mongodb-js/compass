@@ -192,8 +192,6 @@ class CompassApplication {
   }
 
   private static setupLifecycleListeners(): void {
-    console.log(app.getPath('userData'));
-
     app.on('window-all-closed', function () {
       debug('All windows closed. Waiting for a new connection window.');
     });
