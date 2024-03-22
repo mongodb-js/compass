@@ -52,6 +52,8 @@ export function useActiveConnections(): ConnectionInfo[] {
   );
 
   useEffect(() => {
+    updateList();
+
     // reacting to connection status updates
     for (const event of Object.values(ConnectionsManagerEvents)) {
       connectionManager.on(event, updateList);
