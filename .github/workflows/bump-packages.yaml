@@ -24,14 +24,14 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: ^16.20.2
+          node-version: ^18.19.1
           cache: 'npm'
 
-      - name: Install npm@8.19.4
+      - name: Install npm@10.2.4
         run: |
-          npm install -g npm@8.19.4
+          npm install -g npm@10.2.4
 
       - name: Install Dependencies
         run: |
