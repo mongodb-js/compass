@@ -435,6 +435,10 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.CollectionSubtabSelected
     )
   ) {
+    const tab = state.tabs.find((tab) => tab.id === action.tabId);
+    if (!tab || (tab.type === 'Collection' && tab.subTab === action.subTab)) {
+      return state;
+    }
     return {
       ...state,
       tabs: state.tabs.map((tab) => {
