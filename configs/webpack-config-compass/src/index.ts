@@ -1,4 +1,3 @@
-import fs from 'fs';
 import type {
   ResolveOptions,
   WebpackPluginInstance,
@@ -13,7 +12,7 @@ import path from 'path';
 import { builtinModules } from 'module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
-import type { ConfigArgs, WebpackConfig, WebpackCLIArgs } from './args';
+import type { ConfigArgs, WebpackConfig } from './args';
 import { isServe, webpackArgsWithDefaults } from './args';
 import {
   sourceMapLoader,
@@ -354,107 +353,6 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
           ]
         : [],
   };
-}
-
-function findEntry(cwd: string) {
-  const files = fs.readdirSync(path.join(cwd, 'src'));
-  const entryFile = ['index.tsx', 'index.ts', 'index.jsx', 'index.js'].find(
-    (entry) => {
-      return files.includes(entry);
-    }
-  );
-  if (!entryFile) {
-    throw new Error(
-      `Can not find entry file for the package. Looking for index.{tsx,ts,jsx,js} in plugin src folder`
-    );
-  }
-  return path.join(cwd, 'src', entryFile);
-}
-
-export function compassPluginConfig(
-  _env: WebpackCLIArgs['env'],
-  _args: Partial<WebpackCLIArgs>
-): WebpackConfig[] {
-  const args = webpackArgsWithDefaults(_args);
-  const opts = { ...args, hot: true };
-
-  process.env.NODE_ENV = opts.nodeEnv;
-
-  if (isServe(opts)) {
-    const sandboxMain = path.join(opts.cwd, 'electron', 'index.js');
-    const sandboxRenderer = path.join(
-      opts.cwd,
-      'electron',
-      'renderer',
-      'index.js'
-    );
-
-    try {
-      fs.statSync(sandboxMain);
-      fs.statSync(sandboxRenderer);
-    } catch (e) {
-      throw new Error(
-        `Compass plugin is missing sandbox entry points. To be able to run the plugin in a sandbox outside of Compass, please add ./electron/index.ts and ./electron/renderer/index.ts entry points`
-      );
-    }
-
-    return [
-      merge(
-        createElectronMainConfig({
-          ...opts,
-          entry: sandboxMain,
-        }),
-        { externals: toCommonJsExternal(pluginExternals) }
-      ),
-      merge(
-        createElectronRendererConfig({
-          ...opts,
-          entry: sandboxRenderer,
-        }),
-        { externals: toCommonJsExternal(pluginExternals) }
-      ),
-    ];
-  }
-
-  const entry = findEntry(opts.cwd);
-
-  return [
-    merge(
-      createElectronRendererConfig({
-        ...opts,
-        entry,
-        outputFilename: 'index.js',
-      }),
-      {
-        externals: toCommonJsExternal(pluginExternals),
-        plugins: [
-          // For plugins, clean up the dist folder first before proceeding
-          function (compiler) {
-            compiler.hooks.initialize.tap('CleanDistPlugin', () => {
-              try {
-                fs.rmSync(compiler.outputPath, {
-                  recursive: true,
-                  force: true,
-                });
-              } catch {
-                // noop
-              }
-            });
-          },
-        ],
-      }
-    ),
-    merge(
-      createWebConfig({
-        ...opts,
-        entry,
-        outputFilename: 'browser.js',
-      }),
-      {
-        externals: toCommonJsExternal(pluginExternals),
-      }
-    ),
-  ];
 }
 
 export { sharedExternals, pluginExternals };
