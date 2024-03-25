@@ -13,25 +13,31 @@ export async function waitForAnimations(
     return typeof selector === 'string' ? await browser.$(selector) : selector;
   }
 
-  const initialElement = await getElement();
+  try {
+    const initialElement = await getElement();
 
-  let previousResult = {
-    ...(await initialElement.getLocation()),
-    ...(await initialElement.getSize()),
-  };
-  await browser.waitUntil(async function () {
-    // small delay to make sure that if it is busy animating it had time to move
-    // before the first check and between each two checks
-    await browser.pause(50);
-
-    const currentElement = await getElement();
-
-    const result = {
-      ...(await currentElement.getLocation()),
-      ...(await currentElement.getSize()),
+    let previousResult = {
+      ...(await initialElement.getLocation()),
+      ...(await initialElement.getSize()),
     };
-    const stopped = _.isEqual(result, previousResult);
-    previousResult = result;
-    return stopped;
-  });
+    await browser.waitUntil(async function () {
+      // small delay to make sure that if it is busy animating it had time to move
+      // before the first check and between each two checks
+      await browser.pause(50);
+
+      const currentElement = await getElement();
+
+      const result = {
+        ...(await currentElement.getLocation()),
+        ...(await currentElement.getSize()),
+      };
+      const stopped = _.isEqual(result, previousResult);
+      previousResult = result;
+      return stopped;
+    });
+  } catch (err: any) {
+    if (err.name !== 'stale element reference') {
+      throw err;
+    }
+  }
 }
