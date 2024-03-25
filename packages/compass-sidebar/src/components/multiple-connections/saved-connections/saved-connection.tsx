@@ -3,7 +3,7 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import {
-  CanNotOpenConnectionReason,
+  type CanNotOpenConnectionReason,
   useConnectionStatus,
 } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';
