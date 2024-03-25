@@ -6,10 +6,12 @@ import type {
   WorkspaceTab,
 } from './stores/workspaces';
 import {
+  collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
+import type { CollectionSubtab } from './types';
 
 function useWorkspacesStore() {
   try {
@@ -65,8 +67,16 @@ export type WorkspacesService = {
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace' | 'editViewName'
+        'type' | 'namespace' | 'editViewName' | 'initialSubtab'
       >
+  ): void;
+  /**
+   * Open subTab in "Collection" workspace
+   */
+  openCollectionWorkspaceSubtab(
+    this: void,
+    tabId: string,
+    subtab: CollectionSubtab
   ): void;
   /**
    * Open "Collection" workspace for a view namespace in a specially handled
@@ -102,6 +112,7 @@ const noopWorkspacesService = {
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
   openCollectionsWorkspace: throwIfNotTestEnv,
+  openCollectionWorkspaceSubtab: throwIfNotTestEnv,
   openCollectionWorkspace: throwIfNotTestEnv,
   openEditViewWorkspace: throwIfNotTestEnv,
   [kSelector]() {
@@ -153,10 +164,17 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
         const { newTab, ...collectionOptions } = options ?? {};
         return store.dispatch(
           openWorkspaceAction(
-            { type: 'Collection', namespace, ...collectionOptions },
+            {
+              type: 'Collection',
+              namespace,
+              ...collectionOptions,
+            },
             { newTab }
           )
         );
+      },
+      openCollectionWorkspaceSubtab(tabId, subtab) {
+        store.dispatch(collectionSubtabSelected(tabId, subtab));
       },
       openEditViewWorkspace: (viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};

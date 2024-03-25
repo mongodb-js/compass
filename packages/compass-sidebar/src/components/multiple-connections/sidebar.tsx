@@ -5,7 +5,7 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
-import { OpenConnectionList } from './open-connections/open-connection-list';
+import { ActiveConnectionList } from './active-connections/active-connection-list';
 import {
   ResizableSidebar,
   css,
@@ -266,7 +266,7 @@ export function MultipleConnectionSidebar({
     >
       <aside className={sidebarStyles}>
         <SidebarHeader />
-        <OpenConnectionList />
+        <ActiveConnectionList />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}

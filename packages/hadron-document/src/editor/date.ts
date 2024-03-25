@@ -98,8 +98,13 @@ export default class DateEditor extends StandardEditor {
   }
 
   _formattedValue(): string {
-    return new Date(this.element.currentValue as any)
-      .toISOString()
-      .replace('Z', '+00:00');
+    // BSON Date are uint64_t ms, JS Date only supports float64 ms,
+    // so some valid BSON Dates are not representable in JS.
+    const date = new Date(this.element.currentValue as any);
+    try {
+      return date.toISOString().replace('Z', '+00:00');
+    } catch {
+      return String(date);
+    }
   }
 }
