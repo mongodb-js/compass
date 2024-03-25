@@ -16,9 +16,8 @@ export function useCanOpenNewConnections(): {
   const connectionManager = useConnectionsManagerContext();
 
   const { favorites, nonFavorites } = useAllSavedConnections();
-  const maximumNumberOfConnectionsOpen = usePreference(
-    'userCanHaveMaximumNumberOfActiveConnections'
-  );
+  const maximumNumberOfConnectionsOpen =
+    usePreference('userCanHaveMaximumNumberOfActiveConnections') ?? 1;
 
   const [numberOfConnectionsOpen, setNumberOfConnectionsOpen] = useState(0);
   const [canOpenNewConnection, setCanOpenNewConnection] = useState(false);
