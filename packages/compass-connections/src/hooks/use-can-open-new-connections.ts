@@ -1,11 +1,6 @@
-import { useConnectionRepositoryContext } from '@mongodb-js/connection-storage/provider';
 import { useConnectionsManagerContext } from '../provider';
-import {
-  type ConnectionStatus,
-  ConnectionsManagerEvents,
-} from '../connections-manager';
+import { ConnectionsManagerEvents } from '../connections-manager';
 
-import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useEffect, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAllSavedConnections } from './use-all-saved-connections';

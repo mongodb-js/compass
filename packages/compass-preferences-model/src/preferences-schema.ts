@@ -56,7 +56,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderExtraOptions: boolean;
     enableHackoladeBanner: boolean;
     enablePerformanceAdvisorBanner: boolean;
-    userCanHaveMaximumNumberOfActiveConnections: number;
+    userCanHaveMaximumNumberOfActiveConnections?: number;
   };
 
 export type InternalUserPreferences = {

@@ -11,21 +11,13 @@ import {
   createSandboxFromDefaultPreferences,
 } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import {
-  ConnectionsManager,
-  ConnectionsManagerEvents,
-  ConnectionsManagerProvider,
-} from '../provider';
-import {
-  ConnectionRepository,
   ConnectionRepositoryContextProvider,
-  ConnectionStorage,
+  type ConnectionStorage,
   ConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
-import {
-  ConnectionStorageBus,
-  ConnectionStorageEvents,
-} from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import { useCanOpenNewConnections } from './use-can-open-new-connections';
 
 const FAVORITE_CONNECTION_INFO: ConnectionInfo = {

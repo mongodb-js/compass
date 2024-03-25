@@ -5,14 +5,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
-  ConnectionsManager,
-  ConnectionsManagerEvents,
-  ConnectionsManagerProvider,
-} from '../provider';
-import {
-  ConnectionRepository,
   ConnectionRepositoryContextProvider,
-  ConnectionStorage,
+  type ConnectionStorage,
   ConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
 import {
