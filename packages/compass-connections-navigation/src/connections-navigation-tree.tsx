@@ -37,7 +37,7 @@ type Database = {
   collections: Collection[];
 };
 
-type Connection = {
+export type Connection = {
   connectionInfo: ConnectionInfo;
   name: string;
   databasesStatus: string;
