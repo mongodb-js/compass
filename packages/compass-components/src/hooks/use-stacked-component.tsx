@@ -31,7 +31,7 @@ type StackedComponentProps<T extends boolean> = T extends true
   : Record<string, never>;
 
 // TODO: LG-4109. This should be eventually supported by the LG design system
-export const withBaseStyles = function <
+const withBaseStyles = function <
   UsePopover extends boolean,
   ComponentProps = StackedComponentProps<UsePopover>
 >(
