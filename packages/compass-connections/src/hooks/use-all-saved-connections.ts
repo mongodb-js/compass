@@ -1,4 +1,4 @@
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   useConnectionRepositoryContext,
   useConnectionStorageContext,
@@ -31,6 +31,8 @@ export function useAllSavedConnections(): {
       function reloadConnections(): void {
         void loadConnections();
       }
+
+      reloadConnections();
 
       connectionStorage.events.on(
         ConnectionStorageEvents.ConnectionsChanged,
