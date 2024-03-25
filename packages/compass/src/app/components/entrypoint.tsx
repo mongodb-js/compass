@@ -82,7 +82,7 @@ export const WithStorageProviders: React.FC = ({ children }) => {
   );
 };
 
-export const Compass = ({
+export const CompassElectron = ({
   getAutoConnectInfo,
   showWelcomeModal,
 }: {

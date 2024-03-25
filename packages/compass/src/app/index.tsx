@@ -8,7 +8,7 @@ import * as remote from '@electron/remote';
 import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
-import { Compass } from './components/compass';
+import { CompassElectron } from './components/entrypoint';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -195,7 +195,7 @@ const Application = View.extend({
 
     ReactDOM.render(
       <React.StrictMode>
-        <Compass
+        <CompassElectron
           getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
         />
