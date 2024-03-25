@@ -1235,5 +1235,4 @@ export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
 export const DisconnectAtlasAccountButton = 'button=Disconnect';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AcceptTOSToggle = 'button#use-ai-toggle';
 export const AgreeAndContinueButton = 'button=Agree and continue';

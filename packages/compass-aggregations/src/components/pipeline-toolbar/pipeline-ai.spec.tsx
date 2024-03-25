@@ -34,7 +34,6 @@ describe('PipelineAI Component', function () {
 
   const renderPipelineAI = () => {
     const atlasAiService = new MockAtlasAiService();
-    atlasAiService['enableFeature'] = () => Promise.resolve(true);
     const store = configureStore({}, undefined, {
       preferences,
       atlasAiService: atlasAiService as any,
