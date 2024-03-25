@@ -4,32 +4,29 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector:
-    | string
-    | ChainablePromiseElement<WebdriverIO.Element>
-    | WebdriverIO.Element
+  selector: string | ChainablePromiseElement<WebdriverIO.Element>
 ): Promise<void> {
-  async function getElement() {
-    return typeof selector === 'string' ? await browser.$(selector) : selector;
+  function getElement() {
+    return typeof selector === 'string' ? browser.$(selector) : selector;
   }
 
   try {
-    const initialElement = await getElement();
+    const initialElement = getElement();
 
     let previousResult = {
-      ...(await initialElement.getLocation()),
-      ...(await initialElement.getSize()),
+      location: await initialElement.getLocation(),
+      size: await initialElement.getSize(),
     };
     await browser.waitUntil(async function () {
       // small delay to make sure that if it is busy animating it had time to move
       // before the first check and between each two checks
       await browser.pause(50);
 
-      const currentElement = await getElement();
+      const currentElement = getElement();
 
       const result = {
-        ...(await currentElement.getLocation()),
-        ...(await currentElement.getSize()),
+        location: await currentElement.getLocation(),
+        size: await currentElement.getSize(),
       };
       const stopped = _.isEqual(result, previousResult);
       previousResult = result;

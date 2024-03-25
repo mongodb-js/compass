@@ -8,17 +8,14 @@ interface ClickOptions {
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector:
-    | string
-    | ChainablePromiseElement<WebdriverIO.Element>
-    | WebdriverIO.Element,
+  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
   options?: ClickOptions
 ): Promise<void> {
-  async function getElement() {
-    return typeof selector === 'string' ? await browser.$(selector) : selector;
+  function getElement() {
+    return typeof selector === 'string' ? browser.$(selector) : selector;
   }
 
-  const displayElement = await getElement();
+  const displayElement = getElement();
 
   await displayElement.waitForDisplayed();
 
@@ -26,12 +23,12 @@ export async function clickVisible(
   await browser.waitForAnimations(selector);
 
   if (options?.scroll) {
-    const scrollElement = await getElement();
+    const scrollElement = getElement();
     await scrollElement.scrollIntoView();
     await browser.pause(1000);
   }
 
-  const clickElement = await getElement();
+  const clickElement = getElement();
   if (options?.screenshot) {
     await browser.screenshot(options.screenshot);
   }
