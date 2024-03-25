@@ -65,7 +65,7 @@ enum CollectionActions {
 
 const reducer: Reducer<CollectionState> = (
   state = {
-    // TODO: COMPASS-7782 use hook to get the workspace tab id instead
+    // TODO(COMPASS-7782): use hook to get the workspace tab id instead
     workspaceTabId: '',
     namespace: '',
     stats: null,

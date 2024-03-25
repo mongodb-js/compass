@@ -507,7 +507,7 @@ export const openWorkspace = (
     const oldTabs = getState().tabs;
     if (workspaceOptions.type === 'Collection') {
       if (!getState().collectionInfo[workspaceOptions.namespace]) {
-        // Fetching extra meta for collection should not block tab opening
+        // Fetching extra metadata for collection should not block tab opening
         void (async () => {
           const { database, collection } = toNS(workspaceOptions.namespace);
           try {
