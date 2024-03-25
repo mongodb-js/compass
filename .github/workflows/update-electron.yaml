@@ -1,13 +1,14 @@
-name: Bump packages
+name: Update electron
+
+# Runs nightly and manually
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   update_generated_files:
-    name: Bump packages
+    name: Update Electron
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,37 +24,30 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18.19.1
+          node-version: ^16.20.2
           cache: 'npm'
 
-      - name: Install npm@10.2.4
+      - name: Install npm@8.19.4
         run: |
-          npm install -g npm@10.2.4
-
+          npm install -g npm@8.19.4
       - name: Install Dependencies
         run: |
           npm -v
           npm ci
-
       - name: Bump packages
-        env:
-          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump package versions'
-          SKIP_BUMP_PACKAGES: 'mongodb-compass'
         run: |
-          npm run bump-packages
+          node scripts/update-electron.js
           git add .
-          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
-
+          git commit --no-allow-empty -m "chore: update electron" || true
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
-          commit-message: 'chore(release): bump package versions'
-          branch: ci/bump-packages
-          title: 'chore(release): bump package versions'
+          commit-message: 'chore: update electron'
+          branch: ci/update-electron
+          title: 'chore: update electron'
           body: |
-            - Bump package versions
+            - Update electron

@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import type { AtlasUserConfig } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 
 export type ArgsWithSignal<T = Record<string, unknown>> = T & {
@@ -11,7 +10,6 @@ type AtlasAuthServiceEvents = {
   'signed-in': [];
   'signed-out': [];
   'token-refresh-failed': [];
-  'user-config-changed': [AtlasUserConfig];
 };
 
 type AtlasAuthEventNames = keyof AtlasAuthServiceEvents;
@@ -30,7 +28,6 @@ export abstract class AtlasAuthService extends EventEmitter {
   ): Promise<Record<string, string>>;
 
   abstract getUserInfo(opts?: ArgsWithSignal): Promise<AtlasUserInfo>;
-  abstract updateUserConfig(config: AtlasUserConfig): Promise<void>;
 
   on<T extends AtlasAuthEventNames>(
     evt: T,

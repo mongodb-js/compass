@@ -17,7 +17,6 @@ import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 import type { RequestInfo, RequestInit, Response } from 'node-fetch';
 import nodeFetch from 'node-fetch';
 import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
-import type { AtlasUserConfig } from './user-config-store';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -27,7 +26,6 @@ import {
 } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
-import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
@@ -92,8 +90,6 @@ export class CompassAuthService {
   };
 
   private static secretStore = new SecretStore();
-
-  private static atlasUserConfigStore = new AtlasUserConfigStore();
 
   private static ipcMain:
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
@@ -173,7 +169,6 @@ export class CompassAuthService {
           'isAuthenticated',
           'signIn',
           'signOut',
-          'updateAtlasUserConfig',
           'maybeGetToken',
         ]);
       }
@@ -233,12 +228,6 @@ export class CompassAuthService {
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
       this.ipcMain?.broadcast('atlas-service-signed-out');
     });
-    this.oidcPluginLogger.on(
-      'atlas-service-user-config-changed',
-      (newConfig) => {
-        this.ipcMain?.broadcast('atlas-service-user-config-changed', newConfig);
-      }
-    );
   }
 
   static async isAuthenticated({
@@ -381,32 +370,10 @@ export class CompassAuthService {
 
       const userInfo = (await res.json()) as AtlasUserInfo;
 
-      const userConfig = await this.atlasUserConfigStore.getUserConfig(
-        userInfo.sub
-      );
-
-      return { ...userInfo, ...userConfig };
+      // TODO: Remove hadcoded `enabledAIFeature: true` when Atlas returns the actual value.
+      return { ...userInfo, enabledAIFeature: true };
     })();
     return this.currentUser;
-  }
-
-  static async updateAtlasUserConfig({
-    config,
-  }: {
-    config: Partial<AtlasUserConfig>;
-  }) {
-    if (!this.currentUser) {
-      throw new Error("Can't update user config when not logged in");
-    }
-    const newConfig = await this.atlasUserConfigStore.updateUserConfig(
-      this.currentUser.sub,
-      config
-    );
-    this.currentUser = {
-      ...this.currentUser,
-      ...newConfig,
-    };
-    this.oidcPluginLogger.emit('atlas-service-user-config-changed', newConfig);
   }
 
   static async introspect({
