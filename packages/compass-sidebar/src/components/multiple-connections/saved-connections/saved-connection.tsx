@@ -305,7 +305,7 @@ export function SavedConnection({
           {canNotOpenReason === 'maximum-number-exceeded' &&
             `Only ${maximumNumberOfConnectionsOpen} connection${
               maximumNumberOfConnectionsOpen > 1 ? 's' : ''
-            } can be open at the same time.`}
+            } can be open at the same time. First disconnect from another cluster.`}
         </Tooltip>
         <ItemActionControls<Action>
           data-testid="connection-menu"
