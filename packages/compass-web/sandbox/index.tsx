@@ -20,7 +20,7 @@ import {
 } from 'mongodb-connection-string-url';
 
 import createDebug from 'debug';
-import { CompassWeb } from '../src/index';
+import { CompassWeb } from '../src/entrypoint';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
