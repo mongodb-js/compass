@@ -9,7 +9,7 @@ import sinon from 'sinon';
 import Home from './home';
 import type { DataService } from 'mongodb-data-service';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { WithAtlasProviders, WithStorageProviders } from './compass';
+import { WithAtlasProviders, WithStorageProviders } from './entrypoint';
 
 const createDataService = () =>
   ({
