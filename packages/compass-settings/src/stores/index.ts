@@ -12,7 +12,6 @@ import atlasLoginReducer, {
   getUserInfo,
   atlasServiceSignedOut,
   atlasServiceTokenRefreshFailed,
-  atlasServiceUserConfigChanged,
 } from './atlas-login';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -69,10 +68,6 @@ export function configureStore(
 
   options.atlasAuthService.on('token-refresh-failed', () => {
     void store.dispatch(atlasServiceTokenRefreshFailed());
-  });
-
-  options.atlasAuthService.on('user-config-changed', (newConfig) => {
-    void store.dispatch(atlasServiceUserConfigChanged(newConfig));
   });
 
   return store;

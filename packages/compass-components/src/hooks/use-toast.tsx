@@ -16,6 +16,7 @@ import { css } from '..';
 
 export type ToastProperties = Pick<
   ToastProps,
+  | 'actionElement'
   | 'title'
   | 'description'
   | 'variant'

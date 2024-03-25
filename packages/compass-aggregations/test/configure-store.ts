@@ -17,9 +17,6 @@ export class MockAtlasAuthService extends AtlasAuthService {
   async getUserInfo() {
     return Promise.resolve({} as any);
   }
-  async updateUserConfig() {
-    return Promise.resolve();
-  }
   async signIn() {
     return Promise.resolve({} as any);
   }
@@ -32,12 +29,6 @@ export class MockAtlasAuthService extends AtlasAuthService {
 }
 
 export class MockAtlasAiService {
-  async enableFeature() {
-    return Promise.resolve(true);
-  }
-  async disableFeature() {
-    return Promise.resolve(true);
-  }
   async getAggregationFromUserInput() {
     return Promise.resolve({});
   }

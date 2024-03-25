@@ -2,7 +2,6 @@ import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasUserInfo } from '../util';
-import type { AtlasUserConfig } from '../user-config-store';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 
@@ -51,7 +50,6 @@ export const enum AtlasSignInActions {
   Cancel = 'atlas-service/atlas-signin/AtlasSignInCancel',
   TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
   SignedOut = 'atlas-service/atlas-signin/SignedOut',
-  UserConfigChanged = 'atlas-service/atlas-signin/UserConfigChanged',
 }
 
 export type AtlasSignInOpenModalAction = {
@@ -105,11 +103,6 @@ export type AtlasSignInTokenRefreshFailedAction = {
 
 export type AtlasSignInSignedOutAction = {
   type: AtlasSignInActions.SignedOut;
-};
-
-export type AtlasSignInUserConfigChangedAction = {
-  type: AtlasSignInActions.UserConfigChanged;
-  newConfig: AtlasUserConfig;
 };
 
 export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
@@ -297,18 +290,6 @@ const reducer: Reducer<AtlasSignInState> = (
     return { ...INITIAL_STATE };
   }
 
-  if (
-    isAction<AtlasSignInUserConfigChangedAction>(
-      action,
-      AtlasSignInActions.UserConfigChanged
-    )
-  ) {
-    if (state.state !== 'success') {
-      return state;
-    }
-    return { ...state, userInfo: { ...state.userInfo, ...action.newConfig } };
-  }
-
   return state;
 };
 
@@ -487,15 +468,6 @@ export const signedOut = (): AtlasSignInThunkAction<void> => {
   return (dispatch, _getState, { atlasAuthService }) => {
     dispatch({ type: AtlasSignInActions.SignedOut });
     atlasAuthService.emit('signed-out');
-  };
-};
-
-export const userConfigChanged = (
-  newConfig: AtlasUserConfig
-): AtlasSignInThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
-    dispatch({ type: AtlasSignInActions.UserConfigChanged, newConfig });
-    atlasAuthService.emit('user-config-changed', newConfig);
   };
 };
 
