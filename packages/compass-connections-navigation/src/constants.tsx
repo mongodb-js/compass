@@ -10,6 +10,7 @@ export const DATABASE_ROW_HEIGHT = spacing[5];
 // without this we need to manually trigger recalc/rerender on all the items in
 // the list on expand/collapse and the difference in size is not that noticeable
 export const COLLECTION_ROW_HEIGHT = DATABASE_ROW_HEIGHT;
+export const CONNECTION_ROW_HEIGHT = DATABASE_ROW_HEIGHT;
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
 export type Actions =
