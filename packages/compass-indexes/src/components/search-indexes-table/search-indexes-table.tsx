@@ -370,6 +370,7 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   return (
     <IndexesTable
+      id="search-indexes"
       data-testid="search-indexes"
       columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}

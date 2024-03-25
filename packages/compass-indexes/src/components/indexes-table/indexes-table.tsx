@@ -21,8 +21,10 @@ import type {
   HeaderGroup,
   LeafyGreenTableCell,
   LeafyGreenTableRow,
+  SortingState,
 } from '@mongodb-js/compass-components';
 import { useDarkMode } from '@mongodb-js/compass-components';
+import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 
 const tableWrapperStyles = css({
   paddingTop: spacing[3],
@@ -82,23 +84,31 @@ const tableHeadCellStyles = css({
 });
 
 export type IndexesTableProps<T> = {
+  id: string;
   ['data-testid']: string;
   columns: LGColumnDef<T>[];
   data: LGTableDataType<T>[];
 };
 
 export function IndexesTable<T>({
+  id,
   ['data-testid']: dataTestId,
   columns,
   data,
 }: IndexesTableProps<T>) {
+  const [sorting, setSorting] = useTabState<SortingState>(
+    `${id}-sorting-state`,
+    []
+  );
   const tableContainerRef = React.useRef<HTMLDivElement>(null);
   const table = useLeafyGreenTable<T>({
     containerRef: tableContainerRef,
     data,
     columns,
-    debugTable: true,
     enableExpanding: true,
+    enableSortingRemoval: false,
+    state: { sorting },
+    onSortingChange: setSorting,
   });
 
   const { rows } = table.getRowModel();

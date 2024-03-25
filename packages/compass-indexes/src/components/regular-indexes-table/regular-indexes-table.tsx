@@ -195,6 +195,7 @@ export const RegularIndexesTable: React.FunctionComponent<
 
   return (
     <IndexesTable
+      id="regular-indexes"
       data-testid="indexes"
       columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
