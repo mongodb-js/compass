@@ -39,15 +39,6 @@ updates:
           - "system-ca"
           - "saslprep"
 
-      electron:
-        patterns:
-          - "electron"
-          - "@electron/remote"
-          - "@electron/rebuild"
-          - "browserslist"
-          - "node-abi"
-        update-types: ["minor", "patch"]
-
       devtools-shared-prod:
         patterns:
           - "@mongodb-js/get-os-info"

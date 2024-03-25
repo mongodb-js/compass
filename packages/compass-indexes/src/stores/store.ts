@@ -101,6 +101,9 @@ export function activateIndexesPlugin(
     'in-progress-indexes-added',
     (index: InProgressIndex) => {
       store.dispatch(inProgressIndexAdded(index));
+      // we have to merge the in-progress indexes with the regular indexes, so
+      // just fetch them again which will perform the merge
+      void store.dispatch(fetchIndexes());
       store.dispatch(switchToRegularIndexes());
     }
   );

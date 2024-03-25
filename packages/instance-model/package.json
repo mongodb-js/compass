@@ -24,15 +24,14 @@
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
     "ampersand-model": "^8.0.1",
+    "mongodb-collection-model": "^5.18.1",
+    "mongodb-data-service": "^22.18.1",
     "mongodb-database-model": "^2.18.1"
-  },
-  "peerDependencies": {
-    "mongodb-data-service": "^22.18.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.17",
@@ -40,7 +39,6 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "mocha": "^10.2.0",
-    "mongodb-collection-model": "^5.18.1"
+    "mocha": "^10.2.0"
   }
 }
