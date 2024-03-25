@@ -16,7 +16,11 @@ import {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
-import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+import {
+  Menu as UnwrappedMenu,
+  MenuSeparator,
+  MenuItem,
+} from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
@@ -67,7 +71,7 @@ import {
 } from '@leafygreen-ui/typography';
 
 import { withDarkMode } from '../hooks/use-theme';
-import { withStackedComponentStyles } from '../hooks/use-stacked-component';
+import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-component';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
@@ -97,9 +101,12 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 // all hrefs.
 export { Link, Button, IconButton } from './links/link';
 
-const Popover = withStackedComponentStyles(
+const Popover = withStackedComponentPopoverStyles(
   UnwrappedPopover as any
 ) as typeof UnwrappedPopover;
+const Menu = withStackedComponentPopoverStyles(
+  UnwrappedMenu as any
+) as typeof UnwrappedMenu;
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
