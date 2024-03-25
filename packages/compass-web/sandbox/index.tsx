@@ -21,8 +21,10 @@ import {
 
 import createDebug from 'debug';
 import { CompassWeb } from '../src/index';
-import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-
+import type {
+  OpenWorkspaceOptions,
+  CollectionSubtab,
+} from '@mongodb-js/compass-workspaces';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -100,6 +102,21 @@ function getHistory(): ConnectionInfo[] {
   }
 }
 
+function getCollectionSubTab(subTab: string): CollectionSubtab {
+  switch (subTab.toLowerCase()) {
+    case 'schema':
+      return 'Schema';
+    case 'indexes':
+      return 'Indexes';
+    case 'aggregations':
+      return 'Aggregations';
+    case 'validation':
+      return 'Validation';
+    default:
+      return 'Documents';
+  }
+}
+
 function saveHistory(history: any) {
   try {
     const bytes = new TextEncoder().encode(JSON.stringify(history));
@@ -128,7 +145,7 @@ const logging: { name: string; component: string; args: any[] }[] = [];
 
 const App = () => {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
-    const [, tab, namespace = ''] = window.location.pathname.split('/');
+    const [, tab, namespace = '', subTab] = window.location.pathname.split('/');
     if (tab === 'databases') {
       return { type: 'Databases' };
     }
@@ -136,7 +153,11 @@ const App = () => {
       return { type: 'Collections', namespace };
     }
     if (tab === 'collection' && namespace) {
-      return { type: 'Collection', namespace };
+      return {
+        type: 'Collection',
+        namespace,
+        initialSubtab: getCollectionSubTab(subTab),
+      };
     }
     return { type: 'Databases' };
   });
@@ -255,7 +276,9 @@ const App = () => {
                     newPath = `/collections/${tab.namespace}`;
                     break;
                   case 'Collection':
-                    newPath = `/collection/${tab.namespace}`;
+                    newPath = `/collection/${
+                      tab.namespace
+                    }/${tab.subTab.toLowerCase()}`;
                     break;
                   default:
                     newPath = '/';
