@@ -1,5 +1,6 @@
 import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
@@ -92,10 +93,25 @@ const indexes = [
   },
 ] as RegularIndex[];
 
+function mockIndex(info: Partial<RegularIndex>): RegularIndex {
+  return {
+    ns: 'test.test',
+    name: '_id_1',
+    key: {},
+    fields: [],
+    size: 0,
+    relativeSize: 0,
+    ...info,
+    extra: {
+      ...info.extra,
+    },
+  };
+}
+
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
 ) => {
-  render(
+  return render(
     <RegularIndexesTable
       indexes={[]}
       serverVersion="4.4.0"
@@ -189,6 +205,114 @@ describe('RegularIndexesTable Component', function () {
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
+    });
+  });
+
+  describe.only('sorting', function () {
+    function getIndexNames() {
+      return screen.getAllByTestId('indexes-name-field').map((el) => {
+        return el.textContent!.trim();
+      });
+    }
+
+    function clickSort(label: string) {
+      userEvent.click(screen.getByRole('button', { name: `Sort by ${label}` }));
+    }
+
+    it('sorts table by name', function () {
+      renderIndexList({
+        indexes: [
+          mockIndex({ name: 'b' }),
+          mockIndex({ name: 'a' }),
+          mockIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by type', function () {
+      renderIndexList({
+        indexes: [
+          mockIndex({ name: 'b' }),
+          mockIndex({ name: 'a' }),
+          mockIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by size', function () {
+      renderIndexList({
+        indexes: [
+          mockIndex({ name: 'b', size: 5 }),
+          mockIndex({ name: 'a', size: 1 }),
+          mockIndex({ name: 'c', size: 10 }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Size');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Size');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by usage', function () {
+      renderIndexList({
+        indexes: [
+          mockIndex({ name: 'b', usageCount: 5 }),
+          mockIndex({ name: 'a', usageCount: 0 }),
+          mockIndex({ name: 'c', usageCount: 10 }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Usage');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Usage');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by properties', function () {
+      renderIndexList({
+        indexes: [
+          mockIndex({ name: 'b', properties: ['sparse'] }),
+          mockIndex({ name: 'a', properties: ['partial'] }),
+          mockIndex({
+            name: 'c',
+            cardinality: 'compound',
+            properties: ['ttl'],
+          }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      // `c` is first because when cardinality is compound, the property name
+      // that is used in sort is always `compound`
+      clickSort('Properties');
+      expect(getIndexNames()).to.deep.eq(['c', 'a', 'b']);
+
+      clickSort('Properties');
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
     });
   });
 });

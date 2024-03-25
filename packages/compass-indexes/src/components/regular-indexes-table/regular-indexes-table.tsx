@@ -62,7 +62,7 @@ function sortByProperties(a: RegularIndex, b: RegularIndex) {
   return 0;
 }
 
-function sortFN(
+function sortFn(
   rowA: LeafyGreenTableRow<IndexInfo>,
   rowB: LeafyGreenTableRow<IndexInfo>,
   field: string
@@ -98,20 +98,20 @@ const COLUMNS: LGColumnDef<IndexInfo>[] = [
     header: 'Type',
     cell: (info) => info.getValue(),
     enableSorting: true,
-    sortingFn: sortFN,
+    sortingFn: sortFn,
   },
   {
     accessorKey: 'size',
     header: 'Size',
     cell: (info) => info.getValue(),
     enableSorting: true,
-    sortingFn: sortFN,
+    sortingFn: sortFn,
   },
   {
     accessorKey: 'usage',
     header: 'Usage',
     cell: (info) => info.getValue(),
-    sortingFn: sortFN,
+    sortingFn: sortFn,
     // The usage contains the date string so we
     // want it to have a good amount of space.
     size: 300,
@@ -121,7 +121,7 @@ const COLUMNS: LGColumnDef<IndexInfo>[] = [
     accessorKey: 'properties',
     header: 'Properties',
     cell: (info) => info.getValue(),
-    sortingFn: sortFN,
+    sortingFn: sortFn,
     enableSorting: true,
   },
 ];

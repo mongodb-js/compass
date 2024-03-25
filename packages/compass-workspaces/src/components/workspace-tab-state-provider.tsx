@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
 import { Provider, createSelectorHook } from 'react-redux';
 import type { AnyAction } from 'redux';
@@ -111,24 +117,32 @@ function selectTabState<S>(state: TabState, tabId: string, key: string) {
 /**
  * useSelector but with a state fallback for testing environment
  */
-function useTabStateSelector<S>(
-  tabId: string,
-  key: string,
-  initialState: S | (() => S)
-): S {
+function useTabStateSelector<S>(tabId: string, key: string): S {
   try {
     return useSelector((state) => {
       return selectTabState<S>(state, tabId, key);
     });
   } catch (err) {
-    if (process.env.NODE_ENV !== 'test') {
-      // This will throw when Redux provider is not available in the React
-      // context
-      throw err;
+    // This will throw when Redux provider is not available in the React
+    // context. In that case, if we are in the test environment we'll set up our
+    // own state update listener to make sure that we can still update the local
+    // state of the component. This breaks rules of hooks, but in this scenario
+    // the hooks are always called in the same order even when under condition
+    if (
+      process.env.NODE_ENV === 'test' &&
+      /could not find react-redux context value/.test((err as Error).message)
+    ) {
+      /* eslint-disable react-hooks/rules-of-hooks */
+      const [, forceUpdate] = useState({});
+      useEffect(() => {
+        return tabStateStore.subscribe(() => {
+          forceUpdate({});
+        });
+      }, []);
+      return selectTabState(tabStateStore.getState(), tabId, key);
+      /* eslint-enable react-hooks/rules-of-hooks */
     }
-    return typeof initialState === 'function'
-      ? (initialState as () => S)()
-      : initialState;
+    throw err;
   }
 }
 
@@ -184,10 +198,6 @@ export function useTabState<S>(
       setState(initialState);
     }
   }
-  const state = useTabStateSelector(
-    tabIdRef.current,
-    keyRef.current,
-    initialState
-  );
+  const state = useTabStateSelector<S>(tabIdRef.current, keyRef.current);
   return [state, setState];
 }
