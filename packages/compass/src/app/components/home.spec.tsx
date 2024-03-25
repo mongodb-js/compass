@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import { AppRegistryProvider } from 'hadron-app-registry';
-
 import * as hadronIpc from 'hadron-ipc';
 import sinon from 'sinon';
 import Home from './home';
