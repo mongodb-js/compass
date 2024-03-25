@@ -22,7 +22,6 @@ import {
   setCollections,
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
-import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
@@ -175,12 +174,6 @@ export function activateAggregationsPlugin(
       })
     )
   );
-
-  on(atlasAuthService, 'user-config-changed', (config) => {
-    if (config.enabledAIFeature === false) {
-      store.dispatch(disableAIFeature());
-    }
-  });
 
   const refreshInput = () => {
     void store.dispatch(refreshInputDocuments());
