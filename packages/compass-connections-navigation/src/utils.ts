@@ -8,11 +8,11 @@ export const getItemLevelPaddingClass = (level: number) => {
       });
     case 2:
       return css({
-        paddingLeft: spacing[5],
+        paddingLeft: spacing[2] + spacing[3],
       });
     case 3:
       return css({
-        paddingLeft: spacing[5] + spacing[5],
+        paddingLeft: spacing[2] + spacing[3] + spacing[5],
       });
   }
 };

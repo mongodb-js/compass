@@ -58,7 +58,8 @@ function ActiveConnectionNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (connectionId: string) => {
+  const onConnectionToggle = (namespace: string) => {
+    const connectionId = namespace.split('.')[0];
     if (!collapsed.includes(connectionId))
       setCollapsed([...collapsed, connectionId]);
     else {
