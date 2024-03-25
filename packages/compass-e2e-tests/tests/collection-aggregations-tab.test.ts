@@ -1194,8 +1194,7 @@ describe('Collection aggregations tab', function () {
       await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
       await browser.$(Selectors.FocusModeStageOutput).waitForDisplayed();
 
-      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
-      await closeButton.click();
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
       await modal.waitForDisplayed({ reverse: true });
     });
@@ -1334,8 +1333,7 @@ describe('Collection aggregations tab', function () {
         return (await activeStage.getText()) === 'Stage 2: select';
       });
 
-      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
-      await closeButton.click();
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
       await modal.waitForDisplayed({ reverse: true });
     });
