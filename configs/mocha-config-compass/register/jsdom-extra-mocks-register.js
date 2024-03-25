@@ -33,3 +33,12 @@ Object.assign(tabbable, {
   isTabbable: (node, options) =>
     origTabbable.isTabbable(node, { ...options, displayCheck: 'none' }),
 });
+
+// leafygreen (through `clipboard` library) uses deprecated API check that is
+// not working in jsdom if copy / paste APIs are supported
+if (!window.document.queryCommandSupported) {
+  window.document.queryCommandSupported =
+    globalThis.document.queryCommandSupported = function (command) {
+      return ['copy', 'cut'].includes(command);
+    };
+}
