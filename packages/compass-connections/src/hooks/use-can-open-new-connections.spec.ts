@@ -44,7 +44,7 @@ const NONFAVORITE_CONNECTION_INFO: ConnectionInfo = {
   savedConnectionType: 'recent',
 };
 
-describe.only('useCanOpenNewConnections', function () {
+describe('useCanOpenNewConnections', function () {
   let renderHookWithContext: typeof renderHook;
   let connectionStorage: ConnectionStorage;
   let connectionManager: ConnectionsManager;
