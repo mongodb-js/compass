@@ -36,7 +36,7 @@ const NONFAVORITE_CONNECTION_INFO: ConnectionInfo = {
   savedConnectionType: 'recent',
 };
 
-describe.only('useAllSavedConnections', function () {
+describe('useAllSavedConnections', function () {
   let renderHookWithContext: typeof renderHook;
   let connectionStorage: ConnectionStorage;
 
