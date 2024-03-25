@@ -86,7 +86,6 @@ export async function addCollection(
         async () => {
           await browser.clickVisible(option, {
             scroll: true,
-            screenshot: `custom-collation-${key}-${valStr}-${clickAttempt}.png`,
           });
           clickAttempt++;
           const button = await browser.$(
@@ -100,6 +99,8 @@ export async function addCollection(
           timeoutMsg: `Failed to select a value "${valStr}" for "${key}" in Select after ${clickAttempt} attempt(s)`,
         }
       );
+
+      await browser.screenshot(`custom-collation-${key}-${valStr}.png`);
 
       // make sure the menu disappears before moving on to the next thing
       await menu.waitForDisplayed({ reverse: true });
