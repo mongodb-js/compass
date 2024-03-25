@@ -100,6 +100,9 @@ describe('stringifyCSVValue', function () {
     expect(
       stringifyCSVValue(new Date('2019-02-08T10:21:49.176Z'), options)
     ).to.equal('2019-02-08T10:21:49.176Z');
+    expect(stringifyCSVValue(new Date('NaN'), options)).to.equal(
+      'Invalid Date'
+    );
   });
 
   it('stringifies number', function () {
