@@ -17,6 +17,7 @@ export const ConnectionsManagerProvider = ConnectionsManagerContext.Provider;
 
 export const useConnectionsManagerContext = (): ConnectionsManager => {
   const connectionsManager = useContext(ConnectionsManagerContext);
+
   if (!connectionsManager) {
     throw new Error(
       'ConnectionsManager not available in context. Did you forget to setup ConnectionsManagerProvider'
