@@ -7,6 +7,7 @@ import {
   Link,
   css,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
 
@@ -31,6 +32,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   isOpen,
   closeModal,
 }) => {
+  const darkMode = useDarkMode();
   const goToSettings = useCallback(() => {
     closeModal(true);
   }, [closeModal]);
@@ -51,6 +53,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       blobPosition="top right"
       graphic={<WelcomeImage width={156} height={209} />}
       linkText={''}
+      darkMode={darkMode}
     >
       <Body>
         Build aggregation pipelines, optimize queries, analyze schemas,
