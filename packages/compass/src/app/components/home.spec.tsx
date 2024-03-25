@@ -1,34 +1,16 @@
-import type { ComponentProps } from 'react';
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
+import { AppRegistryProvider } from 'hadron-app-registry';
+
 import * as hadronIpc from 'hadron-ipc';
 import sinon from 'sinon';
-import { CompassHomePlugin } from './index';
-import {
-  CompassPipelineStorage,
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
-import { AtlasAuthServiceProvider } from '@mongodb-js/atlas-service/provider';
+import Home from './home';
 import type { DataService } from 'mongodb-data-service';
-import { EventEmitter } from 'events';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-
-// To make sure we can run these tests in non-electron environment while home
-// doesn't have ways to separate ipc from rendering through plugin store
-if (!hadronIpc.ipcRenderer) {
-  (hadronIpc as any).ipcRenderer = Object.assign(new EventEmitter(), {
-    createInvoke() {
-      // noop
-    },
-    call() {
-      // noop
-    },
-  });
-}
+import { WithAtlasProviders, WithStorageProviders } from './compass';
 
 const createDataService = () =>
   ({
@@ -73,23 +55,6 @@ class MockConnectionStorage {
 
 describe('Home [Component]', function () {
   const testAppRegistry = new AppRegistry();
-
-  const Home = (props: ComponentProps<typeof CompassHomePlugin>) => {
-    const Component = CompassHomePlugin.withMockServices({
-      globalAppRegistry: testAppRegistry,
-      localAppRegistry: testAppRegistry,
-      pipelineStorage: new CompassPipelineStorage(),
-      favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-      recentQueryStorageAccess: compassRecentQueryStorageAccess,
-      atlasAiService: {},
-    });
-    return (
-      <AtlasAuthServiceProvider value={{ on() {}, removeListener() {} } as any}>
-        <Component {...props} />
-      </AtlasAuthServiceProvider>
-    );
-  };
-
   function renderHome(dataService = createDataService()) {
     render(
       <PreferencesProvider
@@ -104,15 +69,21 @@ describe('Home [Component]', function () {
           } as any
         }
       >
-        <Home
-          appName="home-testing"
-          // TODO(COMPASS-7397): compass-connection is not a real plugin and so
-          // we have to pass mocked services all the way through
-          __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
-            return Promise.resolve(dataService);
-          }}
-          __TEST_CONNECTION_STORAGE={MockConnectionStorage as any}
-        />
+        <AppRegistryProvider localAppRegistry={testAppRegistry}>
+          <WithAtlasProviders>
+            <WithStorageProviders>
+              <Home
+                appName="home-testing"
+                // TODO(COMPASS-7397): compass-connection is not a real plugin and so
+                // we have to pass mocked services all the way through
+                __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
+                  return Promise.resolve(dataService);
+                }}
+                __TEST_CONNECTION_STORAGE={MockConnectionStorage as any}
+              />
+            </WithStorageProviders>
+          </WithAtlasProviders>
+        </AppRegistryProvider>
       </PreferencesProvider>
     );
   }

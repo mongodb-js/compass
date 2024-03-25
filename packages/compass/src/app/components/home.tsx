@@ -42,13 +42,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import updateTitle from '../modules/update-title';
+import updateTitle from '../utils/update-title';
 import Workspace from './workspace';
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
-} from '../modules/telemetry';
+} from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -452,7 +452,7 @@ function Home({
 function ThemedHome(
   props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
-  const { track } = useLoggerAndTelemetry('COMPASS-HOME-UI');
+  const { track } = useLoggerAndTelemetry('COMPASS-UI');
 
   return (
     <CompassComponentsProvider

@@ -28,7 +28,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-export-to-language**](packages/compass-export-to-language): Export MongoDB queries and aggregations to various languages
 - [**@mongodb-js/compass-field-store**](packages/compass-field-store): FieldStore keeps track of available fields in a collection
 - [**@mongodb-js/compass-find-in-page**](packages/compass-find-in-page): cmd-f UI for Compass
-- [**@mongodb-js/compass-home**](packages/compass-home): Home
 - [**@mongodb-js/compass-import-export**](packages/compass-import-export): Import/Export feature for Compass
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Collection index management for Compass
 - [**@mongodb-js/compass-instance**](packages/compass-instance): Compass instance plugin

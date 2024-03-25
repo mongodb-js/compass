@@ -1,34 +1,14 @@
 // THESE IMPORTS SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import '../setup-hadron-distribution';
-import './csp';
-
+import './utils/csp';
 import dns from 'dns';
 import ensureError from 'ensure-error';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
-import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { CompassHomePlugin } from '@mongodb-js/compass-home';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
-import {
-  AtlasAuthServiceProvider,
-  AtlasServiceProvider,
-} from '@mongodb-js/atlas-service/provider';
-import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import {
-  CompassFavoriteQueryStorage,
-  CompassPipelineStorage,
-  CompassRecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
-import {
-  PipelineStorageProvider,
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
-  type FavoriteQueryStorageAccess,
-  type RecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage/provider';
 import semver from 'semver';
+import { Compass } from './components/compass';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -84,69 +64,13 @@ import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
-
-const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
-  const loggerProviderValue = useRef({
-    createLogger: createLoggerAndTelemetry,
-    preferences: defaultPreferencesInstance,
-  });
-  return (
-    <PreferencesProvider value={loggerProviderValue.current.preferences}>
-      <LoggerAndTelemetryProvider value={loggerProviderValue.current}>
-        {children}
-      </LoggerAndTelemetryProvider>
-    </PreferencesProvider>
-  );
-};
-
-const WithAtlasProviders: React.FC = ({ children }) => {
-  const authService = useRef(new CompassAtlasAuthService());
-  return (
-    <AtlasAuthServiceProvider value={authService.current}>
-      <AtlasServiceProvider
-        options={{
-          defaultHeaders: {
-            'User-Agent': `${getAppName()}/${getAppVersion()}`,
-          },
-        }}
-      >
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
-      </AtlasServiceProvider>
-    </AtlasAuthServiceProvider>
-  );
-};
-
-const WithStorageProviders: React.FC = ({ children }) => {
-  const pipelineStorage = useRef(new CompassPipelineStorage());
-  const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
-    getStorage(options) {
-      return new CompassFavoriteQueryStorage(options);
-    },
-  });
-  const recentQueryStorage = useRef<RecentQueryStorageAccess>({
-    getStorage(options) {
-      return new CompassRecentQueryStorage(options);
-    },
-  });
-  return (
-    <PipelineStorageProvider value={pipelineStorage.current}>
-      <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
-        <RecentQueryStorageProvider value={recentQueryStorage.current}>
-          {children}
-        </RecentQueryStorageProvider>
-      </FavoriteQueryStorageProvider>
-    </PipelineStorageProvider>
-  );
-};
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
 (window as any).setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
@@ -246,7 +170,7 @@ const Application = View.extend({
   render: async function () {
     await defaultPreferencesInstance.refreshPreferences();
     const getAutoConnectInfo = await (
-      await import('./auto-connect')
+      await import('./utils/auto-connect')
     ).loadAutoConnectInfo();
     log.info(
       mongoLogId(1_001_000_092),
@@ -271,20 +195,10 @@ const Application = View.extend({
 
     ReactDOM.render(
       <React.StrictMode>
-        <WithPreferencesAndLoggerProviders>
-          <WithAtlasProviders>
-            <WithStorageProviders>
-              <AppRegistryProvider scopeName="Application Root">
-                <CompassHomePlugin
-                  appName={remote.app.getName()}
-                  getAutoConnectInfo={getAutoConnectInfo}
-                  // ... and show the welcome modal
-                  isWelcomeModalOpenByDefault={!wasNetworkOptInShown}
-                ></CompassHomePlugin>
-              </AppRegistryProvider>
-            </WithStorageProviders>
-          </WithAtlasProviders>
-        </WithPreferencesAndLoggerProviders>
+        <Compass
+          getAutoConnectInfo={getAutoConnectInfo}
+          showWelcomeModal={!wasNetworkOptInShown}
+        />
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );
