@@ -17,7 +17,7 @@ describe('tabs behavior', function () {
   function configureStore() {
     return activateWorkspacePlugin(
       {},
-      { globalAppRegistry, instance, dataService },
+      { globalAppRegistry, instance, dataService, logger: {} as any },
       helpers
     ).store;
   }

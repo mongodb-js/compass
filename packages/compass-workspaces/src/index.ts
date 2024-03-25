@@ -25,11 +25,14 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import toNS from 'mongodb-ns';
+import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
   dataService: DataService;
+  logger: LoggerAndTelemetry;
 };
 
 /**
@@ -92,13 +95,14 @@ export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
   }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
-  { globalAppRegistry, instance, dataService }: WorkspacesServices,
+  { globalAppRegistry, instance, dataService, logger }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
     instance,
     dataService,
+    logger,
   });
 
   addCleanup(cleanupLocalAppRegistries);
@@ -160,6 +164,7 @@ const WorkspacesPlugin = registerHadronPlugin(
   {
     instance: mongoDBInstanceLocator,
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    logger: createLoggerAndTelemetryLocator('COMPASS-WORKSPACES-UI'),
   }
 );
 

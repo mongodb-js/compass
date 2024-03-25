@@ -503,7 +503,7 @@ export const openWorkspace = (
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction
 > => {
-  return (dispatch, getState, { instance, dataService }) => {
+  return (dispatch, getState, { instance, dataService, logger }) => {
     const oldTabs = getState().tabs;
     if (workspaceOptions.type === 'Collection') {
       if (!getState().collectionInfo[workspaceOptions.namespace]) {
@@ -529,12 +529,13 @@ export const openWorkspace = (
               });
             }
           } catch (err) {
-            // It's okay if we failed to fetch this optional metadata, this error
-            // can be ignored
-            if ((err as Error).name === 'MongoServerError') {
-              return;
-            }
-            throw err;
+            logger.debug(
+              'Collection Metadata',
+              logger.mongoLogId(1_001_000_306),
+              'Error fetching collection metadata for tab',
+              { namespace: workspaceOptions.namespace },
+              err
+            );
           }
         })();
       }
