@@ -11,6 +11,7 @@ import {
 import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
+  MAX_DATABASE_PLACEHOLDER_ITEMS,
   DATABASE_ROW_HEIGHT,
 } from './constants';
 import { DatabaseItem } from './database-item';
@@ -104,7 +105,13 @@ const collectionItemContainer = css({
 });
 
 const connectionToItems = ({
-  connection: { connectionInfo, name, databases },
+  connection: {
+    connectionInfo,
+    name,
+    databases,
+    databasesStatus,
+    databasesLength,
+  },
   connectionIndex,
   connectionsLength,
   expanded,
@@ -115,9 +122,15 @@ const connectionToItems = ({
   expanded?: Record<string, false | Record<string, boolean>>;
 }): TreeItem[] => {
   const isExpanded = !!(expanded && expanded[connectionInfo.id]);
-  const areDatabasesReady = true; // TODO
 
-  const placeholdersLength = 3; // TODO
+  const areDatabasesReady = ['ready', 'refreshing', 'error'].includes(
+    databasesStatus
+  );
+
+  const placeholdersLength = Math.min(
+    databasesLength,
+    MAX_DATABASE_PLACEHOLDER_ITEMS
+  );
 
   const connectionTI: ConnectionTreeItem = {
     key: String(connectionIndex),
@@ -296,7 +309,7 @@ const navigationTree = css({
   flex: '1 0 auto',
 });
 
-const DatabasesNavigationTree: React.FunctionComponent<{
+const ConnectionsNavigationTree: React.FunctionComponent<{
   connections: Connection[];
   expanded: Record<string, false | Record<string, boolean>>;
   onConnectionExpand(id: string, isExpanded: boolean): void;
@@ -327,6 +340,12 @@ const DatabasesNavigationTree: React.FunctionComponent<{
 
   useEffect(() => {
     if (activeNamespace) {
+      // TODO(COMPASS-7775): test this functionality
+      // When the connection is collapsed, and we enter a namespace that is inside that connection,
+      // the connection should expand automatically.
+      // Currently doesn't work because the ids don't include connection
+      // - should be fixed with the new state management for sidebar
+      onConnectionExpand(activeNamespace, true);
       onDatabaseExpand(activeNamespace, true);
     }
   }, [activeNamespace, onDatabaseExpand]);
@@ -445,7 +464,7 @@ const contentContainer = css({
 });
 
 const NavigationWithPlaceholder: React.FunctionComponent<
-  { isReady: boolean } & React.ComponentProps<typeof DatabasesNavigationTree>
+  { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
 > = ({ isReady, ...props }) => {
   return (
     <FadeInPlaceholder
@@ -453,7 +472,9 @@ const NavigationWithPlaceholder: React.FunctionComponent<
       contentContainerProps={{ className: contentContainer }}
       isContentReady={isReady}
       content={() => {
-        return <DatabasesNavigationTree {...props}></DatabasesNavigationTree>;
+        return (
+          <ConnectionsNavigationTree {...props}></ConnectionsNavigationTree>
+        );
       }}
       fallback={() => {
         return <DatabasesPlaceholder></DatabasesPlaceholder>;
@@ -462,4 +483,4 @@ const NavigationWithPlaceholder: React.FunctionComponent<
   );
 };
 
-export { NavigationWithPlaceholder, DatabasesNavigationTree };
+export { NavigationWithPlaceholder, ConnectionsNavigationTree };
