@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { expect } from 'chai';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import sinon from 'sinon';
 
 import { FeedbackPopover } from './feedback-popover';
 
@@ -43,10 +42,7 @@ const renderFeedbackPopover = (
 };
 
 describe('FeedbackPopover', function () {
-  afterEach(function () {
-    cleanup();
-    sinon.restore();
-  });
+  afterEach(cleanup);
 
   it('renders the popover and passes feedback when submitted', async function () {
     let feedbackText = '';

@@ -2,7 +2,6 @@ import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import sinon from 'sinon';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
@@ -69,7 +68,6 @@ describe('PipelineAI Component', function () {
     trackingEvents = [];
     (store as any) = null;
     cleanup();
-    sinon.restore();
   });
 
   describe('when rendered', function () {
