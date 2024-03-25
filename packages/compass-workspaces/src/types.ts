@@ -8,6 +8,7 @@ export type ServerStatsWorkspace = {
 
 export type DatabasesWorkspace = {
   type: 'Databases';
+  namespace: string;
 };
 
 export type CollectionsWorkspace = {

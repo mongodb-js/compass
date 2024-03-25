@@ -13,6 +13,7 @@ export const COLLECTION_ROW_HEIGHT = DATABASE_ROW_HEIGHT;
 
 export type Actions =
   | 'connection-options'
+  | 'select-connection'
   | 'select-database'
   | 'drop-database'
   | 'select-collection'

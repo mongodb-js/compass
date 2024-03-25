@@ -52,6 +52,7 @@ function ActiveConnectionNavigation({
   >([]);
 
   const {
+    openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
@@ -83,6 +84,9 @@ function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (ns: string, action: Actions) => {
       switch (action) {
+        case 'select-connection':
+          openDatabasesWorkspace(ns);
+          return;
         case 'select-database':
           openCollectionsWorkspace(ns);
           return;
@@ -110,6 +114,7 @@ function ActiveConnectionNavigation({
     },
     [
       databases,
+      openDatabasesWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
