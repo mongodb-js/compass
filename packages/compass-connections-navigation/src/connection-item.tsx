@@ -9,7 +9,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { DATABASE_ROW_HEIGHT } from './constants';
+import { CONNECTION_ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
@@ -74,16 +74,16 @@ const ExpandButton: React.FunctionComponent<{
   );
 };
 
-const databaseItem = css({
-  height: DATABASE_ROW_HEIGHT,
+const connectionItem = css({
+  height: CONNECTION_ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: DATABASE_ROW_HEIGHT,
+  height: CONNECTION_ROW_HEIGHT,
   paddingRight: spacing[1],
 });
 
-const databaseItemLabel = css({
+const connectionItemLabel = css({
   marginLeft: spacing[2],
 });
 
@@ -129,7 +129,7 @@ export const ConnectionItem: React.FunctionComponent<
     (evt) => {
       onNamespaceAction(
         evt.currentTarget.dataset.id as string,
-        'select-database'
+        'select-connection'
       );
     },
     [onNamespaceAction]
@@ -163,7 +163,7 @@ export const ConnectionItem: React.FunctionComponent<
   return (
     <ItemContainer
       id={id}
-      data-testid={`sidebar-database-${id}`}
+      data-testid={`sidebar-connection-${id}`}
       level={level}
       setSize={setSize}
       posInSet={posInSet}
@@ -172,7 +172,7 @@ export const ConnectionItem: React.FunctionComponent<
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       style={style}
-      className={databaseItem}
+      className={connectionItem}
       {...hoverProps}
     >
       <ItemWrapper>
@@ -184,7 +184,7 @@ export const ConnectionItem: React.FunctionComponent<
             isExpanded={isExpanded}
           ></ExpandButton>
           {connectionIcon}
-          <ItemLabel className={databaseItemLabel} title={name}>
+          <ItemLabel className={connectionItemLabel} title={name}>
             {name}
           </ItemLabel>
         </ItemButtonWrapper>
@@ -192,7 +192,7 @@ export const ConnectionItem: React.FunctionComponent<
           <ItemActionControls<Actions>
             onAction={onAction}
             isVisible={isActive || isHovered}
-            data-testid="sidebar-database-item-actions"
+            data-testid="sidebar-connection-item-actions"
             collapseToMenuThreshold={3}
             iconSize="small"
             actions={actions}

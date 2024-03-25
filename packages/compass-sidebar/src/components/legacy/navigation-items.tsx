@@ -341,7 +341,7 @@ export function NavigationItems({
                 )}
                 <NavigationItem<DatabasesActions>
                   onAction={onAction}
-                  onClick={openDatabasesWorkspace}
+                  onClick={() => openDatabasesWorkspace('')}
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}
