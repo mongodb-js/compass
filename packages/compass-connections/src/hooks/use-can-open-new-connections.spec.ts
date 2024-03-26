@@ -52,7 +52,7 @@ describe('useCanOpenNewConnections', function () {
 
   async function withConnectionLimit(limit: number) {
     await preferencesAccess.savePreferences({
-      userCanHaveMaximumNumberOfActiveConnections: limit,
+      maximumNumberOfActiveConnections: limit,
     });
   }
   beforeEach(async function () {

@@ -1,4 +1,3 @@
-import { ConnectionsManagerEvents } from '../connections-manager';
 import { useActiveConnections } from './use-active-connections';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -12,7 +11,7 @@ export function useCanOpenNewConnections(): {
 } {
   const activeConnections = useActiveConnections();
   const maximumNumberOfConnectionsOpen =
-    usePreference('userCanHaveMaximumNumberOfActiveConnections') ?? 1;
+    usePreference('maximumNumberOfActiveConnections') ?? 1;
 
   const numberOfConnectionsOpen = activeConnections.length;
   const canOpenNewConnection =
