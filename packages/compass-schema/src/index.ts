@@ -35,6 +35,6 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
   }
 );
 export const CompassSchemaPlugin = {
-  name: 'Schema',
+  name: 'Schema' as const,
   component: CompassSchemaHadronPlugin,
 };

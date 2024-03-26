@@ -17,7 +17,7 @@ describe('tabs behavior', function () {
   function configureStore() {
     return activateWorkspacePlugin(
       {},
-      { globalAppRegistry, instance, dataService },
+      { globalAppRegistry, instance, dataService, logger: {} as any },
       helpers
     ).store;
   }
@@ -46,6 +46,7 @@ describe('tabs behavior', function () {
     collectionRenamed,
     collectionRemoved,
     databaseRemoved,
+    collectionSubtabSelected,
   } = workspacesSlice;
 
   describe('openWorkspace', function () {
@@ -305,6 +306,28 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('tabs').have.lengthOf(0);
       expect(state).to.have.property('tabs').deep.eq([]);
       expect(state).to.have.property('activeTabId', null);
+    });
+  });
+
+  describe('collectionSubtabSelected', function () {
+    it('should select collection subtab', function () {
+      const store = configureStore();
+      openTabs(store);
+
+      const activeTabId = store.getState().activeTabId;
+
+      store.getState().tabs.forEach(({ id }, index) => {
+        store.dispatch(collectionSubtabSelected(id, 'Indexes'));
+        expect(store.getState().tabs[index]).to.have.property(
+          'subTab',
+          'Indexes'
+        );
+
+        expect(
+          store.getState().activeTabId,
+          'it does not change active tab id'
+        ).to.equal(activeTabId);
+      });
     });
   });
 });

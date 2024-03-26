@@ -20,6 +20,7 @@ import {
   CollectionDocumentsStats,
   CollectionIndexesStats,
 } from './collection-tab-stats';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -65,24 +66,52 @@ const TabTitleWithStats = ({
   );
 };
 
-type CollectionTabProps = CollectionTabOptions & {
-  currentTab: string;
+// Props from redux
+type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
-  onTabClick(name: string): void;
   stats: CollectionState['stats'];
+  onTabClick: (tab: CollectionSubtab) => void;
 };
+// Props definition when using the component
+type ConnectionTabExpectedProps = {
+  /**
+   * Initial query to be set in the query bar
+   */
+  initialQuery?: unknown;
+  /**
+   * Initial saved sggregation (stored on disk) to apply to the agg builder
+   */
+  initialAggregation?: unknown;
+  /**
+   * Initial aggregation pipeline to set in the agg builder
+   */
+  initialPipeline?: unknown[];
+  /**
+   * Initial stringified aggregation pipeline to set in the agg builder
+   */
+  initialPipelineText?: string;
+  /**
+   * Name of the tab being edited
+   */
+  subTab: CollectionSubtab;
+};
+
+// All props available to the component
+type CollectionTabProps = Omit<CollectionTabOptions, 'tabId'> &
+  ConnectionTabConnectedProps &
+  ConnectionTabExpectedProps;
 
 const CollectionTabWithMetadata: React.FunctionComponent<
   CollectionTabProps
 > = ({
   namespace,
-  currentTab,
   initialAggregation,
   initialPipeline,
   initialPipelineText,
   initialQuery,
   editViewName,
   collectionMetadata,
+  subTab: currentTab,
   onTabClick,
   stats,
 }) => {
@@ -224,7 +253,6 @@ const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
       namespace: state.namespace,
-      currentTab: state.currentTab,
       collectionMetadata: state.metadata,
       stats: state.stats,
     };
@@ -232,6 +260,8 @@ const ConnectedCollectionTab = connect(
   {
     onTabClick: selectTab,
   }
-)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
+)(CollectionTab) as React.FunctionComponent<
+  CollectionTabOptions & ConnectionTabExpectedProps
+>;
 
 export default ConnectedCollectionTab;

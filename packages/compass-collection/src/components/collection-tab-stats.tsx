@@ -46,7 +46,15 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
         justify="middle"
         delay={500}
         trigger={({ children, ...props }) => (
-          <span {...props}>
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <span
+            {...props}
+            onClick={() => {
+              // We use these stats in the Collection Tab, and LG does not
+              // bubble up the click event to the parent component, so we
+              // add noop onClick and let it bubble up.
+            }}
+          >
             <Badge>{text}</Badge>
             {children}
           </span>

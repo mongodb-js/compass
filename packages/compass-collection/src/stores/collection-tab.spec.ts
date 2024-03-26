@@ -5,6 +5,7 @@ import { waitFor } from '@testing-library/react';
 import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -17,6 +18,7 @@ const defaultMetadata = {
 };
 
 const defaultTabOptions = {
+  tabId: 'workspace-tab-id',
   namespace: defaultMetadata.namespace,
 };
 
@@ -33,7 +35,6 @@ const mockCollection = {
 describe('Collection Tab Content store', function () {
   const sandbox = Sinon.createSandbox();
 
-  const globalAppRegistry = sandbox.spy(new AppRegistry());
   const localAppRegistry = sandbox.spy(new AppRegistry());
   const dataService = {} as any;
   const instance = {
@@ -56,7 +57,8 @@ describe('Collection Tab Content store', function () {
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
   const configureStore = async (
-    options: Partial<CollectionTabOptions> = {}
+    options: Partial<CollectionTabOptions> = {},
+    workspaces: Partial<ReturnType<typeof workspacesServiceLocator>> = {}
   ) => {
     ({ store, deactivate } = activatePlugin(
       {
@@ -65,9 +67,9 @@ describe('Collection Tab Content store', function () {
       },
       {
         dataService,
-        globalAppRegistry,
         localAppRegistry,
         instance,
+        workspaces: workspaces as any,
       },
       { on() {}, cleanup() {} } as any
     ));
@@ -86,9 +88,15 @@ describe('Collection Tab Content store', function () {
 
   describe('selectTab', function () {
     it('should set active tab', async function () {
-      const store = await configureStore();
+      const openCollectionWorkspaceSubtab = sandbox.spy();
+      const store = await configureStore(undefined, {
+        openCollectionWorkspaceSubtab,
+      });
       store.dispatch(selectTab('Documents'));
-      expect(store.getState()).to.have.property('currentTab', 'Documents');
+      expect(openCollectionWorkspaceSubtab).to.have.been.calledWith(
+        'workspace-tab-id',
+        'Documents'
+      );
     });
   });
 });

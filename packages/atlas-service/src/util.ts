@@ -1,5 +1,4 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
-import type { AtlasUserConfig } from './user-config-store';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
 import { createHash } from 'crypto';
@@ -10,7 +9,7 @@ export type AtlasUserInfo = {
   lastName: string;
   primaryEmail: string;
   login: string;
-} & AtlasUserConfig;
+} & { enabledAIFeature: boolean };
 
 export type IntrospectInfo = { active: boolean };
 

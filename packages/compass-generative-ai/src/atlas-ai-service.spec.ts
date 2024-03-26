@@ -29,9 +29,6 @@ class MockAtlasAuthService extends AtlasAuthService {
   async getUserInfo() {
     return Promise.resolve({} as any);
   }
-  async updateUserConfig() {
-    return Promise.resolve();
-  }
   async signIn() {
     return Promise.resolve({} as any);
   }

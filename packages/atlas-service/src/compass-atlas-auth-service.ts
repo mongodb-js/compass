@@ -1,4 +1,3 @@
-import type { AtlasUserConfig } from './user-config-store';
 import { ipcRenderer } from 'hadron-ipc';
 import type { CompassAuthService as AtlasServiceMain } from './main';
 import {
@@ -12,18 +11,12 @@ import type { ArgsWithSignal, SignInPrompt } from './atlas-auth-service';
 export class CompassAtlasAuthService extends AtlasAuthService {
   private _ipc = ipcRenderer?.createInvoke<
     typeof AtlasServiceMain,
-    | 'getUserInfo'
-    | 'isAuthenticated'
-    | 'signIn'
-    | 'signOut'
-    | 'updateAtlasUserConfig'
-    | 'maybeGetToken'
+    'getUserInfo' | 'isAuthenticated' | 'signIn' | 'signOut' | 'maybeGetToken'
   >('AtlasService', [
     'getUserInfo',
     'isAuthenticated',
     'signIn',
     'signOut',
-    'updateAtlasUserConfig',
     'maybeGetToken',
   ]);
 
@@ -61,8 +54,5 @@ export class CompassAtlasAuthService extends AtlasAuthService {
   }
   getUserInfo(opts?: ArgsWithSignal) {
     return this.ipc.getUserInfo(opts);
-  }
-  updateUserConfig(config: AtlasUserConfig) {
-    return this.ipc.updateAtlasUserConfig({ config });
   }
 }

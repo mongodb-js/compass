@@ -3,7 +3,16 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
-import type { AnyWorkspace, Workspace, WorkspacesServices } from '..';
+import type {
+  CollectionWorkspace,
+  CollectionsWorkspace,
+  DatabasesWorkspace,
+  MyQueriesWorkspace,
+  ServerStatsWorkspace,
+  Workspace,
+  WorkspacesServices,
+  CollectionSubtab,
+} from '..';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 
@@ -51,6 +60,7 @@ export enum WorkspacesActions {
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
+  CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
 }
 
 function isAction<A extends AnyAction>(
@@ -60,7 +70,15 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type WorkspaceTab = { id: string } & AnyWorkspace;
+type WorkspaceTabProps =
+  | Omit<MyQueriesWorkspace, 'tabId'>
+  | Omit<ServerStatsWorkspace, 'tabId'>
+  | Omit<DatabasesWorkspace, 'tabId'>
+  | Omit<CollectionsWorkspace, 'tabId'>
+  | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab' | 'tabId'> & {
+      subTab: CollectionSubtab;
+    });
+export type WorkspaceTab = { id: string } & WorkspaceTabProps;
 
 export type CollectionTabInfo = {
   isTimeSeries: boolean;
@@ -92,7 +110,15 @@ export const getInitialTabState = (
   workspace: OpenWorkspaceOptions
 ): WorkspaceTab => {
   const tabId = getTabId();
-  return { id: tabId, ...workspace } as WorkspaceTab;
+  if (workspace.type === 'Collection') {
+    const { initialSubtab, ...restOfWorkspace } = workspace;
+    return {
+      id: tabId,
+      ...restOfWorkspace,
+      subTab: initialSubtab ?? 'Documents',
+    };
+  }
+  return { id: tabId, ...workspace };
 };
 
 const getInitialState = () => {
@@ -104,8 +130,8 @@ const getInitialState = () => {
 };
 
 const isWorkspaceEqual = (
-  t1: AnyWorkspace & Partial<{ id: string }>,
-  t2: AnyWorkspace & Partial<{ id: string }>
+  t1: WorkspaceTabProps & Partial<{ id: string }>,
+  t2: WorkspaceTabProps & Partial<{ id: string }>
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id1, ...ws1 } = t1;
@@ -161,7 +187,7 @@ const reducer: Reducer<WorkspacesState> = (
     // If current tab type is the same as the new one we're trying to open and
     // the workspaces are not equal, replace the current tab with the new one
     if (
-      activeTab?.type === action.workspace.type &&
+      activeTab?.type === newTab.type &&
       !isWorkspaceEqual(activeTab, newTab)
     ) {
       const activeTabIndex = getActiveTabIndex(state);
@@ -180,7 +206,7 @@ const reducer: Reducer<WorkspacesState> = (
       // select when opening a tab, it might be that we don't need to update the
       // state at all
       (activeTab ? [activeTab, ...state.tabs] : state.tabs).find((tab) => {
-        return isWorkspaceEqual(tab, action.workspace);
+        return isWorkspaceEqual(tab, newTab);
       });
     if (existingTab) {
       if (existingTab.id !== state.activeTabId) {
@@ -403,6 +429,30 @@ const reducer: Reducer<WorkspacesState> = (
     };
   }
 
+  if (
+    isAction<CollectionSubtabSelectedAction>(
+      action,
+      WorkspacesActions.CollectionSubtabSelected
+    )
+  ) {
+    const tab = state.tabs.find((tab) => tab.id === action.tabId);
+    if (!tab || (tab.type === 'Collection' && tab.subTab === action.subTab)) {
+      return state;
+    }
+    return {
+      ...state,
+      tabs: state.tabs.map((tab) => {
+        if (tab.id === action.tabId) {
+          return {
+            ...tab,
+            subTab: action.subTab,
+          };
+        }
+        return tab;
+      }),
+    };
+  }
+
   return state;
 };
 
@@ -430,7 +480,7 @@ export type OpenWorkspaceOptions =
           | 'initialPipelineText'
           | 'editViewName'
         >
-      >);
+      > & { initialSubtab?: CollectionSubtab });
 
 type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
@@ -453,42 +503,51 @@ export const openWorkspace = (
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction
 > => {
-  return (dispatch, getState, { instance, dataService }) => {
+  return (dispatch, getState, { instance, dataService, logger }) => {
     const oldTabs = getState().tabs;
-    if (
-      workspaceOptions.type === 'Collection' &&
-      !getState().collectionInfo[workspaceOptions.namespace]
-    ) {
-      // Fetching extra meta for collection should not block tab opening
-      void (async () => {
-        const { database, collection } = toNS(workspaceOptions.namespace);
-        try {
-          const coll = await instance.getNamespace({
-            dataService,
-            database,
-            collection,
-          });
-          if (coll) {
-            await coll.fetch({ dataService });
-            dispatch({
-              type: WorkspacesActions.FetchCollectionTabInfo,
-              namespace: workspaceOptions.namespace,
-              info: {
-                isTimeSeries: coll.isTimeSeries,
-                isReadonly: coll.readonly ?? coll.isView,
-                sourceName: coll.sourceName,
-              },
+    if (workspaceOptions.type === 'Collection') {
+      if (!getState().collectionInfo[workspaceOptions.namespace]) {
+        // Fetching extra metadata for collection should not block tab opening
+        void (async () => {
+          const { database, collection } = toNS(workspaceOptions.namespace);
+          try {
+            const coll = await instance.getNamespace({
+              dataService,
+              database,
+              collection,
             });
+            if (coll) {
+              await coll.fetch({ dataService });
+              dispatch({
+                type: WorkspacesActions.FetchCollectionTabInfo,
+                namespace: workspaceOptions.namespace,
+                info: {
+                  isTimeSeries: coll.isTimeSeries,
+                  isReadonly: coll.readonly ?? coll.isView,
+                  sourceName: coll.sourceName,
+                },
+              });
+            }
+          } catch (err) {
+            logger.debug(
+              'Collection Metadata',
+              logger.mongoLogId(1_001_000_306),
+              'Error fetching collection metadata for tab',
+              { namespace: workspaceOptions.namespace },
+              err
+            );
           }
-        } catch (err) {
-          // It's okay if we failed to fetch this optional metadata, this error
-          // can be ignored
-          if ((err as Error).name === 'MongoServerError') {
-            return;
-          }
-          throw err;
-        }
-      })();
+        })();
+      }
+      const isAggregationsSubtab = Boolean(
+        workspaceOptions?.initialAggregation ||
+          workspaceOptions?.initialPipeline ||
+          workspaceOptions?.initialPipelineText ||
+          workspaceOptions?.editViewName
+      );
+      if (isAggregationsSubtab && !workspaceOptions.initialSubtab) {
+        workspaceOptions.initialSubtab = 'Aggregations';
+      }
     }
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
@@ -605,5 +664,20 @@ export const databaseRemoved = (
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
+
+type CollectionSubtabSelectedAction = {
+  type: WorkspacesActions.CollectionSubtabSelected;
+  tabId: string;
+  subTab: CollectionSubtab;
+};
+
+export const collectionSubtabSelected = (
+  tabId: string,
+  subTab: CollectionSubtab
+): CollectionSubtabSelectedAction => ({
+  type: WorkspacesActions.CollectionSubtabSelected,
+  tabId,
+  subTab,
+});
 
 export default reducer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -77,9 +77,8 @@ export const Breadcrumbs = ({
           );
         }
         return (
-          <>
+          <Fragment key={item.name}>
             <Link
-              key={item.name}
               as="button"
               hideExternalIcon={true}
               className={cx(breadcrumbButtonStyles, textStyles)}
@@ -101,7 +100,7 @@ export const Breadcrumbs = ({
               color={palette.gray.light1}
               className={iconStyles}
             />
-          </>
+          </Fragment>
         );
       })}
     </div>

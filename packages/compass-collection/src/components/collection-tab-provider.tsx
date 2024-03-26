@@ -1,9 +1,10 @@
 import React, { useContext, useRef } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import type { HadronPluginComponent } from 'hadron-app-registry';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 export interface CollectionTabPlugin {
-  name: string;
+  name: CollectionSubtab;
   component: HadronPluginComponent<CollectionTabPluginMetadata, any>;
 }
 

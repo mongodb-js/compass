@@ -9,7 +9,6 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { showOptInConfirmation } from './components/ai-opt-in-confirmation';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -80,25 +79,6 @@ export class AtlasAiService {
     ) {
       throw new Error("Can't use AI before accepting terms and conditions");
     }
-  }
-
-  async enableFeature() {
-    const userInfo = await this.atlasAuthService.getUserInfo();
-    if (userInfo.enabledAIFeature) {
-      return;
-    }
-    const confirmed = await showOptInConfirmation();
-
-    await this.atlasAuthService.updateUserConfig({
-      enabledAIFeature: confirmed,
-    });
-    if (!confirmed) {
-      throw new Error('Terms and conditions were not accepted');
-    }
-  }
-
-  async disableFeature() {
-    await this.atlasAuthService.updateUserConfig({ enabledAIFeature: false });
   }
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {

@@ -35,15 +35,11 @@ describe('IndexesStore [Store]', function () {
         localAppRegistry: localAppRegistry,
         instance: fakeInstance as any,
         dataService: {
-          indexes: (
-            ns: string,
-            options: unknown,
-            callback: (...args: any[]) => void
-          ) => {
-            callback('err', []);
+          indexes: () => {
+            return Promise.resolve([]);
           },
           isConnected: () => true,
-        } as IndexesDataService,
+        } as unknown as IndexesDataService,
         logger: createNoopLoggerAndTelemetry(),
       },
       createActivateHelpers()
@@ -100,6 +96,34 @@ describe('IndexesStore [Store]', function () {
     it('dispatches the load indexes action', function () {
       localAppRegistry.emit('refresh-data');
       expect(store.getState().regularIndexes.indexes).to.deep.equal([]);
+    });
+  });
+
+  context('in-progress-indexes-added', function () {
+    it('dispatches the load indexes action', function (done) {
+      // so it will actually merge
+      store.getState().isReadonlyView = false;
+
+      const newIndex = {
+        id: 'my-new-index',
+        key: { description: 'text' },
+        fields: [{ field: 'description', value: 'text' }],
+        name: 'description_text',
+        ns: 'my_collection',
+        size: 1,
+        relativeSize: 2,
+        usageCount: 3,
+        extra: {
+          status: 'inprogress',
+        },
+      };
+
+      localAppRegistry.once('indexes-changed', (allIndexes) => {
+        expect(allIndexes).to.deep.equal([newIndex]);
+        done();
+      });
+
+      localAppRegistry.emit('in-progress-indexes-added', newIndex);
     });
   });
 });

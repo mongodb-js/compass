@@ -7,7 +7,11 @@ export function stringifyBSON(value: any) {
     return value.inspect();
   }
   if (value?.toISOString) {
-    return value.toISOString();
+    try {
+      return value.toISOString();
+    } catch {
+      return String(value);
+    }
   }
   return EJSON.stringify(value);
 }
@@ -29,7 +33,11 @@ export function unBSON(value: any | any[]): any | any[] {
     return value.toString();
   } else if (Object.prototype.toString.call(value) === '[object Date]') {
     // make sure dates are consistently strings when diffing
-    return value.toISOString();
+    try {
+      return value.toISOString();
+    } catch {
+      return String(value);
+    }
   } else {
     return value;
   }

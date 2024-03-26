@@ -57,16 +57,4 @@ describe('CompassAtlasAuthService', function () {
     expect(res).to.deep.equal({ id: 1 });
     expect(getUserInfoStub.calledOnce).to.be.true;
   });
-
-  it('calls updateUserConfig on ipc', async function () {
-    const updateUserConfigStub = sandbox.stub();
-    const atlasAuthService = getAtlasAuthService({
-      updateAtlasUserConfig: updateUserConfigStub,
-    });
-    await atlasAuthService.updateUserConfig({ enabledAIFeature: false });
-    expect(updateUserConfigStub.calledOnce).to.be.true;
-    expect(updateUserConfigStub.firstCall.firstArg).to.deep.equal({
-      config: { enabledAIFeature: false },
-    });
-  });
 });

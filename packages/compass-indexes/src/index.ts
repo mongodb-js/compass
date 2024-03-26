@@ -43,7 +43,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
 );
 
 export const CompassIndexesPlugin = {
-  name: 'Indexes',
+  name: 'Indexes' as const,
   component: CompassIndexesHadronPlugin,
 };
 

@@ -5,7 +5,6 @@ import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { AtlasUserConfigStore } from './user-config-store';
 import * as util from './util';
 
 function getListenerCount(emitter: EventEmitter) {
@@ -37,11 +36,6 @@ describe('CompassAuthServiceMain', function () {
     }[url];
   });
 
-  const mockUserConfigStore = {
-    getUserConfig: sandbox.stub().resolves({}),
-    updateUserConfig: sandbox.stub().resolves(),
-  };
-
   const mockOidcPlugin = {
     mongoClientOptions: {
       authMechanismProperties: {
@@ -71,7 +65,6 @@ describe('CompassAuthServiceMain', function () {
   const fetch = CompassAuthService['fetch'];
   const ipcMain = CompassAuthService['ipcMain'];
   const createPlugin = CompassAuthService['createMongoDBOIDCPlugin'];
-  const userStore = CompassAuthService['atlasUserConfigStore'];
   const authConfig = CompassAuthService['config'];
   let preferences: PreferencesAccess;
 
@@ -91,8 +84,6 @@ describe('CompassAuthServiceMain', function () {
     };
     CompassAuthService['fetch'] = mockFetch as any;
     CompassAuthService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
-    CompassAuthService['atlasUserConfigStore'] =
-      mockUserConfigStore as unknown as AtlasUserConfigStore;
 
     CompassAuthService['config'] = defaultConfig;
 
@@ -111,7 +102,6 @@ describe('CompassAuthServiceMain', function () {
   // eslint-disable-next-line @typescript-eslint/require-await
   afterEach(async function () {
     CompassAuthService['fetch'] = fetch;
-    CompassAuthService['atlasUserConfigStore'] = userStore;
     CompassAuthService['ipcMain'] = ipcMain;
     CompassAuthService['initPromise'] = null;
     CompassAuthService['createMongoDBOIDCPlugin'] = createPlugin;
@@ -339,7 +329,7 @@ describe('CompassAuthServiceMain', function () {
       } as any;
       await CompassAuthService.init(preferences);
       CompassAuthService['config'] = defaultConfig;
-      expect(getListenerCount(logger)).to.eq(28);
+      expect(getListenerCount(logger)).to.eq(27);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
