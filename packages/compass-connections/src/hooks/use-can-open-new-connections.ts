@@ -1,9 +1,6 @@
-import { useConnectionsManagerContext } from '../provider';
 import { ConnectionsManagerEvents } from '../connections-manager';
-
-import { useEffect, useState } from 'react';
+import { useActiveConnections } from './use-active-connections';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useAllSavedConnections } from './use-all-saved-connections';
 
 export type CanNotOpenConnectionReason = 'maximum-number-exceeded';
 
@@ -13,52 +10,16 @@ export function useCanOpenNewConnections(): {
   canOpenNewConnection: boolean;
   canNotOpenReason?: CanNotOpenConnectionReason;
 } {
-  const connectionManager = useConnectionsManagerContext();
-
-  const { favorites, nonFavorites } = useAllSavedConnections();
+  const activeConnections = useActiveConnections();
   const maximumNumberOfConnectionsOpen =
     usePreference('userCanHaveMaximumNumberOfActiveConnections') ?? 1;
 
-  const [numberOfConnectionsOpen, setNumberOfConnectionsOpen] = useState(0);
-  const [canOpenNewConnection, setCanOpenNewConnection] = useState(false);
-  const [canNotOpenReason, setCanNotOpenReason] = useState<
-    CanNotOpenConnectionReason | undefined
-  >(undefined);
-
-  useEffect(() => {
-    function refreshFilterStatus() {
-      let openConnections = 0;
-      for (const { id } of [...favorites, ...nonFavorites]) {
-        if (connectionManager.statusOf(id) === 'connected') {
-          openConnections++;
-        }
-      }
-
-      const canOpen = openConnections < maximumNumberOfConnectionsOpen;
-      const canNotOpenReason = !canOpen ? 'maximum-number-exceeded' : undefined;
-
-      setNumberOfConnectionsOpen(openConnections);
-      setCanOpenNewConnection(canOpen);
-      setCanNotOpenReason(canNotOpenReason);
-    }
-
-    refreshFilterStatus();
-
-    for (const event of Object.values(ConnectionsManagerEvents)) {
-      connectionManager.on(event, refreshFilterStatus);
-    }
-
-    return () => {
-      for (const event of Object.values(ConnectionsManagerEvents)) {
-        connectionManager.off(event, refreshFilterStatus);
-      }
-    };
-  }, [
-    connectionManager,
-    favorites,
-    nonFavorites,
-    maximumNumberOfConnectionsOpen,
-  ]);
+  const numberOfConnectionsOpen = activeConnections.length;
+  const canOpenNewConnection =
+    numberOfConnectionsOpen < maximumNumberOfConnectionsOpen;
+  const canNotOpenReason = !canOpenNewConnection
+    ? 'maximum-number-exceeded'
+    : undefined;
 
   return {
     numberOfConnectionsOpen,
