@@ -28,10 +28,10 @@ export async function clickVisible(
     await browser.pause(1000);
   }
 
-  const clickElement = getElement();
   if (options?.screenshot) {
     await browser.screenshot(options.screenshot);
   }
+  const clickElement = getElement();
   if (await clickElement.isEnabled()) {
     await clickElement.click();
   } else {
