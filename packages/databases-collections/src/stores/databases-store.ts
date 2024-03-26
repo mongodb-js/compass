@@ -17,7 +17,7 @@ type DatabasesTabServices = {
 };
 
 export function activatePlugin(
-  _initialProps: Record<string, never>,
+  _initialProps: { namespace?: string },
   { globalAppRegistry, instance, dataService }: DatabasesTabServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
