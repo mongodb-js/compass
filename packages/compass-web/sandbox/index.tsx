@@ -147,7 +147,7 @@ const App = () => {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
     const [, tab, namespace = '', subTab] = window.location.pathname.split('/');
     if (tab === 'databases') {
-      return { type: 'Databases' };
+      return { type: 'Databases', namespace: '' };
     }
     if (tab === 'collections' && namespace) {
       return { type: 'Collections', namespace };
@@ -159,7 +159,7 @@ const App = () => {
         initialSubtab: getCollectionSubTab(subTab),
       };
     }
-    return { type: 'Databases' };
+    return { type: 'Databases', namespace: '' };
   });
   const [connectionsHistory, setConnectionsHistory] = useState<
     ConnectionInfo[]
