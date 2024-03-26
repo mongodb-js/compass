@@ -13,11 +13,12 @@ const placeholderItem = css({
 
 export const PlaceholderItem: React.FunctionComponent<{
   level: number;
+  isLegacy?: boolean;
   style?: CSSProperties;
-}> = ({ level, style }) => {
+}> = ({ level, style, isLegacy }) => {
   const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isPlaceholder: true }),
-    [level]
+    () => getItemPaddingClass({ level, isPlaceholder: true, isLegacy }),
+    [level, isLegacy]
   );
 
   return (

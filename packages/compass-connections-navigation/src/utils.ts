@@ -28,7 +28,7 @@ export const getItemPaddingClass = ({
   }
 
   if (isPlaceholder && (level === 1 || (!isLegacy && level === 2))) {
-    paddingLeft += spacing[1];
+    paddingLeft += spacing[2];
   }
 
   return css({ paddingLeft });
