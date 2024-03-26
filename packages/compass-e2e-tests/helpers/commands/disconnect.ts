@@ -26,7 +26,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     }
   }
 
-  await delay(200);
+  await delay(100);
 
   await browser.execute(() => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -37,5 +37,5 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
   await element.waitForDisplayed();
 
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-  await delay(200);
+  await delay(100);
 }
