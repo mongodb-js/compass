@@ -22,6 +22,10 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
+import { createSidebarStore } from '../../stores';
+import { Provider } from 'react-redux';
+import AppRegistry from 'hadron-app-registry';
+import { createInstance } from '../../../test/helpers';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -72,6 +76,10 @@ describe('Multiple Connections Sidebar Component', function () {
     save: stub(),
     delete: stub(),
   };
+  const instance = createInstance();
+  const globalAppRegistry = new AppRegistry();
+  let store: ReturnType<typeof createSidebarStore>['store'];
+  let deactivate: () => void;
 
   const connectFn = stub();
 
@@ -81,12 +89,27 @@ describe('Multiple Connections Sidebar Component', function () {
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
     });
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        dataService: {
+          getConnectionOptions() {
+            return {};
+          },
+          currentOp() {},
+          top() {},
+        },
+        instance,
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} } as any
+    ));
 
     return render(
       <ToastArea>
         <ConnectionStorageProvider value={storage}>
           <ConnectionsManagerProvider value={connectionManager}>
-            <MultipleConnectionSidebar />
+            <MultipleConnectionSidebar activeWorkspace={{ type: 'connection' }} />
           </ConnectionsManagerProvider>
         </ConnectionStorageProvider>
       </ToastArea>
@@ -105,6 +128,7 @@ describe('Multiple Connections Sidebar Component', function () {
     connectionStorage.save.reset();
     connectionStorage.delete.reset();
 
+    deactivate();
     cleanup();
   });
 

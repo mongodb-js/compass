@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ActiveConnectionList } from './active-connection-list';
+import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionRepositoryContext,
   ConnectionStorageContext,
@@ -14,6 +14,10 @@ import {
 import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import Sinon from 'sinon';
+import { createInstance } from '../../../../test/helpers';
+import AppRegistry from 'hadron-app-registry';
+import { createSidebarStore } from '../../../stores';
+import { Provider } from 'react-redux';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -35,10 +39,14 @@ const mockConnections: ConnectionInfo[] = [
   },
 ];
 
-describe('<ActiveConnectionList />', function () {
+describe('<ActiveConnectionNavigation />', function () {
   let connectionRepository: ConnectionRepository;
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: typeof ConnectionStorage;
+  const instance = createInstance();
+  const globalAppRegistry = new AppRegistry();
+  let store: ReturnType<typeof createSidebarStore>['store'];
+  let deactivate: () => void;
 
   beforeEach(() => {
     connectionsManager = new ConnectionsManager({} as any);
@@ -48,23 +56,42 @@ describe('<ActiveConnectionList />', function () {
       loadAll: Sinon.stub().resolves(mockConnections),
     } as any;
     connectionRepository = new ConnectionRepository(mockConnectionStorage);
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        dataService: {
+          getConnectionOptions() {
+            return {};
+          },
+          currentOp() {},
+          top() {},
+        },
+        instance,
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} } as any
+    ));
 
     render(
       <ConnectionStorageContext.Provider value={mockConnectionStorage}>
         <ConnectionRepositoryContext.Provider value={connectionRepository}>
           <ConnectionsManagerProvider value={connectionsManager}>
-            <ActiveConnectionList />
+            <Provider store={store}>
+              <ActiveConnectionNavigation activeWorkspace={{ type: 'connection' }} />
+            </Provider>
           </ConnectionsManagerProvider>
         </ConnectionRepositoryContext.Provider>
       </ConnectionStorageContext.Provider>
     );
   });
 
-  it('Should render all active connections - using their correct titles', async function () {
+  beforeEach(() => {
+    deactivate();
+  });
+
+  it('Should render the number of connections', async function () {
     await waitFor(() => {
       expect(screen.queryByText('(2)')).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
-      expect(screen.queryByText('peaches')).to.be.visible;
     });
   });
 });

@@ -23,7 +23,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getItemLevelPaddingClass } from './utils';
+import { getItemPaddingClass } from './utils';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -71,6 +71,11 @@ export const CollectionItem: React.FunctionComponent<
     'enableRenameCollectionModal'
   );
   const [hoverProps, isHovered] = useHoverState();
+
+  const itemPaddingClass = useMemo(
+    () => getItemPaddingClass({ level, isLegacy: level === 2 }),
+    [level]
+  );
 
   const onDefaultAction = useCallback(
     (evt) => {
@@ -163,9 +168,7 @@ export const CollectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper
-          className={cx(itemButtonWrapper, getItemLevelPaddingClass(level))}
-        >
+        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
           <CollectionIcon type={type} />
           <ItemLabel className={collectionItemLabel} title={name}>
             {name}

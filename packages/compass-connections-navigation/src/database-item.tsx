@@ -22,7 +22,7 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
-import { getItemLevelPaddingClass } from './utils';
+import { getItemPaddingClass } from './utils';
 
 const buttonReset = css({
   padding: 0,
@@ -105,6 +105,11 @@ export const DatabaseItem: React.FunctionComponent<
 }) => {
   const [hoverProps, isHovered] = useHoverState();
 
+  const itemPaddingClass = useMemo(
+    () => getItemPaddingClass({ level, isLegacy: level === 1 }),
+    [level]
+  );
+
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
       evt.stopPropagation();
@@ -161,9 +166,7 @@ export const DatabaseItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper
-          className={cx(itemButtonWrapper, getItemLevelPaddingClass(level))}
-        >
+        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}
