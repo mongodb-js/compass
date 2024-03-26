@@ -58,6 +58,7 @@ function NonGenuineZeroState() {
 }
 
 type DatabasesProps = {
+  namespace?: string;
   databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
   databasesLoadingError: string | null;
@@ -142,7 +143,7 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases) as React.FunctionComponent<Record<string, never>>;
+)(Databases);
 
 export default ConnectedDatabases;
 export { Databases };
