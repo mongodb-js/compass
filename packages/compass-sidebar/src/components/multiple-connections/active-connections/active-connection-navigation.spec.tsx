@@ -77,7 +77,9 @@ describe('<ActiveConnectionNavigation />', function () {
         <ConnectionRepositoryContext.Provider value={connectionRepository}>
           <ConnectionsManagerProvider value={connectionsManager}>
             <Provider store={store}>
-              <ActiveConnectionNavigation activeWorkspace={{ type: 'connection' }} />
+              <ActiveConnectionNavigation
+                activeWorkspace={{ type: 'connection' }}
+              />
             </Provider>
           </ConnectionsManagerProvider>
         </ConnectionRepositoryContext.Provider>

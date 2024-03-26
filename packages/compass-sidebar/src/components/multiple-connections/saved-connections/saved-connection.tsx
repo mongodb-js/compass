@@ -12,7 +12,6 @@ import {
   ItemActionControls,
   useHoverState,
   useToast,
-  useDarkMode,
   palette,
 } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from '../../with-status-marker';
