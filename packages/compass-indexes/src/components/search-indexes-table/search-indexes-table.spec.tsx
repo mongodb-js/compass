@@ -7,16 +7,17 @@ import {
   within,
   waitFor,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Document } from 'mongodb';
-
 import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
 } from './../../../test/fixtures/search-indexes';
+import { mockSearchIndex } from '../../../test/helpers';
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
@@ -198,6 +199,72 @@ describe('SearchIndexesTable Component', function () {
         },
         { timeout: testPollingInterval * 1.5 }
       );
+    });
+  });
+
+  describe('sorting', function () {
+    function getIndexNames() {
+      return screen.getAllByTestId('search-indexes-name-field').map((el) => {
+        return el.textContent!.trim();
+      });
+    }
+
+    function clickSort(label: string) {
+      userEvent.click(screen.getByRole('button', { name: `Sort by ${label}` }));
+    }
+
+    it('sorts table by name', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b' }),
+          mockSearchIndex({ name: 'a' }),
+          mockSearchIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by type', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b', type: 'vector search' }),
+          mockSearchIndex({ name: 'a', type: 'search' }),
+          mockSearchIndex({ name: 'c', type: 'vector search' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by status', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b', status: 'FAILED' }),
+          mockSearchIndex({ name: 'a', status: 'BUILDING' }),
+          mockSearchIndex({ name: 'c', status: 'READY' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
   });
 });

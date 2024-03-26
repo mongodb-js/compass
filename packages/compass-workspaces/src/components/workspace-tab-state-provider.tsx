@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
-import { Provider, createSelectorHook } from 'react-redux';
+import { Provider, createSelectorHook, createStoreHook } from 'react-redux';
 import type { AnyAction } from 'redux';
 import { createStore } from 'redux';
 
@@ -19,31 +19,37 @@ const CLEANUP_TAB_STATE =
 
 const RESET = 'compass-workspaces/workspace-tab-state-provider/RESET';
 
+function createTabStore() {
+  return createStore(
+    (state: TabState = Object.create(null), action: AnyAction) => {
+      if (action.type === SET_STATE) {
+        return {
+          ...state,
+          [action.tabId]: {
+            ...state[action.tabId],
+            [action.stateId]: action.value,
+          },
+        };
+      }
+      if (action.type === CLEANUP_TAB_STATE) {
+        delete state[action.tabId];
+        return { ...state };
+      }
+      if (action.type === RESET) {
+        return Object.create(null);
+      }
+      return state;
+    }
+  );
+}
+
+type TabStateStore = ReturnType<typeof createTabStore>;
+
 /**
  * Exported for testing purposes only
  * @internal
  */
-export const tabStateStore = createStore(
-  (state: TabState = Object.create(null), action: AnyAction) => {
-    if (action.type === SET_STATE) {
-      return {
-        ...state,
-        [action.tabId]: {
-          ...state[action.tabId],
-          [action.stateId]: action.value,
-        },
-      };
-    }
-    if (action.type === CLEANUP_TAB_STATE) {
-      delete state[action.tabId];
-      return { ...state };
-    }
-    if (action.type === RESET) {
-      return Object.create(null);
-    }
-    return state;
-  }
-);
+export const tabStateStore = createTabStore();
 
 export function cleanupTabState(tabId: string) {
   tabStateStore.dispatch({ type: CLEANUP_TAB_STATE, tabId });
@@ -105,6 +111,8 @@ function useWorkspaceTabId() {
   return tabId;
 }
 
+const useStore: () => TabStateStore = createStoreHook(TabStateStoreContext);
+
 const useSelector: TypedUseSelectorHook<TabState> =
   createSelectorHook(TabStateStoreContext);
 
@@ -117,7 +125,11 @@ function selectTabState<S>(state: TabState, tabId: string, key: string) {
 /**
  * useSelector but with a state fallback for testing environment
  */
-function useTabStateSelector<S>(tabId: string, key: string): S {
+function useTabStateSelector<S>(
+  tabId: string,
+  key: string,
+  store: TabStateStore
+): S {
   try {
     return useSelector((state) => {
       return selectTabState<S>(state, tabId, key);
@@ -135,11 +147,11 @@ function useTabStateSelector<S>(tabId: string, key: string): S {
       /* eslint-disable react-hooks/rules-of-hooks */
       const [, forceUpdate] = useState({});
       useEffect(() => {
-        return tabStateStore.subscribe(() => {
+        return store.subscribe(() => {
           forceUpdate({});
         });
-      }, []);
-      return selectTabState(tabStateStore.getState(), tabId, key);
+      }, [store]);
+      return selectTabState(store.getState(), tabId, key);
       /* eslint-enable react-hooks/rules-of-hooks */
     }
     throw err;
@@ -163,18 +175,40 @@ export function useTabState<S>(
 ): [S, SetState<S>] {
   const keyRef = useRef(key);
   const tabIdRef = useRef(useWorkspaceTabId());
+  const storeRef = useRef(
+    (() => {
+      try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        return useStore();
+      } catch (err) {
+        // This will throw when Redux provider is not available in the React
+        // context. In that case, if we are in the test environment we'll create
+        // a new store instance to make sure that state changes are not actually
+        // persisted between test suites but the tests are still able to run
+        if (
+          process.env.NODE_ENV === 'test' &&
+          /could not find react-redux context value/.test(
+            (err as Error).message
+          )
+        ) {
+          return createTabStore();
+        }
+        throw err;
+      }
+    })()
+  );
   const setState: SetState<S> = useCallback((newState) => {
     const newVal =
       typeof newState === 'function'
         ? (newState as (prevState: S) => S)(
             selectTabState<S>(
-              tabStateStore.getState(),
+              storeRef.current.getState(),
               tabIdRef.current,
               keyRef.current
             )
           )
         : newState;
-    tabStateStore.dispatch({
+    storeRef.current.dispatch({
       type: SET_STATE,
       tabId: tabIdRef.current,
       stateId: keyRef.current,
@@ -186,7 +220,7 @@ export function useTabState<S>(
     handledInitialState.current = true;
     if (
       !Object.prototype.hasOwnProperty.call(
-        tabStateStore.getState()[tabIdRef.current] ?? {},
+        storeRef.current.getState()[tabIdRef.current] ?? {},
         keyRef.current
       )
     ) {
@@ -198,6 +232,10 @@ export function useTabState<S>(
       setState(initialState);
     }
   }
-  const state = useTabStateSelector<S>(tabIdRef.current, keyRef.current);
+  const state = useTabStateSelector<S>(
+    tabIdRef.current,
+    keyRef.current,
+    storeRef.current
+  );
   return [state, setState];
 }

@@ -5,6 +5,7 @@ import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
+import { mockRegularIndex } from '../../../test/helpers';
 
 const indexes = [
   {
@@ -92,21 +93,6 @@ const indexes = [
     usageCount: 25,
   },
 ] as RegularIndex[];
-
-function mockIndex(info: Partial<RegularIndex>): RegularIndex {
-  return {
-    ns: 'test.test',
-    name: '_id_1',
-    key: {},
-    fields: [],
-    size: 0,
-    relativeSize: 0,
-    ...info,
-    extra: {
-      ...info.extra,
-    },
-  };
-}
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
@@ -208,7 +194,7 @@ describe('RegularIndexesTable Component', function () {
     });
   });
 
-  describe.only('sorting', function () {
+  describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('indexes-name-field').map((el) => {
         return el.textContent!.trim();
@@ -222,9 +208,9 @@ describe('RegularIndexesTable Component', function () {
     it('sorts table by name', function () {
       renderIndexList({
         indexes: [
-          mockIndex({ name: 'b' }),
-          mockIndex({ name: 'a' }),
-          mockIndex({ name: 'c' }),
+          mockRegularIndex({ name: 'b' }),
+          mockRegularIndex({ name: 'a' }),
+          mockRegularIndex({ name: 'c' }),
         ],
       });
 
@@ -240,9 +226,9 @@ describe('RegularIndexesTable Component', function () {
     it('sorts table by type', function () {
       renderIndexList({
         indexes: [
-          mockIndex({ name: 'b' }),
-          mockIndex({ name: 'a' }),
-          mockIndex({ name: 'c' }),
+          mockRegularIndex({ name: 'b' }),
+          mockRegularIndex({ name: 'a' }),
+          mockRegularIndex({ name: 'c' }),
         ],
       });
 
@@ -258,9 +244,9 @@ describe('RegularIndexesTable Component', function () {
     it('sorts table by size', function () {
       renderIndexList({
         indexes: [
-          mockIndex({ name: 'b', size: 5 }),
-          mockIndex({ name: 'a', size: 1 }),
-          mockIndex({ name: 'c', size: 10 }),
+          mockRegularIndex({ name: 'b', size: 5 }),
+          mockRegularIndex({ name: 'a', size: 1 }),
+          mockRegularIndex({ name: 'c', size: 10 }),
         ],
       });
 
@@ -276,9 +262,9 @@ describe('RegularIndexesTable Component', function () {
     it('sorts table by usage', function () {
       renderIndexList({
         indexes: [
-          mockIndex({ name: 'b', usageCount: 5 }),
-          mockIndex({ name: 'a', usageCount: 0 }),
-          mockIndex({ name: 'c', usageCount: 10 }),
+          mockRegularIndex({ name: 'b', usageCount: 5 }),
+          mockRegularIndex({ name: 'a', usageCount: 0 }),
+          mockRegularIndex({ name: 'c', usageCount: 10 }),
         ],
       });
 
@@ -294,9 +280,9 @@ describe('RegularIndexesTable Component', function () {
     it('sorts table by properties', function () {
       renderIndexList({
         indexes: [
-          mockIndex({ name: 'b', properties: ['sparse'] }),
-          mockIndex({ name: 'a', properties: ['partial'] }),
-          mockIndex({
+          mockRegularIndex({ name: 'b', properties: ['sparse'] }),
+          mockRegularIndex({ name: 'a', properties: ['partial'] }),
+          mockRegularIndex({
             name: 'c',
             cardinality: 'compound',
             properties: ['ttl'],
