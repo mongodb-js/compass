@@ -7,6 +7,7 @@ import {
   cx,
   ItemActionControls,
   Icon,
+  ServerIcon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { CONNECTION_ROW_HEIGHT } from './constants';
@@ -163,7 +164,7 @@ export const ConnectionItem: React.FunctionComponent<
   ) : isFavorite ? (
     <Icon size={spacing[3]} className={iconStyles} glyph="Favorite" />
   ) : (
-    <div>SERVER</div>
+    <ServerIcon />
   );
 
   return (
