@@ -317,7 +317,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -340,7 +339,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -363,7 +361,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
