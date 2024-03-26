@@ -103,6 +103,7 @@ export const ConnectionItem: React.FunctionComponent<
   isExpanded,
   isActive,
   isReadOnly,
+  isLegacy,
   isTabbable,
   style,
   connectionInfo,
@@ -118,8 +119,8 @@ export const ConnectionItem: React.FunctionComponent<
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
 
   const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level }),
-    [level]
+    () => getItemPaddingClass({ level, isLegacy }),
+    [level, isLegacy]
   );
 
   const onExpandButtonClick = useCallback(

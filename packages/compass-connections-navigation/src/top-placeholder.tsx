@@ -6,11 +6,17 @@ const placeholderList = css({
   maskImage: 'linear-gradient(to bottom, black 30%, transparent 95%)',
 });
 
-export const TopPlaceholder: React.FunctionComponent = () => {
+export const TopPlaceholder: React.FunctionComponent<{
+  isLegacy?: boolean;
+}> = ({ isLegacy }) => {
   const items = useMemo(() => {
     return Array.from({ length: 10 }, (_, idx) => (
-      <PlaceholderItem key={idx} level={1}></PlaceholderItem>
+      <PlaceholderItem
+        key={idx}
+        level={1}
+        isLegacy={isLegacy}
+      ></PlaceholderItem>
     ));
-  }, []);
+  }, [isLegacy]);
   return <div className={placeholderList}>{items}</div>;
 };

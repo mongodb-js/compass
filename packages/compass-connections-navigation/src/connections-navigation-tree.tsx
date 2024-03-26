@@ -95,6 +95,7 @@ type TreeItem =
 type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
+  isLegacy?: boolean;
   activeNamespace?: string;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
@@ -256,6 +257,7 @@ const NavigationItem = memo<{
 }>(function NavigationItem({ index, style, data }) {
   const {
     items,
+    isLegacy,
     isReadOnly,
     activeNamespace,
     currentTabbable,
@@ -271,6 +273,7 @@ const NavigationItem = memo<{
       <ConnectionItem
         style={style}
         isReadOnly={isReadOnly}
+        isLegacy={isLegacy}
         isActive={itemData.id === activeNamespace}
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -285,6 +288,7 @@ const NavigationItem = memo<{
       <DatabaseItem
         style={style}
         isReadOnly={isReadOnly}
+        isLegacy={isLegacy}
         isActive={itemData.id === activeNamespace}
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -305,6 +309,7 @@ const NavigationItem = memo<{
             itemData.type !== 'placeholder' && (
               <CollectionItem
                 isReadOnly={isReadOnly}
+                isLegacy={isLegacy}
                 isActive={itemData.id === activeNamespace}
                 isTabbable={itemData.id === currentTabbable}
                 onNamespaceAction={onNamespaceAction}
@@ -314,7 +319,10 @@ const NavigationItem = memo<{
           );
         }}
         fallback={() => (
-          <PlaceholderItem level={itemData.level}></PlaceholderItem>
+          <PlaceholderItem
+            level={itemData.level}
+            isLegacy={isLegacy}
+          ></PlaceholderItem>
         )}
       ></FadeInPlaceholder>
     </div>
@@ -330,7 +338,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   databasesLegacy?: Database[];
   expanded?: Record<string, false | Record<string, boolean>>;
   expandedLegacy?: Record<string, boolean>;
-  onConnectionExpand(id: string, isExpanded: boolean): void;
+  onConnectionExpand?(id: string, isExpanded: boolean): void;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
@@ -341,7 +349,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   expanded = {},
   expandedLegacy = {},
   activeNamespace = '',
-  // onConnectionExpand only has a default to support legacy version
+  // onConnectionExpand only has a default to support legacy usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
   onDatabaseExpand,
@@ -359,6 +367,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
 }) => {
   const listRef = useRef<List | null>(null);
   const id = useId();
+
+  const isLegacy = !!databasesLegacy;
 
   useEffect(() => {
     if (activeNamespace) {
@@ -432,6 +442,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
     return {
       items,
       isReadOnly,
+      isLegacy,
       activeNamespace,
       currentTabbable,
       onNamespaceAction,
@@ -441,6 +452,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   }, [
     items,
     isReadOnly,
+    isLegacy,
     activeNamespace,
     currentTabbable,
     onNamespaceAction,
@@ -502,7 +514,7 @@ const contentContainer = css({
 
 const NavigationWithPlaceholder: React.FunctionComponent<
   { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
-> = ({ isReady, ...props }) => {
+> = ({ isReady, databasesLegacy, ...props }) => {
   return (
     <FadeInPlaceholder
       className={container}
@@ -510,11 +522,14 @@ const NavigationWithPlaceholder: React.FunctionComponent<
       isContentReady={isReady}
       content={() => {
         return (
-          <ConnectionsNavigationTree {...props}></ConnectionsNavigationTree>
+          <ConnectionsNavigationTree
+            databasesLegacy={databasesLegacy}
+            {...props}
+          ></ConnectionsNavigationTree>
         );
       }}
       fallback={() => {
-        return <TopPlaceholder></TopPlaceholder>;
+        return <TopPlaceholder isLegacy={!!databasesLegacy}></TopPlaceholder>;
       }}
     ></FadeInPlaceholder>
   );

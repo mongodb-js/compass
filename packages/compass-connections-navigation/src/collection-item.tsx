@@ -63,6 +63,7 @@ export const CollectionItem: React.FunctionComponent<
   setSize,
   isActive,
   isReadOnly,
+  isLegacy,
   isTabbable,
   style,
   onNamespaceAction,
@@ -73,8 +74,8 @@ export const CollectionItem: React.FunctionComponent<
   const [hoverProps, isHovered] = useHoverState();
 
   const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isLegacy: level === 2 }),
-    [level]
+    () => getItemPaddingClass({ level, isLegacy }),
+    [level, isLegacy]
   );
 
   const onDefaultAction = useCallback(
