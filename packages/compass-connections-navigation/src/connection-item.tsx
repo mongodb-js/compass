@@ -23,7 +23,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { getItemLevelPaddingClass } from './utils';
+import { getItemPaddingClass } from './utils';
 
 const buttonReset = css({
   padding: 0,
@@ -117,6 +117,11 @@ export const ConnectionItem: React.FunctionComponent<
     );
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
 
+  const itemPaddingClass = useMemo(
+    () => getItemPaddingClass({ level }),
+    [level]
+  );
+
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
       evt.stopPropagation();
@@ -176,9 +181,7 @@ export const ConnectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper
-          className={cx(itemButtonWrapper, getItemLevelPaddingClass(level))}
-        >
+        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}

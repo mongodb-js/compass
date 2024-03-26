@@ -1,18 +1,35 @@
 import { css, spacing } from '@mongodb-js/compass-components';
 
-export const getItemLevelPaddingClass = (level: number) => {
+export const getItemPaddingClass = ({
+  level,
+  isPlaceholder,
+  isLegacy,
+}: {
+  level: number;
+  isPlaceholder?: boolean;
+  isLegacy?: boolean;
+}) => {
+  let paddingLeft = 0;
   switch (level) {
     case 1:
-      return css({
-        paddingLeft: spacing[2],
-      });
+      if (isLegacy) {
+        paddingLeft = spacing[2];
+      }
+      break;
     case 2:
-      return css({
-        paddingLeft: spacing[2] + spacing[3],
-      });
+      paddingLeft = spacing[3];
+      if (isLegacy) {
+        paddingLeft = spacing[6];
+      }
+      break;
     case 3:
-      return css({
-        paddingLeft: spacing[2] + spacing[3] + spacing[5],
-      });
+      paddingLeft = spacing[3] + spacing[5];
+      break;
   }
+
+  if (isPlaceholder && (level === 1 || (!isLegacy && level === 2))) {
+    paddingLeft += spacing[1];
+  }
+
+  return css({ paddingLeft });
 };

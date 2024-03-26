@@ -16,6 +16,12 @@ import {
 } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  Subtitle,
+  css,
+  palette,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -27,6 +33,31 @@ function findCollection(ns: string, databases: Database[]) {
   );
 }
 
+const activeConnectionsContainerStyles = css({
+  height: '100%',
+  padding: `${spacing[2]}px ${spacing[3]}px`,
+  borderTop: `1px solid ${palette.gray.light2}`,
+});
+
+const activeConnectionListHeaderStyles = css({
+  flexGrow: 0,
+  display: 'flex',
+  flexDirection: 'row',
+  alignContent: 'center',
+  justifyContent: 'space-between',
+});
+
+const activeConnectionListHeaderTitleStyles = css({
+  marginTop: 0,
+  marginBottom: 0,
+  textTransform: 'uppercase',
+  fontSize: '12px',
+});
+
+const activeConnectionCountStyles = css({
+  fontWeight: 'normal',
+});
+
 function ActiveConnectionNavigation({
   // isDataLake,
   // isWritable,
@@ -37,7 +68,12 @@ function ActiveConnectionNavigation({
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'databases' | 'connections' | 'expanded' | 'onConnectionExpand'
+  | 'isReadOnly'
+  | 'databases'
+  | 'connections'
+  | 'expanded'
+  | 'onConnectionExpand'
+  | 'isReady'
 > & {
   databases: Database[];
   isDataLake?: boolean;
@@ -58,11 +94,11 @@ function ActiveConnectionNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (namespace: string) => {
+  const onConnectionToggle = (namespace: string, forceExpand: boolean) => {
     const connectionId = namespace.split('.')[0];
-    if (!collapsed.includes(connectionId))
+    if (!forceExpand && !collapsed.includes(connectionId))
       setCollapsed([...collapsed, connectionId]);
-    else {
+    else if (forceExpand && collapsed.includes(connectionId)) {
       const index = collapsed.indexOf(connectionId);
       setCollapsed([
         ...collapsed.slice(0, index),
@@ -72,6 +108,13 @@ function ActiveConnectionNavigation({
   };
 
   useEffect(() => {
+    // cleanup connections that are no longer active
+    // if the user connects again, the new connection should be expanded again
+    const newCollapsed = activeConnections
+      .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
+      .map(({ id }: ConnectionInfo) => id);
+    setCollapsed(newCollapsed);
+
     const newConnectionList = activeConnections
       .map((connectionInfo) => ({
         connectionInfo,
@@ -124,28 +167,39 @@ function ActiveConnectionNavigation({
   );
 
   return (
-    <ConnectionsNavigationTree
-      connections={namedConnections.map(({ connectionInfo, name }) => ({
-        connectionInfo,
-        name,
-        databasesStatus: 'ready',
-        databasesLength: databases?.length,
-        databases,
-      }))}
-      activeNamespace={activeWorkspace?.namespace}
-      onNamespaceAction={onNamespaceAction}
-      onConnectionExpand={onConnectionToggle}
-      expanded={namedConnections.reduce(
-        (obj, { connectionInfo: { id: connectionId } }) => {
-          obj[connectionId] = collapsed.includes(connectionId)
-            ? false
-            : expanded;
-          return obj;
-        },
-        {} as Record<string, false | Record<string, boolean>>
-      )}
-      {...navigationProps}
-    />
+    <div className={activeConnectionsContainerStyles}>
+      <header className={activeConnectionListHeaderStyles}>
+        <Subtitle className={activeConnectionListHeaderTitleStyles}>
+          Active connections{' '}
+          <span className={activeConnectionCountStyles}>
+            ({activeConnections.length})
+          </span>
+        </Subtitle>
+      </header>
+      <ConnectionsNavigationTree
+        isReady={true}
+        connections={namedConnections.map(({ connectionInfo, name }) => ({
+          connectionInfo,
+          name,
+          databasesStatus: 'ready',
+          databasesLength: databases?.length,
+          databases,
+        }))}
+        activeNamespace={activeWorkspace?.namespace}
+        onNamespaceAction={onNamespaceAction}
+        onConnectionExpand={onConnectionToggle}
+        expanded={namedConnections.reduce(
+          (obj, { connectionInfo: { id: connectionId } }) => {
+            obj[connectionId] = collapsed.includes(connectionId)
+              ? false
+              : expanded;
+            return obj;
+          },
+          {} as Record<string, false | Record<string, boolean>>
+        )}
+        {...navigationProps}
+      />
+    </div>
   );
 }
 

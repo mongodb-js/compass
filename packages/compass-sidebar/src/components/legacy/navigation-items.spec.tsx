@@ -4,7 +4,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from '../modules';
+import reducer from '../../modules';
 
 import { NavigationItems } from './navigation-items';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';

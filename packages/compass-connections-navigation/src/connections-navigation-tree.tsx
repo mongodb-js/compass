@@ -7,6 +7,7 @@ import {
   css,
   useId,
   VisuallyHidden,
+  spacing,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder-item';
 import {
@@ -19,7 +20,7 @@ import { CollectionItem } from './collection-item';
 import type { Actions } from './constants';
 import { useVirtualNavigationTree } from './use-virtual-navigation-tree';
 import type { NavigationTreeData } from './use-virtual-navigation-tree';
-import { DatabasesPlaceholder } from './databases-placeholder';
+import { TopPlaceholder } from './top-placeholder';
 import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
@@ -48,13 +49,14 @@ export type Connection = {
 type PlaceholderTreeItem = {
   key: string;
   type: 'placeholder';
+  level: number;
   id?: string;
 };
 
 type ConnectionTreeItem = {
   key: string;
   type: 'connection';
-  level: 1;
+  level: number;
   id: string;
   name: string;
   isExpanded: boolean;
@@ -66,7 +68,7 @@ type ConnectionTreeItem = {
 type DatabaseTreeItem = {
   key: string;
   type: 'database';
-  level: 2;
+  level: number;
   id: string;
   name: string;
   isExpanded: boolean;
@@ -77,7 +79,7 @@ type DatabaseTreeItem = {
 type CollectionTreeItem = {
   key: string;
   type: 'collection' | 'view' | 'timeseries';
-  level: 3;
+  level: number;
   id: string;
   name: string;
   setSize: number;
@@ -162,11 +164,13 @@ const connectionToItems = ({
               databaseIndex,
               databasesLength: databases.length,
               expanded: dbExpanded,
+              level: 2,
             });
           })
           .flat()
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: `${connectionIndex}-${index}`,
+          level: 2,
           type: 'placeholder' as const,
         }))
   );
@@ -184,18 +188,23 @@ const databaseToItems = ({
   databaseIndex,
   databasesLength,
   expanded,
+  level,
 }: {
   database: Database;
-  connectionIndex: number;
+  connectionIndex?: number;
   databaseIndex: number;
   databasesLength: number;
   expanded?: Record<string, boolean>;
+  level: number;
 }): TreeItem[] => {
   const isExpanded = expanded ? expanded[id] : false;
+  const isInConnection = typeof connectionIndex !== undefined;
 
   const databaseTI: DatabaseTreeItem = {
-    key: `${connectionIndex}-${databaseIndex}`,
-    level: 2,
+    key: isInConnection
+      ? `${connectionIndex as number}-${databaseIndex}`
+      : `${databaseIndex}`,
+    level,
     id,
     name,
     type: 'database' as const,
@@ -220,8 +229,10 @@ const databaseToItems = ({
   return ([databaseTI] as TreeItem[]).concat(
     areCollectionsReady
       ? collections.map(({ _id: id, name, type }, index) => ({
-          key: `${connectionIndex}-${databaseIndex}-${index}`,
-          level: 3,
+          key: isInConnection
+            ? `${connectionIndex as number}-${databaseIndex}-${index}`
+            : `${databaseIndex}-${index}`,
+          level: level + 1,
           id,
           name,
           type: type as 'collection' | 'view' | 'timeseries',
@@ -229,7 +240,10 @@ const databaseToItems = ({
           posInSet: index + 1,
         }))
       : Array.from({ length: placeholdersLength }, (_, index) => ({
-          key: `${connectionIndex}-${databaseIndex}-${index}`,
+          key: isInConnection
+            ? `${connectionIndex as number}-${databaseIndex}-${index}`
+            : `${databaseIndex}-${index}`,
+          level: level + 1,
           type: 'placeholder' as const,
         }))
   );
@@ -299,7 +313,9 @@ const NavigationItem = memo<{
             )
           );
         }}
-        fallback={() => <PlaceholderItem></PlaceholderItem>}
+        fallback={() => (
+          <PlaceholderItem level={itemData.level}></PlaceholderItem>
+        )}
       ></FadeInPlaceholder>
     </div>
   );
@@ -310,8 +326,10 @@ const navigationTree = css({
 });
 
 const ConnectionsNavigationTree: React.FunctionComponent<{
-  connections: Connection[];
-  expanded: Record<string, false | Record<string, boolean>>;
+  connections?: Connection[];
+  databasesLegacy?: Database[];
+  expanded?: Record<string, false | Record<string, boolean>>;
+  expandedLegacy?: Record<string, boolean>;
   onConnectionExpand(id: string, isExpanded: boolean): void;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
@@ -319,9 +337,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   isReadOnly?: boolean;
 }> = ({
   connections,
+  databasesLegacy,
   expanded = {},
+  expandedLegacy = {},
   activeNamespace = '',
-  onConnectionExpand,
+  // onConnectionExpand only has a default to support legacy version
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onConnectionExpand = () => {},
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
@@ -351,16 +373,30 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   }, [activeNamespace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
-    return connections
-      .map((connection, connectionIndex) =>
-        connectionToItems({
-          connection,
-          connectionIndex,
-          connectionsLength: connections.length,
-          expanded,
-        })
-      )
-      .flat();
+    if (connections) {
+      return connections
+        .map((connection, connectionIndex) =>
+          connectionToItems({
+            connection,
+            connectionIndex,
+            connectionsLength: connections.length,
+            expanded,
+          })
+        )
+        .flat();
+    } else {
+      return databasesLegacy! // either connections or databasesLegacy should be set
+        .map((database, databaseIndex) =>
+          databaseToItems({
+            database,
+            databaseIndex,
+            databasesLength: databasesLegacy?.length || 0,
+            expanded: expandedLegacy,
+            level: 1,
+          })
+        )
+        .flat();
+    }
   }, [connections, expanded]);
 
   const onExpandedChange = useCallback(
@@ -456,6 +492,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
 const container = css({
   display: 'flex',
   flex: '1 0 auto',
+  height: `calc(100% - ${spacing[3]}px)`,
 });
 
 const contentContainer = css({
@@ -477,7 +514,7 @@ const NavigationWithPlaceholder: React.FunctionComponent<
         );
       }}
       fallback={() => {
-        return <DatabasesPlaceholder></DatabasesPlaceholder>;
+        return <TopPlaceholder></TopPlaceholder>;
       }}
     ></FadeInPlaceholder>
   );
