@@ -15,7 +15,6 @@ import {
   ItemActionControls,
   useHoverState,
   useToast,
-  useDarkMode,
   palette,
   Tooltip,
 } from '@mongodb-js/compass-components';
