@@ -50,6 +50,7 @@ export const ConnectionItem: React.FunctionComponent<
     NamespaceItemProps & {
       isExpanded: boolean;
       onConnectionExpand(id: string, isExpanded: boolean): void;
+      onConnectionSelect(id: string): void;
     } & { connectionInfo: ConnectionInfo }
 > = ({
   id,
@@ -66,6 +67,7 @@ export const ConnectionItem: React.FunctionComponent<
   connectionInfo,
   onNamespaceAction,
   onConnectionExpand,
+  onConnectionSelect,
 }) => {
   const [hoverProps, isHovered] = useHoverState();
 
@@ -83,19 +85,14 @@ export const ConnectionItem: React.FunctionComponent<
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
       evt.stopPropagation();
-      onConnectionExpand(id, !isExpanded);
+      onConnectionExpand(connectionInfo.id, !isExpanded);
     },
-    [onConnectionExpand, id, isExpanded]
+    [onConnectionExpand, connectionInfo.id, isExpanded]
   );
 
   const onDefaultAction = useCallback(
-    (evt) => {
-      onNamespaceAction(
-        evt.currentTarget.dataset.id as string,
-        'select-connection'
-      );
-    },
-    [onNamespaceAction]
+    () => onConnectionSelect(connectionInfo.id),
+    [onConnectionSelect, connectionInfo.id]
   );
 
   const onAction = useCallback(

@@ -94,8 +94,7 @@ function ActiveConnectionNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (namespace: string, forceExpand: boolean) => {
-    const connectionId = namespace.split('.')[0];
+  const onConnectionToggle = (connectionId: string, forceExpand: boolean) => {
     if (!forceExpand && !collapsed.includes(connectionId))
       setCollapsed([...collapsed, connectionId]);
     else if (forceExpand && collapsed.includes(connectionId)) {
@@ -128,9 +127,6 @@ function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (ns: string, action: Actions) => {
       switch (action) {
-        case 'select-connection':
-          openDatabasesWorkspace(ns);
-          return;
         case 'select-database':
           openCollectionsWorkspace(ns);
           return;
@@ -187,6 +183,7 @@ function ActiveConnectionNavigation({
         }))}
         activeNamespace={activeWorkspace?.namespace}
         onNamespaceAction={onNamespaceAction}
+        onConnectionSelect={() => openDatabasesWorkspace()}
         onConnectionExpand={onConnectionToggle}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {

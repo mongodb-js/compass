@@ -143,7 +143,7 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(Databases) as React.FunctionComponent<Record<string, never>>;
 
 export default ConnectedDatabases;
 export { Databases };

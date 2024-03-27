@@ -69,7 +69,7 @@ describe('WorkspacesPlugin', function () {
 
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    ['Databases', () => openFns.openDatabasesWorkspace('')],
+    ['Databases', () => openFns.openDatabasesWorkspace()],
     ['Performance', () => openFns.openPerformanceWorkspace()],
     ['db', () => openFns.openCollectionsWorkspace('db')],
     ['db > coll', () => openFns.openCollectionWorkspace('db.coll')],
