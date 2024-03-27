@@ -23,10 +23,7 @@ import {
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-
-import Home from './home';
-import type { FileInputBackend } from '@mongodb-js/compass-components';
+import Home, { type HomeProps } from './home';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -82,29 +79,18 @@ export const WithStorageProviders: React.FC = ({ children }) => {
   );
 };
 
-export const CompassElectron = ({
-  appName,
-  showWelcomeModal,
-  getAutoConnectInfo,
-  createFileInputBackend,
-}: {
-  appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  showWelcomeModal: boolean;
-  createFileInputBackend: () => FileInputBackend;
-}) => {
+export const CompassElectron = (
+  props: Omit<
+    HomeProps,
+    '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN' | '__TEST_CONNECTION_STORAGE'
+  >
+) => {
   return (
     <WithPreferencesAndLoggerProviders>
       <WithAtlasProviders>
         <WithStorageProviders>
           <AppRegistryProvider scopeName="Application Root">
-            <Home
-              appName={appName}
-              getAutoConnectInfo={getAutoConnectInfo}
-              createFileInputBackend={createFileInputBackend}
-              // ... and show the welcome modal
-              isWelcomeModalOpenByDefault={showWelcomeModal}
-            />
+            <Home {...props} />
           </AppRegistryProvider>
         </WithStorageProviders>
       </WithAtlasProviders>

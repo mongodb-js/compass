@@ -83,6 +83,20 @@ const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
   await defaultPreferencesInstance.savePreferences({ showDevFeatureFlags });
 };
 
+function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
+  void ipcRenderer?.call('window:show-collection-submenu', {
+    isReadOnly,
+  });
+}
+
+function hideCollectionSubMenu() {
+  void ipcRenderer?.call('window:hide-collection-submenu');
+}
+
+function notifyMainProcessOfDisconnect() {
+  void ipcRenderer?.call('compass:disconnected');
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -206,6 +220,9 @@ const Application = View.extend({
           getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
           createFileInputBackend={createElectronFileInputBackend(remote)}
+          onDisconnect={notifyMainProcessOfDisconnect}
+          showCollectionSubMenu={showCollectionSubMenu}
+          hideCollectionSubMenu={hideCollectionSubMenu}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')

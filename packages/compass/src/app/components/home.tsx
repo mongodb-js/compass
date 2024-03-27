@@ -135,20 +135,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-  void hadronIpc.ipcRenderer?.call('window:show-collection-submenu', {
-    isReadOnly,
-  });
-}
-
-function hideCollectionSubMenu() {
-  void hadronIpc.ipcRenderer?.call('window:hide-collection-submenu');
-}
-
-function notifyMainProcessOfDisconnect() {
-  void hadronIpc.ipcRenderer?.call('compass:disconnected');
-}
-
 async function reauthenticationHandler() {
   const confirmed = await showConfirmation({
     title: 'Authentication expired',
@@ -160,21 +146,29 @@ async function reauthenticationHandler() {
   }
 }
 
+export type HomeProps = {
+  appName: string;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  showWelcomeModal?: boolean;
+  createFileInputBackend: () => FileInputBackend;
+  onDisconnect: () => void;
+  showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
+  hideCollectionSubMenu: () => void;
+  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
+  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
+};
+
 function Home({
   appName,
   getAutoConnectInfo,
-  isWelcomeModalOpenByDefault = false,
+  showWelcomeModal = false,
   createFileInputBackend,
+  onDisconnect,
+  showCollectionSubMenu,
+  hideCollectionSubMenu,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
-}: {
-  appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  isWelcomeModalOpenByDefault?: boolean;
-  createFileInputBackend: () => FileInputBackend;
-  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
-}): React.ReactElement | null {
+}: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
@@ -257,22 +251,20 @@ function Home({
         hideCollectionSubMenu();
       }
     },
-    [appName, connectionInfo]
+    [appName, connectionInfo, showCollectionSubMenu, hideCollectionSubMenu]
   );
 
   const onDataServiceDisconnected = useCallback(() => {
     if (!isConnected) {
       updateTitle(appName);
       hideCollectionSubMenu();
-      notifyMainProcessOfDisconnect();
+      onDisconnect();
     }
-  }, [appName, isConnected]);
+  }, [appName, isConnected, onDisconnect, hideCollectionSubMenu]);
 
   useLayoutEffect(onDataServiceDisconnected);
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(
-    isWelcomeModalOpenByDefault
-  );
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {
@@ -345,9 +337,7 @@ function Home({
   );
 }
 
-function ThemedHome(
-  props: React.ComponentProps<typeof Home>
-): ReturnType<typeof Home> {
+function ThemedHome(props: HomeProps): ReturnType<typeof Home> {
   const { track } = useLoggerAndTelemetry('COMPASS-UI');
 
   return (
