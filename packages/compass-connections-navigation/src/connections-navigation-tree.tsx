@@ -13,7 +13,7 @@ import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
   MAX_DATABASE_PLACEHOLDER_ITEMS,
-  DATABASE_ROW_HEIGHT,
+  ROW_HEIGHT,
 } from './constants';
 import { DatabaseItem } from './database-item';
 import { CollectionItem } from './collection-item';
@@ -491,7 +491,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
               height={height}
               itemData={itemData}
               itemCount={items.length}
-              itemSize={DATABASE_ROW_HEIGHT}
+              itemSize={ROW_HEIGHT}
               itemKey={getItemKey}
               overscanCount={__TEST_REACT_WINDOW_OVERSCAN ?? 5}
             >

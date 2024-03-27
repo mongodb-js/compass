@@ -10,7 +10,7 @@ import {
   ServerIcon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { CONNECTION_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
@@ -32,11 +32,11 @@ const iconStyles = css({
 });
 
 const connectionItem = css({
-  height: CONNECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: CONNECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
   paddingRight: spacing[1],
 });
 
