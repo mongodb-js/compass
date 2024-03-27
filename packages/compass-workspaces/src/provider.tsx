@@ -42,11 +42,7 @@ export type WorkspacesService = {
   /**
    * Open "Databases" workspace showing list of all databases in the cluster
    */
-  openDatabasesWorkspace(
-    this: void,
-    namespace: string,
-    tabOptions?: TabOptions
-  ): void;
+  openDatabasesWorkspace(this: void, tabOptions?: TabOptions): void;
   /**
    * Open "Performance" workspace showing charts of various cluster performance
    * metrics
@@ -149,9 +145,9 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openDatabasesWorkspace: (namespace, tabOptions) => {
+      openDatabasesWorkspace: (tabOptions) => {
         return store.dispatch(
-          openWorkspaceAction({ type: 'Databases', namespace }, tabOptions)
+          openWorkspaceAction({ type: 'Databases' }, tabOptions)
         );
       },
       openPerformanceWorkspace: (tabOptions) => {

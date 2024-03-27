@@ -99,6 +99,7 @@ type ListItemData = {
   activeNamespace?: string;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
+  onConnectionSelect(this: void, id: string): void;
   onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
   onNamespaceAction(this: void, namespace: string, action: Actions): void;
 };
@@ -262,6 +263,7 @@ const NavigationItem = memo<{
     activeNamespace,
     currentTabbable,
     onConnectionExpand,
+    onConnectionSelect,
     onDatabaseExpand,
     onNamespaceAction,
   } = data;
@@ -274,10 +276,11 @@ const NavigationItem = memo<{
         style={style}
         isReadOnly={isReadOnly}
         isLegacy={isLegacy}
-        isActive={itemData.id === activeNamespace}
+        isActive={activeNamespace === ''} // TODO(COMPASS-7775) we'll need something like activeConnection
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
         onConnectionExpand={onConnectionExpand}
+        onConnectionSelect={onConnectionSelect}
         {...itemData}
       ></ConnectionItem>
     );
@@ -339,6 +342,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   expanded?: Record<string, false | Record<string, boolean>>;
   expandedLegacy?: Record<string, boolean>;
   onConnectionExpand?(id: string, isExpanded: boolean): void;
+  onConnectionSelect?(id: string): void;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
@@ -349,9 +353,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   expanded = {},
   expandedLegacy = {},
   activeNamespace = '',
-  // onConnectionExpand only has a default to support legacy usage
+  // onConnectionExpand and onConnectionSelect only have a default to support legacy usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onConnectionSelect = () => {},
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
@@ -447,6 +453,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
       currentTabbable,
       onNamespaceAction,
       onConnectionExpand,
+      onConnectionSelect,
       onDatabaseExpand,
     };
   }, [
@@ -457,6 +464,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
     currentTabbable,
     onNamespaceAction,
     onConnectionExpand,
+    onConnectionSelect,
     onDatabaseExpand,
   ]);
 

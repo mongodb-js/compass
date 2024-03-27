@@ -467,7 +467,7 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Databases'>, 'type' | 'namespace'>
+  | Pick<Workspace<'Databases'>, 'type'>
   | Pick<Workspace<'Performance'>, 'type'>
   | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
   | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &

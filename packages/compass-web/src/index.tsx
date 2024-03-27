@@ -192,7 +192,7 @@ function CompassWorkspace({
   );
 }
 
-const DEFAULT_TAB = { type: 'Databases', namespace: '' } as const;
+const DEFAULT_TAB = { type: 'Databases' } as const;
 
 const connectedContainerStyles = css({
   width: '100%',

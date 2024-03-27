@@ -350,7 +350,7 @@ export function NavigationItems({
                 <NavigationItem<DatabasesActions>
                   isExpanded={isExpanded}
                   onAction={onAction}
-                  onClick={() => openDatabasesWorkspace('')}
+                  onClick={openDatabasesWorkspace}
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}
