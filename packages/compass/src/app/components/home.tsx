@@ -1,8 +1,8 @@
 import {
   Body,
   CompassComponentsProvider,
+  type FileInputBackend,
   FileInputBackendProvider,
-  createElectronFileInputBackend,
   css,
   cx,
   getScrollbarStyles,
@@ -26,10 +26,7 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type {
-  DataService,
-  ReauthenticationHandler,
-} from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
@@ -59,14 +56,6 @@ import {
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let remote: typeof import('@electron/remote') | undefined;
-try {
-  remote = require('@electron/remote');
-} catch {
-  /* no electron, eg. mocha tests */
-}
 
 const homeViewStyles = css({
   display: 'flex',
@@ -160,37 +149,39 @@ function notifyMainProcessOfDisconnect() {
   void hadronIpc.ipcRenderer?.call('compass:disconnected');
 }
 
+async function reauthenticationHandler() {
+  const confirmed = await showConfirmation({
+    title: 'Authentication expired',
+    description:
+      'You need to re-authenticate to the database in order to continue.',
+  });
+  if (!confirmed) {
+    throw new Error('Reauthentication declined by user');
+  }
+}
+
 function Home({
   appName,
   getAutoConnectInfo,
   isWelcomeModalOpenByDefault = false,
+  createFileInputBackend,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
 }: {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   isWelcomeModalOpenByDefault?: boolean;
+  createFileInputBackend: () => FileInputBackend;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
-  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
-    const confirmed = await showConfirmation({
-      title: 'Authentication expired',
-      description:
-        'You need to re-authenticate to the database in order to continue.',
-    });
-    if (!confirmed) {
-      throw new Error('Reauthentication declined by user');
-    }
-  });
-
   const connectionsManager = useRef(
     new ConnectionsManager({
       logger: loggerAndTelemetry.log.unbound,
-      reAuthenticationHandler: reauthenticationHandler.current,
+      reAuthenticationHandler: reauthenticationHandler,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
     })
   );
@@ -279,10 +270,6 @@ function Home({
 
   useLayoutEffect(onDataServiceDisconnected);
 
-  const electronFileInputBackendRef = useRef(
-    remote ? createElectronFileInputBackend(remote) : null
-  );
-
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(
     isWelcomeModalOpenByDefault
   );
@@ -305,9 +292,7 @@ function Home({
       ? ConnectionStorage
       : __TEST_CONNECTION_STORAGE;
   return (
-    <FileInputBackendProvider
-      createFileInputBackend={electronFileInputBackendRef.current}
-    >
+    <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageContext.Provider value={connectionStorage}>
         <ConnectionRepositoryContextProvider>
           <ConnectionsManagerProvider value={connectionsManager.current}>

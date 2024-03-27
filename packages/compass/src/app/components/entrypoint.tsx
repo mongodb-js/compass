@@ -26,6 +26,7 @@ import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 import Home from './home';
+import type { FileInputBackend } from '@mongodb-js/compass-components';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -85,10 +86,12 @@ export const CompassElectron = ({
   appName,
   showWelcomeModal,
   getAutoConnectInfo,
+  createFileInputBackend,
 }: {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   showWelcomeModal: boolean;
+  createFileInputBackend: () => FileInputBackend;
 }) => {
   return (
     <WithPreferencesAndLoggerProviders>
@@ -98,6 +101,7 @@ export const CompassElectron = ({
             <Home
               appName={appName}
               getAutoConnectInfo={getAutoConnectInfo}
+              createFileInputBackend={createFileInputBackend}
               // ... and show the welcome modal
               isWelcomeModalOpenByDefault={showWelcomeModal}
             />

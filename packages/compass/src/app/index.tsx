@@ -75,6 +75,7 @@ import {
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './utils/update-handlers';
+import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -204,6 +205,7 @@ const Application = View.extend({
           appName={remote.app.getName()}
           getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
+          createFileInputBackend={createElectronFileInputBackend(remote)}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')
