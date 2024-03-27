@@ -378,15 +378,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
 
   useEffect(() => {
     if (activeNamespace) {
-      // TODO(COMPASS-7775): test this functionality
-      // When the connection is collapsed, and we enter a namespace that is inside that connection,
-      // the connection should expand automatically.
-      // Currently doesn't work because the ids don't include connection
-      // - should be fixed with the new state management for sidebar
-      onConnectionExpand(activeNamespace, true);
       onDatabaseExpand(activeNamespace, true);
     }
   }, [activeNamespace, onDatabaseExpand]);
+  // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
     if (connections) {
