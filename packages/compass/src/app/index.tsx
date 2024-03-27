@@ -70,6 +70,11 @@ import ReactDOM from 'react-dom';
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import {
+  onAutoupdateFailed,
+  onAutoupdateStarted,
+  onAutoupdateSuccess,
+} from './utils/update-handlers';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -256,6 +261,26 @@ const app = {
     });
     ipcRenderer?.on('compass:open-import', () => {
       globalAppRegistry.emit('open-active-namespace-import');
+    });
+    // Autoupdate handlers
+    ipcRenderer?.on(
+      'autoupdate:update-download-in-progress',
+      onAutoupdateStarted
+    );
+    ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
+    ipcRenderer?.on('autoupdate:update-download-success', () => {
+      onAutoupdateSuccess({
+        onUpdate: () => {
+          void ipcRenderer?.call(
+            'autoupdate:update-download-restart-confirmed'
+          );
+        },
+        onDismiss: () => {
+          void ipcRenderer?.call(
+            'autoupdate:update-download-restart-dismissed'
+          );
+        },
+      });
     });
     // As soon as dom is ready, render and set up the rest.
     state.render();
