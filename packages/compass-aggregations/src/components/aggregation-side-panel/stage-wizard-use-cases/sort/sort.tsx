@@ -90,7 +90,6 @@ const SortFormGroup = ({
       </div>
       <Body>in</Body>
       <div data-testid={`sort-form-${index}-direction`}>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={sortDirectionStyles}
           allowDeselect={false}

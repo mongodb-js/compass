@@ -5,7 +5,6 @@ import {
   showCreateModal,
   createIndex,
   refreshSearchIndexes as fetchSearchIndexes,
-  sortSearchIndexes,
   dropSearchIndex,
   showUpdateModal,
   closeUpdateModal,
@@ -124,17 +123,10 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('REFRESHING');
     });
 
-    it('loads and sorts the indexes', async function () {
+    it('loads the indexes', async function () {
       await store.dispatch(fetchSearchIndexes());
       const state = store.getState();
       expect(state.searchIndexes.indexes).to.deep.equal([
-        {
-          id: '2',
-          name: 'another',
-          status: 'FAILED',
-          queryable: false,
-          latestDefinition: {},
-        },
         {
           id: '1',
           name: 'default',
@@ -146,9 +138,14 @@ describe('search-indexes module', function () {
             },
           },
         },
+        {
+          id: '2',
+          name: 'another',
+          status: 'FAILED',
+          queryable: false,
+          latestDefinition: {},
+        },
       ]);
-      expect(state.searchIndexes.sortColumn).to.equal('Name and Fields');
-      expect(state.searchIndexes.sortOrder).to.equal('asc');
     });
 
     it('sets the status to ERROR if loading the indexes fails', async function () {
@@ -165,44 +162,6 @@ describe('search-indexes module', function () {
 
       expect(store.getState().searchIndexes.status).to.equal('ERROR');
       expect(store.getState().searchIndexes.error).to.equal('this is an error');
-    });
-  });
-
-  context('#sortSearchIndexes action', function () {
-    it('sorts the indexes as specified', async function () {
-      await store.dispatch(fetchSearchIndexes());
-      let state = store.getState();
-
-      expect(state.searchIndexes.sortColumn).to.equal('Name and Fields');
-      expect(state.searchIndexes.sortOrder).to.equal('asc');
-
-      store.dispatch(sortSearchIndexes('Status', 'desc'));
-
-      state = store.getState();
-
-      expect(state.searchIndexes.sortColumn).to.equal('Status');
-      expect(state.searchIndexes.sortOrder).to.equal('desc');
-
-      expect(state.searchIndexes.indexes).to.deep.equal([
-        {
-          id: '1',
-          name: 'default',
-          status: 'READY',
-          queryable: true,
-          latestDefinition: {
-            mappings: {
-              dynamic: false,
-            },
-          },
-        },
-        {
-          id: '2',
-          name: 'another',
-          status: 'FAILED',
-          queryable: false,
-          latestDefinition: {},
-        },
-      ]);
     });
   });
 

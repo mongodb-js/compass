@@ -55,8 +55,11 @@ describe('IndexesToolbar Component', function () {
 
       it('should render the create index button enabled', function () {
         expect(
-          screen.getByText('Create Index').closest('button')
-        ).to.not.have.attr('disabled');
+          screen
+            .getByText('Create Index')
+            .closest('button')
+            ?.getAttribute('aria-disabled')
+        ).to.equal('false');
       });
     });
 
@@ -162,9 +165,12 @@ describe('IndexesToolbar Component', function () {
     });
 
     it('should render the create index button disabled', function () {
-      expect(screen.getByText('Create Index').closest('button')).to.have.attr(
-        'disabled'
-      );
+      expect(
+        screen
+          .getByText('Create Index')
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 
@@ -240,7 +246,7 @@ describe('IndexesToolbar Component', function () {
       });
       const refreshButton = screen.getByTestId('refresh-indexes-button');
       expect(refreshButton).to.exist;
-      expect(refreshButton.getAttribute('disabled')).to.be.null;
+      expect(refreshButton.getAttribute('aria-disabled')).to.equal('false');
     });
 
     it('renders refresh button - disabled state', function () {
@@ -249,7 +255,7 @@ describe('IndexesToolbar Component', function () {
       });
       const refreshButton = screen.getByTestId('refresh-indexes-button');
       expect(refreshButton).to.exist;
-      expect(refreshButton.getAttribute('disabled')).to.not.be.null;
+      expect(refreshButton.getAttribute('aria-disabled')).to.not.be.null;
       expect(within(refreshButton).getByTitle(/refreshing indexes/i)).to.exist;
     });
 
