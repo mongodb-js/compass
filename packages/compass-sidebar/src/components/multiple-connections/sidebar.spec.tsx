@@ -17,6 +17,7 @@ import {
   ConnectionStorageContext,
   type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
@@ -55,13 +56,18 @@ const savedConnection: ConnectionInfo = {
 };
 
 type ItselfAndStub<T> = {
-  [K in keyof T]: ReturnType<typeof stub>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [K in keyof T]: T[K] extends Function ? ReturnType<typeof stub> : T[K];
 };
 
 describe('Multiple Connections Sidebar Component', function () {
   const connectionStorage: ItselfAndStub<
-    Pick<typeof ConnectionStorage, 'loadAll' | 'load' | 'save' | 'delete'>
+    Pick<
+      typeof ConnectionStorage,
+      'events' | 'loadAll' | 'load' | 'save' | 'delete'
+    >
   > = {
+    events: new ConnectionStorageBus(),
     loadAll: stub(),
     load: stub(),
     save: stub(),
@@ -71,7 +77,7 @@ describe('Multiple Connections Sidebar Component', function () {
   const connectFn = stub();
 
   function doRender() {
-    const storage = connectionStorage as any as typeof ConnectionStorage;
+    const storage = connectionStorage as any;
     const connectionManager = new ConnectionsManager({
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,

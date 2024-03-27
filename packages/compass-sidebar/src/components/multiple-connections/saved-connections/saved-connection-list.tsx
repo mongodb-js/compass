@@ -11,6 +11,7 @@ import {
   palette,
 } from '@mongodb-js/compass-components';
 import { ButtonVariant } from '@mongodb-js/compass-components';
+import { useCanOpenNewConnections } from '@mongodb-js/compass-connections/provider';
 
 const savedConnectionListStyles = css({
   width: '100%',
@@ -79,6 +80,12 @@ export function SavedConnectionList({
   onDuplicateConnection,
   onToggleFavoriteConnection,
 }: SavedConnectionListProps): React.ReactElement {
+  const {
+    maximumNumberOfConnectionsOpen,
+    canOpenNewConnection,
+    canNotOpenReason,
+  } = useCanOpenNewConnections();
+
   const connectionCount =
     favoriteConnections.length + nonFavoriteConnections.length;
 
@@ -106,6 +113,9 @@ export function SavedConnectionList({
         <ul className={savedConnectionListPaddingStyles}>
           {favoriteConnections.map((conn) => (
             <SavedConnection
+              canOpenNewConnection={canOpenNewConnection}
+              canNotOpenReason={canNotOpenReason}
+              maximumNumberOfConnectionsOpen={maximumNumberOfConnectionsOpen}
               onConnect={onConnect}
               onEditConnection={onEditConnection}
               onDuplicateConnection={onDuplicateConnection}
@@ -117,6 +127,9 @@ export function SavedConnectionList({
           ))}
           {nonFavoriteConnections.map((conn) => (
             <SavedConnection
+              canOpenNewConnection={canOpenNewConnection}
+              canNotOpenReason={canNotOpenReason}
+              maximumNumberOfConnectionsOpen={maximumNumberOfConnectionsOpen}
               onConnect={onConnect}
               onEditConnection={onEditConnection}
               onDuplicateConnection={onDuplicateConnection}
