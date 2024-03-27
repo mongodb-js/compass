@@ -103,7 +103,6 @@ export class ConnectionStorage {
   }): Promise<void> {
     const result = await this.ipc.save({ connectionInfo, signal });
     this.events.emit(ConnectionStorageEvents.ConnectionsChanged);
-    return result;
   }
 
   static async delete({
@@ -113,9 +112,8 @@ export class ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<void> {
-    const result = this.ipc.delete({ id, signal });
+    const result = await this.ipc.delete({ id, signal });
     this.events.emit(ConnectionStorageEvents.ConnectionsChanged);
-    return result;
   }
 
   static get deserializeConnections() {
@@ -136,7 +134,6 @@ export class ConnectionStorage {
       signal,
     });
     this.events.emit(ConnectionStorageEvents.ConnectionsChanged);
-    return result;
   }
   static get exportConnections() {
     return this.ipc.exportConnections;

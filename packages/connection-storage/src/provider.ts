@@ -40,38 +40,6 @@ export const connectionStorageLocator = createServiceLocator(
   'connectionStorageLocator'
 );
 
-export const ConnectionRepositoryContext =
-  createContext<ConnectionRepository | null>(null);
-
-export const ConnectionRepositoryContextProvider: React.FunctionComponent<object> =
-  createServiceProvider(function ConnectionRepositoryContextProvider({
-    children,
-  }) {
-    const storage = connectionStorageLocator();
-    const value = useMemo(() => new ConnectionRepository(storage), [storage]);
-
-    return createElement(ConnectionRepositoryContext.Provider, {
-      value,
-      children,
-    });
-  });
-
-// TODO(COMPASS-7397): see above
-export function useConnectionRepositoryContext() {
-  const connectionRepository = useContext(ConnectionRepositoryContext);
-  if (!connectionRepository) {
-    throw new Error(
-      'Could not find the current ConnectionRepository. Did you forget to setup the ConnectionRepositoryContext?'
-    );
-  }
-  return connectionRepository;
-}
-
-export const connectionRepositoryLocator = createServiceLocator(
-  useConnectionRepositoryContext,
-  'connectionRepositoryLocator'
-);
-
 const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
 export function useConnectionInfo() {
   const connectionInfo = useContext(ConnectionInfoContext);
