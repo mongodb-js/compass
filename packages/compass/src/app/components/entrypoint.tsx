@@ -21,7 +21,6 @@ import {
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import * as remote from '@electron/remote';
 import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
@@ -83,9 +82,11 @@ export const WithStorageProviders: React.FC = ({ children }) => {
 };
 
 export const CompassElectron = ({
-  getAutoConnectInfo,
+  appName,
   showWelcomeModal,
+  getAutoConnectInfo,
 }: {
+  appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   showWelcomeModal: boolean;
 }) => {
@@ -95,7 +96,7 @@ export const CompassElectron = ({
         <WithStorageProviders>
           <AppRegistryProvider scopeName="Application Root">
             <Home
-              appName={remote.app.getName()}
+              appName={appName}
               getAutoConnectInfo={getAutoConnectInfo}
               // ... and show the welcome modal
               isWelcomeModalOpenByDefault={showWelcomeModal}

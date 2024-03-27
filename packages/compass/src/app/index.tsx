@@ -201,6 +201,7 @@ const Application = View.extend({
     ReactDOM.render(
       <React.StrictMode>
         <CompassElectron
+          appName={remote.app.getName()}
           getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
         />
