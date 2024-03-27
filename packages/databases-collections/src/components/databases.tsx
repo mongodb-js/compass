@@ -58,7 +58,6 @@ function NonGenuineZeroState() {
 }
 
 type DatabasesProps = {
-  namespace?: string;
   databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
   databasesLoadingError: string | null;
