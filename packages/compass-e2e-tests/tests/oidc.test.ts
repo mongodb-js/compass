@@ -339,8 +339,12 @@ describe('OIDC integration', function () {
       connectionString
     );
 
+    await browser.screenshot('after-creating-favourite.png');
+
     await browser.doConnect();
     await browser.disconnect();
+
+    await browser.screenshot('after-disconnecting-favourite.png');
 
     await browser.selectFavorite(favoriteName);
     await browser.doConnect();

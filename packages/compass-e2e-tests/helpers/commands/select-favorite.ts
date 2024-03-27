@@ -10,7 +10,9 @@ export async function selectFavorite(
   // causing something to re-render and the element to go stale?
   await browser.pause(1000);
 
-  await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
+  await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName), {
+    screenshot: 'selecting-favourite.png',
+  });
   await browser.waitUntil(async () => {
     const text = await browser.$(Selectors.ConnectionTitle).getText();
     return text === favoriteName;
