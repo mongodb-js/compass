@@ -39,11 +39,8 @@ export class ConnectionScopedGlobalAppRegistryImpl<
     private readonly sourceConnectionInfo: ConnectionInfo
   ) {}
 
-  emit(event: T, payload?: Record<string, any>): void {
-    if (payload) {
-      payload.sourceConnectionInfo = this.sourceConnectionInfo;
-    }
-
+  emit(event: T, payload: Record<string, any> = {}): void {
+    payload.sourceConnectionInfo = this.sourceConnectionInfo;
     this.appRegistryEmitter(event, payload);
   }
 }

@@ -11,7 +11,7 @@ const CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('ConnectionScopedGlobalAppRegistry', function () {
-  it('should not change the payload if is null or undefined', function () {
+  it('should add a payload with ConnectionInfo if the payload is null or undefined', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
@@ -20,10 +20,12 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
       );
 
     newAppRegistryEmitter.emit('schema-analyzed');
-    expect(emitSpy).to.have.been.calledWith('schema-analyzed');
+    expect(emitSpy).to.have.been.calledWith('schema-analyzed', {
+      sourceConnectionInfo: CONNECTION_INFO,
+    });
   });
 
-  it('should not add the current connection info', function () {
+  it('should add the current connection info to the payload when provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
