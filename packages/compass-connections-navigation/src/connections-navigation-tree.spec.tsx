@@ -347,14 +347,11 @@ describe('ConnectionsNavigationTree', function () {
   describe('onNamespaceAction', function () {
     it('should activate callback with `select-connection` when a connection is clicked', function () {
       const spy = Sinon.spy();
-      render(<ConnectionsNavigationTree {...props} onNamespaceAction={spy} />);
+      render(<ConnectionsNavigationTree {...props} onConnectionSelect={spy} />);
 
       userEvent.click(screen.getByText('turtles'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connection_ready',
-        'select-connection'
-      );
+      expect(spy).to.be.calledOnceWithExactly('connection_ready');
     });
 
     it('should activate callback with `select-database` when database is clicked', function () {
