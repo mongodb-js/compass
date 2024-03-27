@@ -1,6 +1,5 @@
 import type { ComponentType, ForwardedRef } from 'react';
 import React, { createContext, useContext, useMemo } from 'react';
-import { cx, css } from '@leafygreen-ui/emotion';
 
 type StackedComponentProviderProps = {
   zIndex?: number;
@@ -13,8 +12,9 @@ export const StackedComponentProvider = ({
   zIndex,
   children,
 }: StackedComponentProviderProps & { children: React.ReactNode }) => {
+  const value = useMemo(() => ({ zIndex }), [zIndex]);
   return (
-    <StackedComponentContext.Provider value={{ zIndex }}>
+    <StackedComponentContext.Provider value={value}>
       {children}
     </StackedComponentContext.Provider>
   );
@@ -27,14 +27,11 @@ export const useStackedComponent = () => {
 type StackedComponentProps<T extends boolean> = T extends true
   ? { popoverZIndex?: number }
   : T extends false
-  ? { className?: string }
+  ? { style?: React.CSSProperties }
   : Record<string, never>;
 
-// TODO: LG-4109. This should be eventually supported by the LG design system
-const withBaseStyles = function <
-  UsePopover extends boolean,
-  ComponentProps = StackedComponentProps<UsePopover>
->(
+// TODO(LG-4109): This should be eventually supported by the LG design system
+const withBaseStyles = function <UsePopover extends boolean, ComponentProps>(
   WrappedComponent: ComponentType<ComponentProps>,
   usePopoverZIndex: UsePopover
 ): ComponentType<ComponentProps> {
@@ -53,17 +50,19 @@ const withBaseStyles = function <
           };
         } else {
           return {
-            className: cx(
-              css({
-                zIndex: context.zIndex,
-              }),
-              (props as StackedComponentProps<false>).className
-            ),
+            style: {
+              zIndex: context.zIndex,
+              ...(props as StackedComponentProps<false>).style,
+            },
           };
         }
       }
       return {};
-    }, [context, props]);
+    }, [
+      context,
+      (props as StackedComponentProps<true>).popoverZIndex,
+      (props as StackedComponentProps<false>).style,
+    ]);
 
     return <WrappedComponent ref={ref} {...props} {...stackedElementProps} />;
   };

@@ -19,14 +19,12 @@ const ComponentWithPopoverZIndexProp = withStackedComponentPopoverStyles(
   }
 );
 
-const ComponentWithClassnameProp = withStackedComponentStyles(function ({
-  className,
+const ComponentWithStyleProp = withStackedComponentStyles(function ({
+  style,
 }: {
-  className?: string;
+  style?: React.CSSProperties;
 }) {
-  return (
-    <div data-testid="stacked-classname-component" className={className} />
-  );
+  return <div data-testid="stacked-classname-component" style={style} />;
 });
 
 describe('use-stacked-component', function () {
@@ -48,18 +46,18 @@ describe('use-stacked-component', function () {
       });
     });
 
-    context('classname prop', function () {
-      it('renders component with no classname', function () {
-        render(<ComponentWithClassnameProp />);
+    context('style prop', function () {
+      it('renders component with no style', function () {
+        render(<ComponentWithStyleProp />);
         const component = screen.getByTestId('stacked-classname-component');
         expect(component).to.exist;
-        expect(component).to.have.property('className', '');
+        expect(component.style).to.have.property('z-index', '');
       });
-      it('renders component with classname', function () {
-        render(<ComponentWithClassnameProp className={'custom-className'} />);
+      it('renders component with style', function () {
+        render(<ComponentWithStyleProp style={{ height: 100 }} />);
         const component = screen.getByTestId('stacked-classname-component');
         expect(component).to.exist;
-        expect(component).to.have.property('className', 'custom-className');
+        expect(component.style).to.have.property('height', '100px');
       });
     });
   });
@@ -74,7 +72,7 @@ describe('use-stacked-component', function () {
         );
         const component = screen.getByTestId('stacked-zindexed-component');
         expect(component).to.exist;
-        expect(component.style).to.have.property('z-index', '100');
+        expect(component.style.zIndex).to.equal('100');
       });
       it('renders component with z-index from the prop', function () {
         render(
@@ -84,35 +82,30 @@ describe('use-stacked-component', function () {
         );
         const component = screen.getByTestId('stacked-zindexed-component');
         expect(component).to.exist;
-        expect(component.style).to.have.property('z-index', '20');
+        expect(component.style.zIndex).to.equal('20');
       });
     });
 
-    context('classname prop', function () {
-      it('renders component with no classname', function () {
+    context('style prop', function () {
+      it('renders component with no style', function () {
         render(
           <StackedComponentProvider zIndex={100}>
-            <ComponentWithClassnameProp />
+            <ComponentWithStyleProp />
           </StackedComponentProvider>
         );
         const component = screen.getByTestId('stacked-classname-component');
         expect(component).to.exist;
-        // Expecting here to have only one classname applied.
-        expect(component.className).to.match(/^leafygreen-ui-[a-z0-9]*/gi);
+        expect(component.style.zIndex).to.equal('100');
       });
       it('renders component with classname', function () {
         render(
           <StackedComponentProvider zIndex={100}>
-            <ComponentWithClassnameProp className={'custom-className'} />
+            <ComponentWithStyleProp style={{ zIndex: 20 }} />
           </StackedComponentProvider>
         );
         const component = screen.getByTestId('stacked-classname-component');
         expect(component).to.exist;
-        // Expecting here to have only two classnames applied. First one is the className (leafygreen-ui-*)
-        // with zIndex style and then the custom-className from the prop.
-        expect(component.className).to.match(
-          /^leafygreen-ui-[a-z0-9]* custom-className/gi
-        );
+        expect(component.style.zIndex).to.equal('20');
       });
     });
   });
