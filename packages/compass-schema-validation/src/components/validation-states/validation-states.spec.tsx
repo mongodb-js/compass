@@ -12,6 +12,7 @@ import { Provider } from 'react-redux';
 import ValidationStates from '.';
 import ValidationEditor from '../validation-editor';
 import { configureStore } from '../../stores/store';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 describe('ValidationStates [Component]', function () {
   let props: any;
@@ -20,9 +21,18 @@ describe('ValidationStates [Component]', function () {
   const mountComponent = (props: any) => {
     const store = configureStore({}, {} as any);
     return mount(
-      <Provider store={store}>
-        <ValidationStates {...props} />
-      </Provider>
+      <ConnectionInfoProvider
+        value={{
+          id: '1234',
+          connectionOptions: {
+            connectionString: 'mongodb://webscales.com:27017',
+          },
+        }}
+      >
+        <Provider store={store}>
+          <ValidationStates {...props} />
+        </Provider>
+      </ConnectionInfoProvider>
     );
   };
 

@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import configureStore from '../../../../test/configure-store';
 import PipelineBuilderUIWorkspace from '.';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const SOURCE_PIPELINE = [
   { $match: { _id: 1 } },
@@ -13,14 +14,23 @@ const SOURCE_PIPELINE = [
 
 const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
   render(
-    <Provider
-      store={configureStore({
-        pipeline: SOURCE_PIPELINE,
-        ...options,
-      })}
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
     >
-      <PipelineBuilderUIWorkspace {...props} />
-    </Provider>
+      <Provider
+        store={configureStore({
+          pipeline: SOURCE_PIPELINE,
+          ...options,
+        })}
+      >
+        <PipelineBuilderUIWorkspace {...props} />
+      </Provider>
+    </ConnectionInfoProvider>
   );
 };
 

@@ -19,6 +19,7 @@ import {
   createValidationAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 import type {
   Validation,
@@ -79,7 +80,8 @@ const ValidationCodeEditor = ({
   readOnly,
   serverVersion,
 }: ValidationCodeEditorProps) => {
-  const fields = useAutocompleteFields(namespace);
+  const connectionInfo = useConnectionInfo();
+  const fields = useAutocompleteFields(connectionInfo, namespace);
 
   const completer = React.useMemo(() => {
     return createValidationAutocompleter({ fields, serverVersion });

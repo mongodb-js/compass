@@ -6,18 +6,28 @@ import { Provider } from 'react-redux';
 
 import configureStore from '../../../test/configure-store';
 import { FocusModeStageEditor } from './focus-mode-stage-editor';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const renderFocusModeStageEditor = (
   props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {}
 ) => {
   render(
-    <Provider
-      store={configureStore({
-        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-      })}
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
     >
-      <FocusModeStageEditor index={-1} operator={null} {...props} />
-    </Provider>
+      <Provider
+        store={configureStore({
+          pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+        })}
+      >
+        <FocusModeStageEditor index={-1} operator={null} {...props} />
+      </Provider>
+    </ConnectionInfoProvider>
   );
 };
 

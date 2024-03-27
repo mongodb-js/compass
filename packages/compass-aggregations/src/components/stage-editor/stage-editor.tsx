@@ -25,6 +25,7 @@ import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -102,7 +103,8 @@ export const StageEditor = ({
   const editorCurrentValueRef = useRef<string | null>(stageValue);
   editorCurrentValueRef.current = stageValue;
 
-  const fields = useAutocompleteFields(namespace);
+  const connectionInfo = useConnectionInfo();
+  const fields = useAutocompleteFields(connectionInfo, namespace);
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 

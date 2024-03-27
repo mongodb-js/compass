@@ -1,4 +1,6 @@
 import {
+  connectionScopedGlobalAppRegistryLocator,
+  type ConnectionScopedGlobalAppRegistryLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -19,6 +21,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
     dataService: () => DataService;
     loggerAndTelemetry: () => LoggerAndTelemetry;
     preferences: () => PreferencesAccess;
+    connectionScopedGlobalAppRegistry: ConnectionScopedGlobalAppRegistryLocator<'schema-analyzed'>;
   }
 >(
   {
@@ -32,6 +35,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
     >,
     loggerAndTelemetry: createLoggerAndTelemetryLocator('COMPASS-SCHEMA-UI'),
     preferences: preferencesLocator,
+    connectionScopedGlobalAppRegistry: connectionScopedGlobalAppRegistryLocator,
   }
 );
 export const CompassSchemaPlugin = {

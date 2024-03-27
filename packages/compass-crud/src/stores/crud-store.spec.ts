@@ -190,6 +190,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -291,6 +294,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -348,6 +354,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -398,6 +407,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -447,6 +459,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -564,6 +579,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -850,6 +868,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -959,6 +980,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -998,6 +1022,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1081,6 +1108,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1242,6 +1272,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1417,6 +1450,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1592,6 +1628,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1779,6 +1818,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1824,6 +1866,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1866,6 +1911,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -1906,6 +1954,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -1986,6 +2037,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2035,6 +2089,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2081,6 +2138,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2129,6 +2189,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2184,6 +2247,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2254,6 +2320,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -2365,6 +2434,9 @@ describe('store', function () {
           logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -2816,6 +2888,9 @@ describe('store', function () {
             },
           },
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
+          },
         },
         createActivateHelpers()
       );
@@ -2875,6 +2950,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -2964,6 +3042,9 @@ describe('store', function () {
             logger: createNoopLoggerAndTelemetry(),
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
+            connectionScopedGlobalAppRegistry: {
+              emit() {},
+            },
           },
           createActivateHelpers()
         );
@@ -3028,6 +3109,9 @@ describe('store', function () {
             getStorage() {
               return recentQueriesStorage;
             },
+          },
+          connectionScopedGlobalAppRegistry: {
+            emit() {},
           },
         },
         createActivateHelpers()

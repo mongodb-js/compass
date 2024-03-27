@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { StageEditor } from './stage-editor';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 describe('StageEditor [Component]', function () {
   let component: ReturnType<typeof mount> | null;
@@ -13,18 +14,27 @@ describe('StageEditor [Component]', function () {
 
   beforeEach(function () {
     component = mount(
-      <StageEditor
-        namespace="test.test"
-        stageValue={stage}
-        stageOperator={stageOperator}
-        index={0}
-        serverVersion="3.6.0"
-        onChange={spy}
-        syntaxError={null}
-        serverError={null}
-        num_stages={0}
-        editor_view_type=""
-      />
+      <ConnectionInfoProvider
+        value={{
+          id: '1234',
+          connectionOptions: {
+            connectionString: 'mongodb://webscales.com:27017',
+          },
+        }}
+      >
+        <StageEditor
+          namespace="test.test"
+          stageValue={stage}
+          stageOperator={stageOperator}
+          index={0}
+          serverVersion="3.6.0"
+          onChange={spy}
+          syntaxError={null}
+          serverError={null}
+          num_stages={0}
+          editor_view_type=""
+        />
+      </ConnectionInfoProvider>
     );
   });
 

@@ -34,6 +34,7 @@ import type { SortableProps } from '../pipeline-builder-workspace/pipeline-build
 import type { DocumentSchema } from '../../utils/get-schema';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import { useFieldsSchema } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -162,7 +163,8 @@ export const StageWizard = ({
   ...sortableProps
 }: StageWizardProps) => {
   const { returnFocus, focusContainerRef } = useGrabFocus<HTMLDivElement>();
-  const fieldsSchema = useFieldsSchema(namespace);
+  const connectionInfo = useConnectionInfo();
+  const fieldsSchema = useFieldsSchema(connectionInfo, namespace);
   const fields: DocumentSchema = useMemo(() => {
     function schemaTypeToKindaTypeCastType(type: string | string[]) {
       // we don't expect any handling for multi-type schemas, pick the first

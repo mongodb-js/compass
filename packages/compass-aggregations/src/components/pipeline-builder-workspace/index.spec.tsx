@@ -6,15 +6,25 @@ import { expect } from 'chai';
 import configureStore from '../../../test/configure-store';
 import { PipelineBuilderWorkspace } from '.';
 import { toggleSidePanel } from '../../modules/side-panel';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const renderBuilderWorkspace = (
   props: Partial<ComponentProps<typeof PipelineBuilderWorkspace>> = {}
 ) => {
   const store = configureStore();
   render(
-    <Provider store={store}>
-      <PipelineBuilderWorkspace pipelineMode="as-text" {...props} />
-    </Provider>
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <Provider store={store}>
+        <PipelineBuilderWorkspace pipelineMode="as-text" {...props} />
+      </Provider>
+    </ConnectionInfoProvider>
   );
   return store;
 };

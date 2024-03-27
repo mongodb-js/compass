@@ -30,6 +30,9 @@ describe('Schema Store', function () {
           dataService: dataService as any,
           loggerAndTelemetry: dummyLogger,
           preferences: await createSandboxFromDefaultPreferences(),
+          connectionScopedGlobalAppRegistry: {
+            emit: globalAppRegistry.emit.bind(globalAppRegistry),
+          },
         },
         createActivateHelpers()
       );
@@ -77,6 +80,7 @@ describe('Schema Store', function () {
   context('when query change events are emitted', function () {
     let store: SchemaStore;
     let deactivate: () => void;
+    const globalAppRegistry = new EventEmitter() as any;
     const localAppRegistry = new AppRegistry();
     const filter = { name: 'test' };
     const limit = 50;
@@ -89,10 +93,13 @@ describe('Schema Store', function () {
         },
         {
           localAppRegistry: localAppRegistry,
-          globalAppRegistry: new EventEmitter() as any,
+          globalAppRegistry: globalAppRegistry,
           dataService: {} as any,
           loggerAndTelemetry: dummyLogger,
           preferences: await createSandboxFromDefaultPreferences(),
+          connectionScopedGlobalAppRegistry: {
+            emit: globalAppRegistry.emit.bind(globalAppRegistry),
+          },
         },
         createActivateHelpers()
       );

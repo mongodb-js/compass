@@ -20,7 +20,10 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedGlobalAppRegistry,
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
@@ -57,6 +60,7 @@ export type SchemaPluginServices = {
   dataService: DataService;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  connectionScopedGlobalAppRegistry: ConnectionScopedGlobalAppRegistry<'schema-analyzed'>;
   loggerAndTelemetry: LoggerAndTelemetry;
   preferences: PreferencesAccess;
 };
@@ -86,6 +90,7 @@ export type SchemaStore = Reflux.Store & {
 
   localAppRegistry: SchemaPluginServices['localAppRegistry'];
   globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
+  connectionScopedGlobalAppRegistry: SchemaPluginServices['connectionScopedGlobalAppRegistry'];
   // TODO(COMPASS-6847): We don't really need this state in store, but it's hard
   // to factor away while the store is reflux
   query: QueryState;
@@ -135,6 +140,7 @@ export function activateSchemaPlugin(
     dataService,
     localAppRegistry,
     globalAppRegistry,
+    connectionScopedGlobalAppRegistry,
     loggerAndTelemetry,
     preferences,
   }: SchemaPluginServices,
@@ -165,6 +171,8 @@ export function activateSchemaPlugin(
       this.dataService = dataService;
       this.localAppRegistry = localAppRegistry;
       this.globalAppRegistry = globalAppRegistry;
+      this.connectionScopedGlobalAppRegistry =
+        connectionScopedGlobalAppRegistry;
     },
 
     handleSchemaShare(this: SchemaStore) {
@@ -343,7 +351,10 @@ export function activateSchemaPlugin(
         );
         const analysisTime = Date.now() - analysisStartTime;
 
-        this.globalAppRegistry.emit('schema-analyzed', { ns: this.ns, schema });
+        this.connectionScopedGlobalAppRegistry.emit('schema-analyzed', {
+          ns: this.ns,
+          schema,
+        });
 
         this.setState({
           analysisState: schema

@@ -5,26 +5,36 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import * as StageWizardUseCases from '../aggregation-side-panel/stage-wizard-use-cases';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const renderStageWizard = (
   props: Partial<ComponentProps<typeof StageWizard>> = {}
 ) => {
   return render(
-    <StageWizard
-      namespace="test.test"
-      onApply={() => {}}
-      onCancel={() => {}}
-      onChange={() => {}}
-      syntaxError={null}
-      value={null}
-      useCaseId="test"
-      index={0}
-      setNodeRef={() => {}}
-      style={{}}
-      listeners={undefined}
-      previousStageFields={[]}
-      {...props}
-    />
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <StageWizard
+        namespace="test.test"
+        onApply={() => {}}
+        onCancel={() => {}}
+        onChange={() => {}}
+        syntaxError={null}
+        value={null}
+        useCaseId="test"
+        index={0}
+        setNodeRef={() => {}}
+        style={{}}
+        listeners={undefined}
+        previousStageFields={[]}
+        {...props}
+      />
+    </ConnectionInfoProvider>
   );
 };
 

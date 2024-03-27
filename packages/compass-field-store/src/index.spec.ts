@@ -4,10 +4,17 @@ import FieldStorePlugin from './';
 import { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 describe('useAutocompleteFields', function () {
   let appRegistry: AppRegistry;
   let Plugin: ReturnType<typeof FieldStorePlugin['withMockServices']>;
+  const connectionInfo: ConnectionInfo = {
+    id: '1234',
+    connectionOptions: {
+      connectionString: 'mongodb://webscales.com:27017',
+    },
+  };
 
   beforeEach(function () {
     appRegistry = new AppRegistry();
@@ -19,19 +26,26 @@ describe('useAutocompleteFields', function () {
   afterEach(cleanup);
 
   it('returns empty list when namespace schema is not available', function () {
-    const { result } = renderHook(() => useAutocompleteFields('foo.bar'), {
-      wrapper: Plugin,
-    });
+    const { result } = renderHook(
+      () => useAutocompleteFields(connectionInfo, 'foo.bar'),
+      {
+        wrapper: Plugin,
+      }
+    );
 
     expect(result.current).to.deep.eq([]);
   });
 
   it('updates when fields are added', async function () {
-    const { result } = renderHook(() => useAutocompleteFields('foo.bar'), {
-      wrapper: Plugin,
-    });
+    const { result } = renderHook(
+      () => useAutocompleteFields(connectionInfo, 'foo.bar'),
+      {
+        wrapper: Plugin,
+      }
+    );
 
     appRegistry.emit('document-inserted', {
+      connectionInfo: connectionInfo,
       ns: 'foo.bar',
       docs: [{ foo: 1 }, { bar: false }, { buz: 'str' }],
     });

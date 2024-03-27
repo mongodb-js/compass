@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
 import CheckboxInput from './checkbox-input';
@@ -39,7 +40,8 @@ function CreateIndexForm({
   addField,
   removeField,
 }: CreateIndexFormProps) {
-  const schemaFields = useAutocompleteFields(namespace);
+  const connectionInfo = useConnectionInfo();
+  const schemaFields = useAutocompleteFields(connectionInfo, namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
       .filter((field) => {
