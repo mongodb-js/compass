@@ -2,13 +2,13 @@
 import React, { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { Placeholder, css, cx } from '@mongodb-js/compass-components';
-import { COLLECTION_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import { getItemPaddingClass } from './utils';
 
 const placeholderItem = css({
   display: 'flex',
   alignItems: 'center',
-  height: COLLECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 export const PlaceholderItem: React.FunctionComponent<{

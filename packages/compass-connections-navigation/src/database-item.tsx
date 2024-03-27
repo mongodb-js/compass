@@ -9,7 +9,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { DATABASE_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
@@ -26,11 +26,11 @@ import type { Actions } from './constants';
 import { getItemPaddingClass } from './utils';
 
 const databaseItem = css({
-  height: DATABASE_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: DATABASE_ROW_HEIGHT,
+  height: ROW_HEIGHT,
   paddingRight: spacing[1],
 });
 

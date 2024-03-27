@@ -9,7 +9,7 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { COLLECTION_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
@@ -40,11 +40,11 @@ const CollectionIcon: React.FunctionComponent<{
 };
 
 const collectionItem = css({
-  height: COLLECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: COLLECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
   paddingRight: spacing[1],
 });
 
