@@ -265,6 +265,7 @@ export const runAIPipelineGeneration = (
         collectionName,
         databaseName,
         schema,
+        requestId,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
     } catch (err: any) {
