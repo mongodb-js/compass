@@ -4,6 +4,7 @@ import {
   Banner,
   Body,
   Link,
+  WorkspaceContainer,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -32,11 +33,17 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 const containerStyles = css({
-  margin: spacing[3],
+  paddingTop: spacing[3],
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
+  // No padding bottom so that the table can scroll visibly to the bottom
+  paddingBottom: 0,
   gap: spacing[3],
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
+  height: '100%',
+  flexGrow: 1,
 });
 
 const linkTitle = 'Atlas Search.';
@@ -119,19 +126,24 @@ export function Indexes({
 
   return (
     <div className={containerStyles}>
-      <IndexesToolbar
-        errorMessage={errorMessage || null}
-        hasTooManyIndexes={hasTooManyIndexes}
-        isRefreshing={isRefreshing}
-        onRefreshIndexes={onRefreshIndexes}
-      />
-      {!isReadonlyView && !enableAtlasSearchIndexes && <AtlasIndexesBanner />}
-      {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
-        <RegularIndexesTable />
-      )}
-      {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-        <SearchIndexesTable />
-      )}
+      <WorkspaceContainer
+        toolbar={
+          <IndexesToolbar
+            errorMessage={errorMessage || null}
+            hasTooManyIndexes={hasTooManyIndexes}
+            isRefreshing={isRefreshing}
+            onRefreshIndexes={onRefreshIndexes}
+          />
+        }
+      >
+        {!isReadonlyView && !enableAtlasSearchIndexes && <AtlasIndexesBanner />}
+        {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+          <RegularIndexesTable />
+        )}
+        {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+          <SearchIndexesTable />
+        )}
+      </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
     </div>

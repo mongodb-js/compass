@@ -353,7 +353,7 @@ describe('Collection import', function () {
       'Insert not permitted while document contains errors.'
     );
     const insertButton = await browser.$(Selectors.InsertConfirm);
-    await insertButton.waitForEnabled({ reverse: true });
+    await browser.waitForAriaDisabled(insertButton, true);
 
     // cancel and wait for the modal to go away
     await browser.clickVisible(Selectors.InsertCancel);

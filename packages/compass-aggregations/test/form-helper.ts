@@ -73,6 +73,13 @@ export const setMultiSelectComboboxValues = (
   userEvent.keyboard('{Escape}');
 };
 
+const setInputValue = (input: HTMLElement, value: string) => {
+  userEvent.clear(input);
+  if (value !== '') {
+    userEvent.type(input, value);
+  }
+};
+
 export const setInputElementValue = (
   name: RegExp,
   value: string,
@@ -81,8 +88,14 @@ export const setInputElementValue = (
   const input = _getContainer(parentElement).getByLabelText(name, {
     selector: 'input',
   });
-  userEvent.clear(input);
-  if (value !== '') {
-    userEvent.type(input, value);
-  }
+  setInputValue(input, value);
+};
+
+export const setInputElementValueByTestId = (
+  testId: string,
+  value: string,
+  parentElement?: HTMLElement
+) => {
+  const input = _getContainer(parentElement).getByTestId(testId);
+  setInputValue(input, value);
 };

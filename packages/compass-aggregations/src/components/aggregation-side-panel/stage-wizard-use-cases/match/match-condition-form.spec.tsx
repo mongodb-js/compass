@@ -10,7 +10,7 @@ import Condition, {
 } from './match-condition-form';
 import {
   setComboboxValue,
-  setInputElementValue,
+  setInputElementValueByTestId,
   setSelectValue,
 } from '../../../../../test/form-helper';
 import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
@@ -74,7 +74,7 @@ describe('condition', function () {
       expect(screen.getByLabelText(new RegExp(SINGLE_SELECT_LABEL, 'i'))).to
         .exist;
       expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
-      expect(screen.getByLabelText(LABELS.valueInput)).to.exist;
+      expect(screen.getByTestId('match-stage-expected-value-input')).to.exist;
       expect(screen.getByLabelText(LABELS.typeSelect)).to.exist;
     });
 
@@ -149,8 +149,8 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setInputElementValue(
-        new RegExp(LABELS.valueInput, 'i'),
+      setInputElementValueByTestId(
+        'match-stage-expected-value-input',
         'Compass',
         conditionContainer
       );

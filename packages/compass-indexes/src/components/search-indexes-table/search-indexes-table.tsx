@@ -4,17 +4,23 @@ import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { BadgeVariant, Disclaimer } from '@mongodb-js/compass-components';
 import {
-  EmptyContent,
-  Button,
-  Link,
   Badge,
+  BadgeVariant,
+  Button,
+  Disclaimer,
+  EmptyContent,
+  Link,
   Tooltip,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { SearchSortColumn } from '../../modules/search-indexes';
+import type {
+  LGColumnDef,
+  LeafyGreenTableRow,
+  LGTableDataType,
+} from '@mongodb-js/compass-components';
+
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
@@ -25,11 +31,10 @@ import {
   showUpdateModal,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
-import { sortSearchIndexes } from '../../modules/search-indexes';
-import type { SortDirection, RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
-import IndexActions from './search-index-actions';
+import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
+import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export const POLLING_INTERVAL = 5000;
@@ -39,12 +44,12 @@ type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
-  onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
   openCreateModal: () => void;
   onPollIndexes: () => void;
   status: SearchIndexesStatus;
+  pollingInterval?: number;
 };
 
 function isReadyStatus(status: SearchIndexesStatus) {
@@ -117,6 +122,8 @@ function SearchIndexType({ type, link }: { type: string; link: string }) {
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
+  marginBottom: spacing[2],
+  padding: `0px ${spacing[6]}px`,
 });
 
 const searchIndexFieldStyles = css({
@@ -184,7 +191,83 @@ function SearchIndexDetails({ definition }: { definition: Document }) {
   );
 }
 
-const COLUMNS = ['Name and Fields', 'Type', 'Status'] as const;
+type SearchIndexInfo = {
+  id: string;
+  name: string;
+  indexInfo: SearchIndex;
+  status: React.ReactNode;
+  actions: React.ReactNode;
+  renderExpandedContent: React.ReactNode;
+};
+
+function sortByStatus(
+  rowA: LeafyGreenTableRow<SearchIndexInfo>,
+  rowB: LeafyGreenTableRow<SearchIndexInfo>
+) {
+  if (typeof rowB.original.indexInfo.status === 'undefined') {
+    return -1;
+  }
+  if (typeof rowA.original.indexInfo.status === 'undefined') {
+    return 1;
+  }
+  if (rowA.original.indexInfo.status > rowB.original.indexInfo.status) {
+    return -1;
+  }
+  if (rowA.original.indexInfo.status < rowB.original.indexInfo.status) {
+    return 1;
+  }
+  return 0;
+}
+
+function sortByType(
+  rowA: LeafyGreenTableRow<SearchIndexInfo>,
+  rowB: LeafyGreenTableRow<SearchIndexInfo>
+) {
+  if (typeof rowB.original.indexInfo.type === 'undefined') {
+    return -1;
+  }
+  if (typeof rowA.original.indexInfo.type === 'undefined') {
+    return 1;
+  }
+  if (rowA.original.indexInfo.type > rowB.original.indexInfo.type) {
+    return -1;
+  }
+  if (rowA.original.indexInfo.type < rowB.original.indexInfo.type) {
+    return 1;
+  }
+  return 0;
+}
+
+const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name and Fields',
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: (info) => info.getValue(),
+    sortingFn: sortByType,
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (info) => info.getValue(),
+    sortingFn: sortByStatus,
+    enableSorting: true,
+  },
+];
+
+const COLUMNS_WITH_ACTIONS: LGColumnDef<SearchIndexInfo>[] = [
+  ...COLUMNS,
+  {
+    accessorKey: 'actions',
+    header: '',
+    cell: (info) => info.getValue(),
+  },
+];
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
@@ -193,100 +276,84 @@ export const SearchIndexesTable: React.FunctionComponent<
   indexes,
   isWritable,
   readOnly,
-  onSortTable,
   openCreateModal,
   onEditIndex,
   status,
   onDropIndex,
   onPollIndexes,
+  pollingInterval = POLLING_INTERVAL,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
 
   useEffect(() => {
-    const id = setInterval(onPollIndexes, POLLING_INTERVAL);
+    const id = setInterval(onPollIndexes, pollingInterval);
     return () => {
       clearInterval(id);
     };
-  }, [onPollIndexes]);
+  }, [onPollIndexes, pollingInterval]);
 
-  const data = useMemo(() => {
-    return indexes.map((index) => {
-      const isVectorSearchIndex = index.type === 'vectorSearch';
-      return {
-        key: index.name,
-        'data-testid': `row-${index.name}`,
-        fields: [
-          {
-            'data-testid': 'name-field',
-            style: {
-              width: '30%',
-            },
-            children: index.name,
-          },
-          {
-            'data-testid': 'type-field',
-            style: {
-              width: '20%',
-            },
-            children: (
-              <SearchIndexType
-                type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
-                link={
-                  isVectorSearchIndex
-                    ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
-                    : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
-                }
-              />
-            ),
-          },
-          {
-            'data-testid': 'status-field',
-            style: {
-              width: '20%',
-            },
-            children: (
-              <IndexStatus
-                status={index.status}
-                data-testid={`search-indexes-status-${index.name}`}
-              />
-            ),
-          },
-        ],
-        actions: (
-          <IndexActions
-            index={index}
-            onDropIndex={onDropIndex}
-            onEditIndex={onEditIndex}
-            onRunAggregateIndex={(name) => {
-              openCollectionWorkspace(namespace, {
-                newTab: true,
-                ...(isVectorSearchIndex
-                  ? {
-                      initialPipelineText:
-                        getInitialVectorSearchIndexPipelineText(name),
-                    }
-                  : {
-                      initialPipeline: getInitialSearchIndexPipeline(name),
-                    }),
-              });
-            }}
-          />
-        ),
-        details: (
-          <div
-            className={searchIndexDetailsStyles}
-            data-testid={`search-indexes-details-${index.name}`}
-          >
-            {isVectorSearchIndex ? (
-              <VectorSearchIndexDetails definition={index.latestDefinition} />
-            ) : (
-              <SearchIndexDetails definition={index.latestDefinition} />
-            )}
-          </div>
-        ),
-      };
-    });
-  }, [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]);
+  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
+    () =>
+      indexes.map((index) => {
+        const isVectorSearchIndex = index.type === 'vectorSearch';
+
+        return {
+          id: index.name,
+          name: index.name,
+          status: (
+            <IndexStatus
+              status={index.status}
+              data-testid={`search-indexes-status-${index.name}`}
+            />
+          ),
+          type: (
+            <SearchIndexType
+              type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
+              link={
+                isVectorSearchIndex
+                  ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
+                  : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
+              }
+            />
+          ),
+          indexInfo: index,
+          actions: (
+            <SearchIndexActions
+              index={index}
+              onDropIndex={onDropIndex}
+              onEditIndex={onEditIndex}
+              onRunAggregateIndex={(name) => {
+                openCollectionWorkspace(namespace, {
+                  newTab: true,
+                  ...(isVectorSearchIndex
+                    ? {
+                        initialPipelineText:
+                          getInitialVectorSearchIndexPipelineText(name),
+                      }
+                    : {
+                        initialPipeline: getInitialSearchIndexPipeline(name),
+                      }),
+                });
+              }}
+            />
+          ),
+          // eslint-disable-next-line react/display-name
+          renderExpandedContent: () => (
+            <div
+              className={searchIndexDetailsStyles}
+              data-testid={`search-indexes-details-${index.name}`}
+            >
+              {isVectorSearchIndex ? (
+                <VectorSearchIndexDetails definition={index.latestDefinition} />
+              ) : (
+                <SearchIndexDetails definition={index.latestDefinition} />
+              )}
+            </div>
+          ),
+        };
+      }),
+    [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]
+  );
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
@@ -303,12 +370,10 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   return (
     <IndexesTable
+      id="search-indexes"
       data-testid="search-indexes"
-      aria-label="Search Indexes"
-      canModifyIndex={canModifyIndex}
-      columns={COLUMNS}
+      columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
-      onSortTable={onSortTable}
     />
   );
 };
@@ -321,7 +386,6 @@ const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
 });
 
 const mapDispatch = {
-  onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
   openCreateModal: showCreateModal,
   onEditIndex: showUpdateModal,

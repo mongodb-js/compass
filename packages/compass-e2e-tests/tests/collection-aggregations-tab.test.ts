@@ -1194,8 +1194,7 @@ describe('Collection aggregations tab', function () {
       await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
       await browser.$(Selectors.FocusModeStageOutput).waitForDisplayed();
 
-      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
-      await closeButton.click();
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
       await modal.waitForDisplayed({ reverse: true });
     });
@@ -1232,7 +1231,7 @@ describe('Collection aggregations tab', function () {
       await nextButton.waitForDisplayed();
       await previousButton.waitForDisplayed();
 
-      expect(await previousButton.isEnabled()).to.equal(false);
+      await browser.waitForAriaDisabled(previousButton, true);
 
       await browser.waitUntil(async () => {
         const activeStage = await browser.$(
@@ -1257,7 +1256,7 @@ describe('Collection aggregations tab', function () {
         return (await activeStage.getText()) === 'Stage 3: $sort';
       });
 
-      expect(await nextButton.isEnabled()).to.equal(false);
+      await browser.waitForAriaDisabled(nextButton, true);
 
       await previousButton.click();
       await browser.waitUntil(async () => {
@@ -1275,7 +1274,7 @@ describe('Collection aggregations tab', function () {
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
 
-      expect(await previousButton.isEnabled()).to.equal(false);
+      await browser.waitForAriaDisabled(previousButton, true);
 
       await browser.keys('Escape');
       await modal.waitForDisplayed({ reverse: true });
@@ -1334,7 +1333,8 @@ describe('Collection aggregations tab', function () {
         return (await activeStage.getText()) === 'Stage 2: select';
       });
 
-      await browser.keys('Escape');
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
+
       await modal.waitForDisplayed({ reverse: true });
     });
 

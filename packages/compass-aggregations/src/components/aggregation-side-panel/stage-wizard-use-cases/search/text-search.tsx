@@ -136,7 +136,6 @@ export const TextSearch = ({
     <div className={containerStyles}>
       <div className={rowStyles}>
         <Body className={labelStyles}>Perform a</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={inputStyles}
           allowDeselect={false}
@@ -148,10 +147,13 @@ export const TextSearch = ({
           <Option value="fuzzy">fuzzy search</Option>
         </Select>
         <div className={inputWithLabelStyles}>
-          <Body>with maxEdits</Body>
+          <Body>
+            with <span id="maxEdits-input-label">maxEdits</span>
+          </Body>
           <TextInput
             type="number"
-            aria-label="maxEdits"
+            aria-labelledby="maxEdits-input-label"
+            data-testid="maxEdits-input"
             placeholder="e.g 2"
             className={inputStyles}
             value={formData.maxEdits?.toString()}
@@ -166,7 +168,6 @@ export const TextSearch = ({
       </div>
       <div className={rowStyles}>
         <Body className={labelStyles}>for all documents where</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={inputStyles}
           allowDeselect={false}
@@ -190,6 +191,9 @@ export const TextSearch = ({
         <Body className={labelStyles}>contains</Body>
         <TextInput
           placeholder={'text'}
+          // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
+          aria-labelledby=""
+          data-testid="text-search-contains-input"
           aria-label={'text'}
           value={formData.text}
           className={inputStyles}

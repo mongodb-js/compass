@@ -5,7 +5,6 @@ import {
   ActionTypes,
   fetchIndexes,
   setRegularIndexes,
-  sortRegularIndexes,
   refreshRegularIndexes,
   inProgressIndexAdded,
   inProgressIndexRemoved,
@@ -20,7 +19,6 @@ import {
 import { readonlyViewChanged } from './is-readonly-view';
 import { setupStore } from '../../test/setup-store';
 
-const defaultSortedDesc = [...defaultSortedIndexes].reverse();
 const usageSortedDesc = [...usageSortedIndexes].reverse();
 
 describe('regular-indexes module', function () {
@@ -48,42 +46,6 @@ describe('regular-indexes module', function () {
       expect(store.getState().regularIndexes.indexes).to.deep.equal(
         usageSortedDesc
       );
-    }
-  });
-
-  it('#sortRegularIndexes action - it sorts indexes as defined', function () {
-    store.dispatch(setRegularIndexes(defaultSortedDesc as any));
-
-    {
-      store.dispatch(sortRegularIndexes('Name and Definition', 'asc'));
-      const state = store.getState().regularIndexes;
-      expect(state.sortColumn).to.equal('Name and Definition');
-      expect(state.sortOrder).to.equal('asc');
-      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
-    }
-
-    {
-      store.dispatch(sortRegularIndexes('Name and Definition', 'desc'));
-      const state = store.getState().regularIndexes;
-      expect(state.sortColumn).to.equal('Name and Definition');
-      expect(state.sortOrder).to.equal('desc');
-      expect(state.indexes).to.deep.equal(defaultSortedDesc);
-    }
-
-    {
-      store.dispatch(sortRegularIndexes('Usage', 'asc'));
-      const state = store.getState().regularIndexes;
-      expect(state.sortColumn).to.equal('Usage');
-      expect(state.sortOrder).to.equal('asc');
-      expect(state.indexes).to.deep.equal(usageSortedIndexes);
-    }
-
-    {
-      store.dispatch(sortRegularIndexes('Usage', 'desc'));
-      const state = store.getState().regularIndexes;
-      expect(state.sortColumn).to.equal('Usage');
-      expect(state.sortOrder).to.equal('desc');
-      expect(state.indexes).to.deep.equal(usageSortedDesc);
     }
   });
 
@@ -146,12 +108,12 @@ describe('regular-indexes module', function () {
       expect(state.isRefreshing).to.equal(false);
     });
 
-    it('sets indexes when fetched successfully with default sort', async function () {
+    it('sets indexes when fetched successfully', async function () {
       const store = setupStore({}, {
         isConnected() {
           return true;
         },
-        indexes: () => Promise.resolve(defaultSortedDesc),
+        indexes: () => Promise.resolve(defaultSortedIndexes),
       } as any);
       // Set indexes to empty
       store.dispatch(setRegularIndexes([]));
@@ -159,25 +121,6 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
       expect(state.indexes).to.deep.eq(defaultSortedIndexes);
-      expect(state.error).to.be.null;
-      expect(state.isRefreshing).to.equal(false);
-    });
-
-    it('sets indexes when fetched successfully with custom sort', async function () {
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: () => Promise.resolve(usageSortedIndexes),
-      } as any);
-      // Set indexes to empty
-      store.dispatch(setRegularIndexes([]));
-      store.dispatch(sortRegularIndexes('Usage', 'desc'));
-
-      await store.dispatch(fetchIndexes());
-
-      const state = store.getState().regularIndexes;
-      expect(state.indexes).to.deep.eq(usageSortedDesc);
       expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
@@ -222,7 +165,7 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
 
-      expect(state.indexes.length).to.equal(defaultSortedIndexes.length + 1);
+      expect(state.indexes.length).to.equal(defaultSortedIndexes.length + 2);
 
       const indexes = state.indexes.filter(
         (index: any) => index.extra.status === 'inprogress'

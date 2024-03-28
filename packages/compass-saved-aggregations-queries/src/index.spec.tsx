@@ -238,19 +238,23 @@ describe('AggregationsQueriesList', function () {
       );
 
       expect(
-        within(modal).getByRole<HTMLButtonElement>('button', {
-          name: /update/i,
-        }).disabled,
+        within(modal)
+          .getByRole<HTMLButtonElement>('button', {
+            name: /update/i,
+          })
+          .getAttribute('aria-disabled'),
         'submit button is disabled when user has not changed field value'
-      ).to.be.true;
+      ).to.equal('true');
 
       userEvent.clear(nameInput);
       expect(
-        within(modal).getByRole<HTMLButtonElement>('button', {
-          name: /update/i,
-        }).disabled,
+        within(modal)
+          .getByRole<HTMLButtonElement>('button', {
+            name: /update/i,
+          })
+          .getAttribute('aria-disabled'),
         'submit button is disabled when field value is empty'
-      ).to.be.true;
+      ).to.equal('true');
 
       userEvent.type(nameInput, updatedName);
       userEvent.click(
