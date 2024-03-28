@@ -101,7 +101,7 @@ export class ConnectionStorage {
     signal?: AbortSignal;
     connectionInfo: ConnectionInfo;
   }): Promise<void> {
-    const result = await this.ipc.save({ connectionInfo, signal });
+    await this.ipc.save({ connectionInfo, signal });
     this.events.emit(ConnectionStorageEvents.ConnectionsChanged);
   }
 
@@ -112,7 +112,7 @@ export class ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<void> {
-    const result = await this.ipc.delete({ id, signal });
+    await this.ipc.delete({ id, signal });
     this.events.emit(ConnectionStorageEvents.ConnectionsChanged);
   }
 
@@ -128,7 +128,7 @@ export class ConnectionStorage {
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<void> {
-    const result = await this.ipc.importConnections({
+    await this.ipc.importConnections({
       content,
       options,
       signal,

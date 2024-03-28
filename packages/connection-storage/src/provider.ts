@@ -1,16 +1,6 @@
-import {
-  createContext,
-  createElement,
-  useMemo,
-  useContext,
-  useRef,
-} from 'react';
-import { ConnectionRepository } from './connection-repository';
+import { createContext, useContext, useRef } from 'react';
 import type { ConnectionInfo, ConnectionStorage } from './renderer';
-import {
-  createServiceLocator,
-  createServiceProvider,
-} from 'hadron-app-registry';
+import { createServiceLocator } from 'hadron-app-registry';
 
 export const ConnectionStorageContext = createContext<
   typeof ConnectionStorage | null
