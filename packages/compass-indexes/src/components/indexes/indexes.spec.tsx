@@ -55,9 +55,9 @@ describe('Indexes Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
-  it('renders indexes card', function () {
+  it('renders indexes', function () {
     renderIndexes();
-    expect(screen.getByTestId('indexes')).to.exist;
+    expect(screen.getByTestId('indexes-list')).to.exist;
   });
 
   it('renders indexes toolbar', function () {
@@ -142,7 +142,7 @@ describe('Indexes Component', function () {
 
       const indexesList = screen.getByTestId('indexes-list');
       expect(indexesList).to.exist;
-      expect(within(indexesList).getByTestId('indexes-row-_id_')).to.exist;
+      expect(within(indexesList).getByText('_id_')).to.exist;
     });
 
     it('renders indexes list with in progress index', function () {
@@ -192,15 +192,13 @@ describe('Indexes Component', function () {
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const inProgressIndex =
-        within(indexesList).getByTestId('indexes-row-item');
-      const indexPropertyField = within(inProgressIndex).getByTestId(
-        'indexes-property-field'
-      );
+      const indexPropertyField = within(indexesList).getAllByTestId(
+        'indexes-properties-field'
+      )[1];
 
       expect(indexPropertyField).to.contain.text('In Progress ...');
 
-      const dropIndexButton = within(inProgressIndex).queryByTestId(
+      const dropIndexButton = within(indexesList).queryByTestId(
         'index-actions-delete-action'
       );
       expect(dropIndexButton).to.not.exist;
@@ -254,14 +252,13 @@ describe('Indexes Component', function () {
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const failedIndex = within(indexesList).getByTestId('indexes-row-item');
-      const indexPropertyField = within(failedIndex).getByTestId(
-        'indexes-property-field'
-      );
+      const indexPropertyField = within(indexesList).getAllByTestId(
+        'indexes-properties-field'
+      )[1];
 
       expect(indexPropertyField).to.contain.text('Failed');
 
-      const dropIndexButton = within(failedIndex).getByTestId(
+      const dropIndexButton = within(indexesList).getByTestId(
         'index-actions-delete-action'
       );
       expect(dropIndexButton).to.exist;
@@ -303,7 +300,7 @@ describe('Indexes Component', function () {
       // click the refresh button
       const refreshButton = within(toolbar).getByText('Refresh');
       await waitFor(
-        () => expect(refreshButton.getAttribute('disabled')).to.be.null
+        () => expect(refreshButton.getAttribute('aria-disabled')).to.be.null
       );
       fireEvent.click(refreshButton);
 

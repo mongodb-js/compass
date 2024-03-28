@@ -1,11 +1,11 @@
 import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
-import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
+import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
+import { mockRegularIndex } from '../../../test/helpers';
 
 const indexes = [
   {
@@ -97,13 +97,12 @@ const indexes = [
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
 ) => {
-  render(
+  return render(
     <RegularIndexesTable
       indexes={[]}
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}
-      onSortTable={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
       onDeleteIndex={() => {}}
@@ -124,7 +123,7 @@ describe('RegularIndexesTable Component', function () {
 
     // Renders indexes list (table rows)
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(indexRow, 'it renders each index in a row').to.exist;
 
       // Renders index fields (table cells)
@@ -133,7 +132,7 @@ describe('RegularIndexesTable Component', function () {
         'indexes-type-field',
         'indexes-size-field',
         'indexes-usage-field',
-        'indexes-property-field',
+        'indexes-properties-field',
         'indexes-actions-field',
       ].forEach((indexCell) => {
         // For _id index we always hide drop index field
@@ -166,7 +165,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
     });
   });
@@ -176,7 +175,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
@@ -188,49 +187,118 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
     });
   });
 
-  ['Name and Definition', 'Type', 'Size', 'Usage', 'Properties'].forEach(
-    (column) => {
-      it(`sorts table by ${column}`, function () {
-        const onSortTableSpy = spy();
-        renderIndexList({
-          isWritable: true,
-          readOnly: false,
-          indexes: indexes,
-          onSortTable: onSortTableSpy,
-        });
-
-        const indexesList = screen.getByTestId('indexes-list');
-
-        const columnheader = within(indexesList).getByTestId(
-          `indexes-header-${column}`
-        );
-        const sortButton = within(columnheader).getByRole('button', {
-          name: /sort/i,
-        });
-
-        expect(onSortTableSpy.callCount).to.equal(0);
-
-        userEvent.click(sortButton);
-        expect(onSortTableSpy.callCount).to.equal(1);
-        expect(onSortTableSpy.getCalls()[0].args).to.deep.equal([
-          column,
-          'desc',
-        ]);
-
-        userEvent.click(sortButton);
-        expect(onSortTableSpy.callCount).to.equal(2);
-        expect(onSortTableSpy.getCalls()[1].args).to.deep.equal([
-          column,
-          'asc',
-        ]);
+  describe('sorting', function () {
+    function getIndexNames() {
+      return screen.getAllByTestId('indexes-name-field').map((el) => {
+        return el.textContent!.trim();
       });
     }
-  );
+
+    function clickSort(label: string) {
+      userEvent.click(screen.getByRole('button', { name: `Sort by ${label}` }));
+    }
+
+    it('sorts table by name', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'b' }),
+          mockRegularIndex({ name: 'a' }),
+          mockRegularIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by type', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'b' }),
+          mockRegularIndex({ name: 'a' }),
+          mockRegularIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Definition');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by size', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'b', size: 5 }),
+          mockRegularIndex({ name: 'a', size: 1 }),
+          mockRegularIndex({ name: 'c', size: 10 }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Size');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Size');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by usage', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'b', usageCount: 5 }),
+          mockRegularIndex({ name: 'a', usageCount: 0 }),
+          mockRegularIndex({ name: 'c', usageCount: 10 }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Usage');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Usage');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by properties', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'b', properties: ['sparse'] }),
+          mockRegularIndex({ name: 'a', properties: ['partial'] }),
+          mockRegularIndex({
+            name: 'c',
+            cardinality: 'compound',
+            properties: ['ttl'],
+          }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      // `c` is first because when cardinality is compound, the property name
+      // that is used in sort is always `compound`
+      clickSort('Properties');
+      expect(getIndexNames()).to.deep.eq(['c', 'a', 'b']);
+
+      clickSort('Properties');
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+    });
+  });
 });

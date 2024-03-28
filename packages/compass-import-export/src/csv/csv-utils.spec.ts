@@ -100,6 +100,9 @@ describe('stringifyCSVValue', function () {
     expect(
       stringifyCSVValue(new Date('2019-02-08T10:21:49.176Z'), options)
     ).to.equal('2019-02-08T10:21:49.176Z');
+    expect(stringifyCSVValue(new Date('NaN'), options)).to.equal(
+      'Invalid Date'
+    );
   });
 
   it('stringifies number', function () {
@@ -756,7 +759,9 @@ describe('parseCSVValue', function () {
         '{"$ref":"namespace","$id":{"$oid":"642af890571e13e609f9069a"}}',
         'ejson'
       )
-    ).to.deep.equal(new DBRef('namespace', new ObjectId()));
+    ).to.deep.equal(
+      new DBRef('namespace', new ObjectId('642af890571e13e609f9069a'))
+    );
 
     expect(parseCSVValue('{"$symbol":"symbol"}', 'ejson')).to.deep.equal(
       new BSONSymbol('symbol')

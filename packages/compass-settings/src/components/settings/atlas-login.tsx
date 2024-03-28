@@ -1,14 +1,11 @@
 import React from 'react';
 import {
-  Badge,
-  Banner,
   Button,
   Icon,
   KeylineCard,
-  Label,
+  Link,
   SpinLoader,
   Subtitle,
-  Toggle,
   css,
   palette,
   spacing,
@@ -17,12 +14,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
-import {
-  disableAIFeature,
-  enableAIFeature,
-  signIn,
-  signOut,
-} from '../../stores/atlas-login';
+import { signIn, signOut } from '../../stores/atlas-login';
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 const atlasLoginKeylineCardStyles = css({
   overflow: 'hidden',
@@ -61,38 +55,13 @@ const atlasLoginHeaderDescriptionStyles = css({
   gridArea: 'description',
 });
 
-const atlasLoginToggleControlContainerStyles = css({
-  padding: spacing[3],
-  display: 'grid',
-  gridTemplateColumns: '100%',
-  gap: spacing[3],
-});
-
-const atlasLoginToggleControlStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
-});
-
-const atlasLoginToggleControlLabelStyles = css({
-  fontWeight: 'normal',
-});
-
 export const AtlasLoginSettings: React.FunctionComponent<{
   isSignInInProgress: boolean;
   userLogin: string | null;
   isAIFeatureEnabled: boolean;
   onSignInClick(): void;
   onSignOutClick(): void;
-  onToggleAIFeature(newValue: boolean): void;
-}> = ({
-  isSignInInProgress,
-  userLogin,
-  isAIFeatureEnabled,
-  onSignInClick,
-  onSignOutClick,
-  onToggleAIFeature,
-}) => {
+}> = ({ isSignInInProgress, userLogin, onSignInClick, onSignOutClick }) => {
   const darkMode = useDarkMode();
   const isSignedIn = userLogin !== null;
 
@@ -107,7 +76,6 @@ export const AtlasLoginSettings: React.FunctionComponent<{
         <Subtitle className={atlasLoginHeadingTitleStyles}>
           <Icon glyph="Sparkle" />
           <span>Use Generative AI</span>
-          <Badge variant="blue">Preview</Badge>
         </Subtitle>
         <div className={atlasLoginControlsStyles}>
           {isSignedIn && (
@@ -146,37 +114,20 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           {isSignedIn ? (
             <>Logged in with Atlas account {userLogin}</>
           ) : (
-            <>You must first connect your Atlas account to use this feature.</>
+            <>
+              This is a feature powered by generative AI, and may give
+              inaccurate responses. Please see our{' '}
+              <Link
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                FAQ
+              </Link>{' '}
+              for more information.
+            </>
           )}
         </div>
-      </div>
-      <div className={atlasLoginToggleControlContainerStyles}>
-        <div className={atlasLoginToggleControlStyles}>
-          <Toggle
-            id="use-ai-toggle"
-            disabled={!isSignedIn}
-            checked={isAIFeatureEnabled}
-            onChange={onToggleAIFeature}
-            aria-labelledby="use-ai-toggle-label"
-            size="small"
-          ></Toggle>
-          <Label
-            id="use-ai-toggle-label"
-            htmlFor="use-ai-toggle"
-            className={atlasLoginToggleControlLabelStyles}
-          >
-            Enable natural language prompts to generate queries and
-            aggregations.
-          </Label>
-        </div>
-        {isSignedIn && !isAIFeatureEnabled && (
-          <Banner>
-            When enabling artificial intelligence features, you will be required
-            to understand and agree to our terms of service and privacy policy
-            regarding how your data is handled by our artificial intelligence
-            partner(s).
-          </Banner>
-        )}
       </div>
     </KeylineCard>
   );
@@ -193,12 +144,5 @@ export const ConnectedAtlasLoginSettings = connect(
   {
     onSignInClick: signIn,
     onSignOutClick: signOut,
-    onToggleAIFeature(newValue: boolean) {
-      if (newValue === true) {
-        return enableAIFeature();
-      } else {
-        return disableAIFeature();
-      }
-    },
   }
 )(AtlasLoginSettings);

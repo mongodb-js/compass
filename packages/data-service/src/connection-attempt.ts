@@ -130,7 +130,7 @@ export function createConnectionAttempt({
   connectFn = connect,
 }: {
   logger: UnboundDataServiceImplLogger;
-  connectFn: typeof connect;
+  connectFn?: typeof connect;
 }): ConnectionAttempt {
   return new ConnectionAttempt({
     logger,

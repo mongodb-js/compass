@@ -62,12 +62,6 @@ describe('AtlasLoginSettings', function () {
 
     expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
       .exist;
-
-    expect(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      })
-    ).to.have.attribute('aria-checked', 'false');
   });
 
   it('should sign out user when signed in and sign out is clicked', async function () {
@@ -87,24 +81,11 @@ describe('AtlasLoginSettings', function () {
       // Disconnect button is a good indicator that we are signed in
       screen.getByText('Log in with Atlas');
     });
-
     expect(
-      screen.getByText(
-        'You must first connect your Atlas account to use this feature.'
+      screen.queryByText(
+        /This is a feature powered by generative AI, and may give inaccurate responses/
       )
     ).to.exist;
-
-    expect(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      })
-    ).to.have.attribute('aria-checked', 'false');
-
-    expect(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      })
-    ).to.have.attribute('disabled');
   });
 
   it('updates state with user info on `signed-in` event', async function () {
@@ -117,8 +98,8 @@ describe('AtlasLoginSettings', function () {
     renderAtlasLoginSettings(atlasAuthService);
 
     expect(
-      screen.getByText(
-        'You must first connect your Atlas account to use this feature.'
+      screen.queryByText(
+        /This is a feature powered by generative AI, and may give inaccurate responses/
       )
     ).to.exist;
 
@@ -155,8 +136,8 @@ describe('AtlasLoginSettings', function () {
     });
 
     expect(
-      screen.getByText(
-        'You must first connect your Atlas account to use this feature.'
+      screen.queryByText(
+        /This is a feature powered by generative AI, and may give inaccurate responses/
       )
     ).to.exist;
   });
@@ -183,8 +164,8 @@ describe('AtlasLoginSettings', function () {
     });
 
     expect(
-      screen.getByText(
-        'You must first connect your Atlas account to use this feature.'
+      screen.queryByText(
+        /This is a feature powered by generative AI, and may give inaccurate responses/
       )
     ).to.exist;
   });
@@ -221,92 +202,11 @@ describe('AtlasLoginSettings', function () {
     );
   });
 
-  it('should enable AI feature when toggle clicked', async function () {
-    const atlasAuthService = {
-      signIn: sandbox
-        .stub()
-        .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
-    };
-
-    const enableFeature = sandbox.spy();
-
-    const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
-      enableFeature,
-    });
-
-    await store.dispatch(signIn());
-
-    expect(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      })
-    ).to.have.attribute('aria-checked', 'false');
-
-    userEvent.click(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      }),
-      undefined,
-      { skipPointerEventsCheck: true }
-    );
-
-    expect(enableFeature).to.have.been.calledOnce;
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('switch', {
-          name: /Enable natural language prompts to generate/,
-        })
-      ).to.have.attribute('aria-checked', 'true');
-    });
-  });
-
-  it('should disable AI feature when toggle clicked', async function () {
-    const atlasAuthService = {
-      signIn: sandbox
-        .stub()
-        .resolves({ login: 'user@mongodb.com', enabledAIFeature: true }),
-    };
-
-    const disableFeature = sandbox.spy();
-
-    const { store } = renderAtlasLoginSettings(atlasAuthService as any, {
-      disableFeature,
-    });
-
-    await store.dispatch(signIn());
-
-    expect(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      })
-    ).to.have.attribute('aria-checked', 'true');
-
-    userEvent.click(
-      screen.getByRole('switch', {
-        name: /Enable natural language prompts to generate/,
-      }),
-      undefined,
-      { skipPointerEventsCheck: true }
-    );
-
-    expect(disableFeature).to.have.been.calledOnce;
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('switch', {
-          name: /Enable natural language prompts to generate/,
-        })
-      ).to.have.attribute('aria-checked', 'false');
-    });
-  });
-
   it('should not reset sign in state if there is no sign in attempt in progress', async function () {
     const atlasAuthService = {
       signIn: sandbox
         .stub()
         .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
-      enableAIFeature: sandbox.stub().resolves(),
     };
 
     const { store } = renderAtlasLoginSettings(atlasAuthService);

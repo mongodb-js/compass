@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import {
   setComboboxValue,
   openComboBox,
-  setInputElementValue,
+  setInputElementValueByTestId,
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
 
@@ -130,7 +130,7 @@ describe('lookup', function () {
     renderLookupForm({
       onChange: onChange,
     });
-    setInputElementValue(/name of the array/i, 'data');
+    setInputElementValueByTestId('name-of-the-array-input', 'data');
     const [value, error] = onChange.lastCall.args;
     expect(JSON.parse(value)).to.deep.equal({
       from: '',
@@ -156,7 +156,7 @@ describe('lookup', function () {
     setComboboxValue(/select collection/i, 'test');
     setComboboxValue(/select foreign field/i, 'street');
     setComboboxValue(/select local field/i, 'address');
-    setInputElementValue(/name of the array/i, 'data');
+    setInputElementValueByTestId('name-of-the-array-input', 'data');
     const [value, error] = onChange.lastCall.args;
     expect(JSON.parse(value)).to.deep.equal({
       from: 'test',

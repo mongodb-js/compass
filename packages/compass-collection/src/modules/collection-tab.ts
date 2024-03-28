@@ -3,23 +3,23 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 
-type CollectionThunkAction<
-  ReturnType,
-  Action extends AnyAction = AnyAction
-> = ThunkAction<
-  ReturnType,
+type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
+  R,
   CollectionState,
   {
-    globalAppRegistry: AppRegistry;
     localAppRegistry: AppRegistry;
     dataService: DataService;
+    workspaces: ReturnType<typeof workspacesServiceLocator>;
   },
-  Action
+  A
 >;
 
 export type CollectionState = {
+  workspaceTabId: string;
   namespace: string;
   stats: Pick<
     Collection,
@@ -32,12 +32,6 @@ export type CollectionState = {
     | 'free_storage_size'
   > | null;
   metadata: CollectionMetadata | null;
-  currentTab:
-    | 'Documents'
-    | 'Aggregations'
-    | 'Schema'
-    | 'Indexes'
-    | 'Validation';
   editViewName?: string;
 };
 
@@ -67,15 +61,15 @@ export function pickCollectionStats(
 enum CollectionActions {
   CollectionStatsFetched = 'compass-collection/CollectionStatsFetched',
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
-  ChangeTab = 'compass-collection/ChangeTab',
 }
 
 const reducer: Reducer<CollectionState> = (
   state = {
+    // TODO(COMPASS-7782): use hook to get the workspace tab id instead
+    workspaceTabId: '',
     namespace: '',
     stats: null,
     metadata: null,
-    currentTab: 'Documents',
   },
   action
 ) => {
@@ -91,12 +85,6 @@ const reducer: Reducer<CollectionState> = (
       metadata: action.metadata,
     };
   }
-  if (action.type === CollectionActions.ChangeTab) {
-    return {
-      ...state,
-      currentTab: action.tabName,
-    };
-  }
   return state;
 };
 
@@ -109,11 +97,14 @@ export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
 };
 
 export const selectTab = (
-  tabName: CollectionState['currentTab']
+  tabName: CollectionSubtab
 ): CollectionThunkAction<void> => {
-  return (dispatch, _getState, { localAppRegistry }) => {
-    dispatch({ type: CollectionActions.ChangeTab, tabName });
+  return (_dispatch, getState, { localAppRegistry, workspaces }) => {
     localAppRegistry.emit('subtab-changed', tabName);
+    workspaces.openCollectionWorkspaceSubtab(
+      getState().workspaceTabId,
+      tabName
+    );
   };
 };
 

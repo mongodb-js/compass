@@ -40,6 +40,7 @@ class MockDataService extends EventEmitter {
     return Promise.resolve([mockDb('foo'), mockDb('bar'), mockDb('buz')]);
   }
   disconnect() {}
+  addReauthenticationHandler() {}
 }
 
 describe('CompassWeb', function () {

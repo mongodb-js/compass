@@ -6,7 +6,7 @@ describe('DateEditor', function () {
   describe('#start', function () {
     const formattedDateString = '2017-01-01T00:00:00.000+00:00';
     const date = new Date(formattedDateString);
-    const element = new Element('date', date, false);
+    const element = new Element('date', date);
 
     context('when the current type is valid (not yet edited)', function () {
       const dateEditor = new DateEditor(element);
@@ -21,6 +21,12 @@ describe('DateEditor', function () {
 
       it('sets the current value as valid', function () {
         expect(element.isCurrentTypeValid()).to.equal(true);
+      });
+
+      it('handles invalid JS `Date` values well', function () {
+        const element = new Element('date', new Date(NaN));
+        new DateEditor(element).start();
+        expect(element.currentValue).to.equal('Invalid Date');
       });
     });
 

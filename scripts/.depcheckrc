@@ -1,3 +1,8 @@
 ignores:
- - "@mongodb-js/prettier-config-compass"
- - "bson"
+  - '@mongodb-js/prettier-config-compass'
+  - 'bson'
+  # We're specifically want to use hoisted versions from webpack config package
+  - '@babel/preset-env'
+  - '@babel/preset-react'
+  - '@babel/preset-typescript'
+  - '@babel/plugin-proposal-decorators'

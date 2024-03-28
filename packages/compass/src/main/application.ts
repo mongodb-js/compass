@@ -307,13 +307,22 @@ class CompassApplication {
   }
 
   private static async setupCORSBypass() {
-    const CLOUD_URLS_FILTER = {
+    const allowedCloudEndpoints = {
       urls: [
         '*://cloud.mongodb.com/*',
         '*://cloud-dev.mongodb.com/*',
         '*://compass.mongodb.com/*',
       ],
     };
+
+    if (
+      process.env.APP_ENV === 'webdriverio' ||
+      process.env.NODE_ENV === 'development'
+    ) {
+      // In e2e tests and in dev mode we need to allow application to send
+      // requests to localhost in some cases: test GenAI with MMS running locally.
+      allowedCloudEndpoints.urls.push('*://localhost/*');
+    }
 
     // List of request headers that will indicate to the server that it's a CORS
     // request and can trigger a CORS check that we are trying to bypass
@@ -344,7 +353,7 @@ class CompassApplication {
     await app.whenReady();
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
-      CLOUD_URLS_FILTER,
+      allowedCloudEndpoints,
       (details, callback) => {
         const filteredHeaders = Object.fromEntries(
           Object.entries(details.requestHeaders).filter(([name]) => {
@@ -356,7 +365,7 @@ class CompassApplication {
     );
 
     session.defaultSession.webRequest.onHeadersReceived(
-      CLOUD_URLS_FILTER,
+      allowedCloudEndpoints,
       (details, callback) => {
         const filteredHeaders = Object.fromEntries(
           Object.entries(

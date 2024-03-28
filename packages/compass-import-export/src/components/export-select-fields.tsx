@@ -12,9 +12,12 @@ import {
   Disclaimer,
   ErrorSummary,
   Icon,
+  HeaderCell,
+  HeaderRow,
   Placeholder,
   Table,
-  TableHeader,
+  TableBody,
+  TableHead,
   Row,
   Cell,
   TextInput,
@@ -87,13 +90,10 @@ const FIELDS_TO_SHOW_INCREASE = 100;
 
 function LoadingTable() {
   return (
-    <Table
-      data={loadingPlaceholderItems}
-      columns={[
-        <TableHeader
-          className={smallCellContainerStyle}
-          key="checkbox"
-          label={
+    <Table shouldAlternateRowColor>
+      <TableHead>
+        <HeaderRow>
+          <HeaderCell className={smallCellContainerStyle} key="checkbox">
             <Checkbox
               aria-label="Select all fields"
               disabled
@@ -102,28 +102,29 @@ function LoadingTable() {
                 /* noop */
               }}
             />
-          }
-        />,
-        <TableHeader key="field-name" label="Field Name" />,
-      ]}
-    >
-      {({ datum: index }) => (
-        <Row>
-          <Cell>
-            <Placeholder
-              className={placeholderStyles}
-              style={{
-                // Fade to transparent as we go down.
-                opacity:
-                  (loadingPlaceholderCount - index) / loadingPlaceholderCount,
-              }}
-              key={index}
-              minChar={30}
-              maxChar={40}
-            />
-          </Cell>
-        </Row>
-      )}
+          </HeaderCell>
+          <HeaderCell key="field-name">Field Name</HeaderCell>
+        </HeaderRow>
+      </TableHead>
+      <TableBody>
+        {loadingPlaceholderItems.map((index) => (
+          <Row key={index}>
+            <Cell>
+              <Placeholder
+                className={placeholderStyles}
+                style={{
+                  // Fade to transparent as we go down.
+                  opacity:
+                    (loadingPlaceholderCount - index) / loadingPlaceholderCount,
+                }}
+                key={index}
+                minChar={30}
+                maxChar={40}
+              />
+            </Cell>
+          </Row>
+        ))}
+      </TableBody>
     </Table>
   );
 }
@@ -290,13 +291,10 @@ function ExportSelectFields({
         {isLoading ? (
           <LoadingTable />
         ) : (
-          <Table
-            data={fieldsToRender}
-            columns={[
-              <TableHeader
-                className={smallCellContainerStyle}
-                key="checkbox"
-                label={
+          <Table shouldAlternateRowColor>
+            <TableHead>
+              <HeaderRow>
+                <HeaderCell className={smallCellContainerStyle} key="checkbox">
                   <Checkbox
                     data-testid="export-fields-select-all-table-checkbox"
                     aria-label={
@@ -312,14 +310,13 @@ function ExportSelectFields({
                     checked={isEveryFieldChecked}
                     onChange={toggleExportAllSelectedFields}
                   />
-                }
-              />,
-              <TableHeader key="field-name" label="Field Name" />,
-            ]}
-          >
-            {({ datum: field }) => (
-              <>
-                <Row>
+                </HeaderCell>
+                <HeaderCell key="field-name">Field Name</HeaderCell>
+              </HeaderRow>
+            </TableHead>
+            <TableBody>
+              {fieldsToRender.map((field) => (
+                <Row key={field.fieldKey}>
                   <Cell className={smallCellContainerStyle}>
                     <div>
                       <Checkbox
@@ -343,60 +340,50 @@ function ExportSelectFields({
                     </Label>
                   </Cell>
                 </Row>
-                {field.index === fieldsToRender.length - 1 && (
-                  <>
-                    {hasMoreFieldsToShow && (
-                      <Row
-                        className={addNewFieldRowStyles}
-                        key=".__show-more-fields"
-                      >
-                        <Cell className={smallCellContainerStyle}>
-                          <div />
-                        </Cell>
-                        <Cell>
-                          <Button
-                            data-testid="show-more-fields-export-button"
-                            onClick={() =>
-                              setMaxFieldsToShow(
-                                maxFieldsToShow + FIELDS_TO_SHOW_INCREASE
-                              )
-                            }
-                            size="small"
-                          >
-                            Show {FIELDS_TO_SHOW_INCREASE} more fields
-                          </Button>
-                        </Cell>
-                      </Row>
-                    )}
-                    <Row
-                      className={addNewFieldRowStyles}
-                      key=".__add-new-field"
+              ))}
+              {hasMoreFieldsToShow && (
+                <Row className={addNewFieldRowStyles} key=".__show-more-fields">
+                  <Cell className={smallCellContainerStyle}>
+                    <div />
+                  </Cell>
+                  <Cell>
+                    <Button
+                      data-testid="show-more-fields-export-button"
+                      onClick={() =>
+                        setMaxFieldsToShow(
+                          maxFieldsToShow + FIELDS_TO_SHOW_INCREASE
+                        )
+                      }
+                      size="small"
                     >
-                      <Cell className={smallCellContainerStyle}>
-                        <div />
-                      </Cell>
-                      <Cell>
-                        <TextInput
-                          aria-labelledby="enter-to-add-field-export"
-                          aria-label="Enter a field to include in the export"
-                          type="text"
-                          className={textInputStyles}
-                          ref={newFieldRef}
-                          placeholder="Add field"
-                          onKeyDown={handleAddFieldSubmit}
-                          sizeVariant="small"
-                        />
-                        <div className={enterToAddStyles}>
-                          <Disclaimer id="enter-to-add-field-export">
-                            Press &quot;Enter&quot; to add field
-                          </Disclaimer>
-                        </div>
-                      </Cell>
-                    </Row>
-                  </>
-                )}
-              </>
-            )}
+                      Show {FIELDS_TO_SHOW_INCREASE} more fields
+                    </Button>
+                  </Cell>
+                </Row>
+              )}
+              <Row className={addNewFieldRowStyles} key=".__add-new-field">
+                <Cell className={smallCellContainerStyle}>
+                  <div />
+                </Cell>
+                <Cell>
+                  <TextInput
+                    aria-labelledby="enter-to-add-field-export"
+                    aria-label="Enter a field to include in the export"
+                    type="text"
+                    className={textInputStyles}
+                    ref={newFieldRef}
+                    placeholder="Add field"
+                    onKeyDown={handleAddFieldSubmit}
+                    sizeVariant="small"
+                  />
+                  <div className={enterToAddStyles}>
+                    <Disclaimer id="enter-to-add-field-export">
+                      Press &quot;Enter&quot; to add field
+                    </Disclaimer>
+                  </div>
+                </Cell>
+              </Row>
+            </TableBody>
           </Table>
         )}
       </div>

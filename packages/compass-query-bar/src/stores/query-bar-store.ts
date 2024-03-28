@@ -7,7 +7,7 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
 import {
@@ -15,7 +15,7 @@ import {
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
 } from './query-bar-reducer';
-import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
+import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -157,12 +157,6 @@ export function activatePlugin(
       type: QueryBarActions.ChangeReadonlyConnectionStatus,
       readonly: !instance.isWritable,
     });
-  });
-
-  on(atlasAuthService, 'user-config-changed', (config) => {
-    if (config.enabledAIFeature === false) {
-      store.dispatch(disableAIFeature());
-    }
   });
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };

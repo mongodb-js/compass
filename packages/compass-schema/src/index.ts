@@ -1,5 +1,7 @@
-import type { DataServiceLocator } from 'mongodb-data-service/provider';
-import { dataServiceLocator } from 'mongodb-data-service/provider';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 import CompassSchema from './components/compass-schema';
@@ -33,6 +35,6 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
   }
 );
 export const CompassSchemaPlugin = {
-  name: 'Schema',
+  name: 'Schema' as const,
   component: CompassSchemaHadronPlugin,
 };
