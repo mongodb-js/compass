@@ -7,7 +7,6 @@ import {
   type ConnectionInfoAccess,
   connectionInfoAccessLocator,
 } from '@mongodb-js/connection-storage/provider';
-import { useRef } from 'react';
 
 export type ConnectionScopedAppRegistryLocator<
   T extends string,
