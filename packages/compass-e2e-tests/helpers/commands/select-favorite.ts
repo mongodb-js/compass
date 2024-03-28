@@ -11,7 +11,7 @@ export async function selectFavorite(
   await browser.pause(1000);
 
   await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName), {
-    screenshot: 'selecting-favourite.png',
+    screenshot: `selecting-favourite-${favoriteName}.png`,
   });
   await browser.waitUntil(async () => {
     const text = await browser.$(Selectors.ConnectionTitle).getText();
