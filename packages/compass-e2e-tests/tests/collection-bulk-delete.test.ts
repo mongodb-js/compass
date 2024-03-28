@@ -7,7 +7,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
-describe('Bulk Delete', () => {
+describe('Bulk Delete', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -172,14 +172,5 @@ filter={
 result = client['test']['numbers'].delete_many(
   filter=filter
 )`);
-
-    // Check the telemetry
-    const exportedEvent = await telemetryEntry('Delete Exported');
-    expect(exportedEvent).to.deep.equal({
-      language: 'python',
-      with_builders: false,
-      with_drivers_syntax: true,
-      with_import_statements: true,
-    });
   });
 });

@@ -41,6 +41,7 @@ describe('Atlas Login', function () {
   let oidcMockProvider: OIDCMockProvider;
   let getTokenPayload: OIDCMockProviderConfig['getTokenPayload'];
   let stopMockAtlasServer: () => Promise<void>;
+  let numberOfOIDCAuthRequests = 0;
 
   before(async function () {
     skipForWeb(this, 'atlas-login not supported in compass-web');
@@ -70,6 +71,9 @@ describe('Atlas Login', function () {
             res.statusCode = 307;
             res.setHeader('Location', url.searchParams.get('fromURI') ?? '');
             res.end();
+            break;
+          case '/authorize':
+            numberOfOIDCAuthRequests += 1;
             break;
           case '/v1/userinfo':
             if (isAuthorised(req)) {
@@ -104,6 +108,8 @@ describe('Atlas Login', function () {
   });
 
   beforeEach(async function () {
+    numberOfOIDCAuthRequests = 0;
+
     getTokenPayload = () => {
       return DEFAULT_TOKEN_PAYLOAD;
     };
@@ -152,6 +158,7 @@ describe('Atlas Login', function () {
           'Logged in with Atlas account test@example.com'
         );
       });
+      expect(numberOfOIDCAuthRequests).to.eq(1);
     });
 
     describe('telemetry', () => {
@@ -216,6 +223,35 @@ describe('Atlas Login', function () {
           'This is a feature powered by generative AI, and may give inaccurate responses'
         );
       });
+    });
+
+    it('should sign in user when disconnected and clicking again on "Log in with Atlas" button', async function () {
+      await browser.openSettingsModal('Feature Preview');
+
+      await browser.openSettingsModal('Feature Preview');
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
+
+      let loginStatus = browser.$(Selectors.AtlasLoginStatus);
+
+      await browser.waitUntil(async () => {
+        return (
+          (await loginStatus.getText()).trim() ===
+          'Logged in with Atlas account test@example.com'
+        );
+      });
+
+      await browser.clickVisible(Selectors.DisconnectAtlasAccountButton);
+
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
+
+      loginStatus = browser.$(Selectors.AtlasLoginStatus);
+      await browser.waitUntil(async () => {
+        return (
+          (await loginStatus.getText()).trim() ===
+          'Logged in with Atlas account test@example.com'
+        );
+      });
+      expect(numberOfOIDCAuthRequests).to.eq(2);
     });
 
     it('should show toast with error if sign in failed', async function () {

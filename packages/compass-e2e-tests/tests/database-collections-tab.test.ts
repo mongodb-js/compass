@@ -180,7 +180,7 @@ describe('Database collections tab', function () {
       collectionName,
       {
         customCollation: {
-          locale: 'af - Afrikaans',
+          locale: 'af',
           strength: 3,
           caseLevel: false,
           caseFirst: 'lower',

@@ -44,6 +44,9 @@ describe('SavedConnection Component', function () {
           onDeleteConnection={onDeleteConnectionSpy}
           onDuplicateConnection={onDuplicateConnectionSpy}
           onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
+          canOpenNewConnection={true}
+          maximumNumberOfConnectionsOpen={10}
+          canNotOpenReason={undefined}
           connectionInfo={info}
         />
       </ConnectionsManagerProvider>

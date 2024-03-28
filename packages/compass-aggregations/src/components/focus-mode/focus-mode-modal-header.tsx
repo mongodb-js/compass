@@ -211,7 +211,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           </Body>
         </Tooltip>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           data-testid="stage-select"
           allowDeselect={false}

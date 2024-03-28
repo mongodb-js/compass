@@ -1,31 +1,29 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
+import { IndexKeysBadge } from '@mongodb-js/compass-components';
+import type {
+  LGColumnDef,
+  LGTableDataType,
+  LeafyGreenTableRow,
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-
-import { IndexesTable } from '../indexes-table';
 
 import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
 import IndexActions from './index-actions';
+import { IndexesTable } from '../indexes-table';
 
 import {
-  sortRegularIndexes,
   dropIndex,
   hideIndex,
   unhideIndex,
 } from '../../modules/regular-indexes';
 
-import {
-  type RegularIndex,
-  type RegularSortColumn,
-} from '../../modules/regular-indexes';
-
-import type { SortDirection } from '../../modules';
+import { type RegularIndex } from '../../modules/regular-indexes';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
@@ -33,19 +31,109 @@ type RegularIndexesTableProps = {
   isWritable?: boolean;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
-  onSortTable: (column: RegularSortColumn, direction: SortDirection) => void;
   onDeleteIndex: (name: string) => void;
   readOnly?: boolean;
   error?: string | null;
 };
 
-const COLUMNS = [
-  'Name and Definition',
-  'Type',
-  'Size',
-  'Usage',
-  'Properties',
-] as const;
+type IndexInfo = {
+  id: string;
+  name: string;
+  indexInfo: RegularIndex;
+  type: React.ReactNode;
+  size: React.ReactNode;
+  usage: React.ReactNode;
+  properties: React.ReactNode;
+  actions: undefined | React.ReactNode;
+  renderExpandedContent: React.ReactNode;
+};
+
+function sortByProperties(a: RegularIndex, b: RegularIndex) {
+  const aValue =
+    a.cardinality === 'compound' ? 'compound' : a.properties?.[0] || '';
+  const bValue =
+    b.cardinality === 'compound' ? 'compound' : b.properties?.[0] || '';
+  if (aValue > bValue) {
+    return -1;
+  }
+  if (aValue < bValue) {
+    return 1;
+  }
+  return 0;
+}
+
+function sortFn(
+  rowA: LeafyGreenTableRow<IndexInfo>,
+  rowB: LeafyGreenTableRow<IndexInfo>,
+  field: string
+) {
+  if (field === 'properties') {
+    const propSort = sortByProperties(
+      rowA.original.indexInfo,
+      rowB.original.indexInfo
+    );
+    return propSort;
+  }
+
+  if (field === 'usage') {
+    field = 'usageCount';
+  }
+
+  const fieldA = rowA.original.indexInfo[field as keyof RegularIndex]!;
+  const fieldB = rowB.original.indexInfo[field as keyof RegularIndex]!;
+
+  if (fieldA > fieldB) return -1;
+  if (fieldB > fieldA) return 1;
+  return 0;
+}
+
+const COLUMNS: LGColumnDef<IndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name and Definition',
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: (info) => info.getValue(),
+    enableSorting: true,
+    sortingFn: sortFn,
+  },
+  {
+    accessorKey: 'size',
+    header: 'Size',
+    cell: (info) => info.getValue(),
+    enableSorting: true,
+    sortingFn: sortFn,
+  },
+  {
+    accessorKey: 'usage',
+    header: 'Usage',
+    cell: (info) => info.getValue(),
+    sortingFn: sortFn,
+    // The usage contains the date string so we
+    // want it to have a good amount of space.
+    size: 300,
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'properties',
+    header: 'Properties',
+    cell: (info) => info.getValue(),
+    sortingFn: sortFn,
+    enableSorting: true,
+  },
+];
+
+const COLUMNS_WITH_ACTIONS: LGColumnDef<IndexInfo>[] = [
+  ...COLUMNS,
+  {
+    accessorKey: 'actions',
+    header: '',
+    cell: (info) => info.getValue(),
+  },
+];
 
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
@@ -56,47 +144,25 @@ export const RegularIndexesTable: React.FunctionComponent<
   serverVersion,
   onHideIndex,
   onUnhideIndex,
-  onSortTable,
   onDeleteIndex,
   error,
 }) => {
-  const data = useMemo(() => {
-    return indexes.map((index) => {
-      return {
-        key: index.name,
-        'data-testid': `row-${index.name}`,
-        fields: [
-          {
-            'data-testid': 'name-field',
-            children: index.name,
-          },
-          {
-            'data-testid': 'type-field',
-            children: <TypeField type={index.type} extra={index.extra} />,
-          },
-          {
-            'data-testid': 'size-field',
-            children: (
-              <SizeField size={index.size} relativeSize={index.relativeSize} />
-            ),
-          },
-          {
-            'data-testid': 'usage-field',
-            children: (
-              <UsageField usage={index.usageCount} since={index.usageSince} />
-            ),
-          },
-          {
-            'data-testid': 'property-field',
-            children: (
-              <PropertyField
-                cardinality={index.cardinality}
-                extra={index.extra}
-                properties={index.properties}
-              />
-            ),
-          },
-        ],
+  const data = useMemo<LGTableDataType<IndexInfo>[]>(
+    () =>
+      indexes.map((index) => ({
+        id: index.name,
+        name: index.name,
+        indexInfo: index,
+        type: <TypeField type={index.type} extra={index.extra} />,
+        size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
+        usage: <UsageField usage={index.usageCount} since={index.usageSince} />,
+        properties: (
+          <PropertyField
+            cardinality={index.cardinality}
+            extra={index.extra}
+            properties={index.properties}
+          />
+        ),
         actions: index.name !== '_id_' &&
           index.extra.status !== 'inprogress' && (
             <IndexActions
@@ -107,15 +173,17 @@ export const RegularIndexesTable: React.FunctionComponent<
               onUnhideIndex={onUnhideIndex}
             ></IndexActions>
           ),
-        details: (
+
+        // eslint-disable-next-line react/display-name
+        renderExpandedContent: () => (
           <IndexKeysBadge
             keys={index.fields}
             data-testid={`indexes-details-${index.name}`}
           />
         ),
-      };
-    });
-  }, [indexes, onDeleteIndex, onHideIndex, onUnhideIndex, serverVersion]);
+      })),
+    [indexes, onDeleteIndex, onHideIndex, onUnhideIndex, serverVersion]
+  );
 
   if (error) {
     // We don't render the table if there is an error. The toolbar takes care of
@@ -127,12 +195,10 @@ export const RegularIndexesTable: React.FunctionComponent<
 
   return (
     <IndexesTable
+      id="regular-indexes"
       data-testid="indexes"
-      aria-label="Indexes"
-      canModifyIndex={canModifyIndex}
-      columns={COLUMNS}
+      columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
-      onSortTable={onSortTable}
     />
   );
 };
@@ -152,7 +218,6 @@ const mapDispatch = {
   onDeleteIndex: dropIndex,
   onHideIndex: hideIndex,
   onUnhideIndex: unhideIndex,
-  onSortTable: sortRegularIndexes,
 };
 
 export default connect(
