@@ -64,13 +64,9 @@ export const connectionScopedAppRegistryLocator = createServiceLocator(
     const appRegistry = useGlobalAppRegistry();
     const connectionInfoAccess = connectionInfoAccessLocator();
 
-    const registry = useRef(
-      new ConnectionScopedAppRegistryImpl<T>(
-        appRegistry.emit.bind(appRegistry),
-        connectionInfoAccess
-      )
+    return new ConnectionScopedAppRegistryImpl<T>(
+      appRegistry.emit.bind(appRegistry),
+      connectionInfoAccess
     );
-
-    return registry.current;
   }
 );
