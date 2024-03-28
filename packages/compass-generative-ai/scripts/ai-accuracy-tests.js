@@ -175,6 +175,7 @@ const generateMQL = async ({
       databaseName,
       sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
       userInput,
+      requestId: 'generative_ai_accuracy_test',
     });
   }
 
@@ -184,6 +185,7 @@ const generateMQL = async ({
     databaseName,
     sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
     userInput,
+    requestId: 'generative_ai_accuracy_test',
   });
 };
 

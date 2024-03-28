@@ -12,19 +12,21 @@ import {
 } from '../stores/ai-query-reducer';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const useOnSubmitFeedback = () => {
+const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLoggerAndTelemetry('AI-QUERY-UI');
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
       const { log, mongoLogId, track } = logger;
       log.info(mongoLogId(1_001_000_224), 'AIQuery', 'AI query feedback', {
         feedback,
+        requestId: lastAIQueryRequestId,
         text,
       });
 
       track('AI Query Feedback', () => ({
         feedback,
         text,
+        request_id: lastAIQueryRequestId,
       }));
 
       openToast('query-ai-feedback-submitted', {
@@ -33,19 +35,21 @@ const useOnSubmitFeedback = () => {
         timeout: 10_000,
       });
     },
-    [logger]
+    [logger, lastAIQueryRequestId]
   );
 };
 
 type QueryAIProps = Omit<
   React.ComponentProps<typeof GenerativeAIInput>,
   'onSubmitFeedback'
->;
+> & {
+  lastAIQueryRequestId: string | null;
+};
 
 function QueryAI(props: QueryAIProps) {
   // Don't show the feedback options if telemetry is disabled.
   const enableTelemetry = usePreference('trackUsageStatistics');
-  const onSubmitFeedback = useOnSubmitFeedback();
+  const onSubmitFeedback = useOnSubmitFeedback(props.lastAIQueryRequestId);
 
   return (
     <GenerativeAIInput
@@ -60,6 +64,7 @@ const ConnectedQueryAI = connect(
     return {
       aiPromptText: state.aiQuery.aiPromptText,
       isFetching: state.aiQuery.status === 'fetching',
+      lastAIQueryRequestId: state.aiQuery.lastAIQueryRequestId,
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
       errorCode: state.aiQuery.errorCode,
