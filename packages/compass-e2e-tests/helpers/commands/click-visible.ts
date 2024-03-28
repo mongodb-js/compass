@@ -32,11 +32,5 @@ export async function clickVisible(
     await browser.screenshot(options.screenshot);
   }
   const clickElement = getElement();
-  if (await clickElement.isEnabled()) {
-    await clickElement.click();
-  } else {
-    throw new Error(
-      `Trying to click ${selector}, but the element is not enabled`
-    );
-  }
+  await clickElement.click();
 }
