@@ -90,16 +90,6 @@ type Action =
   | {
       type: 'set-active-connection';
       connectionInfo: ConnectionInfo;
-    }
-  | {
-      type: 'set-connections';
-      favoriteConnections: ConnectionInfo[];
-      recentConnections: ConnectionInfo[];
-    }
-  | {
-      type: 'add-connection-merge-info';
-      id: string;
-      mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -150,24 +140,6 @@ export function connectionsReducer(state: State, action: Action): State {
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
         connectionErrorMessage: null,
-      };
-    case 'set-connections':
-      return {
-        ...state,
-        favoriteConnections: action.favoriteConnections,
-        recentConnections: action.recentConnections,
-        connectionErrorMessage: null,
-      };
-    case 'add-connection-merge-info':
-      return {
-        ...state,
-        connectionMergeInfos: {
-          ...state.connectionMergeInfos,
-          [action.id]: merge(
-            cloneDeep(state.connectionMergeInfos[action.id]),
-            action.mergeConnectionInfo
-          ),
-        },
       };
     default:
       return state;
