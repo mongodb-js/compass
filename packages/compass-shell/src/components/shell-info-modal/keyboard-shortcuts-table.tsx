@@ -3,7 +3,10 @@ import {
   Body,
   Description,
   Table,
-  TableHeader,
+  TableHead,
+  TableBody,
+  HeaderCell,
+  HeaderRow,
   Row,
   Cell,
   KeyboardShortcut,
@@ -66,25 +69,27 @@ const hotkeys = [
 
 function KeyboardShortcutsTable() {
   return (
-    <Table
-      data={hotkeys}
-      columns={[
-        <TableHeader key={'name'} label="Key" />,
-        <TableHeader key={'value'} label="Description" />,
-      ]}
-    >
-      {({ datum }) => (
-        <Row key={datum.key}>
-          <Cell>
-            <Body weight="medium">
-              <KeyboardShortcut hotkey={datum.key} />
-            </Body>
-          </Cell>
-          <Cell>
-            <Description>{datum.description}</Description>
-          </Cell>
-        </Row>
-      )}
+    <Table shouldAlternateRowColor>
+      <TableHead>
+        <HeaderRow>
+          <HeaderCell key="name">Key</HeaderCell>
+          <HeaderCell key="value">Description</HeaderCell>
+        </HeaderRow>
+      </TableHead>
+      <TableBody>
+        {hotkeys.map((hotkey) => (
+          <Row key={hotkey.key}>
+            <Cell>
+              <Body weight="medium">
+                <KeyboardShortcut hotkey={hotkey.key} />
+              </Body>
+            </Cell>
+            <Cell>
+              <Description>{hotkey.description}</Description>
+            </Cell>
+          </Row>
+        ))}
+      </TableBody>
     </Table>
   );
 }

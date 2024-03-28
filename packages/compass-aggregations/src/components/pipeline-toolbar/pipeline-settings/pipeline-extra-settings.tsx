@@ -96,12 +96,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </Label>
       </div>
       <SegmentedControl
-        // SegmentedControl is not working correctly otherwise
-        // https://jira.mongodb.org/browse/LG-2597
-        key={pipelineMode}
+        size="xsmall"
         data-testid="pipeline-builder-toggle"
         value={pipelineMode}
-        size={'small'}
         onChange={(value) => {
           onChangePipelineMode(value as PipelineMode);
         }}

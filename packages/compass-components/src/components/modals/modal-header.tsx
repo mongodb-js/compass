@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors, palette } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 
@@ -37,7 +37,7 @@ const titleStyle = css({
 
 const titleStyleDark = css({
   fontWeight: 'bold',
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const warningIconStyles = css({

@@ -42,9 +42,7 @@ const renderFeedbackPopover = (
 };
 
 describe('FeedbackPopover', function () {
-  afterEach(function () {
-    cleanup();
-  });
+  afterEach(cleanup);
 
   it('renders the popover and passes feedback when submitted', async function () {
     let feedbackText = '';

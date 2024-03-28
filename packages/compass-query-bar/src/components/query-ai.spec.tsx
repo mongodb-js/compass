@@ -75,6 +75,8 @@ describe('QueryAI Component', function () {
 
   afterEach(function () {
     trackingEvents = [];
+    cleanup();
+    sinon.restore();
   });
 
   describe('when rendered', function () {

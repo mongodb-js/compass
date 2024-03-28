@@ -97,7 +97,7 @@ describe('SaveConnectionModal Component', function () {
 
     it('renders save disabled', function () {
       const button = screen.getByText('Save').closest('button');
-      expect(button.disabled).to.be.true;
+      expect(button?.getAttribute('aria-disabled')).to.equal('true');
     });
   });
 
@@ -115,7 +115,7 @@ describe('SaveConnectionModal Component', function () {
 
     it('renders save as enabled', function () {
       const button = screen.getByText('Save').closest('button');
-      expect(button.disabled).not.to.be.true;
+      expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
     });
   });
 

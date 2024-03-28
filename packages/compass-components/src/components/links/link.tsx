@@ -50,11 +50,12 @@ export function useRequiredURLSearchParams(): RequiredURLSearchParamsContextValu
   return useContext(RequiredURLSearchParamsContext);
 }
 
-export const Link = (({
-  href,
-  children,
-  ...rest
-}: React.ComponentProps<typeof LGLink>) => {
+// NB: leafygreen Link component type is written in a way that doesn't allow us
+// to derive the component props at all. Not much we can do here, but just
+// define some of the ones we care about
+type LeafygreenLinkProps = { href: string; children: React.ReactNode };
+
+export const Link = (({ href, children, ...rest }: LeafygreenLinkProps) => {
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
   const hrefWithParams = useMemo(() => {

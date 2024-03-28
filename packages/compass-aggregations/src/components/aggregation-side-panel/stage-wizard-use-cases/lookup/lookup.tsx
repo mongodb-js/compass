@@ -175,12 +175,15 @@ export const LookupForm = ({
         />
       </div>
       <div className={formGroup}>
-        <Body className={titleStyles}>as</Body>
+        <Body id="lookup-stage-as-input-label" className={titleStyles}>
+          as
+        </Body>
         <div className={inputFieldStyles}>
           <TextInput
             value={formData.as}
             title="Name of the array"
-            aria-label="Name of the array"
+            aria-labelledby="lookup-stage-as-input-label"
+            data-testid="name-of-the-array-input"
             placeholder="Name of the array"
             onChange={(e) => onSelectOption('as', e.target.value)}
           />
