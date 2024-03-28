@@ -195,7 +195,7 @@ describe('PipelineActions', function () {
 
     it('run action disabled', function () {
       const button = screen.getByTestId('pipeline-toolbar-run-button');
-      expect(button.getAttribute('disabled')).to.exist;
+      expect(button.getAttribute('aria-disabled')).to.equal('true');
 
       userEvent.click(button, undefined, {
         skipPointerEventsCheck: true,
@@ -207,7 +207,7 @@ describe('PipelineActions', function () {
       const button = screen.getByTestId(
         'pipeline-toolbar-export-aggregation-button'
       );
-      expect(button.getAttribute('disabled')).to.exist;
+      expect(button.getAttribute('aria-disabled')).to.equal('true');
 
       userEvent.click(button, undefined, {
         skipPointerEventsCheck: true,
@@ -219,7 +219,7 @@ describe('PipelineActions', function () {
       const button = screen.getByTestId(
         'pipeline-toolbar-explain-aggregation-button'
       );
-      expect(button.getAttribute('disabled')).to.exist;
+      expect(button.getAttribute('aria-disabled')).to.equal('true');
 
       userEvent.click(button, undefined, {
         skipPointerEventsCheck: true,
@@ -257,16 +257,22 @@ describe('PipelineActions', function () {
       renderPipelineActions({ pipeline: [42] });
 
       expect(
-        screen.getByTestId('pipeline-toolbar-explain-aggregation-button')
-      ).to.have.attribute('disabled');
+        screen
+          .getByTestId('pipeline-toolbar-explain-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
 
       expect(
-        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
-      ).to.have.attribute('disabled');
+        screen
+          .getByTestId('pipeline-toolbar-export-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
 
       expect(
-        screen.getByTestId('pipeline-toolbar-run-button')
-      ).to.have.attribute('disabled');
+        screen
+          .getByTestId('pipeline-toolbar-run-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should disable export button when pipeline is $out / $merge', function () {
@@ -275,8 +281,10 @@ describe('PipelineActions', function () {
       });
 
       expect(
-        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
-      ).to.have.attribute('disabled');
+        screen
+          .getByTestId('pipeline-toolbar-export-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should disable export button when last enabled stage is $out / $merge', function () {
@@ -289,8 +297,10 @@ describe('PipelineActions', function () {
       rerender();
 
       expect(
-        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
-      ).to.have.attribute('disabled');
+        screen
+          .getByTestId('pipeline-toolbar-export-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 });

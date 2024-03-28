@@ -259,7 +259,6 @@ export const GroupWithSubset = ({
     <div className={containerStyles}>
       <div className={formGroupStyles}>
         <Body className={groupLabelStyles}>Return the</Body>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           className={selectStyles}
           allowDeselect={false}
@@ -284,7 +283,10 @@ export const GroupWithSubset = ({
           <>
             <TextInput
               type="number"
-              aria-label="Number of records"
+              label="Number of records"
+              // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
+              aria-labelledby=""
+              data-testid="number-of-records-input"
               placeholder="Number of records"
               className={recordInputStyles}
               value={formData.numberOfRecords.toString()}
@@ -333,7 +335,6 @@ export const GroupWithSubset = ({
             fields={fields}
           />
           <Body>in</Body>
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
           <Select
             className={selectStyles}
             allowDeselect={false}

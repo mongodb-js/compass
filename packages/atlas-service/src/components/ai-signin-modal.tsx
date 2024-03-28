@@ -70,8 +70,6 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
     <MarketingModal
       darkMode={darkMode}
       graphic={<AISignInImageBanner></AISignInImageBanner>}
-      // @ts-expect-error leafygreen only allows strings, but we
-      // override styles.
       title={
         <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
           <Badge variant="blue" className={previewBadgeStyles}>
