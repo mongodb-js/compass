@@ -1,0 +1,1 @@
+export { CompassWeb } from './entrypoint';

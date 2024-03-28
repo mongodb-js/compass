@@ -20,7 +20,7 @@ import {
 } from 'mongodb-connection-string-url';
 
 import createDebug from 'debug';
-import { CompassWeb } from '../src/entrypoint';
+import { CompassWeb } from '../src/index';
 import type {
   OpenWorkspaceOptions,
   CollectionSubtab,
