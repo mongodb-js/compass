@@ -11,17 +11,28 @@
     <style>
       body {
         margin: 0;
+        background-color: #f2f2f2;
+        padding: 100px;
+        box-sizing: padding-box;
+        overflow: hidden;
+      }
+      #sandbox-scroll {
+        overflow: auto;
+        width: calc(100vw - 200px);
+        height: calc(100vh - 200px);
       }
       #sandbox-app {
-        width: 100vw;
-        height: 100vh;
+        background-color: #fff;
         min-width: 1024px; /* rather scroll when the available space gets too small */
+        height: 100%;
       }
     </style>
   </head>
 
   <body>
-    <div id="sandbox-app"></div>
+    <div id="sandbox-scroll">
+      <div id="sandbox-app"></div>
+    </div>
     <script src="/index.js"></script>
   </body>
 </html>
