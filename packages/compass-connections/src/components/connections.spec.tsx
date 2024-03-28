@@ -46,7 +46,7 @@ function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
     getLegacyConnections: () => Promise.resolve([]),
     save: () => Promise.resolve(),
     delete: () => Promise.resolve(),
-    load: (id: string) =>
+    load: ({ id }: { id: string }) =>
       Promise.resolve(mockConnections.find((conn) => conn.id === id)),
     importConnections: () => Promise.resolve([]),
     exportConnections: () => Promise.resolve('{}'),

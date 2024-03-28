@@ -272,7 +272,10 @@ export function useConnections({
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
   cancelConnectionAttempt: (connectionInfoId: string) => Promise<void>;
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo,
+    shouldSaveConnectionInfo?: boolean
+  ) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
@@ -383,7 +386,11 @@ export function useConnections({
         dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected(connectionInfo, dataService);
 
-        if (!shouldSaveConnectionInfo) return;
+        if (!shouldSaveConnectionInfo) {
+          // only update lastUsed
+          await connectionRepository.updateLastUsage(connectionInfo.id);
+          return;
+        }
 
         let mergeConnectionInfo = {};
         if (persistOIDCTokens) {
