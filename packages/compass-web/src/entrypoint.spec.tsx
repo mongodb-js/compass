@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, render, cleanup, waitFor } from '@testing-library/react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
-import { CompassWeb } from './';
+import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';

@@ -4,8 +4,8 @@ import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
 import { ConnectionString } from 'mongodb-connection-string-url';
-import { getConnectionStringFromArgs } from '../main/auto-connect';
-import type { AutoConnectPreferences } from '../main/auto-connect';
+import { getConnectionStringFromArgs } from '../../main/auto-connect';
+import type { AutoConnectPreferences } from '../../main/auto-connect';
 
 async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
   return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
