@@ -1,29 +1,15 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
-import { connect } from 'react-redux';
-import type { UserPreferences } from 'compass-preferences-model';
-import { withPreferences } from 'compass-preferences-model/provider';
-
 import SettingsList from './settings-list';
-import type { RootState } from '../../stores';
 
 const privacyFields = [
   'autoUpdates',
   'enableMaps',
-  'enableGenAIFeatures',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
 
-export const PrivacySettings: React.FunctionComponent<{
-  isAIFeatureRolledOutToUser?: boolean;
-}> = ({ isAIFeatureRolledOutToUser }) => {
-  const privacyFieldsShown = useMemo(() => {
-    return isAIFeatureRolledOutToUser
-      ? privacyFields
-      : privacyFields.filter((field) => field !== 'enableGenAIFeatures');
-  }, [isAIFeatureRolledOutToUser]);
-
+export const PrivacySettings: React.FunctionComponent = () => {
   return (
     <div data-testid="privacy-settings">
       <div>
@@ -31,7 +17,7 @@ export const PrivacySettings: React.FunctionComponent<{
         services, which requires external network requests. Please choose from
         the settings below:
       </div>
-      <SettingsList fields={privacyFieldsShown} />
+      <SettingsList fields={privacyFields} />
       <div>
         With any of these options, none of your personal information or stored
         data will be submitted.
@@ -45,19 +31,4 @@ export const PrivacySettings: React.FunctionComponent<{
   );
 };
 
-export default withPreferences(
-  connect(
-    (
-      state: RootState,
-      ownProps: {
-        cloudFeatureRolloutAccess?: UserPreferences['cloudFeatureRolloutAccess'];
-      }
-    ) => {
-      return {
-        isAIFeatureRolledOutToUser:
-          ownProps.cloudFeatureRolloutAccess?.GEN_AI_COMPASS,
-      };
-    }
-  )(PrivacySettings),
-  ['cloudFeatureRolloutAccess']
-);
+export default PrivacySettings;
