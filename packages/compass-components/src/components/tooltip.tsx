@@ -4,6 +4,7 @@ import { useTooltipTrigger } from '@react-aria/tooltip';
 import React, { useCallback, useRef } from 'react';
 import LeafyGreenTooltip from '@leafygreen-ui/tooltip';
 import { mergeProps } from '../utils/merge-props';
+import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-component';
 
 /**
  * @see {@link https://react-spectrum.adobe.com/react-aria/useTooltipTrigger.html}
@@ -28,7 +29,7 @@ type TooltipProps = TooltipTriggerProps &
     trigger: TooltipTrigger;
   };
 
-const Tooltip: React.FunctionComponent<TooltipProps> = ({
+const UnWrappedTooltip: React.FunctionComponent<TooltipProps> = ({
   isDisabled,
   triggerOn,
   delay,
@@ -74,4 +75,5 @@ const Tooltip: React.FunctionComponent<TooltipProps> = ({
 };
 
 export type { TooltipProps };
+const Tooltip = withStackedComponentPopoverStyles(UnWrappedTooltip);
 export { Tooltip };

@@ -1,10 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
+import { GuideCue as UnwrappedGuideCue } from '@leafygreen-ui/guide-cue';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
 
 import { TextArea } from './leafygreen';
+import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-component';
+
+// In this component, we are direclty using the LGGuideCue component from the leafygreen-ui package
+// and not the compass one, where we have full implementation of the LGGuideCue component.
+const LGGuideCue = withStackedComponentPopoverStyles(
+  UnwrappedGuideCue as any
+) as typeof UnwrappedGuideCue;
 
 const guideCueStyles = css({
   minWidth: spacing[7] * 4,

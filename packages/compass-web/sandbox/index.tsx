@@ -266,6 +266,7 @@ const App = () => {
             <CompassWeb
               connectionInfo={connectionInfo}
               initialWorkspaceTabs={[initialTab]}
+              stackedElementsZIndex={5}
               onActiveWorkspaceTabChange={(tab) => {
                 let newPath: string;
                 switch (tab?.type) {
