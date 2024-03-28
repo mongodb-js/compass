@@ -1,3 +1,4 @@
+import { usePreference } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
@@ -54,6 +55,8 @@ export function useConnectionRepository(): ConnectionRepository {
   const [nonFavoriteConnections, setNonFavoriteConnections] = useState<
     ConnectionInfo[]
   >([]);
+
+  const persistOIDCTokens = usePreference('persistOIDCTokens');
 
   useEffect(() => {
     async function updateListsOfConnections() {
@@ -113,10 +116,16 @@ export function useConnectionRepository(): ConnectionRepository {
         infoToSave.connectionOptions?.connectionString
       );
 
+      if (!persistOIDCTokens) {
+        if (infoToSave.connectionOptions.oidc?.serializedState) {
+          infoToSave.connectionOptions.oidc.serializedState = undefined;
+        }
+      }
+
       await storage.save({ connectionInfo: infoToSave });
       return infoToSave;
     },
-    [storage]
+    [storage, persistOIDCTokens]
   );
 
   const deleteConnection = useCallback(

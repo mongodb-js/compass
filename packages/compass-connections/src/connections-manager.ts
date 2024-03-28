@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createConnectionAttempt } from 'mongodb-data-service';
-
+import ConnectionString from 'mongodb-connection-string-url';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
@@ -10,6 +10,17 @@ import type {
   connect,
 } from 'mongodb-data-service';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { cloneDeep, merge } from 'lodash';
+import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
+
+export function isOIDCAuth(connectionString: string): boolean {
+  const authMechanismString = (
+    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
+    ''
+  ).toUpperCase();
+
+  return authMechanismString === 'MONGODB-OIDC';
+}
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -74,6 +85,16 @@ const connectionStatusTransitions: ConnectionStatusTransitions = {
   },
 };
 
+type OnNotifyOIDCDeviceFlow = (deviceFlowInformation: {
+  verificationUrl: string;
+  userCode: string;
+}) => void;
+
+type OnDatabaseSecretsChangedCallback = (
+  connectionInfo: ConnectionInfo,
+  dataService: DataService
+) => void;
+
 export const CONNECTION_CANCELED_ERR = 'Connection attempt was canceled';
 
 export class ConnectionsManager extends EventEmitter {
@@ -83,6 +104,7 @@ export class ConnectionsManager extends EventEmitter {
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
+  private oidcState = new Map<ConnectionInfoId, Partial<ConnectionInfo>>();
 
   constructor({
     logger,
@@ -122,31 +144,76 @@ export class ConnectionsManager extends EventEmitter {
    * @param connectionInfo The adjusted ConnectionInfo object that already has
    * parameters such as appName.
    */
-  async connect(connectionInfo: ConnectionInfo): Promise<DataService> {
+  async connect(
+    originalConnectionInfo: ConnectionInfo,
+    {
+      appName,
+      forceConnectionOptions,
+      browserCommandForOIDCAuth,
+      onNotifyOIDCDeviceFlow,
+      onDatabaseOIDCSecretsChange,
+    }: {
+      appName: string;
+      forceConnectionOptions: [key: string, value: string][];
+      browserCommandForOIDCAuth?: string;
+      onNotifyOIDCDeviceFlow: OnNotifyOIDCDeviceFlow;
+      onDatabaseOIDCSecretsChange: OnDatabaseSecretsChangedCallback;
+    }
+  ): Promise<DataService> {
     try {
       const existingDataService = this.getDataServiceForConnection(
-        connectionInfo.id
+        originalConnectionInfo.id
       );
+
       if (
         existingDataService &&
-        this.statusOf(connectionInfo.id) === ConnectionStatus.Connected
+        this.statusOf(originalConnectionInfo.id) === ConnectionStatus.Connected
       ) {
         return existingDataService;
       }
 
+      const connectionInfo = merge(
+        cloneDeep(originalConnectionInfo),
+        this.oidcState.get(originalConnectionInfo.id) ?? {}
+      ) as ConnectionInfo;
+
+      const isOIDCConnectionAttempt = isOIDCAuth(
+        connectionInfo.connectionOptions.connectionString
+      );
+
+      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
+        cloneDeep(connectionInfo),
+        {
+          connectionOptions: adjustConnectionOptionsBeforeConnect({
+            connectionOptions: connectionInfo.connectionOptions,
+            defaultAppName: appName,
+            preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
+            notifyDeviceFlow: !isOIDCConnectionAttempt
+              ? undefined
+              : onNotifyOIDCDeviceFlow ??
+                (() => {
+                  return;
+                }),
+          }),
+        }
+      );
+
       this.updateAndNotifyConnectionStatus(
-        connectionInfo.id,
+        adjustedConnectionInfoForConnection.id,
         ConnectionsManagerEvents.ConnectionAttemptStarted,
-        [connectionInfo.id]
+        [adjustedConnectionInfoForConnection.id]
       );
       const connectionAttempt = createConnectionAttempt({
         logger: this.logger,
         connectFn: this.__TEST_CONNECT_FN,
       });
-      this.connectionAttempts.set(connectionInfo.id, connectionAttempt);
+      this.connectionAttempts.set(
+        adjustedConnectionInfoForConnection.id,
+        connectionAttempt
+      );
 
       const dataService = await connectionAttempt.connect(
-        connectionInfo.connectionOptions
+        adjustedConnectionInfoForConnection.connectionOptions
       );
 
       if (!dataService || connectionAttempt.isClosed()) {
@@ -157,26 +224,37 @@ export class ConnectionsManager extends EventEmitter {
         dataService.addReauthenticationHandler(this.reAuthenticationHandler);
       }
 
-      this.connectionAttempts.delete(connectionInfo.id);
-      this.dataServices.set(connectionInfo.id, dataService);
-      this.updateAndNotifyConnectionStatus(
-        connectionInfo.id,
-        ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-        [connectionInfo.id, dataService]
+      this.connectionAttempts.delete(adjustedConnectionInfoForConnection.id);
+      this.dataServices.set(
+        adjustedConnectionInfoForConnection.id,
+        dataService
       );
+      this.updateAndNotifyConnectionStatus(
+        adjustedConnectionInfoForConnection.id,
+        ConnectionsManagerEvents.ConnectionAttemptSuccessful,
+        [adjustedConnectionInfoForConnection.id, dataService]
+      );
+
+      dataService.on?.('connectionInfoSecretsChanged', () => {
+        onDatabaseOIDCSecretsChange(
+          adjustedConnectionInfoForConnection,
+          dataService
+        );
+      });
+
       return dataService;
     } catch (error) {
       if ((error as Error).message === CONNECTION_CANCELED_ERR) {
         this.updateAndNotifyConnectionStatus(
-          connectionInfo.id,
+          originalConnectionInfo.id,
           ConnectionsManagerEvents.ConnectionAttemptCancelled,
-          [connectionInfo.id]
+          [originalConnectionInfo.id]
         );
       } else {
         this.updateAndNotifyConnectionStatus(
-          connectionInfo.id,
+          originalConnectionInfo.id,
           ConnectionsManagerEvents.ConnectionAttemptFailed,
-          [connectionInfo.id, error]
+          [originalConnectionInfo.id, error]
         );
       }
       throw error;
