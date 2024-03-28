@@ -40,8 +40,8 @@ function sortedAlphabetically(a: ConnectionInfo, b: ConnectionInfo): number {
 export type ConnectionRepository = {
   favoriteConnections: ConnectionInfo[];
   nonFavoriteConnections: ConnectionInfo[];
-  saveConnection(info: PartialConnectionInfo): Promise<ConnectionInfo>;
-  deleteConnection(info: ConnectionInfo): Promise<void>;
+  saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
+  deleteConnection: (info: ConnectionInfo) => Promise<void>;
 };
 
 export function useConnectionRepository(): ConnectionRepository {
@@ -57,7 +57,7 @@ export function useConnectionRepository(): ConnectionRepository {
 
   useEffect(() => {
     async function updateListsOfConnections() {
-      const allConnections = await storage.loadAll();
+      const allConnections = (await storage.loadAll()) || [];
       const favoriteConnections = allConnections
         .filter((connection) => connection.savedConnectionType === 'favorite')
         .sort(sortedAlphabetically);
@@ -85,15 +85,19 @@ export function useConnectionRepository(): ConnectionRepository {
 
     void updateListsOfConnections();
 
+    function updateListsOfConnectionsSubscriber() {
+      void updateListsOfConnections();
+    }
+
     storage.events.on(
       ConnectionStorageEvents.ConnectionsChanged,
-      updateListsOfConnections
+      updateListsOfConnectionsSubscriber
     );
 
     return () => {
       storage.events.off(
         ConnectionStorageEvents.ConnectionsChanged,
-        updateListsOfConnections
+        updateListsOfConnectionsSubscriber
       );
     };
   }, [storage]);
