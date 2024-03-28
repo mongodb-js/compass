@@ -11,32 +11,37 @@ const CONNECTION_INFO: ConnectionInfo = {
 };
 
 describe('ConnectionScopedGlobalAppRegistry', function () {
-  it('should add a payload with ConnectionInfo if the payload is null or undefined', function () {
+  it('should add sourceConnectionInfoId as extra args when payload is not provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        CONNECTION_INFO
+        CONNECTION_INFO.id
       );
 
     newAppRegistryEmitter.emit('schema-analyzed');
-    expect(emitSpy).to.have.been.calledWith('schema-analyzed', {
-      sourceConnectionInfo: CONNECTION_INFO,
+    expect(emitSpy).to.have.been.calledWith('schema-analyzed', null, {
+      sourceConnectionInfoId: CONNECTION_INFO.id,
     });
   });
 
-  it('should add the current connection info to the payload when provided', function () {
+  it('should add the sourceConnectionInfoId as extra args also when payload is provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        CONNECTION_INFO
+        CONNECTION_INFO.id
       );
 
     newAppRegistryEmitter.emit('schema-analyzed', { record: true });
-    expect(emitSpy).to.have.been.calledWith('schema-analyzed', {
-      sourceConnectionInfo: CONNECTION_INFO,
-      record: true,
-    });
+    expect(emitSpy).to.have.been.calledWith(
+      'schema-analyzed',
+      {
+        record: true,
+      },
+      {
+        sourceConnectionInfoId: CONNECTION_INFO.id,
+      }
+    );
   });
 });

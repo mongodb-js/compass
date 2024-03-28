@@ -41,9 +41,10 @@ export class ConnectionScopedGlobalAppRegistryImpl<T extends string>
     this.sourceConnectionInfoId = connectionInfoId;
   }
 
-  emit(event: T, payload: Record<string, any> = {}): void {
-    payload.sourceConnectionInfo = this.sourceConnectionInfoId;
-    this.appRegistryEmitter(event, payload);
+  emit(event: T, payload: Record<string, any> | null = null): void {
+    this.appRegistryEmitter(event, payload, {
+      sourceConnectionInfoId: this.sourceConnectionInfoId,
+    });
   }
 }
 
