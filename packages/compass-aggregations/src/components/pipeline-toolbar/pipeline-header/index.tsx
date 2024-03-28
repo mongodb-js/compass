@@ -17,7 +17,7 @@ import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[4],
+  gap: spacing[200],
   alignItems: 'center',
 });
 
@@ -113,11 +113,11 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   const isSavingAggregationsEnabled = !!usePipelineStorage();
   return (
     <div className={containerStyles} data-testid="pipeline-header">
-      <div data-testid="saved-pipelines-popover">
-        {isOpenPipelineVisible && isSavingAggregationsEnabled && (
+      {isOpenPipelineVisible && isSavingAggregationsEnabled && (
+        <div data-testid="saved-pipelines-popover">
           <SavedPipelinesButton></SavedPipelinesButton>
-        )}
-      </div>
+        </div>
+      )}
       <div className={pipelineStagesStyles}>
         <PipelineStages />
       </div>
