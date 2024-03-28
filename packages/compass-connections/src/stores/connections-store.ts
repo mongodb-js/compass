@@ -2,6 +2,7 @@ import { type Dispatch, useCallback, useEffect, useReducer } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
+  isOIDCAuth,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -9,9 +10,7 @@ import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import ConnectionString from 'mongodb-connection-string-url';
-import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
+import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { UserPreferences } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -42,44 +41,24 @@ export function createNewConnectionInfo(): ConnectionInfo {
   };
 }
 
-function isOIDCAuth(connectionString: string): boolean {
-  const authMechanismString = (
-    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
-    ''
-  ).toUpperCase();
-
-  return authMechanismString === 'MONGODB-OIDC';
-}
-
 type State = {
   activeConnectionId?: string;
-  favoriteConnections: ConnectionInfo[];
-  recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
   connectingConnectionId: string | null;
   connectingStatusText: string;
   connectionErrorMessage: string | null;
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
-  // Additional connection information that is merged with the connection info
-  // when connecting. This is useful for instances like OIDC sessions where we
-  // have a setting on the system for storing credentials.
-  // When the setting is on this `connectionMergeInfos` would have the session
-  // credential information and merge it before connecting.
-  connectionMergeInfos: Record<string, RecursivePartial<ConnectionInfo>>;
 };
 
 export function defaultConnectionsState(): State {
   return {
-    favoriteConnections: [],
-    recentConnections: [],
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
     connectingConnectionId: null,
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
     oidcDeviceAuthUserCode: null,
-    connectionMergeInfos: {},
   };
 }
 
