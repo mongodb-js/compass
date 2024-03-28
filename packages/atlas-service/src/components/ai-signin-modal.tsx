@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  Badge,
   Body,
   Disclaimer,
   Icon,
@@ -27,6 +28,9 @@ type SignInModalProps = {
 
 const titleStyles = css({
   marginBottom: spacing[3],
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 });
 
 // For whatever reason leafygreen marketing modal doesn't have the same spacing
@@ -50,6 +54,10 @@ const disclaimer = css({
   marginTop: spacing[3],
 });
 
+const previewBadgeStyles = css({
+  marginBottom: spacing[3],
+});
+
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   isSignInModalVisible = false,
   isSignInInProgress = false,
@@ -66,6 +74,9 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       // override styles.
       title={
         <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
+          <Badge variant="blue" className={previewBadgeStyles}>
+            Preview
+          </Badge>
           Use natural language to generate queries and pipelines
         </div>
       }

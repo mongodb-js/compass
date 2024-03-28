@@ -1,12 +1,13 @@
 import React from 'react';
 import {
+  Body,
   Button,
   Icon,
   KeylineCard,
   Link,
   SpinLoader,
-  Subtitle,
   css,
+  keyframes,
   palette,
   spacing,
   useDarkMode,
@@ -30,7 +31,7 @@ const atlasLoginHeaderStyles = css({
   `,
   gridTemplateColumns: `1fr auto`,
   gap: spacing[2],
-  padding: spacing[3],
+  padding: `${spacing[2]}px ${spacing[3]}px`,
   boxShadow: `inset 0 -1px 0 ${palette.gray.light2}`,
   backgroundColor: palette.gray.light3,
 });
@@ -42,9 +43,9 @@ const atlasLoginHeaderDarkModeStyles = css({
 
 const atlasLoginHeadingTitleStyles = css({
   display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[1],
   gridArea: 'heading',
+  fontWeight: 700,
 });
 
 const atlasLoginControlsStyles = css({
@@ -53,6 +54,10 @@ const atlasLoginControlsStyles = css({
 
 const atlasLoginHeaderDescriptionStyles = css({
   gridArea: 'description',
+});
+
+const atlasLoginEmailStyles = css({
+  fontWeight: 500,
 });
 
 export const AtlasLoginSettings: React.FunctionComponent<{
@@ -73,10 +78,13 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           darkMode && atlasLoginHeaderDarkModeStyles
         )}
       >
-        <Subtitle className={atlasLoginHeadingTitleStyles}>
+        <div className={atlasLoginHeadingTitleStyles}>
           <Icon glyph="Sparkle" />
-          <span>Use Generative AI</span>
-        </Subtitle>
+          <span>
+            You must log in with an Atlas account to use natural language
+            prompts.
+          </span>
+        </div>
         <div className={atlasLoginControlsStyles}>
           {isSignedIn && (
             <Button
@@ -112,7 +120,10 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           data-testid="atlas-login-status"
         >
           {isSignedIn ? (
-            <>Logged in with Atlas account {userLogin}</>
+            <>
+              Logged in with Atlas account{' '}
+              <span className={atlasLoginEmailStyles}>{userLogin}</span>
+            </>
           ) : (
             <>
               This is a feature powered by generative AI, and may give
