@@ -6,6 +6,7 @@ const {
   merge,
 } = require('@mongodb-js/webpack-config-compass');
 const { createWebSocketProxy } = require('@gribnoysup/mongodb-browser/proxy');
+const { startElectronProxy } = require('./scripts/start-electron-proxy');
 
 function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
@@ -87,6 +88,7 @@ module.exports = async (env, args) => {
   });
 
   if (serve) {
+    startElectronProxy();
     // TODO: logs are pretty rough here, should make it better
     createWebSocketProxy();
 
@@ -99,8 +101,9 @@ module.exports = async (env, args) => {
     return merge(config, {
       devServer: {
         hot: true,
-        open: process.env.OPEN_BROWSER !== 'false',
+        open: false,
         magicHtml: false,
+        port: 8081,
         historyApiFallback: {
           rewrites: [{ from: /./, to: 'index.html' }],
         },
