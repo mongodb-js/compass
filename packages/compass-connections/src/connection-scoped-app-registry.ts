@@ -35,8 +35,9 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
   ) {}
 
   /**
-   * @deprecated Moving forward we would like to get away from emitting events
-   * on AppRegistry (both ConnectionScopedAppRegistry and GlobalAppRegistry) to
+   * @deprecated
+   * Moving forward we would like to get away from emitting events on
+   * AppRegistry (both ConnectionScopedAppRegistry and GlobalAppRegistry) to
    * communicate between plugins in Compass which is why the usage of this
    * method should be as sparse as possible. So far we expect only the global
    * modals to still be relying on ConnectionScopedAppRegistry.emit but other
