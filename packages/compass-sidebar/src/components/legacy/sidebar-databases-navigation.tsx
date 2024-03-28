@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
-import type { Actions } from '@mongodb-js/compass-databases-navigation';
+import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
+import type { Actions } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import type { Database } from '../modules/databases';
-import { toggleDatabaseExpanded } from '../modules/databases';
+import type { Database } from '../../modules/databases';
+import { toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { RootState, SidebarThunkAction } from '../modules';
+import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 function findCollection(ns: string, databases: Database[]) {
@@ -24,14 +24,16 @@ function SidebarDatabasesNavigation({
   isWritable,
   onNamespaceAction: _onNamespaceAction,
   databases,
+  expanded,
   ...dbNavigationProps
 }: Omit<
-  React.ComponentProps<typeof DatabasesNavigationTree>,
-  'isReadOnly' | 'databases'
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
+  'isReadOnly' | 'databases' | 'expanded'
 > & {
   databases: Database[];
   isDataLake?: boolean;
   isWritable?: boolean;
+  expanded?: Record<string, boolean>;
 }) {
   const {
     openCollectionsWorkspace,
@@ -78,9 +80,10 @@ function SidebarDatabasesNavigation({
   );
 
   return (
-    <DatabasesNavigationTree
+    <ConnectionsNavigationTree
       {...dbNavigationProps}
-      databases={databases}
+      databasesLegacy={databases}
+      expandedLegacy={expanded}
       onNamespaceAction={onNamespaceAction}
       isReadOnly={isReadOnly}
     />
@@ -104,6 +107,7 @@ function mapStateToProps(state: RootState) {
   );
   const isDataLake = instance?.dataLake.isDataLake;
   const isWritable = instance?.isWritable;
+
   return {
     isReady,
     isDataLake,

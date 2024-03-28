@@ -5,7 +5,6 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
-import { ActiveConnectionList } from './active-connections/active-connection-list';
 import {
   ResizableSidebar,
   css,
@@ -17,9 +16,11 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
+import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
 
 type MultipleConnectionSidebarProps = {
   appName: string;
+  activeWorkspace: { type: string; namespace?: string } | null;
 };
 
 const sidebarStyles = css({
@@ -73,6 +74,7 @@ function ConnectionErrorToastBody({
 
 export function MultipleConnectionSidebar({
   appName,
+  activeWorkspace,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
@@ -266,7 +268,7 @@ export function MultipleConnectionSidebar({
     >
       <aside className={sidebarStyles}>
         <SidebarHeader />
-        <ActiveConnectionList />
+        <ActiveConnectionNavigation activeWorkspace={activeWorkspace} />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}

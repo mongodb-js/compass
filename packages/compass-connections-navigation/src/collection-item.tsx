@@ -6,9 +6,10 @@ import {
   css,
   ItemActionControls,
   Icon,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { COLLECTION_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
@@ -22,6 +23,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
+import { getItemPaddingClass } from './utils';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -38,13 +40,12 @@ const CollectionIcon: React.FunctionComponent<{
 };
 
 const collectionItem = css({
-  height: COLLECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: COLLECTION_ROW_HEIGHT,
+  height: ROW_HEIGHT,
   paddingRight: spacing[1],
-  paddingLeft: spacing[5] + spacing[1] + spacing[4],
 });
 
 const collectionItemLabel = css({
@@ -56,11 +57,13 @@ export const CollectionItem: React.FunctionComponent<
 > = ({
   id,
   name,
+  level,
   type,
   posInSet,
   setSize,
   isActive,
   isReadOnly,
+  isLegacy,
   isTabbable,
   style,
   onNamespaceAction,
@@ -69,6 +72,11 @@ export const CollectionItem: React.FunctionComponent<
     'enableRenameCollectionModal'
   );
   const [hoverProps, isHovered] = useHoverState();
+
+  const itemPaddingClass = useMemo(
+    () => getItemPaddingClass({ level, isLegacy }),
+    [level, isLegacy]
+  );
 
   const onDefaultAction = useCallback(
     (evt) => {
@@ -150,7 +158,7 @@ export const CollectionItem: React.FunctionComponent<
     <ItemContainer
       id={id}
       data-testid={`sidebar-collection-${id}`}
-      level={2}
+      level={level}
       setSize={setSize}
       posInSet={posInSet}
       isActive={isActive}
@@ -161,7 +169,7 @@ export const CollectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={itemButtonWrapper}>
+        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
           <CollectionIcon type={type} />
           <ItemLabel className={collectionItemLabel} title={name}>
             {name}

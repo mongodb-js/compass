@@ -10,7 +10,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { DatabasesNavigationTree } from './databases-navigation-tree';
+import { ConnectionsNavigationTree } from './connections-navigation-tree';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
@@ -42,7 +42,7 @@ const TEST_VIRTUAL_PROPS = {
   __TEST_REACT_WINDOW_OVERSCAN: Infinity,
 };
 
-describe('DatabasesNavigationTree', function () {
+describe('ConnectionsNavigationTree -- Legacy usage', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
@@ -55,9 +55,9 @@ describe('DatabasesNavigationTree', function () {
     it('shows the Rename Collection action', function () {
       render(
         <PreferencesProvider value={preferences}>
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.meow"
             onDatabaseExpand={() => {}}
             onNamespaceAction={() => {}}
@@ -80,9 +80,9 @@ describe('DatabasesNavigationTree', function () {
       const spy = Sinon.spy();
       render(
         <PreferencesProvider value={preferences}>
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -102,12 +102,12 @@ describe('DatabasesNavigationTree', function () {
 
   it('should render databases', function () {
     render(
-      <DatabasesNavigationTree
-        databases={databases}
+      <ConnectionsNavigationTree
+        databasesLegacy={databases}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
-      ></DatabasesNavigationTree>
+      ></ConnectionsNavigationTree>
     );
 
     expect(screen.getByText('foo')).to.exist;
@@ -116,13 +116,13 @@ describe('DatabasesNavigationTree', function () {
 
   it('should render collections when database is expanded', function () {
     render(
-      <DatabasesNavigationTree
-        databases={databases}
-        expanded={{ bar: true }}
+      <ConnectionsNavigationTree
+        databasesLegacy={databases}
+        expandedLegacy={{ bar: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
-      ></DatabasesNavigationTree>
+      ></ConnectionsNavigationTree>
     );
 
     expect(screen.getByText('meow')).to.exist;
@@ -132,13 +132,13 @@ describe('DatabasesNavigationTree', function () {
 
   it('should render collection placeholders when database is expanded but collections are not ready', function () {
     render(
-      <DatabasesNavigationTree
-        databases={databases}
-        expanded={{ foo: true }}
+      <ConnectionsNavigationTree
+        databasesLegacy={databases}
+        expandedLegacy={{ foo: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
-      ></DatabasesNavigationTree>
+      ></ConnectionsNavigationTree>
     );
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
@@ -146,13 +146,13 @@ describe('DatabasesNavigationTree', function () {
 
   it('should make current active namespace tabbable', async function () {
     render(
-      <DatabasesNavigationTree
-        databases={databases}
+      <ConnectionsNavigationTree
+        databasesLegacy={databases}
         activeNamespace="bar"
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
-      ></DatabasesNavigationTree>
+      ></ConnectionsNavigationTree>
     );
 
     userEvent.tab();
@@ -171,12 +171,12 @@ describe('DatabasesNavigationTree', function () {
   describe('when isReadOnly is false or undefined', function () {
     it('should show all database actions on hover', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       userEvent.hover(screen.getByText('foo'));
@@ -189,13 +189,13 @@ describe('DatabasesNavigationTree', function () {
 
     it('should show all database actions for active namespace', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       const database = screen.getByTestId('sidebar-database-bar');
@@ -206,14 +206,14 @@ describe('DatabasesNavigationTree', function () {
 
     it('should show all collection actions', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
+          expandedLegacy={{ bar: true }}
           activeNamespace="bar.meow"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.meow');
@@ -230,14 +230,14 @@ describe('DatabasesNavigationTree', function () {
 
     it('should show all view actions', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
+          expandedLegacy={{ bar: true }}
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.bwok');
@@ -260,14 +260,14 @@ describe('DatabasesNavigationTree', function () {
   describe('when isReadOnly is true', function () {
     it('should not show database actions', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       const database = screen.getByTestId('sidebar-database-bar');
@@ -278,15 +278,15 @@ describe('DatabasesNavigationTree', function () {
 
     it('should show only one collection action', function () {
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
+          expandedLegacy={{ bar: true }}
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.bwok');
@@ -299,12 +299,12 @@ describe('DatabasesNavigationTree', function () {
     it('should activate callback with `select-database` when database is clicked', function () {
       const spy = Sinon.spy();
       render(
-        <DatabasesNavigationTree
-          databases={databases}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       userEvent.click(screen.getByText('foo'));
@@ -315,13 +315,13 @@ describe('DatabasesNavigationTree', function () {
     it('should activate callback with `select-collection` when collection is clicked', function () {
       const spy = Sinon.spy();
       render(
-        <DatabasesNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
+        <ConnectionsNavigationTree
+          databasesLegacy={databases}
+          expandedLegacy={{ bar: true }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
-        ></DatabasesNavigationTree>
+        ></ConnectionsNavigationTree>
       );
 
       userEvent.click(screen.getByText('meow'));
@@ -333,13 +333,13 @@ describe('DatabasesNavigationTree', function () {
       it('should activate callback with `drop-database` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
-          <DatabasesNavigationTree
-            databases={databases}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         userEvent.click(screen.getByTitle('Drop database'));
@@ -350,13 +350,13 @@ describe('DatabasesNavigationTree', function () {
       it('should activate callback with `create-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
-          <DatabasesNavigationTree
-            databases={databases}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         userEvent.click(screen.getByTitle('Create collection'));
@@ -369,14 +369,14 @@ describe('DatabasesNavigationTree', function () {
       it('should activate callback with `open-in-new-tab` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
@@ -390,14 +390,14 @@ describe('DatabasesNavigationTree', function () {
       it('should activate callback with `drop-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
@@ -414,14 +414,14 @@ describe('DatabasesNavigationTree', function () {
         const spy = Sinon.spy();
 
         render(
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         const view = screen.getByTestId('sidebar-collection-bar.bwok');
@@ -436,14 +436,14 @@ describe('DatabasesNavigationTree', function () {
         const spy = Sinon.spy();
 
         render(
-          <DatabasesNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
+          <ConnectionsNavigationTree
+            databasesLegacy={databases}
+            expandedLegacy={{ bar: true }}
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
-          ></DatabasesNavigationTree>
+          ></ConnectionsNavigationTree>
         );
 
         const view = screen.getByTestId('sidebar-collection-bar.bwok');

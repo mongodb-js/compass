@@ -23,10 +23,10 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import DatabaseCollectionFilter from './database-collection-filter';
+import DatabaseCollectionFilter from '../database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-import { changeFilterRegex } from '../modules/databases';
-import type { RootState } from '../modules';
+import { changeFilterRegex } from '../../modules/databases';
+import type { RootState } from '../../modules';
 import {
   useOpenWorkspace,
   useWorkspacePlugins,
