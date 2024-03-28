@@ -1725,8 +1725,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   // @ts-expect-error generic in the method trips up TS here resulting in
   // Promise<unknown> is not assignable to Promise<Document[]>
-  @op(mongoLogId(1_001_000_181), ([ns, pipeline]) => {
-    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  @op(mongoLogId(1_001_000_181), ([ns, pipeline, options]) => {
+    return {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+      maxTimeMS: options?.maxTimeMS,
+    };
   })
   aggregate<T = Document>(
     ns: string,
@@ -1750,7 +1754,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  @op(mongoLogId(1_001_000_060))
+  @op(mongoLogId(1_001_000_060), ([ns, , options]) => {
+    return { ns, maxTimeMS: options?.maxTimeMS };
+  })
   find(
     ns: string,
     filter: Filter<Document>,
