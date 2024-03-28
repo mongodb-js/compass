@@ -1497,16 +1497,20 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
-  @op(mongoLogId(1_001_000_034))
+  @op(mongoLogId(1_001_000_034), ([ns, options]) => {
+    return { ns, maxTimeMS: options?.maxTimeMS };
+  })
   estimatedCount(
     ns: string,
     options: EstimatedDocumentCountOptions = {},
     executionOptions?: ExecutionOptions
   ): Promise<number> {
+    const maxTimeMS = options.maxTimeMS ?? 5000;
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({
           ...options,
+          maxTimeMS,
           session,
         });
       },
