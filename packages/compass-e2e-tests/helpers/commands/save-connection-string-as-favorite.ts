@@ -14,5 +14,6 @@ export async function saveConnectionStringAsFavorite(
     connectionString
   );
   await browser.saveFavorite(favoriteName, color);
+
   return favoriteName;
 }

@@ -123,7 +123,7 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed();
 
       // Select i filed name from Combobox.
-      const fieldNameSelect = await browser.$(
+      const fieldNameSelect = browser.$(
         Selectors.createIndexModalFieldNameSelectInput(0)
       );
 

@@ -382,7 +382,7 @@ FindIterable<Document> result = collection.find(filter);`);
     );
     await value.doubleClick();
 
-    const input = await document.$(
+    const input = document.$(
       `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
     await browser.setValueVisible(input, '42');
@@ -518,7 +518,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
-    const input = await document.$(
+    const input = document.$(
       '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
     );
     await browser.setValueVisible(input, '-100');

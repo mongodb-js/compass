@@ -17,7 +17,7 @@ export async function exportToLanguage(
 
   // pick the language
   await browser.waitUntil(async () => {
-    const button = await browser.$(Selectors.ExportToLanguageLanguageField);
+    const button = browser.$(Selectors.ExportToLanguageLanguageField);
     await browser.clickVisible(button);
     return (await button.getAttribute('aria-expanded')) === 'true';
   });

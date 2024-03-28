@@ -1224,7 +1224,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
@@ -1295,7 +1295,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
