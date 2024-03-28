@@ -69,7 +69,7 @@ describe('ConnectionForm Component', function () {
   it('should show the connect button', function () {
     renderForm();
     const button = screen.getByText('Connect').closest('button');
-    expect(button).to.not.match('disabled');
+    expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
   });
 
   it('should render the connection string textbox', function () {

@@ -35,7 +35,10 @@ const thumbsUpId = 'ai-feedback-thumbs-up';
 const aiGuideCueDescriptionSpanId = 'ai-guide-cue-description-span';
 
 describe('GenerativeAIInput Component', function () {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    sinon.restore();
+  });
 
   describe('when rendered', function () {
     let onCloseSpy: SinonSpy;

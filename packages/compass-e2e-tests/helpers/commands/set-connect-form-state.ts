@@ -48,7 +48,7 @@ export async function setConnectFormState(
         );
       }
       await browser.setValueVisible(
-        `[data-testid="connection-host-input-${i}"]`,
+        `#connection-host-input-${i}`,
         state.hosts[i]
       );
     }

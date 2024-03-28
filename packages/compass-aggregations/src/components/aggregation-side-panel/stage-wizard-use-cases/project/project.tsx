@@ -85,7 +85,6 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
   return (
     <div className={containerStyles}>
       <div className={formGroupStyles} data-testid="project-form">
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           data-testid="project-form-projection"
           className={selectStyles}
