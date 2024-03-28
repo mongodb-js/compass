@@ -1,5 +1,11 @@
-import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import React, { type ComponentProps } from 'react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
@@ -52,15 +58,30 @@ class MockConnectionStorage {
   }
 }
 
+const HOME_PROPS = {
+  appName: 'home-testing',
+  createFileInputBackend: (() => {}) as any,
+  hideCollectionSubMenu: () => {},
+  onDisconnect: () => {},
+  showCollectionSubMenu: () => {},
+  showSettings: () => {},
+  getAutoConnectInfo: () => Promise.resolve(),
+  showWelcomeModal: false,
+} as const;
+
 describe('Home [Component]', function () {
   const testAppRegistry = new AppRegistry();
-  function renderHome(dataService = createDataService()) {
+  function renderHome(
+    props: Partial<ComponentProps<typeof Home>> = {},
+    dataService = createDataService()
+  ) {
     render(
       <PreferencesProvider
         value={
           {
             getPreferences() {
-              return { showedNetworkOptIn: true };
+              // with networkTraffic=true, we show the link to open settings modal from the welcome modal
+              return { showedNetworkOptIn: true, networkTraffic: true };
             },
             onPreferenceValueChanged() {
               return () => {};
@@ -72,13 +93,14 @@ describe('Home [Component]', function () {
           <WithAtlasProviders>
             <WithStorageProviders>
               <Home
-                appName="home-testing"
+                {...HOME_PROPS}
                 // TODO(COMPASS-7397): compass-connection is not a real plugin and so
                 // we have to pass mocked services all the way through
                 __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
                   return Promise.resolve(dataService);
                 }}
                 __TEST_CONNECTION_STORAGE={MockConnectionStorage as any}
+                {...props}
               />
             </WithStorageProviders>
           </WithAtlasProviders>
@@ -101,12 +123,31 @@ describe('Home [Component]', function () {
   afterEach(cleanup);
 
   describe('is not connected', function () {
-    beforeEach(function () {
+    it('renders the connect screen', function () {
       renderHome();
+      expect(screen.getByTestId('connections')).to.be.visible;
     });
 
-    it('renders the connect screen', function () {
-      expect(screen.getByTestId('connections')).to.be.visible;
+    it('renders welcome modal and hides it', async function () {
+      renderHome({ showWelcomeModal: true });
+      const modal = screen.getByTestId('welcome-modal');
+      expect(modal).to.be.visible;
+      within(modal).getByRole('button', { name: 'Start' }).click();
+      await waitFor(() => {
+        expect(screen.queryByTestId('welcome-modal')).to.not.exist;
+      });
+    });
+
+    it('calls openSettings when user clicks on settings', async function () {
+      const showSettingsSpy = sinon.spy();
+      renderHome({ showSettings: showSettingsSpy, showWelcomeModal: true });
+
+      const modal = screen.getByTestId('welcome-modal');
+      within(modal).getByTestId('open-settings-link').click();
+      await waitFor(() => {
+        expect(screen.queryByTestId('welcome-modal')).to.not.exist;
+      });
+      expect(showSettingsSpy.callCount).to.equal(1);
     });
   });
 
@@ -114,14 +155,26 @@ describe('Home [Component]', function () {
     describe('when UI status is complete', function () {
       let dataServiceDisconnectedSpy: sinon.SinonSpy;
 
+      let onDisconnectSpy: sinon.SinonSpy;
+      let hideCollectionSubMenuSpy: sinon.SinonSpy;
+
       beforeEach(async function () {
         dataServiceDisconnectedSpy = sinon.fake.resolves(true);
+        hideCollectionSubMenuSpy = sinon.spy();
+        onDisconnectSpy = sinon.spy();
         const dataService = {
           ...createDataService(),
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };
-        renderHome(dataService);
+        renderHome(
+          {
+            hideCollectionSubMenu: hideCollectionSubMenuSpy,
+            onDisconnect: onDisconnectSpy,
+          },
+          dataService
+        );
+        screen.logTestingPlaygroundURL();
         await waitForConnect();
       });
 
@@ -129,27 +182,26 @@ describe('Home [Component]', function () {
         sinon.restore();
       });
 
-      describe('on `app:disconnect`', function () {
-        beforeEach(function () {
-          hadronIpc.ipcRenderer?.emit('app:disconnect');
-        });
+      it('on `app:disconnect`', async function () {
+        hadronIpc.ipcRenderer?.emit('app:disconnect');
 
-        it('renders the new connect form', async function () {
-          await waitFor(() => {
-            expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
-          });
-        });
+        expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
+        expect(
+          hideCollectionSubMenuSpy.called,
+          'it calls hideCollectionSubMenu'
+        ).to.be.true;
 
-        it('calls to disconnect the data service', function () {
-          expect(dataServiceDisconnectedSpy.callCount).to.equal(1);
+        await waitFor(() => {
+          expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
         });
+        expect(dataServiceDisconnectedSpy.callCount).to.equal(1);
       });
     });
   });
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(<Home appName="home-testing" />);
+      render(<Home {...HOME_PROPS} />);
     });
   });
 });

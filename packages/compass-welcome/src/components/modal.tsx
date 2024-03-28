@@ -65,7 +65,12 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
           sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
           <br />
           Manage this behaviour on the Compass{' '}
-          <Link hideExternalIcon className={link} onClick={goToSettings}>
+          <Link
+            data-testid="open-settings-link"
+            hideExternalIcon
+            className={link}
+            onClick={goToSettings}
+          >
             Settings
           </Link>{' '}
           page.
