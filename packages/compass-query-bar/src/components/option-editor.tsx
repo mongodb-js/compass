@@ -19,6 +19,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -135,7 +136,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     ];
   }, []);
 
-  const schemaFields = useAutocompleteFields(namespace);
+  const connectionInfo = useConnectionInfo();
+  const schemaFields = useAutocompleteFields(connectionInfo, namespace);
 
   const completer = useMemo(() => {
     return createQueryAutocompleter({

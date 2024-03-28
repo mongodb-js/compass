@@ -5,6 +5,7 @@ import sinon from 'sinon';
 
 import ValidationEditor from '.';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 describe('ValidationEditor [Component]', function () {
   context('when it is an editable mode', function () {
@@ -28,18 +29,27 @@ describe('ValidationEditor [Component]', function () {
 
     beforeEach(function () {
       component = mount(
-        <ValidationEditor
-          namespace="test.test"
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          clearSampleDocuments={clearSampleDocumentsSpy}
-          serverVersion={serverVersion}
-          validation={validation}
-          isEditable={isEditable}
-        />
+        <ConnectionInfoProvider
+          value={{
+            id: '1234',
+            connectionOptions: {
+              connectionString: 'mongodb://webscales.com:27017',
+            },
+          }}
+        >
+          <ValidationEditor
+            namespace="test.test"
+            validatorChanged={setValidatorChangedSpy}
+            validationActionChanged={setValidationActionChangedSpy}
+            validationLevelChanged={setValidationLevelChangedSpy}
+            cancelValidation={setCancelValidationSpy}
+            saveValidation={saveValidationSpy}
+            clearSampleDocuments={clearSampleDocumentsSpy}
+            serverVersion={serverVersion}
+            validation={validation}
+            isEditable={isEditable}
+          />
+        </ConnectionInfoProvider>
       );
     });
 
@@ -76,18 +86,27 @@ describe('ValidationEditor [Component]', function () {
 
     beforeEach(function () {
       component = mount(
-        <ValidationEditor
-          namespace="test.test"
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          clearSampleDocuments={clearSampleDocumentsSpy}
-          serverVersion={serverVersion}
-          validation={validation}
-          isEditable={isEditable}
-        />
+        <ConnectionInfoProvider
+          value={{
+            id: '1234',
+            connectionOptions: {
+              connectionString: 'mongodb://webscales.com:27017',
+            },
+          }}
+        >
+          <ValidationEditor
+            namespace="test.test"
+            validatorChanged={setValidatorChangedSpy}
+            validationActionChanged={setValidationActionChangedSpy}
+            validationLevelChanged={setValidationLevelChangedSpy}
+            cancelValidation={setCancelValidationSpy}
+            saveValidation={saveValidationSpy}
+            clearSampleDocuments={clearSampleDocumentsSpy}
+            serverVersion={serverVersion}
+            validation={validation}
+            isEditable={isEditable}
+          />
+        </ConnectionInfoProvider>
       );
     });
 

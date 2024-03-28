@@ -19,6 +19,7 @@ import type {
   RecentQueryStorageAccess,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import { type ConnectionScopedGlobalAppRegistry } from '@mongodb-js/compass-connections/provider';
 
 import {
   countDocuments,
@@ -391,6 +392,9 @@ class CrudStoreImpl
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  connectionScopedGlobalAppRegistry: ConnectionScopedGlobalAppRegistry<
+    'documents-refreshed' | 'documents-paginated' | 'document-inserted'
+  >;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
@@ -404,6 +408,7 @@ class CrudStoreImpl
       | 'dataService'
       | 'localAppRegistry'
       | 'globalAppRegistry'
+      | 'connectionScopedGlobalAppRegistry'
       | 'preferences'
       | 'logger'
     > & {
@@ -418,6 +423,8 @@ class CrudStoreImpl
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
     this.globalAppRegistry = services.globalAppRegistry;
+    this.connectionScopedGlobalAppRegistry =
+      services.connectionScopedGlobalAppRegistry;
     this.preferences = services.preferences;
     this.logger = services.logger;
     this.instance = services.instance;
@@ -926,7 +933,7 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.globalAppRegistry.emit('documents-paginated', {
+    this.connectionScopedGlobalAppRegistry.emit('documents-paginated', {
       ns: this.state.ns,
       docs: [documents[0]?.generateObject()],
     });
@@ -1363,7 +1370,7 @@ class CrudStoreImpl
         multiple: true,
         docs,
       };
-      this.globalAppRegistry.emit('document-inserted', payload);
+      this.connectionScopedGlobalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
@@ -1417,7 +1424,7 @@ class CrudStoreImpl
         multiple: false,
         docs: [doc],
       };
-      this.globalAppRegistry.emit('document-inserted', payload);
+      this.connectionScopedGlobalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
@@ -1730,7 +1737,7 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.globalAppRegistry.emit('documents-refreshed', {
+      this.connectionScopedGlobalAppRegistry.emit('documents-refreshed', {
         ns: this.state.ns,
         docs: [docs[0]?.generateObject()],
       });
@@ -1941,6 +1948,9 @@ export type DocumentsPluginServices = {
   instance: MongoDBInstance;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  connectionScopedGlobalAppRegistry: ConnectionScopedGlobalAppRegistry<
+    'documents-refreshed' | 'documents-paginated' | 'document-inserted'
+  >;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -1953,6 +1963,7 @@ export function activateDocumentsPlugin(
     instance,
     localAppRegistry,
     globalAppRegistry,
+    connectionScopedGlobalAppRegistry,
     preferences,
     logger,
     favoriteQueryStorageAccess,
@@ -1969,6 +1980,7 @@ export function activateDocumentsPlugin(
         dataService,
         localAppRegistry,
         globalAppRegistry,
+        connectionScopedGlobalAppRegistry,
         preferences,
         logger,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),

@@ -9,6 +9,7 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {
@@ -34,18 +35,27 @@ const renderSchemaToolbar = (
 ) => {
   const queryBarProps = {};
   render(
-    <MockQueryBarPlugin {...(queryBarProps as any)}>
-      <SchemaToolbar
-        analysisState="complete"
-        errorMessage={''}
-        isOutdated={false}
-        onAnalyzeSchemaClicked={() => {}}
-        onResetClicked={() => {}}
-        sampleSize={10}
-        schemaResultId="123"
-        {...props}
-      />
-    </MockQueryBarPlugin>
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <MockQueryBarPlugin {...(queryBarProps as any)}>
+        <SchemaToolbar
+          analysisState="complete"
+          errorMessage={''}
+          isOutdated={false}
+          onAnalyzeSchemaClicked={() => {}}
+          onResetClicked={() => {}}
+          sampleSize={10}
+          schemaResultId="123"
+          {...props}
+        />
+      </MockQueryBarPlugin>
+    </ConnectionInfoProvider>
   );
 };
 

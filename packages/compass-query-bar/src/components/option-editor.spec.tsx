@@ -1,8 +1,10 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import { expect } from 'chai';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OptionEditor } from './option-editor';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -13,6 +15,29 @@ class MockPasteEvent extends window.Event {
       return this.text;
     },
   };
+}
+
+function renderOptionEditor(
+  props?: Partial<ComponentProps<typeof OptionEditor>>
+) {
+  render(
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <OptionEditor
+        namespace="test.test"
+        insertEmptyDocOnFocus
+        onChange={() => {}}
+        value=""
+        {...props}
+      ></OptionEditor>
+    </ConnectionInfoProvider>
+  );
 }
 
 describe('OptionEditor', function () {
@@ -29,14 +54,7 @@ describe('OptionEditor', function () {
 
   describe('with autofix enabled', function () {
     it('fills the input with an empty object "{}" when empty on focus', async function () {
-      render(
-        <OptionEditor
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-        ></OptionEditor>
-      );
+      renderOptionEditor();
 
       expect(screen.getByRole('textbox').textContent).to.eq('');
 
@@ -48,14 +66,9 @@ describe('OptionEditor', function () {
     });
 
     it('does not change input value when empty on focus', async function () {
-      render(
-        <OptionEditor
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value="{ foo: 1 }"
-        ></OptionEditor>
-      );
+      renderOptionEditor({
+        value: '{ foo: 1 }',
+      });
 
       expect(screen.getByRole('textbox').textContent).to.eq('{ foo: 1 }');
 
@@ -67,14 +80,7 @@ describe('OptionEditor', function () {
     });
 
     it('should adjust pasted query if pasting over empty brackets with the cursor in the middle', async function () {
-      render(
-        <OptionEditor
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-        ></OptionEditor>
-      );
+      renderOptionEditor();
 
       userEvent.tab();
 
@@ -92,14 +98,7 @@ describe('OptionEditor', function () {
     });
 
     it('should not modify user text whe pasting when cursor moved', async function () {
-      render(
-        <OptionEditor
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-        ></OptionEditor>
-      );
+      renderOptionEditor();
 
       userEvent.tab();
 
@@ -119,14 +118,7 @@ describe('OptionEditor', function () {
     });
 
     it('should not modify user text when pasting in empty input', async function () {
-      render(
-        <OptionEditor
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-        ></OptionEditor>
-      );
+      renderOptionEditor();
 
       userEvent.tab();
       userEvent.keyboard('{arrowright}{backspace}{backspace}{backspace}');

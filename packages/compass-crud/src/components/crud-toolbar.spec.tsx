@@ -19,6 +19,8 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const noop = () => {
   /* noop */
@@ -53,39 +55,47 @@ describe('CrudToolbar Component', function () {
   function renderCrudToolbar(
     props?: Partial<React.ComponentProps<typeof CrudToolbar>>
   ) {
+    const CONNECTION_INFO: ConnectionInfo = {
+      id: '1234',
+      connectionOptions: {
+        connectionString: 'mongodb://webscales.com:27017',
+      },
+    };
     const appRegistry = new AppRegistry();
     const queryBarProps = {};
 
     return render(
       <PreferencesProvider value={preferences}>
-        <MockQueryBarPlugin {...(queryBarProps as any)}>
-          <CrudToolbar
-            activeDocumentView="List"
-            count={55}
-            end={20}
-            getPage={noop}
-            insertDataHandler={noop}
-            loadingCount={false}
-            localAppRegistry={appRegistry}
-            isWritable
-            instanceDescription=""
-            onApplyClicked={noop}
-            onResetClicked={noop}
-            onUpdateButtonClicked={noop}
-            onDeleteButtonClicked={noop}
-            openExportFileDialog={noop}
-            outdated={false}
-            page={0}
-            readonly={false}
-            refreshDocuments={noop}
-            resultId="123"
-            start={0}
-            viewSwitchHandler={noop}
-            queryLimit={0}
-            querySkip={0}
-            {...props}
-          />
-        </MockQueryBarPlugin>
+        <ConnectionInfoProvider value={CONNECTION_INFO}>
+          <MockQueryBarPlugin {...(queryBarProps as any)}>
+            <CrudToolbar
+              activeDocumentView="List"
+              count={55}
+              end={20}
+              getPage={noop}
+              insertDataHandler={noop}
+              loadingCount={false}
+              localAppRegistry={appRegistry}
+              isWritable
+              instanceDescription=""
+              onApplyClicked={noop}
+              onResetClicked={noop}
+              onUpdateButtonClicked={noop}
+              onDeleteButtonClicked={noop}
+              openExportFileDialog={noop}
+              outdated={false}
+              page={0}
+              readonly={false}
+              refreshDocuments={noop}
+              resultId="123"
+              start={0}
+              viewSwitchHandler={noop}
+              queryLimit={0}
+              querySkip={0}
+              {...props}
+            />
+          </MockQueryBarPlugin>
+        </ConnectionInfoProvider>
       </PreferencesProvider>
     );
   }

@@ -22,6 +22,7 @@ import {
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 const editorStyles = css({
   minHeight: spacing[5] + spacing[3],
@@ -156,7 +157,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }
   }, [isExpanded]);
 
-  const fields = useAutocompleteFields(namespace);
+  const connectionInfo = useConnectionInfo();
+  const fields = useAutocompleteFields(connectionInfo, namespace);
 
   const completer = useMemo(() => {
     return createDocumentAutocompleter(

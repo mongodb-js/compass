@@ -6,6 +6,8 @@ import InsertDocumentDialog from './components/insert-document-dialog';
 import { DocumentListWithReadonly } from './components/connected-document-list';
 import { activateDocumentsPlugin } from './stores/crud-store';
 import {
+  connectionScopedGlobalAppRegistryLocator,
+  type ConnectionScopedGlobalAppRegistryLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -38,6 +40,10 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-CRUD-UI'),
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
+    connectionScopedGlobalAppRegistry:
+      connectionScopedGlobalAppRegistryLocator as ConnectionScopedGlobalAppRegistryLocator<
+        'document-inserted' | 'documents-paginated' | 'documents-refreshed'
+      >,
   }
 );
 

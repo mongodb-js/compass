@@ -9,23 +9,33 @@ import configureStore from '../../../../test/configure-store';
 
 import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {}
 ) => {
   render(
-    <Provider store={configureStore()}>
-      <PipelineEditor
-        namespace="test.test"
-        pipelineText="[{$match: {}}]"
-        syntaxErrors={[]}
-        serverError={null}
-        serverVersion="4.2"
-        onChangePipelineText={() => {}}
-        num_stages={1}
-        {...props}
-      />
-    </Provider>
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <Provider store={configureStore()}>
+        <PipelineEditor
+          namespace="test.test"
+          pipelineText="[{$match: {}}]"
+          syntaxErrors={[]}
+          serverError={null}
+          serverVersion="4.2"
+          onChangePipelineText={() => {}}
+          num_stages={1}
+          {...props}
+        />
+      </Provider>
+    </ConnectionInfoProvider>
   );
 };
 

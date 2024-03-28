@@ -16,6 +16,7 @@ import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const DEFAULT_PROPS: Partial<RootState> = {
   regularIndexes: { indexes: [], error: null, isRefreshing: false },
@@ -43,9 +44,18 @@ const renderIndexes = (props: Partial<RootState> = {}) => {
   Object.assign(store.getState(), allProps);
 
   render(
-    <Provider store={store}>
-      <Indexes />
-    </Provider>
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <Provider store={store}>
+        <Indexes />
+      </Provider>
+    </ConnectionInfoProvider>
   );
 
   return store;

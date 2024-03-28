@@ -6,15 +6,25 @@ import { Provider } from 'react-redux';
 import configureStore from '../../../test/configure-store';
 import FocusMode from './focus-mode';
 import { disableFocusMode, enableFocusMode } from '../../modules/focus-mode';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const renderFocusMode = () => {
   const store = configureStore({
     pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   });
   render(
-    <Provider store={store}>
-      <FocusMode />
-    </Provider>
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <Provider store={store}>
+        <FocusMode />
+      </Provider>
+    </ConnectionInfoProvider>
   );
   return store;
 };

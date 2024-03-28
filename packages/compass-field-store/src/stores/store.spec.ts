@@ -5,17 +5,25 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import { once } from 'events';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 describe('FieldStore', function () {
   let deactivate = () => {};
   let store: ReturnType<typeof activatePlugin>['store'];
   let appRegistry: AppRegistry;
+  const connectionInfo: ConnectionInfo = {
+    id: '1234',
+    connectionOptions: {
+      connectionString: 'mongodb://webscales.com:27017',
+    },
+  };
 
   async function documentsChanged(
     docs: any | any[],
     eventName = 'documents-refreshed'
   ) {
     appRegistry.emit(eventName, {
+      connectionInfo,
       ns: 'test.test',
       docs: Array.isArray(docs) ? docs : [docs],
     });
@@ -24,6 +32,7 @@ describe('FieldStore', function () {
 
   function schemaChanged(schema: any = schemaFixture) {
     appRegistry.emit('schema-analyzed', {
+      connectionInfo,
       ns: 'test.test',
       schema,
     });
@@ -70,7 +79,7 @@ describe('FieldStore', function () {
 
     it('on schema store trigger', function () {
       schemaChanged();
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         '_id',
         'review',
@@ -86,7 +95,7 @@ describe('FieldStore', function () {
 
     it('on documents-refreshed', async function () {
       await documentsChanged(doc, 'documents-refreshed');
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -98,7 +107,7 @@ describe('FieldStore', function () {
 
     it('on document-inserted', async function () {
       await documentsChanged(doc, 'document-inserted');
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -110,7 +119,7 @@ describe('FieldStore', function () {
 
     it('on documents-paginated', async function () {
       await documentsChanged(doc, 'documents-paginated');
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -127,6 +136,7 @@ describe('FieldStore', function () {
       await documentsChanged(doc);
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(appRegistry.emit).to.have.been.calledWithMatch('fields-changed', {
+        connectionInfo,
         ns: 'test.test',
         fields: {
           harry: { name: 'harry', path: ['harry'], count: 1, type: 'Number' },
@@ -164,7 +174,7 @@ describe('FieldStore', function () {
     it('samples a single document', async function () {
       const doc = { harry: 1, potter: true };
       await documentsChanged(doc);
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -195,7 +205,7 @@ describe('FieldStore', function () {
         { ron: 'test', weasley: null },
       ];
       await documentsChanged(docs);
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -243,7 +253,7 @@ describe('FieldStore', function () {
       await documentsChanged(doc);
       const doc2 = { hermione: 0, granger: false };
       await documentsChanged(doc2);
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -290,7 +300,7 @@ describe('FieldStore', function () {
       const doc = { harry: 1, potter: true };
       await documentsChanged(doc);
       schemaChanged();
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',
         'potter',
@@ -398,20 +408,20 @@ describe('FieldStore', function () {
 
     it('flattens the schema', async function () {
       await documentsChanged({ a: { b: { c: 1 } } });
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(state.fields).to.have.all.keys(['a', 'a.b', 'a.b.c']);
     });
 
     it('maintains list of root fields', async function () {
       await documentsChanged({ a: { b: { c: 1 } }, d: 5, e: { f: 3 } });
-      const state = store.getState()['test.test'];
+      const state = store.getState()[connectionInfo.id]['test.test'];
       expect(state.topLevelFields).to.have.all.members(['a', 'd', 'e']);
     });
 
     describe('multidimensional arrays', function () {
       it('identifies empty 1d arrays', async function () {
         await documentsChanged({ a: [] });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -425,7 +435,7 @@ describe('FieldStore', function () {
 
       it('identifies populated 1d arrays', async function () {
         await documentsChanged({ a: [1, 2, 3] });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -444,7 +454,7 @@ describe('FieldStore', function () {
             ['2_1', '2_2', '2_3'],
           ],
         });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -470,7 +480,7 @@ describe('FieldStore', function () {
             ],
           ],
         });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -504,14 +514,16 @@ describe('FieldStore', function () {
         // Call that matters, the one that should be kept around
         await documentsChanged({ a: [1, 2, 3] });
 
-        expect(store.getState()['test.test'].fields).to.be.deep.equal(expected);
+        expect(
+          store.getState()[connectionInfo.id]['test.test'].fields
+        ).to.be.deep.equal(expected);
       });
     });
 
     describe('mixed nested arrays and subdocuments', function () {
       it('identifies 1d arrays of subdocuments', async function () {
         await documentsChanged({ a: [{ b: 'foo' }, { b: 'bar' }] });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -536,7 +548,7 @@ describe('FieldStore', function () {
             [{ b: 'foo' }, { b: 'bar' }],
           ],
         });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -558,7 +570,7 @@ describe('FieldStore', function () {
         await documentsChanged({
           a: [{ b: { c: 'foo' } }, { b: { c: 'bar' } }],
         });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         const expected = {
           a: {
             count: 1,
@@ -632,7 +644,7 @@ describe('FieldStore', function () {
             ],
           },
         });
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         expect(state.fields).to.be.deep.equal(expected);
       });
     });
@@ -664,7 +676,7 @@ describe('FieldStore', function () {
           foo1: [{ age: 10, name: 'bazillion' }],
         };
         await documentsChanged(doc);
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         expect(state.fields).to.be.deep.equal(expected);
       });
       it('handles path', async function () {
@@ -693,7 +705,7 @@ describe('FieldStore', function () {
           foo1: [{ age: 10, path: 'bazillion' }],
         };
         await documentsChanged(doc);
-        const state = store.getState()['test.test'];
+        const state = store.getState()[connectionInfo.id]['test.test'];
         expect(state.fields).to.be.deep.equal(expected);
       });
     });

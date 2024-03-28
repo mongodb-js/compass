@@ -24,6 +24,7 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 const noop = () => {
   /* no op */
@@ -55,16 +56,25 @@ describe('QueryBar Component', function () {
       <PreferencesProvider value={preferences}>
         <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
           <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
-            <Provider store={store}>
-              <QueryBar
-                buttonLabel="Apply"
-                onApply={noop}
-                onReset={noop}
-                showExportToLanguageButton
-                resultId="123"
-                {...props}
-              />
-            </Provider>
+            <ConnectionInfoProvider
+              value={{
+                id: '1234',
+                connectionOptions: {
+                  connectionString: 'mongodb://webscales.com:27017',
+                },
+              }}
+            >
+              <Provider store={store}>
+                <QueryBar
+                  buttonLabel="Apply"
+                  onApply={noop}
+                  onReset={noop}
+                  showExportToLanguageButton
+                  resultId="123"
+                  {...props}
+                />
+              </Provider>
+            </ConnectionInfoProvider>
           </RecentQueryStorageProvider>
         </FavoriteQueryStorageProvider>
       </PreferencesProvider>

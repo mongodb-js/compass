@@ -14,6 +14,7 @@ import {
   getCodemirrorEditorValue,
   setCodemirrorEditorValue,
 } from '@mongodb-js/compass-editor';
+import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 function normalizedTemplateNamed(name: string) {
   const snippet =
@@ -43,19 +44,28 @@ function renderBaseSearchIndexModal(
   props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>
 ) {
   return render(
-    <BaseSearchIndexModal
-      namespace="test.test"
-      mode="create"
-      initialIndexName={'default'}
-      initialIndexDefinition={'{}'}
-      isVectorSearchSupported
-      isModalOpen={true}
-      isBusy={false}
-      onSubmit={sinon.fake()}
-      onClose={sinon.fake()}
-      error={'Invalid index definition.'}
-      {...props}
-    />
+    <ConnectionInfoProvider
+      value={{
+        id: '1234',
+        connectionOptions: {
+          connectionString: 'mongodb://webscales.com:27017',
+        },
+      }}
+    >
+      <BaseSearchIndexModal
+        namespace="test.test"
+        mode="create"
+        initialIndexName={'default'}
+        initialIndexDefinition={'{}'}
+        isVectorSearchSupported
+        isModalOpen={true}
+        isBusy={false}
+        onSubmit={sinon.fake()}
+        onClose={sinon.fake()}
+        error={'Invalid index definition.'}
+        {...props}
+      />
+    </ConnectionInfoProvider>
   );
 }
 
