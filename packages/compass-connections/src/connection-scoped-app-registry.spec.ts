@@ -1,12 +1,16 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionScopedGlobalAppRegistryImpl } from './connection-scoped-global-app-registry';
+import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import { ConnectionScopedAppRegistryImpl } from './connection-scoped-app-registry';
 
-const CONNECTION_INFO: ConnectionInfo = {
-  id: '1234',
-  connectionOptions: {
-    connectionString: 'mongodb://webscales.com:27017',
+const connectionInfoAccess: ConnectionInfoAccess = {
+  getCurrentConnectionInfo() {
+    return {
+      id: '1234',
+      connectionOptions: {
+        connectionString: 'mongodb://webscales.com:27017',
+      },
+    };
   },
 };
 
@@ -14,23 +18,23 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
   it('should add sourceConnectionInfoId as extra args when payload is not provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
-      new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
+      new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        CONNECTION_INFO.id
+        connectionInfoAccess
       );
 
     newAppRegistryEmitter.emit('schema-analyzed');
     expect(emitSpy).to.have.been.calledWith('schema-analyzed', null, {
-      sourceConnectionInfoId: CONNECTION_INFO.id,
+      sourceConnectionInfoId: '1234',
     });
   });
 
   it('should add the sourceConnectionInfoId as extra args also when payload is provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
-      new ConnectionScopedGlobalAppRegistryImpl<'schema-analyzed'>(
+      new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        CONNECTION_INFO.id
+        connectionInfoAccess
       );
 
     newAppRegistryEmitter.emit('schema-analyzed', { record: true });
@@ -40,7 +44,7 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
         record: true,
       },
       {
-        sourceConnectionInfoId: CONNECTION_INFO.id,
+        sourceConnectionInfoId: '1234',
       }
     );
   });
