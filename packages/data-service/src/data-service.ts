@@ -1505,7 +1505,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     options: EstimatedDocumentCountOptions = {},
     executionOptions?: ExecutionOptions
   ): Promise<number> {
-    const maxTimeMS = options.maxTimeMS ?? 5000;
+    const maxTimeMS = options.maxTimeMS ?? 500;
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({

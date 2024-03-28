@@ -128,7 +128,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
     // to just do a colscan and we need that timeout to be low compared to the
     // aggregation one anyway. For aggregations it is less critical because we
     // $limit to the first few records.
-    const countOptions = { ...options, maxTimeMS: 5000 };
+    const countOptions = { ...options, maxTimeMS: 500 };
     const aggregateOptions = { ...options };
 
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];
