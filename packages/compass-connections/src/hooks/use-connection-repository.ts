@@ -15,7 +15,7 @@ export type PartialConnectionInfo = DeepPartial<ConnectionInfo> &
   Pick<ConnectionInfo, 'id'>;
 
 /**
- * Same as _.isEqual, except it takes key order into account
+ * Same as _.isEqual but taking into consideration BSON values.
  */
 export function areConnectionsEqual(
   listA: ConnectionInfo[],

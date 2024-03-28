@@ -439,7 +439,7 @@ export function useConnections({
     };
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
-  useEffectOnChange(() => {
+  useEffect(() => {
     void loadConnections(
       dispatch,
       storedFavoriteConnections,
@@ -449,19 +449,6 @@ export function useConnections({
         persistOIDCTokens,
       }
     );
-  }, [storedFavoriteConnections, storedNonFavoriteConnections]);
-
-  useEffectOnChange(() => {
-    if (!persistOIDCTokens)
-      void loadConnections(
-        dispatch,
-        storedFavoriteConnections,
-        storedNonFavoriteConnections,
-        saveConnectionInfo,
-        {
-          persistOIDCTokens,
-        }
-      );
   }, [
     storedFavoriteConnections,
     storedNonFavoriteConnections,
