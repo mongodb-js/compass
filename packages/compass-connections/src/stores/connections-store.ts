@@ -4,17 +4,11 @@ import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
-  type ConnectionRepository,
   type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import {
-  useConnectionRepositoryContext,
-  useConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,6 +18,7 @@ import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { UserPreferences } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionRepository } from '../hooks/use-connection-repository';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -209,18 +204,13 @@ async function loadConnections(
     favoriteConnections: ConnectionInfo[];
     recentConnections: ConnectionInfo[];
   }>,
-  connectionRepository: ConnectionRepository,
+  favoriteConnections: ConnectionInfo[],
+  recentConnections: ConnectionInfo[],
+  saveConnection: (connectionInfo: PartialConnectionInfo) => Promise<boolean>,
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
-    const [favoriteConnections, recentConnections] = await Promise.all([
-      connectionRepository.listFavoriteConnections(),
-      connectionRepository.listNonFavoriteConnections
-        ? connectionRepository.listNonFavoriteConnections?.()
-        : Promise.resolve([]),
-    ]);
-
-    const toBeReSaved: ConnectionInfo[] = [];
+    const toBeReSaved: Promise<boolean>[] = [];
     // Scrub OIDC tokens from connections when the option to store them has been disabled
     if (!persistOIDCTokens) {
       const loadedConnections = [...favoriteConnections, ...recentConnections];
@@ -228,9 +218,11 @@ async function loadConnections(
       for (const connection of loadedConnections) {
         if (connection.connectionOptions.oidc?.serializedState) {
           delete connection.connectionOptions.oidc?.serializedState;
-          toBeReSaved.push(connection);
+          toBeReSaved.push(saveConnection(connection));
         }
       }
+
+      await Promise.all(toBeReSaved);
     }
 
     dispatch({
@@ -238,12 +230,6 @@ async function loadConnections(
       favoriteConnections: favoriteConnections,
       recentConnections: recentConnections,
     });
-
-    await Promise.all(
-      toBeReSaved.map(async (connectionInfo) => {
-        await connectionRepository.saveConnection?.(connectionInfo);
-      })
-    );
   } catch (error) {
     debug('error loading connections', error);
   }
@@ -283,9 +269,13 @@ export function useConnections({
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
-  const connectionRepository = useConnectionRepositoryContext();
   const connectionsManager = useConnectionsManagerContext();
-  const connectionStorage = useConnectionStorageContext();
+  const {
+    favoriteConnections: storedFavoriteConnections,
+    nonFavoriteConnections: storedNonFavoriteConnections,
+    saveConnection,
+    deleteConnection,
+  } = useConnectionRepository();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -298,39 +288,11 @@ export function useConnections({
   );
   const { activeConnectionId, recentConnections, favoriteConnections } = state;
 
-  useEffect(() => {
-    function reloadConnections() {
-      void loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-    }
-
-    connectionStorage.events?.on(
-      ConnectionStorageEvents.ConnectionsChanged,
-      reloadConnections
-    );
-
-    return () => {
-      connectionStorage.events?.off(
-        ConnectionStorageEvents.ConnectionsChanged,
-        reloadConnections
-      );
-    };
-  });
-
   async function saveConnectionInfo(
     connectionInfo: PartialConnectionInfo
   ): Promise<boolean> {
     try {
-      if (connectionRepository.saveConnection) {
-        await connectionRepository.saveConnection?.(connectionInfo);
-        debug(`saved connection with id ${connectionInfo.id || ''}`);
-      } else {
-        debug(
-          `current connection provider does not support saving connections`
-        );
-      }
-
+      await saveConnection(connectionInfo);
       return true;
     } catch (err) {
       debug(
@@ -352,17 +314,7 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    if (!connectionRepository.deleteConnection) {
-      debug(
-        'current connection provider does not support deleting connections'
-      );
-      return;
-    }
-
-    await connectionRepository.deleteConnection(connectionInfo);
-    await loadConnections(dispatch, connectionRepository, {
-      persistOIDCTokens,
-    });
+    await deleteConnection(connectionInfo);
 
     if (activeConnectionId === connectionInfo.id) {
       const nextActiveConnection = createNewConnectionInfo();
@@ -437,18 +389,11 @@ export function useConnections({
         );
       }
     },
-    [
-      onConnected,
-      connectionRepository,
-      saveConnectionInfo,
-      removeConnection,
-      persistOIDCTokens,
-    ]
+    [onConnected, saveConnectionInfo, removeConnection, persistOIDCTokens]
   );
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
     void connectWithAutoConnectInfoIfAvailable();
     async function connectWithAutoConnectInfoIfAvailable() {
       let connectionInfo: ConnectionInfo | undefined;
@@ -494,12 +439,21 @@ export function useConnections({
     };
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
-  useEffectOnChange(() => {
-    if (!persistOIDCTokens)
-      void loadConnections(dispatch, connectionRepository, {
+  useEffect(() => {
+    void loadConnections(
+      dispatch,
+      storedFavoriteConnections,
+      storedNonFavoriteConnections,
+      saveConnectionInfo,
+      {
         persistOIDCTokens,
-      });
-  }, [persistOIDCTokens]);
+      }
+    );
+  }, [
+    storedFavoriteConnections,
+    storedNonFavoriteConnections,
+    persistOIDCTokens,
+  ]);
 
   const connect = async (
     originalConnectionInfo: ConnectionInfo,
@@ -636,10 +590,6 @@ export function useConnections({
         return;
       }
 
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-
       if (activeConnectionId === connectionInfo.id) {
         // Update the active connection if it's currently selected.
         dispatch({
@@ -673,11 +623,8 @@ export function useConnections({
         duplicate.favorite.name += ' (copy)';
       }
 
-      saveConnectionInfo(duplicate).then(
-        async () => {
-          await loadConnections(dispatch, connectionRepository, {
-            persistOIDCTokens,
-          });
+      void saveConnectionInfo(duplicate).then(
+        () => {
           dispatch({
             type: 'set-active-connection',
             connectionInfo: duplicate,
@@ -689,22 +636,9 @@ export function useConnections({
       );
     },
     async removeAllRecentsConnections() {
-      if (!connectionRepository.deleteConnection) {
-        debug(
-          'current connection provider does not support deleting connections'
-        );
-        return;
-      }
-
       await Promise.all(
-        recentConnections.map((info) =>
-          connectionRepository.deleteConnection?.(info)
-        )
+        recentConnections.map((info) => deleteConnection(info))
       );
-
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
     },
   };
 }
