@@ -34,6 +34,17 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
     private readonly connectionInfoAccess: ConnectionInfoAccess
   ) {}
 
+  /**
+   * @deprecated Moving forward we would like to get away from emitting events
+   * on AppRegistry (both ConnectionScopedAppRegistry and GlobalAppRegistry) to
+   * communicate between plugins in Compass which is why the usage of this
+   * method should be as sparse as possible. So far we expect only the global
+   * modals to still be relying on ConnectionScopedAppRegistry.emit but other
+   * than those places, usage of this method in any other place is not
+   * recommended. Read compass-field-store plugin and compass-workspaces plugin
+   * to understand how other plugins communicate with these plugins without
+   * relying on AppRegistry events.
+   */
   emit(event: T, payload: Record<string, any> | null = null): void {
     const sourceConnectionInfoId =
       this.connectionInfoAccess.getCurrentConnectionInfo().id;
