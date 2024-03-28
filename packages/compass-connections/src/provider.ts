@@ -65,6 +65,11 @@ export const dataServiceLocator = createServiceLocator(
 
 export { useConnectionStatus } from './hooks/use-connection-status';
 export {
+  connectionScopedAppRegistryLocator as connectionScopedGlobalAppRegistryLocator,
+  type ConnectionScopedGlobalAppRegistry,
+  type ConnectionScopedAppRegistryLocator as ConnectionScopedGlobalAppRegistryLocator,
+} from './connection-scoped-app-registry';
+export {
   type CanNotOpenConnectionReason,
   useCanOpenNewConnections,
 } from './hooks/use-can-open-new-connections';

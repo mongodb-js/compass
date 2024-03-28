@@ -1,4 +1,10 @@
-import { createContext, createElement, useMemo, useContext } from 'react';
+import {
+  createContext,
+  createElement,
+  useMemo,
+  useContext,
+  useRef,
+} from 'react';
 import { ConnectionRepository } from './connection-repository';
 import type { ConnectionInfo, ConnectionStorage } from './renderer';
 import {
@@ -11,6 +17,10 @@ export const ConnectionStorageContext = createContext<
 >(null);
 
 export { type ConnectionStorage } from './renderer';
+
+export type ConnectionInfoAccess = {
+  getCurrentConnectionInfo(): ConnectionInfo;
+};
 
 // TODO(COMPASS-7397): storage context should not be leaking out of the service
 // provider export, but the way the connection plugin is currently implemented
@@ -73,7 +83,16 @@ export function useConnectionInfo() {
   return connectionInfo;
 }
 export const ConnectionInfoProvider = ConnectionInfoContext.Provider;
-export const connectionInfoLocator = createServiceLocator(
-  useConnectionInfo,
-  'connectionInfoLocator'
+export const connectionInfoAccessLocator = createServiceLocator(
+  function connectionInfoAccessLocator(): ConnectionInfoAccess {
+    const connectionInfo = useConnectionInfo();
+    const connectionInfoRef = useRef(connectionInfo);
+    connectionInfoRef.current = connectionInfo;
+    return {
+      getCurrentConnectionInfo() {
+        return connectionInfoRef.current;
+      },
+    };
+  },
+  'connectionInfoAccessLocator'
 );
