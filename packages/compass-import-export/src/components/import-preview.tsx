@@ -64,7 +64,12 @@ const fieldPathHeaderStyles = css({
 });
 
 const cellContainerStyles = css({
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  padding: `${spacing[200]}px ${spacing[200]}px`,
+});
+
+const cellContentContainerStyles = css({
+  // We want our value cells to stay small for readability, so here we override LeafyGreen styles.
+  minHeight: 0,
 });
 
 const cellStyles = css({
@@ -76,6 +81,10 @@ const cellStyles = css({
 
 const cellUncheckedStyles = css({
   opacity: 0.4,
+});
+
+const headerCellStyles = css({
+  padding: `${spacing[200]}px ${spacing[200]}px`,
 });
 
 const rowIndexStyles = css({
@@ -458,7 +467,10 @@ function ImportPreview({
               return (
                 <HeaderCell
                   key={`col-${field.path}`}
-                  className={cx(needsWarning(field) && warningCellStyles)}
+                  className={cx(
+                    headerCellStyles,
+                    needsWarning(field) && warningCellStyles
+                  )}
                 >
                   {/* TODO(COMPASS-6766): move this div into FieldTypeHeading once we get rid of placeholders */}
                   <div
@@ -489,6 +501,7 @@ function ImportPreview({
           <Row key={`row-${rowIndex}`}>
             <Cell
               className={cx(cellContainerStyles, rowIndexStyles)}
+              contentClassName={cellContentContainerStyles}
               key={`rowindex-${rowIndex}`}
             >
               {rowIndex + 1}
@@ -499,6 +512,7 @@ function ImportPreview({
                   cellContainerStyles,
                   needsWarning(fields[fieldIndex]) && warningCellStyles
                 )}
+                contentClassName={cellContentContainerStyles}
                 key={`item-${path}-${fieldIndex}`}
               >
                 <div
