@@ -65,7 +65,7 @@ const HOME_PROPS = {
   onDisconnect: () => {},
   showCollectionSubMenu: () => {},
   showSettings: () => {},
-  getAutoConnectInfo: () => Promise.resolve(),
+  getAutoConnectInfo: () => Promise.resolve(undefined),
   showWelcomeModal: false,
 } as const;
 
