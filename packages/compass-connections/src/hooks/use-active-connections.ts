@@ -1,13 +1,9 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useCallback, useEffect, useState } from 'react';
-import { BSON } from 'bson';
-import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManagerEvents,
   useConnectionsManagerContext,
 } from '../provider';
-import isEqual from 'lodash/isEqual';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import {
   areConnectionsEqual,
   useConnectionRepository,

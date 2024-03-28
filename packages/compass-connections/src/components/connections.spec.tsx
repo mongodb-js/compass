@@ -9,23 +9,19 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
+import {
+  type ConnectionInfo,
+  type ConnectionStorage,
+  ConnectionStorageBus,
 } from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
-
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
-import {
-  ConnectionRepositoryContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -40,6 +36,7 @@ function getConnectionsManager(mockTestConnectFn?: typeof connect) {
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
+    events: new ConnectionStorageBus(),
     loadAll: () => {
       return Promise.resolve(mockConnections);
     },
@@ -101,27 +98,24 @@ describe('Connections Component', function () {
     beforeEach(function () {
       const mockStorage = getMockConnectionStorage([]);
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
-      const connectionRepository = new ConnectionRepository(mockStorage);
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
-                />
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
+            <ConnectionsManagerProvider value={getConnectionsManager()}>
+              <Connections
+                onConnected={onConnectedSpy}
+                onConnectionFailed={onConnectionFailedSpy}
+                onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                appName="Test App Name"
+              />
+            </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
     });
 
     it('calls once to load the connections', function () {
-      expect(loadConnectionsSpy.callCount).to.equal(2); // favorite + recent
+      expect(loadConnectionsSpy.callCount).to.equal(1);
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -193,7 +187,6 @@ describe('Connections Component', function () {
       ];
       mockStorage = getMockConnectionStorage(connections);
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
-      const connectionRepository = new ConnectionRepository(mockStorage);
 
       const connectionsManager = getConnectionsManager(() => {
         return Promise.resolve({
@@ -206,18 +199,16 @@ describe('Connections Component', function () {
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={connectionsManager}>
-                <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    appName="Test App Name"
-                  />
-                </ToastArea>
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
+            <ConnectionsManagerProvider value={connectionsManager}>
+              <ToastArea>
+                <Connections
+                  onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  appName="Test App Name"
+                />
+              </ToastArea>
+            </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
@@ -395,25 +386,20 @@ describe('Connections Component', function () {
         ];
         const mockStorage = getMockConnectionStorage(connections);
         sinon.replace(mockStorage, 'save', saveConnectionSpy);
-        const connectionRepository = new ConnectionRepository(mockStorage);
 
         render(
           <PreferencesProvider value={preferences}>
             <ConnectionStorageContext.Provider value={mockStorage}>
-              <ConnectionRepositoryContext.Provider
-                value={connectionRepository}
-              >
-                <ConnectionsManagerProvider value={connectionsManager}>
-                  <ToastArea>
-                    <Connections
-                      onConnected={onConnectedSpy}
-                      onConnectionFailed={onConnectionFailedSpy}
-                      onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                      appName="Test App Name"
-                    />
-                  </ToastArea>
-                </ConnectionsManagerProvider>
-              </ConnectionRepositoryContext.Provider>
+              <ConnectionsManagerProvider value={connectionsManager}>
+                <ToastArea>
+                  <Connections
+                    onConnected={onConnectedSpy}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                    appName="Test App Name"
+                  />
+                </ToastArea>
+              </ConnectionsManagerProvider>
             </ConnectionStorageContext.Provider>
           </PreferencesProvider>
         );
@@ -538,23 +524,19 @@ describe('Connections Component', function () {
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection1' }]);
 
-      const connectionRepository = new ConnectionRepository(mockStorage);
-
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    appName="Test App Name"
-                  />
-                </ToastArea>
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
+            <ConnectionsManagerProvider value={getConnectionsManager()}>
+              <ToastArea>
+                <Connections
+                  onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  appName="Test App Name"
+                />
+              </ToastArea>
+            </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
@@ -573,23 +555,19 @@ describe('Connections Component', function () {
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection2' }]);
 
-      const connectionRepository = new ConnectionRepository(mockStorage);
-
       const { rerender } = render(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    appName="Test App Name"
-                  />
-                </ToastArea>
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
+            <ConnectionsManagerProvider value={getConnectionsManager()}>
+              <ToastArea>
+                <Connections
+                  onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  appName="Test App Name"
+                />
+              </ToastArea>
+            </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
@@ -607,18 +585,16 @@ describe('Connections Component', function () {
       rerender(
         <PreferencesProvider value={preferences}>
           <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    appName="Test App Name"
-                  />
-                </ToastArea>
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
+            <ConnectionsManagerProvider value={getConnectionsManager()}>
+              <ToastArea>
+                <Connections
+                  onConnected={onConnectedSpy}
+                  onConnectionFailed={onConnectionFailedSpy}
+                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  appName="Test App Name"
+                />
+              </ToastArea>
+            </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
         </PreferencesProvider>
       );
@@ -632,33 +608,6 @@ describe('Connections Component', function () {
       expect(() => {
         screen.getByTestId('legacy-connections-modal');
       }).to.throw;
-    });
-  });
-
-  context('when multiple connection management is enabled', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
-      });
-      const mockStorage = getMockConnectionStorage([]);
-      const connectionRepository = new ConnectionRepository(mockStorage);
-
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
-            <ConnectionRepositoryContext.Provider value={connectionRepository}>
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
-                />
-              </ConnectionsManagerProvider>
-            </ConnectionRepositoryContext.Provider>
-          </ConnectionStorageContext.Provider>
-        </PreferencesProvider>
-      );
     });
   });
 });

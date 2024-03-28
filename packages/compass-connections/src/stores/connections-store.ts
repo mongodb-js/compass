@@ -4,14 +4,11 @@ import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   type ConnectionInfo,
-  type ConnectionRepository,
   type PartialConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
-import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -209,10 +206,11 @@ async function loadConnections(
   }>,
   favoriteConnections: ConnectionInfo[],
   recentConnections: ConnectionInfo[],
+  saveConnection: (connectionInfo: PartialConnectionInfo) => Promise<boolean>,
   { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
 ) {
   try {
-    const toBeReSaved: ConnectionInfo[] = [];
+    const toBeReSaved: Promise<boolean>[] = [];
     // Scrub OIDC tokens from connections when the option to store them has been disabled
     if (!persistOIDCTokens) {
       const loadedConnections = [...favoriteConnections, ...recentConnections];
@@ -220,9 +218,11 @@ async function loadConnections(
       for (const connection of loadedConnections) {
         if (connection.connectionOptions.oidc?.serializedState) {
           delete connection.connectionOptions.oidc?.serializedState;
-          toBeReSaved.push(connection);
+          toBeReSaved.push(saveConnection(connection));
         }
       }
+
+      await Promise.all(toBeReSaved);
     }
 
     dispatch({
@@ -270,7 +270,6 @@ export function useConnections({
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionsManager = useConnectionsManagerContext();
-  const connectionStorage = useConnectionStorageContext();
   const {
     favoriteConnections: storedFavoriteConnections,
     nonFavoriteConnections: storedNonFavoriteConnections,
@@ -293,7 +292,7 @@ export function useConnections({
     connectionInfo: PartialConnectionInfo
   ): Promise<boolean> {
     try {
-      saveConnection(connectionInfo);
+      await saveConnection(connectionInfo);
       return true;
     } catch (err) {
       debug(
@@ -445,6 +444,7 @@ export function useConnections({
       dispatch,
       storedFavoriteConnections,
       storedNonFavoriteConnections,
+      saveConnectionInfo,
       {
         persistOIDCTokens,
       }
@@ -457,6 +457,7 @@ export function useConnections({
         dispatch,
         storedFavoriteConnections,
         storedNonFavoriteConnections,
+        saveConnectionInfo,
         {
           persistOIDCTokens,
         }
@@ -636,7 +637,7 @@ export function useConnections({
       }
 
       void saveConnectionInfo(duplicate).then(
-        async () => {
+        () => {
           dispatch({
             type: 'set-active-connection',
             connectionInfo: duplicate,
@@ -648,17 +649,8 @@ export function useConnections({
       );
     },
     async removeAllRecentsConnections() {
-      if (!connectionRepository.deleteConnection) {
-        debug(
-          'current connection provider does not support deleting connections'
-        );
-        return;
-      }
-
       await Promise.all(
-        recentConnections.map((info) =>
-          connectionRepository.deleteConnection?.(info)
-        )
+        recentConnections.map((info) => deleteConnection(info))
       );
     },
   };
