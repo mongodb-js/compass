@@ -16,7 +16,8 @@ type GenerativeAiInput = {
   databaseName: string;
   schema?: SimplifiedSchema;
   sampleDocuments?: Document[];
-  signal?: AbortSignal;
+  signal: AbortSignal;
+  requestId: string;
 };
 
 const AI_MAX_REQUEST_SIZE = 10000;
@@ -150,6 +151,7 @@ export class AtlasAiService {
           0,
           AI_MIN_SAMPLE_DOCUMENTS
         ),
+        requestId: input.requestId,
       });
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(

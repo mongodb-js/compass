@@ -145,6 +145,7 @@ describe('AtlasAiService', function () {
             databaseName: 'peanut',
             schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
             sampleDocuments: [{ _id: 1234 }],
+            requestId: 'abc',
           });
 
           expect(fetchStub).to.have.been.calledOnce;
@@ -153,7 +154,7 @@ describe('AtlasAiService', function () {
 
           expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}],"requestId":"abc"}'
           );
           expect(res).to.deep.eq(responses.success);
         });
@@ -171,6 +172,8 @@ describe('AtlasAiService', function () {
                 userInput: 'test',
                 collectionName: 'test',
                 databaseName: 'peanut',
+                requestId: 'abc',
+                signal: new AbortController().signal,
               });
               expect.fail(`Expected ${functionName} to throw`);
             } catch (err) {
@@ -186,6 +189,8 @@ describe('AtlasAiService', function () {
               collectionName: 'test',
               databaseName: 'peanut',
               sampleDocuments: [{ test: '4'.repeat(60000) }],
+              requestId: 'abc',
+              signal: new AbortController().signal,
             });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
@@ -213,13 +218,15 @@ describe('AtlasAiService', function () {
               { a: '3' },
               { a: '4'.repeat(50000) },
             ],
+            requestId: 'abc',
+            signal: new AbortController().signal,
           });
 
           const { args } = fetchStub.firstCall;
 
           expect(fetchStub).to.have.been.calledOnce;
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
+            '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}],"requestId":"abc"}'
           );
         });
       });
