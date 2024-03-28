@@ -97,6 +97,10 @@ function notifyMainProcessOfDisconnect() {
   void ipcRenderer?.call('compass:disconnected');
 }
 
+function showSettingsModal() {
+  ipcRenderer?.emit('window:show-settings');
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -223,6 +227,7 @@ const Application = View.extend({
           onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
+          showSettings={showSettingsModal}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')

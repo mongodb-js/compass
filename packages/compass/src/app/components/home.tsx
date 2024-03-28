@@ -154,6 +154,7 @@ export type HomeProps = {
   onDisconnect: () => void;
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
+  showSettings: () => void;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
   __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
 };
@@ -166,6 +167,7 @@ function Home({
   onDisconnect,
   showCollectionSubMenu,
   hideCollectionSubMenu,
+  showSettings,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
 }: HomeProps): React.ReactElement | null {
@@ -267,16 +269,13 @@ function Home({
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
   const closeWelcomeModal = useCallback(
-    (showSettings?: boolean) => {
-      function close() {
-        setIsWelcomeOpen(false);
-        if (showSettings) {
-          appRegistry.emit('open-compass-settings');
-        }
+    (showSettingsModal?: boolean) => {
+      setIsWelcomeOpen(false);
+      if (showSettingsModal) {
+        showSettings();
       }
-      void close();
     },
-    [setIsWelcomeOpen, appRegistry]
+    [setIsWelcomeOpen, showSettings]
   );
 
   const connectionStorage =
