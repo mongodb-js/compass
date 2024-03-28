@@ -143,13 +143,12 @@ class CurrentOpComponent extends React.Component {
    * @returns {React.Component} The table.
    */
   renderGraph() {
-    const showOperationDetails = this.showOperationDetails;
-    const rows = this.state.data.map(function (row, i) {
+    const rows = this.state.data.map((row, i) => {
       return (
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
         <li
           className="rt-lists__item rt-lists__item--slow"
-          onClick={showOperationDetails.bind(null, row)}
+          onClick={() => this.showOperationDetails(row)}
           key={`list-item-${i}`}
         >
           <div className="rt-lists__op">{row.op}</div>
