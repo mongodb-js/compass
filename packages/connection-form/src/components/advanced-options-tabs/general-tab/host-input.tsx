@@ -77,7 +77,7 @@ function HostInput({
           renderItem={(host: string, index: number) => (
             <TextInput
               type="text"
-              data-testid={`connection-host-input-${index}`}
+              data-testid="connection-host-input"
               id={`connection-host-input-${index}`}
               aria-labelledby="connection-host-input-label"
               state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}

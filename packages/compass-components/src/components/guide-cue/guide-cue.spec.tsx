@@ -65,12 +65,12 @@ describe('GuideCue', function () {
   });
 
   after(function () {
-    cleanup();
     sandbox.restore();
   });
 
   afterEach(function () {
     localStorage.clear();
+    cleanup();
   });
 
   context('guide cue component', function () {

@@ -8,7 +8,7 @@ import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
 import { isAction } from './../utils/is-action';
-import type { SortDirection, IndexesThunkAction } from '.';
+import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
@@ -16,14 +16,6 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-
-export type SearchSortColumn = keyof typeof sortColumnToProps;
-
-const sortColumnToProps = {
-  'Name and Fields': 'name',
-  Type: 'type',
-  Status: 'status',
-} as const;
 
 export enum SearchIndexesStatuses {
   /**
@@ -70,7 +62,6 @@ const NOT_FETCHABLE_STATUSES: SearchIndexesStatus[] = [
 export enum ActionTypes {
   SetStatus = 'indexes/search-indexes/SetStatus',
   SetSearchIndexes = 'indexes/search-indexes/SetSearchIndexes',
-  SearchIndexesSorted = 'indexes/search-indexes/SearchIndexesSorted',
   SetError = 'indexes/search-indexes/SetError',
 
   // Create Index
@@ -155,20 +146,11 @@ export type State = {
   updateIndex: UpdateSearchIndexState;
   error?: string;
   indexes: SearchIndex[];
-  sortOrder: SortDirection;
-  sortColumn: SearchSortColumn;
 };
 
 type SetSearchIndexesAction = {
   type: ActionTypes.SetSearchIndexes;
   indexes: SearchIndex[];
-};
-
-type SearchIndexesSortedAction = {
-  type: ActionTypes.SearchIndexesSorted;
-  indexes: SearchIndex[];
-  sortOrder: SortDirection;
-  sortColumn: SearchSortColumn;
 };
 
 type SetErrorAction = {
@@ -189,8 +171,6 @@ export const INITIAL_STATE: State = {
   },
   error: undefined,
   indexes: [],
-  sortOrder: 'asc',
-  sortColumn: 'Name and Fields',
 };
 
 export default function reducer(
@@ -209,17 +189,6 @@ export default function reducer(
       ...state,
       indexes: action.indexes,
       status: SearchIndexesStatuses.READY,
-    };
-  }
-
-  if (
-    isAction<SearchIndexesSortedAction>(action, ActionTypes.SearchIndexesSorted)
-  ) {
-    return {
-      ...state,
-      indexes: action.indexes,
-      sortOrder: action.sortOrder,
-      sortColumn: action.sortColumn,
     };
   }
 
@@ -530,7 +499,7 @@ const fetchIndexes = (
       isWritable,
       dataService,
       namespace,
-      searchIndexes: { sortColumn, sortOrder, status },
+      searchIndexes: { status },
     } = getState();
 
     if (isReadonlyView || !isWritable) {
@@ -551,7 +520,7 @@ const fetchIndexes = (
     try {
       dispatch({ type: ActionTypes.SetStatus, status: newStatus });
       const indexes = await dataService.getSearchIndexes(namespace);
-      dispatch(setSearchIndexes(_sortIndexes(indexes, sortColumn, sortOrder)));
+      dispatch(setSearchIndexes(indexes));
     } catch (err) {
       // We do no set any error on poll or refresh and the
       // previous list of indexes is shown to the user.
@@ -585,26 +554,6 @@ export const refreshSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
 export const pollSearchIndexes = (): IndexesThunkAction<void> => {
   return (dispatch) => {
     void dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
-  };
-};
-
-export const sortSearchIndexes = (
-  column: SearchSortColumn,
-  direction: SortDirection
-): IndexesThunkAction<void, SearchIndexesSortedAction> => {
-  return (dispatch, getState) => {
-    const {
-      searchIndexes: { indexes },
-    } = getState();
-
-    const sortedIndexes = _sortIndexes(indexes, column, direction);
-
-    dispatch({
-      type: ActionTypes.SearchIndexesSorted,
-      indexes: sortedIndexes,
-      sortOrder: direction,
-      sortColumn: column,
-    });
   };
 };
 
@@ -691,29 +640,4 @@ export function getInitialVectorSearchIndexPipelineText(name: string) {
     },
   },
 ]`;
-}
-
-function _sortIndexes(
-  indexes: SearchIndex[],
-  column: SearchSortColumn,
-  direction: SortDirection
-) {
-  const order = direction === 'asc' ? 1 : -1;
-  const field = sortColumnToProps[column];
-
-  return [...indexes].sort(function (a: SearchIndex, b: SearchIndex) {
-    if (typeof b[field] === 'undefined') {
-      return order;
-    }
-    if (typeof a[field] === 'undefined') {
-      return -order;
-    }
-    if (a[field]! > b[field]!) {
-      return order;
-    }
-    if (a[field]! < b[field]!) {
-      return -order;
-    }
-    return 0;
-  });
 }

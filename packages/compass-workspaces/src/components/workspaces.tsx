@@ -171,7 +171,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
-        return <Component {...collectionMetadata}></Component>;
+        return <Component tabId={id} {...collectionMetadata}></Component>;
       }
       default:
         return null;

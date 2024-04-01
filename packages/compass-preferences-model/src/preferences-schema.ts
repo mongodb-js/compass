@@ -56,6 +56,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderExtraOptions: boolean;
     enableHackoladeBanner: boolean;
     enablePerformanceAdvisorBanner: boolean;
+    maximumNumberOfActiveConnections?: number;
   };
 
 export type InternalUserPreferences = {
@@ -726,6 +727,17 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(false),
     type: 'boolean',
+  },
+
+  maximumNumberOfActiveConnections: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Limits the amount of open connections.',
+    },
+    validator: z.number().default(10),
+    type: 'number',
   },
 
   ...allFeatureFlagsProps,

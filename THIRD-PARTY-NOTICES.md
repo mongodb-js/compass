@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Mar 22 2024.
+This document was automatically generated on Sun Mar 31 2024.
 
 ## List of dependencies
 
@@ -154,6 +154,8 @@ This document was automatically generated on Fri Mar 22 2024.
 | **[@smithy/util-stream](#3e5bbe8c1e071427346f8d060b661f86c11ab49700b0fc8112263850e5459800)**                                | 2.2.0        | Apache-2.0                          |
 | **[@smithy/util-uri-escape](#b510bebe21e29f62ad1f850a458ceee74bba5a14f684a1f052a9c7a0900f5705)**                            | 2.2.0        | Apache-2.0                          |
 | **[@smithy/util-utf8](#ddf790da0f47b61de4adaf277708e1a3323b9d73daf35cf26744cb614ee471ff)**                                  | 2.3.0        | Apache-2.0                          |
+| **[@tanstack/react-table](#3472fd929bf691e34b02f3f62232cafe55163b92e3c51afc884780ba2413e67f)**                              | 8.14.0       | MIT                                 |
+| **[@tanstack/table-core](#8a18d3df915b2b72a0c8a845e2a930504b08cb745c8e0b5537de30793b71c967)**                               | 8.14.0       | MIT                                 |
 | **[abort-controller](#66ee983bdad1037c7551a0fb329b7bec75adecd2dc92a3189228a6a1c7607916)**                                   | 3.0.0        | MIT                                 |
 | **[accepts](#4c224d266c36e8e0abc4a53eb7eaa038504ee20b9b91f3e761187298a447d76b)**                                            | 1.3.8        | MIT                                 |
 | **[acorn](#4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d)**                                              | 8.8.2        | MIT                                 |
@@ -265,16 +267,15 @@ This document was automatically generated on Fri Mar 22 2024.
 | **[express](#6a8f65878b3ac34fcd9207d98e3401577dfa8a8f05385f26237468ca21cbff06)**                                            | 4.18.2       | MIT                                 |
 | **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**                                           | 2.2.2        | MIT                                 |
 | **[ext-name](#ad9b31fcbd25bf889177f1e55d92e083fbc5ae2460904d8a81abf075c4762abd)**                                           | 5.0.0        | MIT                                 |
+| **[facepaint](#7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4)**                                          | 1.2.1        | MIT                                 |
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
 | **[fast-xml-parser](#211b0c376cc0366cba9e0c1769c1a3f669cede9770cfd604ee189baf55f5bb5f)**                                    | 4.2.5        | MIT                                 |
 | **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**                                   | 1.0.0        | MIT                                 |
 | **[finalhandler](#ea05ab0484759171733963b2131d01cfd1ca89ab89ecde290a3aac01ec5b0c47)**                                       | 1.2.0        | MIT                                 |
 | **[first-chunk-stream](#c940079dd0a2457019ab184334f928cab84e316cd4016ba3581b312aa55c70f9)**                                 | 3.0.0        | MIT                                 |
-| **[focus-trap-react](#573c38a626e4f40b36b730104fb3daebe943665aa7ef1e8babfc0a9e070f3da5)**                                   | 10.0.2       | MIT                                 |
-| **[focus-trap-react](#f5078458fd8210aa241917326b188b7113f6ab3e8c3c0fefe9ee6b25d0dba488)**                                   | 8.10.0       | MIT                                 |
+| **[focus-trap-react](#4db13d4bfad6e874b38f8054935a1c7872c265b0a9f279e24dbe2523f3d1ce53)**                                   | 9.0.2        | MIT                                 |
 | **[focus-trap](#c34eea0a3a357645a464ee2dd814f280c9670f39b9b85132394eb15acb70916a)**                                         | 6.9.4        | MIT                                 |
-| **[focus-trap](#50317664d2ce9bf2b97bfa0115ef74914b08636951490de56dca5ab803c3ee53)**                                         | 7.2.0        | MIT                                 |
 | **[forwarded](#2d7f4275b09b041fd821b7672ebae7c9ccad3c87f3f37b6bd91306973c02b9a3)**                                          | 0.2.0        | MIT                                 |
 | **[fresh](#d7c677c373e09a5e9c7fe1d1ce69ca3147fe0455bf5606a26251970181d9efc4)**                                              | 0.5.2        | MIT                                 |
 | **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**                                       | 1.0.0        | MIT                                 |
@@ -490,12 +491,13 @@ This document was automatically generated on Fri Mar 22 2024.
 | **[react-hotkeys-hook](#6ce07fe9653ad69a76354e2d71137c70ab9a838377fe5a8f8e45c559cfbf41cc)**                                 | 4.3.7        | MIT                                 |
 | **[react-intersection-observer](#84f998bdb33a5f9330d81ef063f7ad0897f1b004661fbf131725697b847a5b6a)**                        | 8.34.0       | MIT                                 |
 | **[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**                                           | 16.13.1      | MIT                                 |
-| **[react-is](#5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b)**                                           | 17.0.2       | MIT                                 |
 | **[react-is](#5746232ad830b635a6581ee7d3b826ee932c6877087c98cb46b94101eb5ce40b)**                                           | 18.2.0       | MIT                                 |
+| **[react-keyed-flatten-children](#9c7ffa4be6351eaf0a19b808fc4048eb28455824378f089da7a566cdeb0bdd84)**                       | 1.3.0        | MIT                                 |
 | **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**                                 | 0.19.0       | ISC                                 |
 | **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**                                      | 2.4.0        | MIT                                 |
 | **[react-redux](#156f5c2e2cbbda376faae24e78cc75de697170101ff7e9d2955c0f891cffd6a8)**                                        | 8.1.3        | MIT                                 |
 | **[react-transition-group](#f8a526737bf3e6cc7928ce77b3fa8e6a880da418fd9363a0dae1122922f92b72)**                             | 4.4.5        | BSD-3-Clause                        |
+| **[react-virtual](#b9245d8b8a0d57eba1876cc38950eccd82b4db023c50026f4a70a6c66e16cb5c)**                                      | 2.10.4       | MIT                                 |
 | **[react-virtualized-auto-sizer](#556ae2daaf1c576dcc4544e6bfe080cd68d0c6912265cf2ebe7bae81e75de55b)**                       | 1.0.6        | MIT                                 |
 | **[react-window](#fcf3bd62a73691dc82efaf23f7667fb5dfe4ce1cb5e8740f3d53a3a85086ead2)**                                       | 1.8.6        | MIT                                 |
 | **[react](#2f31f78715f56093f4bb569e2e2ea931c518db6f4ee690482a0a2a1cd4d18b4c)**                                              | 17.0.2       | MIT                                 |
@@ -555,7 +557,6 @@ This document was automatically generated on Fri Mar 22 2024.
 | **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**                                     | 7.2.0        | MIT                                 |
 | **[system-ca](#3522fc607365a0831259d285455f827874a15cf872d94258c71f3f8d8ddee1f6)**                                          | 1.0.2        | Apache-2.0                          |
 | **[tabbable](#0ebe87140b76c7f2135bbd5099e7973a5ec2b5d8fe2bec8e272608cf0b3f396a)**                                           | 5.3.3        | MIT                                 |
-| **[tabbable](#8fa0cd88aac78b0ad7bc82904cfef747a703d55e630a71998b0b942a5847e9d4)**                                           | 6.0.1        | MIT                                 |
 | **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**                                             | 2.1.1        | MIT                                 |
 | **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**                                         | 1.6.2        | MIT                                 |
 | **[temp](#e01b6a421a3c5beb50d40382363056567e8cd022bd6fbb0fc56aa866c73e80b8)**                                               | 0.9.4        | MIT                                 |
@@ -17558,6 +17559,70 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
+<a id="3472fd929bf691e34b02f3f62232cafe55163b92e3c51afc884780ba2413e67f"></a>
+
+### [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) (version 8.14.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2016 Tanner Linsley
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="8a18d3df915b2b72a0c8a845e2a930504b08cb745c8e0b5537de30793b71c967"></a>
+
+### [@tanstack/table-core](https://www.npmjs.com/package/@tanstack/table-core) (version 8.14.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2016 Tanner Linsley
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
 <a id="66ee983bdad1037c7551a0fb329b7bec75adecd2dc92a3189228a6a1c7607916"></a>
 
 ### [abort-controller](https://www.npmjs.com/package/abort-controller) (version 3.0.0)
@@ -21324,6 +21389,12 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
+<a id="7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4"></a>
+
+### [facepaint](https://www.npmjs.com/package/facepaint) (version 1.2.1)
+
+License tags: MIT
+
 <a id="c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09"></a>
 
 ### [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) (version 2.0.1)
@@ -21504,41 +21575,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="573c38a626e4f40b36b730104fb3daebe943665aa7ef1e8babfc0a9e070f3da5"></a>
+<a id="4db13d4bfad6e874b38f8054935a1c7872c265b0a9f279e24dbe2523f3d1ce53"></a>
 
-### [focus-trap-react](https://www.npmjs.com/package/focus-trap-react) (version 10.0.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2015 David Clark
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="f5078458fd8210aa241917326b188b7113f6ab3e8c3c0fefe9ee6b25d0dba488"></a>
-
-### [focus-trap-react](https://www.npmjs.com/package/focus-trap-react) (version 8.10.0)
+### [focus-trap-react](https://www.npmjs.com/package/focus-trap-react) (version 9.0.2)
 
 License tags: MIT
 
@@ -21571,38 +21610,6 @@ License files:
 <a id="c34eea0a3a357645a464ee2dd814f280c9670f39b9b85132394eb15acb70916a"></a>
 
 ### [focus-trap](https://www.npmjs.com/package/focus-trap) (version 6.9.4)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2015-2016 David Clark
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="50317664d2ce9bf2b97bfa0115ef74914b08636951490de56dca5ab803c3ee53"></a>
-
-### [focus-trap](https://www.npmjs.com/package/focus-trap) (version 7.2.0)
 
 License tags: MIT
 
@@ -37220,9 +37227,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
+<a id="5746232ad830b635a6581ee7d3b826ee932c6877087c98cb46b94101eb5ce40b"></a>
 
-### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
+### [react-is](https://www.npmjs.com/package/react-is) (version 18.2.0)
 
 License tags: MIT
 
@@ -37252,9 +37259,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="5746232ad830b635a6581ee7d3b826ee932c6877087c98cb46b94101eb5ce40b"></a>
+<a id="9c7ffa4be6351eaf0a19b808fc4048eb28455824378f089da7a566cdeb0bdd84"></a>
 
-### [react-is](https://www.npmjs.com/package/react-is) (version 18.2.0)
+### [react-keyed-flatten-children](https://www.npmjs.com/package/react-keyed-flatten-children) (version 1.3.0)
 
 License tags: MIT
 
@@ -37264,7 +37271,7 @@ License files:
 
       MIT License
 
-      Copyright (c) Facebook, Inc. and its affiliates.
+      Copyright (c) 2019 Tom McKenzie <tom@chillidonut.com>
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -37414,6 +37421,38 @@ License files:
       CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
       OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
       OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+<a id="b9245d8b8a0d57eba1876cc38950eccd82b4db023c50026f4a70a6c66e16cb5c"></a>
+
+### [react-virtual](https://www.npmjs.com/package/react-virtual) (version 2.10.4)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2019 Tanner Linsley
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
 
 <a id="556ae2daaf1c576dcc4544e6bfe080cd68d0c6912265cf2ebe7bae81e75de55b"></a>
 
@@ -39751,38 +39790,6 @@ License files:
 <a id="0ebe87140b76c7f2135bbd5099e7973a5ec2b5d8fe2bec8e272608cf0b3f396a"></a>
 
 ### [tabbable](https://www.npmjs.com/package/tabbable) (version 5.3.3)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2015 David Clark
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="8fa0cd88aac78b0ad7bc82904cfef747a703d55e630a71998b0b942a5847e9d4"></a>
-
-### [tabbable](https://www.npmjs.com/package/tabbable) (version 6.0.1)
 
 License tags: MIT
 

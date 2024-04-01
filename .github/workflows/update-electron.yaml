@@ -24,14 +24,14 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: ^16.20.2
+          node-version: 18.19.1
           cache: 'npm'
 
-      - name: Install npm@8.19.4
+      - name: Install npm@10.2.4
         run: |
-          npm install -g npm@8.19.4
+          npm install -g npm@10.2.4
       - name: Install Dependencies
         run: |
           npm -v
@@ -43,7 +43,7 @@ jobs:
           git commit --no-allow-empty -m "chore: update electron" || true
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
           commit-message: 'chore: update electron'

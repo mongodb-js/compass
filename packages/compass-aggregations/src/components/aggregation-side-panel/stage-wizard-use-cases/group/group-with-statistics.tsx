@@ -194,7 +194,6 @@ const GroupAccumulatorForm = ({
               <Body className={groupLabelStyles}>
                 {index === 0 ? 'Calculate' : 'and'}
               </Body>
-              {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
               <Select
                 className={selectStyles}
                 allowDeselect={false}

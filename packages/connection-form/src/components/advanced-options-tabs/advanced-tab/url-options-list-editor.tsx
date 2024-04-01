@@ -182,7 +182,9 @@ function UrlOptionsListEditor({
             spellCheck={false}
             type={'text'}
             placeholder={'Value'}
-            aria-labelledby="Enter value"
+            aria-label={
+              uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'
+            }
             value={uriOption.value}
             className={valueInputStyles}
           />

@@ -8,6 +8,7 @@ import type { ConnectionsManager } from './connections-manager';
 export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './stores/connections-store';
+export { useActiveConnections } from './hooks/use-active-connections';
 
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
   null
@@ -16,6 +17,7 @@ export const ConnectionsManagerProvider = ConnectionsManagerContext.Provider;
 
 export const useConnectionsManagerContext = (): ConnectionsManager => {
   const connectionsManager = useContext(ConnectionsManagerContext);
+
   if (!connectionsManager) {
     throw new Error(
       'ConnectionsManager not available in context. Did you forget to setup ConnectionsManagerProvider'
@@ -62,3 +64,7 @@ export const dataServiceLocator = createServiceLocator(
 );
 
 export { useConnectionStatus } from './hooks/use-connection-status';
+export {
+  type CanNotOpenConnectionReason,
+  useCanOpenNewConnections,
+} from './hooks/use-can-open-new-connections';

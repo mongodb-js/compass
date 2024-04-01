@@ -225,6 +225,7 @@ const CompassWeb = ({
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
       },
+      maximumNumberOfActiveConnections: 1,
       ...initialPreferences,
     })
   );

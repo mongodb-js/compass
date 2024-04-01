@@ -7,17 +7,17 @@ import {
   within,
   waitFor,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
 import type { Document } from 'mongodb';
-
-import { POLLING_INTERVAL, SearchIndexesTable } from './search-indexes-table';
+import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
 } from './../../../test/fixtures/search-indexes';
+import { mockSearchIndex } from '../../../test/helpers';
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
@@ -30,7 +30,6 @@ const renderIndexList = (
       status="READY"
       isWritable={true}
       readOnly={false}
-      onSortTable={noop}
       onDropIndex={noop}
       onEditIndex={noop}
       onPollIndexes={noop}
@@ -56,7 +55,7 @@ describe('SearchIndexesTable Component', function () {
 
       // Renders indexes list (table rows)
       for (const index of indexes) {
-        const indexRow = screen.getByTestId(`search-indexes-row-${index.name}`);
+        const indexRow = screen.getByText(index.name).closest('tr')!;
         expect(indexRow, 'it renders each index in a row').to.exist;
 
         // Renders index fields (table cells)
@@ -133,34 +132,6 @@ describe('SearchIndexesTable Component', function () {
     expect(openCreateSpy.callCount).to.equal(1);
   });
 
-  for (const column of ['Name and Fields', 'Status']) {
-    it(`sorts table by ${column}`, function () {
-      const onSortTableSpy = sinon.spy();
-      renderIndexList({
-        onSortTable: onSortTableSpy,
-      });
-
-      const indexesList = screen.getByTestId('search-indexes-list');
-
-      const columnheader = within(indexesList).getByTestId(
-        `search-indexes-header-${column}`
-      );
-      const sortButton = within(columnheader).getByRole('button', {
-        name: /sort/i,
-      });
-
-      expect(onSortTableSpy.callCount).to.equal(0);
-
-      userEvent.click(sortButton);
-      expect(onSortTableSpy.callCount).to.equal(1);
-      expect(onSortTableSpy.getCalls()[0].args).to.deep.equal([column, 'desc']);
-
-      userEvent.click(sortButton);
-      expect(onSortTableSpy.callCount).to.equal(2);
-      expect(onSortTableSpy.getCalls()[1].args).to.deep.equal([column, 'asc']);
-    });
-  }
-
   context('renders list with action', function () {
     it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();
@@ -195,9 +166,8 @@ describe('SearchIndexesTable Component', function () {
         indexes: vectorSearchIndexes,
       });
 
-      const indexRow = screen.getByTestId(
-        `search-indexes-row-vectorSearching123`
-      );
+      const indexRow = screen.getByText('vectorSearching123').closest('tr')!;
+
       const expandButton = within(indexRow).getByLabelText('Expand row');
       expect(expandButton).to.exist;
       fireEvent.click(expandButton);
@@ -216,14 +186,85 @@ describe('SearchIndexesTable Component', function () {
   describe('connectivity', function () {
     it('does poll the index for changes in online mode', async function () {
       const onPollIndexesSpy = sinon.spy();
-      renderIndexList({ onPollIndexes: onPollIndexesSpy, isWritable: true });
+      const testPollingInterval = 50;
+      renderIndexList({
+        onPollIndexes: onPollIndexesSpy,
+        isWritable: true,
+        pollingInterval: testPollingInterval,
+      });
 
       await waitFor(
         () => {
-          expect(onPollIndexesSpy.callCount).to.be.greaterThanOrEqual(1);
+          expect(onPollIndexesSpy.callCount).to.equal(1);
         },
-        { timeout: POLLING_INTERVAL * 2 }
+        { timeout: testPollingInterval * 1.5 }
       );
+    });
+  });
+
+  describe('sorting', function () {
+    function getIndexNames() {
+      return screen.getAllByTestId('search-indexes-name-field').map((el) => {
+        return el.textContent!.trim();
+      });
+    }
+
+    function clickSort(label: string) {
+      userEvent.click(screen.getByRole('button', { name: `Sort by ${label}` }));
+    }
+
+    it('sorts table by name', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b' }),
+          mockSearchIndex({ name: 'a' }),
+          mockSearchIndex({ name: 'c' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by type', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b', type: 'vector search' }),
+          mockSearchIndex({ name: 'a', type: 'search' }),
+          mockSearchIndex({ name: 'c', type: 'vector search' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by status', function () {
+      renderIndexList({
+        indexes: [
+          mockSearchIndex({ name: 'b', status: 'FAILED' }),
+          mockSearchIndex({ name: 'a', status: 'BUILDING' }),
+          mockSearchIndex({ name: 'c', status: 'READY' }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Name and Fields');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
   });
 });
