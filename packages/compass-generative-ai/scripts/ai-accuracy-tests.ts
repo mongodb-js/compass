@@ -4,7 +4,7 @@
 // > ATLAS_PUBLIC_KEY="..." \
 //   ATLAS_PRIVATE_KEY="..." \
 //   AI_TESTS_ATTEMPTS_PER_TEST=100 \
-//     node scripts/ai-accuracy-tests/index.js
+//     npm run ai-accuracy-tests
 
 // To run these tests with local mms:
 // First create an API key in your Atlas organization with
@@ -13,7 +13,7 @@
 // > ATLAS_PUBLIC_KEY="..." \
 //   ATLAS_PRIVATE_KEY="..." \
 //   AI_TESTS_BACKEND=atlas-local \
-//     node scripts/ai-accuracy-tests/index.js
+//     npm run ai-accuracy-tests
 
 import { MongoCluster } from 'mongodb-runner';
 import { promises as fs } from 'fs';
