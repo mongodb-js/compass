@@ -24,6 +24,7 @@ import { MongoClient } from 'mongodb';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import { getSimplifiedSchema } from 'mongodb-schema';
+import type { SimplifiedSchema } from 'mongodb-schema';
 import path from 'path';
 import util from 'util';
 import { execFile as callbackExecFile } from 'child_process';
@@ -110,8 +111,6 @@ type TestResult = {
   'User Input': string;
   Namespace: string;
   Accuracy: number;
-  // 'Prompt Tokens': usageStats[0]?.promptTokens,
-  // 'Completion Tokens': usageStats[0]?.completionTokens,
   Pass: '✗' | '✓';
 };
 
@@ -154,7 +153,7 @@ async function fetchAtlasPrivateApi(
 }
 
 type QueryOptions = {
-  schema: any;
+  schema: SimplifiedSchema;
   collectionName: string;
   databaseName: string;
   sampleDocuments: Document[] | undefined;
@@ -233,7 +232,7 @@ type TestOptions = {
   databaseName: string;
   collectionName: string;
   userInput: string;
-  assertResponse?: (responseContent: any) => Promise<void>;
+  assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
   acceptAggregationResponse?: boolean;
 };
@@ -373,7 +372,7 @@ const fixtures: {
 } = {};
 
 async function setup() {
-  // ps-queue is ESM-only in recent versions.
+  // p-queue is ESM-only in recent versions.
   PQueue = (await eval(`import('p-queue')`)).default;
 
   cluster = await MongoCluster.start({
@@ -414,30 +413,31 @@ async function teardown() {
   await cluster?.close();
 }
 
-const isDeepStrictEqualTo = (expected: any) => (actual: any) =>
+const isDeepStrictEqualTo = (expected: unknown) => (actual: unknown) =>
   assert.deepStrictEqual(actual, expected);
 
 const isDeepStrictEqualToFixtures =
   (db: string, coll: string, comparator: (document: Document) => boolean) =>
-  (actual: any) => {
+  (actual: unknown) => {
     const expected = fixtures[db][coll].filter(comparator);
     assert.deepStrictEqual(actual, expected);
   };
 
-const anyOf = (assertions: ((result: any) => void)[]) => (actual: any) => {
-  const errors: Error[] = [];
-  for (const assertion of assertions) {
-    try {
-      assertion(actual);
-    } catch (e) {
-      errors.push(e as Error);
+const anyOf =
+  (assertions: ((result: unknown) => void)[]) => (actual: unknown) => {
+    const errors: Error[] = [];
+    for (const assertion of assertions) {
+      try {
+        assertion(actual);
+      } catch (e) {
+        errors.push(e as Error);
+      }
     }
-  }
 
-  if (errors.length === assertions.length) {
-    throw errors[errors.length - 1];
-  }
-};
+    if (errors.length === assertions.length) {
+      throw errors[errors.length - 1];
+    }
+  };
 
 /**
  * Insert the generative ai results to a db
