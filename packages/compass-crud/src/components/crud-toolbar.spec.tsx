@@ -39,6 +39,8 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
   recentQueryStorageAccess: compassRecentQueryStorageAccess,
+  atlasAiService: {} as any,
+  atlasAuthService: { on() {}, removeListener() {} } as any,
 });
 
 const addDataText = 'Add Data';
@@ -295,7 +297,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -305,7 +307,7 @@ describe('CrudToolbar Component', function () {
       });
 
       expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'disabled'
+        'aria-disabled'
       );
     });
 
@@ -333,9 +335,12 @@ describe('CrudToolbar Component', function () {
         querySkip: 10,
       });
 
-      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'disabled'
-      );
+      expect(
+        screen
+          .getByText(deleteDataText)
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should render disabled when the query has a limit', function () {
@@ -343,9 +348,12 @@ describe('CrudToolbar Component', function () {
         queryLimit: 10,
       });
 
-      expect(screen.getByText(deleteDataText).closest('button')).to.have.attr(
-        'disabled'
-      );
+      expect(
+        screen
+          .getByText(deleteDataText)
+          .closest('button')
+          ?.getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should propagate click events', function () {
@@ -391,8 +399,8 @@ describe('CrudToolbar Component', function () {
       expect(
         screen
           .getByTestId('crud-add-data-show-actions')
-          .getAttribute('disabled')
-      ).to.exist;
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 

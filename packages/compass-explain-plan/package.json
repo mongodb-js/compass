@@ -1,15 +1,12 @@
 {
   "name": "@mongodb-js/compass-explain-plan",
-  "productName": "Explain Plan plugin",
   "description": "Evaluate the performance of your query",
-  "version": "6.23.4",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
+  "version": "6.24.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -27,19 +24,14 @@
   "compass:main": "src/index.ts",
   "types": "dist/index.d.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
-    "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "npm run webpack -- --mode production",
-    "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
-    "analyze": "npm run webpack -- --mode production --analyze",
+    "bootstrap": "npm run compile",
+    "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -55,54 +47,45 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
-  "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.21.3",
-    "@mongodb-js/compass-editor": "^0.20.3",
-    "@mongodb-js/compass-logging": "^1.2.12",
-    "@mongodb-js/explain-plan-helper": "^1.1.8",
-    "compass-preferences-model": "^2.17.4",
-    "hadron-app-registry": "^9.1.6",
-    "mongodb-data-service": "^22.17.4",
-    "react": "^17.0.2"
-  },
   "devDependencies": {
-    "@mongodb-js/compass-collection": "^4.22.4",
-    "@mongodb-js/eslint-config-compass": "^1.0.15",
-    "@mongodb-js/mocha-config-compass": "^1.3.6",
+    "@mongodb-js/eslint-config-compass": "^1.0.17",
+    "@mongodb-js/mocha-config-compass": "^1.3.7",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.3.3",
     "@testing-library/react": "^12.1.4",
     "@types/d3": "^3.5.x",
     "@types/d3-flextree": "^2.1.0",
     "@types/d3-hierarchy": "^3.1.2",
     "chai": "^4.2.0",
-    "d3": "^3.5.17",
-    "d3-flextree": "2.1.2",
-    "d3-hierarchy": "^3.1.2",
     "depcheck": "^1.4.1",
-    "electron": "^28.2.1",
+    "electron": "^28.2.7",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
-    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
     "nyc": "^15.1.0",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-redux": "^8.1.3",
-    "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2",
     "sinon": "^9.2.3",
+    "typescript": "^5.0.4",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.21.3",
-    "@mongodb-js/compass-editor": "^0.20.3",
-    "@mongodb-js/compass-logging": "^1.2.12",
-    "@mongodb-js/explain-plan-helper": "^1.1.8",
-    "compass-preferences-model": "^2.17.4",
-    "hadron-app-registry": "^9.1.6",
-    "mongodb-data-service": "^22.17.4"
-  }
+    "@mongodb-js/compass-collection": "^4.23.1",
+    "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-connections": "^1.25.1",
+    "@mongodb-js/compass-editor": "^0.21.1",
+    "@mongodb-js/compass-logging": "^1.2.14",
+    "@mongodb-js/explain-plan-helper": "^1.1.10",
+    "compass-preferences-model": "^2.18.1",
+    "d3": "^3.5.17",
+    "d3-flextree": "^2.1.2",
+    "d3-hierarchy": "^3.1.2",
+    "hadron-app-registry": "^9.1.8",
+    "lodash": "^4.17.21",
+    "mongodb": "^6.5.0",
+    "react": "^17.0.2",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.2"
+  },
+  "is_compass_plugin": true
 }

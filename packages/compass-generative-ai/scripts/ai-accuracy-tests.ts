@@ -1,5 +1,3 @@
-'use strict';
-
 /* eslint-disable no-console */
 
 // To run these tests against cloud-dev:
@@ -54,8 +52,9 @@ const monorepoRoot = path.join(__dirname, '..', '..', '..');
 const TEST_RESULTS_DB = 'test_generative_ai_accuracy_evergreen';
 const TEST_RESULTS_COL = 'evergreen_runs';
 
-// p-queue has to be dynamically imported.
-let PQueue: any;
+// p-queue has to be dynamically imported as it's ESM only.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let PQueue: typeof import('p-queue').default;
 
 const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
@@ -120,7 +119,9 @@ async function fetchAtlasPrivateApi(
   urlPath: string,
   init: Partial<Parameters<typeof fetch>[1]> = {}
 ) {
-  const url = `${backendBaseUrl}${urlPath.startsWith('/') ? urlPath : `/${urlPath}`}`;
+  const url = `${backendBaseUrl}${
+    urlPath.startsWith('/') ? urlPath : `/${urlPath}`
+  }`;
 
   return await fetch(url, {
     ...init,
@@ -367,13 +368,14 @@ const runTest = async (testOptions: TestOptions) => {
 
 const fixtures: {
   [dbName: string]: {
-    [colName: string]: Document
-  }
+    [colName: string]: Document;
+  };
 } = {};
 
 async function setup() {
-  // p-queue is ESM package only.
-  PQueue = (await import('p-queue')).default;
+  // ps-queue is ESM-only in recent versions.
+  PQueue = (await eval(`import('p-queue')`)).default;
+
   cluster = await MongoCluster.start({
     tmpDir: os.tmpdir(),
     topology: 'standalone',
@@ -415,10 +417,12 @@ async function teardown() {
 const isDeepStrictEqualTo = (expected: any) => (actual: any) =>
   assert.deepStrictEqual(actual, expected);
 
-const isDeepStrictEqualToFixtures = (db: string, coll: string, comparator: (document: Document) => boolean) => (actual: any) => {
-  const expected = fixtures[db][coll].filter(comparator);
-  assert.deepStrictEqual(actual, expected);
-};
+const isDeepStrictEqualToFixtures =
+  (db: string, coll: string, comparator: (document: Document) => boolean) =>
+  (actual: any) => {
+    const expected = fixtures[db][coll].filter(comparator);
+    assert.deepStrictEqual(actual, expected);
+  };
 
 const anyOf = (assertions: ((result: any) => void)[]) => (actual: any) => {
   const errors: Error[] = [];
@@ -439,7 +443,11 @@ const anyOf = (assertions: ((result: any) => void)[]) => (actual: any) => {
  * Insert the generative ai results to a db
  * so we can track how they perform overtime.
  */
-async function pushResultsToDB(results: TestResult[], anyFailed: boolean, httpErrors: number) {
+async function pushResultsToDB(
+  results: TestResult[],
+  anyFailed: boolean,
+  httpErrors: number
+) {
   const client = new MongoClient(
     process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING || ''
   );

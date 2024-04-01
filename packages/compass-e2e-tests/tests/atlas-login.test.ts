@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   Selectors,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -12,8 +13,9 @@ import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import path from 'path';
 import { expect } from 'chai';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { AcceptTOSToggle } from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
+import type { Telemetry } from '../helpers/telemetry';
+import { startTelemetryServer } from '../helpers/telemetry';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -39,11 +41,11 @@ describe('Atlas Login', function () {
   let oidcMockProvider: OIDCMockProvider;
   let getTokenPayload: OIDCMockProviderConfig['getTokenPayload'];
   let stopMockAtlasServer: () => Promise<void>;
+  let numberOfOIDCAuthRequests = 0;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'atlas-login not supported in compass-web');
+
     // Start a mock server to pass an ai response.
     const { endpoint, stop } = await startMockAtlasServiceServer();
     stopMockAtlasServer = stop;
@@ -69,6 +71,9 @@ describe('Atlas Login', function () {
             res.statusCode = 307;
             res.setHeader('Location', url.searchParams.get('fromURI') ?? '');
             res.end();
+            break;
+          case '/authorize':
+            numberOfOIDCAuthRequests += 1;
             break;
           case '/v1/userinfo':
             if (isAuthorised(req)) {
@@ -103,6 +108,8 @@ describe('Atlas Login', function () {
   });
 
   beforeEach(async function () {
+    numberOfOIDCAuthRequests = 0;
+
     getTokenPayload = () => {
       return DEFAULT_TOKEN_PAYLOAD;
     };
@@ -151,42 +158,49 @@ describe('Atlas Login', function () {
           'Logged in with Atlas account test@example.com'
         );
       });
+      expect(numberOfOIDCAuthRequests).to.eq(1);
     });
 
-    it('should allow to accept TOS when signed in', async function () {
-      await browser.openSettingsModal('Feature Preview');
+    describe('telemetry', () => {
+      let telemetry: Telemetry;
 
-      await browser.clickVisible(Selectors.LogInWithAtlasButton);
-
-      const loginStatus = browser.$(Selectors.AtlasLoginStatus);
-      await browser.waitUntil(async () => {
-        return (
-          (await loginStatus.getText()).trim() ===
-          'Logged in with Atlas account test@example.com'
-        );
+      before(async function () {
+        telemetry = await startTelemetryServer();
       });
 
-      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
+      after(async function () {
+        await telemetry.stop();
+      });
 
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq(
-        'false',
-        'Expected TOS toggle to be unchecked'
-      );
+      it('should send identify after the user has logged in', async function () {
+        const atlasUserIdBefore = await browser.getFeature(
+          'telemetryAtlasUserId'
+        );
+        expect(atlasUserIdBefore).to.not.exist;
 
-      await browser.clickVisible(acceptTOSToggle);
+        await browser.openSettingsModal('Feature Preview');
 
-      await browser.clickVisible(Selectors.AgreeAndContinueButton);
+        await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
-      // We are not just waiting here, this is asserting that toggle was
-      // switched on, indicating that TOS was accepted
-      await browser.waitUntil(
-        async () => {
+        const loginStatus = browser.$(Selectors.AtlasLoginStatus);
+        await browser.waitUntil(async () => {
           return (
-            (await acceptTOSToggle.getAttribute('aria-checked')) === 'true'
+            (await loginStatus.getText()).trim() ===
+            'Logged in with Atlas account test@example.com'
           );
-        },
-        { timeoutMsg: 'Expected TOS toggle to be checked' }
-      );
+        });
+
+        const atlasUserIdAfter = await browser.getFeature(
+          'telemetryAtlasUserId'
+        );
+        expect(atlasUserIdAfter).to.be.a('string');
+
+        const identify = telemetry
+          .events()
+          .find((entry) => entry.type === 'identify');
+        expect(identify.traits.platform).to.equal(process.platform);
+        expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
+      });
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {
@@ -205,11 +219,39 @@ describe('Atlas Login', function () {
       await browser.clickVisible(Selectors.DisconnectAtlasAccountButton);
 
       await browser.waitUntil(async () => {
-        return (
-          (await loginStatus.getText()).trim() ===
-          'You must first connect your Atlas account to use this feature.'
+        return (await loginStatus.getText()).includes(
+          'This is a feature powered by generative AI, and may give inaccurate responses'
         );
       });
+    });
+
+    it('should sign in user when disconnected and clicking again on "Log in with Atlas" button', async function () {
+      await browser.openSettingsModal('Feature Preview');
+
+      await browser.openSettingsModal('Feature Preview');
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
+
+      let loginStatus = browser.$(Selectors.AtlasLoginStatus);
+
+      await browser.waitUntil(async () => {
+        return (
+          (await loginStatus.getText()).trim() ===
+          'Logged in with Atlas account test@example.com'
+        );
+      });
+
+      await browser.clickVisible(Selectors.DisconnectAtlasAccountButton);
+
+      await browser.clickVisible(Selectors.LogInWithAtlasButton);
+
+      loginStatus = browser.$(Selectors.AtlasLoginStatus);
+      await browser.waitUntil(async () => {
+        return (
+          (await loginStatus.getText()).trim() ===
+          'Logged in with Atlas account test@example.com'
+        );
+      });
+      expect(numberOfOIDCAuthRequests).to.eq(2);
     });
 
     it('should show toast with error if sign in failed', async function () {
@@ -236,18 +278,6 @@ describe('Atlas Login', function () {
       await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it('should allow to sign in and accept TOS when clicking AI CTA', async function () {
-      await browser.clickVisible('button*=Generate query');
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible(Selectors.AgreeAndContinueButton);
-
-      // If the flow failed, we will not see the input
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      await aiInput.waitForDisplayed();
-    });
-
     it('should not show AI input if sign in flow was not finished', async function () {
       getTokenPayload = () => {
         return new Promise(() => {});
@@ -261,41 +291,6 @@ describe('Atlas Login', function () {
       // Because leafygreen doesn't render a button there and we don't have any
       // control over it
       await browser.clickVisible('span=Not now');
-
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      expect(await aiInput.isExisting()).to.eq(false);
-      expect(await generateQueryButton.isDisplayed()).to.eq(true);
-    });
-
-    it('should not show AI input if declined TOS', async function () {
-      const generateQueryButton = browser.$('button*=Generate query');
-      await browser.clickVisible(generateQueryButton);
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible('button=Cancel');
-
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      expect(await aiInput.isExisting()).to.eq(false);
-      expect(await generateQueryButton.isDisplayed()).to.eq(true);
-    });
-
-    it('should hide AI input if declined TOS after sign in', async function () {
-      const generateQueryButton = browser.$('button*=Generate query');
-      await browser.clickVisible(generateQueryButton);
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible(Selectors.AgreeAndContinueButton);
-
-      await browser.openSettingsModal('Feature Preview');
-
-      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
-      await browser.clickVisible(AcceptTOSToggle);
-
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
-
-      await browser.closeSettingsModal();
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
@@ -310,19 +305,6 @@ describe('Atlas Login', function () {
       await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     });
 
-    it('should allow to sign in and accept TOS when clicking AI CTA', async function () {
-      const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible(Selectors.AgreeAndContinueButton);
-
-      // If the flow failed, we will not see the input
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      await aiInput.waitForDisplayed();
-    });
-
     it('should not show AI input if sign in flow was not finished', async function () {
       getTokenPayload = () => {
         return new Promise(() => {});
@@ -336,41 +318,6 @@ describe('Atlas Login', function () {
       // Because leafygreen doesn't render a button there and we don't have any
       // control over it
       await browser.clickVisible('span=Not now');
-
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      expect(await aiInput.isExisting()).to.eq(false);
-      expect(await generateQueryButton.isDisplayed()).to.eq(true);
-    });
-
-    it('should not show AI input if declined TOS', async function () {
-      const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible('button=Cancel');
-
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
-      expect(await aiInput.isExisting()).to.eq(false);
-      expect(await generateQueryButton.isDisplayed()).to.eq(true);
-    });
-
-    it('should hide AI input if declined TOS after sign in', async function () {
-      const generateQueryButton = browser.$('button*=Generate aggregation');
-      await browser.clickVisible(generateQueryButton);
-
-      await browser.clickVisible(Selectors.LogInWithAtlasModalButton);
-
-      await browser.clickVisible(Selectors.AgreeAndContinueButton);
-
-      await browser.openSettingsModal('Feature Preview');
-
-      const acceptTOSToggle = browser.$(Selectors.AcceptTOSToggle);
-      await browser.clickVisible(acceptTOSToggle);
-
-      expect(await acceptTOSToggle.getAttribute('aria-checked')).to.eq('false');
-
-      await browser.closeSettingsModal();
 
       const aiInput = browser.$(Selectors.QueryBarAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);

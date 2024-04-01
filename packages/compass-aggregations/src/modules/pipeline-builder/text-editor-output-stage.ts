@@ -137,7 +137,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       autoPreview,
       dataService: { dataService },
       namespace,
-      maxTimeMS: { current: maxTimeMS },
+      maxTimeMS,
       collationString,
     } = getState();
 

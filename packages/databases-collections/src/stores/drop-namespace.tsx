@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
 

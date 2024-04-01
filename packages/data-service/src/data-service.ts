@@ -195,6 +195,8 @@ export interface DataService {
     listener: DataServiceEventMap[K]
   ): this;
 
+  readonly id: number;
+
   /*** Connection ***/
 
   /**
@@ -995,6 +997,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
+  get id() {
+    return this._id;
+  }
+
   on(...args: Parameters<DataService['on']>) {
     this._emitter.on(...args);
     return this;
@@ -1491,16 +1497,20 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
-  @op(mongoLogId(1_001_000_034))
+  @op(mongoLogId(1_001_000_034), ([ns, options]) => {
+    return { ns, maxTimeMS: options?.maxTimeMS };
+  })
   estimatedCount(
     ns: string,
     options: EstimatedDocumentCountOptions = {},
     executionOptions?: ExecutionOptions
   ): Promise<number> {
+    const maxTimeMS = options.maxTimeMS ?? 500;
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({
           ...options,
+          maxTimeMS,
           session,
         });
       },
@@ -1719,8 +1729,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   // @ts-expect-error generic in the method trips up TS here resulting in
   // Promise<unknown> is not assignable to Promise<Document[]>
-  @op(mongoLogId(1_001_000_181), ([ns, pipeline]) => {
-    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  @op(mongoLogId(1_001_000_181), ([ns, pipeline, options]) => {
+    return {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+      maxTimeMS: options?.maxTimeMS,
+    };
   })
   aggregate<T = Document>(
     ns: string,
@@ -1744,7 +1758,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  @op(mongoLogId(1_001_000_060))
+  @op(mongoLogId(1_001_000_060), ([ns, , options]) => {
+    return { ns, maxTimeMS: options?.maxTimeMS };
+  })
   find(
     ns: string,
     filter: Filter<Document>,

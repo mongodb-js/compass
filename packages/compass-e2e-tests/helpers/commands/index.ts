@@ -18,6 +18,7 @@ export * from './select-stage-operator';
 export * from './close-workspace-tabs';
 export * from './set-validation';
 export * from './wait-for-animations';
+export * from './wait-for-aria-disabled';
 export * from './listen-for-telemetry-events';
 export * from './select-file';
 export * from './do-connect';

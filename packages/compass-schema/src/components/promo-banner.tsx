@@ -21,11 +21,6 @@ const bannerBodyStyles = css({
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   borderRadius: '12px',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
-  '&:not(:last-child)': {
-    marginBottom: spacing[4],
-  },
 });
 
 const bannerBodyLightModeStyles = css({

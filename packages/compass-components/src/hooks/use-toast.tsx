@@ -14,7 +14,14 @@ import { css } from '@leafygreen-ui/emotion';
 
 export type ToastProperties = Pick<
   ToastProps,
-  'title' | 'description' | 'variant' | 'progress' | 'timeout' | 'dismissible'
+  | 'actionElement'
+  | 'title'
+  | 'description'
+  | 'variant'
+  | 'progress'
+  | 'timeout'
+  | 'dismissible'
+  | 'onClose'
 >;
 
 const defaultToastProperties: Partial<ToastProperties> = {
@@ -75,7 +82,7 @@ class GlobalToastState implements ToastActions {
   clearTimeout(id?: string) {
     if (id) {
       if (this.timeouts.has(id)) {
-        clearTimeout(this.timeouts.get(id)!);
+        clearTimeout(this.timeouts.get(id));
         this.timeouts.delete(id);
       }
     } else {

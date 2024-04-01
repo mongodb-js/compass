@@ -9,6 +9,9 @@ import autoUpdater, { supportsAutoupdater } from './auto-updater';
 import fetch from 'node-fetch';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
+import { ipcMain } from 'hadron-ipc';
+import semver from 'semver';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
@@ -30,19 +33,22 @@ function getSystemArch() {
     : process.arch;
 }
 
+function isMismatchedArchDarwin(): boolean {
+  return process.platform === 'darwin' && getSystemArch() !== process.arch;
+}
+
+type PromptForUpdateResult = 'download' | 'update' | 'cancel';
 async function promptForUpdate(
   from: string,
   to: string
-): Promise<'download' | 'update' | 'cancel'> {
-  const isMismatchedArchDarwin =
-    process.platform === 'darwin' && getSystemArch() !== process.arch;
+): Promise<PromptForUpdateResult> {
   const commonOptions = {
     icon: COMPASS_ICON,
     title: 'New version available',
     message: 'A new version of Compass is available to install',
   };
 
-  if (!isMismatchedArchDarwin) {
+  if (!isMismatchedArchDarwin()) {
     const answer = await dialog.showMessageBox({
       ...commonOptions,
       detail: `Compass ${to} is available. You are currently using ${from}. Would you like to download and install it now?`,
@@ -98,35 +104,44 @@ async function promptForUpdate(
 export const enum AutoUpdateManagerState {
   Initial = 'initial',
   Disabled = 'disabled',
-  ManualCheck = 'manual-check',
-  CheckingForUpdates = 'checking-for-updates',
+  UserPromptedManualCheck = 'manual-check',
+  CheckingForUpdatesForManualCheck = 'checking-for-updates-manual',
+  CheckingForUpdatesForAutomaticCheck = 'checking-for-updates-automatic',
   NoUpdateAvailable = 'no-update-available',
   UpdateAvailable = 'update-available',
   UpdateDismissed = 'update-dismissed',
   ManualDownload = 'manual-download',
   DownloadingUpdate = 'downloading-update',
   DownloadingError = 'downloading-error',
-  ReadyToUpdate = 'ready-to-update',
+  PromptForRestart = 'prompt-for-restart',
   Restarting = 'restarting',
   RestartDismissed = 'restart-dismissed',
 }
 
+type UpdateInfo = {
+  from: string;
+  to: string;
+};
+
 const FOUR_HOURS = 1000 * 60 * 60 * 4;
 const THIRTY_SECONDS = 30_000;
 
-type StateUpdateAction = (
+type StateEnterAction = (
   this: { maybeInterrupt(): void | never },
   updateManager: typeof CompassAutoUpdateManager,
+  fromState: AutoUpdateManagerState,
   ...args: any[]
 ) => void | Promise<void>;
 
-const manualCheck: StateUpdateAction = function (updateManager) {
-  updateManager.setState(AutoUpdateManagerState.CheckingForUpdates, true);
+const manualCheck: StateEnterAction = function (updateManager) {
+  updateManager.setState(
+    AutoUpdateManagerState.CheckingForUpdatesForManualCheck
+  );
 };
 
-const checkForUpdates: StateUpdateAction = async function checkForUpdates(
+const checkForUpdates: StateEnterAction = async function checkForUpdates(
   updateManager,
-  isManualCheck = false
+  fromState
 ) {
   log.info(
     mongoLogId(1001000135),
@@ -143,7 +158,7 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
   if (updateInfo) {
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
-    if (isManualCheck) {
+    if (fromState === AutoUpdateManagerState.UserPromptedManualCheck) {
       void dialog.showMessageBox({
         icon: COMPASS_ICON,
         message: 'There are currently no updates available.',
@@ -156,7 +171,7 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
   }
 };
 
-const disableAutoUpdates: StateUpdateAction = function disableAutoUpdates() {
+const disableAutoUpdates: StateEnterAction = function disableAutoUpdates() {
   log.info(
     mongoLogId(1_001_000_162),
     'AutoUpdateManager',
@@ -164,59 +179,121 @@ const disableAutoUpdates: StateUpdateAction = function disableAutoUpdates() {
   );
 };
 
+interface AutoUpdateManagerStateDefinition {
+  nextStates: AutoUpdateManagerState[];
+  enter: StateEnterAction;
+}
+
+const noop = () => {
+  /* noop */
+};
+
 /**
- * State update map defined as `{ fromState: toState() }` where toState is the
- * action that needs to happen on state transition
+ * State update map defined as `{ state: [fromStates, enter()]}` where `enter` is
+ * the action that needs to happen when entering the respective state.
  */
-const STATE_UPDATE: Partial<
-  Record<
-    AutoUpdateManagerState,
-    Partial<
-      Record<
-        AutoUpdateManagerState,
-        (
-          this: { maybeInterrupt(): void | never },
-          updateManager: typeof CompassAutoUpdateManager,
-          ...extraArgs: any[]
-        ) => void | Promise<void>
-      >
-    >
-  >
+const STATE_UPDATE: Record<
+  AutoUpdateManagerState,
+  AutoUpdateManagerStateDefinition
 > = {
   [AutoUpdateManagerState.Initial]: {
-    [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
-    [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+    nextStates: [
+      AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+      AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+      AutoUpdateManagerState.Disabled,
+      AutoUpdateManagerState.UserPromptedManualCheck,
+    ],
+    enter: noop,
   },
-  [AutoUpdateManagerState.ManualCheck]: {
-    [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
+  [AutoUpdateManagerState.UserPromptedManualCheck]: {
+    nextStates: [AutoUpdateManagerState.CheckingForUpdatesForManualCheck],
+    enter: manualCheck,
   },
   [AutoUpdateManagerState.Disabled]: {
-    [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+    nextStates: [
+      AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+      AutoUpdateManagerState.UserPromptedManualCheck,
+    ],
+    enter: disableAutoUpdates,
   },
   [AutoUpdateManagerState.NoUpdateAvailable]: {
-    [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
-    [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
-  },
-  [AutoUpdateManagerState.CheckingForUpdates]: {
-    [AutoUpdateManagerState.UpdateAvailable]: async function (
-      updateManager,
-      updateInfo: { from: string; to: string }
-    ) {
-      log.info(mongoLogId(1001000127), 'AutoUpdateManager', 'Update available');
+    nextStates: [
+      AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+      AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerState.Disabled,
+    ],
+    enter: async function (updateManager) {
+      log.info(
+        mongoLogId(1001000126),
+        'AutoUpdateManager',
+        'Update not available'
+      );
 
       this.maybeInterrupt();
 
-      const answer = await promptForUpdate(updateInfo.from, updateInfo.to);
+      await wait(updateManager.autoUpdateOptions.updateCheckInterval);
+
+      this.maybeInterrupt();
+
+      updateManager.setState(
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+      );
+    },
+  },
+  [AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck]: {
+    nextStates: [
+      AutoUpdateManagerState.UpdateAvailable,
+      AutoUpdateManagerState.NoUpdateAvailable,
+      AutoUpdateManagerState.Disabled,
+      AutoUpdateManagerState.UserPromptedManualCheck,
+    ],
+    enter: checkForUpdates,
+  },
+  [AutoUpdateManagerState.CheckingForUpdatesForManualCheck]: {
+    nextStates: [
+      AutoUpdateManagerState.UpdateAvailable,
+      AutoUpdateManagerState.NoUpdateAvailable,
+      AutoUpdateManagerState.Disabled,
+      AutoUpdateManagerState.UserPromptedManualCheck,
+    ],
+    enter: checkForUpdates,
+  },
+  [AutoUpdateManagerState.UpdateAvailable]: {
+    nextStates: [
+      AutoUpdateManagerState.DownloadingUpdate,
+      AutoUpdateManagerState.ManualDownload,
+      AutoUpdateManagerState.UpdateDismissed,
+      AutoUpdateManagerState.Disabled,
+    ],
+    enter: async function (updateManager, fromState, updateInfo: UpdateInfo) {
+      const automaticCheck =
+        fromState ===
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
+      log.info(
+        mongoLogId(1001000127),
+        'AutoUpdateManager',
+        'Update available',
+        { automaticCheck }
+      );
+
+      let answer: PromptForUpdateResult;
+      if (
+        automaticCheck &&
+        !updateManager.isDowngradedCompassInstallation() &&
+        !isMismatchedArchDarwin()
+      ) {
+        answer = 'update';
+      } else {
+        answer = await promptForUpdate(updateInfo.from, updateInfo.to);
+      }
 
       this.maybeInterrupt();
 
       if (answer === 'update') {
         updateManager.setState(
           AutoUpdateManagerState.DownloadingUpdate,
-          updateInfo
+          updateInfo,
+          !automaticCheck
         );
         return;
       }
@@ -234,36 +311,28 @@ const STATE_UPDATE: Partial<
         updateInfo
       );
     },
-    [AutoUpdateManagerState.NoUpdateAvailable]: async function (updateManager) {
-      log.info(
-        mongoLogId(1001000126),
-        'AutoUpdateManager',
-        'Update not available'
-      );
-
-      this.maybeInterrupt();
-
-      await wait(updateManager.autoUpdateOptions.updateCheckInterval);
-
-      this.maybeInterrupt();
-
-      updateManager.setState(AutoUpdateManagerState.CheckingForUpdates);
-    },
-    [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
-  [AutoUpdateManagerState.UpdateAvailable]: {
-    [AutoUpdateManagerState.DownloadingUpdate]: function (
+  [AutoUpdateManagerState.DownloadingUpdate]: {
+    nextStates: [
+      AutoUpdateManagerState.PromptForRestart,
+      AutoUpdateManagerState.DownloadingError,
+    ],
+    enter: function (
       updateManager,
-      updateInfo
+      _fromState,
+      updateInfo: UpdateInfo,
+      isDownloadForManualCheck: boolean
     ) {
       log.info(
         mongoLogId(1_001_000_246),
         'AutoUpdateManager',
         'Downloading update',
-        { releaseVersion: updateInfo.to }
+        { releaseVersion: updateInfo.to, isDownloadForManualCheck }
       );
-      track('Autoupdate Accepted', { update_version: updateInfo.to });
+      track('Autoupdate Accepted', {
+        update_version: updateInfo.to,
+        manual_update: isDownloadForManualCheck,
+      });
 
       this.maybeInterrupt();
 
@@ -275,7 +344,7 @@ const STATE_UPDATE: Partial<
 
       autoUpdater.once('update-downloaded', () => {
         updateManager.setState(
-          AutoUpdateManagerState.ReadyToUpdate,
+          AutoUpdateManagerState.PromptForRestart,
           updateInfo
         );
       });
@@ -289,12 +358,33 @@ const STATE_UPDATE: Partial<
 
       this.maybeInterrupt();
 
+      if (isDownloadForManualCheck) {
+        ipcMain?.broadcast('autoupdate:update-download-in-progress');
+      }
       autoUpdater.checkForUpdates();
     },
-    [AutoUpdateManagerState.ManualDownload]: function (
-      _updateManager,
-      updateInfo: { from: string; to: string }
-    ) {
+  },
+  [AutoUpdateManagerState.PromptForRestart]: {
+    nextStates: [
+      AutoUpdateManagerState.Restarting,
+      AutoUpdateManagerState.RestartDismissed,
+    ],
+    enter: function (updateManager, _fromState, updateInfo: UpdateInfo) {
+      log.info(
+        mongoLogId(1001000128),
+        'AutoUpdateManager',
+        'Update downloaded',
+        { releaseVersion: updateInfo.to }
+      );
+
+      this.maybeInterrupt();
+
+      ipcMain?.broadcast('autoupdate:update-download-success');
+    },
+  },
+  [AutoUpdateManagerState.ManualDownload]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: function (_updateManager, _fromState, updateInfo: UpdateInfo) {
       log.info(
         mongoLogId(1_001_000_167),
         'AutoUpdateManager',
@@ -315,7 +405,10 @@ const STATE_UPDATE: Partial<
       }-${updateInfo.to}-${process.platform}-${getSystemArch()}.dmg`;
       void dl.download(BrowserWindow.getAllWindows()[0], url);
     },
-    [AutoUpdateManagerState.UpdateDismissed]: (_updateManager, updateInfo) => {
+  },
+  [AutoUpdateManagerState.UpdateDismissed]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: (_updateManager, _fromState, updateInfo: UpdateInfo) => {
       log.info(
         mongoLogId(1_001_000_245),
         'AutoUpdateManager',
@@ -324,44 +417,21 @@ const STATE_UPDATE: Partial<
       );
       track('Autoupdate Dismissed', { update_version: updateInfo.to });
     },
-    [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
   },
-  [AutoUpdateManagerState.DownloadingUpdate]: {
-    [AutoUpdateManagerState.ReadyToUpdate]: async function (
-      updateManager,
-      updateInfo: { from: string; to: string }
-    ) {
+  [AutoUpdateManagerState.RestartDismissed]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: () => {
       log.info(
-        mongoLogId(1001000128),
+        mongoLogId(1_001_000_165),
         'AutoUpdateManager',
-        'Update downloaded',
-        { releaseVersion: updateInfo.to }
+        'Restart dismissed'
       );
-
-      this.maybeInterrupt();
-
-      const answer = await dialog.showMessageBox({
-        icon: COMPASS_ICON,
-        title: 'Restart to finish the update',
-        message: `Restart Compass to finish installing ${updateInfo.to}`,
-        detail:
-          'Closing this window without restarting may cause some of the features to not work as intended.',
-        buttons: ['Restart', 'Close'],
-        cancelId: 1,
-      });
-
-      this.maybeInterrupt();
-
-      if (answer.response === 0) {
-        updateManager.setState(AutoUpdateManagerState.Restarting, updateInfo);
-      } else {
-        updateManager.setState(
-          AutoUpdateManagerState.RestartDismissed,
-          updateInfo
-        );
-      }
     },
-    [AutoUpdateManagerState.DownloadingError]: (_updateManager, error) => {
+  },
+  [AutoUpdateManagerState.DownloadingError]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: (_updateManager, _fromState, error) => {
+      ipcMain?.broadcast('autoupdate:update-download-failed');
       log.error(
         mongoLogId(1001000129),
         'AutoUpdateManager',
@@ -370,8 +440,9 @@ const STATE_UPDATE: Partial<
       );
     },
   },
-  [AutoUpdateManagerState.ReadyToUpdate]: {
-    [AutoUpdateManagerState.Restarting]: function (_updateManager, updateInfo) {
+  [AutoUpdateManagerState.Restarting]: {
+    nextStates: [],
+    enter: function () {
       log.info(
         mongoLogId(1_001_000_166),
         'AutoUpdateManager',
@@ -380,31 +451,12 @@ const STATE_UPDATE: Partial<
 
       this.maybeInterrupt();
 
-      track('Application Restart Accepted', { update_version: updateInfo.to });
+      track('Application Restart Accepted');
 
       this.maybeInterrupt();
 
       autoUpdater.quitAndInstall();
     },
-    [AutoUpdateManagerState.RestartDismissed]: () => {
-      log.info(
-        mongoLogId(1_001_000_165),
-        'AutoUpdateManager',
-        'Restart dismissed'
-      );
-    },
-  },
-  [AutoUpdateManagerState.ManualDownload]: {
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
-  },
-  [AutoUpdateManagerState.UpdateDismissed]: {
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
-  },
-  [AutoUpdateManagerState.RestartDismissed]: {
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
-  },
-  [AutoUpdateManagerState.DownloadingError]: {
-    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
 };
 
@@ -438,6 +490,7 @@ class CompassAutoUpdateManager {
   private static state = AutoUpdateManagerState.Initial;
 
   static autoUpdateOptions: AutoUpdateManagerOptions;
+  static preferences: PreferencesAccess;
 
   static getFeedURLOptions(): FeedURLOptions {
     const { endpoint, product, channel, platform, arch, version } =
@@ -520,20 +573,21 @@ class CompassAutoUpdateManager {
       return;
     }
 
-    if (!currentStateHandlers[newState]) {
+    if (!currentStateHandlers.nextStates.includes(newState)) {
       debug(`No state transition from ${this.state} to ${newState} exists`);
       return;
     }
 
     this.currentActionAbortController.abort();
 
+    const previousState = this.state;
     const controller = new AbortController();
     this.currentActionAbortController = controller;
     this.state = newState;
     this.emit('new-state', this.state);
 
-    this.currentStateTransition = currentStateHandlers[newState]
-      ?.call(
+    this.currentStateTransition = STATE_UPDATE[newState].enter
+      .call(
         {
           maybeInterrupt() {
             if (controller.signal.aborted) {
@@ -542,6 +596,7 @@ class CompassAutoUpdateManager {
           },
         },
         this,
+        previousState,
         ...args
       )
       ?.catch((err: Error) => {
@@ -553,6 +608,14 @@ class CompassAutoUpdateManager {
 
   private static stop() {
     this.currentActionAbortController.abort();
+  }
+
+  private static handleIpcUpdateDownloadRestartConfirmed() {
+    this.setState(AutoUpdateManagerState.Restarting);
+  }
+
+  private static handleIpcUpdateDownloadRestartDismissed() {
+    this.setState(AutoUpdateManagerState.RestartDismissed);
   }
 
   private static _init(
@@ -597,10 +660,30 @@ class CompassAutoUpdateManager {
     // auto-updates aren't supported it will still display a popup with an
     // Install button that does nothing.
     compassApp.on('check-for-updates', () => {
-      this.setState(AutoUpdateManagerState.ManualCheck);
+      this.setState(AutoUpdateManagerState.UserPromptedManualCheck);
     });
 
+    this.on('new-state', (state: AutoUpdateManagerState) =>
+      compassApp.emit('auto-updater:new-state', state)
+    );
+
+    compassApp.on(
+      'menu-request-restart',
+      this.setState.bind(this, AutoUpdateManagerState.Restarting)
+    );
+
+    ipcMain?.on(
+      'autoupdate:update-download-restart-confirmed',
+      this.handleIpcUpdateDownloadRestartConfirmed.bind(this)
+    );
+
+    ipcMain?.on(
+      'autoupdate:update-download-restart-dismissed',
+      this.handleIpcUpdateDownloadRestartDismissed.bind(this)
+    );
+
     const { preferences } = compassApp;
+    this.preferences = preferences;
     const supported = supportsAutoupdater();
     const enabled = !!preferences.getPreferences().autoUpdates;
 
@@ -630,7 +713,9 @@ class CompassAutoUpdateManager {
 
       if (enabled) {
         track('Autoupdate Enabled');
-        this.setState(AutoUpdateManagerState.CheckingForUpdates);
+        this.setState(
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+        );
       } else {
         track('Autoupdate Disabled');
         this.setState(AutoUpdateManagerState.Disabled);
@@ -645,11 +730,21 @@ class CompassAutoUpdateManager {
       // that we 1) don't waste time checking on the application start 2) don't
       // show the popup while the app is loading
       void wait(this.autoUpdateOptions.initialUpdateDelay).then(() => {
-        this.setState(AutoUpdateManagerState.CheckingForUpdates);
+        this.setState(
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+        );
       });
     } else {
       this.setState(AutoUpdateManagerState.Disabled);
     }
+  }
+
+  static isDowngradedCompassInstallation(): boolean {
+    const { highestInstalledVersion } = this.preferences.getPreferences();
+    return (
+      !!highestInstalledVersion &&
+      semver.lt(app.getVersion(), highestInstalledVersion)
+    );
   }
 
   static init(

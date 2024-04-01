@@ -1,8 +1,11 @@
 import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import { AtlasServiceError } from './util';
+import {
+  throwIfNotOk,
+  throwIfNetworkTrafficDisabled,
+  getTrackingUserInfo,
+} from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -13,21 +16,7 @@ import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
 import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 import type { RequestInfo, RequestInit, Response } from 'node-fetch';
 import nodeFetch from 'node-fetch';
-import type { SimplifiedSchema } from 'mongodb-schema';
-import type { Document } from 'mongodb';
-import type {
-  AIAggregation,
-  AIFeatureEnablement,
-  AIQuery,
-  IntrospectInfo,
-  AtlasUserInfo,
-} from './util';
-import type { AtlasUserConfig } from './user-config-store';
-import {
-  validateAIQueryResponse,
-  validateAIAggregationResponse,
-  validateAIFeatureEnablementResponse,
-} from './util';
+import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -37,10 +26,9 @@ import {
 } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
-import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { isAIFeatureEnabled } from 'compass-preferences-model';
 import { spawn } from 'child_process';
+import { getAtlasConfig } from './util';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -49,90 +37,12 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
 
-/**
- * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
- */
-function isServerError(
-  err: any
-): err is { error: number; errorCode: string; detail: string } {
-  return Boolean(err.error && err.errorCode && err.detail);
-}
-
-function throwIfNetworkTrafficDisabled(preferences: PreferencesAccess) {
-  if (!preferences.getPreferences().networkTraffic) {
-    throw new Error('Network traffic is not allowed');
-  }
-}
-
-export async function throwIfNotOk(
-  res: Pick<Response, 'ok' | 'status' | 'statusText' | 'json'>
-) {
-  if (res.ok) {
-    return;
-  }
-
-  const messageJSON = await res.json().catch(() => undefined);
-  if (messageJSON && isServerError(messageJSON)) {
-    throw new AtlasServiceError(
-      'ServerError',
-      res.status,
-      messageJSON.detail ?? 'Internal server error',
-      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
-    );
-  } else {
-    throw new AtlasServiceError(
-      'NetworkError',
-      res.status,
-      res.statusText,
-      `${res.status}`
-    );
-  }
-}
-
-function throwIfAINotEnabled(
-  atlasService: typeof AtlasService,
-  preferences: PreferencesAccess
-) {
-  if (!isAIFeatureEnabled(preferences.getPreferences())) {
-    throw new Error(
-      "Compass' AI functionality is not currently enabled. Please try again later."
-    );
-  }
-  // Only throw if we actually have userInfo / logged in. Otherwise allow
-  // request to fall through so that we can get a proper network error
-  if (atlasService['currentUser']?.enabledAIFeature === false) {
-    throw new Error("Can't use AI before accepting terms and conditions");
-  }
-}
-
-const AI_MAX_REQUEST_SIZE = 10000;
-
-const AI_MIN_SAMPLE_DOCUMENTS = 1;
-
 const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
 } as const;
 
-export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
-  return {
-    // AUID is shared Cloud user identificator that can be tracked through
-    // various MongoDB properties
-    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
-  };
-}
-
-export type AtlasServiceConfig = {
-  atlasApiBaseUrl: string;
-  atlasApiUnauthBaseUrl: string;
-  atlasLogin: {
-    clientId: string;
-    issuer: string;
-  };
-  authPortalUrl: string;
-};
-
-export class AtlasService {
+export class CompassAuthService {
   private constructor() {
     // singleton
   }
@@ -147,28 +57,44 @@ export class AtlasService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  private static fetch = (
+  private static fetch = async (
     url: RequestInfo,
     init: RequestInit = {}
   ): Promise<Response> => {
-    return nodeFetch(url, {
-      ...init,
-      headers: {
-        ...init.headers,
-        'User-Agent': `${app.getName()}/${app.getVersion()}`,
-      },
-    });
+    await this.initPromise;
+    this.throwIfNetworkTrafficDisabled();
+    throwIfAborted(init.signal as AbortSignal);
+    log.info(
+      mongoLogId(1_001_000_299),
+      'AtlasService',
+      'Making an unauthenticated fetch',
+      { url }
+    );
+    try {
+      const res = await nodeFetch(url, {
+        ...init,
+        headers: {
+          ...init.headers,
+          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+        },
+      });
+      await throwIfNotOk(res);
+      return res;
+    } catch (err) {
+      log.info(mongoLogId(1_001_000_301), 'AtlasService', 'Fetch errored', {
+        url,
+        err,
+      });
+      throw err;
+    }
   };
 
   private static secretStore = new SecretStore();
-
-  private static atlasUserConfigStore = new AtlasUserConfigStore();
 
   private static ipcMain:
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
     | undefined = ipcMain;
 
-  private static getUserId: () => string;
   private static preferences: PreferencesAccess;
   private static config: AtlasServiceConfig;
 
@@ -232,16 +158,9 @@ export class AtlasService {
     );
   }
 
-  static init(
-    config: AtlasServiceConfig,
-    {
-      preferences,
-      getUserId,
-    }: { preferences: PreferencesAccess; getUserId: () => string }
-  ): Promise<void> {
+  static init(preferences: PreferencesAccess): Promise<void> {
     this.preferences = preferences;
-    this.getUserId = getUserId;
-    this.config = config;
+    this.config = getAtlasConfig(preferences);
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
         this.ipcMain.createHandle('AtlasService', this, [
@@ -250,9 +169,7 @@ export class AtlasService {
           'isAuthenticated',
           'signIn',
           'signOut',
-          'getAggregationFromUserInput',
-          'getQueryFromUserInput',
-          'updateAtlasUserConfig',
+          'maybeGetToken',
         ]);
       }
       this.attachOidcPluginLoggerEvents();
@@ -264,31 +181,11 @@ export class AtlasService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      await this.setupAIAccess();
-      // Whether or not we got the state, try requesting user info. If there was
-      // no serialized state returned, this will just fail quickly. If there was
-      // some state, we will prepare the service state for user interactions by
-      // forcing oidc-plugin to do token refresh if expired and setting user
-      try {
-        await this.getUserInfo();
-        log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
-      } catch (err) {
-        log.error(
-          mongoLogId(1_001_000_225),
-          'AtlasService',
-          'Failed to restore state',
-          { error: (err as Error).stack }
-        );
-      }
     })());
   }
 
   private static throwIfNetworkTrafficDisabled() {
     throwIfNetworkTrafficDisabled(this.preferences);
-  }
-
-  private static throwIfAINotEnabled() {
-    throwIfAINotEnabled(this, this.preferences);
   }
 
   private static async requestOAuthToken({
@@ -331,12 +228,6 @@ export class AtlasService {
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
       this.ipcMain?.broadcast('atlas-service-signed-out');
     });
-    this.oidcPluginLogger.on(
-      'atlas-service-user-config-changed',
-      (newConfig) => {
-        this.ipcMain?.broadcast('atlas-service-user-config-changed', newConfig);
-      }
-    );
   }
 
   static async isAuthenticated({
@@ -374,7 +265,11 @@ export class AtlasService {
             'AtlasService',
             'Signed in successfully'
           );
-          track('Atlas Sign In Success', getTrackingUserInfo(userInfo));
+          const { auid } = getTrackingUserInfo(userInfo);
+          track('Atlas Sign In Success', { auid });
+          await this.preferences.savePreferences({
+            telemetryAtlasUserId: auid,
+          });
           return userInfo;
         } catch (err) {
           track('Atlas Sign In Error', {
@@ -435,7 +330,7 @@ export class AtlasService {
   // For every case where we request token, if requesting token fails we still
   // want to send request to the backend to get a properly formatted backend
   // error instead of oidc-plugin errors
-  private static async maybeGetToken({
+  static async maybeGetToken({
     tokenType,
     signal,
   }: {
@@ -475,32 +370,10 @@ export class AtlasService {
 
       const userInfo = (await res.json()) as AtlasUserInfo;
 
-      const userConfig = await this.atlasUserConfigStore.getUserConfig(
-        userInfo.sub
-      );
-
-      return { ...userInfo, ...userConfig };
+      // TODO: Remove hadcoded `enabledAIFeature: true` when Atlas returns the actual value.
+      return { ...userInfo, enabledAIFeature: true };
     })();
     return this.currentUser;
-  }
-
-  static async updateAtlasUserConfig({
-    config,
-  }: {
-    config: Partial<AtlasUserConfig>;
-  }) {
-    if (!this.currentUser) {
-      throw new Error("Can't update user config when not logged in");
-    }
-    const newConfig = await this.atlasUserConfigStore.updateUserConfig(
-      this.currentUser.sub,
-      config
-    );
-    this.currentUser = {
-      ...this.currentUser,
-      ...newConfig,
-    };
-    this.oidcPluginLogger.emit('atlas-service-user-config-changed', newConfig);
   }
 
   static async introspect({
@@ -569,239 +442,6 @@ export class AtlasService {
     });
 
     await throwIfNotOk(res);
-  }
-
-  static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    this.throwIfNetworkTrafficDisabled();
-
-    const userId = this.getUserId();
-    const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
-
-    log.info(
-      mongoLogId(1_001_000_227),
-      'AtlasService',
-      'Fetching if the AI feature is enabled via hello endpoint',
-      { userId, url }
-    );
-
-    const res = await this.fetch(url);
-
-    await throwIfNotOk(res);
-
-    const body = await res.json();
-
-    validateAIFeatureEnablementResponse(body);
-
-    return body;
-  }
-
-  static async setupAIAccess(): Promise<void> {
-    try {
-      this.throwIfNetworkTrafficDisabled();
-
-      const featureResponse = await this.getAIFeatureEnablement();
-
-      const isAIFeatureEnabled =
-        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
-
-      log.info(
-        mongoLogId(1_001_000_229),
-        'AtlasService',
-        'Fetched if the AI feature is enabled',
-        {
-          enabled: isAIFeatureEnabled,
-          featureResponse,
-        }
-      );
-
-      await this.preferences.savePreferences({
-        cloudFeatureRolloutAccess: {
-          GEN_AI_COMPASS: isAIFeatureEnabled,
-        },
-      });
-    } catch (err) {
-      // Default to what's already in Compass when we can't fetch the preference.
-      log.error(
-        mongoLogId(1_001_000_244),
-        'AtlasService',
-        'Failed to load if the AI feature is enabled',
-        { error: (err as Error).stack }
-      );
-    }
-  }
-
-  static async getAggregationFromUserInput({
-    signal,
-    userInput,
-    collectionName,
-    databaseName,
-    schema,
-    sampleDocuments,
-  }: {
-    userInput: string;
-    collectionName: string;
-    databaseName: string;
-    schema?: SimplifiedSchema;
-    sampleDocuments?: Document[];
-    signal?: AbortSignal;
-  }): Promise<AIAggregation> {
-    throwIfAborted(signal);
-    this.throwIfNetworkTrafficDisabled();
-    this.throwIfAINotEnabled();
-
-    let msgBody = JSON.stringify({
-      userInput,
-      collectionName,
-      databaseName,
-      schema,
-      sampleDocuments,
-    });
-    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-      // When the message body is over the max size, we try
-      // to see if with fewer sample documents we can still perform the request.
-      // If that fails we throw an error indicating this collection's
-      // documents are too large to send to the ai.
-      msgBody = JSON.stringify({
-        userInput,
-        collectionName,
-        databaseName,
-        schema,
-        sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
-      });
-      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-        throw new Error(
-          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-        );
-      }
-    }
-
-    const token = await this.maybeGetToken({ signal });
-    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`;
-
-    log.info(
-      mongoLogId(1_001_000_247),
-      'AtlasService',
-      'Running aggregation generation request',
-      {
-        url,
-        userInput,
-        collectionName,
-        databaseName,
-        messageBodyLength: msgBody.length,
-      }
-    );
-
-    const res = await this.fetch(url, {
-      signal: signal as NodeFetchAbortSignal | undefined,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: msgBody,
-    });
-
-    log.info(
-      mongoLogId(1_001_000_248),
-      'AtlasService',
-      'Received aggregation generation response',
-      { status: res.status, statusText: res.statusText }
-    );
-
-    await throwIfNotOk(res);
-
-    const body = await res.json();
-
-    validateAIAggregationResponse(body);
-
-    return body;
-  }
-
-  static async getQueryFromUserInput({
-    signal,
-    userInput,
-    collectionName,
-    databaseName,
-    schema,
-    sampleDocuments,
-  }: {
-    userInput: string;
-    collectionName: string;
-    databaseName: string;
-    schema?: SimplifiedSchema;
-    sampleDocuments?: Document[];
-    signal?: AbortSignal;
-  }): Promise<AIQuery> {
-    throwIfAborted(signal);
-    this.throwIfNetworkTrafficDisabled();
-    this.throwIfAINotEnabled();
-
-    let msgBody = JSON.stringify({
-      userInput,
-      collectionName,
-      databaseName,
-      schema,
-      sampleDocuments,
-    });
-    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-      // When the message body is over the max size, we try
-      // to see if with fewer sample documents we can still perform the request.
-      // If that fails we throw an error indicating this collection's
-      // documents are too large to send to the ai.
-      msgBody = JSON.stringify({
-        userInput,
-        collectionName,
-        databaseName,
-        schema,
-        sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
-      });
-      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-        throw new Error(
-          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-        );
-      }
-    }
-
-    const token = await this.maybeGetToken({ signal });
-    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`;
-
-    log.info(
-      mongoLogId(1_001_000_249),
-      'AtlasService',
-      'Running query generation request',
-      {
-        url,
-        userInput,
-        collectionName,
-        databaseName,
-        messageBodyLength: msgBody.length,
-      }
-    );
-
-    const res = await this.fetch(url, {
-      signal: signal as NodeFetchAbortSignal | undefined,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: msgBody,
-    });
-
-    log.info(
-      mongoLogId(1_001_000_250),
-      'AtlasService',
-      'Received query generation response',
-      { status: res.status, statusText: res.statusText }
-    );
-
-    await throwIfNotOk(res);
-
-    const body = await res.json();
-
-    validateAIQueryResponse(body);
-
-    return body;
   }
 
   static async onExit() {

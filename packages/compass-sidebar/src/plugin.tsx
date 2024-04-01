@@ -8,6 +8,8 @@ import {
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/sidebar';
+import { usePreference } from 'compass-preferences-model/provider';
+import { MultipleConnectionSidebar } from './components/multiple-connections/sidebar';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -23,8 +25,22 @@ export interface SidebarPluginProps {
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
 }) => {
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
+
+  const sidebar = isMultiConnectionEnabled ? (
+    <MultipleConnectionSidebar appName="Compass" />
+  ) : (
+    <Sidebar
+      showConnectionInfo={showConnectionInfo}
+      activeWorkspace={activeWorkspace}
+    />
+  );
+
   return (
     <ErrorBoundary
       className={errorBoundaryStyles}
@@ -38,10 +54,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
         );
       }}
     >
-      <Sidebar
-        showConnectionInfo={showConnectionInfo}
-        activeWorkspace={activeWorkspace}
-      />
+      {sidebar}
     </ErrorBoundary>
   );
 };

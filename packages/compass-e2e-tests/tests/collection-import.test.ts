@@ -7,6 +7,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
@@ -97,9 +98,7 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'import not yet available in compass-web');
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -129,7 +128,9 @@ describe('Collection import', function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     async function getDocumentCount() {
-      const countText = await browser.$(Selectors.DocumentCountValue).getText();
+      const countText = await browser
+        .$(Selectors.CollectionTabStats('documents'))
+        .getText();
       return countText ? Number(countText) : null;
     }
 
@@ -352,7 +353,7 @@ describe('Collection import', function () {
       'Insert not permitted while document contains errors.'
     );
     const insertButton = await browser.$(Selectors.InsertConfirm);
-    await insertButton.waitForEnabled({ reverse: true });
+    await browser.waitForAriaDisabled(insertButton, true);
 
     // cancel and wait for the modal to go away
     await browser.clickVisible(Selectors.InsertCancel);
@@ -1223,7 +1224,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
@@ -1294,7 +1295,7 @@ describe('Collection import', function () {
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
-      await browser.clickVisible(toastElement);
+      await browser.clickVisible(Selectors.ImportToast);
 
       const importAbortButton = await browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();

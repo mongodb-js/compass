@@ -5,6 +5,7 @@ import {
   screenshotIfFailed,
   runCompassOnce,
   serverSatisfies,
+  skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -63,9 +64,7 @@ describe('OIDC integration', function () {
   ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'feature flags not yet available in compass-web');
 
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
@@ -318,7 +317,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -341,9 +339,14 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
+    await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
+
     await browser.doConnect();
     await browser.disconnect();
+
+    await browser.screenshot(
+      `after-disconnecting-favourite-${favoriteName}.png`
+    );
 
     await browser.selectFavorite(favoriteName);
     await browser.doConnect();
@@ -364,7 +367,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 

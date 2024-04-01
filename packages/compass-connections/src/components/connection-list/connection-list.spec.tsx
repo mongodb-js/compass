@@ -24,7 +24,7 @@ for (let i = 0; i < 5; i++) {
   });
 }
 
-const mockFavorites = [
+const mockFavorites: ConnectionInfo[] = [
   {
     id: 'mock-connection-atlas',
     connectionOptions: {
@@ -35,6 +35,7 @@ const mockFavorites = [
       name: 'Atlas test',
       color: '#d4366e',
     },
+    savedConnectionType: 'favorite',
     lastUsed: new Date(),
   },
   {
@@ -46,6 +47,7 @@ const mockFavorites = [
       name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
       color: '#5fc86e',
     },
+    savedConnectionType: 'favorite',
     lastUsed: new Date(),
   },
   {
@@ -57,6 +59,7 @@ const mockFavorites = [
       name: 'favorite',
       color: '#5fc86e',
     },
+    savedConnectionType: 'favorite',
     lastUsed: new Date(),
   },
   {
@@ -64,6 +67,7 @@ const mockFavorites = [
     connectionOptions: {
       connectionString: 'invalid connection string',
     },
+    savedConnectionType: 'recent',
     lastUsed: new Date(),
   },
 ];

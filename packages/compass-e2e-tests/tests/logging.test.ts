@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -11,9 +11,7 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
 describe('Logging and Telemetry integration', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'telemetry not yet available in compass-web');
   });
 
   describe('after running an example path through Compass', function () {
@@ -190,7 +188,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Connecting',
           attr: (actual: any) => {
-            expect(actual.url).to.match(/^mongodb:\/\/localhost:27091/);
+            expect(actual.url).to.match(/^mongodb:\/\/127.0.0.1:27091/);
             expect(actual.csfle).to.equal(null);
           },
         },
@@ -201,7 +199,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'compass-connect',
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
-            expect(actual.uri).to.match(/^mongodb:\/\/localhost:27091/);
+            expect(actual.uri).to.match(/^mongodb:\/\/127.0.0.1:27091/);
             expect(actual.driver.name).to.equal('nodejs');
           },
         },
@@ -225,7 +223,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Server opening',
           attr: {
-            address: 'localhost:27091',
+            address: '127.0.0.1:27091',
           },
         },
         {
@@ -390,13 +388,16 @@ describe('Logging and Telemetry integration', function () {
     });
   });
 
-  describe('on subsequent run', function () {
+  describe('on subsequent run - with atlas user id', function () {
     let compass: Compass;
     let telemetry: Telemetry;
+    const auid = 'abcdef';
 
     before(async function () {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
+
+      await compass.browser.setFeature('telemetryAtlasUserId', auid);
     });
 
     afterEach(async function () {
@@ -409,8 +410,6 @@ describe('Logging and Telemetry integration', function () {
     });
 
     it('tracks an event for identify call', function () {
-      console.log(telemetry.events());
-
       const identify = telemetry
         .events()
         .find((entry) => entry.type === 'identify');

@@ -1,7 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
-import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
+import {
+  css,
+  ErrorBoundary,
+  spacing,
+  TabNavBar,
+} from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
@@ -11,6 +16,11 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import {
+  CollectionDocumentsStats,
+  CollectionIndexesStats,
+} from './collection-tab-stats';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -35,24 +45,75 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-type CollectionTabProps = CollectionTabOptions & {
-  currentTab: string;
-  collectionMetadata: CollectionMetadata;
-  onTabClick(name: string): void;
+const tabTitleWithStatsStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+});
+const TabTitleWithStats = ({
+  title,
+  statsComponent,
+  'data-testid': dataTestId,
+}: {
+  title: string;
+  statsComponent: React.ReactNode;
+  'data-testid'?: string;
+}) => {
+  return (
+    <div data-testid={dataTestId} className={tabTitleWithStatsStyles}>
+      {title}
+      {statsComponent}
+    </div>
+  );
 };
+
+// Props from redux
+type ConnectionTabConnectedProps = {
+  collectionMetadata: CollectionMetadata;
+  stats: CollectionState['stats'];
+  onTabClick: (tab: CollectionSubtab) => void;
+};
+// Props definition when using the component
+type ConnectionTabExpectedProps = {
+  /**
+   * Initial query to be set in the query bar
+   */
+  initialQuery?: unknown;
+  /**
+   * Initial saved sggregation (stored on disk) to apply to the agg builder
+   */
+  initialAggregation?: unknown;
+  /**
+   * Initial aggregation pipeline to set in the agg builder
+   */
+  initialPipeline?: unknown[];
+  /**
+   * Initial stringified aggregation pipeline to set in the agg builder
+   */
+  initialPipelineText?: string;
+  /**
+   * Name of the tab being edited
+   */
+  subTab: CollectionSubtab;
+};
+
+// All props available to the component
+type CollectionTabProps = Omit<CollectionTabOptions, 'tabId'> &
+  ConnectionTabConnectedProps &
+  ConnectionTabExpectedProps;
 
 const CollectionTabWithMetadata: React.FunctionComponent<
   CollectionTabProps
 > = ({
   namespace,
-  currentTab,
   initialAggregation,
   initialPipeline,
   initialPipelineText,
   initialQuery,
   editViewName,
   collectionMetadata,
+  subTab: currentTab,
   onTabClick,
+  stats,
 }) => {
   const { log, mongoLogId, track } = useLoggerAndTelemetry(
     'COMPASS-COLLECTION-TAB-UI'
@@ -106,7 +167,35 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           <TabNavBar
             data-testid="collection-tabs"
             aria-label="Collection Tabs"
-            tabs={tabs.map((tab) => {
+            tabNames={tabs.map((tab) => tab.name)}
+            tabLabels={tabs.map((tab) => {
+              // We don't show stats, when the collection is a timeseries or a view
+              // or when the view is being edited
+              const hideStats =
+                collectionMetadata.isTimeSeries ||
+                collectionMetadata.sourceName ||
+                editViewName;
+              if (hideStats) {
+                return tab.name;
+              }
+              if (tab.name === 'Documents') {
+                return (
+                  <TabTitleWithStats
+                    data-testid="documents-tab-with-stats"
+                    title={tab.name}
+                    statsComponent={<CollectionDocumentsStats stats={stats} />}
+                  />
+                );
+              }
+              if (tab.name === 'Indexes') {
+                return (
+                  <TabTitleWithStats
+                    data-testid="indexes-tab-with-stats"
+                    title={tab.name}
+                    statsComponent={<CollectionIndexesStats stats={stats} />}
+                  />
+                );
+              }
               return tab.name;
             })}
             views={tabs.map((tab) => {
@@ -164,13 +253,15 @@ const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
     return {
       namespace: state.namespace,
-      currentTab: state.currentTab,
       collectionMetadata: state.metadata,
+      stats: state.stats,
     };
   },
   {
     onTabClick: selectTab,
   }
-)(CollectionTab) as React.FunctionComponent<CollectionTabOptions>;
+)(CollectionTab) as React.FunctionComponent<
+  CollectionTabOptions & ConnectionTabExpectedProps
+>;
 
 export default ConnectedCollectionTab;

@@ -17,12 +17,10 @@ module.exports = {
     'no-restricted-imports': 'off',
     '@typescript-eslint/no-restricted-imports': [
       'error',
-      restrictedProviderImport('mongodb-data-service'),
       restrictedProviderImport('@mongodb-js/compass-logging'),
       restrictedProviderImport('@mongodb-js/compass-app-stores'),
       restrictedProviderImport('@mongodb-js/my-queries-storage'),
-      // TODO(COMPASS-7412): enable when possible
-      // restrictedProviderImport('@mongodb-js/atlas-service'),
+      restrictedProviderImport('@mongodb-js/atlas-service'),
       restrictedProviderImport('compass-preferences-model'),
       {
         paths: require('module').builtinModules,

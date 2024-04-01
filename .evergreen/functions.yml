@@ -42,8 +42,8 @@ variables:
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
     # TODO: https://jira.mongodb.org/browse/COMPASS-6915
-    NODE_JS_VERSION: '16.20.2'
-    NPM_VERSION: '8.19.4'
+    NODE_JS_VERSION: '18.19.1'
+    NPM_VERSION: '10.2.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
@@ -88,7 +88,7 @@ post:
       working_dir: src
       shell: bash
       script: |
-        tar czvf all-e2e-logs.tgz packages/compass-e2e-tests/.log
+        tar czf all-e2e-logs.tgz packages/compass-e2e-tests/.log
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -96,6 +96,7 @@ post:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
+        - src/coverage.tgz
         - src/.testserver/logs/*
         - src/.evergreen/logs/*
         - src/all-e2e-logs.tgz
@@ -197,7 +198,7 @@ functions:
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
           # Install dependencies
-          bash ".evergreen/retry-with-backoff.sh" npm ci --unsafe-perm
+          bash ".evergreen/retry-with-backoff.sh" .evergreen/npm_ci.sh
 
   bootstrap:
     - command: shell.exec
@@ -499,6 +500,8 @@ functions:
           echo "Running E2E tests while collecting coverage..."
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+
+          tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
   test-packaged-app:
     - command: shell.exec
@@ -802,6 +805,8 @@ functions:
           return_code=$?
           set -e
 
+          echo
+
           # Runs for all the commits on main, including nightly builds:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
             export JIRA_BASE_URL="https://jira.mongodb.org"
@@ -812,6 +817,8 @@ functions:
           else
             cat .sbom/vulnerability-report.md
           fi
+
+          echo
 
           # Fails if the report failed and is not a patch, including release branches:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then

@@ -36,11 +36,9 @@ describe('PipelineCollation', function () {
     userEvent.tab();
     userEvent.tab();
     expect(screen.getByTestId('max-time-ms')).to.eq(document.activeElement);
+    userEvent.clear(screen.getByTestId('max-time-ms'));
     userEvent.keyboard('5');
     const storeState = store.getState();
-    expect(storeState.maxTimeMS).to.deep.equal({
-      current: 5,
-      preferencesValue: null,
-    });
+    expect(storeState.maxTimeMS).to.equal(5);
   });
 });
