@@ -25,24 +25,24 @@ const reducer: Reducer<ConnectionNamespacesState> = (state = {}, action) => {
     const currentNamespaceFields =
       currentConnectionNamespaces[action.namespace] ?? {};
     const { fields, topLevelFields } = mergeSchema(
-      currentNamespaceFields.fields ?? {},
+      currentNamespaceFields['fields'] ?? {},
       action.schemaFields
     );
 
-    const nextState = {
+    return {
       ...state,
       [action.connectionInfoId]: {
         ...state[action.connectionInfoId],
         [action.namespace]: {
           fields,
           topLevelFields: uniq(
-            (currentNamespaceFields.topLevelFields ?? []).concat(topLevelFields)
+            (currentNamespaceFields['topLevelFields'] ?? []).concat(
+              topLevelFields
+            )
           ),
         },
       },
     };
-    // console.log('?????????',  { state, action: JSON.stringify(action, null, 2), nextState: JSON.stringify(nextState, null, 2) });
-    return nextState;
   }
   return state;
 };
