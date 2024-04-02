@@ -73,26 +73,36 @@ export const connectionRepositoryLocator = createServiceLocator(
 );
 
 const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
+export const TEST_CONNECTION_INFO = {
+  id: 'TEST',
+  connectionOptions: {
+    connectionString: 'test-connection-string',
+  },
+};
 export function useConnectionInfo() {
   const connectionInfo = useContext(ConnectionInfoContext);
   if (!connectionInfo) {
-    throw new Error(
-      'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
-    );
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error(
+        'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
+      );
+    }
+    return TEST_CONNECTION_INFO;
   }
   return connectionInfo;
 }
 export const ConnectionInfoProvider = ConnectionInfoContext.Provider;
+export const useConnectionInfoAccess = (): ConnectionInfoAccess => {
+  const connectionInfo = useConnectionInfo();
+  const connectionInfoRef = useRef(connectionInfo);
+  connectionInfoRef.current = connectionInfo;
+  return {
+    getCurrentConnectionInfo() {
+      return connectionInfoRef.current;
+    },
+  };
+};
 export const connectionInfoAccessLocator = createServiceLocator(
-  function connectionInfoAccessLocator(): ConnectionInfoAccess {
-    const connectionInfo = useConnectionInfo();
-    const connectionInfoRef = useRef(connectionInfo);
-    connectionInfoRef.current = connectionInfo;
-    return {
-      getCurrentConnectionInfo() {
-        return connectionInfoRef.current;
-      },
-    };
-  },
+  useConnectionInfoAccess,
   'connectionInfoAccessLocator'
 );
