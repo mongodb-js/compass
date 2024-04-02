@@ -12,9 +12,9 @@ export type ConnectionScopedAppRegistryLocator<
   T extends string,
   K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
   L extends keyof ConnectionScopedAppRegistryImpl<T> = K
-> = () => ConnectionScopedGlobalAppRegistry<T, K, L>;
+> = () => ConnectionScopedAppRegistry<T, K, L>;
 
-export type ConnectionScopedGlobalAppRegistry<
+export type ConnectionScopedAppRegistry<
   T extends string,
   K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
   L extends keyof ConnectionScopedAppRegistryImpl<T> = K
@@ -59,7 +59,7 @@ export const connectionScopedAppRegistryLocator = createServiceLocator(
     T extends string,
     K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
     L extends keyof ConnectionScopedAppRegistryImpl<T> = K
-  >(): ConnectionScopedGlobalAppRegistry<T, K, L> {
+  >(): ConnectionScopedAppRegistry<T, K, L> {
     const appRegistry = useGlobalAppRegistry();
     const connectionInfoAccess = connectionInfoAccessLocator();
 
