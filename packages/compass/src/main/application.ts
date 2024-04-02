@@ -88,6 +88,26 @@ class CompassApplication {
       return;
     }
 
+    const enablePlainTextEncryption =
+      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
+    if (enablePlainTextEncryption) {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
+
+    log.info(
+      mongoLogId(1_001_000_306),
+      'Application',
+      'SafeStorage initialized',
+      {
+        enablePlainTextEncryption,
+        isAvailable: safeStorage.isEncryptionAvailable(),
+        backend: safeStorage.getSelectedStorageBackend(),
+      }
+    );
+
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
 
@@ -100,13 +120,6 @@ class CompassApplication {
         'Failed to migrate connections',
         { message: (e as Error).message }
       );
-    }
-
-    if (process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true') {
-      // When testing we want to use plain text encryption to avoid having to
-      // deal with keychain popups or setting up keychain for test on CI (Linux env).
-      // This method is only available on Linux and is no-op on other platforms.
-      safeStorage.setUsePlainTextEncryption(true);
     }
 
     if (mode === 'CLI') {
