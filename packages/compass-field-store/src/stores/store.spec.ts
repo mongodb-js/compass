@@ -81,7 +81,6 @@ describe('FieldStore', function () {
     });
 
     it('on documents-refreshed', async function () {
-      // await documentsChanged(doc, 'documents-refreshed');
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -94,7 +93,6 @@ describe('FieldStore', function () {
     });
 
     it('on document-inserted', async function () {
-      // await documentsChanged(doc, 'document-inserted');
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -107,7 +105,6 @@ describe('FieldStore', function () {
     });
 
     it('on documents-paginated', async function () {
-      // await documentsChanged(doc, 'documents-paginated');
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -123,7 +120,6 @@ describe('FieldStore', function () {
   describe('store process methods', function () {
     it('samples a single document', async function () {
       const doc = { harry: 1, potter: true };
-      // await documentsChanged(doc);
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -155,7 +151,6 @@ describe('FieldStore', function () {
         { harry: 1, potter: true },
         { ron: 'test', weasley: null },
       ];
-      // await documentsChanged(docs);
       await fieldStoreServices.updateFieldsFromDocuments('test.test', docs);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -202,10 +197,8 @@ describe('FieldStore', function () {
 
     it('merges new docs with the existing state', async function () {
       const doc = { harry: 1, potter: true };
-      // await documentsChanged(doc);
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const doc2 = { hermione: 0, granger: false };
-      // await documentsChanged(doc2);
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc2]);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
@@ -252,9 +245,7 @@ describe('FieldStore', function () {
 
     it('merges a schema with the existing state', async function () {
       const doc = { harry: 1, potter: true };
-      // await documentsChanged(doc);
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
-      // schemaChanged();
       fieldStoreServices.updateFieldsFromSchema(
         'test.test',
         schemaFixture as Schema
@@ -366,7 +357,6 @@ describe('FieldStore', function () {
     });
 
     it('flattens the schema', async function () {
-      // await documentsChanged({ a: { b: { c: 1 } } });
       const doc = { a: { b: { c: 1 } } };
       await fieldStoreServices.updateFieldsFromDocuments('test.test', [doc]);
       const state = store.getState()[connectionInfo.id]['test.test'];

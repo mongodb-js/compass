@@ -97,9 +97,6 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 
 - **'document-view-changed', view**: indicates document view changed. `view` can
   be either `JSON`, `List`, or `Table`.
-- **'documents-paginated'**: indicates when pagination is complete. Called when
-  calling the next or previous pages in pagination.
-- **'documents-refreshed'**: indicates documents were refreshed.
 - **'document-inserted'**: indicates documents were inserted. Called when
   `insertMany` and `insertOne` complete.
 - **'document-updated'**: indicates a document was updated.
@@ -109,9 +106,6 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 
 - **'document-view-changed', view**: indicates document view changed. `view` can
   be either `JSON`, `List`, or `Table`.
-- **'documents-paginated'**: indicates when pagination is complete. Called when
-  calling the next or previous pages in pagination.
-- **'documents-refreshed'**: indicates documents were refreshed.
 - **'document-inserted'**: indicates documents were inserted. Called when
   `insertMany` and `insertOne` complete.
 - **'document-updated'**: indicates a document was updated.

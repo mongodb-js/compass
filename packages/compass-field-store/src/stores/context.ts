@@ -26,10 +26,18 @@ const useDispatch = createDispatchHook(FieldStoreContext);
 const useSelector: TypedUseSelectorHook<ConnectionNamespacesState> =
   createSelectorHook(FieldStoreContext);
 
+export type FieldStoreService = {
+  updateFieldsFromDocuments(
+    ns: string,
+    documents: Record<string, any>[]
+  ): Promise<void>;
+  updateFieldsFromSchema(ns: string, schema: Schema): void;
+};
+
 export function createFieldStoreService(
   dispatch: ReturnType<typeof useDispatch>,
   connectionInfoAccess: ConnectionInfoAccess
-) {
+): FieldStoreService {
   return {
     async updateFieldsFromDocuments(
       ns: string,

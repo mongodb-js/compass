@@ -13,5 +13,10 @@ const FieldStorePlugin = registerHadronPlugin({
   activate: activatePlugin,
 });
 
-export { useAutocompleteFields, useFieldsSchema } from './stores/context';
+export {
+  type FieldStoreService,
+  fieldStoreServiceLocator,
+  useAutocompleteFields,
+  useFieldsSchema,
+} from './stores/context';
 export default FieldStorePlugin;

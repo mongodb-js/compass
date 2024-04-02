@@ -12,6 +12,10 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import {
+  type FieldStoreService,
+  fieldStoreServiceLocator,
+} from '@mongodb-js/compass-field-store';
 
 export const CompassSchemaHadronPlugin = registerHadronPlugin<
   Pick<CollectionTabPluginMetadata, 'namespace'>,
@@ -19,6 +23,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
     dataService: () => DataService;
     loggerAndTelemetry: () => LoggerAndTelemetry;
     preferences: () => PreferencesAccess;
+    fieldStoreService: () => FieldStoreService;
   }
 >(
   {
@@ -32,6 +37,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin<
     >,
     loggerAndTelemetry: createLoggerAndTelemetryLocator('COMPASS-SCHEMA-UI'),
     preferences: preferencesLocator,
+    fieldStoreService: fieldStoreServiceLocator,
   }
 );
 export const CompassSchemaPlugin = {
