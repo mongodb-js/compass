@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-  Body,
   Button,
   Icon,
   KeylineCard,
   Link,
   SpinLoader,
   css,
-  keyframes,
   palette,
   spacing,
   useDarkMode,
@@ -120,10 +118,10 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           data-testid="atlas-login-status"
         >
           {isSignedIn ? (
-            <>
+            <div data-testid="atlas-signed-in-successful">
               Logged in with Atlas account{' '}
               <span className={atlasLoginEmailStyles}>{userLogin}</span>
-            </>
+            </div>
           ) : (
             <>
               This is a feature powered by generative AI, and may give

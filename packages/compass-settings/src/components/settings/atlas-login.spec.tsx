@@ -60,8 +60,7 @@ describe('AtlasLoginSettings', function () {
       screen.getByText('Disconnect');
     });
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
   });
 
   it('should sign out user when signed in and sign out is clicked', async function () {
@@ -110,8 +109,7 @@ describe('AtlasLoginSettings', function () {
       screen.getByText('Disconnect');
     });
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
   });
 
   it('resets sign in state on `signed-out` event', async function () {
@@ -125,8 +123,7 @@ describe('AtlasLoginSettings', function () {
 
     await store.dispatch(signIn());
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
 
     emitter.emit('signed-out');
 
@@ -153,8 +150,7 @@ describe('AtlasLoginSettings', function () {
 
     await store.dispatch(signIn());
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
 
     emitter.emit('token-refresh-failed');
 
