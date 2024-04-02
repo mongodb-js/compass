@@ -22,7 +22,7 @@ export type ConnectionScopedAppRegistry<
   Partial<Pick<ConnectionScopedAppRegistryImpl<T>, L>>;
 
 interface EventForwarder<T extends string> {
-  emit(event: T, payload?: Record<string, any>): void;
+  emit(event: T, ...payload: any[]): void;
 }
 
 export class ConnectionScopedAppRegistryImpl<T extends string>
