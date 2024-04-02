@@ -1,6 +1,7 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import type { DataService, connect } from 'mongodb-data-service';
+import EventEmitter from 'events';
 
 import {
   ConnectionStatus,
@@ -32,8 +33,8 @@ function canceledPromiseSetup(
   const originalConnectFn: typeof connectionsManager.connect =
     connectionsManager.connect.bind(connectionsManager);
   let failures = 0;
-  sinon.stub(connectionsManager, 'connect').callsFake((info) => {
-    return originalConnectFn(info).finally(() => {
+  sinon.stub(connectionsManager, 'connect').callsFake((info, options) => {
+    return originalConnectFn(info, options).finally(() => {
       if (++failures === connectionsToBeConnected.length) {
         resolveCanceledPromise();
       }
@@ -47,11 +48,18 @@ function canceledPromiseSetup(
 }
 
 describe('ConnectionsManager', function () {
-  const connectedDataService1 = {
-    id: 1,
-    disconnect() {},
-    addReauthenticationHandler() {},
-  } as unknown as DataService;
+  const mockDataService = (id: number) => {
+    const eventEmitter = new EventEmitter();
+    return {
+      id,
+      disconnect() {},
+      addReauthenticationHandler() {},
+      emit: eventEmitter.emit.bind(eventEmitter),
+      on: eventEmitter.on.bind(eventEmitter),
+    } as unknown as DataService;
+  };
+
+  const connectedDataService1 = mockDataService(1);
   const connectedConnectionInfo1 = {
     id: '1',
     connectionOptions: {
@@ -59,11 +67,7 @@ describe('ConnectionsManager', function () {
     },
   };
 
-  const connectedDataService2 = {
-    id: 2,
-    disconnect() {},
-    addReauthenticationHandler() {},
-  } as unknown as DataService;
+  const connectedDataService2 = mockDataService(2);
   const connectedConnectionInfo2 = {
     id: '2',
     connectionOptions: {
@@ -73,11 +77,31 @@ describe('ConnectionsManager', function () {
   let connectionsManager: ConnectionsManager;
   let mockConnectFn: typeof connect;
 
+  const appName = 'Test+App+Name';
+  const forceConnectionOptions = [];
+  const browserCommandForOIDCAuth = undefined;
+  let onNotifyOIDCDeviceFlowSpy = sinon.spy();
+  let onDatabaseOIDCSecretsChangeSpy = sinon.spy();
+
+  function getConnectionConfigurationOptions() {
+    return {
+      appName,
+      forceConnectionOptions,
+      browserCommandForOIDCAuth,
+      onNotifyOIDCDeviceFlow: onNotifyOIDCDeviceFlowSpy,
+      onDatabaseOIDCSecretsChange: onDatabaseOIDCSecretsChangeSpy,
+    };
+  }
+
   beforeEach(function () {
+    onNotifyOIDCDeviceFlowSpy = sinon.spy();
+    onDatabaseOIDCSecretsChangeSpy = sinon.spy();
+
     mockConnectFn = sinon.stub().callsFake(({ connectionOptions }) => {
       if (
-        connectionOptions.connectionString ===
-        connectedConnectionInfo1.connectionOptions.connectionString
+        connectionOptions.connectionString.startsWith(
+          connectedConnectionInfo1.connectionOptions.connectionString
+        )
       ) {
         return Promise.resolve(connectedDataService1);
       } else {
@@ -107,8 +131,14 @@ describe('ConnectionsManager', function () {
         );
 
         await Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
 
         expect(onConnectionStarted).to.be.calledTwice;
@@ -122,8 +152,14 @@ describe('ConnectionsManager', function () {
 
       it('#statusOf should return connecting', function () {
         void Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
         expect(
           connectionsManager.statusOf(connectedConnectionInfo1.id)
@@ -135,8 +171,14 @@ describe('ConnectionsManager', function () {
 
       it('#getDataServiceForConnection should not return anything for connecting connection', function () {
         void Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
         expect(
           connectionsManager.getDataServiceForConnection(
@@ -172,8 +214,14 @@ describe('ConnectionsManager', function () {
             onConnectionAttemptCancelled
           );
           void Promise.all([
-            connectionsManager.connect(connectedConnectionInfo1),
-            connectionsManager.connect(connectedConnectionInfo2),
+            connectionsManager.connect(
+              connectedConnectionInfo1,
+              getConnectionConfigurationOptions()
+            ),
+            connectionsManager.connect(
+              connectedConnectionInfo2,
+              getConnectionConfigurationOptions()
+            ),
           ]).catch(() => {
             // noop
           });
@@ -190,8 +238,14 @@ describe('ConnectionsManager', function () {
 
         it('#statusOf should return disconnected', async function () {
           void Promise.all([
-            connectionsManager.connect(connectedConnectionInfo1),
-            connectionsManager.connect(connectedConnectionInfo2),
+            connectionsManager.connect(
+              connectedConnectionInfo1,
+              getConnectionConfigurationOptions()
+            ),
+            connectionsManager.connect(
+              connectedConnectionInfo2,
+              getConnectionConfigurationOptions()
+            ),
           ]).catch(() => {
             // noop
           });
@@ -207,8 +261,14 @@ describe('ConnectionsManager', function () {
 
         it('#getDataServiceForConnection should not return anything for canceled connections', async function () {
           void Promise.all([
-            connectionsManager.connect(connectedConnectionInfo1),
-            connectionsManager.connect(connectedConnectionInfo2),
+            connectionsManager.connect(
+              connectedConnectionInfo1,
+              getConnectionConfigurationOptions()
+            ),
+            connectionsManager.connect(
+              connectedConnectionInfo2,
+              getConnectionConfigurationOptions()
+            ),
           ]).catch(() => {
             // noop
           });
@@ -247,9 +307,11 @@ describe('ConnectionsManager', function () {
         onConnectionCancelled
       );
 
-      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
-        //
-      });
+      void connectionsManager
+        .connect(connectedConnectionInfo1, getConnectionConfigurationOptions())
+        .catch(() => {
+          //
+        });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       await canceledPromise;
       expect(onConnectionCancelled).to.be.calledWithExactly(
@@ -258,9 +320,11 @@ describe('ConnectionsManager', function () {
     });
 
     it('#statusOf should return ConnectionStatus.Disconnected', async function () {
-      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
-        //
-      });
+      void connectionsManager
+        .connect(connectedConnectionInfo1, getConnectionConfigurationOptions())
+        .catch(() => {
+          //
+        });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       await canceledPromise;
       expect(connectionsManager.statusOf(connectedConnectionInfo1.id)).to.equal(
@@ -269,9 +333,11 @@ describe('ConnectionsManager', function () {
     });
 
     it('#getDataServiceForConnection should not return anything for cancelled connection attempt', async function () {
-      void connectionsManager.connect(connectedConnectionInfo1).catch(() => {
-        //
-      });
+      void connectionsManager
+        .connect(connectedConnectionInfo1, getConnectionConfigurationOptions())
+        .catch(() => {
+          //
+        });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       await canceledPromise;
       expect(
@@ -305,7 +371,10 @@ describe('ConnectionsManager', function () {
           );
 
           void connectionsManager
-            .connect(connectedConnectionInfo1)
+            .connect(
+              connectedConnectionInfo1,
+              getConnectionConfigurationOptions()
+            )
             .catch(() => {
               //
             });
@@ -318,7 +387,10 @@ describe('ConnectionsManager', function () {
             connectionsManager.statusOf(connectedConnectionInfo1.id)
           ).to.equal(ConnectionStatus.Disconnected);
 
-          await connectionsManager.connect(connectedConnectionInfo1);
+          await connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          );
           expect(
             connectionsManager.statusOf(connectedConnectionInfo1.id)
           ).to.equal(ConnectionStatus.Connected);
@@ -338,8 +410,14 @@ describe('ConnectionsManager', function () {
         );
 
         await Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
         expect(onSuccessfulConnections).to.be.calledTwice;
         expect(onSuccessfulConnections.getCall(0).args).to.deep.equal([
@@ -354,8 +432,14 @@ describe('ConnectionsManager', function () {
 
       it('#statusOf should return ConnectionStatus.Connected', async function () {
         await Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
         expect(
           connectionsManager.statusOf(connectedConnectionInfo1.id)
@@ -367,8 +451,14 @@ describe('ConnectionsManager', function () {
 
       it('#getDataServiceForConnection should be able to return connected dataService', async function () {
         await Promise.all([
-          connectionsManager.connect(connectedConnectionInfo1),
-          connectionsManager.connect(connectedConnectionInfo2),
+          connectionsManager.connect(
+            connectedConnectionInfo1,
+            getConnectionConfigurationOptions()
+          ),
+          connectionsManager.connect(
+            connectedConnectionInfo2,
+            getConnectionConfigurationOptions()
+          ),
         ]);
         expect(
           connectionsManager.getDataServiceForConnection(
@@ -383,8 +473,14 @@ describe('ConnectionsManager', function () {
       });
 
       it('should return the connected DataService for an already connected connection', async function () {
-        await connectionsManager.connect(connectedConnectionInfo1);
-        await connectionsManager.connect(connectedConnectionInfo1);
+        await connectionsManager.connect(
+          connectedConnectionInfo1,
+          getConnectionConfigurationOptions()
+        );
+        await connectionsManager.connect(
+          connectedConnectionInfo1,
+          getConnectionConfigurationOptions()
+        );
         expect(mockConnectFn).to.be.calledOnce;
       });
     }
@@ -411,7 +507,10 @@ describe('ConnectionsManager', function () {
       );
 
       try {
-        await connectionsManager.connect(failedConnectionInfo);
+        await connectionsManager.connect(
+          failedConnectionInfo,
+          getConnectionConfigurationOptions()
+        );
       } catch (error) {
         expect(error.message).to.equal('Connection rejected');
         expect(onConnectionFailed).to.be.calledWithExactly(
@@ -423,7 +522,10 @@ describe('ConnectionsManager', function () {
 
     it('#statusOf should return ConnectionStatus.Failed', async function () {
       try {
-        await connectionsManager.connect(failedConnectionInfo);
+        await connectionsManager.connect(
+          failedConnectionInfo,
+          getConnectionConfigurationOptions()
+        );
       } catch (error) {
         // nothing
       }
@@ -434,7 +536,10 @@ describe('ConnectionsManager', function () {
 
     it('#getDataServiceForConnection should not return anything for failed connection', async function () {
       try {
-        await connectionsManager.connect(failedConnectionInfo);
+        await connectionsManager.connect(
+          failedConnectionInfo,
+          getConnectionConfigurationOptions()
+        );
       } catch (error) {
         // nothing
       }
@@ -468,7 +573,10 @@ describe('ConnectionsManager', function () {
         onConnectionDisconnected
       );
 
-      await connectionsManager.connect(activeConnectionInfo);
+      await connectionsManager.connect(
+        activeConnectionInfo,
+        getConnectionConfigurationOptions()
+      );
       expect(connectionsManager.statusOf(activeConnectionInfo.id)).to.equal(
         ConnectionStatus.Connected
       );
@@ -480,7 +588,10 @@ describe('ConnectionsManager', function () {
     });
 
     it('#statusOf should return ConnectionStatus.Disconnected', async function () {
-      await connectionsManager.connect(activeConnectionInfo);
+      await connectionsManager.connect(
+        activeConnectionInfo,
+        getConnectionConfigurationOptions()
+      );
       expect(connectionsManager.statusOf(activeConnectionInfo.id)).to.equal(
         ConnectionStatus.Connected
       );
@@ -492,11 +603,82 @@ describe('ConnectionsManager', function () {
     });
 
     it('#getDataServiceForConnection should not return anything for disconnected connection', async function () {
-      await connectionsManager.connect(activeConnectionInfo);
+      await connectionsManager.connect(
+        activeConnectionInfo,
+        getConnectionConfigurationOptions()
+      );
       await connectionsManager.closeConnection(activeConnectionInfo.id);
       expect(
         connectionsManager.getDataServiceForConnection(activeConnectionInfo.id)
       ).to.be.undefined;
+    });
+  });
+
+  context('oidc connection', function () {
+    it('should notify the onDatabaseOIDCSecretsChange when dataservice secrets change', async function () {
+      const oidcConnectionInfo = {
+        connectionOptions: {
+          connectionString: `${connectedConnectionInfo1.connectionOptions.connectionString}&authMechanism=MONGODB-OIDC`,
+          oidc: {},
+        },
+        ...connectedConnectionInfo1,
+      };
+
+      await connectionsManager.connect(
+        oidcConnectionInfo,
+        getConnectionConfigurationOptions()
+      );
+
+      connectedDataService1.emit('connectionInfoSecretsChanged');
+
+      expect(onDatabaseOIDCSecretsChangeSpy).to.have.been.calledWith(
+        {
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?appName=Test%2BApp%2BName',
+            oidc: {},
+          },
+          id: '1',
+        },
+        connectedDataService1
+      );
+    });
+
+    it('should merge any oidc state from previous connections', async function () {
+      const previousOidcState = {
+        connectionOptions: {
+          oidc: {
+            mockState: true,
+          },
+        },
+      };
+
+      const inspectableConnectionsManager = connectionsManager as any;
+      inspectableConnectionsManager.oidcState.set(
+        connectedConnectionInfo1.id,
+        previousOidcState
+      );
+
+      const oidcConnectionInfo = {
+        connectionOptions: {
+          connectionString: `${connectedConnectionInfo1.connectionOptions.connectionString}&authMechanism=MONGODB-OIDC`,
+        },
+        ...connectedConnectionInfo1,
+      };
+
+      await connectionsManager.connect(
+        oidcConnectionInfo,
+        getConnectionConfigurationOptions()
+      );
+
+      const connectionInfo = mockConnectFn.getCall(0).args[0];
+      expect(connectionInfo.connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/?appName=Test%2BApp%2BName',
+        oidc: {
+          mockState: true,
+        },
+      });
     });
   });
 });

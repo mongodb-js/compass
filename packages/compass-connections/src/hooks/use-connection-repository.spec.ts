@@ -5,6 +5,7 @@ import { stub } from 'sinon';
 import {
   type ConnectionStorage,
   ConnectionStorageBus,
+  ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import { renderHook } from '@testing-library/react-hooks';
@@ -75,6 +76,60 @@ describe('useConnectionRepository', function () {
         expect(connections[1].id).to.equal('2');
       });
     });
+
+    it('should not change if only non favourite connections change', async function () {
+      mockStorageWithConnections([
+        {
+          id: '2',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Bb' },
+        },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Aa' },
+        },
+      ]);
+
+      const { result } = renderHookWithContext(() => useConnectionRepository());
+
+      const initialFavoriteConnections = await waitFor(() => {
+        const favoriteConnections = result.current.favoriteConnections;
+        expect(favoriteConnections.length).to.equal(2);
+        return favoriteConnections;
+      });
+
+      mockStorage.loadAll = function () {
+        return Promise.resolve([
+          {
+            id: '3',
+            savedConnectionType: 'recent',
+            favorite: { name: 'Cc' },
+          },
+          {
+            id: '2',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'Bb' },
+          },
+          {
+            id: '1',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'Aa' },
+          },
+        ]);
+      };
+
+      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+
+      await waitFor(() => {
+        const favoriteConnections = result.current.favoriteConnections;
+        const nonFavoriteConnections = result.current.nonFavoriteConnections;
+
+        expect(favoriteConnections).to.equal(initialFavoriteConnections);
+        expect(nonFavoriteConnections.length).to.equal(1);
+        expect(nonFavoriteConnections[0].id).to.equal('3');
+      });
+    });
   });
 
   describe('nonFavoriteConnections', function () {
@@ -98,6 +153,60 @@ describe('useConnectionRepository', function () {
         expect(connections.length).to.equal(2);
         expect(connections[0].id).to.equal('1');
         expect(connections[1].id).to.equal('2');
+      });
+    });
+
+    it('should not change if only favourite connections change', async function () {
+      mockStorageWithConnections([
+        {
+          id: '2',
+          savedConnectionType: 'recent',
+          favorite: { name: 'Bb' },
+        },
+        {
+          id: '1',
+          savedConnectionType: 'recent',
+          favorite: { name: 'Aa' },
+        },
+      ]);
+
+      const { result } = renderHookWithContext(() => useConnectionRepository());
+
+      const initialNonFavoriteConnections = await waitFor(() => {
+        const nonFavoriteConnections = result.current.nonFavoriteConnections;
+        expect(nonFavoriteConnections.length).to.equal(2);
+        return nonFavoriteConnections;
+      });
+
+      mockStorage.loadAll = function () {
+        return Promise.resolve([
+          {
+            id: '3',
+            savedConnectionType: 'favorite',
+            favorite: { name: 'Cc' },
+          },
+          {
+            id: '2',
+            savedConnectionType: 'recent',
+            favorite: { name: 'Bb' },
+          },
+          {
+            id: '1',
+            savedConnectionType: 'recent',
+            favorite: { name: 'Aa' },
+          },
+        ]);
+      };
+
+      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+
+      await waitFor(() => {
+        const favoriteConnections = result.current.favoriteConnections;
+        const nonFavoriteConnections = result.current.nonFavoriteConnections;
+
+        expect(nonFavoriteConnections).to.equal(initialNonFavoriteConnections);
+        expect(favoriteConnections.length).to.equal(1);
+        expect(favoriteConnections[0].id).to.equal('3');
       });
     });
   });

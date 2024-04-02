@@ -156,7 +156,7 @@ describe('use-connections hook', function () {
 
       // Wait for the async loading of connections to complete.
       await waitFor(() =>
-        expect(result.current.state.favoriteConnections.length).to.equal(2)
+        expect(result.current.favoriteConnections.length).to.equal(2)
       );
 
       expect(loadAllSpyWithData).to.have.been.called;
@@ -265,8 +265,8 @@ describe('use-connections hook', function () {
       );
 
       await waitFor(() => {
-        expect(result.current.state.favoriteConnections.length).to.equal(2);
-        expect(result.current.state.recentConnections.length).to.equal(3);
+        expect(result.current.favoriteConnections.length).to.equal(2);
+        expect(result.current.recentConnections.length).to.equal(3);
       });
 
       expect(result.current.recentConnections).to.deep.equal([

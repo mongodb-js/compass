@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { UserPreferences } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../hooks/use-connection-repository';
 
@@ -199,6 +198,40 @@ export function useConnections({
   );
   const { activeConnectionId } = state;
 
+  function oidcAttemptConnectNotifyDeviceAuth(deviceFlowInformation: {
+    verificationUrl: string;
+    userCode: string;
+  }): void {
+    dispatch({
+      type: 'oidc-attempt-connect-notify-device-auth',
+      verificationUrl: deviceFlowInformation.verificationUrl,
+      userCode: deviceFlowInformation.userCode,
+    });
+  }
+
+  async function oidcUpdateSecrets(
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ): Promise<void> {
+    try {
+      if (!persistOIDCTokens) return;
+
+      const mergeConnectionInfo = {
+        id: connectionInfo.id,
+        connectionOptions: await dataService.getUpdatedSecrets(),
+      };
+
+      await saveConnectionInfo(mergeConnectionInfo);
+    } catch (err: any) {
+      log.warn(
+        mongoLogId(1_001_000_195),
+        'Connection Store',
+        'Failed to update connection store with updated secrets',
+        { err: err?.stack }
+      );
+    }
+  }
+
   async function saveConnectionInfo(
     connectionInfo: RecursivePartial<ConnectionInfo> &
       Pick<ConnectionInfo, 'id'>
@@ -327,40 +360,6 @@ export function useConnections({
     );
 
     try {
-      function oidcAttemptConnectNotifyDeviceAuth(deviceFlowInformation: {
-        verificationUrl: string;
-        userCode: string;
-      }): void {
-        dispatch({
-          type: 'oidc-attempt-connect-notify-device-auth',
-          verificationUrl: deviceFlowInformation.verificationUrl,
-          userCode: deviceFlowInformation.userCode,
-        });
-      }
-
-      async function oidcUpdateSecrets(
-        connectionInfo: ConnectionInfo,
-        dataService: DataService
-      ): Promise<void> {
-        try {
-          if (!persistOIDCTokens) return;
-
-          const mergeConnectionInfo = {
-            id: connectionInfo.id,
-            connectionOptions: await dataService.getUpdatedSecrets(),
-          };
-
-          await saveConnectionInfo(mergeConnectionInfo);
-        } catch (err: any) {
-          log.warn(
-            mongoLogId(1_001_000_195),
-            'Connection Store',
-            'Failed to update connection store with updated secrets',
-            { err: err?.stack }
-          );
-        }
-      }
-
       dispatch({
         type: 'attempt-connect',
         connectingConnectionId: originalConnectionInfo.id,
@@ -387,7 +386,10 @@ export function useConnections({
           appName,
           forceConnectionOptions,
           browserCommandForOIDCAuth,
-          onDatabaseOIDCSecretsChange: oidcUpdateSecrets,
+          onDatabaseOIDCSecretsChange: (
+            connectionInfo: ConnectionInfo,
+            dataService: DataService
+          ) => void oidcUpdateSecrets(connectionInfo, dataService),
           onNotifyOIDCDeviceFlow: oidcAttemptConnectNotifyDeviceAuth,
         }
       );

@@ -229,6 +229,7 @@ export class ConnectionsManager extends EventEmitter {
         adjustedConnectionInfoForConnection.id,
         dataService
       );
+
       this.updateAndNotifyConnectionStatus(
         adjustedConnectionInfoForConnection.id,
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,

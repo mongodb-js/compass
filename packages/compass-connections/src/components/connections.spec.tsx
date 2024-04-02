@@ -260,8 +260,7 @@ describe('Connections Component', function () {
             connectSpyFn.firstCall.args[0].connectionOptions
           ).to.deep.equal({
             connectionString:
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
-            oidc: {},
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
           });
         });
 
@@ -316,7 +315,6 @@ describe('Connections Component', function () {
           ).to.deep.equal({
             connectionString:
               'mongodb://localhost:27019/?appName=Some+App+Name',
-            oidc: {},
           });
         });
       }
@@ -466,8 +464,7 @@ describe('Connections Component', function () {
             connectSpyFn.firstCall.args[0].connectionOptions
           ).to.deep.equal({
             connectionString:
-              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name',
-            oidc: {},
+              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
           });
         });
 
@@ -507,8 +504,7 @@ describe('Connections Component', function () {
                 connectSpyFn.secondCall.args[0].connectionOptions
               ).to.deep.equal({
                 connectionString:
-                  'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
-                oidc: {},
+                  'mongodb://localhost:27018/?readPreference=primary&ssl=false',
               });
             });
           }
