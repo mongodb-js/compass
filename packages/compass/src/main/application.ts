@@ -104,7 +104,7 @@ class CompassApplication {
       {
         enablePlainTextEncryption,
         isAvailable: safeStorage.isEncryptionAvailable(),
-        backend: safeStorage.getSelectedStorageBackend(),
+        backend: safeStorage.getSelectedStorageBackend?.(),
       }
     );
 
