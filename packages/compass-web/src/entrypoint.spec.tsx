@@ -86,7 +86,9 @@ describe('CompassWeb', function () {
     });
 
     expect(mockConnectFn).to.have.been.calledWithMatch({
-      connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017/?appName=Data+Explorer',
+      },
     });
 
     // Wait for connection to happen and navigation tree to render
