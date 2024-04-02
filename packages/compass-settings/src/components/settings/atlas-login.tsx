@@ -88,6 +88,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             <Button
               type="button"
               variant="dangerOutline"
+              leftGlyph={<Icon glyph="LogOut"></Icon>}
               size="small"
               onClick={onSignOutClick}
               disabled={isSignInInProgress}
@@ -100,7 +101,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
               type="button"
               variant="primary"
               size="small"
-              leftGlyph={<Icon glyph="OpenNewTab"></Icon>}
+              leftGlyph={<Icon glyph="LogIn"></Icon>}
               onClick={onSignInClick}
               disabled={isSignInInProgress}
             >
