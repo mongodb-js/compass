@@ -45,7 +45,7 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
    * to understand how other plugins communicate with these plugins without
    * relying on AppRegistry events.
    */
-  emit(event: T, payload: Record<string, any> | null = null): void {
+  emit(event: T, ...payload: any[]): void {
     const sourceConnectionInfoId =
       this.connectionInfoAccess.getCurrentConnectionInfo().id;
     this.appRegistryEmitter(event, payload, {
