@@ -13,7 +13,6 @@ import { MultipleConnectionSidebar } from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
 import {
-  ConnectionRepositoryContextProvider,
   ConnectionStorageContext,
   type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
@@ -86,11 +85,9 @@ describe('Multiple Connections Sidebar Component', function () {
     return render(
       <ToastArea>
         <ConnectionStorageContext.Provider value={storage}>
-          <ConnectionRepositoryContextProvider>
-            <ConnectionsManagerProvider value={connectionManager}>
-              <MultipleConnectionSidebar appName="Compass Test" />
-            </ConnectionsManagerProvider>
-          </ConnectionRepositoryContextProvider>
+          <ConnectionsManagerProvider value={connectionManager}>
+            <MultipleConnectionSidebar appName="Compass Test" />
+          </ConnectionsManagerProvider>
         </ConnectionStorageContext.Provider>
       </ToastArea>
     );

@@ -198,77 +198,83 @@ export function useConnections({
   );
   const { activeConnectionId } = state;
 
-  function oidcAttemptConnectNotifyDeviceAuth(deviceFlowInformation: {
-    verificationUrl: string;
-    userCode: string;
-  }): void {
-    dispatch({
-      type: 'oidc-attempt-connect-notify-device-auth',
-      verificationUrl: deviceFlowInformation.verificationUrl,
-      userCode: deviceFlowInformation.userCode,
-    });
-  }
+  const saveConnectionInfo = useCallback(
+    async (
+      connectionInfo: RecursivePartial<ConnectionInfo> &
+        Pick<ConnectionInfo, 'id'>
+    ) => {
+      try {
+        await saveConnection(connectionInfo);
+        return true;
+      } catch (err) {
+        debug(
+          `error saving connection with id ${connectionInfo.id || ''}: ${
+            (err as Error).message
+          }`
+        );
 
-  async function oidcUpdateSecrets(
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ): Promise<void> {
-    try {
-      if (!persistOIDCTokens) return;
+        openToast('save-connection-error', {
+          title: 'Error',
+          variant: 'warning',
+          description: `An error occurred while saving the connection. ${
+            (err as Error).message
+          }`,
+        });
 
-      const mergeConnectionInfo = {
-        id: connectionInfo.id,
-        connectionOptions: await dataService.getUpdatedSecrets(),
-      };
+        return false;
+      }
+    },
+    [openToast, saveConnection]
+  );
 
-      await saveConnectionInfo(mergeConnectionInfo);
-    } catch (err: any) {
-      log.warn(
-        mongoLogId(1_001_000_195),
-        'Connection Store',
-        'Failed to update connection store with updated secrets',
-        { err: err?.stack }
-      );
-    }
-  }
+  const removeConnection = useCallback(
+    async (connectionInfo: ConnectionInfo) => {
+      await deleteConnection(connectionInfo);
 
-  async function saveConnectionInfo(
-    connectionInfo: RecursivePartial<ConnectionInfo> &
-      Pick<ConnectionInfo, 'id'>
-  ): Promise<boolean> {
-    try {
-      await saveConnection(connectionInfo);
-      return true;
-    } catch (err) {
-      debug(
-        `error saving connection with id ${connectionInfo.id || ''}: ${
-          (err as Error).message
-        }`
-      );
+      if (activeConnectionId === connectionInfo.id) {
+        const nextActiveConnection = createNewConnectionInfo();
+        dispatch({
+          type: 'set-active-connection',
+          connectionInfo: nextActiveConnection,
+        });
+      }
+    },
+    [activeConnectionId, deleteConnection, dispatch]
+  );
 
-      openToast('save-connection-error', {
-        title: 'Error',
-        variant: 'warning',
-        description: `An error occurred while saving the connection. ${
-          (err as Error).message
-        }`,
-      });
-
-      return false;
-    }
-  }
-
-  async function removeConnection(connectionInfo: ConnectionInfo) {
-    await deleteConnection(connectionInfo);
-
-    if (activeConnectionId === connectionInfo.id) {
-      const nextActiveConnection = createNewConnectionInfo();
+  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
+    (deviceFlowInformation: { verificationUrl: string; userCode: string }) => {
       dispatch({
-        type: 'set-active-connection',
-        connectionInfo: nextActiveConnection,
+        type: 'oidc-attempt-connect-notify-device-auth',
+        verificationUrl: deviceFlowInformation.verificationUrl,
+        userCode: deviceFlowInformation.userCode,
       });
-    }
-  }
+    },
+    [dispatch]
+  );
+
+  const oidcUpdateSecrets = useCallback(
+    async (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      try {
+        if (!persistOIDCTokens) return;
+
+        const mergeConnectionInfo = {
+          id: connectionInfo.id,
+          connectionOptions: await dataService.getUpdatedSecrets(),
+        };
+
+        await saveConnectionInfo(mergeConnectionInfo);
+      } catch (err: any) {
+        log.warn(
+          mongoLogId(1_001_000_195),
+          'Connection Store',
+          'Failed to update connection store with updated secrets',
+          { err: err?.stack }
+        );
+      }
+    },
+    [persistOIDCTokens, saveConnectionInfo]
+  );
 
   const onConnectSuccess = useCallback(
     async (
@@ -301,7 +307,7 @@ export function useConnections({
         );
       }
     },
-    [onConnected, saveConnectionInfo, removeConnection, persistOIDCTokens]
+    [onConnected, saveConnectionInfo, persistOIDCTokens]
   );
 
   useEffect(() => {
