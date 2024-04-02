@@ -48,9 +48,7 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
   emit(event: T, ...payload: any[]): void {
     const sourceConnectionInfoId =
       this.connectionInfoAccess.getCurrentConnectionInfo().id;
-    this.appRegistryEmitter(event, payload, {
-      sourceConnectionInfoId,
-    });
+    this.appRegistryEmitter(event, ...payload, { sourceConnectionInfoId });
   }
 }
 
