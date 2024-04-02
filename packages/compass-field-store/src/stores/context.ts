@@ -11,7 +11,6 @@ import {
   type ConnectionInfoAccess,
   connectionInfoAccessLocator,
   useConnectionInfo,
-  useConnectionInfoAccess,
 } from '@mongodb-js/connection-storage/provider';
 
 export const FieldStoreContext = React.createContext<
@@ -21,7 +20,7 @@ export const FieldStoreContext = React.createContext<
   null
 );
 
-const useDispatch = createDispatchHook(FieldStoreContext);
+export const useDispatch = createDispatchHook(FieldStoreContext);
 
 const useSelector: TypedUseSelectorHook<ConnectionNamespacesState> =
   createSelectorHook(FieldStoreContext);
@@ -67,17 +66,6 @@ export function createFieldStoreService(
     },
   };
 }
-
-/**
- * Exporting this only for the purpose of testing the service implementation. We
- * don't expect to use FieldStoreService outside of Redux stores and for that
- * our service locator is supposed to be used.
- */
-export const useFieldStoreServiceForTests = () => {
-  const dispatch = useDispatch();
-  const connectionInfoAccess = useConnectionInfoAccess();
-  return createFieldStoreService(dispatch, connectionInfoAccess);
-};
 
 export const fieldStoreServiceLocator = createServiceLocator(
   function fieldStoreServiceLocator() {

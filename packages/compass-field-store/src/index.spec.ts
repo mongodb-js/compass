@@ -4,7 +4,14 @@ import FieldStorePlugin from './';
 import { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import { useFieldStoreServiceForTests } from './stores/context';
+import { useConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import { createFieldStoreService, useDispatch } from './stores/context';
+
+export const useFieldStoreServiceForTests = () => {
+  const dispatch = useDispatch();
+  const connectionInfoAccess = useConnectionInfoAccess();
+  return createFieldStoreService(dispatch, connectionInfoAccess);
+};
 
 describe('useAutocompleteFields', function () {
   let appRegistry: AppRegistry;
