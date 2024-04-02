@@ -487,7 +487,7 @@ describe('CSFLE / QE', function () {
           );
           await value.doubleClick();
 
-          const input = await document.$(
+          const input = document.$(
             `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentValueEditor}`
           );
           await browser.setValueVisible(
@@ -639,7 +639,7 @@ describe('CSFLE / QE', function () {
         const isCopiedDocumentPhoneNumberEditorExisting =
           await copiedDocumentPhoneNumberEditor.isExisting();
         expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(true);
-        const copiedDocumentFaxNumberEditor = await copiedDocument.$(
+        const copiedDocumentFaxNumberEditor = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isCopiedDocumentFaxNumberEditorExisting =

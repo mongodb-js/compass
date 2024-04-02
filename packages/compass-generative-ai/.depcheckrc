@@ -7,5 +7,6 @@ ignores:
  - '@types/chai-dom'
  - '@types/react'
  - '@types/react-dom'
+ - 'p-queue'
 ignore-patterns:
  - 'dist'

@@ -4,34 +4,37 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector:
-    | string
-    | ChainablePromiseElement<WebdriverIO.Element>
-    | WebdriverIO.Element
+  selector: string | ChainablePromiseElement<WebdriverIO.Element>
 ): Promise<void> {
-  async function getElement() {
-    return typeof selector === 'string' ? await browser.$(selector) : selector;
+  function getElement() {
+    return typeof selector === 'string' ? browser.$(selector) : selector;
   }
 
-  const initialElement = await getElement();
+  try {
+    const initialElement = getElement();
 
-  let previousResult = {
-    ...(await initialElement.getLocation()),
-    ...(await initialElement.getSize()),
-  };
-  await browser.waitUntil(async function () {
-    // small delay to make sure that if it is busy animating it had time to move
-    // before the first check and between each two checks
-    await browser.pause(50);
-
-    const currentElement = await getElement();
-
-    const result = {
-      ...(await currentElement.getLocation()),
-      ...(await currentElement.getSize()),
+    let previousResult = {
+      location: await initialElement.getLocation(),
+      size: await initialElement.getSize(),
     };
-    const stopped = _.isEqual(result, previousResult);
-    previousResult = result;
-    return stopped;
-  });
+    await browser.waitUntil(async function () {
+      // small delay to make sure that if it is busy animating it had time to move
+      // before the first check and between each two checks
+      await browser.pause(50);
+
+      const currentElement = getElement();
+
+      const result = {
+        location: await currentElement.getLocation(),
+        size: await currentElement.getSize(),
+      };
+      const stopped = _.isEqual(result, previousResult);
+      previousResult = result;
+      return stopped;
+    });
+  } catch (err: any) {
+    if (err.name !== 'stale element reference') {
+      throw err;
+    }
+  }
 }
