@@ -24,7 +24,7 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
       );
 
     newAppRegistryEmitter.emit('schema-analyzed');
-    expect(emitSpy).to.have.been.calledWith('schema-analyzed', null, {
+    expect(emitSpy).to.have.been.calledWith('schema-analyzed', {
       sourceConnectionInfoId: '1234',
     });
   });
