@@ -392,7 +392,7 @@ export function useConnections({
           appName,
           forceConnectionOptions,
           browserCommandForOIDCAuth,
-          onDatabaseOIDCSecretsChange: (
+          onDatabaseSecretsChange: (
             connectionInfo: ConnectionInfo,
             dataService: DataService
           ) => void oidcUpdateSecrets(connectionInfo, dataService),

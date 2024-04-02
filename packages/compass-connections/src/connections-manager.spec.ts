@@ -81,7 +81,7 @@ describe('ConnectionsManager', function () {
   const forceConnectionOptions = [];
   const browserCommandForOIDCAuth = undefined;
   let onNotifyOIDCDeviceFlowSpy = sinon.spy();
-  let onDatabaseOIDCSecretsChangeSpy = sinon.spy();
+  let onDatabaseSecretsChangeSpy = sinon.spy();
 
   function getConnectionConfigurationOptions() {
     return {
@@ -89,13 +89,13 @@ describe('ConnectionsManager', function () {
       forceConnectionOptions,
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow: onNotifyOIDCDeviceFlowSpy,
-      onDatabaseOIDCSecretsChange: onDatabaseOIDCSecretsChangeSpy,
+      onDatabaseSecretsChange: onDatabaseSecretsChangeSpy,
     };
   }
 
   beforeEach(function () {
     onNotifyOIDCDeviceFlowSpy = sinon.spy();
-    onDatabaseOIDCSecretsChangeSpy = sinon.spy();
+    onDatabaseSecretsChangeSpy = sinon.spy();
 
     mockConnectFn = sinon.stub().callsFake(({ connectionOptions }) => {
       if (
@@ -615,7 +615,7 @@ describe('ConnectionsManager', function () {
   });
 
   context('oidc connection', function () {
-    it('should notify the onDatabaseOIDCSecretsChange when dataservice secrets change', async function () {
+    it('should notify the onDatabaseSecretsChange when dataservice secrets change', async function () {
       const oidcConnectionInfo = {
         connectionOptions: {
           connectionString: `${connectedConnectionInfo1.connectionOptions.connectionString}&authMechanism=MONGODB-OIDC`,
@@ -631,7 +631,7 @@ describe('ConnectionsManager', function () {
 
       connectedDataService1.emit('connectionInfoSecretsChanged');
 
-      expect(onDatabaseOIDCSecretsChangeSpy).to.have.been.calledWith(
+      expect(onDatabaseSecretsChangeSpy).to.have.been.calledWith(
         {
           connectionOptions: {
             connectionString:

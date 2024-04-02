@@ -151,13 +151,13 @@ export class ConnectionsManager extends EventEmitter {
       forceConnectionOptions,
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
-      onDatabaseOIDCSecretsChange,
+      onDatabaseSecretsChange,
     }: {
       appName?: string;
       forceConnectionOptions: [key: string, value: string][];
       browserCommandForOIDCAuth?: string;
       onNotifyOIDCDeviceFlow: OnNotifyOIDCDeviceFlow;
-      onDatabaseOIDCSecretsChange: OnDatabaseSecretsChangedCallback;
+      onDatabaseSecretsChange: OnDatabaseSecretsChangedCallback;
     }
   ): Promise<DataService> {
     try {
@@ -237,7 +237,7 @@ export class ConnectionsManager extends EventEmitter {
       );
 
       dataService.on?.('connectionInfoSecretsChanged', () => {
-        onDatabaseOIDCSecretsChange(
+        onDatabaseSecretsChange(
           adjustedConnectionInfoForConnection,
           dataService
         );

@@ -247,7 +247,7 @@ const CompassWeb = ({
       try {
         await connectionsManagerCurrent.connect(connectionInfo, {
           forceConnectionOptions: [],
-          onDatabaseOIDCSecretsChange() {
+          onDatabaseSecretsChange() {
             // noop
           },
           onNotifyOIDCDeviceFlow() {
