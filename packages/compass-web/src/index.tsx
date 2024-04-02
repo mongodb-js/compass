@@ -246,7 +246,7 @@ const CompassWeb = ({
     void (async () => {
       try {
         await connectionsManagerCurrent.connect(connectionInfo, {
-          appName: '',
+          appName: 'Data Explorer',
           forceConnectionOptions: [],
           onDatabaseOIDCSecretsChange() {
             // noop
