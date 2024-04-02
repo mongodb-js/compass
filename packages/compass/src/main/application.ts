@@ -98,7 +98,7 @@ class CompassApplication {
     }
 
     log.info(
-      mongoLogId(1_001_000_306),
+      mongoLogId(1_001_000_307),
       'Application',
       'SafeStorage initialized',
       {
