@@ -630,11 +630,7 @@ describe('Connection screen', function () {
 });
 
 // eslint-disable-next-line mocha/max-top-level-suites
-describe('SRV connectivity', function () {
-  before(function () {
-    skipForWeb(this, 'not applicable to compass-web');
-  });
-
+describe.only('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
@@ -697,7 +693,7 @@ describe('SRV connectivity', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('System CA access', function () {
   before(function () {
-    skipForWeb(this, 'not applicable to compass-web');
+    skipForWeb(this, 'system CA not applicable to compass-web');
   });
 
   it('allows using the system certificate store for connections', async function () {
@@ -752,7 +748,7 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connect form not available in compass-web');
+    skipForWeb(this, 'FLE2 not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
