@@ -4,14 +4,19 @@ import { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import { createFieldStoreService } from './context';
+import { type FieldStoreService, createFieldStoreService } from './context';
 import type { Schema } from 'mongodb-schema';
 import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionsManager,
+  ConnectionsManagerEvents,
+} from '@mongodb-js/compass-connections/provider';
 
 describe('FieldStore', function () {
   let deactivate = () => {};
   let store: ReturnType<typeof activatePlugin>['store'];
   let fieldStoreServices: ReturnType<typeof createFieldStoreService>;
+  let mockConnectionsManager: ConnectionsManager;
   const connectionInfo: ConnectionInfo = {
     id: '1234',
     connectionOptions: {
@@ -25,7 +30,14 @@ describe('FieldStore', function () {
   };
 
   beforeEach(function () {
-    ({ store, deactivate } = activatePlugin({}, {}, createActivateHelpers()));
+    mockConnectionsManager = new ConnectionsManager({
+      logger: (() => {}) as any,
+    });
+    ({ store, deactivate } = activatePlugin(
+      {},
+      { connectionsManager: mockConnectionsManager },
+      createActivateHelpers()
+    ));
     fieldStoreServices = createFieldStoreService(
       store.dispatch.bind(store),
       connectionInfoAccess
@@ -38,6 +50,53 @@ describe('FieldStore', function () {
 
   it('has an initial state', function () {
     expect(store.getState()).to.deep.equal({});
+  });
+
+  context('when connection is disconnected', function () {
+    let connectionOneFieldStoreService: FieldStoreService;
+    let connectionTwoFieldStoreService: FieldStoreService;
+    const secondConnectionInfo: ConnectionInfo = {
+      ...connectionInfo,
+      id: 'QWERTY',
+    };
+    beforeEach(async function () {
+      connectionOneFieldStoreService = createFieldStoreService(
+        store.dispatch.bind(store),
+        connectionInfoAccess
+      );
+      connectionTwoFieldStoreService = createFieldStoreService(
+        store.dispatch.bind(store),
+        {
+          getCurrentConnectionInfo() {
+            return {
+              ...connectionInfo,
+              id: 'QWERTY',
+            };
+          },
+        }
+      );
+      await connectionOneFieldStoreService.updateFieldsFromDocuments(
+        'mflix.movies',
+        [{ name: 'Compass' }]
+      );
+      await connectionTwoFieldStoreService.updateFieldsFromDocuments(
+        'mflix.movies',
+        [{ name: 'Compass' }]
+      );
+      expect(store.getState()).to.have.keys(['1234', 'QWERTY']);
+    });
+    it('removes the namespaces information for the disconnected connection', function () {
+      mockConnectionsManager.emit(
+        ConnectionsManagerEvents.ConnectionDisconnected,
+        secondConnectionInfo.id
+      );
+      expect(store.getState()).to.have.keys(['1234']);
+      mockConnectionsManager.emit(
+        ConnectionsManagerEvents.ConnectionDisconnected,
+        connectionInfo.id
+      );
+      expect(Object.keys(store.getState())).to.be.of.length(0);
+    });
   });
 
   describe('#onActivated', function () {
