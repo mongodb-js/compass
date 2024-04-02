@@ -1370,8 +1370,7 @@ class CrudStoreImpl
         this.state.ns,
         docs
       );
-      // Need to keep it around until compass-app-stores stop depending on it to
-      // update the instance
+      // TODO(COMPASS-7815): Remove this event and use AppStoreService
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1429,8 +1428,7 @@ class CrudStoreImpl
       void this.fieldStoreService.updateFieldsFromDocuments(this.state.ns, [
         doc,
       ]);
-      // Need to keep it around until compass-app-stores stop depending on it to
-      // update the instance
+      // TODO(COMPASS-7815): Remove this event and use AppStoreService
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
