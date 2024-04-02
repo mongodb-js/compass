@@ -3,7 +3,7 @@ import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { createFieldStoreService } from './context';
 import type { Schema } from 'mongodb-schema';
 import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';

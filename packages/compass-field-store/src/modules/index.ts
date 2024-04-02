@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import { uniq } from 'lodash';
 import type { SchemaField } from 'mongodb-schema';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
 

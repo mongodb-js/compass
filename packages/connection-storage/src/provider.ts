@@ -12,6 +12,8 @@ import {
   createServiceProvider,
 } from 'hadron-app-registry';
 
+export type { ConnectionInfo };
+
 export const ConnectionStorageContext = createContext<
   typeof ConnectionStorage | null
 >(null);
