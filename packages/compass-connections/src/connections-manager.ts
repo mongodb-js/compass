@@ -153,7 +153,7 @@ export class ConnectionsManager extends EventEmitter {
       onNotifyOIDCDeviceFlow,
       onDatabaseOIDCSecretsChange,
     }: {
-      appName: string;
+      appName?: string;
       forceConnectionOptions: [key: string, value: string][];
       browserCommandForOIDCAuth?: string;
       onNotifyOIDCDeviceFlow: OnNotifyOIDCDeviceFlow;
