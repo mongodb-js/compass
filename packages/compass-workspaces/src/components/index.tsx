@@ -77,6 +77,7 @@ const horizontalSplitStyles = css({
 const workspacesStyles = css({
   minHeight: 0,
   overflow: 'hidden',
+  minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
 });
 
 const sidebarStyles = css({
