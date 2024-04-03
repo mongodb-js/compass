@@ -344,7 +344,7 @@ describe('Connections Component', function () {
           }) => {
             if (
               connectionOptions.connectionString ===
-              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name'
+              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
             ) {
               return new Promise((resolve) => {
                 // On first call we want this attempt to be cancelled before

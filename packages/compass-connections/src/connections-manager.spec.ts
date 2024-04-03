@@ -77,7 +77,6 @@ describe('ConnectionsManager', function () {
   let connectionsManager: ConnectionsManager;
   let mockConnectFn: typeof connect;
 
-  const appName = 'Test+App+Name';
   const forceConnectionOptions = [];
   const browserCommandForOIDCAuth = undefined;
   let onDatabaseSecretsChangeSpy = sinon.spy();
@@ -90,7 +89,6 @@ describe('ConnectionsManager', function () {
     onDatabaseSecretsChange?: ReturnType<typeof sinon.spy>;
   } = {}) {
     return {
-      appName,
       forceConnectionOptions,
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
@@ -640,8 +638,7 @@ describe('ConnectionsManager', function () {
       expect(onDatabaseSecretsChangeSpy).to.have.been.calledWith(
         {
           connectionOptions: {
-            connectionString:
-              'mongodb://localhost:27017/?appName=Test%2BApp%2BName',
+            connectionString: 'mongodb://localhost:27017/',
             oidc: {},
           },
           id: '1',
@@ -679,8 +676,7 @@ describe('ConnectionsManager', function () {
 
       const connectionInfo = mockConnectFn.getCall(0).args[0];
       expect(connectionInfo.connectionOptions).to.deep.equal({
-        connectionString:
-          'mongodb://localhost:27017/?appName=Test%2BApp%2BName',
+        connectionString: 'mongodb://localhost:27017/',
         oidc: {
           mockState: true,
         },
