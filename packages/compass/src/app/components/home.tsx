@@ -315,7 +315,6 @@ function Home({
                 onConnected={onConnected}
                 onConnectionFailed={onConnectionFailed}
                 onConnectionAttemptStarted={onConnectionAttemptStarted}
-                appName={appName}
                 getAutoConnectInfo={
                   hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
                 }
