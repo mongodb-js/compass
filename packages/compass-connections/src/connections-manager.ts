@@ -56,6 +56,32 @@ type ConnectionStatusTransitions = {
   };
 };
 
+type ConnectionOptions = {
+  /**
+   * Application name sent to the server when connecting.
+   */
+  appName?: string;
+  /**
+   * Overwrites user-provided connection options with the ones provided here.
+   */
+  forceConnectionOptions?: [key: string, value: string][];
+  /**
+   * Command to open the browser for OIDC Auth.
+   */
+  browserCommandForOIDCAuth?: string;
+  /**
+   * Function to be called to notify the user that it should check the OIDC device for confirmation.
+   * Tipically, the browser.
+   */
+  onNotifyOIDCDeviceFlow?: OnNotifyOIDCDeviceFlow;
+  /**
+   * Function to be called every time the secrets change on a connection dataservice. It's only
+   * used for OIDC now (like a refresh token) but can be used for any type of authentication that
+   * is temporary, like AWS IAM.
+   */
+  onDatabaseSecretsChange?: OnDatabaseSecretsChangedCallback;
+};
+
 const connectionStatusTransitions: ConnectionStatusTransitions = {
   [ConnectionsManagerEvents.ConnectionAttemptStarted]: {
     [ConnectionStatus.Disconnected]: ConnectionStatus.Connecting,
@@ -142,13 +168,7 @@ export class ConnectionsManager extends EventEmitter {
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
       onDatabaseSecretsChange,
-    }: {
-      appName?: string;
-      forceConnectionOptions?: [key: string, value: string][];
-      browserCommandForOIDCAuth?: string;
-      onNotifyOIDCDeviceFlow?: OnNotifyOIDCDeviceFlow;
-      onDatabaseSecretsChange?: OnDatabaseSecretsChangedCallback;
-    }
+    }: ConnectionOptions
   ): Promise<DataService> {
     try {
       const existingDataService =
