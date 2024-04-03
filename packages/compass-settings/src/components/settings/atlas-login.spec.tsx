@@ -57,7 +57,7 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(function () {
       // Disconnect button is a good indicator that we are signed in
-      screen.getByText('Disconnect');
+      screen.getByText('Log Out');
     });
 
     expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
@@ -71,7 +71,7 @@ describe('AtlasLoginSettings', function () {
     await store.dispatch(signIn());
 
     userEvent.click(
-      screen.getByRole('button', { name: /Disconnect/ }),
+      screen.getByRole('button', { name: /Log Out/ }),
       undefined,
       { skipPointerEventsCheck: true }
     );
@@ -106,7 +106,7 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(function () {
       // Disconnect button is a good indicator that we are signed in
-      screen.getByText('Disconnect');
+      screen.getByText('Log Out');
     });
 
     expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
