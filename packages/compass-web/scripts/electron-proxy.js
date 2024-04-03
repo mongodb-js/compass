@@ -20,6 +20,10 @@ const CLOUD_CONFIG_VARIANTS = {
     cloudHost: 'cloud-dev.mongodb.com',
     accountPortalHost: 'account-dev.mongodb.com',
   },
+  qa: {
+    cloudHost: 'cloud-qa.mongodb.com',
+    accountPortalHost: 'account-qa.mongodb.com',
+  },
   prod: {
     cloudHost: 'cloud.mongodb.com',
     accountPortalHost: 'account.mongodb.com',
