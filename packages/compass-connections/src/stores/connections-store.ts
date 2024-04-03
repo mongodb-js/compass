@@ -157,7 +157,6 @@ export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  appName,
   getAutoConnectInfo,
 }: {
   onConnected: (
@@ -170,7 +169,6 @@ export function useConnections({
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  appName: string;
 }): {
   state: State;
   recentConnections: ConnectionInfo[];
@@ -397,7 +395,6 @@ export function useConnections({
       const newConnectionDataService = await connectionsManager.connect(
         connectionInfo,
         {
-          appName,
           forceConnectionOptions,
           browserCommandForOIDCAuth,
           onDatabaseSecretsChange: (

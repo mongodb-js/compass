@@ -128,7 +128,6 @@ describe('use-connections hook', function () {
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
           getAutoConnectInfo,
         })
       );
@@ -150,7 +149,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -188,7 +186,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -260,7 +257,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -302,7 +298,6 @@ describe('use-connections hook', function () {
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -332,7 +327,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -392,7 +386,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -423,7 +416,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -464,7 +456,6 @@ describe('use-connections hook', function () {
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
             connectFn: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -502,7 +493,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -589,7 +579,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -614,7 +603,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -647,7 +635,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -702,7 +689,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {

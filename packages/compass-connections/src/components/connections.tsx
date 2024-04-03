@@ -125,7 +125,6 @@ function Connections({
     onConnected,
     onConnectionFailed,
     onConnectionAttemptStarted,
-    appName,
     getAutoConnectInfo,
   });
   const {

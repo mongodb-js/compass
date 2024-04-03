@@ -173,6 +173,7 @@ function Home({
 
   const connectionsManager = useRef(
     new ConnectionsManager({
+      appName,
       logger: loggerAndTelemetry.log.unbound,
       reAuthenticationHandler: reauthenticationHandler,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,

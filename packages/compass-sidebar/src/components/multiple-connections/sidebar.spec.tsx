@@ -86,7 +86,7 @@ describe('Multiple Connections Sidebar Component', function () {
       <ToastArea>
         <ConnectionStorageContext.Provider value={storage}>
           <ConnectionsManagerProvider value={connectionManager}>
-            <MultipleConnectionSidebar appName="Compass Test" />
+            <MultipleConnectionSidebar />
           </ConnectionsManagerProvider>
         </ConnectionStorageContext.Provider>
       </ToastArea>

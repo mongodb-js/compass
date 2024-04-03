@@ -58,10 +58,6 @@ type ConnectionStatusTransitions = {
 
 type ConnectionOptions = {
   /**
-   * Application name sent to the server when connecting.
-   */
-  appName?: string;
-  /**
    * Overwrites user-provided connection options with the ones provided here.
    */
   forceConnectionOptions?: [key: string, value: string][];
@@ -117,21 +113,25 @@ export class ConnectionsManager extends EventEmitter {
   private readonly logger: LoggerAndTelemetry['log']['unbound'];
   private readonly reAuthenticationHandler?: ReauthenticationHandler;
   private readonly __TEST_CONNECT_FN?: ConnectFn;
+  private appName: string | undefined;
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
   private oidcState = new Map<ConnectionInfoId, Partial<ConnectionInfo>>();
 
   constructor({
+    appName,
     logger,
     reAuthenticationHandler,
     __TEST_CONNECT_FN,
   }: {
+    appName?: string;
     logger: LoggerAndTelemetry['log']['unbound'];
     reAuthenticationHandler?: ReauthenticationHandler;
     __TEST_CONNECT_FN?: ConnectFn;
   }) {
     super();
+    this.appName = appName;
     this.logger = logger;
     this.reAuthenticationHandler = reAuthenticationHandler;
     this.__TEST_CONNECT_FN = __TEST_CONNECT_FN;
@@ -163,7 +163,6 @@ export class ConnectionsManager extends EventEmitter {
   async connect(
     { id: connectionId, ...originalConnectionInfo }: ConnectionInfo,
     {
-      appName,
       forceConnectionOptions,
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
@@ -191,7 +190,7 @@ export class ConnectionsManager extends EventEmitter {
         {
           connectionOptions: adjustConnectionOptionsBeforeConnect({
             connectionOptions: connectionInfo.connectionOptions,
-            defaultAppName: appName,
+            defaultAppName: this.appName,
             preferences: {
               forceConnectionOptions: forceConnectionOptions ?? [],
               browserCommandForOIDCAuth,
