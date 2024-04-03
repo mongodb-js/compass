@@ -4,18 +4,15 @@ import type { ChainablePromiseElement } from 'webdriverio';
 
 export async function setValueVisible(
   browser: CompassBrowser,
-  selector:
-    | string
-    | ChainablePromiseElement<WebdriverIO.Element>
-    | WebdriverIO.Element,
+  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
   value: string
 ): Promise<void> {
   // The hardest thing in computer science? Reliably setting a text form field's
   // value in an E2E test.
-  async function getElement() {
-    return typeof selector === 'string' ? await browser.$(selector) : selector;
+  function getElement() {
+    return typeof selector === 'string' ? browser.$(selector) : selector;
   }
-  const element = await getElement();
+  const element = getElement();
 
   await browser.waitForAnimations(element);
 
