@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'hadron-ipc';
-import type AppRegistry from 'hadron-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -82,28 +81,18 @@ export type SettingsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
-const onActivated = (
-  _: unknown,
-  {
-    globalAppRegistry,
-    ...restOfServices
-  }: SettingsPluginServices & {
-    globalAppRegistry: Pick<AppRegistry, 'on' | 'removeListener'>;
-  }
-) => {
-  const store = configureStore(restOfServices);
+const onActivated = (_: unknown, services: SettingsPluginServices) => {
+  const store = configureStore(services);
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());
   };
 
-  globalAppRegistry.on('open-compass-settings', onOpenSettings);
   ipcRenderer?.on('window:show-settings', onOpenSettings);
 
   return {
     store,
     deactivate() {
-      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
       ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
     },
   };
