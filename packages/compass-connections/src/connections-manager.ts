@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { createConnectionAttempt } from 'mongodb-data-service';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   ConnectionAttempt,
   DataService,
@@ -56,7 +57,7 @@ type ConnectionStatusTransitions = {
   };
 };
 
-type ConnectionOptions = {
+type ConnectionConfiguration = {
   /**
    * Overwrites user-provided connection options with the ones provided here.
    */
@@ -117,7 +118,7 @@ export class ConnectionsManager extends EventEmitter {
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
-  private oidcState = new Map<ConnectionInfoId, Partial<ConnectionInfo>>();
+  private oidcState = new Map<ConnectionInfoId, Partial<ConnectionOptions>>();
 
   constructor({
     appName,
@@ -167,7 +168,7 @@ export class ConnectionsManager extends EventEmitter {
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
       onDatabaseSecretsChange,
-    }: ConnectionOptions
+    }: ConnectionConfiguration
   ): Promise<DataService> {
     try {
       const existingDataService =
@@ -182,7 +183,9 @@ export class ConnectionsManager extends EventEmitter {
 
       const connectionInfo = merge(
         cloneDeep({ id: connectionId, ...originalConnectionInfo }),
-        this.oidcState.get(connectionId) ?? {}
+        {
+          connectionOptions: this.oidcState.get(connectionId) ?? {},
+        }
       ) as ConnectionInfo;
 
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
