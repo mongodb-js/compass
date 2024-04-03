@@ -47,7 +47,7 @@ function canceledPromiseSetup(
   };
 }
 
-describe.only('ConnectionsManager', function () {
+describe('ConnectionsManager', function () {
   const mockDataService = (id: number) => {
     const eventEmitter = new EventEmitter();
     return {
