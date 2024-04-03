@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { createConnectionAttempt } from 'mongodb-data-service';
-import ConnectionString from 'mongodb-connection-string-url';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
@@ -136,7 +135,7 @@ export class ConnectionsManager extends EventEmitter {
    * parameters such as appName.
    */
   async connect(
-    originalConnectionInfo: ConnectionInfo,
+    { id: connectionId, ...originalConnectionInfo }: ConnectionInfo,
     {
       appName,
       forceConnectionOptions,
@@ -152,20 +151,19 @@ export class ConnectionsManager extends EventEmitter {
     }
   ): Promise<DataService> {
     try {
-      const existingDataService = this.getDataServiceForConnection(
-        originalConnectionInfo.id
-      );
+      const existingDataService =
+        this.getDataServiceForConnection(connectionId);
 
       if (
         existingDataService &&
-        this.statusOf(originalConnectionInfo.id) === ConnectionStatus.Connected
+        this.statusOf(connectionId) === ConnectionStatus.Connected
       ) {
         return existingDataService;
       }
 
       const connectionInfo = merge(
-        cloneDeep(originalConnectionInfo),
-        this.oidcState.get(originalConnectionInfo.id) ?? {}
+        cloneDeep({ id: connectionId, ...originalConnectionInfo }),
+        this.oidcState.get(connectionId) ?? {}
       ) as ConnectionInfo;
 
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
@@ -184,25 +182,21 @@ export class ConnectionsManager extends EventEmitter {
       );
 
       this.updateAndNotifyConnectionStatus(
-        adjustedConnectionInfoForConnection.id,
+        connectionId,
         ConnectionsManagerEvents.ConnectionAttemptStarted,
-        [adjustedConnectionInfoForConnection.id]
+        [connectionId]
       );
       const connectionAttempt = createConnectionAttempt({
         logger: this.logger,
         connectFn: this.__TEST_CONNECT_FN,
       });
-      this.connectionAttempts.set(
-        adjustedConnectionInfoForConnection.id,
-        connectionAttempt
-      );
+      this.connectionAttempts.set(connectionId, connectionAttempt);
 
       const dataService = await connectionAttempt.connect(
         adjustedConnectionInfoForConnection.connectionOptions
       );
 
       if (!dataService || connectionAttempt.isClosed()) {
-        console.log('wtf');
         throw new Error(CONNECTION_CANCELED_ERR);
       }
 
@@ -217,31 +211,28 @@ export class ConnectionsManager extends EventEmitter {
         dataService.addReauthenticationHandler(this.reAuthenticationHandler);
       }
 
-      this.connectionAttempts.delete(adjustedConnectionInfoForConnection.id);
-      this.dataServices.set(
-        adjustedConnectionInfoForConnection.id,
-        dataService
-      );
+      this.connectionAttempts.delete(connectionId);
+      this.dataServices.set(connectionId, dataService);
 
       this.updateAndNotifyConnectionStatus(
-        adjustedConnectionInfoForConnection.id,
+        connectionId,
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-        [adjustedConnectionInfoForConnection.id, dataService]
+        [connectionId, dataService]
       );
 
       return dataService;
     } catch (error) {
       if ((error as Error).message === CONNECTION_CANCELED_ERR) {
         this.updateAndNotifyConnectionStatus(
-          originalConnectionInfo.id,
+          connectionId,
           ConnectionsManagerEvents.ConnectionAttemptCancelled,
-          [originalConnectionInfo.id]
+          [connectionId]
         );
       } else {
         this.updateAndNotifyConnectionStatus(
-          originalConnectionInfo.id,
+          connectionId,
           ConnectionsManagerEvents.ConnectionAttemptFailed,
-          [originalConnectionInfo.id, error]
+          [connectionId, error]
         );
       }
       throw error;

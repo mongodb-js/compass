@@ -1,6 +1,6 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionRepository } from './use-connection-repository';
-import chai, { expect } from 'chai';
+import { expect } from 'chai';
 import { stub } from 'sinon';
 import {
   type ConnectionStorage,

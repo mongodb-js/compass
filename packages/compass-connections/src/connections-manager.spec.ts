@@ -80,7 +80,6 @@ describe('ConnectionsManager', function () {
   const appName = 'Test+App+Name';
   const forceConnectionOptions = [];
   const browserCommandForOIDCAuth = undefined;
-  let onNotifyOIDCDeviceFlowSpy = sinon.spy();
   let onDatabaseSecretsChangeSpy = sinon.spy();
 
   function getConnectionConfigurationOptions({
@@ -100,7 +99,6 @@ describe('ConnectionsManager', function () {
   }
 
   beforeEach(function () {
-    onNotifyOIDCDeviceFlowSpy = sinon.spy();
     onDatabaseSecretsChangeSpy = sinon.spy();
 
     mockConnectFn = sinon.stub().callsFake(({ connectionOptions }) => {
