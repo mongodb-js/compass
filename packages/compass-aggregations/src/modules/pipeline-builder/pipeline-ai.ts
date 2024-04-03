@@ -207,10 +207,14 @@ export const runAIPipelineGeneration = (
       dataService: { dataService },
     } = getState();
 
+    const provideSampleDocuments =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
+
     const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
     track('AI Prompt Submitted', () => ({
       editor_view_type,
       user_input_length: userInput.length,
+      has_sample_documents: provideSampleDocuments,
     }));
 
     if (aiPipelineFetchId !== -1) {
@@ -253,7 +257,12 @@ export const runAIPipelineGeneration = (
         collectionName,
         databaseName,
         schema,
-        // sampleDocuments, // For now we are not passing sample documents to the ai.
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
       });
     } catch (err: any) {
       if (signal.aborted) {

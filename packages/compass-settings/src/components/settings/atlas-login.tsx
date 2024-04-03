@@ -15,6 +15,7 @@ import {
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
 import { signIn, signOut } from '../../stores/atlas-login';
+import { SettingsList } from './settings-list';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -66,70 +67,78 @@ export const AtlasLoginSettings: React.FunctionComponent<{
   const isSignedIn = userLogin !== null;
 
   return (
-    <KeylineCard className={atlasLoginKeylineCardStyles}>
-      <div
-        className={cx(
-          atlasLoginHeaderStyles,
-          darkMode && atlasLoginHeaderDarkModeStyles
-        )}
-      >
-        <Subtitle className={atlasLoginHeadingTitleStyles}>
-          <Icon glyph="Sparkle" />
-          <span>Use Generative AI</span>
-        </Subtitle>
-        <div className={atlasLoginControlsStyles}>
-          {isSignedIn && (
-            <Button
-              type="button"
-              variant="dangerOutline"
-              size="small"
-              onClick={onSignOutClick}
-              disabled={isSignInInProgress}
-            >
-              Disconnect
-            </Button>
-          )}
-          {!isSignedIn && (
-            <Button
-              type="button"
-              variant="primary"
-              size="small"
-              leftGlyph={<Icon glyph="OpenNewTab"></Icon>}
-              onClick={onSignInClick}
-              disabled={isSignInInProgress}
-            >
-              Log in with Atlas
-              {isSignInInProgress && (
-                <>
-                  &nbsp;<SpinLoader></SpinLoader>
-                </>
-              )}
-            </Button>
-          )}
-        </div>
+    <>
+      <KeylineCard className={atlasLoginKeylineCardStyles}>
         <div
-          className={atlasLoginHeaderDescriptionStyles}
-          data-testid="atlas-login-status"
-        >
-          {isSignedIn ? (
-            <>Logged in with Atlas account {userLogin}</>
-          ) : (
-            <>
-              This is a feature powered by generative AI, and may give
-              inaccurate responses. Please see our{' '}
-              <Link
-                hideExternalIcon={false}
-                href={GEN_AI_FAQ_LINK}
-                target="_blank"
-              >
-                FAQ
-              </Link>{' '}
-              for more information.
-            </>
+          className={cx(
+            atlasLoginHeaderStyles,
+            darkMode && atlasLoginHeaderDarkModeStyles
           )}
+        >
+          <Subtitle className={atlasLoginHeadingTitleStyles}>
+            <Icon glyph="Sparkle" />
+            <span>Use Generative AI</span>
+          </Subtitle>
+          <div className={atlasLoginControlsStyles}>
+            {isSignedIn && (
+              <Button
+                type="button"
+                variant="dangerOutline"
+                size="small"
+                onClick={onSignOutClick}
+                disabled={isSignInInProgress}
+              >
+                Disconnect
+              </Button>
+            )}
+            {!isSignedIn && (
+              <Button
+                type="button"
+                variant="primary"
+                size="small"
+                leftGlyph={<Icon glyph="OpenNewTab"></Icon>}
+                onClick={onSignInClick}
+                disabled={isSignInInProgress}
+              >
+                Log in with Atlas
+                {isSignInInProgress && (
+                  <>
+                    &nbsp;<SpinLoader></SpinLoader>
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+          <div
+            className={atlasLoginHeaderDescriptionStyles}
+            data-testid="atlas-login-status"
+          >
+            {isSignedIn ? (
+              <>Logged in with Atlas account {userLogin}</>
+            ) : (
+              <>
+                This is a feature powered by generative AI, and may give
+                inaccurate responses. Please see our{' '}
+                <Link
+                  hideExternalIcon={false}
+                  href={GEN_AI_FAQ_LINK}
+                  target="_blank"
+                >
+                  FAQ
+                </Link>{' '}
+                for more information.
+              </>
+            )}
+          </div>
         </div>
+      </KeylineCard>
+      {/* TODO(COMPASS-7756): Update where this is displayed. 
+      https://github.com/mongodb-js/compass/pull/5633
+    */}
+      <div>
+        <SettingsList fields={['enableGenAISampleDocumentPassing']} />
       </div>
-    </KeylineCard>
+    </>
   );
 };
 

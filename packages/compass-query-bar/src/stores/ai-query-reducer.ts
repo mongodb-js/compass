@@ -152,9 +152,13 @@ export const runAIQuery = (
       logger: { log, track },
     }
   ) => {
+    const provideSampleDocuments =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
+
     track('AI Prompt Submitted', () => ({
       editor_view_type: 'find',
       user_input_length: userInput.length,
+      has_sample_documents: provideSampleDocuments,
     }));
 
     const {
@@ -201,7 +205,12 @@ export const runAIQuery = (
         collectionName,
         databaseName,
         schema,
-        // sampleDocuments, // For now we are not passing sample documents to the ai.
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
       });
     } catch (err: any) {
       if (signal.aborted) {

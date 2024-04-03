@@ -54,6 +54,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
+    enableGenAISampleDocumentPassing: boolean;
     enableHackoladeBanner: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
@@ -703,6 +704,19 @@ export const storedUserPreferencesProps: Required<{
         'Enable preview input limit and collation options in aggregation view',
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableGenAISampleDocumentPassing: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Enable sending sample field values with query and aggregation generation requests.',
+      long: 'Supplying sample field values improves the results from the AI.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 
