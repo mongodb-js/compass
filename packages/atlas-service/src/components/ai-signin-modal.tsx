@@ -27,7 +27,7 @@ type SignInModalProps = {
 };
 
 const titleStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -36,7 +36,7 @@ const titleStyles = css({
 // For whatever reason leafygreen marketing modal doesn't have the same spacing
 // between image and title in dark mode
 const titleDarkModeStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[600],
 });
 
 const descriptionDarkModeStyles = css({
@@ -47,15 +47,15 @@ const descriptionDarkModeStyles = css({
 });
 
 const paragraphStyles = css({
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const disclaimer = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const previewBadgeStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
