@@ -245,15 +245,7 @@ const CompassWeb = ({
     const connectionsManagerCurrent = connectionsManager.current;
     void (async () => {
       try {
-        await connectionsManagerCurrent.connect(connectionInfo, {
-          forceConnectionOptions: [],
-          onDatabaseSecretsChange() {
-            // noop
-          },
-          onNotifyOIDCDeviceFlow() {
-            // noop
-          },
-        });
+        await connectionsManagerCurrent.connect(connectionInfo, {});
         setConnected(true);
       } catch (err) {
         setConnectionError(err);

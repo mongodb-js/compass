@@ -13,15 +13,6 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { cloneDeep, merge } from 'lodash';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 
-export function isOIDCAuth(connectionString: string): boolean {
-  const authMechanismString = (
-    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
-    ''
-  ).toUpperCase();
-
-  return authMechanismString === 'MONGODB-OIDC';
-}
-
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
 
@@ -154,10 +145,10 @@ export class ConnectionsManager extends EventEmitter {
       onDatabaseSecretsChange,
     }: {
       appName?: string;
-      forceConnectionOptions: [key: string, value: string][];
+      forceConnectionOptions?: [key: string, value: string][];
       browserCommandForOIDCAuth?: string;
-      onNotifyOIDCDeviceFlow: OnNotifyOIDCDeviceFlow;
-      onDatabaseSecretsChange: OnDatabaseSecretsChangedCallback;
+      onNotifyOIDCDeviceFlow?: OnNotifyOIDCDeviceFlow;
+      onDatabaseSecretsChange?: OnDatabaseSecretsChangedCallback;
     }
   ): Promise<DataService> {
     try {
@@ -177,23 +168,17 @@ export class ConnectionsManager extends EventEmitter {
         this.oidcState.get(originalConnectionInfo.id) ?? {}
       ) as ConnectionInfo;
 
-      const isOIDCConnectionAttempt = isOIDCAuth(
-        connectionInfo.connectionOptions.connectionString
-      );
-
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
         cloneDeep(connectionInfo),
         {
           connectionOptions: adjustConnectionOptionsBeforeConnect({
             connectionOptions: connectionInfo.connectionOptions,
             defaultAppName: appName,
-            preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
-            notifyDeviceFlow: !isOIDCConnectionAttempt
-              ? undefined
-              : onNotifyOIDCDeviceFlow ??
-                (() => {
-                  return;
-                }),
+            preferences: {
+              forceConnectionOptions: forceConnectionOptions ?? [],
+              browserCommandForOIDCAuth,
+            },
+            notifyDeviceFlow: onNotifyOIDCDeviceFlow,
           }),
         }
       );
@@ -217,8 +202,16 @@ export class ConnectionsManager extends EventEmitter {
       );
 
       if (!dataService || connectionAttempt.isClosed()) {
+        console.log('wtf');
         throw new Error(CONNECTION_CANCELED_ERR);
       }
+
+      dataService.on?.('connectionInfoSecretsChanged', () => {
+        onDatabaseSecretsChange?.(
+          adjustedConnectionInfoForConnection,
+          dataService
+        );
+      });
 
       if (this.reAuthenticationHandler) {
         dataService.addReauthenticationHandler(this.reAuthenticationHandler);
@@ -235,13 +228,6 @@ export class ConnectionsManager extends EventEmitter {
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
         [adjustedConnectionInfoForConnection.id, dataService]
       );
-
-      dataService.on?.('connectionInfoSecretsChanged', () => {
-        onDatabaseSecretsChange(
-          adjustedConnectionInfoForConnection,
-          dataService
-        );
-      });
 
       return dataService;
     } catch (error) {

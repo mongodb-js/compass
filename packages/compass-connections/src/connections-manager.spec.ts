@@ -83,13 +83,19 @@ describe('ConnectionsManager', function () {
   let onNotifyOIDCDeviceFlowSpy = sinon.spy();
   let onDatabaseSecretsChangeSpy = sinon.spy();
 
-  function getConnectionConfigurationOptions() {
+  function getConnectionConfigurationOptions({
+    onNotifyOIDCDeviceFlow,
+    onDatabaseSecretsChange,
+  }: {
+    onNotifyOIDCDeviceFlow?: ReturnType<typeof sinon.spy>;
+    onDatabaseSecretsChange?: ReturnType<typeof sinon.spy>;
+  } = {}) {
     return {
       appName,
       forceConnectionOptions,
       browserCommandForOIDCAuth,
-      onNotifyOIDCDeviceFlow: onNotifyOIDCDeviceFlowSpy,
-      onDatabaseSecretsChange: onDatabaseSecretsChangeSpy,
+      onNotifyOIDCDeviceFlow,
+      onDatabaseSecretsChange,
     };
   }
 
@@ -626,7 +632,9 @@ describe('ConnectionsManager', function () {
 
       await connectionsManager.connect(
         oidcConnectionInfo,
-        getConnectionConfigurationOptions()
+        getConnectionConfigurationOptions({
+          onDatabaseSecretsChange: onDatabaseSecretsChangeSpy,
+        })
       );
 
       connectedDataService1.emit('connectionInfoSecretsChanged');

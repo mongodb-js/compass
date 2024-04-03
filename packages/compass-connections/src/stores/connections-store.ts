@@ -2,14 +2,13 @@ import { type Dispatch, useCallback, useEffect, useReducer } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
-  isOIDCAuth,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -18,6 +17,15 @@ import { useConnectionRepository } from '../hooks/use-connection-repository';
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
+
+function isOIDCAuth(connectionString: string): boolean {
+  const authMechanismString = (
+    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
+    ''
+  ).toUpperCase();
+
+  return authMechanismString === 'MONGODB-OIDC';
+}
 
 type ConnectFn = typeof connect;
 
@@ -358,19 +366,19 @@ export function useConnections({
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
   const connect = async (
-    originalConnectionInfo: ConnectionInfo,
+    connectionInfo: ConnectionInfo,
     shouldSaveConnectionInfo = true
   ) => {
     const isOIDCConnectionAttempt = isOIDCAuth(
-      originalConnectionInfo.connectionOptions.connectionString
+      connectionInfo.connectionOptions.connectionString
     );
 
     try {
       dispatch({
         type: 'attempt-connect',
-        connectingConnectionId: originalConnectionInfo.id,
+        connectingConnectionId: connectionInfo.id,
         connectingStatusText: `Connecting to ${getConnectionTitle(
-          originalConnectionInfo
+          connectionInfo
         )}${
           isOIDCConnectionAttempt
             ? '. Go to the browser to complete authentication.'
@@ -378,8 +386,8 @@ export function useConnections({
         }`,
       });
 
-      onConnectionAttemptStarted(originalConnectionInfo);
-      debug('connecting with connectionInfo', originalConnectionInfo);
+      onConnectionAttemptStarted(connectionInfo);
+      debug('connecting with connectionInfo', connectionInfo);
       log.info(
         mongoLogId(1001000004),
         'Connection UI',
@@ -387,7 +395,7 @@ export function useConnections({
       );
 
       const newConnectionDataService = await connectionsManager.connect(
-        originalConnectionInfo,
+        connectionInfo,
         {
           appName,
           forceConnectionOptions,
@@ -405,7 +413,7 @@ export function useConnections({
       });
 
       void onConnectSuccess(
-        originalConnectionInfo,
+        connectionInfo,
         newConnectionDataService,
         shouldSaveConnectionInfo
       );
@@ -422,7 +430,7 @@ export function useConnections({
         return;
       }
 
-      onConnectionFailed(originalConnectionInfo, error as Error);
+      onConnectionFailed(connectionInfo, error as Error);
       log.error(
         mongoLogId(1_001_000_161),
         'Connection Store',

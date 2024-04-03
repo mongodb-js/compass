@@ -9,7 +9,6 @@ export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './stores/connections-store';
 export { useActiveConnections } from './hooks/use-active-connections';
-export { isOIDCAuth } from './connections-manager';
 
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
   null

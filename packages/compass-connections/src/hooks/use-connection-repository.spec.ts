@@ -11,9 +11,6 @@ import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provide
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { createElement } from 'react';
-import chaiAsPromised from 'chai-as-promised';
-
-chai.use(chaiAsPromised);
 
 describe('useConnectionRepository', function () {
   let renderHookWithContext: typeof renderHook;
@@ -291,14 +288,20 @@ describe('useConnectionRepository', function () {
       mockStorageWithConnections([]);
       const { result } = renderHookWithContext(() => useConnectionRepository());
 
-      await expect(
-        result.current.saveConnection({
+      try {
+        await result.current.saveConnection({
           id: '1',
           connectionOptions: { connectionString: 'mongo://table.row:8080' },
-        })
-      ).to.be.rejected;
+        });
 
-      expect(saveStub).to.not.have.been.calledOnce;
+        expect.fail('Expected saveConnection to throw an exception.');
+        expect(saveStub).to.not.have.been.calledOnce;
+      } catch (ex) {
+        expect(ex).to.have.property(
+          'message',
+          'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
+        );
+      }
     });
   });
 
