@@ -122,14 +122,23 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
         | undefined,
     };
 
+    // maxTimeMS defaults to null here because the aggregation options field's
+    // maxTimeMS defaults to empty and the preference defaults to undefined.
+    // We need a timeout on count because for timeseries estimatedCount() seems
+    // to just do a colscan and we need that timeout to be low compared to the
+    // aggregation one anyway. For aggregations it is less critical because we
+    // $limit to the first few records.
+    const countOptions = { ...options, maxTimeMS: 500 };
+    const aggregateOptions = { ...options };
+
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];
 
     dispatch(loadingInputDocuments());
 
     try {
       const data = await Promise.allSettled([
-        dataService.estimatedCount(ns, options),
-        dataService.aggregate(ns, exampleDocumentsPipeline, options),
+        dataService.estimatedCount(ns, countOptions),
+        dataService.aggregate(ns, exampleDocumentsPipeline, aggregateOptions),
       ]);
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;

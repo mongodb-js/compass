@@ -20,7 +20,6 @@ const pluginNames = [
   '@mongodb-js/compass-databases-collections',
   '@mongodb-js/compass-field-store',
   '@mongodb-js/compass-find-in-page',
-  '@mongodb-js/compass-home',
   '@mongodb-js/compass-import-export',
   '@mongodb-js/compass-query-bar',
   '@mongodb-js/compass-schema',
