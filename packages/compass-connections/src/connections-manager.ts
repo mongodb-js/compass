@@ -220,6 +220,10 @@ export class ConnectionsManager extends EventEmitter {
       }
 
       dataService.on?.('connectionInfoSecretsChanged', () => {
+        dataService.getUpdatedSecrets().then((secrets) => {
+          this.oidcState.set(connectionId, secrets);
+        });
+
         onDatabaseSecretsChange?.(
           adjustedConnectionInfoForConnection,
           dataService
