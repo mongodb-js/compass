@@ -2,7 +2,7 @@
 const express = require('express');
 const proxyMiddleware = require('express-http-proxy');
 const { once } = require('events');
-const { app: electronApp, BrowserWindow, session } = require('electron');
+const { app: electronApp, BrowserWindow, session, shell } = require('electron');
 
 const proxyWebServer = express();
 
@@ -151,4 +151,10 @@ electronApp.dock.hide();
 
 electronApp.on('window-all-closed', () => {
   // We want proxy to keep running even when all the windows are closed
+});
+
+electronApp.whenReady().then(() => {
+  if (process.env.OPEN_BROWSER !== 'false') {
+    shell.openExternal(`http://localhost:${PROXY_PORT}`);
+  }
 });
