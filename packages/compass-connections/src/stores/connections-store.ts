@@ -420,7 +420,7 @@ export function useConnections({
 
       debug(
         'connection attempt succeeded with connection info',
-        originalConnectionInfo
+        connectionInfo
       );
     } catch (error) {
       if ((error as Error).message === CONNECTION_CANCELED_ERR) {
