@@ -76,44 +76,56 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           darkMode && atlasLoginHeaderDarkModeStyles
         )}
       >
-        <div className={atlasLoginHeadingTitleStyles}>
-          <Icon glyph="Sparkle" />
-          <span>
-            You must log in with an Atlas account to use natural language
-            prompts.
-          </span>
-        </div>
-        <div className={atlasLoginControlsStyles}>
-          {isSignedIn && (
-            <Button
-              type="button"
-              variant="dangerOutline"
-              leftGlyph={<Icon glyph="LogOut"></Icon>}
-              size="small"
-              onClick={onSignOutClick}
-              disabled={isSignInInProgress}
-            >
-              Disconnect
-            </Button>
-          )}
-          {!isSignedIn && (
-            <Button
-              type="button"
-              variant="primary"
-              size="small"
-              leftGlyph={<Icon glyph="LogIn"></Icon>}
-              onClick={onSignInClick}
-              disabled={isSignInInProgress}
-            >
-              Log in with Atlas
-              {isSignInInProgress && (
-                <>
-                  &nbsp;<SpinLoader></SpinLoader>
-                </>
-              )}
-            </Button>
-          )}
-        </div>
+        {isSignedIn && (
+          <>
+            <div className={atlasLoginHeadingTitleStyles}>
+              <Icon glyph="Sparkle" />
+              <span>
+                You can create queries and aggregations with generative AI.
+              </span>
+            </div>
+            <div className={atlasLoginControlsStyles}>
+              <Button
+                type="button"
+                variant="dangerOutline"
+                leftGlyph={<Icon glyph="LogOut"></Icon>}
+                size="small"
+                onClick={onSignOutClick}
+                disabled={isSignInInProgress}
+              >
+                Disconnect
+              </Button>
+            </div>
+          </>
+        )}
+        {!isSignedIn && (
+          <>
+            <div className={atlasLoginHeadingTitleStyles}>
+              <Icon glyph="Sparkle" />
+              <span>
+                You must log in with an Atlas account to use natural language
+                prompts.
+              </span>
+            </div>
+            <div className={atlasLoginControlsStyles}>
+              <Button
+                type="button"
+                variant="primary"
+                size="small"
+                leftGlyph={<Icon glyph="LogIn"></Icon>}
+                onClick={onSignInClick}
+                disabled={isSignInInProgress}
+              >
+                Log in with Atlas
+                {isSignInInProgress && (
+                  <>
+                    &nbsp;<SpinLoader></SpinLoader>
+                  </>
+                )}
+              </Button>
+            </div>
+          </>
+        )}
         <div
           className={atlasLoginHeaderDescriptionStyles}
           data-testid="atlas-login-status"
