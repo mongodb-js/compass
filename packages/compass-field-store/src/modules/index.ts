@@ -1,13 +1,13 @@
 import type { Reducer } from 'redux';
 import { uniq, omit } from 'lodash';
-import type { SchemaField } from 'mongodb-schema';
+import parseSchema, { type Schema } from 'mongodb-schema';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
 
-export const CHANGE_FIELDS = 'field-store/CHANGE_FIELDS';
-export const REMOVE_CONNECTION_NAMESPACES =
-  'field-store/REMOVE_CONNECTION_NAMESPACES';
+export const CONNECTION_DISCONNECTED = 'field-store/CONNECTION_DISCONNECTED';
+export const DOCUMENTS_UPDATED = 'field-store/DOCUMENTS_UPDATED';
+export const SCHEMA_UPDATED = 'field-store/SCHEMA_UPDATED';
 
 type Namespace = string;
 
@@ -22,7 +22,7 @@ export type ConnectionNamespacesState = Record<
 >;
 
 const reducer: Reducer<ConnectionNamespacesState> = (state = {}, action) => {
-  if (action.type === CHANGE_FIELDS) {
+  if (action.type === DOCUMENTS_UPDATED || action.type === SCHEMA_UPDATED) {
     const currentConnectionNamespaces = state[action.connectionInfoId] ?? {};
     const currentNamespaceFields =
       currentConnectionNamespaces[action.namespace] ?? {};
@@ -45,27 +45,41 @@ const reducer: Reducer<ConnectionNamespacesState> = (state = {}, action) => {
         },
       },
     };
-  } else if (action.type === REMOVE_CONNECTION_NAMESPACES) {
+  } else if (action.type === CONNECTION_DISCONNECTED) {
     return omit(state, action.connectionInfoId);
   }
   return state;
 };
 
-export const changeFields = (
+export const documentsUpdated = async (
   connectionInfoId: ConnectionInfo['id'],
   namespace: string,
-  schemaFields: SchemaField[]
+  documents: Array<Record<string, any>>
+) => {
+  const { fields } = await parseSchema(documents);
+  return {
+    type: DOCUMENTS_UPDATED,
+    connectionInfoId,
+    namespace,
+    schemaFields: fields,
+  };
+};
+
+export const schemaUpdated = (
+  connectionInfoId: ConnectionInfo['id'],
+  namespace: string,
+  schema: Schema
 ) => ({
-  type: CHANGE_FIELDS,
+  type: SCHEMA_UPDATED,
   connectionInfoId,
   namespace,
-  schemaFields,
+  schemaFields: schema.fields,
 });
 
-export const removeConnectionNamespaces = (
+export const connectionDisconnected = (
   connectionInfoId: ConnectionInfo['id']
 ) => ({
-  type: REMOVE_CONNECTION_NAMESPACES,
+  type: CONNECTION_DISCONNECTED,
   connectionInfoId,
 });
 

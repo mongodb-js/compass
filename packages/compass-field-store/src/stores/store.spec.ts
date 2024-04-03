@@ -4,7 +4,10 @@ import { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import { type FieldStoreService, createFieldStoreService } from './context';
+import {
+  type FieldStoreService,
+  createFieldStoreService,
+} from './field-store-service';
 import type { Schema } from 'mongodb-schema';
 import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
 import {

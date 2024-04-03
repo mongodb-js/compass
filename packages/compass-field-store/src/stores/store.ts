@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import reducer, { removeConnectionNamespaces } from '../modules';
+import reducer, { connectionDisconnected } from '../modules';
 import { FieldStoreContext } from './context';
 import {
   ConnectionsManagerEvents,
@@ -17,7 +17,7 @@ export function activatePlugin(
     connectionsManager,
     ConnectionsManagerEvents.ConnectionDisconnected,
     (connectionInfoId: string) => {
-      store.dispatch(removeConnectionNamespaces(connectionInfoId));
+      store.dispatch(connectionDisconnected(connectionInfoId));
     }
   );
 

@@ -5,7 +5,8 @@ import { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import { useConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
-import { createFieldStoreService, useDispatch } from './stores/context';
+import { useDispatch } from './stores/context';
+import { createFieldStoreService } from './stores/field-store-service';
 
 export const useFieldStoreServiceForTests = () => {
   const dispatch = useDispatch();

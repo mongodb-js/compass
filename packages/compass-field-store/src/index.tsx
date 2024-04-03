@@ -19,10 +19,11 @@ const FieldStorePlugin = registerHadronPlugin(
   }
 );
 
+export { useAutocompleteFields, useFieldsSchema } from './stores/hooks';
+
 export {
   type FieldStoreService,
   fieldStoreServiceLocator,
-  useAutocompleteFields,
-  useFieldsSchema,
-} from './stores/context';
+} from './stores/field-store-service';
+
 export default FieldStorePlugin;
