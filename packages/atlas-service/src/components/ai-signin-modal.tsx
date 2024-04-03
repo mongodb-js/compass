@@ -9,7 +9,6 @@ import {
   MarketingModal,
   SpinLoader,
   css,
-  cx,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -31,19 +30,6 @@ const titleStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-});
-
-// For whatever reason leafygreen marketing modal doesn't have the same spacing
-// between image and title in dark mode
-const titleDarkModeStyles = css({
-  marginTop: spacing[600],
-});
-
-const descriptionDarkModeStyles = css({
-  // Same as above, adjusting dark mode that is for no good reason is different
-  // from light mode
-  marginLeft: -10,
-  marginRight: -10,
 });
 
 const paragraphStyles = css({
@@ -71,7 +57,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       darkMode={darkMode}
       graphic={<AISignInImageBanner></AISignInImageBanner>}
       title={
-        <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
+        <div className={titleStyles}>
           <Badge variant="blue" className={previewBadgeStyles}>
             Preview
           </Badge>
@@ -107,7 +93,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       linkText="Not now"
       onLinkClick={onSignInModalClose}
     >
-      <div className={cx(darkMode && descriptionDarkModeStyles)}>
+      <div>
         <Body className={paragraphStyles}>
           Atlas users can now quickly create queries and aggregations with
           MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
