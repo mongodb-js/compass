@@ -25,7 +25,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { getItemPaddingClass } from './utils';
+import { getItemPaddingStyles } from './utils';
 
 const iconStyles = css({
   flex: 'none',
@@ -77,8 +77,8 @@ export const ConnectionItem: React.FunctionComponent<
     );
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
 
-  const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isLegacy }),
+  const itemPaddingStyles = useMemo(
+    () => getItemPaddingStyles({ level, isLegacy }),
     [level, isLegacy]
   );
 
@@ -136,7 +136,10 @@ export const ConnectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
+        <ItemButtonWrapper
+          style={itemPaddingStyles}
+          className={itemButtonWrapper}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}

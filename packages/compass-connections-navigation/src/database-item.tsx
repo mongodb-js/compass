@@ -23,7 +23,7 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
-import { getItemPaddingClass } from './utils';
+import { getItemPaddingStyles } from './utils';
 
 const databaseItem = css({
   height: ROW_HEIGHT,
@@ -62,8 +62,8 @@ export const DatabaseItem: React.FunctionComponent<
 }) => {
   const [hoverProps, isHovered] = useHoverState();
 
-  const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isLegacy }),
+  const itemPaddingStyles = useMemo(
+    () => getItemPaddingStyles({ level, isLegacy }),
     [level, isLegacy]
   );
 
@@ -123,7 +123,10 @@ export const DatabaseItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
+        <ItemButtonWrapper
+          style={itemPaddingStyles}
+          className={itemButtonWrapper}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}

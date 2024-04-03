@@ -23,7 +23,7 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getItemPaddingClass } from './utils';
+import { getItemPaddingStyles } from './utils';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -73,8 +73,8 @@ export const CollectionItem: React.FunctionComponent<
   );
   const [hoverProps, isHovered] = useHoverState();
 
-  const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isLegacy }),
+  const itemPaddingStyles = useMemo(
+    () => getItemPaddingStyles({ level, isLegacy }),
     [level, isLegacy]
   );
 
@@ -169,7 +169,10 @@ export const CollectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={cx(itemButtonWrapper, itemPaddingClass)}>
+        <ItemButtonWrapper
+          style={itemPaddingStyles}
+          className={itemButtonWrapper}
+        >
           <CollectionIcon type={type} />
           <ItemLabel className={collectionItemLabel} title={name}>
             {name}

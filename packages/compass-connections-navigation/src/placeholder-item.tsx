@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { Placeholder, css, cx } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';
-import { getItemPaddingClass } from './utils';
+import { getItemPaddingStyles } from './utils';
 
 const placeholderItem = css({
   display: 'flex',
@@ -16,13 +16,16 @@ export const PlaceholderItem: React.FunctionComponent<{
   isLegacy?: boolean;
   style?: CSSProperties;
 }> = ({ level, style, isLegacy }) => {
-  const itemPaddingClass = useMemo(
-    () => getItemPaddingClass({ level, isPlaceholder: true, isLegacy }),
+  const itemPaddingStyles = useMemo(
+    () => getItemPaddingStyles({ level, isPlaceholder: true, isLegacy }),
     [level, isLegacy]
   );
 
   return (
-    <div className={cx(placeholderItem, itemPaddingClass)} style={style}>
+    <div
+      className={cx(placeholderItem)}
+      style={{ ...style, ...itemPaddingStyles }}
+    >
       <Placeholder />
     </div>
   );

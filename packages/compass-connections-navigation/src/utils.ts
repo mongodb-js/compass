@@ -1,6 +1,6 @@
 import { css, spacing } from '@mongodb-js/compass-components';
 
-export const getItemPaddingClass = ({
+export const getItemPaddingStyles = ({
   level,
   isPlaceholder,
   isLegacy,
@@ -31,5 +31,5 @@ export const getItemPaddingClass = ({
     paddingLeft += spacing[2];
   }
 
-  return css({ paddingLeft });
+  return { paddingLeft };
 };
