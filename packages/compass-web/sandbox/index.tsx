@@ -25,7 +25,10 @@ import {
   StoredConnectionsList,
   useConnectionsHistory,
 } from './stored-connections-history';
-import { AtlasClusterConnectionsList } from './atlas-cluster-connections';
+import {
+  AtlasClusterConnectionsList,
+  useAtlasClusterConnectionsList,
+} from './atlas-cluster-connections';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -68,6 +71,12 @@ const App = () => {
   const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const [connectionsHistory, updateConnectionsHistory] =
     useConnectionsHistory();
+  const {
+    signIn,
+    signInStatus,
+    signInError,
+    connections: atlasConnections,
+  } = useAtlasClusterConnectionsList();
   const [focused, setFocused] = useState(false);
   const [connectionString, setConnectionString] = useState('');
   const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
@@ -91,11 +100,16 @@ const App = () => {
   const onChangeConnectionString = useCallback((str: string) => {
     setConnectionString(str);
     setConnectionStringValidationResult(validateConnectionString(str));
-    const connectionInfo = {
-      id: str,
-      connectionOptions: { connectionString: str },
-    };
-    setConnectionInfo(connectionInfo);
+    setConnectionInfo((connectionInfo) => {
+      return {
+        ...connectionInfo,
+        id: connectionInfo?.id ?? str,
+        connectionOptions: {
+          ...connectionInfo?.connectionOptions,
+          connectionString: str,
+        },
+      };
+    });
   }, []);
 
   const onSelectFromList = useCallback((connectionInfo: ConnectionInfo) => {
@@ -105,16 +119,20 @@ const App = () => {
     setConnectionInfo(connectionInfo);
   }, []);
 
-  const onConnect = useCallback(() => {
-    // TODO: if using connection from history and this connection is atlas
-    // connection need to make sure that signed in
+  const onConnect = useCallback(async () => {
     if (canConnect) {
+      if (connectionInfo.atlasMetadata) {
+        await signIn();
+      }
+
       updateConnectionsHistory(connectionInfo);
       setOpenCompassWeb(true);
     }
-  }, [canConnect, connectionInfo, updateConnectionsHistory]);
+  }, [canConnect, connectionInfo, signIn, updateConnectionsHistory]);
 
   if (openCompassWeb && connectionInfo) {
+    const isAtlasConnection = !!connectionInfo.atlasMetadata;
+
     return (
       <Body as="div" className={sandboxContainerStyles}>
         <LoggerAndTelemetryProvider value={sandboxLogger}>
@@ -125,6 +143,11 @@ const App = () => {
                 initialCurrentTab ? [initialCurrentTab] : undefined
               }
               onActiveWorkspaceTabChange={updateCurrentTab}
+              initialPreferences={{
+                enablePerformanceAdvisorBanner: isAtlasConnection,
+                enableAtlasSearchIndexes: !isAtlasConnection,
+                maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
+              }}
             ></CompassWeb>
           </ErrorBoundary>
         </LoggerAndTelemetryProvider>
@@ -140,7 +163,7 @@ const App = () => {
             className={connectionFormStyles}
             onSubmit={(evt) => {
               evt.preventDefault();
-              onConnect();
+              void onConnect();
             }}
           >
             <TextArea
@@ -155,7 +178,7 @@ const App = () => {
               onKeyDown={(evt) => {
                 if (evt.key === 'Enter') {
                   evt.preventDefault();
-                  onConnect();
+                  void onConnect();
                 }
               }}
               onChange={(evt) => {
@@ -186,14 +209,20 @@ const App = () => {
               onConnectionClick={onSelectFromList}
               onConnectionDoubleClick={(connectionInfo) => {
                 onSelectFromList(connectionInfo);
-                onConnect();
+                void onConnect();
               }}
             ></StoredConnectionsList>
             <AtlasClusterConnectionsList
+              connections={atlasConnections}
               onConnectionClick={onSelectFromList}
               onConnectionDoubleClick={() => {
                 // No-op because you'd need to enter connection info first
                 // anyway
+              }}
+              signInStatus={signInStatus}
+              signInError={signInError}
+              onSignInClick={() => {
+                void signIn();
               }}
             ></AtlasClusterConnectionsList>
           </form>

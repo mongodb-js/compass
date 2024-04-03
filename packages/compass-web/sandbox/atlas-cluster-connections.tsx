@@ -9,13 +9,7 @@ type NdsCluster = {
   srvAddress: string;
 };
 
-export function AtlasClusterConnectionsList({
-  onConnectionClick,
-  onConnectionDoubleClick,
-}: {
-  onConnectionClick(connectionInfo: ConnectionInfo): void;
-  onConnectionDoubleClick(connectionInfo: ConnectionInfo): void;
-}) {
+export function useAtlasClusterConnectionsList() {
   const [signInStatus, setSignInStatus] = useState<
     'initial' | 'in-progress' | 'success' | 'error'
   >('initial');
@@ -63,6 +57,24 @@ export function AtlasClusterConnectionsList({
     }
   }, []);
 
+  return { signIn, signInStatus, signInError, groupId, connections };
+}
+
+export function AtlasClusterConnectionsList({
+  connections,
+  onConnectionClick,
+  onConnectionDoubleClick,
+  signInStatus,
+  signInError,
+  onSignInClick,
+}: {
+  connections: ConnectionInfo[];
+  onConnectionClick(connectionInfo: ConnectionInfo): void;
+  onConnectionDoubleClick(connectionInfo: ConnectionInfo): void;
+  signInStatus: string;
+  signInError: string | null;
+  onSignInClick(): void;
+}) {
   if (signInStatus === 'initial' || signInStatus === 'in-progress') {
     return (
       <Button
@@ -70,9 +82,7 @@ export function AtlasClusterConnectionsList({
         type="button"
         isLoading={signInStatus === 'in-progress'}
         loadingText="Logging in..."
-        onClick={() => {
-          void signIn();
-        }}
+        onClick={onSignInClick}
       >
         Log in to Atlas
       </Button>
