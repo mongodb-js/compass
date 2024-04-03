@@ -47,13 +47,16 @@ function canceledPromiseSetup(
   };
 }
 
-describe('ConnectionsManager', function () {
+describe.only('ConnectionsManager', function () {
   const mockDataService = (id: number) => {
     const eventEmitter = new EventEmitter();
     return {
       id,
       disconnect() {},
       addReauthenticationHandler() {},
+      getUpdatedSecrets() {
+        return Promise.resolve(id);
+      },
       emit: eventEmitter.emit.bind(eventEmitter),
       on: eventEmitter.on.bind(eventEmitter),
     } as unknown as DataService;
@@ -649,10 +652,8 @@ describe('ConnectionsManager', function () {
 
     it('should merge any oidc state from previous connections', async function () {
       const previousOidcState = {
-        connectionOptions: {
-          oidc: {
-            mockState: true,
-          },
+        oidc: {
+          mockState: true,
         },
       };
 

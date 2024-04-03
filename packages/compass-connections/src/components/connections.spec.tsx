@@ -106,7 +106,6 @@ describe('Connections Component', function () {
                 onConnected={onConnectedSpy}
                 onConnectionFailed={onConnectionFailedSpy}
                 onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                appName="Test App Name"
               />
             </ConnectionsManagerProvider>
           </ConnectionStorageContext.Provider>
@@ -205,7 +204,6 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
@@ -394,7 +392,6 @@ describe('Connections Component', function () {
                     onConnected={onConnectedSpy}
                     onConnectionFailed={onConnectionFailedSpy}
                     onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    appName="Test App Name"
                   />
                 </ToastArea>
               </ConnectionsManagerProvider>
@@ -529,7 +526,6 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
@@ -560,7 +556,6 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
@@ -587,7 +582,6 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  appName="Test App Name"
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
