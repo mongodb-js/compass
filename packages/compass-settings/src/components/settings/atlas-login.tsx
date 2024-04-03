@@ -43,7 +43,7 @@ const atlasLoginHeadingTitleStyles = css({
   display: 'flex',
   gap: spacing[1],
   gridArea: 'heading',
-  fontWeight: 700,
+  fontWeight: 'bold',
 });
 
 const atlasLoginControlsStyles = css({
@@ -55,7 +55,7 @@ const atlasLoginHeaderDescriptionStyles = css({
 });
 
 const atlasLoginEmailStyles = css({
-  fontWeight: 500,
+  fontWeight: 'bold',
 });
 
 export const AtlasLoginSettings: React.FunctionComponent<{
