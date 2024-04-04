@@ -1,16 +1,6 @@
-import {
-  createContext,
-  createElement,
-  useMemo,
-  useContext,
-  useRef,
-} from 'react';
-import { ConnectionRepository } from './connection-repository';
+import { createContext, useContext, useRef } from 'react';
 import type { ConnectionInfo, ConnectionStorage } from './renderer';
-import {
-  createServiceLocator,
-  createServiceProvider,
-} from 'hadron-app-registry';
+import { createServiceLocator } from 'hadron-app-registry';
 
 export const ConnectionStorageContext = createContext<
   typeof ConnectionStorage | null
@@ -38,38 +28,6 @@ export function useConnectionStorageContext() {
 export const connectionStorageLocator = createServiceLocator(
   useConnectionStorageContext,
   'connectionStorageLocator'
-);
-
-export const ConnectionRepositoryContext =
-  createContext<ConnectionRepository | null>(null);
-
-export const ConnectionRepositoryContextProvider: React.FunctionComponent<object> =
-  createServiceProvider(function ConnectionRepositoryContextProvider({
-    children,
-  }) {
-    const storage = connectionStorageLocator();
-    const value = useMemo(() => new ConnectionRepository(storage), [storage]);
-
-    return createElement(ConnectionRepositoryContext.Provider, {
-      value,
-      children,
-    });
-  });
-
-// TODO(COMPASS-7397): see above
-export function useConnectionRepositoryContext() {
-  const connectionRepository = useContext(ConnectionRepositoryContext);
-  if (!connectionRepository) {
-    throw new Error(
-      'Could not find the current ConnectionRepository. Did you forget to setup the ConnectionRepositoryContext?'
-    );
-  }
-  return connectionRepository;
-}
-
-export const connectionRepositoryLocator = createServiceLocator(
-  useConnectionRepositoryContext,
-  'connectionRepositoryLocator'
 );
 
 const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);

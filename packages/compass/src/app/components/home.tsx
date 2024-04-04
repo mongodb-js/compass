@@ -49,10 +49,7 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import {
-  ConnectionStorageContext,
-  ConnectionRepositoryContextProvider,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
@@ -176,6 +173,7 @@ function Home({
 
   const connectionsManager = useRef(
     new ConnectionsManager({
+      appName,
       logger: loggerAndTelemetry.log.unbound,
       reAuthenticationHandler: reauthenticationHandler,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
@@ -285,52 +283,49 @@ function Home({
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageContext.Provider value={connectionStorage}>
-        <ConnectionRepositoryContextProvider>
-          <ConnectionsManagerProvider value={connectionsManager.current}>
-            <CompassInstanceStorePlugin>
-              <ConnectionInfoProvider value={connectionInfo}>
-                {isConnected && connectionInfo && (
-                  <AppRegistryProvider
-                    key={connectionInfo.id}
-                    scopeName="Connected Application"
-                  >
-                    <FieldStorePlugin>
-                      <Workspace
-                        connectionInfo={connectionInfo}
-                        onActiveWorkspaceTabChange={onWorkspaceChange}
-                      />
-                    </FieldStorePlugin>
-                  </AppRegistryProvider>
-                )}
-              </ConnectionInfoProvider>
-            </CompassInstanceStorePlugin>
-            {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
+        <ConnectionsManagerProvider value={connectionsManager.current}>
+          <CompassInstanceStorePlugin>
+            <ConnectionInfoProvider value={connectionInfo}>
+              {isConnected && connectionInfo && (
+                <AppRegistryProvider
+                  key={connectionInfo.id}
+                  scopeName="Connected Application"
+                >
+                  <FieldStorePlugin>
+                    <Workspace
+                      connectionInfo={connectionInfo}
+                      onActiveWorkspaceTabChange={onWorkspaceChange}
+                    />
+                  </FieldStorePlugin>
+                </AppRegistryProvider>
+              )}
+            </ConnectionInfoProvider>
+          </CompassInstanceStorePlugin>
+          {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
             connected so that the connection import/export functionality can still
             be used through the application menu */}
-            <div
-              className={isConnected ? hiddenStyles : homeViewStyles}
-              data-hidden={isConnected}
-              data-testid="connections"
-            >
-              <div className={homePageStyles}>
-                <Connections
-                  appRegistry={appRegistry}
-                  onConnected={onConnected}
-                  onConnectionFailed={onConnectionFailed}
-                  onConnectionAttemptStarted={onConnectionAttemptStarted}
-                  appName={appName}
-                  getAutoConnectInfo={
-                    hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-                  }
-                />
-              </div>
+          <div
+            className={isConnected ? hiddenStyles : homeViewStyles}
+            data-hidden={isConnected}
+            data-testid="connections"
+          >
+            <div className={homePageStyles}>
+              <Connections
+                appRegistry={appRegistry}
+                onConnected={onConnected}
+                onConnectionFailed={onConnectionFailed}
+                onConnectionAttemptStarted={onConnectionAttemptStarted}
+                getAutoConnectInfo={
+                  hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+                }
+              />
             </div>
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            <CompassSettingsPlugin></CompassSettingsPlugin>
-            <CompassFindInPagePlugin></CompassFindInPagePlugin>
-            <AtlasAuthPlugin></AtlasAuthPlugin>
-          </ConnectionsManagerProvider>
-        </ConnectionRepositoryContextProvider>
+          </div>
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <CompassSettingsPlugin></CompassSettingsPlugin>
+          <CompassFindInPagePlugin></CompassFindInPagePlugin>
+          <AtlasAuthPlugin></AtlasAuthPlugin>
+        </ConnectionsManagerProvider>
       </ConnectionStorageContext.Provider>
     </FileInputBackendProvider>
   );

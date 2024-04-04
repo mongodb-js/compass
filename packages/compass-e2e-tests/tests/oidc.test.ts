@@ -331,8 +331,7 @@ describe('OIDC integration', function () {
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });
 
-  // TODO(COMPASS-7810): re-enable this test
-  it.skip('does not save tokens across connections for favorites if asked to do so', async function () {
+  it('does not save tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', false);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
