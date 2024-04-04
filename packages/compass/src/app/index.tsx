@@ -274,10 +274,6 @@ const app = {
     ipcRenderer?.on('app:refresh-data', () =>
       globalAppRegistry.emit('refresh-data')
     );
-    // Catch a toggle sidebar coming from window-manager.
-    ipcRenderer?.on('app:toggle-sidebar', () =>
-      globalAppRegistry.emit('toggle-sidebar')
-    );
     ipcRenderer?.on('window:menu-share-schema-json', () => {
       globalAppRegistry.emit('menu-share-schema-json');
     });

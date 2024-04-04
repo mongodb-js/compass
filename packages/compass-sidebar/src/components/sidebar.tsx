@@ -22,7 +22,6 @@ import NonGenuineMarker from './non-genuine-marker';
 import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import { setIsExpanded } from '../modules/is-expanded';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { RootState, SidebarThunkAction } from '../modules';
 
@@ -62,12 +61,10 @@ const navigationItemsContainerStyles = css({
 export function Sidebar({
   showConnectionInfo = true,
   activeWorkspace,
-  isExpanded,
   connectionInfo,
   updateAndSaveConnectionInfo,
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
-  setIsExpanded,
   setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
@@ -75,12 +72,10 @@ export function Sidebar({
 }: {
   showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
-  isExpanded: boolean;
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
-  setIsExpanded: (isExpanded: boolean) => void;
   setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
@@ -146,11 +141,6 @@ export function Sidebar({
         return;
       }
 
-      if (action === 'expand-sidebar') {
-        setIsExpanded(true);
-        return;
-      }
-
       onSidebarAction(action, ...rest);
     },
     [
@@ -158,7 +148,6 @@ export function Sidebar({
       openToast,
       maybeProtectConnectionString,
       connectionInfo.connectionOptions.connectionString,
-      setIsExpanded,
     ]
   );
 
@@ -174,9 +163,6 @@ export function Sidebar({
 
   return (
     <ResizableSidebar
-      collapsable={true}
-      expanded={isExpanded}
-      setExpanded={setIsExpanded}
       data-testid="navigation-sidebar"
       className={sidebarStyles}
     >
@@ -187,22 +173,17 @@ export function Sidebar({
               title={getConnectionTitle(connectionInfo)}
               isFavorite={!!connectionInfo.favorite}
               favoriteColor={connectionInfo.favorite?.color}
-              isExpanded={isExpanded}
               onAction={onAction}
             />
             <div className={connectionBadgesContainerStyles}>
-              {isExpanded && (
-                <NonGenuineMarker
-                  isGenuine={isGenuine}
-                  showNonGenuineModal={showNonGenuineModal}
-                />
-              )}
-              {isExpanded && (
-                <CSFLEMarker
-                  csfleMode={csfleMode}
-                  toggleCSFLEModalVisible={toggleCSFLEModalVisible}
-                />
-              )}
+              <NonGenuineMarker
+                isGenuine={isGenuine}
+                showNonGenuineModal={showNonGenuineModal}
+              />
+              <CSFLEMarker
+                csfleMode={csfleMode}
+                toggleCSFLEModalVisible={toggleCSFLEModalVisible}
+              />
             </div>
           </div>
         )}
@@ -211,7 +192,6 @@ export function Sidebar({
           <NavigationItems
             currentLocation={activeWorkspace?.type ?? null}
             currentNamespace={activeWorkspace?.namespace ?? null}
-            isExpanded={isExpanded}
             onAction={onAction}
           />
         </div>
@@ -242,7 +222,6 @@ export function Sidebar({
 }
 
 const mapStateToProps = (state: RootState) => ({
-  isExpanded: state.isExpanded,
   connectionInfo: state.connectionInfo.connectionInfo,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
   isGenuine: state.instance?.genuineMongoDB.isGenuine,
@@ -261,7 +240,6 @@ const onSidebarAction = (
 const MappedSidebar = connect(mapStateToProps, {
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
-  setIsExpanded,
   setConnectionIsCSFLEEnabled,
   onSidebarAction,
 })(Sidebar);

@@ -345,8 +345,6 @@ describe('CompassMenu', function () {
             { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
             { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
             { type: 'separator' },
-            { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
-            { type: 'separator' },
             { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
             { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
             { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
@@ -417,8 +415,6 @@ describe('CompassMenu', function () {
             submenu: [
               { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
               { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
-              { type: 'separator' },
-              { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
               { type: 'separator' },
               { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
               { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },

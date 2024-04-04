@@ -10,6 +10,7 @@ import {
 
 import GeneralSettings from './settings/general';
 import OIDCSettings from './settings/oidc-settings';
+import GenAISettings from './settings/gen-ai-settings';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import FeaturePreviewSettings, {
@@ -19,7 +20,10 @@ import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  useHasAIFeatureCloudRolloutAccess,
+} from 'compass-preferences-model/provider';
 
 type Settings = {
   name: string;
@@ -64,6 +68,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   hasChangedSettings,
 }) => {
   const aiFeatureEnabled = useIsAIFeatureEnabled();
+  const aiFeatureHasCloudRolloutAccess = useHasAIFeatureCloudRolloutAccess();
   const onMountRef = useRef(onMount);
 
   useEffect(() => {
@@ -84,6 +89,13 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.push({
       name: 'OIDC (Preview)',
       component: OIDCSettings,
+    });
+  }
+
+  if (aiFeatureHasCloudRolloutAccess) {
+    settings.push({
+      name: 'Artificial Intelligence',
+      component: GenAISettings,
     });
   }
 
