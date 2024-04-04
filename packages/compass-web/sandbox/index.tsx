@@ -148,6 +148,7 @@ const App = () => {
                 enableAtlasSearchIndexes: !isAtlasConnection,
                 maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
               }}
+              stackedElementsZIndex={5}
             ></CompassWeb>
           </ErrorBoundary>
         </LoggerAndTelemetryProvider>
