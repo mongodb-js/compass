@@ -84,7 +84,7 @@
     "@mongodb-js/my-queries-storage": "^0.5.1",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
-    "bson": "^6.5.0",
+    "bson": "^6.6.0",
     "compass-preferences-model": "^2.18.1",
     "ejson-shell-parser": "^2.0.1",
     "hadron-app-registry": "^9.1.8",
