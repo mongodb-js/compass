@@ -181,18 +181,14 @@ export class ConnectionsManager extends EventEmitter {
         return existingDataService;
       }
 
-      const connectionInfo = merge(
+      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
         cloneDeep({ id: connectionId, ...originalConnectionInfo }),
         {
-          connectionOptions: this.oidcState.get(connectionId) ?? {},
-        }
-      ) as ConnectionInfo;
-
-      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-        cloneDeep(connectionInfo),
-        {
           connectionOptions: adjustConnectionOptionsBeforeConnect({
-            connectionOptions: connectionInfo.connectionOptions,
+            connectionOptions: merge(
+              cloneDeep(originalConnectionInfo.connectionOptions),
+              this.oidcState.get(connectionId) ?? {}
+            ),
             defaultAppName: this.appName,
             preferences: {
               forceConnectionOptions: forceConnectionOptions ?? [],
