@@ -185,7 +185,7 @@ describe('AtlasAiService', function () {
               userInput: 'test',
               collectionName: 'test',
               databaseName: 'peanut',
-              sampleDocuments: [{ test: '4'.repeat(60000) }],
+              sampleDocuments: [{ test: '4'.repeat(600000) }],
             });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
@@ -211,7 +211,7 @@ describe('AtlasAiService', function () {
               { a: '1' },
               { a: '2' },
               { a: '3' },
-              { a: '4'.repeat(50000) },
+              { a: '4'.repeat(500000) },
             ],
           });
 
