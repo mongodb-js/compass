@@ -41,13 +41,13 @@ export function useConnectionsHistory() {
   const updateConnectionsHistory = useCallback(
     (connectionInfo: ConnectionInfo) => {
       setConnectionsHistory((history) => {
-        const existingIndex = history.findIndex((info) => {
+        const connectionExists = history.some((info) => {
           return (
             info.connectionOptions.connectionString ===
             connectionInfo.connectionOptions.connectionString
           );
         });
-        if (existingIndex !== -1) {
+        if (connectionExists) {
           return history;
         }
         const newHistory = [...history];
