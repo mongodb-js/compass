@@ -77,7 +77,6 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
 
-  const [isExpanded, setIsExpanded] = useState(true);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
 
   const onConnected = useCallback(
@@ -259,11 +258,7 @@ export function MultipleConnectionSidebar({
   );
 
   return (
-    <ResizableSidebar
-      expanded={isExpanded}
-      setExpanded={setIsExpanded}
-      data-testid="navigation-sidebar"
-    >
+    <ResizableSidebar data-testid="navigation-sidebar">
       <aside className={sidebarStyles}>
         <SidebarHeader />
         <ActiveConnectionList />

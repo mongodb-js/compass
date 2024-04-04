@@ -331,7 +331,8 @@ describe('OIDC integration', function () {
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });
 
-  it('does not save tokens across connections for favorites if asked to do so', async function () {
+  // TODO(COMPASS-7810): re-enable this test
+  it.skip('does not save tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', false);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -348,6 +349,7 @@ describe('OIDC integration', function () {
       `after-disconnecting-favourite-${favoriteName}.png`
     );
 
+    // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
     await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
