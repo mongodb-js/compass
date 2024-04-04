@@ -285,21 +285,21 @@ function Home({
       <ConnectionStorageContext.Provider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
-            <ConnectionInfoProvider value={connectionInfo}>
-              {isConnected && connectionInfo && (
-                <AppRegistryProvider
-                  key={connectionInfo.id}
-                  scopeName="Connected Application"
-                >
-                  <FieldStorePlugin>
+            <FieldStorePlugin>
+              <ConnectionInfoProvider value={connectionInfo}>
+                {isConnected && connectionInfo && (
+                  <AppRegistryProvider
+                    key={connectionInfo.id}
+                    scopeName="Connected Application"
+                  >
                     <Workspace
                       connectionInfo={connectionInfo}
                       onActiveWorkspaceTabChange={onWorkspaceChange}
                     />
-                  </FieldStorePlugin>
-                </AppRegistryProvider>
-              )}
-            </ConnectionInfoProvider>
+                  </AppRegistryProvider>
+                )}
+              </ConnectionInfoProvider>
+            </FieldStorePlugin>
           </CompassInstanceStorePlugin>
           {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
             connected so that the connection import/export functionality can still
