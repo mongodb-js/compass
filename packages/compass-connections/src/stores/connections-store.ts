@@ -4,30 +4,28 @@ import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
 } from '../provider';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import {
-  type ConnectionInfo,
-  type ConnectionRepository,
-  type PartialConnectionInfo,
-} from '@mongodb-js/connection-storage/main';
-import {
-  useConnectionRepositoryContext,
-  useConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-
-import ConnectionString from 'mongodb-connection-string-url';
-import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { UserPreferences } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionRepository } from '../hooks/use-connection-repository';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
+
+function isOIDCAuth(connectionString: string): boolean {
+  const authMechanismString = (
+    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
+    ''
+  ).toUpperCase();
+
+  return authMechanismString === 'MONGODB-OIDC';
+}
 
 type ConnectFn = typeof connect;
 
@@ -50,44 +48,24 @@ export function createNewConnectionInfo(): ConnectionInfo {
   };
 }
 
-function isOIDCAuth(connectionString: string): boolean {
-  const authMechanismString = (
-    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
-    ''
-  ).toUpperCase();
-
-  return authMechanismString === 'MONGODB-OIDC';
-}
-
 type State = {
   activeConnectionId?: string;
-  favoriteConnections: ConnectionInfo[];
-  recentConnections: ConnectionInfo[];
   activeConnectionInfo: ConnectionInfo;
   connectingConnectionId: string | null;
   connectingStatusText: string;
   connectionErrorMessage: string | null;
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
-  // Additional connection information that is merged with the connection info
-  // when connecting. This is useful for instances like OIDC sessions where we
-  // have a setting on the system for storing credentials.
-  // When the setting is on this `connectionMergeInfos` would have the session
-  // credential information and merge it before connecting.
-  connectionMergeInfos: Record<string, RecursivePartial<ConnectionInfo>>;
 };
 
 export function defaultConnectionsState(): State {
   return {
-    favoriteConnections: [],
-    recentConnections: [],
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
     connectingConnectionId: null,
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
     oidcDeviceAuthUserCode: null,
-    connectionMergeInfos: {},
   };
 }
 
@@ -119,16 +97,6 @@ type Action =
   | {
       type: 'set-active-connection';
       connectionInfo: ConnectionInfo;
-    }
-  | {
-      type: 'set-connections';
-      favoriteConnections: ConnectionInfo[];
-      recentConnections: ConnectionInfo[];
-    }
-  | {
-      type: 'add-connection-merge-info';
-      id: string;
-      mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -180,72 +148,8 @@ export function connectionsReducer(state: State, action: Action): State {
         activeConnectionInfo: action.connectionInfo,
         connectionErrorMessage: null,
       };
-    case 'set-connections':
-      return {
-        ...state,
-        favoriteConnections: action.favoriteConnections,
-        recentConnections: action.recentConnections,
-        connectionErrorMessage: null,
-      };
-    case 'add-connection-merge-info':
-      return {
-        ...state,
-        connectionMergeInfos: {
-          ...state.connectionMergeInfos,
-          [action.id]: merge(
-            cloneDeep(state.connectionMergeInfos[action.id]),
-            action.mergeConnectionInfo
-          ),
-        },
-      };
     default:
       return state;
-  }
-}
-
-async function loadConnections(
-  dispatch: Dispatch<{
-    type: 'set-connections';
-    favoriteConnections: ConnectionInfo[];
-    recentConnections: ConnectionInfo[];
-  }>,
-  connectionRepository: ConnectionRepository,
-  { persistOIDCTokens }: Pick<UserPreferences, 'persistOIDCTokens'>
-) {
-  try {
-    const [favoriteConnections, recentConnections] = await Promise.all([
-      connectionRepository.listFavoriteConnections(),
-      connectionRepository.listNonFavoriteConnections
-        ? connectionRepository.listNonFavoriteConnections?.()
-        : Promise.resolve([]),
-    ]);
-
-    const toBeReSaved: ConnectionInfo[] = [];
-    // Scrub OIDC tokens from connections when the option to store them has been disabled
-    if (!persistOIDCTokens) {
-      const loadedConnections = [...favoriteConnections, ...recentConnections];
-
-      for (const connection of loadedConnections) {
-        if (connection.connectionOptions.oidc?.serializedState) {
-          delete connection.connectionOptions.oidc?.serializedState;
-          toBeReSaved.push(connection);
-        }
-      }
-    }
-
-    dispatch({
-      type: 'set-connections',
-      favoriteConnections: favoriteConnections,
-      recentConnections: recentConnections,
-    });
-
-    await Promise.all(
-      toBeReSaved.map(async (connectionInfo) => {
-        await connectionRepository.saveConnection?.(connectionInfo);
-      })
-    );
-  } catch (error) {
-    debug('error loading connections', error);
   }
 }
 
@@ -253,7 +157,6 @@ export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  appName,
   getAutoConnectInfo,
 }: {
   onConnected: (
@@ -266,7 +169,6 @@ export function useConnections({
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  appName: string;
 }): {
   state: State;
   recentConnections: ConnectionInfo[];
@@ -283,9 +185,13 @@ export function useConnections({
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
-  const connectionRepository = useConnectionRepositoryContext();
   const connectionsManager = useConnectionsManagerContext();
-  const connectionStorage = useConnectionStorageContext();
+  const {
+    favoriteConnections,
+    nonFavoriteConnections: recentConnections,
+    saveConnection,
+    deleteConnection,
+  } = useConnectionRepository();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -296,82 +202,85 @@ export function useConnections({
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { activeConnectionId, recentConnections, favoriteConnections } = state;
+  const { activeConnectionId } = state;
 
-  useEffect(() => {
-    function reloadConnections() {
-      void loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-    }
-
-    connectionStorage.events?.on(
-      ConnectionStorageEvents.ConnectionsChanged,
-      reloadConnections
-    );
-
-    return () => {
-      connectionStorage.events?.off(
-        ConnectionStorageEvents.ConnectionsChanged,
-        reloadConnections
-      );
-    };
-  });
-
-  async function saveConnectionInfo(
-    connectionInfo: PartialConnectionInfo
-  ): Promise<boolean> {
-    try {
-      if (connectionRepository.saveConnection) {
-        await connectionRepository.saveConnection?.(connectionInfo);
-        debug(`saved connection with id ${connectionInfo.id || ''}`);
-      } else {
+  const saveConnectionInfo = useCallback(
+    async (
+      connectionInfo: RecursivePartial<ConnectionInfo> &
+        Pick<ConnectionInfo, 'id'>
+    ) => {
+      try {
+        await saveConnection(connectionInfo);
+        return true;
+      } catch (err) {
         debug(
-          `current connection provider does not support saving connections`
+          `error saving connection with id ${connectionInfo.id || ''}: ${
+            (err as Error).message
+          }`
+        );
+
+        openToast('save-connection-error', {
+          title: 'Error',
+          variant: 'warning',
+          description: `An error occurred while saving the connection. ${
+            (err as Error).message
+          }`,
+        });
+
+        return false;
+      }
+    },
+    [openToast, saveConnection]
+  );
+
+  const removeConnection = useCallback(
+    async (connectionInfo: ConnectionInfo) => {
+      await deleteConnection(connectionInfo);
+
+      if (activeConnectionId === connectionInfo.id) {
+        const nextActiveConnection = createNewConnectionInfo();
+        dispatch({
+          type: 'set-active-connection',
+          connectionInfo: nextActiveConnection,
+        });
+      }
+    },
+    [activeConnectionId, deleteConnection, dispatch]
+  );
+
+  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
+    (deviceFlowInformation: { verificationUrl: string; userCode: string }) => {
+      dispatch({
+        type: 'oidc-attempt-connect-notify-device-auth',
+        verificationUrl: deviceFlowInformation.verificationUrl,
+        userCode: deviceFlowInformation.userCode,
+      });
+    },
+    [dispatch]
+  );
+
+  const oidcUpdateSecrets = useCallback(
+    async (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      try {
+        if (!persistOIDCTokens) return;
+
+        const mergeConnectionInfo = {
+          id: connectionInfo.id,
+          connectionOptions: await dataService.getUpdatedSecrets(),
+        };
+
+        await saveConnectionInfo(mergeConnectionInfo);
+      } catch (err: any) {
+        log.warn(
+          mongoLogId(1_001_000_195),
+          'Connection Store',
+          'Failed to update connection store with updated secrets',
+          { err: err?.stack }
         );
       }
-
-      return true;
-    } catch (err) {
-      debug(
-        `error saving connection with id ${connectionInfo.id || ''}: ${
-          (err as Error).message
-        }`
-      );
-
-      openToast('save-connection-error', {
-        title: 'Error',
-        variant: 'warning',
-        description: `An error occurred while saving the connection. ${
-          (err as Error).message
-        }`,
-      });
-
-      return false;
-    }
-  }
-
-  async function removeConnection(connectionInfo: ConnectionInfo) {
-    if (!connectionRepository.deleteConnection) {
-      debug(
-        'current connection provider does not support deleting connections'
-      );
-      return;
-    }
-
-    await connectionRepository.deleteConnection(connectionInfo);
-    await loadConnections(dispatch, connectionRepository, {
-      persistOIDCTokens,
-    });
-
-    if (activeConnectionId === connectionInfo.id) {
-      const nextActiveConnection = createNewConnectionInfo();
-      dispatch({
-        type: 'set-active-connection',
-        connectionInfo: nextActiveConnection,
-      });
-    }
-  }
+    },
+    [persistOIDCTokens, saveConnectionInfo]
+  );
 
   const onConnectSuccess = useCallback(
     async (
@@ -390,44 +299,11 @@ export function useConnections({
           mergeConnectionInfo = {
             connectionOptions: await dataService.getUpdatedSecrets(),
           };
-          dispatch({
-            type: 'add-connection-merge-info',
-            id: connectionInfo.id,
-            mergeConnectionInfo,
-          });
         }
 
         await saveConnectionInfo({
           ...merge(connectionInfo, mergeConnectionInfo),
           lastUsed: new Date(),
-        });
-
-        // ?. because mocks in tests don't provide it
-        dataService.on?.('connectionInfoSecretsChanged', () => {
-          void (async () => {
-            try {
-              if (!persistOIDCTokens) return;
-              // Get updated secrets first (and not in parallel) so that the
-              // race condition window between load() and save() is as short as possible.
-              const mergeConnectionInfo = {
-                id: connectionInfo.id,
-                connectionOptions: await dataService.getUpdatedSecrets(),
-              };
-              dispatch({
-                type: 'add-connection-merge-info',
-                id: connectionInfo.id,
-                mergeConnectionInfo,
-              });
-              await saveConnectionInfo(mergeConnectionInfo);
-            } catch (err: any) {
-              log.warn(
-                mongoLogId(1_001_000_195),
-                'Connection Store',
-                'Failed to update connection store with updated secrets',
-                { err: err?.stack }
-              );
-            }
-          })();
         });
       } catch (err) {
         debug(
@@ -437,18 +313,11 @@ export function useConnections({
         );
       }
     },
-    [
-      onConnected,
-      connectionRepository,
-      saveConnectionInfo,
-      removeConnection,
-      persistOIDCTokens,
-    ]
+    [onConnected, saveConnectionInfo, persistOIDCTokens]
   );
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch, connectionRepository, { persistOIDCTokens });
     void connectWithAutoConnectInfoIfAvailable();
     async function connectWithAutoConnectInfoIfAvailable() {
       let connectionInfo: ConnectionInfo | undefined;
@@ -494,50 +363,15 @@ export function useConnections({
     };
   }, [getAutoConnectInfo, persistOIDCTokens]);
 
-  useEffectOnChange(() => {
-    if (!persistOIDCTokens)
-      void loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-  }, [persistOIDCTokens]);
-
   const connect = async (
-    originalConnectionInfo: ConnectionInfo,
+    connectionInfo: ConnectionInfo,
     shouldSaveConnectionInfo = true
   ) => {
+    const isOIDCConnectionAttempt = isOIDCAuth(
+      connectionInfo.connectionOptions.connectionString
+    );
+
     try {
-      const connectionInfo = merge(
-        cloneDeep(originalConnectionInfo),
-        state.connectionMergeInfos[originalConnectionInfo.id] ?? {}
-      );
-
-      const isOIDCConnectionAttempt = isOIDCAuth(
-        originalConnectionInfo.connectionOptions.connectionString
-      );
-
-      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-        cloneDeep(connectionInfo),
-        {
-          connectionOptions: adjustConnectionOptionsBeforeConnect({
-            connectionOptions: originalConnectionInfo.connectionOptions,
-            defaultAppName: appName,
-            preferences: { forceConnectionOptions, browserCommandForOIDCAuth },
-            notifyDeviceFlow: !isOIDCConnectionAttempt
-              ? undefined
-              : (deviceFlowInformation: {
-                  verificationUrl: string;
-                  userCode: string;
-                }) => {
-                  dispatch({
-                    type: 'oidc-attempt-connect-notify-device-auth',
-                    verificationUrl: deviceFlowInformation.verificationUrl,
-                    userCode: deviceFlowInformation.userCode,
-                  });
-                },
-          }),
-        }
-      );
-
       dispatch({
         type: 'attempt-connect',
         connectingConnectionId: connectionInfo.id,
@@ -559,8 +393,18 @@ export function useConnections({
       );
 
       const newConnectionDataService = await connectionsManager.connect(
-        adjustedConnectionInfoForConnection
+        connectionInfo,
+        {
+          forceConnectionOptions,
+          browserCommandForOIDCAuth,
+          onDatabaseSecretsChange: (
+            connectionInfo: ConnectionInfo,
+            dataService: DataService
+          ) => void oidcUpdateSecrets(connectionInfo, dataService),
+          onNotifyOIDCDeviceFlow: oidcAttemptConnectNotifyDeviceAuth,
+        }
       );
+
       dispatch({
         type: 'connection-attempt-succeeded',
       });
@@ -583,7 +427,7 @@ export function useConnections({
         return;
       }
 
-      onConnectionFailed(originalConnectionInfo, error as Error);
+      onConnectionFailed(connectionInfo, error as Error);
       log.error(
         mongoLogId(1_001_000_161),
         'Connection Store',
@@ -636,10 +480,6 @@ export function useConnections({
         return;
       }
 
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
-
       if (activeConnectionId === connectionInfo.id) {
         // Update the active connection if it's currently selected.
         dispatch({
@@ -673,11 +513,8 @@ export function useConnections({
         duplicate.favorite.name += ' (copy)';
       }
 
-      saveConnectionInfo(duplicate).then(
-        async () => {
-          await loadConnections(dispatch, connectionRepository, {
-            persistOIDCTokens,
-          });
+      void saveConnectionInfo(duplicate).then(
+        () => {
           dispatch({
             type: 'set-active-connection',
             connectionInfo: duplicate,
@@ -689,22 +526,9 @@ export function useConnections({
       );
     },
     async removeAllRecentsConnections() {
-      if (!connectionRepository.deleteConnection) {
-        debug(
-          'current connection provider does not support deleting connections'
-        );
-        return;
-      }
-
       await Promise.all(
-        recentConnections.map((info) =>
-          connectionRepository.deleteConnection?.(info)
-        )
+        recentConnections.map((info) => deleteConnection(info))
       );
-
-      await loadConnections(dispatch, connectionRepository, {
-        persistOIDCTokens,
-      });
     },
   };
 }

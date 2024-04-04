@@ -57,11 +57,10 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(function () {
       // Disconnect button is a good indicator that we are signed in
-      screen.getByText('Disconnect');
+      screen.getByText('Log Out');
     });
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
   });
 
   it('should sign out user when signed in and sign out is clicked', async function () {
@@ -72,7 +71,7 @@ describe('AtlasLoginSettings', function () {
     await store.dispatch(signIn());
 
     userEvent.click(
-      screen.getByRole('button', { name: /Disconnect/ }),
+      screen.getByRole('button', { name: /Log Out/ }),
       undefined,
       { skipPointerEventsCheck: true }
     );
@@ -107,11 +106,10 @@ describe('AtlasLoginSettings', function () {
 
     await waitFor(function () {
       // Disconnect button is a good indicator that we are signed in
-      screen.getByText('Disconnect');
+      screen.getByText('Log Out');
     });
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
   });
 
   it('resets sign in state on `signed-out` event', async function () {
@@ -125,8 +123,7 @@ describe('AtlasLoginSettings', function () {
 
     await store.dispatch(signIn());
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
 
     emitter.emit('signed-out');
 
@@ -153,8 +150,7 @@ describe('AtlasLoginSettings', function () {
 
     await store.dispatch(signIn());
 
-    expect(screen.getByText('Logged in with Atlas account user@mongodb.com')).to
-      .exist;
+    expect(screen.getByTestId('atlas-signed-in-successful')).to.exist;
 
     emitter.emit('token-refresh-failed');
 
