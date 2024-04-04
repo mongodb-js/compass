@@ -1,17 +1,13 @@
 import {
   Body,
   CompassComponentsProvider,
+  type FileInputBackend,
   FileInputBackendProvider,
-  createElectronFileInputBackend,
   css,
   cx,
   getScrollbarStyles,
   palette,
   resetGlobalCSS,
-  openToast,
-  ButtonVariant,
-  Button,
-  spacing,
   showConfirmation,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -30,10 +26,7 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type {
-  DataService,
-  ReauthenticationHandler,
-} from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
@@ -42,13 +35,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import updateTitle from '../modules/update-title';
+import updateTitle from '../utils/update-title';
 import Workspace from './workspace';
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
-} from '../modules/telemetry';
+} from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -63,14 +56,6 @@ import {
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let remote: typeof import('@electron/remote') | undefined;
-try {
-  remote = require('@electron/remote');
-} catch {
-  /* no electron, eg. mocha tests */
-}
 
 const homeViewStyles = css({
   display: 'flex',
@@ -112,17 +97,6 @@ const globalDarkThemeStyles = css({
   color: palette.white,
 });
 
-const restartPromptToastStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  div: {
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 'auto',
-    padding: spacing[1],
-  },
-});
-
 type State = {
   connectionInfo: ConnectionInfo | null;
   isConnected: boolean;
@@ -161,51 +135,49 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-  void hadronIpc.ipcRenderer?.call('window:show-collection-submenu', {
-    isReadOnly,
+async function reauthenticationHandler() {
+  const confirmed = await showConfirmation({
+    title: 'Authentication expired',
+    description:
+      'You need to re-authenticate to the database in order to continue.',
   });
+  if (!confirmed) {
+    throw new Error('Reauthentication declined by user');
+  }
 }
 
-function hideCollectionSubMenu() {
-  void hadronIpc.ipcRenderer?.call('window:hide-collection-submenu');
-}
-
-function notifyMainProcessOfDisconnect() {
-  void hadronIpc.ipcRenderer?.call('compass:disconnected');
-}
+export type HomeProps = {
+  appName: string;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  showWelcomeModal?: boolean;
+  createFileInputBackend: () => FileInputBackend;
+  onDisconnect: () => void;
+  showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
+  hideCollectionSubMenu: () => void;
+  showSettings: () => void;
+  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
+  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
+};
 
 function Home({
   appName,
   getAutoConnectInfo,
-  isWelcomeModalOpenByDefault = false,
+  showWelcomeModal = false,
+  createFileInputBackend,
+  onDisconnect,
+  showCollectionSubMenu,
+  hideCollectionSubMenu,
+  showSettings,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
-}: {
-  appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  isWelcomeModalOpenByDefault?: boolean;
-  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
-}): React.ReactElement | null {
+}: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
-
-  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
-    const confirmed = await showConfirmation({
-      title: 'Authentication expired',
-      description:
-        'You need to re-authenticate to the database in order to continue.',
-    });
-    if (!confirmed) {
-      throw new Error('Reauthentication declined by user');
-    }
-  });
 
   const connectionsManager = useRef(
     new ConnectionsManager({
       logger: loggerAndTelemetry.log.unbound,
-      reAuthenticationHandler: reauthenticationHandler.current,
+      reAuthenticationHandler: reauthenticationHandler,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
     })
   );
@@ -281,122 +253,37 @@ function Home({
         hideCollectionSubMenu();
       }
     },
-    [appName, connectionInfo]
+    [appName, connectionInfo, showCollectionSubMenu, hideCollectionSubMenu]
   );
 
   const onDataServiceDisconnected = useCallback(() => {
     if (!isConnected) {
       updateTitle(appName);
       hideCollectionSubMenu();
-      notifyMainProcessOfDisconnect();
+      onDisconnect();
     }
-  }, [appName, isConnected]);
+  }, [appName, isConnected, onDisconnect, hideCollectionSubMenu]);
 
   useLayoutEffect(onDataServiceDisconnected);
 
-  const electronFileInputBackendRef = useRef(
-    remote ? createElectronFileInputBackend(remote) : null
-  );
-
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(
-    isWelcomeModalOpenByDefault
-  );
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
   const closeWelcomeModal = useCallback(
-    (showSettings?: boolean) => {
-      function close() {
-        setIsWelcomeOpen(false);
-        if (showSettings) {
-          appRegistry.emit('open-compass-settings');
-        }
+    (showSettingsModal?: boolean) => {
+      setIsWelcomeOpen(false);
+      if (showSettingsModal) {
+        showSettings();
       }
-      void close();
     },
-    [setIsWelcomeOpen, appRegistry]
+    [setIsWelcomeOpen, showSettings]
   );
-
-  useEffect(() => {
-    function onAutoupdateStarted() {
-      openToast('update-download', {
-        variant: 'progress',
-        title: 'Compass update is in progress',
-      });
-    }
-    function onAutoupdateFailed() {
-      openToast('update-download', {
-        variant: 'warning',
-        title: 'Failed to download Compass update',
-        description: 'Downloading a newer Compass version failed',
-      });
-    }
-    function onAutoupdateSucess() {
-      openToast('update-download', {
-        variant: 'note',
-        title: 'Restart to start newer Compass version',
-        description: (
-          <div className={restartPromptToastStyles}>
-            <div>
-              Continuing to use Compass without restarting may cause some of the
-              features to not work as intended.
-            </div>
-            <div>
-              <Button
-                variant={ButtonVariant.Primary}
-                onClick={() => {
-                  void hadronIpc.ipcRenderer?.call(
-                    'autoupdate:update-download-restart-confirmed'
-                  );
-                }}
-              >
-                Restart Compass
-              </Button>
-            </div>
-          </div>
-        ),
-        dismissible: true,
-        onClose: () => {
-          void hadronIpc.ipcRenderer?.call(
-            'autoupdate:update-download-restart-dismissed'
-          );
-        },
-      });
-    }
-    hadronIpc.ipcRenderer?.on(
-      'autoupdate:update-download-in-progress',
-      onAutoupdateStarted
-    );
-    hadronIpc.ipcRenderer?.on(
-      'autoupdate:update-download-failed',
-      onAutoupdateFailed
-    );
-    hadronIpc.ipcRenderer?.on(
-      'autoupdate:update-download-success',
-      onAutoupdateSucess
-    );
-    return () => {
-      hadronIpc.ipcRenderer?.removeListener(
-        'autoupdate:update-download-in-progress',
-        onAutoupdateStarted
-      );
-      hadronIpc.ipcRenderer?.removeListener(
-        'autoupdate:update-download-failed',
-        onAutoupdateFailed
-      );
-      hadronIpc.ipcRenderer?.removeListener(
-        'autoupdate:update-download-success',
-        onAutoupdateSucess
-      );
-    };
-  }, []);
 
   const connectionStorage =
     __TEST_CONNECTION_STORAGE === undefined
       ? ConnectionStorage
       : __TEST_CONNECTION_STORAGE;
   return (
-    <FileInputBackendProvider
-      createFileInputBackend={electronFileInputBackendRef.current}
-    >
+    <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageContext.Provider value={connectionStorage}>
         <ConnectionRepositoryContextProvider>
           <ConnectionsManagerProvider value={connectionsManager.current}>
@@ -449,10 +336,8 @@ function Home({
   );
 }
 
-function ThemedHome(
-  props: React.ComponentProps<typeof Home>
-): ReturnType<typeof Home> {
-  const { track } = useLoggerAndTelemetry('COMPASS-HOME-UI');
+function ThemedHome(props: HomeProps): ReturnType<typeof Home> {
+  const { track } = useLoggerAndTelemetry('COMPASS-UI');
 
   return (
     <CompassComponentsProvider

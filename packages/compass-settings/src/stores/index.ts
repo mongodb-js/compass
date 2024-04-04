@@ -31,6 +31,7 @@ export type SettingsPluginServices = {
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
   atlasAuthService: AtlasAuthService;
+  globalAppRegistry: AppRegistry;
 };
 
 export function configureStore(
@@ -82,29 +83,22 @@ export type SettingsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
-const onActivated = (
-  _: unknown,
-  {
-    globalAppRegistry,
-    ...restOfServices
-  }: SettingsPluginServices & {
-    globalAppRegistry: Pick<AppRegistry, 'on' | 'removeListener'>;
-  }
-) => {
-  const store = configureStore(restOfServices);
+const onActivated = (_: unknown, services: SettingsPluginServices) => {
+  const store = configureStore(services);
+  const { globalAppRegistry } = services;
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());
   };
 
-  globalAppRegistry.on('open-compass-settings', onOpenSettings);
   ipcRenderer?.on('window:show-settings', onOpenSettings);
+  globalAppRegistry.on('open-compass-settings', onOpenSettings);
 
   return {
     store,
     deactivate() {
-      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
       ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
+      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
     },
   };
 };
