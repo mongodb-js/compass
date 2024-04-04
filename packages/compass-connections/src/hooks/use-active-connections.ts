@@ -8,7 +8,6 @@ import {
   areConnectionsEqual,
   useConnectionRepository,
 } from './use-connection-repository';
-import { useEffectOnChange } from '@mongodb-js/compass-components';
 
 export function useActiveConnections(): ConnectionInfo[] {
   // TODO(COMPASS-7397): services should not be used directly in render method,
