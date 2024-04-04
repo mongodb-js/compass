@@ -60,7 +60,6 @@ export const defaultSidebarWidth = spacing[6] * 4;
 const ResizableSidebar = ({
   initialWidth = defaultSidebarWidth,
   minWidth = 210,
-  // TODO: maxWidth
   children,
   className,
   style,
