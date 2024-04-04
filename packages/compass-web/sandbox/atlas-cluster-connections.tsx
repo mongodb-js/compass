@@ -9,10 +9,24 @@ type NdsCluster = {
   srvAddress: string;
 };
 
-export function useAtlasClusterConnectionsList() {
-  const [signInStatus, setSignInStatus] = useState<
-    'initial' | 'in-progress' | 'success' | 'error'
-  >('initial');
+type SignInStatus = 'initial' | 'in-progress' | 'success' | 'error';
+
+type AtlasClusterConnectionsListReturnValue = (
+  | { signInStatus: 'initial'; signInError: null; groupId: null }
+  | {
+      signInStatus: 'in-progress';
+      signInError: string | null;
+      groupId: string | null;
+    }
+  | { signInStatus: 'success'; signInError: null; groupId: string }
+  | { signInStatus: 'error'; signInError: string; groupId: null }
+) & {
+  connections: ConnectionInfo[];
+  signIn(this: void): Promise<void>;
+};
+
+export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListReturnValue {
+  const [signInStatus, setSignInStatus] = useState<SignInStatus>('initial');
   const [signInError, setSignInError] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [groupId, setGroupId] = useState<string | null>(null);
@@ -57,7 +71,30 @@ export function useAtlasClusterConnectionsList() {
     }
   }, []);
 
-  return { signIn, signInStatus, signInError, groupId, connections };
+  // This is all pretty useless to check, but typescript will complain otherwise
+  if (signInStatus === 'initial') {
+    return {
+      signIn,
+      signInStatus,
+      signInError: null,
+      groupId: null,
+      connections,
+    };
+  }
+
+  if (signInStatus === 'in-progress') {
+    return { signIn, signInStatus, signInError, groupId, connections };
+  }
+
+  if (signInStatus === 'error' && signInError) {
+    return { signIn, signInStatus, signInError, groupId: null, connections };
+  }
+
+  if (signInStatus === 'success' && groupId) {
+    return { signIn, signInStatus, signInError: null, groupId, connections };
+  }
+
+  throw new Error('Weird state, ask for help in Compass dev channel');
 }
 
 export function AtlasClusterConnectionsList({
