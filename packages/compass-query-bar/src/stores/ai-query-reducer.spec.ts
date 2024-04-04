@@ -143,8 +143,6 @@ describe('aiQueryReducer', function () {
       });
     });
 
-    // TODO: Test w/ and w/o setting.
-
     describe('when the sample documents setting is enabled', function () {
       beforeEach(async function () {
         await preferences.savePreferences({
