@@ -39,7 +39,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/puppeteer": "^5.4.4",
     "@wdio/types": "^8.32.2",
-    "bson": "^6.5.0",
+    "bson": "^6.6.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "clipboardy": "^2.3.0",
