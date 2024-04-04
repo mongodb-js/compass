@@ -759,7 +759,7 @@ describe('SRV connectivity', function () {
   before(function () {
     skipForWeb(
       this,
-      'we do not support the either connectionStatus param in compass-web yet'
+      'compass-web does not do SRV resolution in the client via OS DNS APIs'
     );
   });
 
