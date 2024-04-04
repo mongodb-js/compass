@@ -23,7 +23,6 @@ function renderNavigationItems(
       >
         <NavigationItems
           isReady
-          isExpanded
           onAction={() => {
             /* noop */
           }}

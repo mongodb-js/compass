@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, render, cleanup, waitFor } from '@testing-library/react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
-import { CompassWeb } from './';
+import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -85,8 +85,9 @@ describe('CompassWeb', function () {
       screen.getByText('Connecting to localhost:27017…');
     });
 
-    expect(mockConnectFn).to.have.been.calledWithMatch({
-      connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.deep.equal({
+      connectionString: 'mongodb://localhost:27017/',
+      oidc: {},
     });
 
     // Wait for connection to happen and navigation tree to render

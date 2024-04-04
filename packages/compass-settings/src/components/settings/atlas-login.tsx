@@ -5,7 +5,6 @@ import {
   KeylineCard,
   Link,
   SpinLoader,
-  Subtitle,
   css,
   palette,
   spacing,
@@ -15,7 +14,6 @@ import {
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
 import { signIn, signOut } from '../../stores/atlas-login';
-import { SettingsList } from './settings-list';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -30,8 +28,8 @@ const atlasLoginHeaderStyles = css({
   "description description"
   `,
   gridTemplateColumns: `1fr auto`,
-  gap: spacing[2],
-  padding: spacing[3],
+  gap: spacing[200],
+  padding: `${spacing[200]}px ${spacing[400]}px`,
   boxShadow: `inset 0 -1px 0 ${palette.gray.light2}`,
   backgroundColor: palette.gray.light3,
 });
@@ -41,19 +39,32 @@ const atlasLoginHeaderDarkModeStyles = css({
   boxShadow: `inset 0 -1px 0 ${palette.gray.dark2}`,
 });
 
+const atlasLoginCardStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  flexDirection: 'row',
+  gap: spacing[400],
+  alignItems: 'center',
+});
+
 const atlasLoginHeadingTitleStyles = css({
   display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   gridArea: 'heading',
+  fontWeight: 'bold',
 });
 
 const atlasLoginControlsStyles = css({
+  flexShrink: 0,
   gridArea: 'controls',
 });
 
 const atlasLoginHeaderDescriptionStyles = css({
   gridArea: 'description',
+});
+
+const atlasLoginEmailStyles = css({
+  fontWeight: 'bold',
 });
 
 export const AtlasLoginSettings: React.FunctionComponent<{
@@ -67,78 +78,94 @@ export const AtlasLoginSettings: React.FunctionComponent<{
   const isSignedIn = userLogin !== null;
 
   return (
-    <>
-      <KeylineCard className={atlasLoginKeylineCardStyles}>
-        <div
-          className={cx(
-            atlasLoginHeaderStyles,
-            darkMode && atlasLoginHeaderDarkModeStyles
-          )}
-        >
-          <Subtitle className={atlasLoginHeadingTitleStyles}>
-            <Icon glyph="Sparkle" />
-            <span>Use Generative AI</span>
-          </Subtitle>
-          <div className={atlasLoginControlsStyles}>
-            {isSignedIn && (
-              <Button
-                type="button"
-                variant="dangerOutline"
-                size="small"
-                onClick={onSignOutClick}
-                disabled={isSignInInProgress}
-              >
-                Disconnect
-              </Button>
-            )}
-            {!isSignedIn && (
-              <Button
-                type="button"
-                variant="primary"
-                size="small"
-                leftGlyph={<Icon glyph="OpenNewTab"></Icon>}
-                onClick={onSignInClick}
-                disabled={isSignInInProgress}
-              >
-                Log in with Atlas
-                {isSignInInProgress && (
-                  <>
-                    &nbsp;<SpinLoader></SpinLoader>
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-          <div
-            className={atlasLoginHeaderDescriptionStyles}
-            data-testid="atlas-login-status"
-          >
-            {isSignedIn ? (
-              <>Logged in with Atlas account {userLogin}</>
-            ) : (
-              <>
-                This is a feature powered by generative AI, and may give
-                inaccurate responses. Please see our{' '}
-                <Link
-                  hideExternalIcon={false}
-                  href={GEN_AI_FAQ_LINK}
-                  target="_blank"
+    <KeylineCard className={atlasLoginKeylineCardStyles}>
+      <div
+        className={cx(
+          atlasLoginHeaderStyles,
+          darkMode && atlasLoginHeaderDarkModeStyles
+        )}
+      >
+        <div className={atlasLoginCardStyles}>
+          {!isSignedIn ? (
+            <>
+              <div>
+                <div className={atlasLoginHeadingTitleStyles}>
+                  <Icon glyph="Sparkle" />
+                  <span>
+                    You must log in with an Atlas account to use natural
+                    language prompts.
+                  </span>
+                </div>
+                <div
+                  className={atlasLoginHeaderDescriptionStyles}
+                  data-testid="atlas-login-status"
                 >
-                  FAQ
-                </Link>{' '}
-                for more information.
-              </>
-            )}
-          </div>
+                  This is a feature powered by generative AI, and may give
+                  inaccurate responses. Please see our{' '}
+                  <Link
+                    hideExternalIcon={false}
+                    href={GEN_AI_FAQ_LINK}
+                    target="_blank"
+                  >
+                    FAQ
+                  </Link>{' '}
+                  for more information.
+                </div>
+              </div>
+              <div className={atlasLoginControlsStyles}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="small"
+                  leftGlyph={<Icon glyph="LogIn"></Icon>}
+                  onClick={onSignInClick}
+                  disabled={isSignInInProgress}
+                >
+                  Log in with Atlas
+                  {isSignInInProgress && (
+                    <>
+                      &nbsp;<SpinLoader></SpinLoader>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <div className={atlasLoginHeadingTitleStyles}>
+                  <Icon glyph="Sparkle" />
+                  <span>
+                    You can create queries and aggregations with generative AI.
+                  </span>
+                </div>
+                <div
+                  className={atlasLoginHeaderDescriptionStyles}
+                  data-testid="atlas-login-status"
+                >
+                  <div data-testid="atlas-signed-in-successful">
+                    Logged in with Atlas account{' '}
+                    <span className={atlasLoginEmailStyles}>{userLogin}</span>
+                  </div>
+                </div>
+              </div>
+              <div className={atlasLoginControlsStyles}>
+                <Button
+                  type="button"
+                  variant="dangerOutline"
+                  leftGlyph={<Icon glyph="LogOut"></Icon>}
+                  size="small"
+                  onClick={onSignOutClick}
+                  disabled={isSignInInProgress}
+                >
+                  Log Out
+                </Button>
+              </div>
+            </>
+          )}
         </div>
-      </KeylineCard>
-      {/* TODO(COMPASS-7756): Update where this is displayed. 
-      https://github.com/mongodb-js/compass/pull/5633
-    */}
-      <div>
-        <SettingsList fields={['enableGenAISampleDocumentPassing']} />
       </div>
-    </>
+    </KeylineCard>
   );
 };
 
