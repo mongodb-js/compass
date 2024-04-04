@@ -67,6 +67,7 @@ async function setup() {
           env: {
             ...process.env,
             OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+            DISABLE_DEVSERVER_OVERLAY: 'true',
           },
         }
       );
