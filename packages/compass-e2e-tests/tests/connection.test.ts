@@ -880,7 +880,7 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'FLE2 not available in compass-web');
+    skipForWeb(this, 'client-side encryption not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
