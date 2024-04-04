@@ -757,6 +757,8 @@ export async function startBrowser(
       // NOTE: The version of chromedriver or geckodriver in play might also be
       // relevant.
       browserVersion: 'latest',
+      'goog:chromeOptions': { args: ['--start-maximized', ''] },
+      'moz:firefoxOptions': { args: ['--start-maximized', ''] },
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -994,9 +996,10 @@ export async function init(
   const { browser } = compass;
 
   // larger window for more consistent results
-  await browser.execute(() => {
-    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  const [width, height] = await browser.execute(() => {
+    return [window.screen.availWidth, window.screen.availHeight];
   });
+  await browser.setWindowSize(width, height);
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
