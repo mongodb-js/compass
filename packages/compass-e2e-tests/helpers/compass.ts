@@ -995,9 +995,18 @@ export async function init(
 
   // larger window for more consistent results
   const [width, height] = await browser.execute(() => {
+    // in case setWindowSize() below doesn't work
+    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+
     return [window.screen.availWidth, window.screen.availHeight];
   });
-  await browser.setWindowSize(width, height);
+  debug(`available width=${width}, height=${height}`);
+  try {
+    // window.resizeTo() doesn't work on firefox
+    await browser.setWindowSize(width, height);
+  } catch (err: any) {
+    console.error(err?.stack);
+  }
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
