@@ -141,7 +141,6 @@ const navigationItemDisabledLightModeStyles = css({
 const navigationItemActionIcons = css({ color: 'inherit' });
 
 export function NavigationItem<Actions extends string>({
-  isExpanded,
   onAction,
   onClick: onButtonClick,
   glyph,
@@ -152,7 +151,6 @@ export function NavigationItem<Actions extends string>({
   disabled: isButtonDisabled = false,
   disabledMessage: buttonDisabledMessage,
 }: {
-  isExpanded?: boolean;
   onAction(actionName: Actions, ...rest: any[]): void;
   onClick(): void;
   glyph: string;
@@ -208,19 +206,17 @@ export function NavigationItem<Actions extends string>({
             <div className={itemWrapper}>
               <div className={itemButtonWrapper}>
                 <Icon glyph={glyph} size="small"></Icon>
-                {isExpanded && (
-                  <span className={navigationItemLabel}>{label}</span>
-                )}
+                <span className={navigationItemLabel}>{label}</span>
                 {tooltip}
               </div>
-              {showInsights && isExpanded && showTooManyCollectionsInsight && (
+              {showInsights && showTooManyCollectionsInsight && (
                 <div className={signalContainerStyles}>
                   <SignalPopover
                     signals={PerformanceSignals.get('too-many-collections')}
                   ></SignalPopover>
                 </div>
               )}
-              {!isButtonDisabled && isExpanded && actions && (
+              {!isButtonDisabled && actions && (
                 <ItemActionControls<Actions>
                   iconSize="small"
                   onAction={onAction}
@@ -256,7 +252,6 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 
 export function NavigationItems({
   isReady,
-  isExpanded,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
   onFilterChange,
@@ -266,7 +261,6 @@ export function NavigationItems({
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
-  isExpanded?: boolean;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
@@ -327,7 +321,6 @@ export function NavigationItems({
               <>
                 {hasWorkspacePlugin('My Queries') && (
                   <NavigationItem<''>
-                    isExpanded={isExpanded}
                     onAction={onAction}
                     onClick={openMyQueriesWorkspace}
                     glyph="CurlyBraces"
@@ -337,7 +330,6 @@ export function NavigationItems({
                 )}
                 {hasWorkspacePlugin('Performance') && (
                   <NavigationItem<''>
-                    isExpanded={isExpanded}
                     onAction={onAction}
                     onClick={openPerformanceWorkspace}
                     glyph="Gauge"
@@ -348,7 +340,6 @@ export function NavigationItems({
                   />
                 )}
                 <NavigationItem<DatabasesActions>
-                  isExpanded={isExpanded}
                   onAction={onAction}
                   onClick={openDatabasesWorkspace}
                   glyph="Database"
@@ -363,14 +354,10 @@ export function NavigationItems({
         }}
       ></ContentWithFallback>
 
-      {isExpanded && (
-        <DatabaseCollectionFilter onFilterChange={onFilterChange} />
-      )}
-      {isExpanded && (
-        <SidebarDatabasesNavigation
-          activeNamespace={currentNamespace ?? undefined}
-        />
-      )}
+      <DatabaseCollectionFilter onFilterChange={onFilterChange} />
+      <SidebarDatabasesNavigation
+        activeNamespace={currentNamespace ?? undefined}
+      />
     </>
   );
 }

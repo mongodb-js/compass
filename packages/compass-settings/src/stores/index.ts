@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
+import type AppRegistry from 'hadron-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -30,6 +31,7 @@ export type SettingsPluginServices = {
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
   atlasAuthService: AtlasAuthService;
+  globalAppRegistry: AppRegistry;
 };
 
 export function configureStore(
@@ -83,17 +85,20 @@ export type SettingsThunkAction<
 
 const onActivated = (_: unknown, services: SettingsPluginServices) => {
   const store = configureStore(services);
+  const { globalAppRegistry } = services;
 
   const onOpenSettings = () => {
     void store.dispatch(openModal());
   };
 
   ipcRenderer?.on('window:show-settings', onOpenSettings);
+  globalAppRegistry.on('open-compass-settings', onOpenSettings);
 
   return {
     store,
     deactivate() {
       ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
+      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
     },
   };
 };

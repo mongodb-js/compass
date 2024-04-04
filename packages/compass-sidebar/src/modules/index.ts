@@ -24,8 +24,6 @@ import type {
   ConnectionOptionsState,
 } from './connection-options';
 import connectionOptions from './connection-options';
-import type { IsExpandedAction, IsExpandedState } from './is-expanded';
-import isExpanded from './is-expanded';
 import type { AppRegistry } from 'hadron-app-registry';
 import type { DataServiceAction, DataServiceState } from './data-service';
 import dataService from './data-service';
@@ -44,7 +42,6 @@ export interface RootState {
   instance: InstanceState;
   isDetailsExpanded: IsDetailsExpandedState;
   isGenuineMongoDBVisible: IsGenuineMongoDBVisibleState;
-  isExpanded: IsExpandedState;
   isPerformanceTabSupported: IsPerformanceTabSupportedState;
 }
 
@@ -55,7 +52,6 @@ export type RootAction =
   | InstanceAction
   | ToggleIsDetailsExpandedAction
   | IsGenuineMongoDBVisibleAction
-  | IsExpandedAction
   | DataServiceAction
   | SetIsPerformanceTabSupportedAction;
 
@@ -77,7 +73,6 @@ const reducer = combineReducers<RootState, RootAction>({
   instance,
   isDetailsExpanded,
   isGenuineMongoDBVisible,
-  isExpanded,
   isPerformanceTabSupported,
 });
 
