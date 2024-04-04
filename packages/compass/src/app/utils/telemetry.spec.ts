@@ -32,7 +32,7 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
       isAtlas: false,
       isLocalAtlas: false,
       featureCompatibilityVersion: null,
-    });
+    } as any);
   },
   getCurrentTopologyType: () => 'Unknown',
 };
@@ -280,7 +280,7 @@ describe('connection tracking', function () {
           isAtlas: false,
           isLocalAtlas: true,
           featureCompatibilityVersion: null,
-        });
+        } as any);
       },
       getCurrentTopologyType: () => 'Unknown',
     };
@@ -593,7 +593,7 @@ describe('connection tracking', function () {
           isAtlas: true,
           isLocalAtlas: false,
           featureCompatibilityVersion: null,
-        });
+        } as any);
       },
       getCurrentTopologyType: () => 'Unknown',
     };
@@ -647,7 +647,7 @@ describe('connection tracking', function () {
           isAtlas: false,
           isLocalAtlas: false,
           featureCompatibilityVersion: null,
-        });
+        } as any);
       },
       getCurrentTopologyType: () => 'Sharded',
     };

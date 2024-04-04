@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Apr 01 2024.
+This document was automatically generated on Thu Apr 04 2024.
 
 ## List of dependencies
 
@@ -196,7 +196,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**                                             | 5.7.1        | MIT                                 |
 | **[bundle-name](#a4c3d6b89061e28c4e5d7937e09f0886c37c406b9c547105da495923b5e3999d)**                                        | 3.0.0        | MIT                                 |
 | **[bytes](#bc4d24341f85f604856ec6dfddb2dd192b71929ff892a8549f6b5050fbebac9d)**                                              | 3.1.2        | MIT                                 |
-| **[call-bind](#35d1a71a07d557f51302e3aa3450b45f6c7d3fee6e7149916cc24efd749bc0c6)**                                          | 1.0.5        | MIT                                 |
+| **[call-bind](#855e84602be0584cc1eb1123aa7791d7a2cc4ed81d396818fb2b13515af7d811)**                                          | 1.0.7        | MIT                                 |
 | **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**                                              | 2.4.2        | MIT                                 |
 | **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**                                              | 3.0.0        | MIT                                 |
 | **[chalk](#c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1)**                                              | 4.1.2        | MIT                                 |
@@ -233,7 +233,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**                                        | 0.6.0        | MIT                                 |
 | **[default-browser-id](#bc6a381b83371172dbb72cac459792e2d4d55ecb71165c082142ef085b2130ee)**                                 | 3.0.0        | MIT                                 |
 | **[default-browser](#bf5c7331e49e4c648e57747ffd553870a7fe79fea24780366a6bc22ef346f304)**                                    | 4.0.0        | MIT                                 |
-| **[define-data-property](#744a2a0925dbcc805b608832d00af9e71782a4aee252ee80d654cfbdc7b16aee)**                               | 1.1.1        | MIT                                 |
+| **[define-data-property](#a776d26c4eb3429c37b30afeed2ddcd9be51dec6d9ea7025b0e6426a5d4f78d6)**                               | 1.1.4        | MIT                                 |
 | **[define-lazy-prop](#6e79b04c4690532e40a5cdfb76f3ab49de1d6778466fede1548a2e19ac8e75c4)**                                   | 3.0.0        | MIT                                 |
 | **[delegate-events](#9bd9e92528721909dffad7816bd183b65a96891a390f9420036ba9a2cc6ae291)**                                    | 1.1.1        | MIT                                 |
 | **[delegate](#bc2c0cfa061f5865ffa83a2bf2c0f3e29dc3a2056113b1ce3e9acd33709e7606)**                                           | 3.2.0        | MIT                                 |
@@ -248,10 +248,12 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[ejson-shell-parser](#88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b)**                                 | 2.0.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#f9da8217f246ba879bf5eccd2b03a8a86e3969408cc585133a4966a816ec5c7f)**                                           | 28.2.9       | MIT                                 |
+| **[electron](#ad35eed0d5dc019b2a1b78fbd7a5cc660fa2de2ca7810045df9fdc1866366e7a)**                                           | 28.2.10      | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
+| **[es-define-property](#f19a2c06a58db5974cd4d8abbd3fa0453122ea6d3bac0de0603ca69f72dcce38)**                                 | 1.0.0        | MIT                                 |
+| **[es-errors](#645b141d3027520f69209dba8e012e737f0ee8cad89ea8d0e26d02669d14a981)**                                          | 1.3.0        | MIT                                 |
 | **[escape-goat](#9e11fd1d88e064409c700bdd041e7a9077ebe4bb0e8ad151a6820df52ac0a9e3)**                                        | 2.1.1        | MIT                                 |
 | **[escape-html](#5463e0a52abb42be051fba2f4ea5d49d907d2b5ed09df0983b54f88c59c8c481)**                                        | 1.0.3        | MIT                                 |
 | **[escape-string-regexp](#a9c53481a9db89e7cf01e302086c50fcfbde360978cdd2bbe1e52a430d3fee42)**                               | 1.0.5        | MIT                                 |
@@ -283,7 +285,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[function-bind](#83de3b394293d96fb3fea968392a9d9ffb8b461f6c173bbb76a5bc51db5bec52)**                                      | 1.1.2        | MIT                                 |
 | **[fuse.js](#ced18d15cdf119bfd867863e1f147fb1f4021544033d6cf956803c71a14cf53d)**                                            | 6.5.3        | Apache-2.0                          |
 | **[gensync](#c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c)**                                            | 1.0.0-beta.2 | MIT                                 |
-| **[get-intrinsic](#3d759d04083dbc3a5419edd4e16bb8b6bf91c3bfa3a279a1956fb3c125e32075)**                                      | 1.2.2        | MIT                                 |
+| **[get-intrinsic](#2c1a0d16eee22217701f9243a8041f80f74f0a262eb6c10bf1b1f7f41e8599ac)**                                      | 1.2.4        | MIT                                 |
 | **[get-stream](#8d24427d88f4f3193411b16e6dbdfc05d0edc3ce08460a1c73ec55718470e28c)**                                         | 6.0.1        | MIT                                 |
 | **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**                                | 0.0.0        | MIT                                 |
 | **[glob](#0ec232199c820c73bb566b6a82b3e1c9bb0a33c51c4b63c9ab160c5ccdf6f935)**                                               | 7.2.3        | ISC                                 |
@@ -292,7 +294,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[gopd](#e51829c607e5861ddbe69decfaab45dbffb62e23d40af7d1f746c5bce8d05859)**                                               | 1.0.1        | MIT                                 |
 | **[has-flag](#e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a)**                                           | 3.0.0        | MIT                                 |
 | **[has-flag](#7ec819116728d891777ebd4140bef063f473b9ae26d46e91f5ca78834c872abf)**                                           | 4.0.0        | MIT                                 |
-| **[has-property-descriptors](#73cd47a0db9e8ed45edf9279116aba649a17e339764936cf496b3989970f91bd)**                           | 1.0.1        | MIT                                 |
+| **[has-property-descriptors](#4616611d5db8c73d2811bc79dd6cbde0b69f1cc891c1f997448bc79546ba9913)**                           | 1.0.2        | MIT                                 |
 | **[has-proto](#edec51d64a4ff089270399ea123552832f1d7d7962a27090f62494c31de5f8a0)**                                          | 1.0.1        | MIT                                 |
 | **[has-symbols](#26dae1ac20c49dbfafbfca8c84abb75e056b0213a6ff12412dd23dd752e1a424)**                                        | 1.0.3        | MIT                                 |
 | **[hasown](#04e4610b5cadc89608e5130991785dabdaa7a3ee9584b7e0f988e0516d61cb54)**                                             | 2.0.0        | MIT                                 |
@@ -508,7 +510,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[reflux-state-mixin](#b550b09e44c1263378a50688b4e60d7b4ea29394abcaf0c93aba1078ab93f973)**                                 | 0.7.0        | ISC                                 |
 | **[reflux](#f892193924d403a4dd1a73a5861913838f1a9d704055d9d098eb0d40f752e053)**                                             | 0.4.1        | BSD-3-Clause                        |
 | **[reservoir](#84f8998f94ad5bd85b50458378edf3815fff553cdcabf8ced3db418f05e85ff6)**                                          | 0.1.2        | MIT                                 |
-| **[resolve-mongodb-srv](#b3573fdfef27e48302061e01d45cf96fe704c482559b5c6223c11ac98f9ed130)**                                | 1.1.2        | Apache-2.0                          |
+| **[resolve-mongodb-srv](#03a4ef5ab221cf911850680b02d12725ee85632cbaa726a73c9be1595788d767)**                                | 1.1.3        | Apache-2.0                          |
 | **[rimraf](#5e564d456eb49cbdb86c378ac6af7285dd88698ef9d9a36c96c8631e0b2f0dc8)**                                             | 2.6.3        | ISC                                 |
 | **[run-applescript](#f4d3cc18b69c2dec9e4f1d19a1cb794c8fa2e548e530f4033dc6b0caf803bebc)**                                    | 5.0.0        | MIT                                 |
 | **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**                                        | 5.1.2        | MIT                                 |
@@ -521,7 +523,7 @@ This document was automatically generated on Mon Apr 01 2024.
 | **[semver](#91fed21fcd28c91926ebe4e1967f2215934bb8253962246c6ec07b1c308ec8ef)**                                             | 7.6.0        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                               | 0.18.0       | MIT                                 |
 | **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**                                       | 1.15.0       | MIT                                 |
-| **[set-function-length](#91327f15932c462b17bb319eacea5846908823dfbc11211872596598a8e6146a)**                                | 1.1.1        | MIT                                 |
+| **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**                                | 1.2.2        | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                     | 1.2.0        | ISC                                 |
 | **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**                                    | 2.0.0        | MIT                                 |
 | **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**                                      | 3.0.0        | MIT                                 |
@@ -18945,9 +18947,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="35d1a71a07d557f51302e3aa3450b45f6c7d3fee6e7149916cc24efd749bc0c6"></a>
+<a id="855e84602be0584cc1eb1123aa7791d7a2cc4ed81d396818fb2b13515af7d811"></a>
 
-### [call-bind](https://www.npmjs.com/package/call-bind) (version 1.0.5)
+### [call-bind](https://www.npmjs.com/package/call-bind) (version 1.0.7)
 
 License tags: MIT
 
@@ -19953,9 +19955,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="744a2a0925dbcc805b608832d00af9e71782a4aee252ee80d654cfbdc7b16aee"></a>
+<a id="a776d26c4eb3429c37b30afeed2ddcd9be51dec6d9ea7025b0e6426a5d4f78d6"></a>
 
-### [define-data-property](https://www.npmjs.com/package/define-data-property) (version 1.1.1)
+### [define-data-property](https://www.npmjs.com/package/define-data-property) (version 1.1.4)
 
 License tags: MIT
 
@@ -20847,9 +20849,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f9da8217f246ba879bf5eccd2b03a8a86e3969408cc585133a4966a816ec5c7f"></a>
+<a id="ad35eed0d5dc019b2a1b78fbd7a5cc660fa2de2ca7810045df9fdc1866366e7a"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 28.2.9)
+### [electron](https://www.npmjs.com/package/electron) (version 28.2.10)
 
 License tags: MIT
 
@@ -20963,6 +20965,70 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="f19a2c06a58db5974cd4d8abbd3fa0453122ea6d3bac0de0603ca69f72dcce38"></a>
+
+### [es-define-property](https://www.npmjs.com/package/es-define-property) (version 1.0.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2024 Jordan Harband
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="645b141d3027520f69209dba8e012e737f0ee8cad89ea8d0e26d02669d14a981"></a>
+
+### [es-errors](https://www.npmjs.com/package/es-errors) (version 1.3.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2024 Jordan Harband
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
 
 <a id="9e11fd1d88e064409c700bdd041e7a9077ebe4bb0e8ad151a6820df52ac0a9e3"></a>
 
@@ -22052,9 +22118,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="3d759d04083dbc3a5419edd4e16bb8b6bf91c3bfa3a279a1956fb3c125e32075"></a>
+<a id="2c1a0d16eee22217701f9243a8041f80f74f0a262eb6c10bf1b1f7f41e8599ac"></a>
 
-### [get-intrinsic](https://www.npmjs.com/package/get-intrinsic) (version 1.2.2)
+### [get-intrinsic](https://www.npmjs.com/package/get-intrinsic) (version 1.2.4)
 
 License tags: MIT
 
@@ -22263,9 +22329,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="73cd47a0db9e8ed45edf9279116aba649a17e339764936cf496b3989970f91bd"></a>
+<a id="4616611d5db8c73d2811bc79dd6cbde0b69f1cc891c1f997448bc79546ba9913"></a>
 
-### [has-property-descriptors](https://www.npmjs.com/package/has-property-descriptors) (version 1.0.1)
+### [has-property-descriptors](https://www.npmjs.com/package/has-property-descriptors) (version 1.0.2)
 
 License tags: MIT
 
@@ -37930,9 +37996,9 @@ License files:
 
 License tags: MIT
 
-<a id="b3573fdfef27e48302061e01d45cf96fe704c482559b5c6223c11ac98f9ed130"></a>
+<a id="03a4ef5ab221cf911850680b02d12725ee85632cbaa726a73c9be1595788d767"></a>
 
-### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.2)
+### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.3)
 
 License tags: Apache-2.0
 
@@ -38459,9 +38525,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="91327f15932c462b17bb319eacea5846908823dfbc11211872596598a8e6146a"></a>
+<a id="88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9"></a>
 
-### [set-function-length](https://www.npmjs.com/package/set-function-length) (version 1.1.1)
+### [set-function-length](https://www.npmjs.com/package/set-function-length) (version 1.2.2)
 
 License tags: MIT
 
