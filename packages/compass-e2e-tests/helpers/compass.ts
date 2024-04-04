@@ -757,8 +757,8 @@ export async function startBrowser(
       // NOTE: The version of chromedriver or geckodriver in play might also be
       // relevant.
       browserVersion: 'latest',
-      'goog:chromeOptions': { args: ['--start-maximized', ''] },
-      'moz:firefoxOptions': { args: ['--start-maximized', ''] },
+      'goog:chromeOptions': { args: ['--start-maximized'] },
+      'moz:firefoxOptions': { args: ['--start-maximized'] },
     },
     ...webdriverOptions,
     ...wdioOptions,
