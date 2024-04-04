@@ -49,6 +49,8 @@ const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 let compassWeb: ChildProcessWithoutNullStreams;
 
 async function setup() {
+  debug('X DISPLAY', process.env.DISPLAY);
+
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
