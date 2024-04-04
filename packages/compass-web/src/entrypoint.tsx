@@ -252,7 +252,7 @@ const CompassWeb = ({
     const connectionsManagerCurrent = connectionsManager.current;
     void (async () => {
       try {
-        await connectionsManagerCurrent.connect(connectionInfo, {});
+        await connectionsManagerCurrent.connect(connectionInfo);
         setConnected(true);
       } catch (err) {
         setConnectionError(err);

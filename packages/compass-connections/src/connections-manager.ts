@@ -168,7 +168,7 @@ export class ConnectionsManager extends EventEmitter {
       browserCommandForOIDCAuth,
       onNotifyOIDCDeviceFlow,
       onDatabaseSecretsChange,
-    }: ConnectionConfiguration
+    }: ConnectionConfiguration = {}
   ): Promise<DataService> {
     try {
       const existingDataService =

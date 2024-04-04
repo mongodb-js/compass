@@ -32,14 +32,18 @@ export function useActiveConnections(): ConnectionInfo[] {
     });
   }, [favoriteConnections, nonFavoriteConnections, connectionManager]);
 
-  useEffectOnChange(() => {
+  useEffect(() => {
+    // initial sync
     updateList();
-  }, [favoriteConnections, nonFavoriteConnections]);
+  }, [updateList]);
 
   useEffect(() => {
+    // on changes
     updateList();
+  }, [favoriteConnections, nonFavoriteConnections, updateList]);
 
-    // reacting to connection status updates
+  useEffect(() => {
+    // subscribe to events
     for (const event of Object.values(ConnectionsManagerEvents)) {
       connectionManager.on(event, updateList);
     }
