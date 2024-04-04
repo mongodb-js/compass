@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import {
   setComboboxValue,
-  setInputElementValue,
+  setInputElementValueByTestId,
   setMultiSelectComboboxValues,
   setSelectValue,
 } from '../../../../../test/form-helper';
@@ -52,7 +52,7 @@ describe('TextSearch', function () {
 
   it('should render the component', () => {
     expect(screen.getByText('Perform a')).to.exist;
-    expect(screen.getByText('with maxEdits')).to.exist;
+    expect(screen.getByText('maxEdits')).to.exist;
     expect(screen.getByText('for all documents where')).to.exist;
     expect(screen.getByText('contains')).to.exist;
     expect(screen.getByText('using')).to.exist;
@@ -66,7 +66,7 @@ describe('TextSearch', function () {
         'a',
         'c',
       ]);
-      setInputElementValue(/text/i, 'abc');
+      setInputElementValueByTestId('text-search-contains-input', 'abc');
       setComboboxValue(/select or type a search index/i, 'index1');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
@@ -85,7 +85,7 @@ describe('TextSearch', function () {
       setSelectValue(/select search type/i, 'text search');
       setSelectValue(/select search path/i, 'any fields');
 
-      setInputElementValue(/text/i, 'abc');
+      setInputElementValueByTestId('text-search-contains-input', 'abc');
       setComboboxValue(/select or type a search index/i, 'index1');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
@@ -104,7 +104,7 @@ describe('TextSearch', function () {
 
     it('for fuzzy search with fields', () => {
       setSelectValue(/select search type/i, 'fuzzy search');
-      setInputElementValue(/maxEdits/i, '1');
+      setInputElementValueByTestId('maxEdits-input', '1');
 
       setSelectValue(/select search path/i, 'field names');
       setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
@@ -112,7 +112,7 @@ describe('TextSearch', function () {
         'b',
       ]);
 
-      setInputElementValue(/text/i, 'def');
+      setInputElementValueByTestId('text-search-contains-input', 'def');
       setComboboxValue(/select or type a search index/i, 'index2');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
@@ -132,11 +132,11 @@ describe('TextSearch', function () {
 
     it('for fuzzy search with any fields', () => {
       setSelectValue(/select search type/i, 'fuzzy search');
-      setInputElementValue(/maxEdits/i, '2');
+      setInputElementValueByTestId('maxEdits-input', '2');
 
       setSelectValue(/select search path/i, 'any fields');
 
-      setInputElementValue(/text/i, 'xyz');
+      setInputElementValueByTestId('text-search-contains-input', 'xyz');
       setComboboxValue(/select or type a search index/i, 'index2');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
@@ -161,11 +161,11 @@ describe('TextSearch', function () {
     it('should validate maxEdits', function () {
       setSelectValue(/select search type/i, 'fuzzy search');
       {
-        setInputElementValue(/maxEdits/i, '0');
+        setInputElementValueByTestId('maxEdits-input', '0');
         expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);
       }
       {
-        setInputElementValue(/maxEdits/i, '3');
+        setInputElementValueByTestId('maxEdits-input', '3');
         expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);
       }
     });
@@ -176,8 +176,8 @@ describe('TextSearch', function () {
     });
 
     it('should validate search term', function () {
-      setInputElementValue(/text/i, 'xyz');
-      setInputElementValue(/text/i, '');
+      setInputElementValueByTestId('text-search-contains-input', 'xyz');
+      setInputElementValueByTestId('text-search-contains-input', '');
       expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);
     });
   });

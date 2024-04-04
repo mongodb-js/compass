@@ -8,6 +8,8 @@ import { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 const keyListStyles = css({
   display: 'inline-flex',
   gap: spacing[1],
+  marginBottom: spacing[2],
+  padding: `0px ${spacing[6]}px`,
 });
 
 const badgeStyles = css({

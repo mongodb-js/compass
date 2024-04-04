@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import type { InferredPolymorphicComponentType } from '@leafygreen-ui/polymorphic';
 
 import { useFocusRing } from '../hooks/use-focus-ring';
 import { Link, Icon } from './leafygreen';
@@ -64,7 +65,7 @@ export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
     { className: optionsButtonStyles },
     focusRingProps
     // We cast here so that the `as` prop of link can be properly typed.
-  ) as Partial<React.ComponentType<React.ComponentProps<typeof Link>>>;
+  ) as Partial<InferredPolymorphicComponentType<typeof Link, 'button'>>;
   const onClick = useCallback(() => {
     onToggleOptions();
   }, [onToggleOptions]);

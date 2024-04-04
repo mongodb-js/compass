@@ -49,7 +49,6 @@ export const enum AIPipelineActionTypes {
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
   LoadGeneratedPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
   PipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
-  AtlasServiceDisableAIFeature = 'compass-aggregations/pipeline-builder/pipeline-ai/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -389,11 +388,10 @@ export const resetIsAggregationGeneratedFromQuery =
   };
 
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService, atlasAiService }) => {
+  return async (dispatch, _getState, { atlasAuthService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
-        await atlasAiService.enableFeature();
       }
       dispatch({
         type: AIPipelineActionTypes.ShowInput,
@@ -415,17 +413,6 @@ export const hideInput = (): PipelineBuilderThunkAction<
   };
 };
 
-type AtlasServiceDisableAIFeatureAction = {
-  type: AIPipelineActionTypes.AtlasServiceDisableAIFeature;
-};
-
-export const disableAIFeature = (): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(cancelAIPipelineGeneration());
-    dispatch({ type: AIPipelineActionTypes.AtlasServiceDisableAIFeature });
-  };
-};
-
 export type AIPipelineAction =
   | AIPipelineStartedAction
   | AIPipelineFailedAction
@@ -436,8 +423,7 @@ export type AIPipelineAction =
   | resetIsAggregationGeneratedFromQueryAction
   | ShowInputAction
   | HideInputAction
-  | ChangeAIPromptTextAction
-  | AtlasServiceDisableAIFeatureAction;
+  | ChangeAIPromptTextAction;
 const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
   state = initialState,
   action
@@ -558,15 +544,6 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
     };
-  }
-
-  if (
-    isAction<AtlasServiceDisableAIFeatureAction>(
-      action,
-      AIPipelineActionTypes.AtlasServiceDisableAIFeature
-    )
-  ) {
-    return { ...initialState };
   }
 
   return state;

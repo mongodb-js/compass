@@ -56,8 +56,8 @@ describe('use-sort', function () {
         .getByRole('button', {
           name: /title/i,
         })
-        .hasAttribute('disabled')
-    ).to.be.true;
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
   });
 
   it('sorts by string value - asc', function () {

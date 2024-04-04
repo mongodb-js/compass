@@ -117,7 +117,7 @@ async function main(argv) {
         },
         name: 'isPublic',
         message: 'Is it a public package?',
-        initial: true,
+        initial: false,
       },
       {
         type(_, { isPlugin }) {
@@ -179,12 +179,6 @@ async function main(argv) {
 
   if (isPlugin) {
     isReact = true;
-    dependants = [
-      Array.from(workspacesMeta.values()).find(
-        (ws) => ws.name === 'mongodb-compass'
-      ).location,
-    ];
-    depType = 'devDependencies';
   }
 
   console.log();
@@ -218,9 +212,12 @@ async function createWorkspace({
   depType,
   allowJs,
 }) {
+  if (isPlugin) {
+    isPublic = false;
+  }
+
   const pkgJson = {
     name: dirToScopedPackageName(workspaceName, scope),
-    ...(isPlugin && { productName: `${workspaceName} Plugin` }),
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
@@ -232,7 +229,7 @@ async function createWorkspace({
       email: 'compass@mongodb.com',
     },
     homepage: 'https://github.com/mongodb-js/compass',
-    version: '0.1.0',
+    version: '1.0.0',
     repository: {
       type: 'git',
       url: 'https://github.com/mongodb-js/compass.git',
@@ -242,11 +239,7 @@ async function createWorkspace({
     main: 'dist/index.js',
     'compass:main': 'src/index.ts',
     exports: {
-      // NB: Order is important, browser / import should go first, otherwise
-      // webpack refuses to pick it up
-      ...(isPlugin
-        ? { browser: './dist/browser.js' }
-        : { import: './dist/.esm-wrapper.mjs' }),
+      import: './dist/.esm-wrapper.mjs',
       require: './dist/index.js',
     },
     'compass:exports': {
@@ -255,29 +248,18 @@ async function createWorkspace({
     types: './dist/index.d.ts',
     scripts: {
       bootstrap: 'npm run compile',
-      prepublishOnly: 'npm run compile && compass-scripts check-exports-exist',
-      // For normal packages we are just compiling code with typescript, for
-      // plugins (but only for them) we are using webpack to create independent
-      // plugin packages
-      compile:
-        'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
-      ...(isPlugin && {
-        // Plugins are bundled by webpack from source and tested with ts-node
-        // runtime processor, no need to fully compile them on bootstrap
-        bootstrap: 'npm run postcompile',
-        compile: 'npm run webpack -- --mode production',
-        webpack: 'webpack-compass',
-        postcompile: 'tsc --emitDeclarationOnly',
-        start: 'npm run webpack serve -- --mode development',
-        analyze: 'npm run webpack -- --mode production --analyze',
+      ...(isPublic && {
+        prepublishOnly:
+          'npm run compile && compass-scripts check-exports-exist',
       }),
+      compile: isPublic
+        ? 'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs'
+        : 'tsc -p tsconfig.json',
       typecheck: 'tsc -p tsconfig-lint.json --noEmit',
       eslint: 'eslint',
       prettier: 'prettier',
       lint: 'npm run eslint . && npm run prettier -- --check .',
-      depcheck: isPlugin
-        ? 'compass-scripts check-peer-deps && depcheck'
-        : 'depcheck',
+      depcheck: 'compass-scripts check-peer-deps && depcheck',
       check: 'npm run typecheck && npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
       test: 'mocha',
@@ -291,7 +273,6 @@ async function createWorkspace({
       ...(isPlugin && { 'test-ci-electron': 'npm run test-electron' }),
       reformat: 'npm run eslint . -- --fix && npm run prettier -- --write .',
     },
-    ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
     ...(isReact && { dependencies: { react: '*', 'react-dom': '*' } }),
     devDependencies: {
       '@mongodb-js/eslint-config-compass': '*',
@@ -315,16 +296,14 @@ async function createWorkspace({
         '@types/react': '*',
         '@types/react-dom': '*',
       }),
-      ...(!isPlugin && {
-        typescript: '*',
-        'gen-esm-wrapper': '*',
-      }),
+      typescript: '*',
+      ...(isPublic && { 'gen-esm-wrapper': '*' }),
       ...(isPlugin && {
-        '@mongodb-js/webpack-config-compass': '*',
         'hadron-app-registry': '*',
         'xvfb-maybe': '*',
       }),
     },
+    ...(isPlugin && { is_compass_plugin: true }),
   };
 
   await applyBestVersionMatch(pkgJson, workspacesMeta);
@@ -415,12 +394,6 @@ module.exports = {
       : '@mongodb-js/mocha-config-compass'
   }');`;
 
-  const webpackConfigPath = path.join(packagePath, 'webpack.config.js');
-  const webpackConfigContent = `
-const { compassPluginConfig } = require('@mongodb-js/webpack-config-compass');
-module.exports = compassPluginConfig;
-`;
-
   const indexSrcDir = path.join(packagePath, 'src');
 
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
@@ -469,9 +442,6 @@ describe('Compass Plugin', function() {
     await fs.writeFile(eslintrcPath, eslintrcContent);
     await fs.writeFile(eslintIgnorePath, eslintIgnoreContent);
     await fs.writeFile(mocharcPath, mocharcContent);
-    if (isPlugin) {
-      await fs.writeFile(webpackConfigPath, webpackConfigContent);
-    }
     await fs.mkdir(indexSrcDir, { recursive: true });
     await fs.writeFile(indexSrcPath, indexSrcContent);
     await fs.writeFile(indexSpecPath, indexSpecContent);

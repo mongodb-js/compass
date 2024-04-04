@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  Badge,
   Body,
+  Disclaimer,
   Icon,
+  Link,
   MarketingModal,
   SpinLoader,
   css,
@@ -14,6 +15,8 @@ import {
 import { AISignInImageBanner } from './ai-signin-banner-image';
 import type { AtlasSignInState } from '../store/atlas-signin-reducer';
 import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 type SignInModalProps = {
   isSignInModalVisible?: boolean;
@@ -43,6 +46,10 @@ const paragraphStyles = css({
   marginBottom: spacing[2],
 });
 
+const disclaimer = css({
+  marginTop: spacing[3],
+});
+
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   isSignInModalVisible = false,
   isSignInInProgress = false,
@@ -55,8 +62,6 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
     <MarketingModal
       darkMode={darkMode}
       graphic={<AISignInImageBanner></AISignInImageBanner>}
-      // @ts-expect-error leafygreen only allows strings, but we
-      // override styles.
       title={
         <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
           Use natural language to generate queries and pipelines
@@ -97,7 +102,14 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
           MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
           in Compass.
         </Body>
-        <Badge variant="blue">Preview</Badge>
+        <Disclaimer className={disclaimer}>
+          This is a feature powered by generative AI, and may give inaccurate
+          responses. Please see our{' '}
+          <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
+            FAQ
+          </Link>{' '}
+          for more information.
+        </Disclaimer>
       </div>
     </MarketingModal>
   );

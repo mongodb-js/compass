@@ -1,10 +1,20 @@
 import React from 'react';
 import { expect } from 'chai';
-import { spy } from 'sinon';
+import { spy, stub } from 'sinon';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SavedConnectionList } from './saved-connection-list';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  ConnectionRepositoryContextProvider,
+  ConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
+
+import {
+  ConnectionsManagerProvider,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 
 const FAVOURITE_CONNECTION_INFO: ConnectionInfo = {
   id: '1',
@@ -38,21 +48,44 @@ describe('SavedConnectionList Component', function () {
   const onDuplicateConnectionSpy = spy();
   const onToggleFavoriteConnectionSpy = spy();
 
+  const connectFn = stub();
+
   function doRender(
     favoriteInfo: ConnectionInfo[],
     nonFavoriteInfo: ConnectionInfo[]
   ) {
+    const connectionStorage = {
+      events: new ConnectionStorageBus(),
+      loadAll() {
+        return Promise.resolve([
+          FAVOURITE_CONNECTION_INFO,
+          NON_FAVOURITE_CONNECTION_INFO,
+        ]);
+      },
+    } as any;
+
+    const connectionManager = new ConnectionsManager({
+      logger: {} as any,
+      __TEST_CONNECT_FN: connectFn,
+    });
+
     return render(
-      <SavedConnectionList
-        favoriteConnections={favoriteInfo}
-        nonFavoriteConnections={nonFavoriteInfo}
-        onNewConnection={onNewConnectionSpy}
-        onConnect={onConnectSpy}
-        onEditConnection={onEditConnectionSpy}
-        onDeleteConnection={onDeleteConnectionSpy}
-        onDuplicateConnection={onDuplicateConnectionSpy}
-        onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
-      />
+      <ConnectionStorageContext.Provider value={connectionStorage}>
+        <ConnectionRepositoryContextProvider>
+          <ConnectionsManagerProvider value={connectionManager}>
+            <SavedConnectionList
+              favoriteConnections={favoriteInfo}
+              nonFavoriteConnections={nonFavoriteInfo}
+              onNewConnection={onNewConnectionSpy}
+              onConnect={onConnectSpy}
+              onEditConnection={onEditConnectionSpy}
+              onDeleteConnection={onDeleteConnectionSpy}
+              onDuplicateConnection={onDuplicateConnectionSpy}
+              onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
+            />
+          </ConnectionsManagerProvider>
+        </ConnectionRepositoryContextProvider>
+      </ConnectionStorageContext.Provider>
     );
   }
 

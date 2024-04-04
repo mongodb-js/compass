@@ -300,6 +300,7 @@ function Connection({
         />
         <H3
           className={connectionTitleStyles}
+          as="h3"
           style={{ color: titleColor }}
           data-testid={`${savedConnectionType}-connection-title`}
           title={connectionTitle}

@@ -250,7 +250,6 @@ export function ItemActionMenu<Action extends string>({
               data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
-              // @ts-expect-error This will compile when we upgrade leafy-green
               variant={variant || 'default'}
             >
               {label}

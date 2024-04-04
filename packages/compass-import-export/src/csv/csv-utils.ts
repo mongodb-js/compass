@@ -95,7 +95,11 @@ export function stringifyCSVValue(
     }
 
     if (Object.prototype.toString.call(value) === '[object Date]') {
-      return value.toISOString();
+      try {
+        return value.toISOString();
+      } catch {
+        return String(value);
+      }
     }
 
     // When parsing with relaxed: false we won't see numbers here, but it is

@@ -29,7 +29,7 @@
     "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "test-ci": "npm run test",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "bootstrap": "npm run compile",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check"

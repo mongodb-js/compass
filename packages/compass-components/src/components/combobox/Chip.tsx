@@ -204,10 +204,10 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (
         !disabled &&
-        (e.keyCode === keyMap.Delete ||
-          e.keyCode === keyMap.Backspace ||
-          e.keyCode === keyMap.Enter ||
-          e.keyCode === keyMap.Space)
+        (e.key === keyMap.Delete ||
+          e.key === keyMap.Backspace ||
+          e.key === keyMap.Enter ||
+          e.key === keyMap.Space)
       ) {
         onRemove();
       }

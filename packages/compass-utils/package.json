@@ -40,7 +40,7 @@
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -48,10 +48,6 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
-  },
-  "optionalDependencies": {
-    "@electron/remote": "^2.1.2",
-    "electron": "^28.2.7"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.17",
@@ -72,9 +68,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.2.14"
-  },
-  "peerDependencies": {
-    "@mongodb-js/compass-logging": "^1.2.14"
+    "@electron/remote": "^2.1.2",
+    "electron": "^28.2.9"
   }
 }

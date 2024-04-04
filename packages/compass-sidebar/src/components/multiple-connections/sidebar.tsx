@@ -1,16 +1,26 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  type ConnectionInfo,
+  getConnectionTitle,
+} from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
-import { OpenConnectionList } from './open-connections/open-connection-list';
-import { ResizableSidebar, css } from '@mongodb-js/compass-components';
+import { ActiveConnectionList } from './active-connections/active-connection-list';
+import {
+  ResizableSidebar,
+  css,
+  Link,
+  useToast,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 
-// Temporary as we don't need props but this placeholder type is useful.
-type MultipleConnectionSidebarProps = Record<string, never>;
+type MultipleConnectionSidebarProps = {
+  appName: string;
+};
 
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the
@@ -22,45 +32,140 @@ const sidebarStyles = css({
   height: '100%',
 });
 
-// TODO We will get rid of this placeholder when expose the necessary props outside
-// eslint-disable-next-line
-const noop_tmp = (() => {}) as any;
+type ConnectionErrorToastBodyProps = {
+  info: ConnectionInfo | null;
+  onReview: () => void;
+};
 
-// Having props here is useful as a placeholder and we will fix it with the first props.
-// eslint-disable-next-line
-export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
+const connectionErrorToastBodyStyles = css({
+  display: 'flex',
+  alignItems: 'start',
+  gap: spacing[2],
+});
+
+const connectionErrorToastActionMessageStyles = css({
+  marginTop: spacing[1],
+  flexGrow: 0,
+});
+
+function ConnectionErrorToastBody({
+  info,
+  onReview,
+}: ConnectionErrorToastBodyProps): React.ReactElement {
+  return (
+    <span className={connectionErrorToastBodyStyles}>
+      <span>
+        There was a problem connecting{' '}
+        {info ? `to ${getConnectionTitle(info)}` : ''}
+      </span>
+      {info && (
+        <Link
+          className={connectionErrorToastActionMessageStyles}
+          hideExternalIcon={true}
+          onClick={onReview}
+        >
+          REVIEW
+        </Link>
+      )}
+    </span>
+  );
+}
+
+export function MultipleConnectionSidebar({
+  appName,
+}: MultipleConnectionSidebarProps) {
+  const { openToast, closeToast } = useToast('multiple-connection-status');
+  const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
+
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+
+  const onConnected = useCallback(
+    (info: ConnectionInfo) => {
+      closeToast(`connection-status-${info.id}`);
+    },
+    [closeToast]
+  );
+
+  const onConnectionAttemptStarted = useCallback(
+    (info: ConnectionInfo) => {
+      const cancelAndCloseToast = () => {
+        void cancelCurrentConnectionRef.current?.(info.id);
+        closeToast(`connection-status-${info.id}`);
+      };
+
+      openToast(`connection-status-${info.id}`, {
+        title: `Connecting to ${getConnectionTitle(info)}`,
+        dismissible: true,
+        variant: 'progress',
+        actionElement: (
+          <Link hideExternalIcon={true} onClick={cancelAndCloseToast}>
+            CANCEL
+          </Link>
+        ),
+      });
+    },
+    [openToast, closeToast, cancelCurrentConnectionRef]
+  );
+
+  const onConnectionFailed = useCallback(
+    (info: ConnectionInfo | null, error: Error) => {
+      const reviewAndCloseToast = () => {
+        closeToast(`connection-status-${info?.id ?? ''}`);
+        setIsConnectionFormOpen(true);
+      };
+
+      openToast(`connection-status-${info?.id}`, {
+        title: `${error.message}`,
+        description: (
+          <ConnectionErrorToastBody
+            info={info}
+            onReview={reviewAndCloseToast}
+          />
+        ),
+        variant: 'warning',
+      });
+    },
+    [openToast, closeToast, setIsConnectionFormOpen]
+  );
+
   const {
+    setActiveConnectionById,
     connect,
     favoriteConnections,
     recentConnections,
+    cancelConnectionAttempt,
     removeConnection,
     saveConnection,
+    duplicateConnection,
+    createNewConnection,
     state,
   } = useConnections({
-    onConnected: noop_tmp, // TODO: COMPASS-7710,
-    onConnectionAttemptStarted: noop_tmp,
-    onConnectionFailed: noop_tmp,
-    appName: '', // TODO: COMPASS-7710
-    getAutoConnectInfo: noop_tmp, // TODO: COMPASS-7710
+    onConnected: onConnected,
+    onConnectionAttemptStarted: onConnectionAttemptStarted,
+    onConnectionFailed(info, error) {
+      void onConnectionFailed(info, error);
+    },
+    appName,
   });
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
     state;
 
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  cancelCurrentConnectionRef.current = cancelConnectionAttempt;
 
   const onConnect = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    (info: ConnectionInfo) => {
+      setActiveConnectionById(info.id);
+      void connect(info);
+    },
+    [connect, setActiveConnectionById]
   );
 
-  const onNewConnectionOpen = useCallback(
-    () => setIsConnectionFormOpen(true),
-    []
-  );
+  const onNewConnectionOpen = useCallback(() => {
+    createNewConnection();
+    setIsConnectionFormOpen(true);
+  }, [createNewConnection]);
   const onNewConnectionClose = useCallback(
     () => setIsConnectionFormOpen(false),
     []
@@ -87,13 +192,6 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     [saveConnection]
   );
 
-  const onEditConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
-  );
-
   const onDeleteConnection = useCallback(
     (info: ConnectionInfo) => {
       void removeConnection(info);
@@ -101,18 +199,30 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     [removeConnection]
   );
 
+  const onEditConnection = useCallback(
+    (info: ConnectionInfo) => {
+      setActiveConnectionById(info.id);
+      setIsConnectionFormOpen(true);
+    },
+    [setActiveConnectionById, setIsConnectionFormOpen]
+  );
+
   const onDuplicateConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    (info: ConnectionInfo) => {
+      duplicateConnection(info);
+      setIsConnectionFormOpen(true);
+    },
+    [duplicateConnection, setIsConnectionFormOpen]
   );
 
   const onToggleFavoriteConnection = useCallback(
-    // Placeholder for when we implement it
-    // eslint-disable-next-line
-    (info: ConnectionInfo) => {},
-    []
+    (info: ConnectionInfo) => {
+      info.savedConnectionType =
+        info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';
+
+      void saveConnection(info);
+    },
+    [saveConnection]
   );
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
@@ -156,7 +266,7 @@ export function MultipleConnectionSidebar({}: MultipleConnectionSidebarProps) {
     >
       <aside className={sidebarStyles}>
         <SidebarHeader />
-        <OpenConnectionList />
+        <ActiveConnectionList />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}

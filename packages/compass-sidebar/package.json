@@ -1,14 +1,11 @@
 {
   "name": "@mongodb-js/compass-sidebar",
-  "productName": "Sidebar plugin",
   "description": "The sidebar of Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -27,19 +24,14 @@
   "compass:main": "src/index.ts",
   "types": "dist/index.d.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
-    "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "npm run webpack -- --mode production",
-    "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
-    "analyze": "npm run webpack -- --mode production --analyze",
+    "bootstrap": "npm run compile",
+    "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -55,22 +47,6 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
-  "peerDependencies": {
-    "@mongodb-js/compass-app-stores": "^7.10.1",
-    "@mongodb-js/compass-components": "^1.22.1",
-    "@mongodb-js/compass-connections": "^1.25.1",
-    "@mongodb-js/compass-databases-navigation": "^1.23.1",
-    "@mongodb-js/compass-logging": "^1.2.14",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.16.1",
-    "@mongodb-js/compass-workspaces": "^0.5.1",
-    "@mongodb-js/connection-form": "^1.23.1",
-    "@mongodb-js/connection-info": "^0.1.5",
-    "@mongodb-js/connection-storage": "^0.8.1",
-    "compass-preferences-model": "^2.18.1",
-    "hadron-app-registry": "^9.1.8",
-    "mongodb-instance-model": "^12.18.1",
-    "react": "^17.0.2"
-  },
   "dependencies": {
     "@mongodb-js/compass-app-stores": "^7.10.1",
     "@mongodb-js/compass-components": "^1.22.1",
@@ -84,14 +60,21 @@
     "@mongodb-js/connection-storage": "^0.8.1",
     "compass-preferences-model": "^2.18.1",
     "hadron-app-registry": "^9.1.8",
-    "mongodb-instance-model": "^12.18.1"
+    "lodash": "^4.17.21",
+    "mongodb": "^6.5.0",
+    "mongodb-instance-model": "^12.18.1",
+    "mongodb-ns": "^2.4.0",
+    "react": "^17.0.2",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
+    "mongodb-data-service": "^22.18.1",
     "@mongodb-js/eslint-config-compass": "^1.0.17",
     "@mongodb-js/mocha-config-compass": "^1.3.7",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.3.5",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -105,19 +88,13 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
-    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.5.0",
-    "mongodb-ns": "^2.4.0",
-    "mongodb-data-service": "^22.18.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-redux": "^8.1.3",
-    "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2",
     "sinon": "^9.2.3",
+    "typescript": "^5.0.4",
     "xvfb-maybe": "^0.2.1"
-  }
+  },
+  "is_compass_plugin": true
 }

@@ -42,7 +42,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
 );
 
 export const CompassDocumentsPlugin = {
-  name: 'Documents',
+  name: 'Documents' as const,
   component: CompassDocumentsHadronPlugin,
 };
 

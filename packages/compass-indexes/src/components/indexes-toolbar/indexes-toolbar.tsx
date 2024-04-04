@@ -143,7 +143,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
             {isSearchManagementActive && (
               <SegmentedControl
-                size="small"
+                size="xsmall"
                 onChange={(evt) => onChangeIndexView(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"

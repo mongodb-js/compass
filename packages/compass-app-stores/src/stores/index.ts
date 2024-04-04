@@ -1,1 +1,1 @@
-export { createInstanceStore } from './instance-store';
+export { createInstancesStore } from './instance-store';
