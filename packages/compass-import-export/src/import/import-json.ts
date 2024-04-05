@@ -100,7 +100,8 @@ export async function importJSON({
   const collectionStream = createCollectionWriteStream(
     dataService,
     ns,
-    stopOnErrors ?? false
+    stopOnErrors ?? false,
+    errorCallback
   );
 
   const parserStreams = [];
@@ -132,7 +133,6 @@ export async function importJSON({
       await processWriteStreamErrors({
         collectionStream,
         output,
-        errorCallback,
       });
 
       return makeImportResult(
@@ -156,7 +156,6 @@ export async function importJSON({
   await processWriteStreamErrors({
     collectionStream,
     output,
-    errorCallback,
   });
 
   return makeImportResult(collectionStream, numProcessed, docStatsStream);

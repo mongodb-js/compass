@@ -46,13 +46,16 @@ export function errorToJSON(error: any): ErrorJSON {
     }
   }
 
+  if (error.writeErrors && Array.isArray(error.writeErrors)) {
+    obj.numErrors = error.writeErrors.length;
+  }
+
   return obj;
 }
 
 export async function processWriteStreamErrors({
   collectionStream,
   output,
-  errorCallback,
 }: {
   collectionStream: WritableCollectionStream;
   output?: Writable;
@@ -68,9 +71,9 @@ export async function processWriteStreamErrors({
     .concat(stats.writeConcernErrors);
 
   for (const error of allErrors) {
+    debug('write error', error);
+
     const transformedError = errorToJSON(error);
-    debug('write error', transformedError);
-    errorCallback?.(transformedError);
 
     if (!output) {
       continue;
