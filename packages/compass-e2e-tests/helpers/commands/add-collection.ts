@@ -94,7 +94,9 @@ export async function addCollection(
           const selectedValue = await button.getAttribute('value');
 
           if (selectedValue !== valStr) {
-            console.log(`${key}: ${selectedValue} !== ${valStr}`);
+            console.log(
+              `${key}: ${selectedValue} !== ${valStr} (${clickAttempt})`
+            );
           }
 
           // make sure the menu disappears before moving on to the next thing
