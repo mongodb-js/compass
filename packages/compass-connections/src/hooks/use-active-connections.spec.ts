@@ -5,7 +5,7 @@ import {
 } from '../provider';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageEvents,
   type ConnectionInfo,
@@ -54,7 +54,7 @@ describe('useActiveConnections', function () {
 
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionStorageContext.Provider, {
+        createElement(ConnectionStorageProvider, {
           value: mockConnectionStorage,
           children: [
             createElement(ConnectionsManagerProvider, {

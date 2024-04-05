@@ -7,7 +7,7 @@ import {
   ConnectionStorageBus,
   ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { createElement } from 'react';
@@ -42,7 +42,7 @@ describe('useConnectionRepository', function () {
   beforeEach(function () {
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionStorageContext.Provider, {
+        createElement(ConnectionStorageProvider, {
           value: mockStorage,
           children,
         });

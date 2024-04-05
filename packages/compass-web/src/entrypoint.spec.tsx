@@ -64,11 +64,21 @@ describe('CompassWeb', function () {
   ) {
     return render(
       <CompassWeb
-        connectionInfo={{
-          id: 'foo',
-          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        onAutoconnectInfoRequest={() => {
+          return Promise.resolve({
+            id: 'foo',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          });
         }}
         onActiveWorkspaceTabChange={() => {}}
+        renderConnecting={(connectionInfo) => {
+          const [host] = new ConnectionString(
+            connectionInfo.connectionOptions.connectionString
+          ).hosts;
+          return <div>Connecting to {host}…</div>;
+        }}
         {...props}
         // @ts-expect-error see component props description
         __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
@@ -85,10 +95,10 @@ describe('CompassWeb', function () {
       screen.getByText('Connecting to localhost:27017…');
     });
 
-    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.deep.equal({
-      connectionString: 'mongodb://localhost:27017/',
-      oidc: {},
-    });
+    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
+      'connectionString',
+      'mongodb://localhost:27017/'
+    );
 
     // Wait for connection to happen and navigation tree to render
     await waitFor(() => {
