@@ -276,6 +276,9 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     let numErrors = 0;
     const errorCallback = (err: ErrorJSON) => {
+      // For bulk write errors we'll get one callback for the whole batch and
+      // then numErrors is the number of documents that failed for that batch.
+      // Usually but not necessarily the entire batch.
       numErrors += err.numErrors ?? 1;
       if (errors.length < 5) {
         // Only store the first few errors in memory.

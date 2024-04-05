@@ -46,6 +46,8 @@ export function errorToJSON(error: any): ErrorJSON {
     }
   }
 
+  // For bulk write errors we include the number of errors that were in the
+  // batch. So one error actually maps to (potentially) many failed documents.
   if (error.writeErrors && Array.isArray(error.writeErrors)) {
     obj.numErrors = error.writeErrors.length;
   }
