@@ -8,8 +8,8 @@ const pipelines = [
     input: `[{$unwind: "users"}]`,
     output: `[
   {
-    $unwind: "users",
-  },
+    $unwind: "users"
+  }
 ]`,
     pipeline: [
       {
@@ -25,10 +25,10 @@ const pipelines = [
     input: `[\n//{$unwind: "users"},\n // {$limit: 20}\n]`,
     output: `[
   // {
-  //   $unwind: "users",
+  //   $unwind: "users"
   // }
   // {
-  //   $limit: 20,
+  //   $limit: 20
   // }
 ]`,
     pipeline: [
@@ -51,16 +51,16 @@ const pipelines = [
     input: `[{$unwind: "users"},\n // {$limit: 20},\n {$sort: {name: -1}}\n// trailing comment\n]`,
     output: `[
   {
-    $unwind: "users",
+    $unwind: "users"
   },
   // {
-  //   $limit: 20,
+  //   $limit: 20
   // }
   {
     $sort: {
-      name: -1,
-    },
-  },
+      name: -1
+    }
+  }
   // trailing comment
 ]`,
     pipeline: [
@@ -91,15 +91,15 @@ const pipelines = [
     input: `[{$unwind: "users"},{$limit: 20},\n// {$sort: {name: -1}}\n]`,
     output: `[
   {
-    $unwind: "users",
+    $unwind: "users"
   },
   {
-    $limit: 20,
-  },
+    $limit: 20
+  }
   // {
   //   $sort: {
-  //     name: -1,
-  //   },
+  //     name: -1
+  //   }
   // }
 ]`,
     pipeline: [
@@ -130,14 +130,14 @@ const pipelines = [
     input: `[// {$match: {}}\n // {$unwind: "users"}, \n {$limit: 20}\n]`,
     output: `[
   // {
-  //   $match: {},
+  //   $match: {}
   // }
   // {
-  //   $unwind: "users",
+  //   $unwind: "users"
   // }
   {
-    $limit: 20,
-  },
+    $limit: 20
+  }
 ]`,
     pipeline: [
       {
@@ -175,77 +175,77 @@ const pipelines = [
   // {
   //   $match: {
   //     name: {
-  //       $in: [/ber/i, /bas/i],
+  //       $in: [/ber/i, /bas/i]
   //     },
   //     bathrooms: {
-  //       $gte: 2,
-  //     },
-  //   },
+  //       $gte: 2
+  //     }
+  //   }
   // },
   // {
   //   where: {
-  //     name: 'berlin',
-  //   },
+  //     name: 'berlin'
+  //   }
   // }
   {
     $project: {
       _id: 1,
       name: 1,
-      bathrooms: 1,
-    },
+      bathrooms: 1
+    }
   },
   // Another comment
   {
     // Fixed the bug
     $sort: {
-      bathrooms: -1,
-    },
+      bathrooms: -1
+    }
   },
   {
-    $skip: 1,
+    $skip: 1
   },
   {
     // This should not go away!
-    $limit: 8,
-  },
+    $limit: 8
+  }
 ]`,
     output: `[
   // {
   //   $match: {
   //     name: {
-  //       $in: [/ber/i, /bas/i],
+  //       $in: [/ber/i, /bas/i]
   //     },
   //     bathrooms: {
-  //       $gte: 2,
-  //     },
-  //   },
+  //       $gte: 2
+  //     }
+  //   }
   // }
   // {
   //   where: {
-  //     name: 'berlin',
-  //   },
+  //     name: 'berlin'
+  //   }
   // }
   {
     $project: {
       _id: 1,
       name: 1,
-      bathrooms: 1,
-    },
+      bathrooms: 1
+    }
   },
   // Another comment
   {
     // Fixed the bug
     $sort: {
-      bathrooms: -1,
-    },
+      bathrooms: -1
+    }
   },
   {
-    $skip: 1,
+    $skip: 1
   },
   {
     // This should not go away!
-    $limit: 8,
-  },
+    $limit: 8
+  }
 ]`,
     pipeline: [
       {
@@ -340,12 +340,12 @@ const pipelines = [
   // {
   //   $match: {
   //     name: {
-  //       $in: [/ber/i, /bas/i],
+  //       $in: [/ber/i, /bas/i]
   //     },
   //     bathrooms: {
-  //       $gte: 2,
-  //     },
-  //   },
+  //       $gte: 2
+  //     }
+  //   }
   // }
   // {
   //   where: {
@@ -356,23 +356,23 @@ const pipelines = [
   //   $project: {
   //     _id: 1,
   //     name: 1,
-  //     bathrooms: 1,
-  //   },
+  //     bathrooms: 1
+  //   }
   // }
   // Another comment
   {
     // Fixed the bug
     $sort: {
-      bathrooms: -1,
-    },
+      bathrooms: -1
+    }
   },
   {
-    $skip: 1,
+    $skip: 1
   },
   {
     // This should not go away!
-    $limit: 8,
-  },
+    $limit: 8
+  }
 ]`,
     pipeline: [
       {
@@ -514,15 +514,15 @@ describe('PipelineParser', function () {
       expect(newPipeline).to.equal(`[
   // {
   //   $match: {
-  //     name: /berlin/i,
-  //   },
+  //     name: /berlin/i
+  //   }
   // }
   // {
-  //   $unwind: "users",
+  //   $unwind: "users"
   // }
   {
-    $limit: 20,
-  },
+    $limit: 20
+  }
 ]`);
     });
     it('stage with leading comments', function () {
@@ -542,12 +542,12 @@ describe('PipelineParser', function () {
   // Some comment that should be preserved.
   // {
   //   $match: {
-  //     name: /berlin/i,
-  //   },
+  //     name: /berlin/i
+  //   }
   // }
   {
-    $skip: 10,
-  },
+    $skip: 10
+  }
 ]`);
     });
     it('stage with trailing comments', function () {
@@ -568,15 +568,15 @@ describe('PipelineParser', function () {
       expect(newPipeline).to.equal(`[
   // {
   //   $match: {
-  //     name: /berlin/i,
-  //   },
+  //     name: /berlin/i
+  //   }
   // }
   // Some comment that should be preserved.
   // Followed by something.
   // Followed by something else.
   {
-    $skip: 10,
-  },
+    $skip: 10
+  }
 ]`);
     });
     it('stage with leading and trailing comments', function () {
@@ -598,14 +598,14 @@ describe('PipelineParser', function () {
   // Some comment that should be preserved.
   // {
   //   $match: {
-  //     name: /berlin/i,
-  //   },
+  //     name: /berlin/i
+  //   }
   // }
   // Followed by something.
   // Followed by something else.
   {
-    $skip: 10,
-  },
+    $skip: 10
+  }
 ]`);
     });
     it('stages with leading and trailing comments', function () {
@@ -628,17 +628,17 @@ describe('PipelineParser', function () {
   // Some comment that should be preserved.
   // {
   //   $match: {
-  //     name: /berlin/i,
-  //   },
+  //     name: /berlin/i
+  //   }
   // }
   // Followed by something.
   // {
-  //   $limit: 20,
+  //   $limit: 20
   // }
   // Followed by something else.
   {
-    $skip: 10,
-  },
+    $skip: 10
+  }
 ]`);
     });
   });

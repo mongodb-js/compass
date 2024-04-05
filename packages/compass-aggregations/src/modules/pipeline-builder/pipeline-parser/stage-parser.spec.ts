@@ -19,7 +19,7 @@ describe('StageParser', function () {
         usecase: 'stage with object value',
         expression: `{$match: {name: /berlin/i}}`,
         operator: '$match',
-        value: `{\n  name: /berlin/i,\n}`,
+        value: `{\n  name: /berlin/i\n}`,
         isValid: true,
       },
       {
@@ -57,7 +57,7 @@ describe('StageParser', function () {
         operator: '$match',
         value: `{
   // $match filters data
-  name: /berlin/i,
+  name: /berlin/i
 }
 /* $match corresponds to sql where */`,
         isValid: true,
@@ -176,9 +176,7 @@ describe('StageParser', function () {
       comments.forEach(({ type }) => expect(type).to.equal('CommentLine'));
       const value = comments.map(({ value }) => value).join('\n');
       expect(value).to.equal(
-        [' {', '   $match: {', '     name: /berlin/i,', '   },', ' }'].join(
-          '\n'
-        )
+        [' {', '   $match: {', '     name: /berlin/i', '   }', ' }'].join('\n')
       );
     });
   });
@@ -222,7 +220,7 @@ describe('StageParser', function () {
         [
           '{',
           '  // stage comment',
-          '  name: "berlin",',
+          '  name: "berlin"',
           '  // filters data on berlin',
           '}',
         ].join('\n')
@@ -246,13 +244,9 @@ describe('StageParser', function () {
 
       expect(getStageOperatorFromNode(stage)).to.equal('$concatArrays');
       expect(getStageValueFromNode(stage)).to.equal(
-        [
-          '[',
-          '  // concat tags together',
-          '  "tags1",',
-          '  "tags2",',
-          ']',
-        ].join('\n')
+        ['[', '  // concat tags together', '  "tags1",', '  "tags2"', ']'].join(
+          '\n'
+        )
       );
     });
 
@@ -328,7 +322,7 @@ describe('StageParser', function () {
         [
           '{',
           '  /* stage comment */',
-          '  name: "berlin",',
+          '  name: "berlin"',
           '  /**',
           '   * filters data on berlin',
           '   **/',
@@ -350,7 +344,7 @@ describe('StageParser', function () {
 
       expect(getStageOperatorFromNode(stage)).to.equal('$match');
       expect(getStageValueFromNode(stage)).to.equal(
-        ['{', '  name: "berlin",', '}'].join('\n')
+        ['{', '  name: "berlin"', '}'].join('\n')
       );
 
       stage = stageParser.push(lines[3]) as StageLike;
@@ -378,7 +372,7 @@ describe('StageParser', function () {
 
       expect(getStageOperatorFromNode(stage)).to.equal('$match');
       expect(getStageValueFromNode(stage)).to.equal(
-        ['{', '  name: "berlin",', '}'].join('\n')
+        ['{', '  name: "berlin"', '}'].join('\n')
       );
 
       let isStage = stageParser.push(lines[3]);
@@ -412,8 +406,8 @@ describe('StageParser', function () {
 // },
 {
   $match: {
-    _id: 1,
-  },
+    _id: 1
+  }
 }`);
     });
 
@@ -437,12 +431,12 @@ describe('StageParser', function () {
 
       expect(generate(stages[0])).to.eq(`{
   $match: {
-    _id: 1,
-  },
+    _id: 1
+  }
 }`);
 
       expect(generate(stages[1])).to.eq(`{
-  $limit: 10,
+  $limit: 10
 }`);
     });
   });

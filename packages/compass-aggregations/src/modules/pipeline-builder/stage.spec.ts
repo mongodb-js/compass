@@ -67,17 +67,17 @@ describe('Stage', function () {
     const stage = new Stage(ast);
 
     expect(stage.value).to.eq(`{
-  _id: 1,
+  _id: 1
 } /* trailing comment */`);
 
     stage.changeValue(`{
-  _id: 1,
+  _id: 1
 } /* new comment */`);
 
     expect(stage.toString()).to.eq(`{
   $match: {
-    _id: 1,
-  } /* new comment */,
+    _id: 1
+  } /* new comment */
 }`);
   });
 
