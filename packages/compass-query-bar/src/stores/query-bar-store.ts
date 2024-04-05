@@ -7,24 +7,24 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
-  updatePreferencesMaxTimeMS,
 } from './query-bar-reducer';
-import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
+import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
   FavoriteQueryStorageAccess,
   FavoriteQueryStorage,
@@ -42,6 +42,8 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
+  atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
 };
@@ -49,7 +51,9 @@ type QueryBarServices = {
 // TODO(COMPASS-7412): this doesn't have service injector
 // implemented yet, so we're keeping it separate from the type above
 type QueryBarExtraServices = {
-  atlasService?: AtlasService;
+  atlasAuthService?: AtlasAuthService;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
 };
 
 export type QueryBarStoreOptions = CollectionTabPluginMetadata;
@@ -65,11 +69,12 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: AtlasService;
+  atlasAuthService: AtlasAuthService;
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
   logger: LoggerAndTelemetry;
+  atlasAiService: AtlasAiService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -99,7 +104,7 @@ export function configureStore(
 export function activatePlugin(
   options: QueryBarStoreOptions,
   services: QueryBarServices & QueryBarExtraServices,
-  { on, addCleanup, cleanup }: ActivateHelpers
+  { on, cleanup }: ActivateHelpers
 ) {
   const { serverVersion, query, namespace } = options;
 
@@ -110,9 +115,10 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
+    atlasAuthService,
+    atlasAiService,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
-    atlasService = new AtlasService(),
   } = services;
 
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
@@ -127,7 +133,6 @@ export function activatePlugin(
         ...getQueryAttributes(query ?? {}),
       }),
       isReadonlyConnection: !instance.isWritable,
-      preferencesMaxTimeMS: preferences.getPreferences().maxTimeMS ?? null,
     },
     {
       dataService: services.dataService ?? {
@@ -140,16 +145,11 @@ export function activatePlugin(
       globalAppRegistry,
       recentQueryStorage,
       favoriteQueryStorage,
-      atlasService,
+      atlasAuthService,
       preferences,
       logger,
+      atlasAiService,
     }
-  );
-
-  addCleanup(
-    preferences.onPreferenceValueChanged('maxTimeMS', (newValue) =>
-      store.dispatch(updatePreferencesMaxTimeMS(newValue))
-    )
   );
 
   on(instance, 'change:isWritable', () => {
@@ -157,12 +157,6 @@ export function activatePlugin(
       type: QueryBarActions.ChangeReadonlyConnectionStatus,
       readonly: !instance.isWritable,
     });
-  });
-
-  on(atlasService, 'user-config-changed', (config) => {
-    if (config.enabledAIFeature === false) {
-      store.dispatch(disableAIFeature());
-    }
   });
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };

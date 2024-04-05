@@ -1,33 +1,31 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ImportConnectionsModal,
-  ExportConnectionsModal,
-} from '@mongodb-js/compass-connection-import-export';
 import {
   Card,
-  ResizableSidebar,
   ErrorBoundary,
-  spacing,
+  ResizableSidebar,
   css,
   cx,
   palette,
+  spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import ConnectionForm from '@mongodb-js/connection-form';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  ExportConnectionsModal,
+  ImportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import ConnectionForm from '@mongodb-js/connection-form';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
-
-import FormHelp from './form-help/form-help';
-import Connecting from './connecting/connecting';
-import { useConnections } from '../stores/connections-store';
-import { cloneDeep } from 'lodash';
-import ConnectionList from './connection-list/connection-list';
-import { LegacyConnectionsModal } from './legacy-connections-modal';
+import type { connect, DataService } from 'mongodb-data-service';
+import React, { useCallback, useMemo, useState } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
+import { cloneDeep } from 'lodash';
+import { useConnections } from '../stores/connections-store';
+import Connecting from './connecting/connecting';
+import ConnectionList from './connection-list/connection-list';
+import FormHelp from './form-help/form-help';
+import { LegacyConnectionsModal } from './legacy-connections-modal';
 
 type ConnectFn = typeof connect;
 
@@ -87,24 +85,28 @@ const formCardLightThemeStyles = css({
 function Connections({
   appRegistry,
   onConnected,
-  isConnected,
-  connectionStorage = ConnectionStorage,
-  appName,
+  onConnectionFailed,
+  onConnectionAttemptStarted,
   getAutoConnectInfo,
-  connectFn = connect,
 }: {
   appRegistry: AppRegistry;
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  isConnected: boolean;
-  connectionStorage?: typeof ConnectionStorage;
-  appName: string;
+  onConnectionFailed: (
+    connectionInfo: ConnectionInfo | null,
+    error: Error
+  ) => void;
+  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn?: ConnectFn;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
+  // TODO(COMPASS-7397): services should not be used directly in render method,
+  // when this code is refactored to use the hadron plugin interface, storage
+  // should be handled through the plugin activation lifecycle
+  const connectionStorage = useConnectionStorageContext();
+
   const {
     state,
     cancelConnectionAttempt,
@@ -117,19 +119,16 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-    reloadConnections,
   } = useConnections({
     onConnected,
-    isConnected,
-    connectionStorage,
-    connectFn,
-    appName,
+    onConnectionFailed,
+    onConnectionAttemptStarted,
     getAutoConnectInfo,
   });
   const {
+    connectingConnectionId,
     activeConnectionId,
     activeConnectionInfo,
-    connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
     oidcDeviceAuthVerificationUrl,
@@ -164,6 +163,9 @@ function Connections({
   );
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
+  );
+  const isMultiConnectionEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
   );
 
   const preferences = useMemo(
@@ -245,22 +247,23 @@ function Connections({
               </Card>
             </div>
           </ErrorBoundary>
-          <FormHelp />
+          <FormHelp isMultiConnectionEnabled={isMultiConnectionEnabled} />
         </div>
       </div>
-      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+      {connectingConnectionId && (
         <Connecting
           oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
           oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
           connectingStatusText={connectingStatusText}
-          onCancelConnectionClicked={cancelConnectionAttempt}
+          onCancelConnectionClicked={() =>
+            void cancelConnectionAttempt(connectingConnectionId)
+          }
         />
       )}
       <ImportConnectionsModal
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}
         favoriteConnections={favoriteConnections}
-        afterImport={reloadConnections}
         trackingProps={{ context: 'connectionsList' }}
         connectionStorage={connectionStorage}
       />

@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 
 /**

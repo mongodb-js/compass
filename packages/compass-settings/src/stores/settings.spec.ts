@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { fetchSettings, changeFieldValue, saveSettings } from './settings';
-import { configureStore } from '.';
+import configureStore from '../../test/configure-store';
 
 describe('Settings store actions', function () {
   const sinonSandbox = Sinon.createSandbox();

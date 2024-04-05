@@ -28,7 +28,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-export-to-language**](packages/compass-export-to-language): Export MongoDB queries and aggregations to various languages
 - [**@mongodb-js/compass-field-store**](packages/compass-field-store): FieldStore keeps track of available fields in a collection
 - [**@mongodb-js/compass-find-in-page**](packages/compass-find-in-page): cmd-f UI for Compass
-- [**@mongodb-js/compass-home**](packages/compass-home): Home
 - [**@mongodb-js/compass-import-export**](packages/compass-import-export): Import/Export feature for Compass
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Collection index management for Compass
 - [**@mongodb-js/compass-instance**](packages/compass-instance): Compass instance plugin
@@ -67,7 +66,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**hadron-build**](packages/hadron-build): Tooling for Hadron apps
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
-- [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
 - [**mongodb-collection-model**](packages/collection-model): MongoDB collection model
 - [**mongodb-data-service**](packages/data-service): MongoDB Data Service

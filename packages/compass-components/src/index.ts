@@ -136,6 +136,7 @@ export {
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
+export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
   SignalHooksProvider,
@@ -187,3 +188,9 @@ export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
 export { PerformanceSignals } from './components/signals';
 export { ToastBody } from './components/toast-body';
 export { CompassComponentsProvider } from './components/compass-components-provider';
+export { type BreadcrumbItem, Breadcrumbs } from './components/breadcrumb';
+export {
+  urlWithUtmParams,
+  RequiredURLSearchParamsProvider,
+  useRequiredURLSearchParams,
+} from './components/links/link';

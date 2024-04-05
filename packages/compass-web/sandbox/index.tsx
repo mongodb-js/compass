@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import {
   TextArea,
@@ -18,8 +18,18 @@ import {
   redactConnectionString,
   ConnectionString,
 } from 'mongodb-connection-string-url';
+
+import createDebug from 'debug';
 import { CompassWeb } from '../src/index';
-import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
+import type {
+  OpenWorkspaceOptions,
+  CollectionSubtab,
+} from '@mongodb-js/compass-workspaces';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { mongoLogId } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { MongoLogWriter } from 'mongodb-log-writer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -77,7 +87,7 @@ const historyItemButtonStyles = css({
 
 resetGlobalCSS();
 
-function getHistory(): string[] {
+function getHistory(): ConnectionInfo[] {
   try {
     const b64Str = localStorage.getItem('CONNECTIONS_HISTORY');
     if (!b64Str) {
@@ -89,6 +99,21 @@ function getHistory(): string[] {
     return JSON.parse(str);
   } catch (err) {
     return [];
+  }
+}
+
+function getCollectionSubTab(subTab: string): CollectionSubtab {
+  switch (subTab.toLowerCase()) {
+    case 'schema':
+      return 'Schema';
+    case 'indexes':
+      return 'Indexes';
+    case 'aggregations':
+      return 'Aggregations';
+    case 'validation':
+      return 'Validation';
+    default:
+      return 'Documents';
   }
 }
 
@@ -112,9 +137,15 @@ function validateConnectionString(str: string) {
   }
 }
 
+const tracking: { event: string; properties: any }[] = [];
+const logging: { name: string; component: string; args: any[] }[] = [];
+
+(globalThis as any).tracking = tracking;
+(globalThis as any).logging = logging;
+
 const App = () => {
   const [initialTab] = useState<OpenWorkspaceOptions>(() => {
-    const [, tab, namespace = ''] = window.location.pathname.split('/');
+    const [, tab, namespace = '', subTab] = window.location.pathname.split('/');
     if (tab === 'databases') {
       return { type: 'Databases' };
     }
@@ -122,20 +153,33 @@ const App = () => {
       return { type: 'Collections', namespace };
     }
     if (tab === 'collection' && namespace) {
-      return { type: 'Collection', namespace };
+      return {
+        type: 'Collection',
+        namespace,
+        initialSubtab: getCollectionSubTab(subTab),
+      };
     }
     return { type: 'Databases' };
   });
-  const [connectionsHistory, setConnectionsHistory] = useState<string[]>(() => {
+  const [connectionsHistory, setConnectionsHistory] = useState<
+    ConnectionInfo[]
+  >(() => {
     return getHistory();
   });
   const [focused, setFocused] = useState(false);
   const [connectionString, setConnectionString] = useState('');
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
+    null
+  );
   const [openCompassWeb, setOpenCompassWeb] = useState(false);
   const [
     connectionStringValidationResult,
     setConnectionStringValidationResult,
   ] = useState<null | string>(null);
+
+  (window as any).disconnectCompassWeb = () => {
+    setOpenCompassWeb(false);
+  };
 
   const canSubmit =
     connectionStringValidationResult === null && connectionString !== '';
@@ -148,10 +192,22 @@ const App = () => {
   const onConnectClick = useCallback(() => {
     setOpenCompassWeb(true);
     setConnectionsHistory((history) => {
-      if (history.includes(connectionString)) {
+      const info = history.find(
+        (info) => info.connectionOptions.connectionString === connectionString
+      );
+      if (info) {
+        setConnectionInfo(info);
         return history;
       }
-      history.unshift(connectionString);
+
+      const newInfo: ConnectionInfo = {
+        id: Math.random().toString(36).slice(2),
+        connectionOptions: {
+          connectionString,
+        },
+      };
+      setConnectionInfo(newInfo);
+      history.unshift(newInfo);
       if (history.length > 10) {
         history.pop();
       }
@@ -160,34 +216,81 @@ const App = () => {
     });
   }, [connectionString]);
 
-  if (openCompassWeb) {
+  const onConnectionItemDoubleClick = useCallback(
+    (info: ConnectionInfo) => {
+      setConnectionString(info.connectionOptions.connectionString);
+      onConnectClick();
+    },
+    [onConnectClick]
+  );
+
+  const loggerProvider = useRef({
+    createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
+      const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
+        return (...args: any[]) => {
+          logging.push({ name, component, args });
+        };
+      };
+
+      const track = (event: string, properties: any) => {
+        tracking.push({ event, properties });
+      };
+
+      const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
+
+      return {
+        log: {
+          component,
+          get unbound() {
+            return this as unknown as MongoLogWriter;
+          },
+          write: () => true,
+          debug: logger('debug'),
+          info: logger('info'),
+          warn: logger('warn'),
+          error: logger('error'),
+          fatal: logger('fatal'),
+        },
+        debug,
+        track,
+        mongoLogId,
+      };
+    },
+  });
+
+  if (openCompassWeb && connectionInfo) {
     return (
       <Body as="div" className={sandboxContainerStyles}>
-        <ErrorBoundary>
-          <CompassWeb
-            connectionString={connectionString}
-            initialWorkspaceTabs={[initialTab]}
-            onActiveWorkspaceTabChange={(tab) => {
-              let newPath: string;
-              switch (tab?.type) {
-                case 'Databases':
-                  newPath = '/databases';
-                  break;
-                case 'Collections':
-                  newPath = `/collections/${tab.namespace}`;
-                  break;
-                case 'Collection':
-                  newPath = `/collection/${tab.namespace}`;
-                  break;
-                default:
-                  newPath = '/';
-              }
-              if (newPath) {
-                window.history.replaceState(null, '', newPath);
-              }
-            }}
-          ></CompassWeb>
-        </ErrorBoundary>
+        <LoggerAndTelemetryProvider value={loggerProvider.current}>
+          <ErrorBoundary>
+            <CompassWeb
+              connectionInfo={connectionInfo}
+              initialWorkspaceTabs={[initialTab]}
+              stackedElementsZIndex={5}
+              onActiveWorkspaceTabChange={(tab) => {
+                let newPath: string;
+                switch (tab?.type) {
+                  case 'Databases':
+                    newPath = '/databases';
+                    break;
+                  case 'Collections':
+                    newPath = `/collections/${tab.namespace}`;
+                    break;
+                  case 'Collection':
+                    newPath = `/collection/${
+                      tab.namespace
+                    }/${tab.subTab.toLowerCase()}`;
+                    break;
+                  default:
+                    newPath = '/';
+                }
+                if (newPath) {
+                  window.history.replaceState(null, '', newPath);
+                }
+              }}
+            ></CompassWeb>
+          </ErrorBoundary>
+        </LoggerAndTelemetryProvider>
       </Body>
     );
   }
@@ -237,22 +340,29 @@ const App = () => {
               <div>
                 <Label htmlFor="connection-list">Connection history</Label>
                 <ul id="connection-list" className={historyListStyles}>
-                  {connectionsHistory.map((connectionString) => {
+                  {connectionsHistory.map((connectionInfo) => {
                     return (
                       <KeylineCard
                         as="li"
-                        key={connectionString}
+                        key={connectionInfo.id}
                         className={historyListItemStyles}
                         contentStyle="clickable"
                       >
                         <button
                           className={historyItemButtonStyles}
                           type="button"
+                          onDoubleClick={() =>
+                            onConnectionItemDoubleClick(connectionInfo)
+                          }
                           onClick={() => {
-                            onChangeConnectionString(connectionString);
+                            onChangeConnectionString(
+                              connectionInfo.connectionOptions.connectionString
+                            );
                           }}
                         >
-                          {redactConnectionString(connectionString)}
+                          {redactConnectionString(
+                            connectionInfo.connectionOptions.connectionString
+                          )}
                         </button>
                       </KeylineCard>
                     );

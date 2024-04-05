@@ -17,15 +17,22 @@ const HANDLE_ERROR = 'database-collections/rename-collection/HANDLE_ERROR';
 /**
  * Open drop database action creator.
  */
-export const open = (
-  db: string,
-  collection: string,
-  collections: { name: string }[]
-) => ({
+export const open = ({
+  db,
+  collection,
+  collections,
+  areSavedQueriesAndAggregationsImpacted,
+}: {
+  db: string;
+  collection: string;
+  collections: { name: string }[];
+  areSavedQueriesAndAggregationsImpacted: boolean;
+}) => ({
   type: OPEN,
   db,
   collection,
   collections,
+  areSavedQueriesAndAggregationsImpacted,
 });
 
 export const close = () => ({
@@ -48,6 +55,7 @@ export type RenameCollectionRootState = {
   isVisible: boolean;
   databaseName: string;
   collections: { name: string }[];
+  areSavedQueriesAndAggregationsImpacted: boolean;
 };
 
 const defaultState: RenameCollectionRootState = {
@@ -57,6 +65,7 @@ const defaultState: RenameCollectionRootState = {
   databaseName: '',
   initialCollectionName: '',
   collections: [],
+  areSavedQueriesAndAggregationsImpacted: true,
 };
 
 const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
@@ -70,6 +79,8 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
       initialCollectionName: action.collection,
       databaseName: action.db,
       collections: action.collections,
+      areSavedQueriesAndAggregationsImpacted:
+        action.areSavedQueriesAndAggregationsImpacted,
       isVisible: true,
       isRunning: false,
       error: null,

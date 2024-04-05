@@ -4,6 +4,8 @@ import { ConfirmationModalArea } from '../hooks/use-confirmation';
 import { ToastArea } from '../hooks/use-toast';
 import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
+import { RequiredURLSearchParamsProvider } from './links/link';
+import { StackedComponentProvider } from '../hooks/use-stacked-component';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -26,9 +28,16 @@ type CompassComponentsProviderProps = {
         portalContainerRef: React.Ref<HTMLElement>;
         scrollContainerRef: React.Ref<HTMLElement>;
       }) => React.ReactElement | null);
+  /**
+   * zIndex for the stacked elements (modal, toast, popover)
+   */
+  stackedElementsZIndex?: number;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
+} & {
+  utmSource?: string;
+  utmMedium?: string;
 } & React.ComponentProps<typeof SignalHooksProvider>;
 
 const darkModeMediaQuery = (() => {
@@ -85,6 +94,9 @@ export const CompassComponentsProvider = ({
   children,
   onNextGuideGue,
   onNextGuideCueGroup,
+  utmSource,
+  utmMedium,
+  stackedElementsZIndex,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -110,24 +122,31 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <GuideCueProvider
-        onNext={onNextGuideGue}
-        onNextGroup={onNextGuideCueGroup}
-      >
-        <SignalHooksProvider {...signalHooksProviderProps}>
-          <ConfirmationModalArea>
-            <ToastArea>
-              {typeof children === 'function'
-                ? children({
-                    darkMode,
-                    portalContainerRef: setPortalContainer,
-                    scrollContainerRef: setScrollContainer,
-                  })
-                : children}
-            </ToastArea>
-          </ConfirmationModalArea>
-        </SignalHooksProvider>
-      </GuideCueProvider>
+      <StackedComponentProvider zIndex={stackedElementsZIndex}>
+        <RequiredURLSearchParamsProvider
+          utmSource={utmSource}
+          utmMedium={utmMedium}
+        >
+          <GuideCueProvider
+            onNext={onNextGuideGue}
+            onNextGroup={onNextGuideCueGroup}
+          >
+            <SignalHooksProvider {...signalHooksProviderProps}>
+              <ConfirmationModalArea>
+                <ToastArea>
+                  {typeof children === 'function'
+                    ? children({
+                        darkMode,
+                        portalContainerRef: setPortalContainer,
+                        scrollContainerRef: setScrollContainer,
+                      })
+                    : children}
+                </ToastArea>
+              </ConfirmationModalArea>
+            </SignalHooksProvider>
+          </GuideCueProvider>
+        </RequiredURLSearchParamsProvider>
+      </StackedComponentProvider>
     </LeafyGreenProvider>
   );
 };

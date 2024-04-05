@@ -5,9 +5,13 @@ import {
   cleanup,
   fireEvent,
   getByText,
+  waitFor,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
@@ -28,23 +32,31 @@ const noop = (): any => {
 const saveAndConnectText = 'Save & Connect';
 const favoriteText = 'FAVORITE';
 
-function renderForm(props: Partial<ConnectionFormProps> = {}) {
-  return render(
-    <ConnectionForm
-      onConnectClicked={noop}
-      initialConnectionInfo={{
-        id: 'test',
-        connectionOptions: {
-          connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
-        },
-      }}
-      onSaveConnectionClicked={noop}
-      {...props}
-    />
-  );
-}
-
 describe('ConnectionForm Component', function () {
+  let preferences: PreferencesAccess;
+  function renderForm(props: Partial<ConnectionFormProps> = {}) {
+    return render(
+      <PreferencesProvider value={preferences}>
+        <ConnectionForm
+          onConnectClicked={noop}
+          initialConnectionInfo={{
+            id: 'test',
+            connectionOptions: {
+              connectionString:
+                'mongodb://pineapple:orangutans@localhost:27019',
+            },
+          }}
+          onSaveConnectionClicked={noop}
+          {...props}
+        />
+      </PreferencesProvider>
+    );
+  }
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   afterEach(function () {
     cleanup();
   });
@@ -57,7 +69,7 @@ describe('ConnectionForm Component', function () {
   it('should show the connect button', function () {
     renderForm();
     const button = screen.getByText('Connect').closest('button');
-    expect(button).to.not.match('disabled');
+    expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
   });
 
   it('should render the connection string textbox', function () {
@@ -362,5 +374,97 @@ describe('ConnectionForm Component', function () {
     );
 
     expect(() => screen.getByText(saveAndConnectText)).to.throw;
+  });
+
+  it('should not include the help panels', function () {
+    expect(screen.queryByText(/How do I find my/)).to.be.null;
+    expect(screen.queryByText(/How do I format my/)).to.be.null;
+  });
+
+  context('when multiple connection management is enabled', function () {
+    let onCancel: Sinon.SinonSpy;
+    beforeEach(async function () {
+      onCancel = Sinon.spy();
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      renderForm({
+        initialConnectionInfo: DEFAULT_CONNECTION,
+        preferences: {
+          protectConnectionStringsForNewConnections: false,
+          protectConnectionStrings: false,
+        },
+        onCancel,
+      });
+    });
+
+    it('should not show the old favorite button', function () {
+      expect(screen.queryByTestId('edit-favorite-icon-button')).to.be.null;
+    });
+
+    it('should include the help panels', function () {
+      expect(screen.getByText(/How do I find my/)).to.be.visible;
+      expect(screen.getByText(/How do I format my/)).to.be.visible;
+    });
+
+    it('should show a Cancel button', function () {
+      screen.debug(screen.getByTestId('cancel-button'));
+      const button = screen.queryByRole('button', { name: 'Cancel' });
+
+      expect(button).to.be.visible;
+
+      button?.click();
+
+      expect(onCancel).to.have.been.called;
+    });
+
+    describe('name input', function () {
+      it('should sync with the href of the connection string unless it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        userEvent.clear(connectionString);
+
+        await waitFor(() => expect(connectionString.value).to.equal(''));
+
+        userEvent.paste(connectionString, 'mongodb://myserver:27017/');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://myserver:27017/')
+        );
+
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
+        );
+        expect(personalizationName.value).to.equal('myserver:27017');
+      });
+
+      it('should not sync with the href of the connection string when it has been edited', async function () {
+        const connectionString = screen.getByTestId('connectionString');
+        const personalizationName = screen.getByTestId(
+          'personalization-name-input'
+        );
+
+        userEvent.clear(personalizationName);
+        userEvent.clear(connectionString);
+
+        await waitFor(() => {
+          expect(personalizationName.value).to.equal('');
+          expect(connectionString.value).to.equal('');
+        });
+
+        userEvent.paste(personalizationName, 'my happy name');
+
+        await waitFor(() =>
+          expect(personalizationName.value).to.equal('my happy name')
+        );
+
+        userEvent.paste(connectionString, 'mongodb://webscale:27017/');
+
+        await waitFor(() =>
+          expect(connectionString.value).to.equal('mongodb://webscale:27017/')
+        );
+
+        expect(personalizationName.value).to.equal('my happy name');
+      });
+    });
   });
 });

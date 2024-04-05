@@ -50,9 +50,13 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
+    enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
+    enableHackoladeBanner: boolean;
+    enablePerformanceAdvisorBanner: boolean;
+    maximumNumberOfActiveConnections?: number;
   };
 
 export type InternalUserPreferences = {
@@ -64,8 +68,10 @@ export type InternalUserPreferences = {
     GEN_AI_COMPASS?: boolean;
   };
   lastKnownVersion: string;
+  highestInstalledVersion?: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
+  telemetryAtlasUserId?: string;
   userCreatedAt: number;
 };
 
@@ -255,6 +261,17 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
   /**
+   * Stores the highest Compass version that has been running on this installation.
+   */
+  highestInstalledVersion: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().default('0.0.0'),
+    type: 'string',
+  },
+  /**
    * Stores whether or not the network opt-in screen has been shown to
    * the user already.
    */
@@ -310,6 +327,17 @@ export const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     validator: z.string().uuid().optional(),
+    type: 'string',
+  },
+  /**
+   * Stores a unique telemetry atlas ID for the current user.
+   */
+  telemetryAtlasUserId: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
     type: 'string',
   },
   /**
@@ -406,7 +434,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable AI Features',
-      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
@@ -622,6 +650,17 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
 
+  enableAtlasSearchIndexes: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Atlas Search Indexes',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   enableImportExport: {
     ui: true,
     cli: true,
@@ -665,6 +704,40 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(true),
     type: 'boolean',
+  },
+
+  enableHackoladeBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Show Hackolade banner to users for data modeling and schema design',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enablePerformanceAdvisorBanner: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show performance advisor banner to users for performance tuning',
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+
+  maximumNumberOfActiveConnections: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Limits the amount of open connections.',
+    },
+    validator: z.number().default(10),
+    type: 'number',
   },
 
   ...allFeatureFlagsProps,

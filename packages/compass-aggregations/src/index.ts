@@ -8,7 +8,7 @@ import CreateViewModal from './components/create-view-modal';
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type {
   OptionalDataServiceProps,
@@ -17,6 +17,8 @@ import type {
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
+import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 
 export const CompassAggregationsHadronPlugin = registerHadronPlugin(
@@ -34,12 +36,14 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-AGGREGATIONS-UI'),
+    atlasAuthService: atlasAuthServiceLocator,
+    atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
   }
 );
 
 export const CompassAggregationsPlugin = {
-  name: 'Aggregations',
+  name: 'Aggregations' as const,
   component: CompassAggregationsHadronPlugin,
 };
 

@@ -2,12 +2,10 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { stub } from 'sinon';
 import { Provider } from 'react-redux';
 import { PrivacySettings } from './privacy';
-import { configureStore } from '../../stores';
+import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function renderPrivacySettings(
   store,
@@ -31,10 +29,7 @@ describe('PrivacySettings', function () {
   }
 
   beforeEach(async function () {
-    store = configureStore({
-      logger: stub() as any,
-      preferences: await createSandboxFromDefaultPreferences(),
-    });
+    store = configureStore();
     await store.dispatch(fetchSettings());
   });
 
@@ -65,19 +60,5 @@ describe('PrivacySettings', function () {
         expect(getSettings()).to.have.property(option, !initialValue);
       });
     });
-  });
-
-  it('does not render enableGenAIFeatures when isAIFeatureRolledOutToUser is false', function () {
-    container = renderPrivacySettings(store, {
-      isAIFeatureRolledOutToUser: false,
-    });
-    expect(within(container).queryByTestId('enableGenAIFeatures')).to.not.exist;
-  });
-
-  it('renders enableGenAIFeatures when GisAIFeatureRolledOutToUser is true', function () {
-    container = renderPrivacySettings(store, {
-      isAIFeatureRolledOutToUser: true,
-    });
-    expect(within(container).getByTestId('enableGenAIFeatures')).to.be.visible;
   });
 });

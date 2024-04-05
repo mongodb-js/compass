@@ -23,7 +23,7 @@ import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 

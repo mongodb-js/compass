@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -6,6 +7,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
+import { AutoUpdateManagerState } from './auto-update-manager';
 
 function serializable<T>(obj: T): T {
   try {
@@ -45,6 +47,7 @@ describe('CompassMenu', function () {
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: false,
       isReadOnly: false,
+      updateManagerState: 'idle',
     });
   });
 
@@ -81,11 +84,13 @@ describe('CompassMenu', function () {
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: true,
       isReadOnly: false,
+      updateManagerState: 'idle',
     });
     ipcMain.emit('window:hide-collection-submenu', { sender: bw.webContents });
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: false,
       isReadOnly: false,
+      updateManagerState: 'idle',
     });
     ipcMain.emit(
       'window:show-collection-submenu',
@@ -95,6 +100,33 @@ describe('CompassMenu', function () {
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: true,
       isReadOnly: true,
+      updateManagerState: 'idle',
+    });
+  });
+
+  it('should change window state when window emits update-manager:new-state event', function () {
+    const bw = new BrowserWindow({ show: false });
+    App.emit('new-window', bw);
+    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
+      showCollection: false,
+      isReadOnly: false,
+      updateManagerState: 'idle',
+    });
+    App.emit('auto-updater:new-state', AutoUpdateManagerState.PromptForRestart);
+    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
+      showCollection: false,
+      isReadOnly: false,
+      updateManagerState: 'ready to restart',
+    });
+    App.emit(
+      'auto-updater:new-state',
+      AutoUpdateManagerState.DownloadingUpdate
+    );
+
+    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
+      showCollection: false,
+      isReadOnly: false,
+      updateManagerState: 'installing updates',
     });
   });
 
@@ -109,6 +141,152 @@ describe('CompassMenu', function () {
         const menu = Menu.buildFromTemplate(template);
         Menu.setApplicationMenu(menu);
       }).not.to.throw();
+    });
+
+    describe('manual update menu item', function () {
+      const bw = new BrowserWindow({ show: false });
+      beforeEach(() => {
+        App.emit('new-window', bw);
+      });
+      describe('darwin', () => {
+        beforeEach(function () {
+          if (process.platform !== 'darwin') this.skip();
+        });
+        describe('when the auto updater is in an idle state', () => {
+          it('displays `Checking for updates...` in the menu', () => {
+            const idleStates = [
+              AutoUpdateManagerState.Initial,
+              AutoUpdateManagerState.Disabled,
+              AutoUpdateManagerState.UserPromptedManualCheck,
+              AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+              AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+              AutoUpdateManagerState.NoUpdateAvailable,
+              AutoUpdateManagerState.UpdateAvailable,
+              AutoUpdateManagerState.UpdateDismissed,
+              AutoUpdateManagerState.DownloadingError,
+              AutoUpdateManagerState.Restarting,
+            ];
+            for (const state of idleStates) {
+              App.emit('auto-updater:new-state', state);
+              const menu = serializable(CompassMenu.getTemplate(bw.id));
+              const updateItem = (
+                menu[0].submenu as any
+              )?.[1] as MenuItemConstructorOptions;
+              expect(updateItem.label).to.equal('Check for updates…');
+            }
+          });
+        });
+
+        describe('when the auto updater is in an downloading an update', () => {
+          it('displays `Installing update...` in the menu', () => {
+            sinon.stub(process, 'platform').value('darwin');
+
+            const idleStates = [
+              AutoUpdateManagerState.ManualDownload,
+              AutoUpdateManagerState.DownloadingUpdate,
+            ];
+            for (const state of idleStates) {
+              App.emit('auto-updater:new-state', state);
+              const menu = serializable(CompassMenu.getTemplate(bw.id));
+              const updateItem = (
+                menu[0].submenu as any
+              )?.[1] as MenuItemConstructorOptions;
+              expect(updateItem.label).to.equal('Installing updates…');
+              expect(updateItem.enabled).to.be.false;
+            }
+          });
+        });
+
+        describe('when the auto updater is in ready for restart', () => {
+          it('displays `Restart` in the menu', () => {
+            sinon.stub(process, 'platform').value('darwin');
+
+            const idleStates = [
+              AutoUpdateManagerState.PromptForRestart,
+              AutoUpdateManagerState.RestartDismissed,
+            ];
+            for (const state of idleStates) {
+              App.emit('auto-updater:new-state', state);
+              const menu = serializable(CompassMenu.getTemplate(bw.id));
+              const updateItem = (
+                menu[0].submenu as any
+              )?.[1] as MenuItemConstructorOptions;
+              expect(updateItem.label).to.equal('Restart');
+            }
+          });
+        });
+      });
+
+      for (const platform of ['linux', 'win32']) {
+        describe(platform, () => {
+          beforeEach(function () {
+            if (process.platform !== platform) this.skip();
+          });
+          describe('when the auto updater is in an idle state', () => {
+            it('displays `Checking for updates...` in the menu', () => {
+              const idleStates = [
+                AutoUpdateManagerState.Initial,
+                AutoUpdateManagerState.Disabled,
+                AutoUpdateManagerState.UserPromptedManualCheck,
+                AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+                AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+                AutoUpdateManagerState.NoUpdateAvailable,
+                AutoUpdateManagerState.UpdateAvailable,
+                AutoUpdateManagerState.UpdateDismissed,
+                AutoUpdateManagerState.DownloadingError,
+                AutoUpdateManagerState.Restarting,
+              ];
+              for (const state of idleStates) {
+                App.emit('auto-updater:new-state', state);
+                const menu = serializable(CompassMenu.getTemplate(bw.id));
+                const updateItem = (
+                  menu[3].submenu as any
+                )?.[8] as MenuItemConstructorOptions;
+                expect(updateItem.label).to.equal('Check for updates…');
+              }
+            });
+          });
+        });
+
+        describe('when the auto updater is in an downloading an update', () => {
+          it('displays `Installing update...` in the menu', () => {
+            sinon.stub(process, 'platform').value(platform);
+
+            const idleStates = [
+              AutoUpdateManagerState.ManualDownload,
+              AutoUpdateManagerState.DownloadingUpdate,
+            ];
+            for (const state of idleStates) {
+              App.emit('auto-updater:new-state', state);
+              const menu = serializable(CompassMenu.getTemplate(bw.id));
+              const updateItem = (
+                menu[3].submenu as any
+              )?.[8] as MenuItemConstructorOptions;
+              expect(updateItem.label).to.equal('Installing updates…');
+              expect(updateItem.enabled).to.be.false;
+            }
+          });
+        });
+
+        describe('when the auto updater is in ready for restart', () => {
+          it('displays `Restart` in the menu', () => {
+            sinon.stub(process, 'platform').value(platform);
+
+            const idleStates = [
+              AutoUpdateManagerState.PromptForRestart,
+              AutoUpdateManagerState.RestartDismissed,
+            ];
+            for (const state of idleStates) {
+              App.emit('auto-updater:new-state', state);
+              const menu = serializable(CompassMenu.getTemplate(bw.id));
+              const updateItem = (
+                menu[3].submenu as any
+              )?.[8] as MenuItemConstructorOptions;
+              expect(updateItem.label).to.equal('Restart');
+            }
+          });
+        });
+      }
     });
 
     it('should generate a menu template for darwin', function () {
@@ -166,8 +344,6 @@ describe('CompassMenu', function () {
           submenu: [
             { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
             { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
-            { type: 'separator' },
-            { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
             { type: 'separator' },
             { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
             { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
@@ -240,8 +416,6 @@ describe('CompassMenu', function () {
               { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
               { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
               { type: 'separator' },
-              { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
-              { type: 'separator' },
               { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
               { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
               { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
@@ -275,6 +449,7 @@ describe('CompassMenu', function () {
       CompassMenu['windowState'].set(0, {
         showCollection: true,
         isReadOnly: false,
+        updateManagerState: 'idle',
       });
       expect(
         // Contains functions, so we can't easily deep equal it without
@@ -308,6 +483,7 @@ describe('CompassMenu', function () {
       CompassMenu['windowState'].set(0, {
         showCollection: true,
         isReadOnly: true,
+        updateManagerState: 'idle',
       });
       expect(
         // Contains functions, so we can't easily deep equal it without

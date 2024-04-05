@@ -1,11 +1,12 @@
 import { expect } from 'chai';
+import { MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -19,19 +20,11 @@ describe('Database collections tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
   });
 
@@ -131,7 +124,7 @@ describe('Database collections tab', function () {
       }
 
       // go hover somewhere else to give the next attempt a fighting chance
-      await browser.hover(Selectors.SidebarTitle);
+      await browser.hover(Selectors.Sidebar);
       return false;
     });
 
@@ -187,7 +180,7 @@ describe('Database collections tab', function () {
       collectionName,
       {
         customCollation: {
-          locale: 'af - Afrikaans',
+          locale: 'af',
           strength: 3,
           caseLevel: false,
           caseFirst: 'lower',
@@ -346,9 +339,17 @@ describe('Database collections tab', function () {
   it('can refresh the list of collections using refresh controls', async function () {
     const db = `test`;
     const coll = `zcoll-${Date.now()}`;
+
     // Create the collection and refresh
-    await browser.shellEval(`use ${db};`);
-    await browser.shellEval(`db.createCollection('${coll}');`);
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    await mongoClient.connect();
+    try {
+      const database = mongoClient.db(db);
+      await database.createCollection(coll);
+    } finally {
+      await mongoClient.close();
+    }
+
     await browser.navigateToDatabaseCollectionsTab(db);
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 

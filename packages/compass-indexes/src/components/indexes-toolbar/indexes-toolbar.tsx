@@ -30,10 +30,6 @@ import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-i
 import type { IndexView } from '../../modules/index-view';
 import { changeIndexView } from '../../modules/index-view';
 
-const containerStyles = css({
-  margin: `${spacing[3]}px 0`,
-});
-
 const toolbarButtonsContainer = css({
   display: 'flex',
   flexDirection: 'row',
@@ -46,7 +42,6 @@ const alignSelfEndStyles = css({
   marginLeft: 'auto',
 });
 
-const errorStyles = css({ marginTop: spacing[2] });
 const spinnerStyles = css({ marginRight: spacing[2] });
 
 const createIndexButtonContainerStyles = css({
@@ -87,10 +82,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onChangeIndexView,
   readOnly, // preferences readOnly.
 }) => {
-  const isSearchManagementActive = usePreference(
-    'enableAtlasSearchIndexManagement'
-  );
-
+  const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
@@ -102,7 +94,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   return (
-    <div className={containerStyles} data-testid="indexes-toolbar-container">
+    <div data-testid="indexes-toolbar-container">
       {!isReadonlyView && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
@@ -151,7 +143,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
             {isSearchManagementActive && (
               <SegmentedControl
-                size="small"
+                size="xsmall"
                 onChange={(evt) => onChangeIndexView(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
@@ -210,13 +202,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       )}
       {isReadonlyView ? (
         <WarningSummary
-          className={errorStyles}
           warnings={['Readonly views may not contain indexes.']}
         />
       ) : (
-        !!errorMessage && (
-          <ErrorSummary className={errorStyles} errors={[errorMessage]} />
-        )
+        !!errorMessage && <ErrorSummary errors={[errorMessage]} />
       )}
     </div>
   );

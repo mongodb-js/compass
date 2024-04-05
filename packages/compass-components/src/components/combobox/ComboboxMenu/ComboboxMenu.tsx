@@ -5,7 +5,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { useAvailableSpace, useForwardedRef } from '@leafygreen-ui/hooks';
 import Icon from '@leafygreen-ui/icon';
 import { palette } from '@leafygreen-ui/palette';
-import Popover from '@leafygreen-ui/popover';
+import { Popover } from '../../leafygreen';
 
 import { ComboboxProps } from '../Combobox.types';
 import { ComboboxContext } from '../ComboboxContext';

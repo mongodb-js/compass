@@ -163,7 +163,6 @@ const MatchConditionForm = ({
         />
       </div>
       <div className={operatorSelectStyles}>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           size="default"
           allowDeselect={false}
@@ -185,13 +184,15 @@ const MatchConditionForm = ({
       <div className={valueInputStyles}>
         <TextInput
           placeholder={LABELS.valueInput}
+          // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
+          aria-labelledby=""
+          data-testid="match-stage-expected-value-input"
           aria-label={LABELS.valueInput}
           value={condition.value}
           onChange={handleValueChange}
         />
       </div>
       <div className={bsonTypeSelectStyles}>
-        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           allowDeselect={false}
           placeholder={LABELS.typeSelect}

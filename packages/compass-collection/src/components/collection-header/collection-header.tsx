@@ -1,86 +1,38 @@
 import {
   css,
   palette,
-  Link,
   spacing,
-  H3,
   cx,
   SignalPopover,
   PerformanceSignals,
   useDarkMode,
+  Breadcrumbs,
 } from '@mongodb-js/compass-components';
+import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
-import CollectionStats from '../collection-stats';
 import type { CollectionState } from '../../modules/collection-tab';
 import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { connect } from 'react-redux';
 
 const collectionHeaderStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[1],
-  height: +spacing[6] + +spacing[2],
+  padding: spacing[3],
+  paddingTop: spacing[2],
+  paddingBottom: 0,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-});
-
-const collectionHeaderTitleStyles = css({
-  display: 'flex',
-  width: '100%',
-  alignItems: 'center',
-  padding: `0 ${String(spacing[3])}px`,
-  margin: 0,
-  overflow: 'hidden',
   gap: spacing[2],
 });
 
-const collectionHeaderDBLinkStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  '&:hover,&:focus': {
-    textDecoration: 'underline',
-  },
-  backgroundColor: 'transparent',
-  border: 'none',
-  display: 'inline-block',
-  padding: 0,
-});
-
-const collectionHeaderNamespaceStyles = css({
-  backgroundColor: 'transparent',
-  border: 'none',
-  display: 'flex',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-});
-
-const collectionHeaderDBNameStyles = css({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-});
-
-const dbLinkLightStyles = css({
-  color: palette.green.dark2,
-});
-
-const dbLinkDarkStyles = css({
-  color: palette.green.base,
-});
-
-const collectionHeaderCollectionStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+const breadcrumbStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
 });
 
 const collectionHeaderLightStyles = css({
@@ -91,12 +43,9 @@ const collectionHeaderDarkStyles = css({
   backgroundColor: palette.black,
 });
 
-const collectionHeaderTitleCollectionLightStyles = css({
-  color: palette.gray.dark1,
-});
-
-const collectionHeaderTitleCollectionDarkStyles = css({
-  color: palette.gray.light1,
+const actionsStyles = css({
+  flexShrink: 0,
+  marginLeft: 'auto',
 });
 
 type CollectionHeaderProps = {
@@ -109,7 +58,6 @@ type CollectionHeaderProps = {
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: unknown[];
-  stats: CollectionState['stats'];
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -146,24 +94,47 @@ export const CollectionHeader: React.FunctionComponent<
   sourceName,
   editViewName,
   sourcePipeline,
-  stats,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
-  const {
+  const { openCollectionWorkspace, openCollectionsWorkspace } =
+    useOpenWorkspace();
+
+  const breadcrumbItems = useMemo(() => {
+    return [
+      // TODO (COMPASS-7684): add connection name
+      {
+        name: toNS(namespace).database,
+        onClick: () => openCollectionsWorkspace(toNS(namespace).database),
+      },
+      // When viewing a view, show the source namespace first
+      sourceName && {
+        name: toNS(sourceName).collection,
+        onClick: () => openCollectionWorkspace(sourceName),
+      },
+      // Show the current namespace
+      {
+        name: toNS(namespace).collection,
+        onClick: () => openCollectionWorkspace(namespace),
+      },
+      // When editing a view, show the view namespace last
+      editViewName && {
+        name: toNS(editViewName).collection,
+        onClick: () => openCollectionWorkspace(editViewName),
+      },
+    ].filter(Boolean) as BreadcrumbItem[];
+  }, [
+    namespace,
+    sourceName,
+    editViewName,
     openCollectionsWorkspace,
     openCollectionWorkspace,
-    openEditViewWorkspace,
-  } = useOpenWorkspace();
+  ]);
 
-  const ns = toNS(namespace);
-  const database = ns.database;
-  const collection = ns.collection;
   const insights =
     showInsights && sourcePipeline?.length
       ? getInsightsForPipeline(sourcePipeline, isAtlas)
       : [];
-
   return (
     <div
       className={cx(
@@ -172,76 +143,22 @@ export const CollectionHeader: React.FunctionComponent<
       )}
       data-testid="collection-header"
     >
-      <div
-        title={`${database}.${collection}`}
-        className={collectionHeaderTitleStyles}
-        data-testid="collection-header-title"
-      >
-        <div
-          data-testid="collection-header-namespace"
-          className={collectionHeaderNamespaceStyles}
-        >
-          <Link
-            data-testid="collection-header-title-db"
-            as="button"
-            className={cx(
-              collectionHeaderDBLinkStyles,
-              darkMode ? dbLinkDarkStyles : dbLinkLightStyles
-            )}
-            hideExternalIcon={true}
-            onClick={() => {
-              openCollectionsWorkspace(ns.database);
-            }}
-          >
-            <H3
-              className={cx(
-                collectionHeaderDBNameStyles,
-                darkMode ? dbLinkDarkStyles : dbLinkLightStyles
-              )}
-            >
-              {database}
-            </H3>
-          </Link>
-          <H3
-            data-testid="collection-header-title-collection"
-            className={cx(
-              collectionHeaderCollectionStyles,
-              darkMode
-                ? collectionHeaderTitleCollectionDarkStyles
-                : collectionHeaderTitleCollectionLightStyles
-            )}
-          >
-            {`.${collection}`}
-          </H3>
-        </div>
-        {isReadonly && <CollectionBadge type="readonly" />}
-        {isTimeSeries && <CollectionBadge type="timeseries" />}
-        {isClustered && <CollectionBadge type="clustered" />}
-        {isFLE && <CollectionBadge type="fle" />}
-        {isReadonly && sourceName && <CollectionBadge type="view" />}
-        {!!insights.length && <SignalPopover signals={insights} />}
+      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
+      {isReadonly && <CollectionBadge type="readonly" />}
+      {isTimeSeries && <CollectionBadge type="timeseries" />}
+      {isClustered && <CollectionBadge type="clustered" />}
+      {isFLE && <CollectionBadge type="fle" />}
+      {isReadonly && sourceName && <CollectionBadge type="view" />}
+      {!!insights.length && <SignalPopover signals={insights} />}
+      <div className={actionsStyles}>
         <CollectionHeaderActions
           editViewName={editViewName}
           isReadonly={isReadonly}
-          onEditViewClicked={() => {
-            if (sourceName && sourcePipeline) {
-              openEditViewWorkspace(namespace, {
-                sourceName,
-                sourcePipeline,
-              });
-            }
-          }}
-          onReturnToViewClicked={() => {
-            if (editViewName) {
-              openCollectionWorkspace(editViewName);
-            }
-          }}
+          namespace={namespace}
           sourceName={sourceName}
+          sourcePipeline={sourcePipeline}
         />
       </div>
-      {!isReadonly && !editViewName && (
-        <CollectionStats isTimeSeries={isTimeSeries} stats={stats} />
-      )}
     </div>
   );
 };

@@ -44,9 +44,10 @@ class ActivateHelpersImpl {
     evt: string,
     fn: (...args: any) => any
   ) => {
-    emitter.on(evt, (...args) => void fn(...args));
+    const voidFn = (...args: any) => void fn(...args);
+    emitter.on(evt, voidFn);
     this.addCleanup(() => {
-      emitter.removeListener(evt, fn);
+      emitter.removeListener(evt, voidFn);
     });
   };
 
@@ -159,6 +160,62 @@ const useMockOption = <T extends keyof MockOptions>(key: T): MockOptions[T] => {
   return useContext(MockOptionsContext)[key];
 };
 
+let serviceLocationInProgress = false;
+
+const kLocator = Symbol('CompassServiceLocatorFunction');
+
+/**
+ * Helper method to "create" a service locator function for a particular
+ * service. This method guarantees that service locators are used only in
+ * appropriate context. Every service locator function in the application should
+ * be created with this method.
+ */
+export function createServiceLocator<
+  T extends (this: any, ...args: any[]) => any
+>(fn: T, name = fn.name): T {
+  return Object.assign(
+    function (this: any, ...args: any[]) {
+      if (!serviceLocationInProgress) {
+        throw new Error(
+          `Using service locator function "${name}" outside of the service location lifecycle. ` +
+            `Make sure that service locator function is passed as a second argument to the registerHadronPlugin method and is not used directly in a React render method.`
+        );
+      }
+      return fn.call(this, ...args);
+    },
+    { [kLocator]: true }
+  ) as unknown as T;
+}
+
+/**
+ * Optional service provider creation method. In some cases service providers
+ * need access to other service locators to facilitate service injections. In
+ * these cases service provider can be wrapped with the createServiceProvider
+ * function to allow usage of serviceLocator functions in providers outside of
+ * the usual hadron plugin "activate" lifecycle.
+ */
+export function createServiceProvider<T extends React.FunctionComponent>(
+  fn: T
+): T {
+  const displayName = `ServiceProvider(${fn.displayName ?? fn.name})`;
+  const Provider = function (props: React.ComponentProps<T>) {
+    let content: React.ReactElement | null;
+    try {
+      serviceLocationInProgress = true;
+      content = fn(props);
+    } finally {
+      serviceLocationInProgress = false;
+    }
+    return <>{content}</>;
+  };
+  Provider.displayName = displayName;
+  return Provider as T;
+}
+
+function isServiceLocator(val: any): boolean {
+  return Object.prototype.hasOwnProperty.call(val, kLocator);
+}
+
 function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
   config: HadronPluginConfig<T, S>,
   services: S | undefined,
@@ -171,30 +228,47 @@ function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
   const globalAppRegistry = useGlobalAppRegistry();
   const localAppRegistry = useLocalAppRegistry();
 
-  const serviceImpls = Object.fromEntries(
-    Object.keys({
-      ...(isMockedEnvironment ? mockServices : {}),
-      ...services,
-    }).map((key) => {
-      try {
-        return [
-          key,
-          isMockedEnvironment && mockServices?.[key]
-            ? mockServices[key]
-            : services?.[key](),
-        ];
-      } catch (err) {
+  let serviceImpls: Services<S>;
+
+  try {
+    serviceLocationInProgress = true;
+    serviceImpls = Object.fromEntries(
+      Object.keys({
+        ...(isMockedEnvironment ? mockServices : {}),
+        ...services,
+      }).map((key) => {
+        const usingMockService = isMockedEnvironment && !!mockServices?.[key];
+
         if (
-          err &&
-          typeof err === 'object' &&
-          'message' in err &&
-          typeof err.message === 'string'
-        )
-          err.message += ` [locating service '${key}' for '${registryName}']`;
-        throw err;
-      }
-    })
-  ) as Services<S>;
+          !usingMockService &&
+          services?.[key] &&
+          !isServiceLocator(services[key])
+        ) {
+          throw new Error(
+            `Function "${services[key].name}" that is being passed as a service locator can not be identified as one. ` +
+              `Make sure that you created a service locator function using createServiceLocator helper function.`
+          );
+        }
+
+        const svc = usingMockService ? mockServices[key] : services?.[key]();
+
+        try {
+          return [key, svc];
+        } catch (err) {
+          if (
+            err &&
+            typeof err === 'object' &&
+            'message' in err &&
+            typeof err.message === 'string'
+          )
+            err.message += ` [locating service '${key}' for '${registryName}']`;
+          throw err;
+        }
+      })
+    ) as Services<S>;
+  } finally {
+    serviceLocationInProgress = false;
+  }
 
   const [{ store, actions, context }] = useState(
     () =>

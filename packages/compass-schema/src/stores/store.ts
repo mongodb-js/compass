@@ -20,13 +20,14 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from 'mongodb-data-service';
+import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
@@ -59,6 +60,7 @@ export type SchemaPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   loggerAndTelemetry: LoggerAndTelemetry;
   preferences: PreferencesAccess;
+  fieldStoreService: FieldStoreService;
 };
 
 type SchemaState = {
@@ -86,6 +88,7 @@ export type SchemaStore = Reflux.Store & {
 
   localAppRegistry: SchemaPluginServices['localAppRegistry'];
   globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
+  fieldStoreService: SchemaPluginServices['fieldStoreService'];
   // TODO(COMPASS-6847): We don't really need this state in store, but it's hard
   // to factor away while the store is reflux
   query: QueryState;
@@ -137,6 +140,7 @@ export function activateSchemaPlugin(
     globalAppRegistry,
     loggerAndTelemetry,
     preferences,
+    fieldStoreService,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -165,6 +169,7 @@ export function activateSchemaPlugin(
       this.dataService = dataService;
       this.localAppRegistry = localAppRegistry;
       this.globalAppRegistry = globalAppRegistry;
+      this.fieldStoreService = fieldStoreService;
     },
 
     handleSchemaShare(this: SchemaStore) {
@@ -343,7 +348,9 @@ export function activateSchemaPlugin(
         );
         const analysisTime = Date.now() - analysisStartTime;
 
-        this.globalAppRegistry.emit('schema-analyzed', { ns: this.ns, schema });
+        if (schema !== null) {
+          this.fieldStoreService.updateFieldsFromSchema(this.ns, schema);
+        }
 
         this.setState({
           analysisState: schema

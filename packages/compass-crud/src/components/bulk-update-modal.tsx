@@ -33,6 +33,8 @@ import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
+import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+
 const modalContentStyles = css({
   width: '100%',
   maxWidth: '1280px',
@@ -43,7 +45,10 @@ const columnsStyles = css({
   display: 'grid',
   width: '100%',
   gap: spacing[4],
-  gridTemplateColumns: '2fr 3fr',
+  // make sure the readonly filter field starts scrolling for large/complicated
+  // filters rather than the 1st column taking up all the space and then leaving
+  // nothing for the preview
+  gridTemplateColumns: '475px 1fr',
 });
 
 const queryStyles = css({
@@ -393,6 +398,8 @@ export default function BulkUpdateModal({
   const bulkUpdateUpdateId = useId();
   const disabled = !!(syntaxError || serverError);
 
+  const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
+
   return (
     <Modal
       open={isOpen}
@@ -464,7 +471,12 @@ export default function BulkUpdateModal({
       </ModalBody>
       <ModalFooter className={modalFooterToolbarSpacingStyles}>
         <div className={modalFooterAdditionalActionsStyles}>
-          <InlineSaveQueryModal disabled={disabled} onSave={saveUpdateQuery} />
+          {favoriteQueryStorageAvailable && (
+            <InlineSaveQueryModal
+              disabled={disabled}
+              onSave={saveUpdateQuery}
+            />
+          )}
         </div>
         <div className={modalFooterFormActionsStyles}>
           <Button

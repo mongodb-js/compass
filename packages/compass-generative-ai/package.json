@@ -1,46 +1,41 @@
 {
   "name": "@mongodb-js/compass-generative-ai",
-  "productName": "compass-generative-ai",
   "description": "Generative AI aspects for Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.7.4",
+  "version": "0.8.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "provider.js"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "browser": "./dist/browser.js",
-    "require": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./provider": "./dist/provider.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "bootstrap": "npm run postcompile",
-    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "npm run webpack -- --mode production",
-    "webpack": "webpack-compass",
-    "postcompile": "tsc --emitDeclarationOnly",
+    "bootstrap": "npm run compile",
+    "compile": "tsc -p tsconfig.json",
     "start": "npm run webpack serve -- --mode development",
-    "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -48,7 +43,7 @@
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "ai-accuracy-tests": "node ./scripts/ai-accuracy-tests.js",
+    "ai-accuracy-tests": "ts-node ./scripts/ai-accuracy-tests.ts",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
@@ -57,30 +52,33 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
-  "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.21.3",
-    "@mongodb-js/compass-intercom": "^0.1.0",
-    "react": "*"
-  },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.21.3",
-    "@mongodb-js/compass-intercom": "^0.1.0"
+    "@mongodb-js/atlas-service": "^0.15.1",
+    "@mongodb-js/compass-components": "^1.22.1",
+    "@mongodb-js/compass-intercom": "^0.2.1",
+    "@mongodb-js/compass-logging": "^1.2.14",
+    "compass-preferences-model": "^2.18.1",
+    "hadron-app-registry": "^9.1.8",
+    "mongodb": "^6.5.0",
+    "mongodb-schema": "^12.1.0",
+    "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.15",
-    "@mongodb-js/mocha-config-compass": "^1.3.6",
+    "@mongodb-js/eslint-config-compass": "^1.0.17",
+    "@mongodb-js/mocha-config-compass": "^1.3.7",
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
-    "@mongodb-js/webpack-config-compass": "^1.3.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
+    "@types/decomment": "^0.9.5",
     "@types/mocha": "^9.0.0",
+    "@types/node-fetch": "^2.6.11",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
-    "bson": "^6.3.0",
+    "bson": "^6.6.0",
     "chai": "^4.3.6",
     "decomment": "^0.9.5",
     "depcheck": "^1.4.1",
@@ -89,16 +87,16 @@
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
-    "mongodb": "^6.3.0",
     "mongodb-runner": "^5.4.4",
-    "mongodb-schema": "^12.1.0",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",
     "prettier": "^2.7.1",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
     "xvfb-maybe": "^0.2.1"
-  }
+  },
+  "is_compass_plugin": true
 }

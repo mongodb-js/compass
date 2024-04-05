@@ -1,6 +1,7 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
-import util from 'util';
-import type { AtlasUserConfig } from './user-config-store';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { defaultsDeep } from 'lodash';
+import { createHash } from 'crypto';
 
 export type AtlasUserInfo = {
   sub: string;
@@ -8,138 +9,11 @@ export type AtlasUserInfo = {
   lastName: string;
   primaryEmail: string;
   login: string;
-} & AtlasUserConfig;
+} & { enabledAIFeature: boolean };
 
 export type IntrospectInfo = { active: boolean };
 
 export type Token = plugin.IdPServerResponse;
-
-function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
-  return Object.keys(obj).some((key) => !expectedKeys.includes(key));
-}
-
-export type AIAggregation = {
-  content: {
-    aggregation?: {
-      pipeline?: string;
-    };
-  };
-};
-
-export function validateAIAggregationResponse(
-  response: any
-): asserts response is AIAggregation {
-  const { content } = response;
-
-  if (typeof content !== 'object' || content === null) {
-    throw new Error('Unexpected response: expected content to be an object');
-  }
-
-  if (hasExtraneousKeys(content, ['aggregation'])) {
-    throw new Error('Unexpected keys in response: expected aggregation');
-  }
-
-  if (content.aggregation && typeof content.aggregation.pipeline !== 'string') {
-    // Compared to queries where we will always get the `query` field, for
-    // aggregations backend deletes the whole `aggregation` key if pipeline is
-    // empty, so we only validate `pipeline` key if `aggregation` key is present
-    throw new Error(
-      `Unexpected response: expected aggregation to be a string, got ${String(
-        content.aggregation.pipeline
-      )}`
-    );
-  }
-}
-
-export type AIFeatureEnablement = {
-  features: {
-    [featureName: string]: {
-      enabled: boolean;
-    };
-  };
-};
-
-export function validateAIFeatureEnablementResponse(
-  response: any
-): asserts response is AIFeatureEnablement {
-  const { features } = response;
-
-  if (typeof features !== 'object') {
-    throw new Error('Unexpected response: expected features to be an object');
-  }
-}
-
-export type AIQuery = {
-  content: {
-    query: Record<
-      'filter' | 'project' | 'collation' | 'sort' | 'skip' | 'limit',
-      string
-    >;
-    aggregation?: { pipeline: string };
-  };
-};
-
-export function validateAIQueryResponse(
-  response: any
-): asserts response is AIQuery {
-  const { content } = response ?? {};
-
-  if (typeof content !== 'object' || content === null) {
-    throw new Error('Unexpected response: expected content to be an object');
-  }
-
-  if (hasExtraneousKeys(content, ['query', 'aggregation'])) {
-    throw new Error(
-      'Unexpected keys in response: expected query and aggregation'
-    );
-  }
-
-  const { query, aggregation } = content;
-
-  if (typeof query !== 'object' || query === null) {
-    throw new Error('Unexpected response: expected query to be an object');
-  }
-
-  if (
-    hasExtraneousKeys(query, [
-      'filter',
-      'project',
-      'collation',
-      'sort',
-      'skip',
-      'limit',
-    ])
-  ) {
-    throw new Error(
-      'Unexpected keys in response: expected filter, project, collation, sort, skip, limit, aggregation'
-    );
-  }
-
-  for (const field of [
-    'filter',
-    'project',
-    'collation',
-    'sort',
-    'skip',
-    'limit',
-  ]) {
-    if (query[field] && typeof query[field] !== 'string') {
-      throw new Error(
-        `Unexpected response: expected field ${field} to be a string, got ${util.inspect(
-          query[field]
-        )}`
-      );
-    }
-  }
-
-  if (aggregation && typeof aggregation.pipeline !== 'string') {
-    throw new Error(
-      `Unexpected response: expected aggregation pipeline to be a string, got ${util.inspect(
-        aggregation
-      )}`
-    );
-  }
-}
 
 // See: https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
 export class AtlasServiceError extends Error {
@@ -159,4 +33,140 @@ export class AtlasServiceError extends Error {
     this.errorCode = errorCode;
     this.detail = detail;
   }
+}
+
+export function throwIfNetworkTrafficDisabled(
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
+) {
+  if (!preferences.getPreferences().networkTraffic) {
+    throw new Error('Network traffic is not allowed');
+  }
+}
+
+/**
+ * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
+ */
+export function isServerError(
+  err: any
+): err is { error: number; errorCode: string; detail: string } {
+  return Boolean(err.error && err.errorCode && err.detail);
+}
+
+export async function throwIfNotOk(
+  res: Pick<Response, 'ok' | 'status' | 'statusText' | 'json'>
+) {
+  if (res.ok) {
+    return;
+  }
+
+  const messageJSON = await res.json().catch(() => undefined);
+  if (messageJSON && isServerError(messageJSON)) {
+    throw new AtlasServiceError(
+      'ServerError',
+      res.status,
+      messageJSON.detail ?? 'Internal server error',
+      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
+    );
+  } else {
+    throw new AtlasServiceError(
+      'NetworkError',
+      res.status,
+      res.statusText,
+      `${res.status}`
+    );
+  }
+}
+
+export type AtlasServiceConfig = {
+  atlasApiBaseUrl: string;
+  atlasApiUnauthBaseUrl: string;
+  atlasLogin: {
+    clientId: string;
+    issuer: string;
+  };
+  authPortalUrl: string;
+};
+
+/**
+ * Atlas service backend configurations.
+ *  - compass-dev: locally running compass kanopy backend (localhost)
+ *  - compass:    compass kanopy backend (compass.mongodb.com)
+ *  - atlas-local: local mms backend (localhost)
+ *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
+ *  - atlas:      mms backend (cloud.mongodb.com)
+ */
+const config = {
+  'compass-dev': {
+    atlasApiBaseUrl: 'http://localhost:8080',
+    atlasApiUnauthBaseUrl: 'http://localhost:8080',
+    atlasLogin: {
+      clientId: '0oajzdcznmE8GEyio297',
+      issuer: 'https://auth.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account.mongodb.com/account/login',
+  },
+  compass: {
+    atlasApiBaseUrl: 'https://compass.mongodb.com',
+    atlasApiUnauthBaseUrl: 'https://compass.mongodb.com',
+    atlasLogin: {
+      clientId: '0oajzdcznmE8GEyio297',
+      issuer: 'https://auth.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account.mongodb.com/account/login',
+  },
+  'atlas-local': {
+    atlasApiBaseUrl: 'http://localhost:8080/api/private',
+    atlasApiUnauthBaseUrl: 'http://localhost:8080/api/private/unauth',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+  },
+  'atlas-dev': {
+    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+    atlasApiUnauthBaseUrl: 'https://cloud-dev.mongodb.com/api/private/unauth',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+  },
+  atlas: {
+    atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+    atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+    atlasLogin: {
+      clientId: '0oajzdcznmE8GEyio297',
+      issuer: 'https://auth.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account.mongodb.com/account/login',
+  },
+} as const;
+
+export function getAtlasConfig(
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
+) {
+  const { atlasServiceBackendPreset } = preferences.getPreferences();
+  const envConfig = {
+    atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
+    atlasApiUnauthBaseUrl:
+      process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+    atlasLogin: {
+      clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
+      issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
+    },
+    authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+  };
+  return defaultsDeep(
+    envConfig,
+    config[atlasServiceBackendPreset]
+  ) as typeof envConfig & typeof config[keyof typeof config];
+}
+
+export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
+  return {
+    // AUID is shared Cloud user identificator that can be tracked through
+    // various MongoDB properties
+    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
+  };
 }

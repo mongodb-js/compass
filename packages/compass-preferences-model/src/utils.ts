@@ -2,14 +2,14 @@ import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
 
 export function getActiveUserId(
-  preferences: PreferencesAccess
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
 ): string | undefined {
   const { currentUserId, telemetryAnonymousId } = preferences.getPreferences();
   return currentUserId || telemetryAnonymousId;
 }
 
 export function getActiveUser(
-  preferences: PreferencesAccess
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
 ): Pick<User, 'id' | 'createdAt'> {
   const userId = getActiveUserId(preferences);
   const { userCreatedAt } = preferences.getPreferences();
@@ -50,4 +50,9 @@ export function useIsAIFeatureEnabled() {
     enableGenAIFeatures,
     cloudFeatureRolloutAccess,
   });
+}
+
+export function useHasAIFeatureCloudRolloutAccess() {
+  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
+  return !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
 }

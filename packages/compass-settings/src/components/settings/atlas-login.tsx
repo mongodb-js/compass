@@ -1,14 +1,10 @@
 import React from 'react';
 import {
-  Badge,
-  Banner,
   Button,
   Icon,
   KeylineCard,
-  Label,
+  Link,
   SpinLoader,
-  Subtitle,
-  Toggle,
   css,
   palette,
   spacing,
@@ -17,12 +13,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
-import {
-  disableAIFeature,
-  enableAIFeature,
-  signIn,
-  signOut,
-} from '../../stores/atlas-login';
+import { signIn, signOut } from '../../stores/atlas-login';
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 const atlasLoginKeylineCardStyles = css({
   overflow: 'hidden',
@@ -35,8 +28,8 @@ const atlasLoginHeaderStyles = css({
   "description description"
   `,
   gridTemplateColumns: `1fr auto`,
-  gap: spacing[2],
-  padding: spacing[3],
+  gap: spacing[200],
+  padding: `${spacing[200]}px ${spacing[400]}px`,
   boxShadow: `inset 0 -1px 0 ${palette.gray.light2}`,
   backgroundColor: palette.gray.light3,
 });
@@ -46,14 +39,23 @@ const atlasLoginHeaderDarkModeStyles = css({
   boxShadow: `inset 0 -1px 0 ${palette.gray.dark2}`,
 });
 
+const atlasLoginCardStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  flexDirection: 'row',
+  gap: spacing[400],
+  alignItems: 'center',
+});
+
 const atlasLoginHeadingTitleStyles = css({
   display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   gridArea: 'heading',
+  fontWeight: 'bold',
 });
 
 const atlasLoginControlsStyles = css({
+  flexShrink: 0,
   gridArea: 'controls',
 });
 
@@ -61,21 +63,8 @@ const atlasLoginHeaderDescriptionStyles = css({
   gridArea: 'description',
 });
 
-const atlasLoginToggleControlContainerStyles = css({
-  padding: spacing[3],
-  display: 'grid',
-  gridTemplateColumns: '100%',
-  gap: spacing[3],
-});
-
-const atlasLoginToggleControlStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
-});
-
-const atlasLoginToggleControlLabelStyles = css({
-  fontWeight: 'normal',
+const atlasLoginEmailStyles = css({
+  fontWeight: 'bold',
 });
 
 export const AtlasLoginSettings: React.FunctionComponent<{
@@ -84,15 +73,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
   onSignInClick(): void;
   onSignOutClick(): void;
-  onToggleAIFeature(newValue: boolean): void;
-}> = ({
-  isSignInInProgress,
-  userLogin,
-  isAIFeatureEnabled,
-  onSignInClick,
-  onSignOutClick,
-  onToggleAIFeature,
-}) => {
+}> = ({ isSignInInProgress, userLogin, onSignInClick, onSignOutClick }) => {
   const darkMode = useDarkMode();
   const isSignedIn = userLogin !== null;
 
@@ -104,79 +85,85 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           darkMode && atlasLoginHeaderDarkModeStyles
         )}
       >
-        <Subtitle className={atlasLoginHeadingTitleStyles}>
-          <Icon glyph="Sparkle" />
-          <span>Use Generative AI</span>
-          <Badge variant="blue">Preview</Badge>
-        </Subtitle>
-        <div className={atlasLoginControlsStyles}>
-          {isSignedIn && (
-            <Button
-              type="button"
-              variant="dangerOutline"
-              size="small"
-              onClick={onSignOutClick}
-              disabled={isSignInInProgress}
-            >
-              Disconnect
-            </Button>
-          )}
-          {!isSignedIn && (
-            <Button
-              type="button"
-              variant="primary"
-              size="small"
-              leftGlyph={<Icon glyph="OpenNewTab"></Icon>}
-              onClick={onSignInClick}
-              disabled={isSignInInProgress}
-            >
-              Log in with Atlas
-              {isSignInInProgress && (
-                <>
-                  &nbsp;<SpinLoader></SpinLoader>
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        <div
-          className={atlasLoginHeaderDescriptionStyles}
-          data-testid="atlas-login-status"
-        >
-          {isSignedIn ? (
-            <>Logged in with Atlas account {userLogin}</>
+        <div className={atlasLoginCardStyles}>
+          {!isSignedIn ? (
+            <>
+              <div>
+                <div className={atlasLoginHeadingTitleStyles}>
+                  <Icon glyph="Sparkle" />
+                  <span>
+                    You must log in with an Atlas account to use natural
+                    language prompts.
+                  </span>
+                </div>
+                <div
+                  className={atlasLoginHeaderDescriptionStyles}
+                  data-testid="atlas-login-status"
+                >
+                  This is a feature powered by generative AI, and may give
+                  inaccurate responses. Please see our{' '}
+                  <Link
+                    hideExternalIcon={false}
+                    href={GEN_AI_FAQ_LINK}
+                    target="_blank"
+                  >
+                    FAQ
+                  </Link>{' '}
+                  for more information.
+                </div>
+              </div>
+              <div className={atlasLoginControlsStyles}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="small"
+                  leftGlyph={<Icon glyph="LogIn"></Icon>}
+                  onClick={onSignInClick}
+                  disabled={isSignInInProgress}
+                >
+                  Log in with Atlas
+                  {isSignInInProgress && (
+                    <>
+                      &nbsp;<SpinLoader></SpinLoader>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
           ) : (
-            <>You must first connect your Atlas account to use this feature.</>
+            <>
+              <div>
+                <div className={atlasLoginHeadingTitleStyles}>
+                  <Icon glyph="Sparkle" />
+                  <span>
+                    You can create queries and aggregations with generative AI.
+                  </span>
+                </div>
+                <div
+                  className={atlasLoginHeaderDescriptionStyles}
+                  data-testid="atlas-login-status"
+                >
+                  <div data-testid="atlas-signed-in-successful">
+                    Logged in with Atlas account{' '}
+                    <span className={atlasLoginEmailStyles}>{userLogin}</span>
+                  </div>
+                </div>
+              </div>
+              <div className={atlasLoginControlsStyles}>
+                <Button
+                  type="button"
+                  variant="dangerOutline"
+                  leftGlyph={<Icon glyph="LogOut"></Icon>}
+                  size="small"
+                  onClick={onSignOutClick}
+                  disabled={isSignInInProgress}
+                >
+                  Log Out
+                </Button>
+              </div>
+            </>
           )}
         </div>
-      </div>
-      <div className={atlasLoginToggleControlContainerStyles}>
-        <div className={atlasLoginToggleControlStyles}>
-          <Toggle
-            id="use-ai-toggle"
-            disabled={!isSignedIn}
-            checked={isAIFeatureEnabled}
-            onChange={onToggleAIFeature}
-            aria-labelledby="use-ai-toggle-label"
-            size="small"
-          ></Toggle>
-          <Label
-            id="use-ai-toggle-label"
-            htmlFor="use-ai-toggle"
-            className={atlasLoginToggleControlLabelStyles}
-          >
-            Enable natural language prompts to generate queries and
-            aggregations.
-          </Label>
-        </div>
-        {isSignedIn && !isAIFeatureEnabled && (
-          <Banner>
-            When enabling artificial intelligence features, you will be required
-            to understand and agree to our terms of service and privacy policy
-            regarding how your data is handled by our artificial intelligence
-            partner(s).
-          </Banner>
-        )}
       </div>
     </KeylineCard>
   );
@@ -193,12 +180,5 @@ export const ConnectedAtlasLoginSettings = connect(
   {
     onSignInClick: signIn,
     onSignOutClick: signOut,
-    onToggleAIFeature(newValue: boolean) {
-      if (newValue === true) {
-        return enableAIFeature();
-      } else {
-        return disableAIFeature();
-      }
-    },
   }
 )(AtlasLoginSettings);

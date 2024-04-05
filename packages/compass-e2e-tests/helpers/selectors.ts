@@ -41,8 +41,7 @@ export const ConnectionFormTLSONButton =
   'label[for="connection-tls-enabled-ON-radio-button"]';
 export const ConnectionFormTLSOFFButton =
   'label[for="connection-tls-enabled-OFF-radio-button"]';
-export const ConnectionFormInputHost =
-  '[data-testid="connection-host-input-0"]';
+export const ConnectionFormInputHost = '#connection-host-input-0';
 export const ConnectionFormInputSrvRecord =
   'label[for="connection-scheme-srv-radiobox"]';
 export const ConnectionFormDefaultAuthMethodButton =
@@ -59,8 +58,7 @@ export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected
 
 export const ConnectionFormSchemeRadios =
   '#connection-scheme-radio-box-group input[type="radio"]';
-export const ConnectionFormHostInputs =
-  '[aria-labelledby="connection-host-input-label"]';
+export const ConnectionFormHostInputs = '[data-testid="connection-host-input"]';
 export const ConnectionFormDirectConnectionCheckbox =
   '#direct-connection-checkbox';
 export const ConnectionFormAuthenticationMethodRadios =
@@ -162,7 +160,7 @@ export const ConnectionFormInputDefaultDatabase =
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
-  '[data-testid="url-options"] input[aria-labelledby="Enter value"]';
+  '[data-testid="url-options"] input[type="text"]';
 
 export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
@@ -400,6 +398,7 @@ export const DatabaseCard = '[data-testid="database-grid-item"]';
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
 export const ServerStats = '.serverstats';
+export const DatabaseStatLoader = `${DatabaseCard} [data-testid="namespace-param-fallback"][data-ready=false]`;
 
 export const databaseCard = (dbName: string): string => {
   return `${DatabaseCard}[data-id="${dbName}"]`;
@@ -443,50 +442,35 @@ export const collectionCardClickable = (
 
 // Collection screen
 export const CollectionTab = '[data-testid="collection-tabs"]';
-export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
-export const CollectionHeaderNamespace =
-  '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-testid="document-count-value"]';
+export const CollectionTabStats = (
+  tabName: 'documents' | 'indexes'
+): string => {
+  return `[data-testid="${tabName}-tab-with-stats"] [data-testid="collection-stats"]`;
+};
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
-export const TooltipDocumentsCountValue =
-  '[data-testid="tooltip-documents-count"]';
-export const TooltipDocumentsStorageSize =
-  '[data-testid="tooltip-documents-storage-size"]';
-export const TooltipDocumentsAvgSize =
-  '[data-testid="tooltip-documents-avg-size"]';
-export const IndexCountValue = '[data-testid="index-count-value"]';
-export const TooltipIndexesCount = '[data-testid="tooltip-indexes-count"]';
-export const TooltipIndexesTotalSize =
-  '[data-testid="tooltip-indexes-total-size"]';
-export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
 export const collectionSubTab = (
   tabName: string,
   selected?: boolean
 ): string => {
-  const selector = `${CollectionTab} [name="${tabName}"]`;
+  const tabSelector = `[data-testid="${tabName}-tab-button"]`;
 
   if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
+    return `${CollectionTab} [aria-selected="true"]${tabSelector}`;
   }
 
   if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
+    return `${CollectionTab} [aria-selected="false"]${tabSelector}`;
   }
 
-  return selector;
+  return `${CollectionTab} ${tabSelector}`;
 };
 export const collectionContent = (tabName: string): string => {
   const tn = tabName.toLowerCase().replace(/ /g, '-');
   return `[data-testid="${tn}-content"]`;
 };
-export const collectionHeaderTitle = (
-  dbName: string,
-  collectionName: string
-): string => {
-  return `${CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
-};
+export const CollectionHeader = '[data-testid="collection-header"]';
 
 // Documents tab
 export const DocumentListActionBarMessage =
@@ -1248,8 +1232,7 @@ export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
 // Atlas login
 export const LogInWithAtlasButton = 'button=Log in with Atlas';
 export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
-export const DisconnectAtlasAccountButton = 'button=Disconnect';
+export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AcceptTOSToggle = 'button#use-ai-toggle';
 export const AgreeAndContinueButton = 'button=Agree and continue';

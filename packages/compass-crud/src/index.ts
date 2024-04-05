@@ -8,7 +8,7 @@ import { activateDocumentsPlugin } from './stores/crud-store';
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
@@ -21,6 +21,7 @@ import {
   favoriteQueryStorageAccessLocator,
   recentQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
+import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
@@ -38,11 +39,12 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-CRUD-UI'),
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
+    fieldStoreService: fieldStoreServiceLocator,
   }
 );
 
 export const CompassDocumentsPlugin = {
-  name: 'Documents',
+  name: 'Documents' as const,
   component: CompassDocumentsHadronPlugin,
 };
 

@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from '@testing-library/react';
@@ -77,7 +78,7 @@ describe('use-confirmation', function () {
   context('showConfirmation global function', function () {
     let modal: HTMLElement;
     let response: Promise<boolean>;
-    beforeEach(function () {
+    beforeEach(async function () {
       render(
         <ConfirmationModalArea>
           <div />
@@ -88,8 +89,9 @@ describe('use-confirmation', function () {
         description: 'This action can not be undone.',
         buttonText: 'Yes',
       });
-      modal = screen.getByTestId('confirmation-modal');
-      expect(modal).to.exist;
+      await waitFor(() => {
+        modal = screen.getByTestId('confirmation-modal');
+      });
     });
 
     it('renders modal contents', function () {

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -23,11 +23,11 @@
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "^6.3.0",
+    "bson": "^6.6.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

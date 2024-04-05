@@ -1,10 +1,12 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
-import { screen, render, cleanup } from '@testing-library/react';
+import { screen, render, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import Sinon from 'sinon';
 
 const allTypesStr = `{
   0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -111,6 +113,39 @@ result = client['db']['coll'].find(
       expect(screen.getByTestId('export-to-language-input').textContent).to.eq(
         allTypesPrettyStr
       );
+    });
+  });
+
+  describe('on "Copy" button clicked', function () {
+    it('should emit telemetry event', function () {
+      const track = Sinon.stub();
+      const logger = {
+        createLogger() {
+          return { track };
+        },
+      };
+      render(
+        <LoggerAndTelemetryProvider value={logger as any}>
+          <Plugin namespace="db.coll"></Plugin>
+        </LoggerAndTelemetryProvider>
+      );
+      appRegistry.emit('open-aggregation-export-to-language', '[]');
+
+      track.resetHistory();
+
+      userEvent.click(
+        within(screen.getByTestId('export-to-language-output-field')).getByRole(
+          'button',
+          { name: 'Copy' }
+        )
+      );
+      expect(track).to.have.been.calledOnceWith('Aggregation Exported', {
+        language: 'python',
+        with_import_statements: false,
+        with_drivers_syntax: false,
+        with_builders: false,
+        num_stages: 0,
+      });
     });
   });
 });

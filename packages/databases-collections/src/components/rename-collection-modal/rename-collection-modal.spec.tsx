@@ -1,12 +1,18 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 
 import { RenameCollectionPlugin } from '../..';
 import AppRegistry from 'hadron-app-registry';
 
-describe('CreateCollectionModal [Component]', function () {
+describe('RenameCollectionModal [Component]', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
@@ -21,18 +27,30 @@ describe('CreateCollectionModal [Component]', function () {
       },
     },
   };
+  const favoriteQueries = {
+    getStorage: () => ({
+      loadAll: sandbox.stub().resolves([]),
+    }),
+  };
+  const pipelineStorage = {
+    loadAll: sandbox.stub().resolves([]),
+  };
   context('when the modal is visible', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
         globalAppRegistry: appRegistry,
         dataService,
         instance: instanceModel as any,
+        queryStorage: favoriteQueries as any,
+        pipelineStorage: pipelineStorage as any,
       });
       render(<Plugin> </Plugin>);
       appRegistry.emit('open-rename-collection', {
         database: 'foo',
         collection: 'bar',
       });
+
+      await waitFor(() => screen.getByText('Rename collection'));
     });
 
     afterEach(function () {
@@ -59,30 +77,30 @@ describe('CreateCollectionModal [Component]', function () {
     it('disables the submit button when the value is equal to the initial collection name', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: 'baz' } });
-      expect(submitButton).not.to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
       fireEvent.change(input, { target: { value: 'bar' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     it('disables the submit button when the value is empty', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: '' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     it('disables the submit button when the value is exists as a collection in the current database', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
       fireEvent.change(input, { target: { value: 'my-collection' } });
-      expect(submitButton).to.have.attribute('disabled');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     context('when the user has submitted the form', () => {
@@ -108,6 +126,62 @@ describe('CreateCollectionModal [Component]', function () {
       it('renders the correct text on the submit button', () => {
         const submitButton = screen.getByTestId('submit-button');
         expect(submitButton.textContent).to.equal('Yes, rename collection');
+      });
+
+      it('displays the "unsaved queries / aggregations" may be lost warning', function () {
+        const renameCollectionWarningBanner = screen.getByTestId(
+          'rename-collection-modal-warning'
+        );
+        expect(renameCollectionWarningBanner.textContent).to.include(
+          'Renaming collection will result in loss of any unsaved queries, filters or aggregation pipeline.'
+        );
+      });
+
+      describe('when the user has no saved aggregations or queries for the old namespace', function () {
+        it('does not display the saved queries and aggregations warning', () => {
+          const renameCollectionWarningBanner = screen.getByTestId(
+            'rename-collection-modal-warning'
+          );
+          expect(renameCollectionWarningBanner.textContent).not.to.include(
+            'Additionally, any saved queries or aggregations targeting this collection will need to be remapped to the new namespace.'
+          );
+        });
+      });
+
+      describe('when the user has saved aggregations or queries for the old namespace', function () {
+        beforeEach(async function () {
+          cleanup();
+          pipelineStorage.loadAll.resolves([{ namespace: 'foo.bar' }]);
+          const Plugin = RenameCollectionPlugin.withMockServices({
+            globalAppRegistry: appRegistry,
+            dataService,
+            instance: instanceModel as any,
+            queryStorage: favoriteQueries as any,
+            pipelineStorage: pipelineStorage as any,
+          });
+          render(<Plugin> </Plugin>);
+          appRegistry.emit('open-rename-collection', {
+            database: 'foo',
+            collection: 'bar',
+          });
+
+          await waitFor(() => screen.getByText('Rename collection'));
+
+          const submitButton = screen.getByTestId('submit-button');
+          const input = screen.getByTestId('rename-collection-name-input');
+          fireEvent.change(input, { target: { value: 'baz' } });
+          fireEvent.click(submitButton);
+
+          expect(screen.getByTestId('rename-collection-modal')).to.exist;
+        });
+        it('does not display the saved queries and aggregations warning', () => {
+          const renameCollectionWarningBanner = screen.getByTestId(
+            'rename-collection-modal-warning'
+          );
+          expect(renameCollectionWarningBanner.textContent).to.include(
+            'Additionally, any saved queries or aggregations targeting this collection will need to be remapped to the new namespace.'
+          );
+        });
       });
     });
   });

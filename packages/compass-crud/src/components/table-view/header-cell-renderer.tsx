@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import { cx } from '@mongodb-js/compass-components';
 import type { TableHeaderType } from '../../stores/grid-store';
 
 export type HeaderCellRendererProps = {
@@ -32,7 +32,7 @@ class HeaderCellRenderer extends React.Component<HeaderCellRendererProps> {
     }
     return (
       <div
-        className={classNames('table-view-cell-header', {
+        className={cx('table-view-cell-header', {
           'table-view-cell-header-subtable-objectid':
             this.props.subtable === true,
         })}

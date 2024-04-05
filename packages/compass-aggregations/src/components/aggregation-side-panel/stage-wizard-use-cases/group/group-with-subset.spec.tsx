@@ -10,7 +10,7 @@ import sinon from 'sinon';
 import {
   setMultiSelectComboboxValues,
   setSelectValue,
-  setInputElementValue,
+  setInputElementValueByTestId,
 } from '../../../../../test/form-helper';
 import type { GroupWithSubsetFormData } from './group-with-subset';
 import type { StageWizardFields } from '..';
@@ -73,7 +73,7 @@ describe('group with subset', function () {
     });
 
     it('renders number of records input', function () {
-      expect(screen.getByLabelText(/number of records/i)).to.exist;
+      expect(screen.getByTestId('number-of-records-input')).to.exist;
     });
 
     it('renders accumulator project fields combobox', function () {
@@ -103,7 +103,7 @@ describe('group with subset', function () {
         );
       });
       it('renders number of records input', function () {
-        expect(screen.getByLabelText(/number of records/i)).to.throw;
+        expect(screen.getByTestId('number-of-records-input')).to.throw;
       });
     });
 
@@ -165,7 +165,7 @@ describe('group with subset', function () {
             setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
-            setInputElementValue(/number of records/i, '1');
+            setInputElementValueByTestId('number-of-records-input', '1');
             expect(onChange.lastCall.args[0]).to.equal(
               JSON.stringify({
                 _id: '$street',
@@ -189,7 +189,7 @@ describe('group with subset', function () {
             setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
-            setInputElementValue(/number of records/i, '2');
+            setInputElementValueByTestId('number-of-records-input', '2');
             expect(onChange.lastCall.args[0]).to.equal(
               JSON.stringify({
                 _id: '$street',
@@ -235,7 +235,7 @@ describe('group with subset', function () {
               'address',
             ]);
 
-            setInputElementValue(/number of records/i, '1');
+            setInputElementValueByTestId('number-of-records-input', '1');
             expect(onChange.lastCall.args[0]).to.equal(
               JSON.stringify({
                 _id: '$street',
@@ -268,7 +268,7 @@ describe('group with subset', function () {
               'address',
             ]);
 
-            setInputElementValue(/number of records/i, '2');
+            setInputElementValueByTestId('number-of-records-input', '2');
             expect(onChange.lastCall.args[0]).to.equal(
               JSON.stringify({
                 _id: '$street',

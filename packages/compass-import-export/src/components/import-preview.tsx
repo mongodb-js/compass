@@ -3,9 +3,12 @@ import {
   Body,
   Cell,
   Checkbox,
+  HeaderCell,
+  HeaderRow,
   Row,
   Table,
-  TableHeader,
+  TableBody,
+  TableHead,
   css,
   cx,
   spacing,
@@ -61,7 +64,12 @@ const fieldPathHeaderStyles = css({
 });
 
 const cellContainerStyles = css({
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  padding: `${spacing[200]}px ${spacing[200]}px`,
+});
+
+const cellContentContainerStyles = css({
+  // We want our value cells to stay small for readability, so here we override LeafyGreen styles.
+  minHeight: 0,
 });
 
 const cellStyles = css({
@@ -73,6 +81,10 @@ const cellStyles = css({
 
 const cellUncheckedStyles = css({
   opacity: 0.4,
+});
+
+const headerCellStyles = css({
+  padding: `${spacing[200]}px ${spacing[200]}px`,
 });
 
 const rowIndexStyles = css({
@@ -447,71 +459,82 @@ function ImportPreview({
     : warningCellStylesLight;
 
   return (
-    <Table
-      data={values}
-      columns={gapOrFields.map((field) => {
-        if (typeof field !== 'string' && 'path' in field) {
-          return (
-            <TableHeader
-              key={`col-${field.path}`}
-              className={cx(needsWarning(field) && warningCellStyles)}
-              label={
-                // TODO(COMPASS-6766): move this div into FieldTypeHeading once we get rid of placeholders
-                <div
-                  className={columnHeaderStyles}
-                  data-testid={`preview-field-header-${field.path}`}
+    <Table shouldAlternateRowColor>
+      <TableHead>
+        <HeaderRow>
+          {gapOrFields.map((field) => {
+            if (typeof field !== 'string' && 'path' in field) {
+              return (
+                <HeaderCell
+                  key={`col-${field.path}`}
+                  className={cx(
+                    headerCellStyles,
+                    needsWarning(field) && warningCellStyles
+                  )}
                 >
-                  <FieldTypeHeading
-                    field={field}
-                    onFieldCheckedChanged={onFieldCheckedChanged}
-                    setFieldType={setFieldType}
-                  />
-                </div>
-              }
-            />
-          );
-        } else {
-          return (
-            <TableHeader key="row-index" label="" className={rowIndexStyles} />
-          );
-        }
-      })}
-    >
-      {({ datum: values, index: rowIndex }) => (
-        <Row>
-          <Cell
-            className={cx(cellContainerStyles, rowIndexStyles)}
-            key={`rowindex-${rowIndex}`}
-          >
-            {rowIndex + 1}
-          </Cell>
-          {fields.map(({ path }, fieldIndex) => (
+                  {/* TODO(COMPASS-6766): move this div into FieldTypeHeading once we get rid of placeholders */}
+                  <div
+                    className={columnHeaderStyles}
+                    data-testid={`preview-field-header-${field.path}`}
+                  >
+                    <FieldTypeHeading
+                      field={field}
+                      onFieldCheckedChanged={onFieldCheckedChanged}
+                      setFieldType={setFieldType}
+                    />
+                  </div>
+                </HeaderCell>
+              );
+            } else {
+              return (
+                <HeaderCell
+                  key="row-index"
+                  className={rowIndexStyles}
+                ></HeaderCell>
+              );
+            }
+          })}
+        </HeaderRow>
+      </TableHead>
+      <TableBody>
+        {values.map((fieldValues, rowIndex) => (
+          <Row key={`row-${rowIndex}`}>
             <Cell
-              className={cx(
-                cellContainerStyles,
-                needsWarning(fields[fieldIndex]) && warningCellStyles
-              )}
-              key={`item-${path}-${fieldIndex}`}
+              className={cx(cellContainerStyles, rowIndexStyles)}
+              contentClassName={cellContentContainerStyles}
+              key={`rowindex-${rowIndex}`}
             >
-              <div
-                className={cx(
-                  cellStyles,
-                  !fields[fieldIndex].checked && cellUncheckedStyles
-                )}
-                title={`${
-                  capStringLength(values[fieldIndex]) || 'empty string'
-                }`}
-              >
-                {values[fieldIndex] === '' ? (
-                  <i>empty string</i>
-                ) : (
-                  capStringLength(values[fieldIndex])
-                )}
-              </div>
+              {rowIndex + 1}
             </Cell>
-          ))}
-        </Row>
-      )}
+            {fields.map(({ path }, fieldIndex) => (
+              <Cell
+                className={cx(
+                  cellContainerStyles,
+                  needsWarning(fields[fieldIndex]) && warningCellStyles
+                )}
+                contentClassName={cellContentContainerStyles}
+                key={`item-${path}-${fieldIndex}`}
+              >
+                <div
+                  className={cx(
+                    cellStyles,
+                    !fields[fieldIndex].checked && cellUncheckedStyles
+                  )}
+                  title={`${
+                    capStringLength(fieldValues[fieldIndex]) || 'empty string'
+                  }`}
+                >
+                  {fieldValues[fieldIndex] === '' ? (
+                    <i>empty string</i>
+                  ) : (
+                    capStringLength(fieldValues[fieldIndex])
+                  )}
+                </div>
+              </Cell>
+            ))}
+          </Row>
+        ))}
+      </TableBody>
     </Table>
   );
 }

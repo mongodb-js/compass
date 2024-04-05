@@ -2,8 +2,9 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event } from 'electron';
-import { app, safeStorage } from 'electron';
+import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
+import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
@@ -14,12 +15,8 @@ import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
 } from 'compass-preferences-model';
-import {
-  getActiveUser,
-  setupPreferencesAndUser,
-} from 'compass-preferences-model';
-import { AtlasService } from '@mongodb-js/atlas-service/main';
-import { defaultsDeep } from 'lodash';
+import { setupPreferencesAndUser } from 'compass-preferences-model';
+import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -91,6 +88,26 @@ class CompassApplication {
       return;
     }
 
+    const enablePlainTextEncryption =
+      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
+    if (enablePlainTextEncryption) {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
+
+    log.info(
+      mongoLogId(1_001_000_307),
+      'Application',
+      'SafeStorage initialized',
+      {
+        enablePlainTextEncryption,
+        isAvailable: safeStorage.isEncryptionAvailable(),
+        backend: safeStorage.getSelectedStorageBackend?.(),
+      }
+    );
+
     // ConnectionStorage offers import/export which is used via CLI as well.
     ConnectionStorage.init();
 
@@ -105,18 +122,12 @@ class CompassApplication {
       );
     }
 
-    if (process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true') {
-      // When testing we want to use plain text encryption to avoid having to
-      // deal with keychain popups or setting up keychain for test on CI (Linux env).
-      // This method is only available on Linux and is no-op on other platforms.
-      safeStorage.setUsePlainTextEncryption(true);
-    }
-
     if (mode === 'CLI') {
       return;
     }
 
-    void this.setupAtlasService();
+    await this.setupCORSBypass();
+    void this.setupCompassAuthService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme(this);
@@ -134,88 +145,10 @@ class CompassApplication {
     return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
-  private static async setupAtlasService() {
-    /**
-     * Atlas service backend configurations.
-     *  - compass-dev: locally running compass kanopy backend (localhost)
-     *  - compass:    compass kanopy backend (compass.mongodb.com)
-     *  - atlas-local: local mms backend (localhost)
-     *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
-     *  - atlas:      mms backend (cloud.mongodb.com)
-     */
-    const config = {
-      'compass-dev': {
-        atlasApiBaseUrl: 'http://localhost:8080',
-        atlasApiUnauthBaseUrl: 'http://localhost:8080',
-        atlasLogin: {
-          clientId: '0oajzdcznmE8GEyio297',
-          issuer: 'https://auth.mongodb.com/oauth2/default',
-        },
-        authPortalUrl: 'https://account.mongodb.com/account/login',
-      },
-      compass: {
-        atlasApiBaseUrl: 'https://compass.mongodb.com',
-        atlasApiUnauthBaseUrl: 'https://compass.mongodb.com',
-        atlasLogin: {
-          clientId: '0oajzdcznmE8GEyio297',
-          issuer: 'https://auth.mongodb.com/oauth2/default',
-        },
-        authPortalUrl: 'https://account.mongodb.com/account/login',
-      },
-      'atlas-local': {
-        atlasApiBaseUrl: 'http://localhost:8080/api/private',
-        atlasApiUnauthBaseUrl: 'http://localhost:8080/api/private/unauth',
-        atlasLogin: {
-          clientId: '0oaq1le5jlzxCuTbu357',
-          issuer: 'https://auth-qa.mongodb.com/oauth2/default',
-        },
-        authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-      },
-      'atlas-dev': {
-        atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
-        atlasApiUnauthBaseUrl:
-          'https://cloud-dev.mongodb.com/api/private/unauth',
-        atlasLogin: {
-          clientId: '0oaq1le5jlzxCuTbu357',
-          issuer: 'https://auth-qa.mongodb.com/oauth2/default',
-        },
-        authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-      },
-      atlas: {
-        atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
-        atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
-        atlasLogin: {
-          clientId: '0oajzdcznmE8GEyio297',
-          issuer: 'https://auth.mongodb.com/oauth2/default',
-        },
-        authPortalUrl: 'https://account.mongodb.com/account/login',
-      },
-    } as const;
-
-    const { atlasServiceBackendPreset } = this.preferences.getPreferences();
-
-    const envConfig = {
-      atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
-      atlasApiUnauthBaseUrl:
-        process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
-      atlasLogin: {
-        clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
-        issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
-      },
-      authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
-    };
-    const atlasServiceConfig = defaultsDeep(
-      envConfig,
-      config[atlasServiceBackendPreset]
-    ) as typeof envConfig & typeof config[keyof typeof config];
-
-    await AtlasService.init(atlasServiceConfig, {
-      preferences: this.preferences,
-      getUserId: () => getActiveUser(this.preferences).id,
-    });
-
+  private static async setupCompassAuthService() {
+    await CompassAuthService.init(this.preferences);
     this.addExitHandler(() => {
-      return AtlasService.onExit();
+      return CompassAuthService.onExit();
     });
   }
 
@@ -353,6 +286,14 @@ class CompassApplication {
     handler: () => void
   ): typeof CompassApplication;
   static on(
+    event: 'auto-updater:new-state',
+    handler: (state: AutoUpdateManagerState) => void
+  ): typeof CompassApplication;
+  static on(
+    event: 'menu-request-restart',
+    handler: () => void
+  ): typeof CompassApplication;
+  static on(
     event: string,
     handler: (...args: unknown[]) => void
   ): typeof CompassApplication {
@@ -364,6 +305,11 @@ class CompassApplication {
   static emit(event: 'show-log-file-dialog'): boolean;
   static emit(event: 'new-window', bw: BrowserWindow): boolean;
   static emit(event: 'check-for-updates'): boolean;
+  static emit(
+    event: 'auto-updater:new-state',
+    state: AutoUpdateManagerState
+  ): boolean;
+  static emit(event: 'menu-request-restart'): boolean;
   static emit(event: string, ...args: unknown[]): boolean {
     return this.emitter.emit(event, ...args);
   }
@@ -371,6 +317,91 @@ class CompassApplication {
   static removeAllListeners(): typeof CompassApplication {
     this.emitter.removeAllListeners();
     return this;
+  }
+
+  private static async setupCORSBypass() {
+    const allowedCloudEndpoints = {
+      urls: [
+        '*://cloud.mongodb.com/*',
+        '*://cloud-dev.mongodb.com/*',
+        '*://compass.mongodb.com/*',
+      ],
+    };
+
+    if (
+      process.env.APP_ENV === 'webdriverio' ||
+      process.env.NODE_ENV === 'development'
+    ) {
+      // In e2e tests and in dev mode we need to allow application to send
+      // requests to localhost in some cases: test GenAI with MMS running locally.
+      allowedCloudEndpoints.urls.push('*://localhost/*');
+    }
+
+    // List of request headers that will indicate to the server that it's a CORS
+    // request and can trigger a CORS check that we are trying to bypass
+    const REQUEST_CORS_HEADERS = [
+      // Fetch metadata headers https://developer.mozilla.org/en-US/docs/Glossary/Fetch_metadata_request_header
+      'sec-fetch-site',
+      'sec-fetch-mode',
+      'sec-fetch-user',
+      'sec-fetch-dest',
+      'sec-purpose',
+      'service-worker-navigation-preload',
+      // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+      'origin',
+      'access-control-request-headers',
+      'access-control-request-method',
+    ];
+
+    const RESPONSE_CORS_HEADERS = [
+      'access-control-allow-credentials',
+      'access-control-allow-headers',
+      'access-control-allow-methods',
+      'access-control-allow-origin',
+      'access-control-expose-headers',
+      'access-control-max-age',
+    ];
+
+    // Accessing defaultSession is not allowed when app is not ready
+    await app.whenReady();
+
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+      allowedCloudEndpoints,
+      (details, callback) => {
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(details.requestHeaders).filter(([name]) => {
+            return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({ requestHeaders: filteredHeaders });
+      }
+    );
+
+    session.defaultSession.webRequest.onHeadersReceived(
+      allowedCloudEndpoints,
+      (details, callback) => {
+        const filteredHeaders = Object.fromEntries(
+          Object.entries(
+            // Types are not matching documentation
+            (details.responseHeaders as
+              | Record<string, string | string[]>
+              | undefined) ?? {}
+          ).filter(([name]) => {
+            return !RESPONSE_CORS_HEADERS.includes(name.toLowerCase());
+          })
+        );
+        callback({
+          responseHeaders: {
+            ...filteredHeaders,
+            'Access-Control-Allow-Origin': ['*'],
+            'Access-Control-Allow-Headers': ['*'],
+            'Access-Control-Allow-Methods': ['*'],
+            'Access-Control-Allow-Credentials': ['true'],
+          },
+          statusLine: details.method === 'OPTIONS' ? '200' : details.statusLine,
+        });
+      }
+    );
   }
 }
 

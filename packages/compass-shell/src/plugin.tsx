@@ -7,7 +7,7 @@ import {
   createLoggerAndTelemetryLocator,
   type LoggerAndTelemetry,
 } from '@mongodb-js/compass-logging/provider';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
 export function ShellPlugin() {

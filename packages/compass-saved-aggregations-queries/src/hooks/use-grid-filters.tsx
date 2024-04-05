@@ -44,7 +44,7 @@ const searchInputStyles = css({
 const FilterSelect: React.FunctionComponent<{
   options: string[];
   onSelect: (value: string) => void;
-  value?: string;
+  value: string;
   placeholder?: string;
 }> = ({ options, onSelect, value, placeholder }) => {
   const labelId = useId();

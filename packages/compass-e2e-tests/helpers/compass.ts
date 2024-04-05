@@ -50,6 +50,22 @@ let MONGODB_USE_ENTERPRISE =
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
 
+/*
+A helper so we can easily find all the tests we're skipping in compass-web.
+Reason is there so you can fill it in and have it show up in search results
+in a scannable manner. It is not being output at present because the tests will
+be logged as pending anyway.
+*/
+export function skipForWeb(
+  test: Mocha.Runnable | Mocha.Context,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  reason: string
+) {
+  if (TEST_COMPASS_WEB) {
+    test.skip();
+  }
+}
+
 function getBrowserName() {
   return process.env.BROWSER_NAME ?? 'chrome';
 }
@@ -59,6 +75,8 @@ export const BROWSER_NAME = getBrowserName();
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
+
+export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
 
 export function updateMongoDBServerInfo() {
   try {
@@ -175,7 +193,7 @@ export class Compass {
     this.addDebugger();
   }
 
-  async recordLogs(): Promise<void> {
+  async recordElectronLogs(): Promise<void> {
     debug('Setting up renderer log listeners ...');
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
@@ -337,7 +355,7 @@ export class Compass {
     }
   }
 
-  async stop(): Promise<void> {
+  async stopElectron(): Promise<void> {
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${this.name}.json`
@@ -385,18 +403,34 @@ export class Compass {
       return compassLog;
     };
 
-    if (this.logPath) {
-      // not available when testing web
-      // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-      await copyCompassLog();
-    }
+    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+    await copyCompassLog();
 
     debug(`Stopping Compass application [${this.name}]`);
     await this.browser.deleteSession({ shutdownDriver: true });
 
-    if (this.logPath) {
-      // not available when testing web
-      this.logs = (await copyCompassLog()).structured;
+    this.logs = (await copyCompassLog()).structured;
+  }
+
+  async stopBrowser(): Promise<void> {
+    const logging: any[] = await this.browser.execute(function () {
+      return (window as any).logging;
+    });
+    const lines = logging.map((log) => JSON.stringify(log));
+    const text = lines.join('\n');
+    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
+    debug(`Writing Compass application log to ${compassLogPath}`);
+    await fs.writeFile(compassLogPath, text);
+
+    debug(`Stopping Compass application [${this.name}]`);
+    await this.browser.deleteSession({ shutdownDriver: true });
+  }
+
+  async stop(): Promise<void> {
+    if (TEST_COMPASS_WEB) {
+      await this.stopBrowser();
+    } else {
+      await this.stopElectron();
     }
   }
 }
@@ -626,7 +660,7 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: '120.0.6099.227', // TODO(COMPASS-7639): this must always be the corresponding chromium version for the electron version
+      browserVersion: process.env.CHROME_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
@@ -697,7 +731,7 @@ async function startCompassElectron(
     needsCloseWelcomeModal,
   });
 
-  await compass.recordLogs();
+  await compass.recordElectronLogs();
 
   return compass;
 }
@@ -733,9 +767,6 @@ export async function startBrowser(
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
-
-  // TODO(COMPASS-7653): we need to figure out how to do this for compass-web
-  //await compass.recordLogs();
 
   return compass;
 }

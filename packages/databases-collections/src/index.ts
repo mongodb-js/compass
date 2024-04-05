@@ -3,7 +3,7 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import {
   dataServiceLocator,
   type DataServiceLocator,
-} from 'mongodb-data-service/provider';
+} from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { CollectionsPlugin } from './collections-plugin';
 import {
@@ -17,6 +17,10 @@ import MappedRenameCollectionModal from './components/rename-collection-modal/re
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import {
+  favoriteQueryStorageAccessLocator,
+  pipelineStorageLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 
 export const CollectionsWorkspaceTab: WorkspaceComponent<'Collections'> = {
   name: 'Collections' as const,
@@ -68,5 +72,7 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     dataService:
       dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
     instance: mongoDBInstanceLocator,
+    queryStorage: favoriteQueryStorageAccessLocator,
+    pipelineStorage: pipelineStorageLocator,
   }
 );

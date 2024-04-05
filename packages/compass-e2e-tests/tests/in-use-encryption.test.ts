@@ -5,7 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  TEST_COMPASS_WEB,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -14,7 +14,7 @@ import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
 
-const CONNECTION_HOSTS = 'localhost:27091';
+const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 async function refresh(browser: CompassBrowser) {
@@ -28,9 +28,7 @@ async function refresh(browser: CompassBrowser) {
 
 describe('CSFLE / QE', function () {
   before(function () {
-    if (TEST_COMPASS_WEB) {
-      this.skip();
-    }
+    skipForWeb(this, 'not available in compass-web');
   });
 
   describe('server version gte 4.2.20 and not a linux platform', function () {
@@ -449,6 +447,10 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
+          // TODO(COMPASS-7760): re-enable after 7.3/8.0 support is ready
+          if (mode === 'range' && serverSatisfies('>= 8.0.0-alpha')) {
+            return this.skip();
+          }
           const [field, oldValue, newValue] =
             mode !== 'range'
               ? ['phoneNumber', '"30303030"', '"10101010"']
@@ -485,7 +487,7 @@ describe('CSFLE / QE', function () {
           );
           await value.doubleClick();
 
-          const input = await document.$(
+          const input = document.$(
             `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentValueEditor}`
           );
           await browser.setValueVisible(
@@ -637,7 +639,7 @@ describe('CSFLE / QE', function () {
         const isCopiedDocumentPhoneNumberEditorExisting =
           await copiedDocumentPhoneNumberEditor.isExisting();
         expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(true);
-        const copiedDocumentFaxNumberEditor = await copiedDocument.$(
+        const copiedDocumentFaxNumberEditor = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isCopiedDocumentFaxNumberEditorExisting =

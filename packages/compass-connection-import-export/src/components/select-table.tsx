@@ -1,9 +1,12 @@
 import {
   Cell,
   Checkbox,
+  HeaderCell,
+  HeaderRow,
   Row,
   Table,
-  TableHeader,
+  TableBody,
+  TableHead,
 } from '@mongodb-js/compass-components';
 import React, { useCallback } from 'react';
 
@@ -53,12 +56,10 @@ export function SelectTable<T extends SelectItem>(
 
   return (
     <div className={props.className}>
-      <Table
-        data={items}
-        columns={[
-          <TableHeader
-            key="select-table-all-checkbox"
-            label={
+      <Table shouldAlternateRowColor>
+        <TableHead>
+          <HeaderRow>
+            <HeaderCell key="select-table-all-checkbox">
               <Checkbox
                 data-testid="select-table-all-checkbox"
                 aria-label="Select all"
@@ -67,36 +68,37 @@ export function SelectTable<T extends SelectItem>(
                 indeterminate={!selectAll && !selectNone}
                 disabled={disabled}
               />
-            }
-          />,
-          ...columns.map((col) => (
-            <TableHeader key={`col-${col[0]}`} label={col[1]} />
-          )),
-        ]}
-      >
-        {({ datum: item }) => (
-          <Row key={item.id}>
-            <Cell>
-              <Checkbox
-                key={`select-${item.id}`}
-                name={`select-${item.id}`}
-                data-testid={`select-${item.id}`}
-                aria-label="Select item in row"
-                onChange={handleSelectItemChange}
-                checked={item.selected}
-                disabled={disabled}
-              />
-            </Cell>
-            {columns.map(([name]) => (
-              <Cell
-                key={`item-${name}`}
-                data-testid={`item-${item.id}-${name}`}
-              >
-                {item[name]}
-              </Cell>
+            </HeaderCell>
+            {columns.map((col) => (
+              <HeaderCell key={`col-${col[0]}`}>{col[1]}</HeaderCell>
             ))}
-          </Row>
-        )}
+          </HeaderRow>
+        </TableHead>
+        <TableBody>
+          {items.map((item) => (
+            <Row key={item.id}>
+              <Cell>
+                <Checkbox
+                  key={`select-${item.id}`}
+                  name={`select-${item.id}`}
+                  data-testid={`select-${item.id}`}
+                  aria-label="Select item in row"
+                  onChange={handleSelectItemChange}
+                  checked={item.selected}
+                  disabled={disabled}
+                />
+              </Cell>
+              {columns.map(([name]) => (
+                <Cell
+                  key={`item-${name}`}
+                  data-testid={`item-${item.id}-${name}`}
+                >
+                  {item[name]}
+                </Cell>
+              ))}
+            </Row>
+          ))}
+        </TableBody>
       </Table>
     </div>
   );

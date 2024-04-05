@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
 } from 'react';
 import type { ToastProps } from '../components/leafygreen';
@@ -10,11 +11,19 @@ import {
   ToastProvider,
   useToast as useLeafygreenToast,
 } from '../components/leafygreen';
-import { css } from '@leafygreen-ui/emotion';
+import { useStackedComponent } from './use-stacked-component';
+import { css } from '..';
 
 export type ToastProperties = Pick<
   ToastProps,
-  'title' | 'description' | 'variant' | 'progress' | 'timeout' | 'dismissible'
+  | 'actionElement'
+  | 'title'
+  | 'description'
+  | 'variant'
+  | 'progress'
+  | 'timeout'
+  | 'dismissible'
+  | 'onClose'
 >;
 
 const defaultToastProperties: Partial<ToastProperties> = {
@@ -75,7 +84,7 @@ class GlobalToastState implements ToastActions {
   clearTimeout(id?: string) {
     if (id) {
       if (this.timeouts.has(id)) {
-        clearTimeout(this.timeouts.get(id)!);
+        clearTimeout(this.timeouts.get(id));
         this.timeouts.delete(id);
       }
     } else {
@@ -154,17 +163,23 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
   );
 };
 
-const toastAreaFronLayerStyles = css({ zIndex: 1 });
 const ToastAreaMountedContext = React.createContext(false);
 
 export const ToastArea: React.FunctionComponent = ({ children }) => {
+  const stackedContext = useStackedComponent();
+  // We always want to show the toast over modal or other stacked components that may hide the toast and hence +1
+  const stackedElemStyles = useMemo(() => {
+    const zIndex = stackedContext?.zIndex ? stackedContext.zIndex + 1 : 1;
+    return css({ zIndex });
+  }, [stackedContext]);
+
   if (useContext(ToastAreaMountedContext)) {
     return <>{children}</>;
   }
 
   return (
     <ToastAreaMountedContext.Provider value={true}>
-      <ToastProvider portalClassName={toastAreaFronLayerStyles}>
+      <ToastProvider portalClassName={stackedElemStyles}>
         <_ToastArea>{children}</_ToastArea>
       </ToastProvider>
     </ToastAreaMountedContext.Provider>

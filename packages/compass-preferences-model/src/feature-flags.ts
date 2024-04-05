@@ -17,10 +17,10 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
-  enableAtlasSearchIndexManagement: boolean;
   enableBulkUpdateOperations: boolean;
   enableBulkDeleteOperations: boolean;
   enableRenameCollectionModal: boolean;
+  enableNewMultipleConnectionSystem: boolean;
 };
 
 export const featureFlags: Required<{
@@ -54,17 +54,6 @@ export const featureFlags: Required<{
   },
 
   /**
-   * Feature flag for Atlas Search Index Management.
-   * Epic: COMPASS-6599
-   */
-  enableAtlasSearchIndexManagement: {
-    stage: 'released',
-    description: {
-      short: 'Enable Atlas Search Index management.',
-      long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
-    },
-  },
-  /**
    * Feature flag bulk updates
    * Epic: COMPASS-6671
    */
@@ -91,10 +80,22 @@ export const featureFlags: Required<{
    * Feature flag for the rename collection modal.
    */
   enableRenameCollectionModal: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',
+    },
+  },
+
+  /**
+   * Feature flag for the new multiple connection UI.
+   * Epic: COMPASS-6410
+   */
+  enableNewMultipleConnectionSystem: {
+    stage: 'development',
+    description: {
+      short: 'Enables support for multiple connections.',
+      long: 'Allows users to open multiple connections in the same window.',
     },
   },
 };
