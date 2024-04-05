@@ -70,20 +70,20 @@ export async function addCollection(
     )) {
       const valStr = value.toString();
 
-      await browser.clickVisible(
-        Selectors.createCollectionCustomCollationFieldButton(key)
-      );
-      const menu = browser.$(
-        Selectors.createCollectionCustomCollationFieldMenu(key)
-      );
-      await menu.waitForDisplayed();
-      const option = menu.$(`li[value="${valStr}"]`);
-
       let clickAttempt = 1;
 
       // Just continue clicking until the value is selected ...
       await browser.waitUntil(
         async () => {
+          await browser.clickVisible(
+            Selectors.createCollectionCustomCollationFieldButton(key)
+          );
+          const menu = browser.$(
+            Selectors.createCollectionCustomCollationFieldMenu(key)
+          );
+          await menu.waitForDisplayed();
+
+          const option = menu.$(`li[value="${valStr}"]`);
           await browser.clickVisible(option, {
             scroll: true,
           });
@@ -93,6 +93,13 @@ export async function addCollection(
           );
           const selectedValue = await button.getAttribute('value');
 
+          if (selectedValue !== valStr) {
+            console.log(`${key}: ${selectedValue} !== ${valStr}`);
+          }
+
+          // make sure the menu disappears before moving on to the next thing
+          await menu.waitForDisplayed({ reverse: true });
+
           return selectedValue === valStr;
         },
         {
@@ -101,9 +108,6 @@ export async function addCollection(
       );
 
       await browser.screenshot(`custom-collation-${key}-${valStr}.png`);
-
-      // make sure the menu disappears before moving on to the next thing
-      await menu.waitForDisplayed({ reverse: true });
     }
 
     // scroll to the locale one so the screenshot will include it.
