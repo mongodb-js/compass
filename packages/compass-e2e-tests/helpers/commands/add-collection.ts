@@ -75,20 +75,45 @@ export async function addCollection(
       // Just continue clicking until the value is selected ...
       await browser.waitUntil(
         async () => {
-          await browser.clickVisible(
-            Selectors.createCollectionCustomCollationFieldButton(key)
-          );
+          // open the menu if it isn't open yet
+          console.log(`customCollation ${key} attempt ${clickAttempt}`);
+          if (
+            (await browser
+              .$(Selectors.createCollectionCustomCollationFieldMenu(key))
+              .isDisplayed()) === false
+          ) {
+            console.log(
+              'customCollation clickVisible',
+              Selectors.createCollectionCustomCollationFieldButton(key)
+            );
+            await browser.clickVisible(
+              Selectors.createCollectionCustomCollationFieldButton(key)
+            );
+          }
+
           const menu = browser.$(
+            Selectors.createCollectionCustomCollationFieldMenu(key)
+          );
+          console.log(
+            `customCollation ${key} attempt ${clickAttempt} waitForDisplayed`,
             Selectors.createCollectionCustomCollationFieldMenu(key)
           );
           await menu.waitForDisplayed();
 
           const option = menu.$(`li[value="${valStr}"]`);
+          console.log(
+            `customCollation ${key} attempt ${clickAttempt} clickVisible`,
+            `li[value="${valStr}"]`
+          );
           await browser.clickVisible(option, {
             scroll: true,
           });
           clickAttempt++;
-          const button = await browser.$(
+          const button = browser.$(
+            Selectors.createCollectionCustomCollationFieldButton(key)
+          );
+          console.log(
+            `customCollation ${key} attempt ${clickAttempt} getAttribute`,
             Selectors.createCollectionCustomCollationFieldButton(key)
           );
           const selectedValue = await button.getAttribute('value');
@@ -100,7 +125,11 @@ export async function addCollection(
           }
 
           // make sure the menu disappears before moving on to the next thing
-          await menu.waitForDisplayed({ reverse: true });
+          console.log(
+            `customCollation ${key} attempt ${clickAttempt} waitForDisplayed (reverse)`,
+            Selectors.createCollectionCustomCollationFieldMenu(key)
+          );
+          await menu.waitForDisplayed({ reverse: true, timeout: 1000 }); // short timeout in case the click did nothing
 
           return selectedValue === valStr;
         },
