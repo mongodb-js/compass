@@ -13,7 +13,6 @@ import {
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import {
-  ConnectionRepositoryContextProvider,
   type ConnectionStorage,
   ConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
@@ -76,13 +75,9 @@ describe('useCanOpenNewConnections', function () {
             createElement(ConnectionStorageContext.Provider, {
               value: connectionStorage,
               children: [
-                createElement(ConnectionRepositoryContextProvider, {
-                  children: [
-                    createElement(ConnectionsManagerProvider, {
-                      value: connectionManager,
-                      children,
-                    }),
-                  ],
+                createElement(ConnectionsManagerProvider, {
+                  value: connectionManager,
+                  children,
                 }),
               ],
             }),

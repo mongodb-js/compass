@@ -70,6 +70,8 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-connections": "^1.25.1",
+    "@mongodb-js/connection-storage": "^0.8.1",
     "hadron-app-registry": "^9.1.8",
     "lodash": "^4.17.21",
     "mongodb-schema": "^12.1.0",

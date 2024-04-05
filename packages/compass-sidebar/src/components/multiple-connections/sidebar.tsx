@@ -18,10 +18,6 @@ import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 
-type MultipleConnectionSidebarProps = {
-  appName: string;
-};
-
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the
   // container so that the sidebar doesn't stick out in the layout z ordering
@@ -71,9 +67,7 @@ function ConnectionErrorToastBody({
   );
 }
 
-export function MultipleConnectionSidebar({
-  appName,
-}: MultipleConnectionSidebarProps) {
+export function MultipleConnectionSidebar() {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
 
@@ -145,7 +139,6 @@ export function MultipleConnectionSidebar({
     onConnectionFailed(info, error) {
       void onConnectionFailed(info, error);
     },
-    appName,
   });
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =

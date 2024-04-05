@@ -87,7 +87,6 @@ function Connections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  appName,
   getAutoConnectInfo,
 }: {
   appRegistry: AppRegistry;
@@ -100,7 +99,6 @@ function Connections({
     error: Error
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
@@ -125,7 +123,6 @@ function Connections({
     onConnected,
     onConnectionFailed,
     onConnectionAttemptStarted,
-    appName,
     getAutoConnectInfo,
   });
   const {

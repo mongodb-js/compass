@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  Badge,
   Body,
   Disclaimer,
   Icon,
@@ -8,7 +9,6 @@ import {
   MarketingModal,
   SpinLoader,
   css,
-  cx,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -26,28 +26,22 @@ type SignInModalProps = {
 };
 
 const titleStyles = css({
-  marginBottom: spacing[3],
-});
-
-// For whatever reason leafygreen marketing modal doesn't have the same spacing
-// between image and title in dark mode
-const titleDarkModeStyles = css({
-  marginTop: spacing[4],
-});
-
-const descriptionDarkModeStyles = css({
-  // Same as above, adjusting dark mode that is for no good reason is different
-  // from light mode
-  marginLeft: -10,
-  marginRight: -10,
+  marginBottom: spacing[400],
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 });
 
 const paragraphStyles = css({
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const disclaimer = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
+});
+
+const previewBadgeStyles = css({
+  marginBottom: spacing[400],
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
@@ -63,7 +57,10 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       darkMode={darkMode}
       graphic={<AISignInImageBanner></AISignInImageBanner>}
       title={
-        <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
+        <div className={titleStyles}>
+          <Badge variant="blue" className={previewBadgeStyles}>
+            Preview
+          </Badge>
           Use natural language to generate queries and pipelines
         </div>
       }
@@ -96,7 +93,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       linkText="Not now"
       onLinkClick={onSignInModalClose}
     >
-      <div className={cx(darkMode && descriptionDarkModeStyles)}>
+      <div>
         <Body className={paragraphStyles}>
           Atlas users can now quickly create queries and aggregations with
           MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
