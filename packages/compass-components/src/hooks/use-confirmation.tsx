@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import {
-  default as ConfirmationModal,
-  Variant as ConfirmationModalVariant,
-} from '@leafygreen-ui/confirmation-modal';
+import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
+import ConfirmationModal from '../components/modals/confirmation-modal';
 
 export { ConfirmationModalVariant };
 

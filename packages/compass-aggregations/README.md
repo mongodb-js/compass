@@ -206,8 +206,6 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 
 - **'import-finished'**: When import data was successful, refresh plugin's input
   data.
-- **'fields-changed', fields**: Received when schema fields change. Updates
-  plugin's fields.
 - **'refresh-data'**: Received when Compass data was refreshed. Refreshes input
   data in the plugin.
 - **'open-create-view', { meta: { source, pipeline }}**: Received when `Create View` is to be opened. Opens a Create View modal.

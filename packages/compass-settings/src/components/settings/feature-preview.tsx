@@ -3,10 +3,7 @@ import SettingsList from './settings-list';
 import {
   usePreference,
   featureFlags,
-  useIsAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
-import { ConnectedAtlasLoginSettings } from './atlas-login';
-import { css, spacing } from '@mongodb-js/compass-components';
 
 const featureFlagFields = Object.keys(
   featureFlags
@@ -32,24 +29,17 @@ function useShouldShowPreviewFeatures(): boolean {
 
 export function useShouldShowFeaturePreviewSettings(): boolean {
   // We want show the feature preview settings tab if:
-  // - AI feature flag is enabled
   // - there are feature flags in preview stage
   // - or if:
   //   - we are in a development environment or 'showDevFeatureFlags' is explicitly enabled
   //   - and there are feature flags in 'development' stage.
-  const aiFeatureEnabled = useIsAIFeatureEnabled();
   const showDevFeatures = useShouldShowDevFeatures();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
 
-  return aiFeatureEnabled || showPreviewFeatures || showDevFeatures;
+  return showPreviewFeatures || showDevFeatures;
 }
 
-const atlasSettingsContainerStyles = css({
-  marginTop: spacing[3],
-});
-
 export const FeaturePreviewSettings: React.FunctionComponent = () => {
-  const aiFeatureEnabled = useIsAIFeatureEnabled();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 
@@ -59,18 +49,10 @@ export const FeaturePreviewSettings: React.FunctionComponent = () => {
         These settings control experimental behavior of Compass. Use them at
         your own risk!
       </div>
-
-      {aiFeatureEnabled && (
-        <div className={atlasSettingsContainerStyles}>
-          <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
-        </div>
-      )}
-
       <div>
         {showPreviewFeatures && (
           <SettingsList fields={previewFeatureFlagFields} />
         )}
-
         {showDevFeatures && (
           <SettingsList fields={developmentFeatureFlagFields} />
         )}

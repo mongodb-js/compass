@@ -6,19 +6,16 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  type ConnectionStorage,
+  ConnectionStorageBus,
+} from '@mongodb-js/connection-storage/renderer';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  ConnectionRepository,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-storage/main';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 
-import {
-  ConnectionRepositoryContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
@@ -60,7 +57,6 @@ const mockConnections: ConnectionInfo[] = [
 ];
 
 describe('use-connections hook', function () {
-  let connectionRepository: ConnectionRepository;
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: typeof ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
@@ -79,14 +75,9 @@ describe('use-connections hook', function () {
             createElement(ConnectionStorageContext.Provider, {
               value: mockConnectionStorage,
               children: [
-                createElement(ConnectionRepositoryContext.Provider, {
-                  value: connectionRepository,
-                  children: [
-                    createElement(ConnectionsManagerProvider, {
-                      value: connectionsManager,
-                      children,
-                    }),
-                  ],
+                createElement(ConnectionsManagerProvider, {
+                  value: connectionsManager,
+                  children,
                 }),
               ],
             }),
@@ -105,13 +96,13 @@ describe('use-connections hook', function () {
     loadSpy = sinon.spy();
 
     mockConnectionStorage = {
+      events: new ConnectionStorageBus(),
       loadAll: loadAllSpy,
       save: saveSpy,
       delete: deleteSpy,
       load: loadSpy,
     };
 
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
     connectionsManager = getConnectionsManager(() =>
       Promise.resolve({
         mockDataService: 'yes',
@@ -137,7 +128,6 @@ describe('use-connections hook', function () {
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
           getAutoConnectInfo,
         })
       );
@@ -159,13 +149,12 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
       // Wait for the async loading of connections to complete.
       await waitFor(() =>
-        expect(result.current.state.favoriteConnections.length).to.equal(2)
+        expect(result.current.favoriteConnections.length).to.equal(2)
       );
 
       expect(loadAllSpyWithData).to.have.been.called;
@@ -197,7 +186,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -269,13 +257,12 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
       await waitFor(() => {
-        expect(result.current.state.favoriteConnections.length).to.equal(2);
-        expect(result.current.state.recentConnections.length).to.equal(3);
+        expect(result.current.favoriteConnections.length).to.equal(2);
+        expect(result.current.recentConnections.length).to.equal(3);
       });
 
       expect(result.current.recentConnections).to.deep.equal([
@@ -311,7 +298,6 @@ describe('use-connections hook', function () {
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
 
@@ -341,7 +327,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -401,7 +386,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -432,7 +416,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -452,7 +435,7 @@ describe('use-connections hook', function () {
         hookResult = result;
       });
 
-      it('calls to save a connection on the store', function () {
+      it('does not call to save a connection on the store', function () {
         expect(saveSpy.callCount).to.equal(0);
       });
 
@@ -473,7 +456,6 @@ describe('use-connections hook', function () {
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
             connectFn: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -511,7 +493,6 @@ describe('use-connections hook', function () {
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            appName: 'Test App Name',
           })
         );
 
@@ -598,7 +579,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -623,7 +603,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -656,7 +635,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {
@@ -711,7 +689,6 @@ describe('use-connections hook', function () {
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          appName: 'Test App Name',
         })
       );
       await waitFor(() => {

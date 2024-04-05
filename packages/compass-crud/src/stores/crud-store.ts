@@ -59,6 +59,7 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -393,6 +394,7 @@ class CrudStoreImpl
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
+  fieldStoreService: FieldStoreService;
   logger: LoggerAndTelemetry;
   instance: MongoDBInstance;
 
@@ -406,6 +408,7 @@ class CrudStoreImpl
       | 'globalAppRegistry'
       | 'preferences'
       | 'logger'
+      | 'fieldStoreService'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -421,6 +424,7 @@ class CrudStoreImpl
     this.preferences = services.preferences;
     this.logger = services.logger;
     this.instance = services.instance;
+    this.fieldStoreService = services.fieldStoreService;
   }
 
   getInitialState(): CrudState {
@@ -926,10 +930,9 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.globalAppRegistry.emit('documents-paginated', {
-      ns: this.state.ns,
-      docs: [documents[0]?.generateObject()],
-    });
+    void this.fieldStoreService.updateFieldsFromDocuments(this.state.ns, [
+      documents[0]?.generateObject(),
+    ]);
 
     cancelDebounceLoad();
   }
@@ -1363,6 +1366,11 @@ class CrudStoreImpl
         multiple: true,
         docs,
       };
+      void this.fieldStoreService.updateFieldsFromDocuments(
+        this.state.ns,
+        docs
+      );
+      // TODO(COMPASS-7815): Remove this event and use AppStoreService
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1417,6 +1425,10 @@ class CrudStoreImpl
         multiple: false,
         docs: [doc],
       };
+      void this.fieldStoreService.updateFieldsFromDocuments(this.state.ns, [
+        doc,
+      ]);
+      // TODO(COMPASS-7815): Remove this event and use AppStoreService
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
@@ -1730,10 +1742,9 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.globalAppRegistry.emit('documents-refreshed', {
-        ns: this.state.ns,
-        docs: [docs[0]?.generateObject()],
-      });
+      void this.fieldStoreService.updateFieldsFromDocuments(this.state.ns, [
+        docs[0]?.generateObject(),
+      ]);
     } catch (error) {
       this.logger.log.error(
         mongoLogId(1_001_000_074),
@@ -1945,6 +1956,7 @@ export type DocumentsPluginServices = {
   logger: LoggerAndTelemetry;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
+  fieldStoreService: FieldStoreService;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1957,6 +1969,7 @@ export function activateDocumentsPlugin(
     logger,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
+    fieldStoreService,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1973,6 +1986,7 @@ export function activateDocumentsPlugin(
         logger,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
+        fieldStoreService,
       }
     )
   ) as CrudStore;

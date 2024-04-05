@@ -51,3 +51,8 @@ export function useIsAIFeatureEnabled() {
     cloudFeatureRolloutAccess,
   });
 }
+
+export function useHasAIFeatureCloudRolloutAccess() {
+  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
+  return !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
+}

@@ -9,7 +9,6 @@ import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-vis
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { setDataService } from '../modules/data-service';
-import { toggleSidebar } from '../modules/is-expanded';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
@@ -157,10 +156,6 @@ export function createSidebarStore(
       store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
   );
-
-  on(globalAppRegistry, 'toggle-sidebar', () => {
-    store.dispatch(toggleSidebar());
-  });
 
   // Checking if "Performance" tab is supported by running commands required for
   // the "Performance" tab to function

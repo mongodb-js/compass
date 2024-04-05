@@ -3,7 +3,8 @@ import { createServiceLocator } from 'hadron-app-registry';
 import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 import type { DataService } from 'mongodb-data-service';
-import type { ConnectionsManager } from './connections-manager';
+import { ConnectionsManager } from './connections-manager';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export type { DataService };
 export * from './connections-manager';
@@ -19,9 +20,14 @@ export const useConnectionsManagerContext = (): ConnectionsManager => {
   const connectionsManager = useContext(ConnectionsManagerContext);
 
   if (!connectionsManager) {
-    throw new Error(
-      'ConnectionsManager not available in context. Did you forget to setup ConnectionsManagerProvider'
-    );
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error(
+        'ConnectionsManager not available in context. Did you forget to setup ConnectionsManagerProvider'
+      );
+    }
+    return new ConnectionsManager({
+      logger: createNoopLoggerAndTelemetry().log.unbound,
+    });
   }
   return connectionsManager;
 };
@@ -64,6 +70,11 @@ export const dataServiceLocator = createServiceLocator(
 );
 
 export { useConnectionStatus } from './hooks/use-connection-status';
+export {
+  connectionScopedAppRegistryLocator,
+  type ConnectionScopedAppRegistry,
+  type ConnectionScopedAppRegistryLocator,
+} from './connection-scoped-app-registry';
 export {
   type CanNotOpenConnectionReason,
   useCanOpenNewConnections,
