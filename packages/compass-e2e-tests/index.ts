@@ -49,6 +49,8 @@ const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 let compassWeb: ChildProcessWithoutNullStreams;
 
 async function setup() {
+  debug('X DISPLAY', process.env.DISPLAY);
+
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
@@ -67,6 +69,7 @@ async function setup() {
           env: {
             ...process.env,
             OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+            DISABLE_DEVSERVER_OVERLAY: 'true',
           },
         }
       );

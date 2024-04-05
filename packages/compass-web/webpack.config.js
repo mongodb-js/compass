@@ -109,7 +109,10 @@ module.exports = async (env, args) => {
           publicPath: '/',
         },
         client: {
-          overlay: { warnings: false, errors: true, runtimeErrors: true },
+          overlay:
+            process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
+              ? false
+              : { warnings: false, errors: true, runtimeErrors: true },
         },
       },
       resolve: {
