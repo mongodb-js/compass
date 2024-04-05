@@ -923,15 +923,15 @@ describe('Collection aggregations tab', function () {
       expect(await textContent.getText()).to.contain(`[
   {
     $match: {
-      i: 5,
-    },
-  },
+      i: 5
+    }
+  }
 ]`);
 
       await switchPipelineMode(browser, 'builder-ui');
       const stageContent = await browser.$(Selectors.stageContent(0));
       expect(await stageContent.getText()).to.equal(`{
-  i: 5,
+  i: 5
 }`);
     });
 
@@ -1130,7 +1130,7 @@ describe('Collection aggregations tab', function () {
       const content = await browser.$(Selectors.stageContent(0));
       await waitForAnyText(browser, content);
       expect(await content.getText()).to.equal(`{
-  i: 0,
+  i: 0
 }`);
     });
 
@@ -1471,7 +1471,7 @@ describe('Collection aggregations tab', function () {
         .$(Selectors.stageContent(oldLength))
         .getText();
       expect(stageContent).to.equal(`{
-  name: 1,
+  name: 1
 }`);
     });
   });

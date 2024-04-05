@@ -16,9 +16,9 @@ describe('PipelineParser Utils', function () {
         '  {',
         '    $match: {',
         '      name: /berlin/i,',
-        '      country: "Germany",',
-        '    },',
-        '  },',
+        '      country: "Germany"',
+        '    }',
+        '  }',
         ']',
       ].join('\n')
     );

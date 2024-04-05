@@ -189,7 +189,7 @@ describe('CompassPipelineStorage', function () {
     expect(aggregations[0]).to.not.have.property('pipeline');
     expect(aggregations[0]).to.have.property(
       'pipelineText',
-      '[\n  {\n    $match: { name: "berlin" },\n  },\n  {\n    $limit: 10,\n  },\n]'
+      '[\n  {\n    $match: { name: "berlin" }\n  },\n  {\n    $limit: 10\n  }\n]'
     );
   });
 
