@@ -3,17 +3,14 @@ import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ActiveConnectionList } from './active-connection-list';
-import {
-  ConnectionRepositoryContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
-import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import Sinon from 'sinon';
+import EventEmitter from 'events';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -36,7 +33,6 @@ const mockConnections: ConnectionInfo[] = [
 ];
 
 describe('<ActiveConnectionList />', function () {
-  let connectionRepository: ConnectionRepository;
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: typeof ConnectionStorage;
 
@@ -45,17 +41,15 @@ describe('<ActiveConnectionList />', function () {
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
     mockConnectionStorage = {
+      events: new EventEmitter(),
       loadAll: Sinon.stub().resolves(mockConnections),
     } as any;
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
 
     render(
       <ConnectionStorageContext.Provider value={mockConnectionStorage}>
-        <ConnectionRepositoryContext.Provider value={connectionRepository}>
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <ActiveConnectionList />
-          </ConnectionsManagerProvider>
-        </ConnectionRepositoryContext.Provider>
+        <ConnectionsManagerProvider value={connectionsManager}>
+          <ActiveConnectionList />
+        </ConnectionsManagerProvider>
       </ConnectionStorageContext.Provider>
     );
   });

@@ -68,7 +68,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "bson": "^6.5.0",
+    "bson": "^6.6.0",
     "lodash": "^4.17.21"
   }
 }

@@ -61,18 +61,4 @@ describe('PrivacySettings', function () {
       });
     });
   });
-
-  it('does not render enableGenAIFeatures when isAIFeatureRolledOutToUser is false', function () {
-    container = renderPrivacySettings(store, {
-      isAIFeatureRolledOutToUser: false,
-    });
-    expect(within(container).queryByTestId('enableGenAIFeatures')).to.not.exist;
-  });
-
-  it('renders enableGenAIFeatures when GisAIFeatureRolledOutToUser is true', function () {
-    container = renderPrivacySettings(store, {
-      isAIFeatureRolledOutToUser: true,
-    });
-    expect(within(container).getByTestId('enableGenAIFeatures')).to.be.visible;
-  });
 });
