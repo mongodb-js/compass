@@ -26,7 +26,6 @@ export function showInProgressToast({
   bytesProcessed: number;
   bytesTotal: number;
 }) {
-  console.log({ docsWritten, numErrors, bytesProcessed, bytesTotal });
   // Update the toast with the new progress.
   const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
 
