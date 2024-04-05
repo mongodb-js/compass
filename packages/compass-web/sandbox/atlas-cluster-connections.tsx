@@ -9,12 +9,12 @@ type NdsCluster = {
   srvAddress: string;
 };
 
-type SignInStatus = 'initial' | 'in-progress' | 'success' | 'error';
+type SignInStatus = 'initial' | 'fetching' | 'updating' | 'success' | 'error';
 
 type AtlasClusterConnectionsListReturnValue = (
   | { signInStatus: 'initial'; signInError: null; groupId: null }
   | {
-      signInStatus: 'in-progress';
+      signInStatus: 'fetching' | 'updating';
       signInError: string | null;
       groupId: string | null;
     }
@@ -34,7 +34,9 @@ export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListRet
 
   const signIn = useCallback(async () => {
     try {
-      setSignInStatus('in-progress');
+      setSignInStatus((status) => {
+        return status === 'initial' ? 'fetching' : 'updating';
+      });
       const { groupId } = await fetch('/authenticate', { method: 'POST' }).then(
         (res) => {
           return res.json() as Promise<{ groupId: string }>;
@@ -82,7 +84,7 @@ export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListRet
     };
   }
 
-  if (signInStatus === 'in-progress') {
+  if (signInStatus === 'fetching' || signInStatus === 'updating') {
     return { signIn, signInStatus, signInError, groupId, connections };
   }
 
@@ -112,12 +114,12 @@ export function AtlasClusterConnectionsList({
   signInError: string | null;
   onSignInClick(): void;
 }) {
-  if (signInStatus === 'initial' || signInStatus === 'in-progress') {
+  if (signInStatus === 'initial' || signInStatus === 'fetching') {
     return (
       <Button
         variant="primary"
         type="button"
-        isLoading={signInStatus === 'in-progress'}
+        isLoading={signInStatus === 'fetching'}
         loadingText="Logging in..."
         onClick={onSignInClick}
       >
