@@ -11,7 +11,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "pretest": "npm run unzip-fixtures",
-    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1432x840x24\" --error-file=/dev/stdout -- ts-node index.ts",
+    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1432x840x24\" -- ts-node index.ts",
     "test-ci": "npm run test",
     "posttest-ci": "npm run coverage-report",
     "test-packaged": "npm run test -- -- --test-packaged-app",
