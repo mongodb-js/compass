@@ -247,7 +247,273 @@ async function assertCannotCreateCollection(
 /**
  * Connection tests
  */
-describe('Connection screen', function () {
+describe('Connection string', function () {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    compass = await init(this.test?.fullTitle());
+    browser = compass.browser;
+  });
+
+  after(function () {
+    return cleanup(compass);
+  });
+
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+    await disconnect(browser); // disconnect AFTER potentially taking a screenshot
+  });
+
+  it('can connect using connection string', async function () {
+    await browser.connectWithConnectionString();
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to an Atlas replicaset without srv', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
+
+    const connectionString = await resolveMongodbSrv(withSRV);
+    await browser.connectWithConnectionString(connectionString);
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to an Atlas cluster with a direct connection', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
+
+    const withoutSRV = await resolveMongodbSrv(withSRV);
+
+    const parsedString = new ConnectionString(withoutSRV);
+    parsedString.hosts = [parsedString.hosts[0]];
+    parsedString.searchParams.set('directConnection', 'true');
+    parsedString.searchParams.delete('replicaSet');
+
+    const connectionString = parsedString.toString();
+    await browser.connectWithConnectionString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to Atlas Serverless', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_SERVERLESS_HOST ?? '';
+    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+
+    await browser.connectWithConnectionString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to Atlas Datalake', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_DATA_LAKE_HOST ?? '';
+    const connectionString = `mongodb://${username}:${password}@${host}/?authSource=admin&tls=true`;
+
+    await browser.connectWithConnectionString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to Atlas Analytics Node', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? '';
+    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+
+    await browser.connectWithConnectionString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect to Atlas Free Tier', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_FREE_TIER_HOST ?? '';
+    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+
+    await browser.connectWithConnectionString(connectionString);
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('can connect with readWriteAnyDatabase builtin role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
+    );
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+
+    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
+  });
+
+  it('can connect with readAnyDatabase builtin role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
+    );
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+
+    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
+    await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(
+      browser,
+      'compass_e2e',
+      'new-collection'
+    );
+  });
+
+  it('can connect with custom role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
+    );
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+
+    await assertCanReadData(browser, 'test', 'users');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(browser, 'test', 'new-collection');
+  });
+
+  it('can connect with read one collection specific permission', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
+    );
+
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+    }
+
+    await assertCanReadData(browser, 'test', 'users');
+    await assertCannotInsertData(browser, 'test', 'users');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(browser, 'test', 'new-collection');
+  });
+});
+
+describe('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -269,16 +535,6 @@ describe('Connection screen', function () {
   afterEach(async function () {
     await screenshotIfFailed(compass, this.currentTest);
     await disconnect(browser); // disconnect AFTER potentially taking a screenshot
-  });
-
-  it('can connect using connection string', async function () {
-    await browser.connectWithConnectionString();
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect using connection form', async function () {
@@ -395,53 +651,6 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to an Atlas replicaset without srv', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
-
-    const connectionString = await resolveMongodbSrv(withSRV);
-    await browser.connectWithConnectionString(connectionString);
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
-  it('can connect to an Atlas cluster with a direct connection', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
-
-    const withoutSRV = await resolveMongodbSrv(withSRV);
-
-    const parsedString = new ConnectionString(withoutSRV);
-    parsedString.hosts = [parsedString.hosts[0]];
-    parsedString.searchParams.set('directConnection', 'true');
-    parsedString.searchParams.delete('replicaSet');
-
-    const connectionString = parsedString.toString();
-    await browser.connectWithConnectionString(connectionString);
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
   it('can connect to an Atlas with tlsUseSystemCA', async function () {
     if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
@@ -543,96 +752,15 @@ describe('Connection screen', function () {
     assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
-
-  it('can connect with readWriteAnyDatabase builtin role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
-    );
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-
-    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
-  });
-
-  it('can connect with readAnyDatabase builtin role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
-    );
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-
-    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
-    await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    await assertCannotCreateCollection(
-      browser,
-      'compass_e2e',
-      'new-collection'
-    );
-  });
-
-  it('can connect with custom role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
-    );
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-
-    await assertCanReadData(browser, 'test', 'users');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    await assertCannotCreateCollection(browser, 'test', 'new-collection');
-  });
-
-  it('can connect with read one collection specific permission', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
-    );
-    const result = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-
-    await assertCanReadData(browser, 'test', 'users');
-    await assertCannotInsertData(browser, 'test', 'users');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    await assertCannotCreateCollection(browser, 'test', 'new-collection');
-  });
 });
 
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   before(function () {
-    skipForWeb(this, 'not applicable to compass-web');
+    skipForWeb(
+      this,
+      'compass-web does not do SRV resolution in the client via OS DNS APIs'
+    );
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
@@ -697,7 +825,7 @@ describe('SRV connectivity', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('System CA access', function () {
   before(function () {
-    skipForWeb(this, 'not applicable to compass-web');
+    skipForWeb(this, 'system CA not applicable to compass-web');
   });
 
   it('allows using the system certificate store for connections', async function () {
@@ -752,7 +880,7 @@ describe('FLE2', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connect form not available in compass-web');
+    skipForWeb(this, 'client-side encryption not available in compass-web');
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
