@@ -109,7 +109,11 @@ describe('Multiple Connections Sidebar Component', function () {
       <ToastArea>
         <ConnectionStorageProvider value={storage}>
           <ConnectionsManagerProvider value={connectionManager}>
-            <MultipleConnectionSidebar activeWorkspace={{ type: 'connection' }} />
+            <Provider store={store}>
+              <MultipleConnectionSidebar
+                activeWorkspace={{ type: 'connection' }}
+              />
+            </Provider>
           </ConnectionsManagerProvider>
         </ConnectionStorageProvider>
       </ToastArea>
