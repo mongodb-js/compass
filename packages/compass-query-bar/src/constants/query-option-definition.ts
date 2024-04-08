@@ -35,6 +35,7 @@ export const OPTION_DEFINITION: {
   },
   hint: {
     name: 'hint',
+    label: 'Index Hint',
     type: 'document',
     placeholder: '{ field: -1 }',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.hint/',
