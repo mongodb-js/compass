@@ -1,6 +1,6 @@
 import { toJSString, validate } from 'mongodb-query-parser';
 import type { UserPreferences } from 'compass-preferences-model';
-import { isEqual } from 'lodash';
+import { isEqual, values } from 'lodash';
 import { prettify } from '@mongodb-js/compass-editor';
 
 import {
@@ -147,6 +147,11 @@ export function validateField(
     ) {
       return false;
     }
+  }
+
+  // HACK to validate hint document as a sort document
+  if (field === 'hint') {
+    return validate('sort', value);
   }
 
   return validated;

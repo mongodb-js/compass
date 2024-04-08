@@ -151,6 +151,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     'project',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
+    'hint',
   ],
   queryChanged,
   resultId,
