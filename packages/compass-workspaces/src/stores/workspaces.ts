@@ -4,6 +4,7 @@ import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
 import type {
+  WelcomeWorkspace,
   CollectionWorkspace,
   CollectionsWorkspace,
   DatabasesWorkspace,
@@ -71,6 +72,7 @@ function isAction<A extends AnyAction>(
 }
 
 type WorkspaceTabProps =
+  | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
@@ -467,11 +469,12 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 };
 
 export type OpenWorkspaceOptions =
+  | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Databases'>, 'type'>
-  | Pick<Workspace<'Performance'>, 'type'>
-  | Pick<Workspace<'Collections'>, 'type' | 'namespace'>
-  | (Pick<Workspace<'Collection'>, 'type' | 'namespace'> &
+  | Pick<Workspace<'Databases'>, 'type' | 'connectionInfoId'>
+  | Pick<Workspace<'Performance'>, 'type' | 'connectionInfoId'>
+  | Pick<Workspace<'Collections'>, 'type' | 'connectionInfoId' | 'namespace'>
+  | (Pick<Workspace<'Collection'>, 'type' | 'connectionInfoId' | 'namespace'> &
       Partial<
         Pick<
           Workspace<'Collection'>,
@@ -514,7 +517,11 @@ export const openWorkspace = (
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction
 > => {
-  return (dispatch, getState, { instance, dataService, logger }) => {
+  return (
+    dispatch,
+    getState,
+    { instancesManager, connectionsManager, logger }
+  ) => {
     const oldTabs = getState().tabs;
     if (workspaceOptions.type === 'Collection') {
       if (!getState().collectionInfo[workspaceOptions.namespace]) {
@@ -522,6 +529,24 @@ export const openWorkspace = (
         void (async () => {
           const { database, collection } = toNS(workspaceOptions.namespace);
           try {
+            const dataService = connectionsManager.getDataServiceForConnection(
+              workspaceOptions.connectionInfoId
+            );
+            if (!dataService) {
+              throw new Error(
+                `DataService not available for connectionInfoId=${workspaceOptions.connectionInfoId}`
+              );
+            }
+
+            const instance = instancesManager.getMongoDBInstanceForConnection(
+              workspaceOptions.connectionInfoId
+            );
+            if (!instance) {
+              throw new Error(
+                `MongoDBInstance not available for connectionInfoId=${workspaceOptions.connectionInfoId}`
+              );
+            }
+
             const coll = await instance.getNamespace({
               dataService,
               database,
@@ -609,6 +634,7 @@ export const openTabFromCurrent = (
   return {
     type: WorkspacesActions.OpenTabFromCurrentActive,
     defaultTab: defaultTab ?? { type: 'My Queries' },
+    // defaultTab: defaultTab ?? { type: 'Welcome' },
   };
 };
 

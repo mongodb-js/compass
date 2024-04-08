@@ -31,6 +31,7 @@ import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -101,6 +102,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
       switch (tab.type) {
+        case 'Welcome':
+          return {
+            id: tab.id,
+            title: tab.type,
+            // TODO: Change this to correct glyph
+            iconGlyph: 'Home',
+          } as const;
         case 'My Queries':
           return {
             id: tab.id,
@@ -164,23 +172,38 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
-      case 'My Queries':
+      case 'Welcome':
+      case 'My Queries': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return <Component></Component>;
+      }
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component></Component>;
+        return (
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionInfoId}>
+            <Component
+              connectionInfoId={activeTab.connectionInfoId}
+            ></Component>
+          </ConnectionInfoProvider>
+        );
       }
       case 'Collections': {
         const Component = getWorkspacePluginByName(activeTab.type);
         return (
-          <NamespaceProvider
-            namespace={activeTab.namespace}
-            onNamespaceFallbackSelect={(ns) => {
-              onNamespaceNotFound(activeTab, ns);
-            }}
-          >
-            <Component namespace={activeTab.namespace}></Component>
-          </NamespaceProvider>
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionInfoId}>
+            <NamespaceProvider
+              namespace={activeTab.namespace}
+              onNamespaceFallbackSelect={(ns) => {
+                onNamespaceNotFound(activeTab, ns);
+              }}
+            >
+              <Component
+                namespace={activeTab.namespace}
+                connectionInfoId={activeTab.connectionInfoId}
+              ></Component>
+            </NamespaceProvider>
+          </ConnectionInfoProvider>
         );
       }
       case 'Collection': {
@@ -188,14 +211,16 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
         return (
-          <NamespaceProvider
-            namespace={activeTab.namespace}
-            onNamespaceFallbackSelect={(ns) => {
-              onNamespaceNotFound(activeTab, ns);
-            }}
-          >
-            <Component tabId={id} {...collectionMetadata}></Component>;
-          </NamespaceProvider>
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionInfoId}>
+            <NamespaceProvider
+              namespace={activeTab.namespace}
+              onNamespaceFallbackSelect={(ns) => {
+                onNamespaceNotFound(activeTab, ns);
+              }}
+            >
+              <Component tabId={id} {...collectionMetadata}></Component>;
+            </NamespaceProvider>
+          </ConnectionInfoProvider>
         );
       }
       default:

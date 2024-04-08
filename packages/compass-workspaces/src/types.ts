@@ -5,20 +5,27 @@ export type CollectionSubtab =
   | 'Indexes'
   | 'Validation';
 
+export type WelcomeWorkspace = {
+  type: 'Welcome';
+};
+
 export type MyQueriesWorkspace = {
   type: 'My Queries';
 };
 
 export type ServerStatsWorkspace = {
   type: 'Performance';
+  connectionInfoId: string;
 };
 
 export type DatabasesWorkspace = {
   type: 'Databases';
+  connectionInfoId: string;
 };
 
 export type CollectionsWorkspace = {
   type: 'Collections';
+  connectionInfoId: string;
   namespace: string;
 };
 
@@ -29,6 +36,7 @@ export type CollectionWorkspace = {
   // 2. to avoid unnecessary changes in the types definition within those plugins.
   tabId: string;
   type: 'Collection';
+  connectionInfoId: string;
   namespace: string;
   subTab: CollectionSubtab;
   initialQuery?: unknown;
@@ -39,6 +47,7 @@ export type CollectionWorkspace = {
 };
 
 export type AnyWorkspace =
+  | WelcomeWorkspace
   | MyQueriesWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace
