@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ActiveConnectionList } from './active-connection-list';
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
@@ -46,11 +46,11 @@ describe('<ActiveConnectionList />', function () {
     } as any;
 
     render(
-      <ConnectionStorageContext.Provider value={mockConnectionStorage}>
+      <ConnectionStorageProvider value={mockConnectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager}>
           <ActiveConnectionList />
         </ConnectionsManagerProvider>
-      </ConnectionStorageContext.Provider>
+      </ConnectionStorageProvider>
     );
   });
 

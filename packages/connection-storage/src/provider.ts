@@ -8,6 +8,8 @@ export const ConnectionStorageContext = createContext<
   typeof ConnectionStorage | null
 >(null);
 
+export const ConnectionStorageProvider = ConnectionStorageContext.Provider;
+
 export { type ConnectionStorage } from './renderer';
 
 export type ConnectionInfoAccess = {
@@ -21,7 +23,7 @@ export function useConnectionStorageContext() {
   const connectionStorage = useContext(ConnectionStorageContext);
   if (!connectionStorage) {
     throw new Error(
-      'Could not find the current ConnectionStorage. Did you forget to setup the ConnectionStorageContext?'
+      'Could not find the current ConnectionStorage. Did you forget to setup the ConnectionStorageProvider?'
     );
   }
   return connectionStorage;

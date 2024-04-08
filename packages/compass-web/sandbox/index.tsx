@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
   TextArea,
@@ -7,9 +7,9 @@ import {
   Card,
   css,
   spacing,
-  ErrorBoundary,
   Banner,
   Body,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import {
   redactConnectionString,
@@ -57,6 +57,51 @@ const connectionFormStyles = css({
 });
 
 resetGlobalCSS();
+
+const loadingContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const spinnerStyles = css({
+  flex: 'none',
+});
+
+function LoadingScreen({ connectionString }: { connectionString: string }) {
+  const host = useMemo(() => {
+    try {
+      const url = new ConnectionString(connectionString);
+      return url.hosts[0];
+    } catch {
+      return 'cluster';
+    }
+  }, [connectionString]);
+
+  return (
+    <div data-testid="compass-web-loading" className={loadingContainerStyles}>
+      <SpinLoaderWithLabel
+        className={spinnerStyles}
+        progressText={`Connecting to ${host}…`}
+      ></SpinLoaderWithLabel>
+    </div>
+  );
+}
+
+const errorContainerStyles = css({
+  width: '100%',
+  padding: spacing[3],
+});
+
+function ErrorScreen({ error }: { error: string }) {
+  return (
+    <div className={errorContainerStyles}>
+      <Banner variant="danger">{error}</Banner>
+    </div>
+  );
+}
 
 function validateConnectionString(str: string) {
   try {
@@ -136,21 +181,37 @@ const App = () => {
     return (
       <Body as="div" className={sandboxContainerStyles}>
         <LoggerAndTelemetryProvider value={sandboxLogger}>
-          <ErrorBoundary>
-            <CompassWeb
-              connectionInfo={connectionInfo}
-              initialWorkspaceTabs={
-                initialCurrentTab ? [initialCurrentTab] : undefined
-              }
-              onActiveWorkspaceTabChange={updateCurrentTab}
-              initialPreferences={{
-                enablePerformanceAdvisorBanner: isAtlasConnection,
-                enableAtlasSearchIndexes: !isAtlasConnection,
-                maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
-              }}
-              stackedElementsZIndex={5}
-            ></CompassWeb>
-          </ErrorBoundary>
+          <CompassWeb
+            onAutoconnectInfoRequest={() => {
+              return Promise.resolve(connectionInfo);
+            }}
+            initialWorkspaceTabs={
+              initialCurrentTab ? [initialCurrentTab] : undefined
+            }
+            onActiveWorkspaceTabChange={updateCurrentTab}
+            initialPreferences={{
+              enablePerformanceAdvisorBanner: isAtlasConnection,
+              enableAtlasSearchIndexes: !isAtlasConnection,
+              maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
+            }}
+            stackedElementsZIndex={5}
+            renderConnecting={(connectionInfo) => {
+              return (
+                <LoadingScreen
+                  connectionString={
+                    connectionInfo.connectionOptions.connectionString
+                  }
+                ></LoadingScreen>
+              );
+            }}
+            renderError={(_connectionInfo, err) => {
+              return (
+                <ErrorScreen
+                  error={err.message ?? 'Error occured when connecting'}
+                ></ErrorScreen>
+              );
+            }}
+          ></CompassWeb>
         </LoggerAndTelemetryProvider>
       </Body>
     );

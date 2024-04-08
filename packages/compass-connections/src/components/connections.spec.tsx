@@ -21,7 +21,7 @@ import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -100,7 +100,7 @@ describe('Connections Component', function () {
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
+          <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
               <Connections
                 onConnected={onConnectedSpy}
@@ -108,7 +108,7 @@ describe('Connections Component', function () {
                 onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
               />
             </ConnectionsManagerProvider>
-          </ConnectionStorageContext.Provider>
+          </ConnectionStorageProvider>
         </PreferencesProvider>
       );
     });
@@ -197,7 +197,7 @@ describe('Connections Component', function () {
 
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
+          <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={connectionsManager}>
               <ToastArea>
                 <Connections
@@ -207,7 +207,7 @@ describe('Connections Component', function () {
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
-          </ConnectionStorageContext.Provider>
+          </ConnectionStorageProvider>
         </PreferencesProvider>
       );
 
@@ -385,7 +385,7 @@ describe('Connections Component', function () {
 
         render(
           <PreferencesProvider value={preferences}>
-            <ConnectionStorageContext.Provider value={mockStorage}>
+            <ConnectionStorageProvider value={mockStorage}>
               <ConnectionsManagerProvider value={connectionsManager}>
                 <ToastArea>
                   <Connections
@@ -395,7 +395,7 @@ describe('Connections Component', function () {
                   />
                 </ToastArea>
               </ConnectionsManagerProvider>
-            </ConnectionStorageContext.Provider>
+            </ConnectionStorageProvider>
           </PreferencesProvider>
         );
 
@@ -519,7 +519,7 @@ describe('Connections Component', function () {
 
       render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
+          <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
               <ToastArea>
                 <Connections
@@ -529,7 +529,7 @@ describe('Connections Component', function () {
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
-          </ConnectionStorageContext.Provider>
+          </ConnectionStorageProvider>
         </PreferencesProvider>
       );
 
@@ -549,7 +549,7 @@ describe('Connections Component', function () {
 
       const { rerender } = render(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
+          <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
               <ToastArea>
                 <Connections
@@ -559,7 +559,7 @@ describe('Connections Component', function () {
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
-          </ConnectionStorageContext.Provider>
+          </ConnectionStorageProvider>
         </PreferencesProvider>
       );
 
@@ -575,7 +575,7 @@ describe('Connections Component', function () {
 
       rerender(
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageContext.Provider value={mockStorage}>
+          <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
               <ToastArea>
                 <Connections
@@ -585,7 +585,7 @@ describe('Connections Component', function () {
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
-          </ConnectionStorageContext.Provider>
+          </ConnectionStorageProvider>
         </PreferencesProvider>
       );
 
