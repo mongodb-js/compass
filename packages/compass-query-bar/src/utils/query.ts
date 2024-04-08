@@ -149,7 +149,8 @@ export function validateField(
     }
   }
 
-  // HACK to validate hint document as a sort document
+  // We don't have a validator for indexes, but indexes share the same structure as
+  // a sort document, so we're leveraging this to validate the hint field
   if (field === 'hint') {
     return validate('sort', value);
   }
