@@ -19,9 +19,10 @@ const allTypesStr = `{
   '201b': ISODate(), '201c': new ISODate()
 }`;
 
-const allTypesPrettyStr = prettify(allTypesStr, 'javascript-expression', {
-  trailingComma: 'none',
-}).replace(/\n/g, '');
+const allTypesPrettyStr = prettify(
+  allTypesStr,
+  'javascript-expression'
+).replace(/\n/g, '');
 
 describe('ExportToLanguagePlugin', function () {
   const appRegistry = new AppRegistry();

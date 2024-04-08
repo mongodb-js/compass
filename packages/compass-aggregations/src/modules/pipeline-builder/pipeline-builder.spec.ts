@@ -61,7 +61,7 @@ describe('PipelineBuilder', function () {
     expect(pipelineBuilder.stages.length).to.equal(1);
     const stage = pipelineBuilder.stages[0];
     expect(stage.operator).to.equal('$match');
-    expect(stage.value).to.equal('{\n  name: /berlin/i,\n}');
+    expect(stage.value).to.equal('{\n  name: /berlin/i\n}');
     expect(stage.disabled).to.equal(false);
     expect(stage.syntaxError).to.be.null;
   });
@@ -215,15 +215,15 @@ describe('PipelineBuilder', function () {
       expect(pipelineBuilder.source).to.eq(`[
   {
     $match: {
-      _id: 1,
-    },
+      _id: 1
+    }
   },
   {
-    $limit: 10,
+    $limit: 10
   },
   {
-    $out: "test-out",
-  },
+    $out: "test-out"
+  }
 ]`);
     });
 
