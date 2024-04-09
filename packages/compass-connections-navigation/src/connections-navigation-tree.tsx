@@ -95,7 +95,7 @@ type TreeItem =
 type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
-  isLegacy?: boolean;
+  isSingleConnection?: boolean;
   activeNamespace?: string;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
@@ -258,7 +258,7 @@ const NavigationItem = memo<{
 }>(function NavigationItem({ index, style, data }) {
   const {
     items,
-    isLegacy,
+    isSingleConnection,
     isReadOnly,
     activeNamespace,
     currentTabbable,
@@ -275,7 +275,7 @@ const NavigationItem = memo<{
       <ConnectionItem
         style={style}
         isReadOnly={isReadOnly}
-        isLegacy={isLegacy}
+        isSingleConnection={isSingleConnection}
         isActive={activeNamespace === ''} // TODO(COMPASS-7775) we'll need something like activeConnection
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -291,7 +291,7 @@ const NavigationItem = memo<{
       <DatabaseItem
         style={style}
         isReadOnly={isReadOnly}
-        isLegacy={isLegacy}
+        isSingleConnection={isSingleConnection}
         isActive={itemData.id === activeNamespace}
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -312,7 +312,7 @@ const NavigationItem = memo<{
             itemData.type !== 'placeholder' && (
               <CollectionItem
                 isReadOnly={isReadOnly}
-                isLegacy={isLegacy}
+                isSingleConnection={isSingleConnection}
                 isActive={itemData.id === activeNamespace}
                 isTabbable={itemData.id === currentTabbable}
                 onNamespaceAction={onNamespaceAction}
@@ -324,7 +324,7 @@ const NavigationItem = memo<{
         fallback={() => (
           <PlaceholderItem
             level={itemData.level}
-            isLegacy={isLegacy}
+            isSingleConnection={isSingleConnection}
           ></PlaceholderItem>
         )}
       ></FadeInPlaceholder>
@@ -384,22 +384,22 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 }) => {
   // we'll have either connections for MC version, or databases for SC version
   const {
-    type,
+    isSingleConnection,
     data,
   }: {
-    type: 'MC' | 'SC' | undefined;
+    isSingleConnection: boolean;
     data:
       | MCConnectionsNavigationTreeProps['connections']
       | SCConnectionsNavigationTreeProps['databases'];
   } = useMemo(() => {
     if ((restProps as SCConnectionsNavigationTreeProps).databases) {
       return {
-        type: 'SC',
+        isSingleConnection: true,
         data: (restProps as SCConnectionsNavigationTreeProps).databases,
       };
     }
     return {
-      type: 'MC',
+      isSingleConnection: false,
       data: (restProps as MCConnectionsNavigationTreeProps).connections,
     };
   }, [restProps]);
@@ -415,7 +415,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
-    if (type === 'MC') {
+    if (!isSingleConnection) {
       return (data as MCConnectionsNavigationTreeProps['connections'])
         .map((connection, connectionIndex) =>
           connectionToItems({
@@ -439,7 +439,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         )
         .flat();
     }
-  }, [type, data, expanded]);
+  }, [isSingleConnection, data, expanded]);
 
   const onExpandedChange = useCallback(
     (item, isExpanded) => {
@@ -474,7 +474,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     return {
       items,
       isReadOnly,
-      isLegacy: type === 'SC',
+      isSingleConnection,
       activeNamespace,
       currentTabbable,
       onNamespaceAction,
@@ -485,7 +485,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   }, [
     items,
     isReadOnly,
-    type,
+    isSingleConnection,
     activeNamespace,
     currentTabbable,
     onNamespaceAction,
@@ -562,7 +562,9 @@ const NavigationWithPlaceholder: React.FunctionComponent<
       fallback={() => {
         return (
           <TopPlaceholder
-            isLegacy={!!(props as SCConnectionsNavigationTreeProps).databases}
+            isSingleConnection={
+              !!(props as SCConnectionsNavigationTreeProps).databases
+            }
           ></TopPlaceholder>
         );
       }}

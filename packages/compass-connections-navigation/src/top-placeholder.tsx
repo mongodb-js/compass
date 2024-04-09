@@ -7,16 +7,16 @@ const placeholderList = css({
 });
 
 export const TopPlaceholder: React.FunctionComponent<{
-  isLegacy?: boolean;
-}> = ({ isLegacy }) => {
+  isSingleConnection?: boolean;
+}> = ({ isSingleConnection }) => {
   const items = useMemo(() => {
     return Array.from({ length: 10 }, (_, idx) => (
       <PlaceholderItem
         key={idx}
         level={1}
-        isLegacy={isLegacy}
+        isSingleConnection={isSingleConnection}
       ></PlaceholderItem>
     ));
-  }, [isLegacy]);
+  }, [isSingleConnection]);
   return <div className={placeholderList}>{items}</div>;
 };

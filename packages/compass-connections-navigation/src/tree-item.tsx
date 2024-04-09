@@ -52,7 +52,7 @@ export type NamespaceItemProps = {
   type: string;
   isActive: boolean;
   isReadOnly: boolean;
-  isLegacy?: boolean;
+  isSingleConnection?: boolean;
   onNamespaceAction(namespace: string, action: Actions): void;
 };
 

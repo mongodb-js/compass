@@ -3,22 +3,22 @@ import { css, spacing } from '@mongodb-js/compass-components';
 export const getItemPaddingStyles = ({
   level,
   isPlaceholder,
-  isLegacy,
+  isSingleConnection,
 }: {
   level: number;
   isPlaceholder?: boolean;
-  isLegacy?: boolean;
+  isSingleConnection?: boolean;
 }) => {
   let paddingLeft = 0;
   switch (level) {
     case 1:
-      if (isLegacy) {
+      if (isSingleConnection) {
         paddingLeft = spacing[2];
       }
       break;
     case 2:
       paddingLeft = spacing[3];
-      if (isLegacy) {
+      if (isSingleConnection) {
         paddingLeft = spacing[6];
       }
       break;
@@ -27,7 +27,7 @@ export const getItemPaddingStyles = ({
       break;
   }
 
-  if (isPlaceholder && (level === 1 || (!isLegacy && level === 2))) {
+  if (isPlaceholder && (level === 1 || (!isSingleConnection && level === 2))) {
     paddingLeft += spacing[2];
   }
 

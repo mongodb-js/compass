@@ -54,7 +54,7 @@ export const DatabaseItem: React.FunctionComponent<
   isExpanded,
   isActive,
   isReadOnly,
-  isLegacy,
+  isSingleConnection,
   isTabbable,
   style,
   onNamespaceAction,
@@ -63,8 +63,8 @@ export const DatabaseItem: React.FunctionComponent<
   const [hoverProps, isHovered] = useHoverState();
 
   const itemPaddingStyles = useMemo(
-    () => getItemPaddingStyles({ level, isLegacy }),
-    [level, isLegacy]
+    () => getItemPaddingStyles({ level, isSingleConnection }),
+    [level, isSingleConnection]
   );
 
   const onExpandButtonClick = useCallback(

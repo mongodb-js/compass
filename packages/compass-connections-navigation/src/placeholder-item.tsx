@@ -13,12 +13,13 @@ const placeholderItem = css({
 
 export const PlaceholderItem: React.FunctionComponent<{
   level: number;
-  isLegacy?: boolean;
+  isSingleConnection?: boolean;
   style?: CSSProperties;
-}> = ({ level, style, isLegacy }) => {
+}> = ({ level, style, isSingleConnection }) => {
   const itemPaddingStyles = useMemo(
-    () => getItemPaddingStyles({ level, isPlaceholder: true, isLegacy }),
-    [level, isLegacy]
+    () =>
+      getItemPaddingStyles({ level, isPlaceholder: true, isSingleConnection }),
+    [level, isSingleConnection]
   );
 
   return (
