@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import {
   MarketingModal,
   Body,
-  Disclaimer,
   Link,
   css,
   spacing,
@@ -14,7 +13,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 import WelcomeImage from './welcome-image';
 
 const disclaimer = css({
-  marginTop: spacing[3],
+  padding: `0 ${spacing[900]}px`,
 });
 
 const link = css({
@@ -51,6 +50,25 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       buttonText="Start"
       showBlob
       blobPosition="top right"
+      disclaimer={
+        networkTraffic ? (
+          <div className={disclaimer}>
+            To help improve our products, anonymous usage data is collected and
+            sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
+            <br />
+            Manage this behaviour on the Compass{' '}
+            <Link
+              data-testid="open-settings-link"
+              hideExternalIcon
+              className={link}
+              onClick={goToSettings}
+            >
+              Settings
+            </Link>{' '}
+            page.
+          </div>
+        ) : undefined
+      }
       graphic={<WelcomeImage width={156} height={209} />}
       linkText={''}
       darkMode={darkMode}
@@ -59,23 +77,6 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
         Build aggregation pipelines, optimize queries, analyze schemas,
         and&nbsp;more. All with the GUI built by - and for - MongoDB.
       </Body>
-      {networkTraffic && (
-        <Disclaimer className={disclaimer}>
-          To help improve our products, anonymous usage data is collected and
-          sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
-          <br />
-          Manage this behaviour on the Compass{' '}
-          <Link
-            data-testid="open-settings-link"
-            hideExternalIcon
-            className={link}
-            onClick={goToSettings}
-          >
-            Settings
-          </Link>{' '}
-          page.
-        </Disclaimer>
-      )}
     </MarketingModal>
   );
 };
