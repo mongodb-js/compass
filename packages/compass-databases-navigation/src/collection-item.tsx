@@ -54,6 +54,7 @@ const collectionItemLabel = css({
 export const CollectionItem: React.FunctionComponent<
   VirtualListItemProps & TreeItemProps & NamespaceItemProps
 > = ({
+  connectionId,
   id,
   name,
   type,
@@ -74,24 +75,26 @@ export const CollectionItem: React.FunctionComponent<
     (evt) => {
       if (evt.metaKey || evt.ctrlKey) {
         onNamespaceAction(
+          connectionId,
           evt.currentTarget.dataset.id as string,
           'open-in-new-tab'
         );
       } else {
         onNamespaceAction(
+          connectionId,
           evt.currentTarget.dataset.id as string,
           'select-collection'
         );
       }
     },
-    [onNamespaceAction]
+    [connectionId, onNamespaceAction]
   );
 
   const onAction = useCallback(
     (action: Actions) => {
-      onNamespaceAction(id, action);
+      onNamespaceAction(connectionId, id, action);
     },
-    [id, onNamespaceAction]
+    [connectionId, id, onNamespaceAction]
   );
 
   const actions = useMemo(() => {

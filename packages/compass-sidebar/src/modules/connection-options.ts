@@ -1,3 +1,4 @@
+import { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
 const HOST_STRING_LENGTH = 25;
 
@@ -5,31 +6,40 @@ export const CHANGE_CONNECTION_OPTIONS =
   'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS' as const;
 interface ChangeConnectionOptionsAction {
   type: typeof CHANGE_CONNECTION_OPTIONS;
-  options: ConnectionOptionsState;
+  connectionId: ConnectionInfo['id'];
+  options: SingleConnectionOptionsState;
 }
 export type ConnectionOptionsAction = ChangeConnectionOptionsAction;
 
-export const INITIAL_STATE: ConnectionOptionsState = {
-  sshTunnel: false,
-  sshTunnelHostname: '',
-  sshTunnelPort: '',
-  sshTunnelHostPortString: '',
-};
-
-export type ConnectionOptionsState = {
+export const INITIAL_STATE: ConnectionOptionsState = {};
+export type SingleConnectionOptionsState = {
   sshTunnel: boolean;
   sshTunnelHostname: string;
   sshTunnelPort: string | number;
   sshTunnelHostPortString: string;
 };
 
+export type ConnectionOptionsState = Record<
+  ConnectionInfo['id'],
+  {
+    sshTunnel: boolean;
+    sshTunnelHostname: string;
+    sshTunnelPort: string | number;
+    sshTunnelHostPortString: string;
+  }
+>;
+
 export default function reducer(
   state = INITIAL_STATE,
   action: RootAction
 ): ConnectionOptionsState {
   if (action.type === CHANGE_CONNECTION_OPTIONS) {
-    return action.options;
+    return {
+      ...state,
+      [action.connectionId]: action.options,
+    };
   }
+
   return state;
 }
 
@@ -41,9 +51,12 @@ function combineHostPort(host: string, port: string | number): string {
   return `${host}:${port}`;
 }
 
-export function changeConnectionOptions(connectionOptions: {
-  sshTunnel?: { host: string; port: string | number };
-}): ConnectionOptionsAction {
+export function changeConnectionOptions(
+  connectionId: ConnectionInfo['id'],
+  connectionOptions: {
+    sshTunnel?: { host: string; port: string | number };
+  }
+): ConnectionOptionsAction {
   const sshTunnel = !!connectionOptions.sshTunnel;
   const sshTunnelHostname = connectionOptions?.sshTunnel?.host ?? '';
   const sshTunnelPort = connectionOptions?.sshTunnel?.port ?? '';
@@ -53,6 +66,7 @@ export function changeConnectionOptions(connectionOptions: {
 
   return {
     type: CHANGE_CONNECTION_OPTIONS,
+    connectionId,
     options: {
       sshTunnel,
       sshTunnelHostname,

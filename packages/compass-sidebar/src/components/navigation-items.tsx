@@ -31,6 +31,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
+import { ConnectionInfo } from '@mongodb-js/connection-info';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -252,6 +253,7 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 
 export function NavigationItems({
   isReady,
+  connectionId,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
   onFilterChange,
@@ -261,6 +263,7 @@ export function NavigationItems({
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
+  connectionId: ConnectionInfo['id'];
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
@@ -356,6 +359,7 @@ export function NavigationItems({
 
       <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       <SidebarDatabasesNavigation
+        connectionId={connectionId}
         activeNamespace={currentNamespace ?? undefined}
       />
     </>
@@ -364,9 +368,12 @@ export function NavigationItems({
 
 const mapStateToProps = (
   state: RootState,
-  { readOnly: preferencesReadOnly }: { readOnly: boolean }
+  {
+    connectionId,
+    readOnly: preferencesReadOnly,
+  }: { connectionId: ConnectionInfo['id']; readOnly: boolean }
 ) => {
-  const totalCollectionsCount = state.databases.databases.reduce(
+  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
     (acc: number, db: { collectionsLength: number }) => {
       return acc + db.collectionsLength;
     },
@@ -374,11 +381,12 @@ const mapStateToProps = (
   );
 
   const isReady =
-    ['ready', 'refreshing'].includes(state.instance?.status ?? '') &&
-    state.isPerformanceTabSupported !== null;
+    ['ready', 'refreshing'].includes(
+      state.instance[connectionId]?.status ?? ''
+    ) && state.isPerformanceTabSupported !== null;
 
-  const isDataLake = state.instance?.dataLake.isDataLake ?? false;
-  const isWritable = state.instance?.isWritable ?? false;
+  const isDataLake = state.instance[connectionId]?.dataLake.isDataLake ?? false;
+  const isWritable = state.instance[connectionId]?.isWritable ?? false;
 
   return {
     isReady,

@@ -21,12 +21,14 @@ import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { DatabasesPlaceholder } from './databases-placeholder';
 
 type Collection = {
+  connectionId: string;
   _id: string;
   name: string;
   type: string;
 };
 
 type Database = {
+  connectionId: string;
   _id: string;
   name: string;
   collectionsStatus: string;
@@ -41,6 +43,7 @@ type PlaceholderTreeItem = {
 };
 
 type DatabaseTreeItem = {
+  connectionId: string;
   key: string;
   type: 'database';
   level: 1;
@@ -52,6 +55,7 @@ type DatabaseTreeItem = {
 };
 
 type CollectionTreeItem = {
+  connectionId: string;
   key: string;
   type: 'collection' | 'view' | 'timeseries';
   level: 2;
@@ -68,8 +72,18 @@ type ListItemData = {
   isReadOnly: boolean;
   activeNamespace?: string;
   currentTabbable?: string;
-  onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
-  onNamespaceAction(this: void, namespace: string, action: Actions): void;
+  onDatabaseExpand(
+    this: void,
+    connectionId: string,
+    id: string,
+    isExpanded: boolean
+  ): void;
+  onNamespaceAction(
+    this: void,
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
 };
 
 const collectionItemContainer = css({
@@ -136,13 +150,15 @@ const navigationTree = css({
 });
 
 const DatabasesNavigationTree: React.FunctionComponent<{
+  connectionId: string;
   databases: Database[];
   expanded?: Record<string, boolean>;
-  onDatabaseExpand(id: string, isExpanded: boolean): void;
+  onDatabaseExpand(connectionId: string, id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
   isReadOnly?: boolean;
 }> = ({
+  connectionId,
   databases,
   expanded = {},
   activeNamespace = '',
@@ -164,9 +180,9 @@ const DatabasesNavigationTree: React.FunctionComponent<{
 
   useEffect(() => {
     if (activeNamespace) {
-      onDatabaseExpand(activeNamespace, true);
+      onDatabaseExpand(connectionId, activeNamespace, true);
     }
-  }, [activeNamespace, onDatabaseExpand]);
+  }, [connectionId, activeNamespace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
     return databases
@@ -178,6 +194,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
           const isExpanded = expanded[id];
 
           const database: DatabaseTreeItem = {
+            connectionId,
             key: String(dbIndex),
             level: 1,
             id,
@@ -204,6 +221,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
           return ([database] as TreeItem[]).concat(
             areCollectionsReady
               ? collections.map(({ _id: id, name, type }, index) => ({
+                  connectionId,
                   key: `${dbIndex}-${index}`,
                   level: 2,
                   id,
@@ -220,13 +238,13 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         }
       )
       .flat();
-  }, [databases, expanded]);
+  }, [connectionId, databases, expanded]);
 
   const onExpandedChange = useCallback(
     (item, isExpanded) => {
-      onDatabaseExpand(item.id, isExpanded);
+      onDatabaseExpand(connectionId, item.id, isExpanded);
     },
-    [onDatabaseExpand]
+    [connectionId, onDatabaseExpand]
   );
 
   const onFocusMove = useCallback(

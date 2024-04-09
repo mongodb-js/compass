@@ -22,11 +22,16 @@ export type TreeItemProps = {
 };
 
 export type NamespaceItemProps = {
+  connectionId: string;
   name: string;
   type: string;
   isActive: boolean;
   isReadOnly: boolean;
-  onNamespaceAction(namespace: string, action: Actions): void;
+  onNamespaceAction(
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
 };
 
 export function useDefaultAction<T>(

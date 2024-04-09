@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import toNS from 'mongodb-ns';
-import type { Database } from '../modules/databases';
-import { toggleDatabaseExpanded } from '../modules/databases';
+import { Database, toggleDatabaseExpanded } from '../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -41,7 +40,8 @@ function SidebarDatabasesNavigation({
   const preferencesReadOnly = usePreference('readOnly');
   const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
   const onNamespaceAction = useCallback(
-    (ns: string, action: Actions) => {
+    (connectionId: string, ns: string, action: Actions) => {
+      // TODO: COMPASS-7718 to use connectionId for new tabs
       switch (action) {
         case 'select-database':
           openCollectionsWorkspace(ns);
@@ -64,7 +64,7 @@ function SidebarDatabasesNavigation({
           return;
         }
         default:
-          _onNamespaceAction(ns, action);
+          _onNamespaceAction(connectionId, ns, action);
           return;
       }
     },
@@ -87,22 +87,31 @@ function SidebarDatabasesNavigation({
   );
 }
 
-function mapStateToProps(state: RootState) {
+function mapStateToProps(
+  state: RootState,
+  { connectionId }: { connectionId: ConnectionInfo['id'] }
+) {
+  const instance = state.instance[connectionId];
   const {
-    databases: { filterRegex, filteredDatabases, expandedDbList },
-    instance,
-  } = state;
+    filterRegex,
+    filteredDatabases,
+    expandedDbList: initialExpandedDbList,
+  } = state.databases[connectionId];
+
   const status = instance?.databasesStatus;
   const isReady =
     status !== undefined && !['initial', 'fetching'].includes(status);
   const defaultExpanded = Boolean(filterRegex);
+
+  const expandedDbList = initialExpandedDbList ?? {};
   const expanded = Object.fromEntries(
     (filteredDatabases as any[]).map(({ name }) => [
       name,
       expandedDbList[name] ?? defaultExpanded,
     ])
   );
-  const isDataLake = instance?.dataLake.isDataLake;
+
+  const isDataLake = instance?.dataLake?.isDataLake;
   const isWritable = instance?.isWritable;
   return {
     isReady,
@@ -114,10 +123,12 @@ function mapStateToProps(state: RootState) {
 }
 
 const onNamespaceAction = (
+  connectionId: string,
   namespace: string,
   action: Actions
 ): SidebarThunkAction<void> => {
   return (_dispatch, getState, { globalAppRegistry }) => {
+    // TODO: COMPASS-7719 to adapt modals to be multiple connection aware
     const emit = (action: string, ...rest: any[]) => {
       globalAppRegistry.emit(action, ...rest);
     };
@@ -136,7 +147,10 @@ const onNamespaceAction = (
         emit('open-create-collection', ns);
         return;
       case 'duplicate-view': {
-        const coll = findCollection(namespace, getState().databases.databases);
+        const coll = findCollection(
+          namespace,
+          getState().databases[connectionId].databases
+        );
         if (coll && coll.sourceName) {
           emit('open-create-view', {
             source: coll.sourceName,

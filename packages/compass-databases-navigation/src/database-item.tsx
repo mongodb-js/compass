@@ -87,9 +87,14 @@ export const DatabaseItem: React.FunctionComponent<
     TreeItemProps &
     NamespaceItemProps & {
       isExpanded: boolean;
-      onDatabaseExpand(id: string, isExpanded: boolean): void;
+      onDatabaseExpand(
+        connectionId: string,
+        id: string,
+        isExpanded: boolean
+      ): void;
     }
 > = ({
+  connectionId,
   id,
   name,
   posInSet,
@@ -107,26 +112,27 @@ export const DatabaseItem: React.FunctionComponent<
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
       evt.stopPropagation();
-      onDatabaseExpand(id, !isExpanded);
+      onDatabaseExpand(connectionId, id, !isExpanded);
     },
-    [onDatabaseExpand, id, isExpanded]
+    [onDatabaseExpand, connectionId, id, isExpanded]
   );
 
   const onDefaultAction = useCallback(
     (evt) => {
       onNamespaceAction(
+        connectionId,
         evt.currentTarget.dataset.id as string,
         'select-database'
       );
     },
-    [onNamespaceAction]
+    [connectionId, onNamespaceAction]
   );
 
   const onAction = useCallback(
     (action: Actions) => {
-      onNamespaceAction(id, action);
+      onNamespaceAction(connectionId, id, action);
     },
-    [id, onNamespaceAction]
+    [connectionId, id, onNamespaceAction]
   );
 
   const actions: ItemAction<Actions>[] = useMemo(() => {

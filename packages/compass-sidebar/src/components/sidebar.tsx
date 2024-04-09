@@ -61,7 +61,7 @@ const navigationItemsContainerStyles = css({
 export function Sidebar({
   showConnectionInfo = true,
   activeWorkspace,
-  connectionInfo,
+  initialConnectionInfo,
   updateAndSaveConnectionInfo,
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
@@ -72,7 +72,7 @@ export function Sidebar({
 }: {
   showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
-  connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
+  initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
@@ -90,11 +90,15 @@ export function Sidebar({
       setIsFavoriteModalVisible(false);
 
       return updateAndSaveConnectionInfo({
-        ...cloneDeep(connectionInfo),
+        ...cloneDeep(initialConnectionInfo),
         favorite: newFavoriteInfo,
       });
     },
-    [connectionInfo, updateAndSaveConnectionInfo, setIsFavoriteModalVisible]
+    [
+      initialConnectionInfo,
+      updateAndSaveConnectionInfo,
+      setIsFavoriteModalVisible,
+    ]
   );
 
   const { openToast } = useToast('compass-connections');
@@ -125,7 +129,7 @@ export function Sidebar({
       if (action === 'copy-connection-string') {
         void copyConnectionString(
           maybeProtectConnectionString(
-            connectionInfo.connectionOptions.connectionString
+            initialConnectionInfo.connectionOptions.connectionString
           )
         );
         return;
@@ -147,7 +151,7 @@ export function Sidebar({
       onSidebarAction,
       openToast,
       maybeProtectConnectionString,
-      connectionInfo.connectionOptions.connectionString,
+      initialConnectionInfo?.connectionOptions?.connectionString,
     ]
   );
 
@@ -170,9 +174,9 @@ export function Sidebar({
         {showConnectionInfo && (
           <div className={connectionInfoContainerStyles}>
             <SidebarTitle
-              title={getConnectionTitle(connectionInfo)}
-              isFavorite={!!connectionInfo.favorite}
-              favoriteColor={connectionInfo.favorite?.color}
+              title={getConnectionTitle(initialConnectionInfo)}
+              isFavorite={!!initialConnectionInfo.favorite}
+              favoriteColor={initialConnectionInfo.favorite?.color}
               onAction={onAction}
             />
             <div className={connectionBadgesContainerStyles}>
@@ -190,6 +194,7 @@ export function Sidebar({
 
         <div className={navigationItemsContainerStyles}>
           <NavigationItems
+            connectionId={initialConnectionInfo.id}
             currentLocation={activeWorkspace?.type ?? null}
             currentNamespace={activeWorkspace?.namespace ?? null}
             onAction={onAction}
@@ -197,7 +202,7 @@ export function Sidebar({
         </div>
 
         <SaveConnectionModal
-          initialFavoriteInfo={connectionInfo.favorite}
+          initialFavoriteInfo={initialConnectionInfo.favorite}
           open={isFavoriteModalVisible}
           onCancelClicked={() => setIsFavoriteModalVisible(false)}
           onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
@@ -213,6 +218,7 @@ export function Sidebar({
           setConnectionIsCSFLEEnabled={setConnectionIsCSFLEEnabled}
         />
         <ConnectionInfoModal
+          initialConnectionInfo={initialConnectionInfo}
           isVisible={isConnectionInfoModalVisible}
           close={() => setIsConnectionInfoModalVisible(false)}
         />
@@ -221,12 +227,23 @@ export function Sidebar({
   );
 }
 
-const mapStateToProps = (state: RootState) => ({
-  connectionInfo: state.connectionInfo.connectionInfo,
-  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  isGenuine: state.instance?.genuineMongoDB.isGenuine,
-  csfleMode: state.instance?.csfleMode,
-});
+const mapStateToProps = (
+  state: RootState,
+  {
+    initialConnectionInfo,
+  }: {
+    initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
+  }
+) => {
+  console.log(initialConnectionInfo);
+  return {
+    isGenuineMongoDBVisible:
+      state.isGenuineMongoDBVisible[initialConnectionInfo.id],
+    isGenuine:
+      state.instance[initialConnectionInfo.id]?.genuineMongoDB.isGenuine,
+    csfleMode: state.instance[initialConnectionInfo.id]?.csfleMode,
+  };
+};
 
 const onSidebarAction = (
   action: string,

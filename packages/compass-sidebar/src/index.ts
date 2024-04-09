@@ -3,20 +3,30 @@ import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
 import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  MongoDBInstancesManager,
+  mongoDBInstanceLocator,
+  mongoDBInstancesManagerLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import {
   dataServiceLocator,
   type DataService,
+  type ConnectionsManager,
+  connectionsManagerLocator,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { ConnectionInfo } from '@mongodb-js/connection-info';
+import { connectionInfoAccessLocator } from '@mongodb-js/connection-storage/provider';
+import { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
 
 export const CompassSidebarPlugin = registerHadronPlugin<
   SidebarPluginProps,
   {
-    instance: () => MongoDBInstance;
-    dataService: () => DataService;
+    connectionsManager: () => ConnectionsManager;
+    instancesManager: () => MongoDBInstancesManager;
+    connectionInfoAccess: () => ConnectionInfoAccess;
     logger: () => LoggerAndTelemetry;
   }
 >(
@@ -24,16 +34,19 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     name: 'CompassSidebar',
     component: SidebarPlugin,
     activate(
-      { initialConnectionInfo }: SidebarPluginProps,
+      // @eslint-ignore-next-line
+      props: SidebarPluginProps,
       {
         globalAppRegistry,
-        instance,
-        dataService,
+        connectionsManager,
+        instancesManager,
+        connectionInfoAccess,
         logger,
       }: {
         globalAppRegistry: AppRegistry;
-        instance: MongoDBInstance;
-        dataService: DataService;
+        connectionsManager: ConnectionsManager;
+        instancesManager: MongoDBInstancesManager;
+        connectionInfoAccess: ConnectionInfoAccess;
         logger: LoggerAndTelemetry;
       },
       helpers: ActivateHelpers
@@ -41,9 +54,9 @@ export const CompassSidebarPlugin = registerHadronPlugin<
       const { store, deactivate } = createSidebarStore(
         {
           globalAppRegistry,
-          instance,
-          dataService,
-          connectionInfo: initialConnectionInfo,
+          connectionsManager,
+          instancesManager,
+          connectionInfoAccess,
           logger,
         },
         helpers
@@ -55,8 +68,9 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     },
   },
   {
-    instance: mongoDBInstanceLocator,
-    dataService: dataServiceLocator,
+    connectionsManager: connectionsManagerLocator,
+    instancesManager: mongoDBInstancesManagerLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-SIDEBAR-UI'),
   }
 );
