@@ -1,55 +1,23 @@
 import { createStore } from 'redux';
-import reducer, { changeFields } from '../modules';
-import type { Schema } from 'mongodb-schema';
-import parseSchema from 'mongodb-schema';
-import type { AppRegistry, ActivateHelpers } from 'hadron-app-registry';
-import { schemaFieldsToAutocompleteItems } from '../modules/fields';
+import reducer, { connectionDisconnected } from '../modules';
 import { FieldStoreContext } from './context';
+import {
+  ConnectionsManagerEvents,
+  type ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export function activatePlugin(
   _initialProps: unknown,
-  { globalAppRegistry }: { globalAppRegistry: AppRegistry },
+  { connectionsManager }: { connectionsManager: ConnectionsManager },
   { on, cleanup }: ActivateHelpers
 ) {
   const store = createStore(reducer);
-
-  const emitFieldsChanged = (ns: string) => {
-    const fieldsState = store.getState()[ns];
-    globalAppRegistry.emit('fields-changed', {
-      ns,
-      ...fieldsState,
-      autocompleteFields: schemaFieldsToAutocompleteItems(fieldsState.fields),
-    });
-  };
-
-  const onDocumentsChanged = async ({
-    ns,
-    docs,
-  }: {
-    ns: string;
-    docs: Document[];
-  }) => {
-    try {
-      const { fields } = await parseSchema(docs);
-      store.dispatch(changeFields(ns, fields));
-      emitFieldsChanged(ns);
-    } catch {
-      // ignore errors
-    }
-  };
-
-  on(globalAppRegistry, 'documents-refreshed', onDocumentsChanged);
-
-  on(globalAppRegistry, 'document-inserted', onDocumentsChanged);
-
-  on(globalAppRegistry, 'documents-paginated', onDocumentsChanged);
-
   on(
-    globalAppRegistry,
-    'schema-analyzed',
-    ({ ns, schema }: { ns: string; schema: Schema }) => {
-      store.dispatch(changeFields(ns, schema.fields));
-      emitFieldsChanged(ns);
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    (connectionInfoId: string) => {
+      store.dispatch(connectionDisconnected(connectionInfoId));
     }
   );
 

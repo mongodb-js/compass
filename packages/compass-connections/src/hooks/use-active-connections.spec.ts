@@ -1,25 +1,21 @@
-import { ConnectionRepository } from '@mongodb-js/connection-storage/main';
 import {
+  useActiveConnections,
   ConnectionsManager,
   ConnectionsManagerProvider,
-  useActiveConnections,
-} from '../../provider';
+} from '../provider';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
-import {
-  ConnectionRepositoryContext,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageEvents,
   type ConnectionInfo,
   type ConnectionStorage,
+  ConnectionStorageBus,
 } from '@mongodb-js/connection-storage/renderer';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { waitFor } from '@testing-library/dom';
 import { ConnectionsManagerEvents } from '../connections-manager';
-import EventEmitter from 'events';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -46,35 +42,29 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('useActiveConnections', function () {
   let renderHookWithContext: typeof renderHook;
-  let connectionRepository: ConnectionRepository;
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: typeof ConnectionStorage;
 
-  before(function () {
+  beforeEach(function () {
+    connectionsManager = new ConnectionsManager({} as any);
+    mockConnectionStorage = {
+      events: new ConnectionStorageBus(),
+      loadAll: Sinon.stub().resolves([]),
+    } as any;
+
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionRepositoryContext.Provider, {
-          value: connectionRepository,
+        createElement(ConnectionStorageProvider, {
+          value: mockConnectionStorage,
           children: [
-            createElement(ConnectionStorageContext.Provider, {
-              value: mockConnectionStorage,
-              children: [
-                createElement(ConnectionsManagerProvider, {
-                  value: connectionsManager,
-                  children: children,
-                }),
-              ],
+            createElement(ConnectionsManagerProvider, {
+              value: connectionsManager,
+              children: children,
             }),
           ],
         });
       return renderHook(callback, { wrapper, ...options });
     };
-  });
-
-  beforeEach(function () {
-    connectionsManager = new ConnectionsManager({} as any);
-    mockConnectionStorage = { loadAll: Sinon.stub().resolves([]) } as any;
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
   });
 
   it('should return empty list of connections', function () {
@@ -84,9 +74,9 @@ describe('useActiveConnections', function () {
 
   it('should return active connections', async function () {
     mockConnectionStorage = {
+      events: new ConnectionStorageBus(),
       loadAll: Sinon.stub().resolves(mockConnections),
     } as any;
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
 
@@ -98,9 +88,9 @@ describe('useActiveConnections', function () {
 
   it('should listen to connections manager updates', async function () {
     mockConnectionStorage = {
+      events: new ConnectionStorageBus(),
       loadAll: Sinon.stub().resolves(mockConnections),
     } as any;
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
 
@@ -124,9 +114,8 @@ describe('useActiveConnections', function () {
     const loadAllStub = Sinon.stub().resolves(mockConnections);
     mockConnectionStorage = {
       loadAll: loadAllStub,
-      events: new EventEmitter(),
+      events: new ConnectionStorageBus(),
     } as any;
-    connectionRepository = new ConnectionRepository(mockConnectionStorage);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
 

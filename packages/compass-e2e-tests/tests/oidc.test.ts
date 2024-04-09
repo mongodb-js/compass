@@ -317,7 +317,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -340,10 +339,16 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
+    await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
+
     await browser.doConnect();
     await browser.disconnect();
 
+    await browser.screenshot(
+      `after-disconnecting-favourite-${favoriteName}.png`
+    );
+
+    // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
     await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
@@ -363,7 +368,6 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectFavorite(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 

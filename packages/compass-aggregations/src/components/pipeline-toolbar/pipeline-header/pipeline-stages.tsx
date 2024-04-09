@@ -33,6 +33,8 @@ const aiExperienceContainerStyles = css({
 
 const descriptionStyles = css({
   padding: 0,
+  // This aligns the pipeline description with the query bar input placeholder.
+  marginLeft: spacing[200] + spacing[100],
 });
 
 const addStageStyles = css({

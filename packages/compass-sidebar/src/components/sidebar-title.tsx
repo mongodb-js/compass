@@ -98,12 +98,10 @@ function SidebarTitle({
   isFavorite,
   favoriteColor,
   onAction,
-  isExpanded = false,
 }: {
   title: string;
   isFavorite: boolean;
   favoriteColor?: string;
-  isExpanded?: boolean;
   onAction(actionName: Action, ...rest: any[]): void;
 }) {
   const { openMyQueriesWorkspace } = useOpenWorkspace();
@@ -141,12 +139,8 @@ function SidebarTitle({
   const darkMode = useDarkMode();
 
   const onClick = useCallback(() => {
-    if (isExpanded) {
-      openMyQueriesWorkspace();
-    } else {
-      onAction('expand-sidebar');
-    }
-  }, [isExpanded, onAction, openMyQueriesWorkspace]);
+    openMyQueriesWorkspace();
+  }, [openMyQueriesWorkspace]);
 
   const defaultActionProps = useDefaultAction(onClick);
 
@@ -158,19 +152,17 @@ function SidebarTitle({
         {...defaultActionProps}
       >
         <TitleLogo />
-        {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
-        {isExpanded && (
-          <ItemActionControls<Action>
-            onAction={onAction}
-            iconSize="small"
-            actions={actions}
-            data-testid="sidebar-title-actions"
-            iconClassName={cx(
-              iconButtonStyle,
-              darkMode ? iconButtonDark : iconButtonLight
-            )}
-          ></ItemActionControls>
-        )}
+        <TitleLabel title={title}>{title}</TitleLabel>
+        <ItemActionControls<Action>
+          onAction={onAction}
+          iconSize="small"
+          actions={actions}
+          data-testid="sidebar-title-actions"
+          iconClassName={cx(
+            iconButtonStyle,
+            darkMode ? iconButtonDark : iconButtonLight
+          )}
+        ></ItemActionControls>
       </div>
       {isFavorite && favoriteColor && (
         <FavoriteIndicator favoriteColor={favoriteColor}></FavoriteIndicator>

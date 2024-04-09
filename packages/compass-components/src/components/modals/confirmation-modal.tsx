@@ -4,6 +4,7 @@ import {
   Body,
   ConfirmationModal as LeafyGreenConfirmationModal,
 } from '../leafygreen';
+import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
 function ConfirmationModal({
   children,
@@ -18,4 +19,4 @@ function ConfirmationModal({
   );
 }
 
-export default ConfirmationModal;
+export default withStackedComponentStyles(ConfirmationModal);

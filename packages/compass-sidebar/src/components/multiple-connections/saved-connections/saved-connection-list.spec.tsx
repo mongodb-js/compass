@@ -5,10 +5,7 @@ import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SavedConnectionList } from './saved-connection-list';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import {
-  ConnectionRepositoryContextProvider,
-  ConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 
 import {
@@ -70,22 +67,20 @@ describe('SavedConnectionList Component', function () {
     });
 
     return render(
-      <ConnectionStorageContext.Provider value={connectionStorage}>
-        <ConnectionRepositoryContextProvider>
-          <ConnectionsManagerProvider value={connectionManager}>
-            <SavedConnectionList
-              favoriteConnections={favoriteInfo}
-              nonFavoriteConnections={nonFavoriteInfo}
-              onNewConnection={onNewConnectionSpy}
-              onConnect={onConnectSpy}
-              onEditConnection={onEditConnectionSpy}
-              onDeleteConnection={onDeleteConnectionSpy}
-              onDuplicateConnection={onDuplicateConnectionSpy}
-              onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
-            />
-          </ConnectionsManagerProvider>
-        </ConnectionRepositoryContextProvider>
-      </ConnectionStorageContext.Provider>
+      <ConnectionStorageProvider value={connectionStorage}>
+        <ConnectionsManagerProvider value={connectionManager}>
+          <SavedConnectionList
+            favoriteConnections={favoriteInfo}
+            nonFavoriteConnections={nonFavoriteInfo}
+            onNewConnection={onNewConnectionSpy}
+            onConnect={onConnectSpy}
+            onEditConnection={onEditConnectionSpy}
+            onDeleteConnection={onDeleteConnectionSpy}
+            onDuplicateConnection={onDuplicateConnectionSpy}
+            onToggleFavoriteConnection={onToggleFavoriteConnectionSpy}
+          />
+        </ConnectionsManagerProvider>
+      </ConnectionStorageProvider>
     );
   }
 

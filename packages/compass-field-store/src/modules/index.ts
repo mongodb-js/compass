@@ -1,44 +1,86 @@
 import type { Reducer } from 'redux';
-import { uniq } from 'lodash';
-import type { SchemaField } from 'mongodb-schema';
+import { uniq, omit } from 'lodash';
+import parseSchema, { type Schema } from 'mongodb-schema';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
 
-export const CHANGE_FIELDS = 'field-store/CHANGE_FIELDS';
+export const CONNECTION_DISCONNECTED = 'field-store/CONNECTION_DISCONNECTED';
+export const DOCUMENTS_UPDATED = 'field-store/DOCUMENTS_UPDATED';
+export const SCHEMA_UPDATED = 'field-store/SCHEMA_UPDATED';
 
-export type FieldsState = Record<
-  string,
+type Namespace = string;
+
+export type NamespacesFieldsState = Record<
+  Namespace,
   { fields: Record<string, SchemaFieldSubset>; topLevelFields: string[] }
 >;
 
-const reducer: Reducer<FieldsState> = (state = {}, action) => {
-  if (action.type === CHANGE_FIELDS) {
-    const currentNamespaceFields = state[action.namespace] ?? {};
+export type ConnectionNamespacesState = Record<
+  ConnectionInfo['id'],
+  NamespacesFieldsState
+>;
+
+const reducer: Reducer<ConnectionNamespacesState> = (state = {}, action) => {
+  if (action.type === DOCUMENTS_UPDATED || action.type === SCHEMA_UPDATED) {
+    const currentConnectionNamespaces = state[action.connectionInfoId] ?? {};
+    const currentNamespaceFields =
+      currentConnectionNamespaces[action.namespace] ?? {};
     const { fields, topLevelFields } = mergeSchema(
-      currentNamespaceFields.fields ?? {},
+      currentNamespaceFields['fields'] ?? {},
       action.schemaFields
     );
 
     return {
       ...state,
-      [action.namespace]: {
-        fields,
-        topLevelFields: uniq(
-          (currentNamespaceFields.topLevelFields ?? []).concat(topLevelFields)
-        ),
+      [action.connectionInfoId]: {
+        ...state[action.connectionInfoId],
+        [action.namespace]: {
+          fields,
+          topLevelFields: uniq(
+            (currentNamespaceFields['topLevelFields'] ?? []).concat(
+              topLevelFields
+            )
+          ),
+        },
       },
     };
+  } else if (action.type === CONNECTION_DISCONNECTED) {
+    return omit(state, action.connectionInfoId);
   }
   return state;
 };
 
-export const changeFields = (
+export const documentsUpdated = async (
+  connectionInfoId: ConnectionInfo['id'],
   namespace: string,
-  schemaFields: SchemaField[]
+  documents: Array<Record<string, any>>
+) => {
+  const { fields } = await parseSchema(documents);
+  return {
+    type: DOCUMENTS_UPDATED,
+    connectionInfoId,
+    namespace,
+    schemaFields: fields,
+  };
+};
+
+export const schemaUpdated = (
+  connectionInfoId: ConnectionInfo['id'],
+  namespace: string,
+  schema: Schema
 ) => ({
-  type: CHANGE_FIELDS,
+  type: SCHEMA_UPDATED,
+  connectionInfoId,
   namespace,
-  schemaFields,
+  schemaFields: schema.fields,
+});
+
+export const connectionDisconnected = (
+  connectionInfoId: ConnectionInfo['id']
+) => ({
+  type: CONNECTION_DISCONNECTED,
+  connectionInfoId,
 });
 
 export default reducer;
