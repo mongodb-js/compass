@@ -43,7 +43,10 @@ class MockAtlasAuthService extends AtlasAuthService {
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
-  privateAtlasEndpoint = (url: string) => [BASE_URL, url].join('/');
+  privateAtlasEndpoint = (url: string, requestId?: string) =>
+    `${[BASE_URL, url].join('/')}${
+      requestId ? `?request_id=${requestId}` : ''
+    }`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
@@ -152,9 +155,11 @@ describe('AtlasAiService', function () {
 
           const { args } = fetchStub.firstCall;
 
-          expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
+          expect(args[0]).to.eq(
+            `http://example.com/ai/api/v1/${aiEndpoint}?request_id=abc`
+          );
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}],"requestId":"abc"}'
+            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
           );
           expect(res).to.deep.eq(responses.success);
         });
@@ -226,7 +231,7 @@ describe('AtlasAiService', function () {
 
           expect(fetchStub).to.have.been.calledOnce;
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}],"requestId":"abc"}'
+            '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
           );
         });
       });

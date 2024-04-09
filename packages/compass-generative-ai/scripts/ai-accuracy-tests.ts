@@ -161,17 +161,23 @@ type QueryOptions = {
 };
 
 function generateFindQuery(options: QueryOptions) {
-  return fetchAtlasPrivateApi('/ai/api/v1/mql-query', {
-    method: 'POST',
-    body: JSON.stringify(options),
-  });
+  return fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: JSON.stringify(options),
+    }
+  );
 }
 
 function generateAggregation(options: QueryOptions) {
-  return fetchAtlasPrivateApi('/ai/api/v1/mql-aggregation', {
-    method: 'POST',
-    body: JSON.stringify(options),
-  });
+  return fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: JSON.stringify(options),
+    }
+  );
 }
 
 const parseShellString = (shellSyntaxString?: string) => {
@@ -213,7 +219,6 @@ const generateMQL = async ({
       databaseName,
       sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
       userInput,
-      requestId: 'generative_ai_accuracy_test',
     });
   }
 
@@ -223,7 +228,6 @@ const generateMQL = async ({
     databaseName,
     sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
     userInput,
-    requestId: 'generative_ai_accuracy_test',
   });
 };
 
