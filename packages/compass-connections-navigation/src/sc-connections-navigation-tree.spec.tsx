@@ -42,7 +42,7 @@ const TEST_VIRTUAL_PROPS = {
   __TEST_REACT_WINDOW_OVERSCAN: Infinity,
 };
 
-describe('ConnectionsNavigationTree -- Legacy usage', function () {
+describe('ConnectionsNavigationTree -- Single connection usage', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {

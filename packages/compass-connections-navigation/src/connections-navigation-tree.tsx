@@ -363,7 +363,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   expanded,
   activeNamespace = '',
-  // onConnectionExpand and onConnectionSelect only have a default to support legacy usage
+  // onConnectionExpand and onConnectionSelect only have a default to support single-connection usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
