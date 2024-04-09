@@ -14,7 +14,7 @@ import {
   type ConnectionStorage,
   ConnectionStorageBus,
 } from '@mongodb-js/connection-storage/renderer';
-import { v4 as uuid } from 'uuid';
+import { UUID } from 'bson';
 import sinon from 'sinon';
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
@@ -164,8 +164,8 @@ describe('Connections Component', function () {
     let connections: ConnectionInfo[];
 
     beforeEach(async function () {
-      savedConnectionId = uuid();
-      savedConnectionWithAppNameId = uuid();
+      savedConnectionId = new UUID().toString();
+      savedConnectionWithAppNameId = new UUID().toString();
       saveConnectionSpy = sinon.spy();
 
       connections = [
@@ -331,8 +331,8 @@ describe('Connections Component', function () {
 
       beforeEach(async function () {
         saveConnectionSpy = sinon.spy();
-        savedConnectableId = uuid();
-        savedUnconnectableId = uuid();
+        savedConnectableId = new UUID().toString();
+        savedUnconnectableId = new UUID().toString();
 
         mockConnectFn = sinon.fake(
           async ({
