@@ -8,3 +8,4 @@ export {
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 export { featureFlags } from './feature-flags';
 export { getSettingDescription } from './preferences-schema';
+export type { AllPreferences } from './preferences-schema';

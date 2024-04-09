@@ -6,6 +6,7 @@ const {
   merge,
 } = require('@mongodb-js/webpack-config-compass');
 const { createWebSocketProxy } = require('@gribnoysup/mongodb-browser/proxy');
+const { startElectronProxy } = require('./scripts/start-electron-proxy');
 
 function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
@@ -57,6 +58,26 @@ module.exports = async (env, args) => {
         // TODO(COMPASS-7411): compass-utils
         fs: localPolyfill('fs'),
 
+        // TODO(COMPASS-7397): while compass-connections is not a real plugin,
+        // but still drives some connection logic through react hooks, we have
+        // to render the whole thing, but we also want to minimise the amount of
+        // code that is being included from compass-connection for all the UI
+        // and features that we are not using, for those purposes we alias some
+        // parts of the connection UI to a noop components that don't render
+        // anything
+        '@mongodb-js/compass-connection-import-export': localPolyfill(
+          '@mongodb-js/compass-connection-import-export'
+        ),
+        // We can't polyfill connection-form because some shared methods from
+        // connection-form are used in connection flow, so you can't connect
+        // unless you import the whole connection-form. They should probably be
+        // moved to connection-info package at least which is already a place
+        // where shared connection types and methods that are completely not
+        // platform specific and don't contain any UI are kept
+        // '@mongodb-js/connection-form': localPolyfill(
+        //   '@mongodb-js/connection-form'
+        // ),
+
         // Things that are easier to polyfill than to deal with their usage
         stream: require.resolve('readable-stream'),
         path: require.resolve('path-browserify'),
@@ -87,6 +108,7 @@ module.exports = async (env, args) => {
   });
 
   if (serve) {
+    startElectronProxy();
     // TODO: logs are pretty rough here, should make it better
     createWebSocketProxy();
 
@@ -99,8 +121,9 @@ module.exports = async (env, args) => {
     return merge(config, {
       devServer: {
         hot: true,
-        open: process.env.OPEN_BROWSER !== 'false',
+        open: false,
         magicHtml: false,
+        port: 8081,
         historyApiFallback: {
           rewrites: [{ from: /./, to: 'index.html' }],
         },
@@ -109,7 +132,10 @@ module.exports = async (env, args) => {
           publicPath: '/',
         },
         client: {
-          overlay: { warnings: false, errors: true, runtimeErrors: true },
+          overlay:
+            process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
+              ? false
+              : { warnings: false, errors: true, runtimeErrors: true },
         },
       },
       resolve: {

@@ -150,10 +150,7 @@ export default class Stage {
           this.node.properties[0].trailingComments;
       }
 
-      str = generate(template, {
-        // To avoid trailing comma after the stage value placeholder
-        trailingComma: 'none',
-      })
+      str = generate(template)
         .replace('$$_STAGE_OPERATOR', this.operator ?? '')
         .replace('$$_STAGE_VALUE', this.value ?? '');
     }

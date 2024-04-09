@@ -181,6 +181,12 @@ export class ConnectionsManager extends EventEmitter {
         return existingDataService;
       }
 
+      this.updateAndNotifyConnectionStatus(
+        connectionId,
+        ConnectionsManagerEvents.ConnectionAttemptStarted,
+        [connectionId]
+      );
+
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
         cloneDeep({ id: connectionId, ...originalConnectionInfo }),
         {
@@ -199,15 +205,11 @@ export class ConnectionsManager extends EventEmitter {
         }
       );
 
-      this.updateAndNotifyConnectionStatus(
-        connectionId,
-        ConnectionsManagerEvents.ConnectionAttemptStarted,
-        [connectionId]
-      );
       const connectionAttempt = createConnectionAttempt({
         logger: this.logger,
         connectFn: this.__TEST_CONNECT_FN,
       });
+
       this.connectionAttempts.set(connectionId, connectionAttempt);
 
       const dataService = await connectionAttempt.connect(

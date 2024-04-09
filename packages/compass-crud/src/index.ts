@@ -21,6 +21,7 @@ import {
   favoriteQueryStorageAccessLocator,
   recentQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
+import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
@@ -38,6 +39,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     logger: createLoggerAndTelemetryLocator('COMPASS-CRUD-UI'),
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
+    fieldStoreService: fieldStoreServiceLocator,
   }
 );
 

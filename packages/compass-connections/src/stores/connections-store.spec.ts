@@ -15,7 +15,7 @@ import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
@@ -72,7 +72,7 @@ describe('use-connections hook', function () {
         createElement(PreferencesProvider, {
           value: preferences,
           children: [
-            createElement(ConnectionStorageContext.Provider, {
+            createElement(ConnectionStorageProvider, {
               value: mockConnectionStorage,
               children: [
                 createElement(ConnectionsManagerProvider, {

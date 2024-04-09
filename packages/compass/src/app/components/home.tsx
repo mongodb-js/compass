@@ -49,7 +49,7 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { ConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
@@ -282,24 +282,24 @@ function Home({
       : __TEST_CONNECTION_STORAGE;
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-      <ConnectionStorageContext.Provider value={connectionStorage}>
+      <ConnectionStorageProvider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
-            <ConnectionInfoProvider value={connectionInfo}>
-              {isConnected && connectionInfo && (
-                <AppRegistryProvider
-                  key={connectionInfo.id}
-                  scopeName="Connected Application"
-                >
-                  <FieldStorePlugin>
+            <FieldStorePlugin>
+              <ConnectionInfoProvider value={connectionInfo}>
+                {isConnected && connectionInfo && (
+                  <AppRegistryProvider
+                    key={connectionInfo.id}
+                    scopeName="Connected Application"
+                  >
                     <Workspace
                       connectionInfo={connectionInfo}
                       onActiveWorkspaceTabChange={onWorkspaceChange}
                     />
-                  </FieldStorePlugin>
-                </AppRegistryProvider>
-              )}
-            </ConnectionInfoProvider>
+                  </AppRegistryProvider>
+                )}
+              </ConnectionInfoProvider>
+            </FieldStorePlugin>
           </CompassInstanceStorePlugin>
           {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
             connected so that the connection import/export functionality can still
@@ -326,7 +326,7 @@ function Home({
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
         </ConnectionsManagerProvider>
-      </ConnectionStorageContext.Provider>
+      </ConnectionStorageProvider>
     </FileInputBackendProvider>
   );
 }
