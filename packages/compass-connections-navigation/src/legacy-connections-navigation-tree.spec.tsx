@@ -56,8 +56,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.meow"
             onDatabaseExpand={() => {}}
             onNamespaceAction={() => {}}
@@ -81,8 +81,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -103,7 +103,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
   it('should render databases', function () {
     render(
       <ConnectionsNavigationTree
-        databasesLegacy={databases}
+        databases={databases}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -117,8 +117,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
   it('should render collections when database is expanded', function () {
     render(
       <ConnectionsNavigationTree
-        databasesLegacy={databases}
-        expandedLegacy={{ bar: true }}
+        databases={databases}
+        expanded={{ bar: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -133,8 +133,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
   it('should render collection placeholders when database is expanded but collections are not ready', function () {
     render(
       <ConnectionsNavigationTree
-        databasesLegacy={databases}
-        expandedLegacy={{ foo: true }}
+        databases={databases}
+        expanded={{ foo: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -147,7 +147,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
   it('should make current active namespace tabbable', async function () {
     render(
       <ConnectionsNavigationTree
-        databasesLegacy={databases}
+        databases={databases}
         activeNamespace="bar"
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
@@ -172,7 +172,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should show all database actions on hover', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
+          databases={databases}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -190,7 +190,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should show all database actions for active namespace', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
+          databases={databases}
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
@@ -207,8 +207,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should show all collection actions', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
-          expandedLegacy={{ bar: true }}
+          databases={databases}
+          expanded={{ bar: true }}
           activeNamespace="bar.meow"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
@@ -231,8 +231,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should show all view actions', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
-          expandedLegacy={{ bar: true }}
+          databases={databases}
+          expanded={{ bar: true }}
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
@@ -261,7 +261,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should not show database actions', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
+          databases={databases}
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
@@ -279,8 +279,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
     it('should show only one collection action', function () {
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
-          expandedLegacy={{ bar: true }}
+          databases={databases}
+          expanded={{ bar: true }}
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
@@ -300,7 +300,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
       const spy = Sinon.spy();
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
+          databases={databases}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -316,8 +316,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
       const spy = Sinon.spy();
       render(
         <ConnectionsNavigationTree
-          databasesLegacy={databases}
-          expandedLegacy={{ bar: true }}
+          databases={databases}
+          expanded={{ bar: true }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -334,7 +334,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
+            databases={databases}
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -351,7 +351,7 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
+            databases={databases}
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -370,8 +370,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -391,8 +391,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -415,8 +415,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
 
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
@@ -437,8 +437,8 @@ describe('ConnectionsNavigationTree -- Legacy usage', function () {
 
         render(
           <ConnectionsNavigationTree
-            databasesLegacy={databases}
-            expandedLegacy={{ bar: true }}
+            databases={databases}
+            expanded={{ bar: true }}
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}

@@ -336,22 +336,32 @@ const navigationTree = css({
   flex: '1 0 auto',
 });
 
-const ConnectionsNavigationTree: React.FunctionComponent<{
-  connections?: Connection[];
-  databasesLegacy?: Database[];
+interface MCConnectionsNavigationTreeProps {
+  connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
-  expandedLegacy?: Record<string, boolean>;
+}
+
+interface SCConnectionsNavigationTreeProps {
+  databases: Database[];
+  expanded?: Record<string, boolean>;
+}
+
+interface BaseConnectionsNavigationTreeProps {
   onConnectionExpand?(id: string, isExpanded: boolean): void;
   onConnectionSelect?(id: string): void;
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
   isReadOnly?: boolean;
-}> = ({
-  connections,
-  databasesLegacy,
-  expanded = {},
-  expandedLegacy = {},
+}
+
+type ConnectionsNavigationTreeProps = BaseConnectionsNavigationTreeProps &
+  (MCConnectionsNavigationTreeProps | SCConnectionsNavigationTreeProps);
+
+const ConnectionsNavigationTree: React.FunctionComponent<
+  ConnectionsNavigationTreeProps
+> = ({
+  expanded,
   activeNamespace = '',
   // onConnectionExpand and onConnectionSelect only have a default to support legacy usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -370,11 +380,32 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error ignoring test props so they are not part of the interface
   __TEST_REACT_WINDOW_OVERSCAN = null,
+  ...restProps
 }) => {
+  // we'll have either connections for MC version, or databases for SC version
+  const {
+    type,
+    data,
+  }: {
+    type: 'MC' | 'SC' | undefined;
+    data:
+      | MCConnectionsNavigationTreeProps['connections']
+      | SCConnectionsNavigationTreeProps['databases'];
+  } = useMemo(() => {
+    if ((restProps as SCConnectionsNavigationTreeProps).databases) {
+      return {
+        type: 'SC',
+        data: (restProps as SCConnectionsNavigationTreeProps).databases,
+      };
+    }
+    return {
+      type: 'MC',
+      data: (restProps as MCConnectionsNavigationTreeProps).connections,
+    };
+  }, [restProps]);
+
   const listRef = useRef<List | null>(null);
   const id = useId();
-
-  const isLegacy = !!databasesLegacy;
 
   useEffect(() => {
     if (activeNamespace) {
@@ -384,31 +415,31 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
-    if (connections) {
-      return connections
+    if (type === 'MC') {
+      return (data as MCConnectionsNavigationTreeProps['connections'])
         .map((connection, connectionIndex) =>
           connectionToItems({
             connection,
             connectionIndex,
-            connectionsLength: connections.length,
-            expanded,
+            connectionsLength: data.length,
+            expanded: expanded as MCConnectionsNavigationTreeProps['expanded'],
           })
         )
         .flat();
     } else {
-      return databasesLegacy! // either connections or databasesLegacy should be set
+      return (data as SCConnectionsNavigationTreeProps['databases'])
         .map((database, databaseIndex) =>
           databaseToItems({
             database,
             databaseIndex,
-            databasesLength: databasesLegacy?.length || 0,
-            expanded: expandedLegacy,
+            databasesLength: data.length || 0,
+            expanded: expanded as SCConnectionsNavigationTreeProps['expanded'],
             level: 1,
           })
         )
         .flat();
     }
-  }, [connections, expanded]);
+  }, [type, data, expanded]);
 
   const onExpandedChange = useCallback(
     (item, isExpanded) => {
@@ -443,7 +474,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
     return {
       items,
       isReadOnly,
-      isLegacy,
+      isLegacy: type === 'SC',
       activeNamespace,
       currentTabbable,
       onNamespaceAction,
@@ -454,7 +485,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<{
   }, [
     items,
     isReadOnly,
-    isLegacy,
+    type,
     activeNamespace,
     currentTabbable,
     onNamespaceAction,
@@ -517,7 +548,7 @@ const contentContainer = css({
 
 const NavigationWithPlaceholder: React.FunctionComponent<
   { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
-> = ({ isReady, databasesLegacy, ...props }) => {
+> = ({ isReady, ...props }) => {
   return (
     <FadeInPlaceholder
       className={container}
@@ -525,14 +556,15 @@ const NavigationWithPlaceholder: React.FunctionComponent<
       isContentReady={isReady}
       content={() => {
         return (
-          <ConnectionsNavigationTree
-            databasesLegacy={databasesLegacy}
-            {...props}
-          ></ConnectionsNavigationTree>
+          <ConnectionsNavigationTree {...props}></ConnectionsNavigationTree>
         );
       }}
       fallback={() => {
-        return <TopPlaceholder isLegacy={!!databasesLegacy}></TopPlaceholder>;
+        return (
+          <TopPlaceholder
+            isLegacy={!!(props as SCConnectionsNavigationTreeProps).databases}
+          ></TopPlaceholder>
+        );
       }}
     ></FadeInPlaceholder>
   );

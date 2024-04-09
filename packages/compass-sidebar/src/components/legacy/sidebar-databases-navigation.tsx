@@ -82,8 +82,8 @@ function SidebarDatabasesNavigation({
   return (
     <ConnectionsNavigationTree
       {...dbNavigationProps}
-      databasesLegacy={databases}
-      expandedLegacy={expanded}
+      databases={databases}
+      expanded={expanded}
       onNamespaceAction={onNamespaceAction}
       isReadOnly={isReadOnly}
     />
