@@ -42,7 +42,7 @@ export class MongoDBInstancesManager extends EventEmitter {
     return instance;
   }
 
-  getMongoDBInstance(connectionInfoId: ConnectionInfo['id']) {
+  getMongoDBInstanceForConnection(connectionInfoId: ConnectionInfo['id']) {
     return this.instances.get(connectionInfoId);
   }
 
