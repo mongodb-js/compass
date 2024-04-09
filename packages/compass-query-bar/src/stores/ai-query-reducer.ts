@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import { v4 as uuidv4 } from 'uuid';
+import { UUID } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -54,7 +54,7 @@ const NUM_DOCUMENTS_TO_SAMPLE = 4;
 const AIQueryAbortControllerMap = new Map<string, AbortController>();
 
 function getAbortSignal() {
-  const id = uuidv4();
+  const id = new UUID().toString();
   const controller = new AbortController();
   AIQueryAbortControllerMap.set(id, controller);
   return { id, signal: controller.signal };

@@ -3,7 +3,7 @@ import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
+import { UUID } from 'bson';
 
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -59,7 +59,7 @@ const NUM_DOCUMENTS_TO_SAMPLE = 4;
 const AIPipelineAbortControllerMap = new Map<string, AbortController>();
 
 function getAbortSignal() {
-  const id = uuidv4();
+  const id = new UUID().toString();
   const controller = new AbortController();
   AIPipelineAbortControllerMap.set(id, controller);
   return { id, signal: controller.signal };
