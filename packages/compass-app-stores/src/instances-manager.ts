@@ -5,10 +5,13 @@ import {
   type MongoDBInstanceProps,
 } from 'mongodb-instance-model';
 
-export enum MongoDBInstancesManagerEvents {
-  InstanceCreated = 'instance-started',
-  InstanceRemoved = 'instance-removed',
-}
+export const MongoDBInstancesManagerEvents = {
+  InstanceCreated: 'instance-started',
+  InstanceRemoved: 'instance-removed',
+} as const;
+
+type MongoDBInstancesManagerEvent =
+  typeof MongoDBInstancesManagerEvents[keyof typeof MongoDBInstancesManagerEvents];
 
 export type MongoDBInstancesManagerEventListeners = {
   [MongoDBInstancesManagerEvents.InstanceCreated]: (
@@ -57,35 +60,35 @@ export class MongoDBInstancesManager extends EventEmitter {
     this.emit(MongoDBInstancesManagerEvents.InstanceRemoved, connectionInfoId);
   }
 
-  on<T extends MongoDBInstancesManagerEvents>(
+  on<T extends MongoDBInstancesManagerEvent>(
     eventName: T,
     listener: MongoDBInstancesManagerEventListeners[T]
   ): this {
     return super.on(eventName, listener);
   }
 
-  off<T extends MongoDBInstancesManagerEvents>(
+  off<T extends MongoDBInstancesManagerEvent>(
     eventName: T,
     listener: MongoDBInstancesManagerEventListeners[T]
   ): this {
     return super.off(eventName, listener);
   }
 
-  once<T extends MongoDBInstancesManagerEvents>(
+  once<T extends MongoDBInstancesManagerEvent>(
     eventName: T,
     listener: MongoDBInstancesManagerEventListeners[T]
   ): this {
     return super.once(eventName, listener);
   }
 
-  removeListener<T extends MongoDBInstancesManagerEvents>(
+  removeListener<T extends MongoDBInstancesManagerEvent>(
     eventName: T,
     listener: MongoDBInstancesManagerEventListeners[T]
   ): this {
     return super.removeListener(eventName, listener);
   }
 
-  emit<T extends MongoDBInstancesManagerEvents>(
+  emit<T extends MongoDBInstancesManagerEvent>(
     eventName: T,
     ...args: Parameters<MongoDBInstancesManagerEventListeners[T]>
   ): boolean {
