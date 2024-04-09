@@ -30,10 +30,12 @@ type Collection = {
   type: string;
 };
 
+type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
+
 type Database = {
   _id: string;
   name: string;
-  collectionsStatus: string;
+  collectionsStatus: Status;
   collectionsLength: number;
   collections: Collection[];
 };
@@ -41,7 +43,7 @@ type Database = {
 export type Connection = {
   connectionInfo: ConnectionInfo;
   name: string;
-  databasesStatus: string;
+  databasesStatus: Status;
   databasesLength: number;
   databases: Database[];
 };
@@ -416,19 +418,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
-      return (data as MCConnectionsNavigationTreeProps['connections'])
-        .map((connection, connectionIndex) =>
+      return (data as MCConnectionsNavigationTreeProps['connections']).flatMap(
+        (connection, connectionIndex) =>
           connectionToItems({
             connection,
             connectionIndex,
             connectionsLength: data.length,
             expanded: expanded as MCConnectionsNavigationTreeProps['expanded'],
           })
-        )
-        .flat();
+      );
     } else {
-      return (data as SCConnectionsNavigationTreeProps['databases'])
-        .map((database, databaseIndex) =>
+      return (data as SCConnectionsNavigationTreeProps['databases']).flatMap(
+        (database, databaseIndex) =>
           databaseToItems({
             database,
             databaseIndex,
@@ -436,8 +437,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             expanded: expanded as SCConnectionsNavigationTreeProps['expanded'],
             level: 1,
           })
-        )
-        .flat();
+      );
     }
   }, [isSingleConnection, data, expanded]);
 

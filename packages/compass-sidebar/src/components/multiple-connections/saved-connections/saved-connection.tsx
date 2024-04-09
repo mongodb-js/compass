@@ -103,7 +103,7 @@ export function SavedConnection({
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(
       'mongodb://localhost'
-    );
+    ); // TODO(COMPASS-7832)
 
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const [hoverProps, isHovered] = useHoverState();

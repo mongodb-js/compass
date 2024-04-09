@@ -74,7 +74,7 @@ export const ConnectionItem: React.FunctionComponent<
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(
       'mongodb://localhost'
-    );
+    ); // TODO(COMPASS-7832)
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
 
   const itemPaddingStyles = useMemo(
