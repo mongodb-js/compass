@@ -42,6 +42,8 @@ export class MongoDBInstancesManager extends EventEmitter {
     return instance;
   }
 
+  // TODO(COMPASS-7831): Remove this method and its usage once the linked
+  // ticket's dependencies are resolved.
   listMongoDBInstances() {
     return new Map(this.instances);
   }
