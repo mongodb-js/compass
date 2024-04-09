@@ -42,6 +42,10 @@ export class MongoDBInstancesManager extends EventEmitter {
     return instance;
   }
 
+  listMongoDBInstances() {
+    return new Map(this.instances);
+  }
+
   getMongoDBInstanceForConnection(connectionInfoId: ConnectionInfo['id']) {
     return this.instances.get(connectionInfoId);
   }

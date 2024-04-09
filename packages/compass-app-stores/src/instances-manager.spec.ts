@@ -30,6 +30,23 @@ describe('InstancesManager', function () {
     expect(instance).to.be.instanceOf(MongoDBInstance);
   });
 
+  it('should be able to list all the MongoDB instances', function () {
+    instancesManager.createMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id,
+      {
+        _id: 'test.com',
+        hostname: 'test.com',
+        port: 2000,
+        topologyDescription: {
+          type: '',
+          servers: [],
+          setName: '',
+        },
+      }
+    );
+    expect(instancesManager.listMongoDBInstances()).to.have.lengthOf(1);
+  });
+
   it('should emit instance created event when an instance is created', function () {
     const onInstanceCreatedStub = sinon.stub();
     instancesManager.on(

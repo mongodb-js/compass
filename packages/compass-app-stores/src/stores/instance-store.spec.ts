@@ -97,6 +97,10 @@ describe('InstanceStore [Store]', function () {
     store.deactivate();
   });
 
+  it('should not have any MongoDBInstance if no connection is established', function () {
+    expect(instancesManager.listMongoDBInstances()).to.be.of.length(0);
+  });
+
   it('should have a MongodbInstance for each of the connected connection', function () {
     for (const connectedConnectionInfoId of ['1', '2', '3']) {
       connectionsManager.emit(
