@@ -112,6 +112,7 @@ type TestResult = {
   Namespace: string;
   Accuracy: number;
   Pass: '✗' | '✓';
+  'Time Elapsed (MS)': number;
 };
 
 async function fetchAtlasPrivateApi(
@@ -322,6 +323,7 @@ const runTest = async (testOptions: TestOptions) => {
   let fails = 0;
   let timeouts = 0;
   let lastTestTimeMS = 0;
+  let totalTestTimeMS = 0;
 
   for (let i = 0; i < attempts; i++) {
     if (timeouts >= MAX_TIMEOUTS_PER_TEST) {
@@ -338,6 +340,8 @@ const runTest = async (testOptions: TestOptions) => {
       );
     }
 
+    const testStartTime = Date.now();
+
     try {
       console.info('---------------------------------------------------');
       console.info('Running', JSON.stringify(testOptions.userInput));
@@ -345,7 +349,9 @@ const runTest = async (testOptions: TestOptions) => {
       await runOnce(testOptions, usageStats);
 
       console.info('OK');
+      totalTestTimeMS += Date.now() - testStartTime;
     } catch (e: unknown) {
+      totalTestTimeMS += Date.now() - testStartTime;
       if ((e as AITestError).errorCode === 'GATEWAY_TIMEOUT') {
         i--;
         timeouts++;
@@ -362,7 +368,7 @@ const runTest = async (testOptions: TestOptions) => {
 
   const accuracy = (attempts - fails) / attempts;
 
-  return { accuracy, timeouts, usageStats };
+  return { accuracy, timeouts, totalTestTimeMS, usageStats };
 };
 
 const fixtures: {
@@ -443,11 +449,17 @@ const anyOf =
  * Insert the generative ai results to a db
  * so we can track how they perform overtime.
  */
-async function pushResultsToDB(
-  results: TestResult[],
-  anyFailed: boolean,
-  httpErrors: number
-) {
+async function pushResultsToDB({
+  results,
+  anyFailed,
+  runTimeMS,
+  httpErrors,
+}: {
+  results: TestResult[];
+  anyFailed: boolean;
+  runTimeMS: number;
+  httpErrors: number;
+}) {
   const client = new MongoClient(
     process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING || ''
   );
@@ -466,7 +478,15 @@ async function pushResultsToDB(
       attemptsPerTest: ATTEMPTS_PER_TEST,
       anyFailed,
       httpErrors,
-      results: results,
+      totalRunTimeMS: runTimeMS, // Total elapsed time including timeouts to avoid rate limit.
+      results: results.map((result) => {
+        const { 'Time Elapsed (MS)': runTimeMS, Pass, ...rest } = result;
+        return {
+          runTimeMS,
+          Pass: Pass === '✓',
+          ...rest,
+        };
+      }),
     };
 
     await collection.insertOne(doc);
@@ -698,6 +718,7 @@ async function main() {
     await setup();
     const results: TestResult[] = [];
 
+    const startTime = Date.now();
     let anyFailed = false;
 
     const testPromiseQueue = new PQueue({
@@ -708,6 +729,7 @@ async function main() {
       testPromiseQueue.add(async () => {
         const {
           accuracy,
+          totalTestTimeMS,
           // usageStats
         } = await runTest(test);
         const minAccuracy = DEFAULT_MIN_ACCURACY;
@@ -718,6 +740,7 @@ async function main() {
           'User Input': test.userInput.slice(0, 50),
           Namespace: `${test.databaseName}.${test.collectionName}`,
           Accuracy: accuracy,
+          'Time Elapsed (MS)': totalTestTimeMS,
           // 'Prompt Tokens': usageStats[0]?.promptTokens,
           // 'Completion Tokens': usageStats[0]?.completionTokens,
           Pass: failed ? '✗' : '✓',
@@ -734,13 +757,19 @@ async function main() {
       'User Input',
       'Namespace',
       'Accuracy',
+      'Time Elapsed (MS)',
       // 'Prompt Tokens',
       // 'Completion Tokens',
       'Pass',
     ]);
 
     if (process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING) {
-      await pushResultsToDB(results, anyFailed, httpErrors);
+      await pushResultsToDB({
+        results,
+        anyFailed,
+        httpErrors,
+        runTimeMS: Date.now() - startTime,
+      });
     }
 
     console.log('\nTotal HTTP errors received', httpErrors);
