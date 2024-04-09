@@ -9,7 +9,7 @@ import {
   ConnectionsManagerEvents,
   type ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { MongoDBInstancesManager } from '../instances-manager';
 
 function serversArray(
   serversMap: NonNullable<
@@ -52,10 +52,19 @@ export function createInstancesStore(
   },
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const instances: Record<ConnectionInfo['id'], MongoDBInstance> = {};
-  connectionsManager.on(
+  const instancesManager = new MongoDBInstancesManager();
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionInfoId: string) {
+      instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
+    }
+  );
+
+  on(
+    connectionsManager,
     ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    (connectionInfoId: string, dataService: DataService) => {
+    function (connectionInfoId: string, dataService: DataService) {
       async function refreshInstance(
         refreshOptions: Omit<
           Parameters<MongoDBInstance['refresh']>[0],
@@ -187,10 +196,10 @@ export function createInstancesStore(
           dataService.getLastSeenTopology()
         ),
       };
-      const instance = new MongoDBInstance(
+      const instance = instancesManager.createMongoDBInstanceForConnection(
+        connectionInfoId,
         initialInstanceProps as MongoDBInstanceProps
       );
-      instances[connectionInfoId] = instance;
 
       addCleanup(() => {
         instance.removeAllListeners();
@@ -310,9 +319,9 @@ export function createInstancesStore(
   );
 
   return {
-    state: { instances }, // Using LegacyRefluxProvider here to pass state to provider
+    state: { instancesManager }, // Using LegacyRefluxProvider here to pass state to provider
     getState() {
-      return { instances };
+      return { instancesManager };
     },
     deactivate: cleanup,
   };
