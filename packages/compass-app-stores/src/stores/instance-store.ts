@@ -56,7 +56,7 @@ export function createInstancesStore(
   connectionsManager.on(
     ConnectionsManagerEvents.ConnectionDisconnected,
     function (connectionInfoId) {
-      instancesManager.removeMongoDBInstance(connectionInfoId);
+      instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
     }
   );
   connectionsManager.on(
@@ -193,7 +193,7 @@ export function createInstancesStore(
           dataService.getLastSeenTopology()
         ),
       };
-      const instance = instancesManager.createMongoDBInstance(
+      const instance = instancesManager.createMongoDBInstanceForConnection(
         connectionInfoId,
         initialInstanceProps as MongoDBInstanceProps
       );

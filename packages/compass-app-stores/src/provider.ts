@@ -31,7 +31,9 @@ export const mongoDBInstanceLocator = createServiceLocator(
   function mongoDBInstanceLocator(): MongoDBInstance {
     const connectionInfo = useConnectionInfo();
     const instancesManager = mongoDBInstancesManagerLocator();
-    const instance = instancesManager.getMongoDBInstance(connectionInfo.id);
+    const instance = instancesManager.getMongoDBInstanceForConnection(
+      connectionInfo.id
+    );
     if (!instance) {
       throw new Error('No MongoDBInstance available in this context');
     }

@@ -14,7 +14,7 @@ describe('InstancesManager', function () {
   });
 
   it('should be able to create and return a MongoDB instance', function () {
-    const instance = instancesManager.createMongoDBInstance(
+    const instance = instancesManager.createMongoDBInstanceForConnection(
       TEST_CONNECTION_INFO.id,
       {
         _id: 'test.com',
@@ -36,7 +36,7 @@ describe('InstancesManager', function () {
       MongoDBInstancesManagerEvents.InstanceCreated,
       onInstanceCreatedStub
     );
-    const instance = instancesManager.createMongoDBInstance(
+    const instance = instancesManager.createMongoDBInstanceForConnection(
       TEST_CONNECTION_INFO.id,
       {
         _id: 'test.com',
@@ -56,40 +56,49 @@ describe('InstancesManager', function () {
   });
 
   it('should be able return a MongoDBInstance if available', function () {
-    const nonExistentInstance = instancesManager.getMongoDBInstance('1234'); // non-existent
+    const nonExistentInstance =
+      instancesManager.getMongoDBInstanceForConnection('1234'); // non-existent
     expect(nonExistentInstance).to.be.undefined;
-    instancesManager.createMongoDBInstance(TEST_CONNECTION_INFO.id, {
-      _id: 'test.com',
-      hostname: 'test.com',
-      port: 2000,
-      topologyDescription: {
-        type: '',
-        servers: [],
-        setName: '',
-      },
-    });
-    const existingInstance = instancesManager.getMongoDBInstance(
+    instancesManager.createMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id,
+      {
+        _id: 'test.com',
+        hostname: 'test.com',
+        port: 2000,
+        topologyDescription: {
+          type: '',
+          servers: [],
+          setName: '',
+        },
+      }
+    );
+    const existingInstance = instancesManager.getMongoDBInstanceForConnection(
       TEST_CONNECTION_INFO.id
     );
     expect(existingInstance).to.not.be.undefined;
   });
 
   it('should be able to remove MongoDBInstance for a connection', function () {
-    instancesManager.createMongoDBInstance(TEST_CONNECTION_INFO.id, {
-      _id: 'test.com',
-      hostname: 'test.com',
-      port: 2000,
-      topologyDescription: {
-        type: '',
-        servers: [],
-        setName: '',
-      },
-    });
-    expect(instancesManager.getMongoDBInstance(TEST_CONNECTION_INFO.id)).to.not
-      .be.undefined;
+    instancesManager.createMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id,
+      {
+        _id: 'test.com',
+        hostname: 'test.com',
+        port: 2000,
+        topologyDescription: {
+          type: '',
+          servers: [],
+          setName: '',
+        },
+      }
+    );
+    expect(
+      instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
+    ).to.not.be.undefined;
     instancesManager.removeMongoDBInstance(TEST_CONNECTION_INFO.id);
-    expect(instancesManager.getMongoDBInstance(TEST_CONNECTION_INFO.id)).to.be
-      .undefined;
+    expect(
+      instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
+    ).to.be.undefined;
   });
 
   it('should emit instances removed event when an instance is removed', function () {
@@ -98,16 +107,19 @@ describe('InstancesManager', function () {
       MongoDBInstancesManagerEvents.InstanceRemoved,
       onRemovedStub
     );
-    instancesManager.createMongoDBInstance(TEST_CONNECTION_INFO.id, {
-      _id: 'test.com',
-      hostname: 'test.com',
-      port: 2000,
-      topologyDescription: {
-        type: '',
-        servers: [],
-        setName: '',
-      },
-    });
+    instancesManager.createMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id,
+      {
+        _id: 'test.com',
+        hostname: 'test.com',
+        port: 2000,
+        topologyDescription: {
+          type: '',
+          servers: [],
+          setName: '',
+        },
+      }
+    );
     instancesManager.removeMongoDBInstance(TEST_CONNECTION_INFO.id);
     expect(onRemovedStub).to.be.calledWithExactly(TEST_CONNECTION_INFO.id);
   });

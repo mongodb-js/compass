@@ -24,7 +24,7 @@ export type MongoDBInstancesManagerEventListeners = {
 export class MongoDBInstancesManager extends EventEmitter {
   private readonly instances = new Map<ConnectionInfo['id'], MongoDBInstance>();
 
-  createMongoDBInstance(
+  createMongoDBInstanceForConnection(
     connectionInfoId: ConnectionInfo['id'],
     instanceProps: Pick<
       MongoDBInstanceProps,
@@ -46,7 +46,7 @@ export class MongoDBInstancesManager extends EventEmitter {
     return this.instances.get(connectionInfoId);
   }
 
-  removeMongoDBInstance(connectionInfoId: ConnectionInfo['id']) {
+  removeMongoDBInstanceForConnection(connectionInfoId: ConnectionInfo['id']) {
     this.instances.delete(connectionInfoId);
     this.emit(MongoDBInstancesManagerEvents.InstanceRemoved, connectionInfoId);
   }

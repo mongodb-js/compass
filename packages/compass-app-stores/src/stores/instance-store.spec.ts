@@ -106,9 +106,12 @@ describe('InstanceStore [Store]', function () {
       );
     }
 
-    expect(instancesManager.getMongoDBInstance('1')).to.not.be.undefined;
-    expect(instancesManager.getMongoDBInstance('2')).to.not.be.undefined;
-    expect(instancesManager.getMongoDBInstance('3')).to.not.be.undefined;
+    expect(instancesManager.getMongoDBInstanceForConnection('1')).to.not.be
+      .undefined;
+    expect(instancesManager.getMongoDBInstanceForConnection('2')).to.not.be
+      .undefined;
+    expect(instancesManager.getMongoDBInstanceForConnection('3')).to.not.be
+      .undefined;
   });
 
   context('when connected', function () {
@@ -118,7 +121,7 @@ describe('InstanceStore [Store]', function () {
         connectedConnectionInfoId,
         dataService
       );
-      const instance = instancesManager.getMongoDBInstance(
+      const instance = instancesManager.getMongoDBInstanceForConnection(
         connectedConnectionInfoId
       );
       expect(instance).to.not.be.undefined;
@@ -133,7 +136,7 @@ describe('InstanceStore [Store]', function () {
           .stub(dataService, 'instance')
           .returns({ build: { version: '3.2.1' } });
         await initialInstanceRefreshedPromise;
-        const instance = instancesManager.getMongoDBInstance(
+        const instance = instancesManager.getMongoDBInstanceForConnection(
           connectedConnectionInfoId
         );
         expect(instance).to.have.nested.property('build.version', '1.2.3');
@@ -142,7 +145,7 @@ describe('InstanceStore [Store]', function () {
       });
 
       it('calls instance model fetch', function () {
-        const instance = instancesManager.getMongoDBInstance('1');
+        const instance = instancesManager.getMongoDBInstanceForConnection('1');
         expect(instance).to.have.nested.property('build.version', '3.2.1');
       });
     });
