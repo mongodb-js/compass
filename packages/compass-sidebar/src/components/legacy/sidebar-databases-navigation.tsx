@@ -24,11 +24,10 @@ function SidebarDatabasesNavigation({
   isWritable,
   onNamespaceAction: _onNamespaceAction,
   databases,
-  expanded,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'databases' | 'expanded'
+  'isReadOnly' | 'databases'
 > & {
   databases: Database[];
   isDataLake?: boolean;
@@ -83,7 +82,6 @@ function SidebarDatabasesNavigation({
     <ConnectionsNavigationTree
       {...dbNavigationProps}
       databases={databases}
-      expanded={expanded}
       onNamespaceAction={onNamespaceAction}
       isReadOnly={isReadOnly}
     />
