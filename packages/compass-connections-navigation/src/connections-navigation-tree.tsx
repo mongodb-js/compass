@@ -158,10 +158,7 @@ const connectionToItems = ({
     areDatabasesReady
       ? databases
           .map((database, databaseIndex) => {
-            const dbExpanded =
-              expanded && expanded[connectionInfo.id]
-                ? (expanded[connectionInfo.id] as Record<string, boolean>)
-                : {};
+            const dbExpanded = expanded?.[connectionInfo.id] || {};
             return databaseToItems({
               database,
               connectionIndex,
