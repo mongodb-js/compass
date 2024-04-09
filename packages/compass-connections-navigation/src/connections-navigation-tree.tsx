@@ -151,7 +151,7 @@ const connectionToItems = ({
   };
 
   if (!isExpanded) {
-    return [connectionTI] as TreeItem[];
+    return [connectionTI];
   }
 
   return ([connectionTI] as TreeItem[]).concat(
