@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { Placeholder, css, cx } from '@mongodb-js/compass-components';

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import {
