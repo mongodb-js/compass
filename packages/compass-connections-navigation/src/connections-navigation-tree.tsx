@@ -218,7 +218,7 @@ const databaseToItems = ({
   };
 
   if (!isExpanded) {
-    return [databaseTI] as TreeItem[];
+    return [databaseTI];
   }
 
   const areCollectionsReady = ['ready', 'refreshing', 'error'].includes(
