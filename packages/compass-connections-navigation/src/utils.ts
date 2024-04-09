@@ -1,4 +1,4 @@
-import { css, spacing } from '@mongodb-js/compass-components';
+import { spacing } from '@mongodb-js/compass-components';
 
 export const getItemPaddingStyles = ({
   level,

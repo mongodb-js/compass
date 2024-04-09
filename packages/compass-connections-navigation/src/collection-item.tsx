@@ -6,7 +6,6 @@ import {
   css,
   ItemActionControls,
   Icon,
-  cx,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';

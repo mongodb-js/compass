@@ -4,7 +4,6 @@ import {
   useHoverState,
   spacing,
   css,
-  cx,
   ItemActionControls,
   Icon,
 } from '@mongodb-js/compass-components';
