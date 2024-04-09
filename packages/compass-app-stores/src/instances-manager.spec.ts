@@ -95,7 +95,9 @@ describe('InstancesManager', function () {
     expect(
       instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
     ).to.not.be.undefined;
-    instancesManager.removeMongoDBInstance(TEST_CONNECTION_INFO.id);
+    instancesManager.removeMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id
+    );
     expect(
       instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
     ).to.be.undefined;
@@ -120,7 +122,9 @@ describe('InstancesManager', function () {
         },
       }
     );
-    instancesManager.removeMongoDBInstance(TEST_CONNECTION_INFO.id);
+    instancesManager.removeMongoDBInstanceForConnection(
+      TEST_CONNECTION_INFO.id
+    );
     expect(onRemovedStub).to.be.calledWithExactly(TEST_CONNECTION_INFO.id);
   });
 });
