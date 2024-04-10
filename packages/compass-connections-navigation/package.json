@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-databases-navigation",
+  "name": "@mongodb-js/compass-connections-navigation",
   "description": "Databases and collections sidebar navigation tree",
   "author": {
     "name": "MongoDB Inc",
@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.23.0",
+    "@mongodb-js/connection-info": "^0.2.0",
     "compass-preferences-model": "^2.19.0",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
