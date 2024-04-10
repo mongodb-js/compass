@@ -531,10 +531,16 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 };
 
-const container = css({
+const MCContainer = css({
   display: 'flex',
   flex: '1 0 auto',
   height: `calc(100% - ${spacing[3]}px)`,
+});
+
+const SCContainer = css({
+  display: 'flex',
+  flex: '1 0 auto',
+  height: 0,
 });
 
 const contentContainer = css({
@@ -545,9 +551,11 @@ const contentContainer = css({
 const NavigationWithPlaceholder: React.FunctionComponent<
   { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
 > = ({ isReady, ...props }) => {
+  const isSingleConnection = !!(props as SCConnectionsNavigationTreeProps)
+    .databases;
   return (
     <FadeInPlaceholder
-      className={container}
+      className={isSingleConnection ? SCContainer : MCContainer}
       contentContainerProps={{ className: contentContainer }}
       isContentReady={isReady}
       content={() => {
@@ -558,9 +566,7 @@ const NavigationWithPlaceholder: React.FunctionComponent<
       fallback={() => {
         return (
           <TopPlaceholder
-            isSingleConnection={
-              !!(props as SCConnectionsNavigationTreeProps).databases
-            }
+            isSingleConnection={isSingleConnection}
           ></TopPlaceholder>
         );
       }}
