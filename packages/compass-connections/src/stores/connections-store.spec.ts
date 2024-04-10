@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import EventEmitter from 'events';
 import { waitFor, cleanup } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -8,7 +7,7 @@ import sinon from 'sinon';
 import { useConnections } from './connections-store';
 import {
   type ConnectionStorage,
-  ConnectionStorageBus,
+  NoopConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
@@ -58,7 +57,7 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('use-connections hook', function () {
   let connectionsManager: ConnectionsManager;
-  let mockConnectionStorage: typeof ConnectionStorage;
+  let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
   let deleteSpy: sinon.SinonSpy;
@@ -95,13 +94,11 @@ describe('use-connections hook', function () {
     deleteSpy = sinon.spy();
     loadSpy = sinon.spy();
 
-    mockConnectionStorage = {
-      events: new ConnectionStorageBus(),
-      loadAll: loadAllSpy,
-      save: saveSpy,
-      delete: deleteSpy,
-      load: loadSpy,
-    };
+    mockConnectionStorage = new NoopConnectionStorage();
+    sinon.stub(mockConnectionStorage, 'loadAll').callsFake(loadAllSpy);
+    sinon.stub(mockConnectionStorage, 'load').callsFake(loadSpy);
+    sinon.stub(mockConnectionStorage, 'save').callsFake(saveSpy);
+    sinon.stub(mockConnectionStorage, 'delete').callsFake(deleteSpy);
 
     connectionsManager = getConnectionsManager(() =>
       Promise.resolve({
@@ -448,14 +445,11 @@ describe('use-connections hook', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
 
       beforeEach(function () {
-        mockConnectionStorage.events = new EventEmitter();
-
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            connectFn: noop,
           })
         );
 
@@ -473,11 +467,9 @@ describe('use-connections hook', function () {
         ]);
 
         mockConnectionStorage.loadAll = loadAllSpyWithData;
-        mockConnectionStorage.events.emit('connections-changed');
+        mockConnectionStorage.emit('ConnectionsChanged');
 
-        await waitFor(
-          () => expect(mockConnectionStorage.loadAll).to.have.been.called
-        );
+        await waitFor(() => expect(loadAllSpyWithData).to.have.been.called);
 
         expect(hookResult.current.favoriteConnections.length).to.equal(1);
       });

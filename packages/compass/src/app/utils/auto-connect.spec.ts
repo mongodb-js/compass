@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { loadAutoConnectInfo } from './auto-connect';
 import {
-  ConnectionStorage,
+  initCompassMainConnectionStorage,
   type ExportConnectionOptions,
   type ConnectionInfo,
 } from '@mongodb-js/connection-storage/main';
@@ -19,26 +19,29 @@ const loadAutoConnectWithConnection = async (
   const tmpDir = await fs.mkdtemp(
     path.join(os.tmpdir(), 'connection-storage-tests')
   );
-  const ipcMain = ConnectionStorage['ipcMain'];
 
   try {
     await fs.mkdir(path.join(tmpDir, 'Connections'));
-
-    ConnectionStorage['ipcMain'] = { createHandle: sinon.stub() };
-    ConnectionStorage.init(tmpDir);
+    const connectionStorage = initCompassMainConnectionStorage(
+      tmpDir,
+      {
+        createHandle: sinon.stub(),
+      },
+      true
+    );
     await Promise.all(
       connections.map((connectionInfo) =>
-        ConnectionStorage.save({ connectionInfo })
+        connectionStorage.save({ connectionInfo })
       )
     );
 
-    const fileContents = await ConnectionStorage.exportConnections({
+    const fileContents = await connectionStorage.exportConnections({
       options: exportOptions,
     });
 
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
     const deserializeConnections =
-      ConnectionStorage.deserializeConnections.bind(ConnectionStorage);
+      connectionStorage.deserializeConnections.bind(connectionStorage);
 
     const fn = await loadAutoConnectInfo(
       sinon.stub().resolves(connectPreferences),
@@ -47,8 +50,6 @@ const loadAutoConnectWithConnection = async (
     );
     return fn;
   } finally {
-    ConnectionStorage['calledOnce'] = false;
-    ConnectionStorage['ipcMain'] = ipcMain;
     void fs.rmdir(tmpDir, { recursive: true });
   }
 };

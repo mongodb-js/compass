@@ -11,8 +11,8 @@ import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
 import {
   type ConnectionInfo,
-  type ConnectionStorage,
-  ConnectionStorageBus,
+  type CompassConnectionStorage,
+  NoopCompassConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
@@ -35,20 +35,21 @@ function getConnectionsManager(mockTestConnectFn?: typeof connect) {
 }
 
 function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
-  return {
-    events: new ConnectionStorageBus(),
-    loadAll: () => {
-      return Promise.resolve(mockConnections);
-    },
-    getLegacyConnections: () => Promise.resolve([]),
-    save: () => Promise.resolve(),
-    delete: () => Promise.resolve(),
-    load: (id: string) =>
-      Promise.resolve(mockConnections.find((conn) => conn.id === id)),
-    importConnections: () => Promise.resolve([]),
-    exportConnections: () => Promise.resolve('{}'),
-    deserializeConnections: () => Promise.resolve([]),
-  } as unknown as typeof ConnectionStorage;
+  const mockStorage = new NoopCompassConnectionStorage();
+
+  mockStorage.loadAll = () => {
+    return Promise.resolve(mockConnections);
+  };
+  mockStorage.getLegacyConnections = () => Promise.resolve([]);
+  mockStorage.save = () => Promise.resolve();
+  mockStorage.delete = () => Promise.resolve();
+  mockStorage.load = ({ id }) =>
+    Promise.resolve(mockConnections.find((conn) => conn.id === id));
+  mockStorage.importConnections = () => Promise.resolve();
+  mockStorage.exportConnections = () => Promise.resolve('{}');
+  mockStorage.deserializeConnections = () => Promise.resolve([]);
+
+  return mockStorage;
 }
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
@@ -157,7 +158,7 @@ describe('Connections Component', function () {
 
   context('when rendered with saved connections in storage', function () {
     let connectSpyFn: sinon.SinonSpy;
-    let mockStorage: typeof ConnectionStorage;
+    let mockStorage: CompassConnectionStorage;
     let savedConnectionId: string;
     let savedConnectionWithAppNameId: string;
     let saveConnectionSpy: sinon.SinonSpy;

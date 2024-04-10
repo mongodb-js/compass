@@ -1,11 +1,13 @@
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { getCompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionStringFromArgs } from '../../main/auto-connect';
 import type { AutoConnectPreferences } from '../../main/auto-connect';
+
+const connectionStorage = getCompassRendererConnectionStorage();
 
 async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
   return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
@@ -32,8 +34,8 @@ function applyUsernameAndPassword(
 export async function loadAutoConnectInfo(
   getPreferences: () => Promise<AutoConnectPreferences> = getWindowAutoConnectPreferences,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises,
-  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
-    ConnectionStorage
+  deserializeConnections = connectionStorage.deserializeConnections.bind(
+    connectionStorage
   )
 ): Promise<undefined | (() => Promise<ConnectionInfo | undefined>)> {
   const autoConnectPreferences = await getPreferences();

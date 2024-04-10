@@ -53,7 +53,7 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { NoopConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
@@ -73,54 +73,6 @@ class CloudAtlasAuthService extends AtlasAuthService {
   }
   getAuthHeaders() {
     return Promise.resolve({});
-  }
-}
-
-// TODO: Make connection storage interface closer to the reality where most of
-// these methods are not something that will work or be supported in compass-web
-class NoopConnectionStorage implements ConnectionStorage {
-  static events = {
-    on() {
-      // noop
-    },
-    off() {
-      // noop
-    },
-    once() {
-      // noop
-    },
-    removeListener() {
-      // noop
-    },
-    emit() {
-      // noop
-    },
-  };
-  static importConnections() {
-    return Promise.resolve();
-  }
-  static exportConnections() {
-    return Promise.resolve('[]');
-  }
-  static deserializeConnections() {
-    return Promise.resolve([]);
-  }
-  // TODO: This seems to be what connection repository is managing now, not
-  // connection storage, move it
-  static getLegacyConnections() {
-    return Promise.resolve([]);
-  }
-  static loadAll() {
-    return Promise.resolve([]);
-  }
-  static load() {
-    return Promise.resolve();
-  }
-  static save() {
-    return Promise.resolve();
-  }
-  static delete() {
-    return Promise.resolve();
   }
 }
 
@@ -294,7 +246,8 @@ const CompassWeb = ({
     []
   );
 
-  const connectionStorage = __TEST_CONNECTION_STORAGE ?? NoopConnectionStorage;
+  const connectionStorage =
+    __TEST_CONNECTION_STORAGE ?? new NoopConnectionStorage();
 
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({

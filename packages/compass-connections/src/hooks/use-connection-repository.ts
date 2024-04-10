@@ -95,13 +95,13 @@ export function useConnectionRepository(): ConnectionRepository {
       void updateListsOfConnections();
     }
 
-    storage.events.on(
+    storage.on(
       ConnectionStorageEvents.ConnectionsChanged,
       updateListsOfConnectionsSubscriber
     );
 
     return () => {
-      storage.events.off(
+      storage.off(
         ConnectionStorageEvents.ConnectionsChanged,
         updateListsOfConnectionsSubscriber
       );
@@ -125,7 +125,9 @@ export function useConnectionRepository(): ConnectionRepository {
         }
       }
 
-      await storage.save({ connectionInfo: infoToSave });
+      if (storage.save) {
+        await storage.save({ connectionInfo: infoToSave });
+      }
       return infoToSave;
     },
     [storage, persistOIDCTokens]
@@ -133,7 +135,9 @@ export function useConnectionRepository(): ConnectionRepository {
 
   const deleteConnection = useCallback(
     async (info: ConnectionInfo) => {
-      await storage.delete(info);
+      if (storage.delete) {
+        await storage.delete(info);
+      }
     },
     [storage]
   );

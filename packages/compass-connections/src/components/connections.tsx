@@ -14,7 +14,10 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import {
+  type ConnectionInfo,
+  isCompassConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { connect, DataService } from 'mongodb-data-service';
@@ -88,6 +91,7 @@ function Connections({
   onConnectionFailed,
   onConnectionAttemptStarted,
   getAutoConnectInfo,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: {
   appRegistry: AppRegistry;
   onConnected: (
@@ -100,6 +104,7 @@ function Connections({
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -124,6 +129,7 @@ function Connections({
     onConnectionFailed,
     onConnectionAttemptStarted,
     getAutoConnectInfo,
+    __TEST_INITIAL_CONNECTION_INFO,
   });
   const {
     connectingConnectionId,
@@ -260,21 +266,25 @@ function Connections({
           }
         />
       )}
-      <ImportConnectionsModal
-        open={showImportConnectionsModal}
-        setOpen={setShowImportConnectionsModal}
-        favoriteConnections={favoriteConnections}
-        trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
-      />
-      <ExportConnectionsModal
-        open={showExportConnectionsModal}
-        setOpen={setShowExportConnectionsModal}
-        favoriteConnections={favoriteConnections}
-        trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
-      />
-      <LegacyConnectionsModal connectionStorage={connectionStorage} />
+      {isCompassConnectionStorage(connectionStorage) && (
+        <>
+          <ImportConnectionsModal
+            open={showImportConnectionsModal}
+            setOpen={setShowImportConnectionsModal}
+            favoriteConnections={favoriteConnections}
+            trackingProps={{ context: 'connectionsList' }}
+            connectionStorage={connectionStorage}
+          />
+          <ExportConnectionsModal
+            open={showExportConnectionsModal}
+            setOpen={setShowExportConnectionsModal}
+            favoriteConnections={favoriteConnections}
+            trackingProps={{ context: 'connectionsList' }}
+            connectionStorage={connectionStorage}
+          />
+          <LegacyConnectionsModal connectionStorage={connectionStorage} />
+        </>
+      )}
     </div>
   );
 }

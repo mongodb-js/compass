@@ -1,4 +1,7 @@
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  getCompassRendererConnectionStorage,
+  type CompassConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
 
@@ -32,12 +35,12 @@ export const INITIAL_STATE: ConnectionInfoState = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: ConnectionStorage,
+  connectionStorage: getCompassRendererConnectionStorage(),
 };
 
 export interface ConnectionInfoState {
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
-  connectionStorage: typeof ConnectionStorage;
+  connectionStorage: CompassConnectionStorage;
 }
 
 export type ConnectionInfoAction =
@@ -46,7 +49,7 @@ export type ConnectionInfoAction =
 
 async function saveConnectionInfo(
   connectionInfo: ConnectionInfo,
-  connectionStorage: typeof ConnectionStorage
+  connectionStorage: CompassConnectionStorage
 ) {
   try {
     await connectionStorage.save({ connectionInfo });

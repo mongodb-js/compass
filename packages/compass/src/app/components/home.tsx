@@ -18,14 +18,15 @@ import Welcome from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  type ConnectionInfo,
-  ConnectionStorage,
+  type ConnectionStorage,
+  getCompassRendererConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
   ConnectionInfoProvider,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
@@ -153,7 +154,8 @@ export type HomeProps = {
   hideCollectionSubMenu: () => void;
   showSettings: () => void;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
+  __TEST_CONNECTION_STORAGE?: ConnectionStorage;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
 
 function Home({
@@ -167,6 +169,7 @@ function Home({
   showSettings,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
   __TEST_CONNECTION_STORAGE,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
@@ -278,7 +281,7 @@ function Home({
 
   const connectionStorage =
     __TEST_CONNECTION_STORAGE === undefined
-      ? ConnectionStorage
+      ? getCompassRendererConnectionStorage()
       : __TEST_CONNECTION_STORAGE;
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
@@ -320,6 +323,7 @@ function Home({
                 getAutoConnectInfo={
                   hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
                 }
+                __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
               />
             </div>
           </div>

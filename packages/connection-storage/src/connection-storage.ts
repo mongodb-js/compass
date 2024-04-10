@@ -1,520 +1,170 @@
-import type { HadronIpcMain } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
-import keytar from 'keytar';
-import { safeStorage } from 'electron';
-
+import { EventEmitter } from 'events';
+import type { HadronIpcMain, HadronIpcRenderer } from 'hadron-ipc';
 import type {
   ConnectionInfo,
-  ConnectionSecrets,
+  AtlasClusterMetadata,
 } from '@mongodb-js/connection-info';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
-import {
-  deleteCompassAppNameParam,
-  getKeytarServiceName,
-  parseStoredPassword,
-} from './utils';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
-import {
-  serializeConnections,
-  deserializeConnections,
-} from './import-export-connection';
 import type {
-  ImportConnectionOptions,
   ExportConnectionOptions,
+  ImportConnectionOptions,
 } from './import-export-connection';
-import { UserData, z } from '@mongodb-js/compass-user-data';
 
-const { log, mongoLogId, track } =
-  createLoggerAndTelemetry('CONNECTION-STORAGE');
+export type { ConnectionInfo, AtlasClusterMetadata };
 
-type ConnectionLegacyProps = {
-  _id?: string;
-  isFavorite?: boolean;
-  name?: string;
+export const ConnectionStorageEvents = {
+  ConnectionsChanged: 'ConnectionsChanged',
+} as const;
+
+export type ConnectionStorageEvent =
+  typeof ConnectionStorageEvents[keyof typeof ConnectionStorageEvents];
+
+export type ConnectionStorageEventListeners = {
+  [ConnectionStorageEvents.ConnectionsChanged]: () => void;
 };
 
-type ConnectionProps = {
-  connectionInfo?: ConnectionInfo;
-  version?: number;
-  connectionSecrets?: string;
-};
+export interface ConnectionStorage {
+  on<T extends ConnectionStorageEvent>(
+    eventName: T,
+    listener: ConnectionStorageEventListeners[T]
+  ): ConnectionStorage;
 
-export type ConnectionWithLegacyProps = ConnectionProps & ConnectionLegacyProps;
+  off<T extends ConnectionStorageEvent>(
+    eventName: T,
+    listener: ConnectionStorageEventListeners[T]
+  ): ConnectionStorage;
 
-const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
-  .object({
-    _id: z.string().uuid().optional(),
-    isFavorite: z.boolean().optional(),
-    name: z.string().optional(),
-    connectionInfo: z
-      .object({
-        id: z.string().uuid(),
-        lastUsed: z.coerce
-          .date()
-          .optional()
-          .transform((x) => (x !== undefined ? new Date(x) : x)),
-        favorite: z.any().optional(),
-        savedConnectionType: z.enum(['favorite', 'recent']).optional(),
-        connectionOptions: z.object({
-          connectionString: z
-            .string()
-            .nonempty('Connection string is required.'),
-          sshTunnel: z.any().optional(),
-          useSystemCA: z.boolean().optional(),
-          oidc: z.any().optional(),
-          fleOptions: z.any().optional(),
-        }),
-      })
-      .optional(),
-    version: z.number().optional(),
-    connectionSecrets: z.string().optional(),
-  })
-  .passthrough();
+  emit<T extends ConnectionStorageEvent>(
+    eventName: T,
+    ...args: Parameters<ConnectionStorageEventListeners[T]>
+  ): boolean;
 
-export class ConnectionStorage {
-  private static calledOnce: boolean;
-  private static ipcMain:
-    | Pick<HadronIpcMain, 'handle' | 'createHandle'>
-    | undefined = ipcMain;
+  loadAll(options?: { signal?: AbortSignal }): Promise<ConnectionInfo[]>;
 
-  private static readonly maxAllowedRecentConnections = 10;
-  private static readonly version = 1;
-  private static userData: UserData<typeof ConnectionSchema>;
-
-  private constructor() {
-    // singleton
-  }
-
-  static init(basePath?: string) {
-    if (this.calledOnce) {
-      return;
-    }
-    this.userData = new UserData(ConnectionSchema, {
-      subdir: 'Connections',
-      basePath,
-    });
-    this.ipcMain?.createHandle('ConnectionStorage', this, [
-      'loadAll',
-      'load',
-      'getLegacyConnections',
-      'save',
-      'delete',
-      'deserializeConnections',
-      'exportConnections',
-      'importConnections',
-    ]);
-    this.calledOnce = true;
-  }
-
-  static async migrateToSafeStorage() {
-    // If user lands on this version of Compass with legacy connections (using storage mixin),
-    // we will ignore those and only migrate connections that have connectionInfo.
-    const connections = (await this.getConnections()).filter(
-      (
-        x
-      ): x is ConnectionWithLegacyProps &
-        Required<Pick<ConnectionProps, 'connectionInfo'>> => !!x.connectionInfo
-    );
-    if (connections.length === 0) {
-      log.info(
-        mongoLogId(1_001_000_270),
-        'Connection Storage',
-        'No connections to migrate'
-      );
-      return;
-    }
-
-    if (
-      connections.filter((x) => 'version' in x && x.version === this.version)
-        .length === connections.length
-    ) {
-      log.info(
-        mongoLogId(1_001_000_271),
-        'Connection Storage',
-        'Connections already migrated'
-      );
-      return;
-    }
-
-    // Get the secrets from keychain. If there're no secrets, we still want to
-    // migrate the connects to a new version.
-    const secrets = await this.getKeytarCredentials();
-
-    // Connections that are not migrated yet or that failed to migrate,
-    // are not expected to have a version property.
-    const unmigratedConnections = connections.filter((x) => !('version' in x));
-    log.info(
-      mongoLogId(1_001_000_272),
-      'Connection Storage',
-      'Migrating connections',
-      {
-        num_connections: unmigratedConnections.length,
-        num_secrets: Object.keys(secrets).length,
-      }
-    );
-
-    let numFailedToMigrate = 0;
-
-    for (const { connectionInfo } of unmigratedConnections) {
-      const _id = connectionInfo.id;
-      const connectionSecrets = secrets[_id];
-
-      try {
-        await this.userData.write(_id, {
-          _id,
-          connectionInfo, // connectionInfo is without secrets as its direclty read from storage
-          connectionSecrets: this.encryptSecrets(connectionSecrets),
-          version: this.version,
-        });
-      } catch (e) {
-        numFailedToMigrate++;
-        log.error(
-          mongoLogId(1_001_000_273),
-          'Connection Storage',
-          'Failed to migrate connection',
-          { message: (e as Error).message, connectionId: _id }
-        );
-      }
-    }
-
-    log.info(
-      mongoLogId(1_001_000_274),
-      'Connection Storage',
-      'Migration complete',
-      {
-        num_saved_connections:
-          unmigratedConnections.length - numFailedToMigrate,
-        num_failed_connections: numFailedToMigrate,
-      }
-    );
-
-    if (numFailedToMigrate > 0) {
-      track('Keytar Secrets Migration Failed', {
-        num_saved_connections:
-          unmigratedConnections.length - numFailedToMigrate,
-        num_failed_connections: numFailedToMigrate,
-      });
-    }
-  }
-
-  private static encryptSecrets(
-    secrets?: ConnectionSecrets
-  ): string | undefined {
-    return Object.keys(secrets ?? {}).length > 0
-      ? safeStorage.encryptString(JSON.stringify(secrets)).toString('base64')
-      : undefined;
-  }
-
-  private static decryptSecrets(
-    secrets?: string
-  ): ConnectionSecrets | undefined {
-    return secrets
-      ? JSON.parse(safeStorage.decryptString(Buffer.from(secrets, 'base64')))
-      : undefined;
-  }
-
-  private static migrateSavedConnectionType(
-    connectionInfo: ConnectionInfo
-  ): ConnectionInfo {
-    const inferedConnectionType = connectionInfo.favorite
-      ? 'favorite'
-      : 'recent';
-
-    return {
-      ...connectionInfo,
-      savedConnectionType: connectionInfo.savedConnectionType
-        ? connectionInfo.savedConnectionType
-        : inferedConnectionType,
-    };
-  }
-
-  private static mapStoredConnectionToConnectionInfo({
-    connectionInfo: storedConnectionInfo,
-    connectionSecrets: storedConnectionSecrets,
-  }: ConnectionProps): ConnectionInfo {
-    let secrets: ConnectionSecrets | undefined = undefined;
-    try {
-      secrets = this.decryptSecrets(storedConnectionSecrets);
-    } catch (e) {
-      log.error(
-        mongoLogId(1_001_000_208),
-        'Connection Storage',
-        'Failed to decrypt secrets',
-        { message: (e as Error).message }
-      );
-    }
-    let connectionInfo = mergeSecrets(storedConnectionInfo!, secrets);
-    connectionInfo = this.migrateSavedConnectionType(connectionInfo);
-    return deleteCompassAppNameParam(connectionInfo);
-  }
-
-  // This method is only called when compass tries to migrate connections to a new version.
-  // In e2e-tests we do not migrate any connections as all the connections are created
-  // in the new format, so keychain is not triggered (using keytar) and hence test is not blocked.
-  private static async getKeytarCredentials() {
-    try {
-      const credentials = await keytar.findCredentials(getKeytarServiceName());
-      return Object.fromEntries(
-        credentials.map(({ account, password }) => [
-          account,
-          parseStoredPassword(password),
-        ])
-      ) as Record<string, ConnectionSecrets>;
-    } catch (e) {
-      log.error(
-        mongoLogId(1_001_000_201),
-        'Connection Storage',
-        'Failed to load secrets from keychain',
-        { message: (e as Error).message }
-      );
-      return {};
-    }
-  }
-
-  private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
-    return (await this.userData.readAll()).data;
-  }
-
-  /**
-   * We only consider favorite legacy connections and ignore
-   * recent legacy connections.
-   *
-   * connection.connectionInfo  -> new connection
-   * connection.isFavorite      -> legacy favorite connection
-   */
-  static async getLegacyConnections({
-    signal,
-  }: {
+  load(options: {
+    id: string;
     signal?: AbortSignal;
-  } = {}): Promise<{ name: string }[]> {
-    throwIfAborted(signal);
-    try {
-      const legacyConnections = (await this.getConnections()).filter(
-        (x) => !x.connectionInfo && x.isFavorite
-      );
-      return legacyConnections.map((x) => ({
-        name: x.name!,
-      }));
-    } catch (e) {
-      return [];
-    }
-  }
+  }): Promise<ConnectionInfo | undefined>;
 
-  static async loadAll({
-    signal,
-  }: {
-    signal?: AbortSignal;
-  } = {}): Promise<ConnectionInfo[]> {
-    throwIfAborted(signal);
-    try {
-      const connections = await this.getConnections();
-      return (
-        connections
-          // Ignore legacy connections and make sure connection has a connection string.
-          .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
-          .map((connection) =>
-            this.mapStoredConnectionToConnectionInfo(connection)
-          )
-      );
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_101),
-        'Connection Storage',
-        'Failed to load connections',
-        { message: (err as Error).message }
-      );
-      return [];
-    }
-  }
-
-  static async save({
-    connectionInfo,
-    signal,
-  }: {
-    signal?: AbortSignal;
+  save?(options: {
     connectionInfo: ConnectionInfo;
-  }): Promise<void> {
-    throwIfAborted(signal);
-    try {
-      // While saving connections, we also save `_id` property
-      // in order to support the downgrade of Compass to a version
-      // where we use storage-mixin. storage-mixin uses this prop
-      // to map keytar credentials to the stored connection.
-
-      const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
-        extractSecrets(connectionInfo);
-
-      let connectionSecrets: string | undefined = undefined;
-      try {
-        connectionSecrets = this.encryptSecrets(secrets);
-      } catch (e) {
-        log.error(
-          mongoLogId(1_001_000_202),
-          'Connection Storage',
-          'Failed to encrypt secrets',
-          { message: (e as Error).message }
-        );
-      }
-      await this.userData.write(connectionInfo.id, {
-        _id: connectionInfo.id,
-        connectionInfo: connectionInfoWithoutSecrets,
-        connectionSecrets,
-        version: this.version,
-      });
-      await this.afterConnectionHasBeenSaved(connectionInfo);
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_103),
-        'Connection Storage',
-        'Failed to save connection',
-        { message: (err as Error).message }
-      );
-
-      throw err;
-    }
-  }
-
-  static async delete({
-    id,
-    signal,
-  }: {
-    id?: string;
     signal?: AbortSignal;
-  }): Promise<void> {
-    throwIfAborted(signal);
-    if (!id) {
-      return;
-    }
+  }): Promise<void>;
 
-    try {
-      await this.userData.delete(id);
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_104),
-        'Connection Storage',
-        'Failed to delete connection',
-        { message: (err as Error).message }
-      );
+  delete?(options: { id: string; signal?: AbortSignal }): Promise<void>;
+}
 
-      throw err;
-    }
-  }
-
-  static async load({
-    id,
-    signal,
-  }: {
-    id?: string;
+export interface CompassConnectionStorage extends ConnectionStorage {
+  save(options: {
+    connectionInfo: ConnectionInfo;
     signal?: AbortSignal;
-  }): Promise<ConnectionInfo | undefined> {
-    throwIfAborted(signal);
-    if (!id) {
-      return undefined;
-    }
-    const connections = await this.loadAll();
-    return connections.find((connection) => id === connection.id);
-  }
+  }): Promise<void>;
 
-  private static async afterConnectionHasBeenSaved(
-    savedConnection: ConnectionInfo
-  ): Promise<void> {
-    if (savedConnection.favorite) {
-      return;
-    }
+  delete(options: {
+    id: ConnectionInfo['id'];
+    signal?: AbortSignal;
+  }): Promise<void>;
 
-    const recentConnections = (await this.loadAll())
-      // remove favorites and the just saved connection (so we do not delete it)
-      .filter((x) => !x.favorite && x.id !== savedConnection.id)
-      .sort((a, b) => {
-        const aTime = a.lastUsed?.getTime() ?? 0;
-        const bTime = b.lastUsed?.getTime() ?? 0;
-        return bTime - aTime;
-      });
+  getLegacyConnections(options?: {
+    signal?: AbortSignal;
+  }): Promise<{ name: string }[]>;
 
-    if (recentConnections.length >= this.maxAllowedRecentConnections) {
-      await this.delete({
-        id: recentConnections[recentConnections.length - 1].id,
-      });
-    }
-  }
-
-  static async deserializeConnections({
-    content,
-    options = {},
-    signal,
-  }: {
+  deserializeConnections(args: {
     content: string;
     options: ImportConnectionOptions;
     signal?: AbortSignal;
-  }): Promise<ConnectionInfo[]> {
-    throwIfAborted(signal);
+  }): Promise<ConnectionInfo[]>;
 
-    const { passphrase, trackingProps, filterConnectionIds } = options;
-    const connections = await deserializeConnections(content, {
-      passphrase,
-      trackingProps,
-    });
-    return filterConnectionIds
-      ? connections.filter((x) => filterConnectionIds.includes(x.id))
-      : connections;
-  }
+  exportConnections(args?: {
+    options?: ExportConnectionOptions;
+    signal?: AbortSignal;
+  }): Promise<string>;
 
-  static async importConnections({
-    content,
-    options = {},
-    signal,
-  }: {
+  importConnections(args: {
     content: string;
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
-  }): Promise<void> {
-    throwIfAborted(signal);
+  }): Promise<void>;
+}
 
-    const connections = await this.deserializeConnections({
-      content,
-      options,
-      signal,
-    });
+export type CompassConnectionStorageIPCInterface = Omit<
+  CompassConnectionStorage,
+  'on' | 'off' | 'emit'
+>;
 
-    log.info(
-      mongoLogId(1_001_000_149),
-      'Connection Import',
-      'Starting connection import',
-      {
-        count: connections.length,
-      }
-    );
+export type CompassConnectionStorageIPCMain = Pick<
+  HadronIpcMain,
+  'createHandle'
+>;
 
-    await Promise.all(
-      connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
-    );
+export type CompassConnectionStorageIPCRenderer = Pick<
+  HadronIpcRenderer,
+  'createInvoke'
+>;
 
-    log.info(
-      mongoLogId(1_001_000_150),
-      'Connection Import',
-      'Connection import complete',
-      {
-        count: connections.length,
-      }
-    );
+export class NoopConnectionStorage
+  extends EventEmitter
+  implements ConnectionStorage
+{
+  constructor() {
+    super();
   }
 
-  static async exportConnections({
-    options = {},
-    signal,
-  }: {
-    options?: ExportConnectionOptions;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loadAll(options?: { signal?: AbortSignal }): Promise<ConnectionInfo[]> {
+    return Promise.resolve([]);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  load(options: {
+    id: string;
     signal?: AbortSignal;
-  } = {}): Promise<string> {
-    throwIfAborted(signal);
-
-    const { filterConnectionIds, ...restOfOptions } = options;
-    const connections = await this.loadAll({ signal });
-    const exportConnections = filterConnectionIds
-      ? connections.filter((x) => filterConnectionIds.includes(x.id))
-      : connections.filter((x) => x.favorite?.name);
-
-    return serializeConnections(exportConnections, restOfOptions);
+  }): Promise<ConnectionInfo | undefined> {
+    return Promise.resolve(undefined);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  save(options: {
+    connectionInfo: ConnectionInfo;
+    signal?: AbortSignal;
+  }): Promise<void> {
+    return Promise.resolve();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  delete(options: { id: string; signal?: AbortSignal }): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+export class NoopCompassConnectionStorage
+  extends NoopConnectionStorage
+  implements CompassConnectionStorage
+{
+  constructor() {
+    super();
+  }
+
+  getLegacyConnections(): Promise<{ name: string }[]> {
+    return Promise.resolve([]);
+  }
+  deserializeConnections(): Promise<ConnectionInfo[]> {
+    return Promise.resolve([]);
+  }
+  exportConnections(): Promise<string> {
+    return Promise.resolve('');
+  }
+  importConnections(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+export function isCompassConnectionStorage(
+  connectionStorage: ConnectionStorage | CompassConnectionStorage
+): connectionStorage is CompassConnectionStorage {
+  return (
+    'getLegacyConnections' in connectionStorage &&
+    'deserializeConnections' in connectionStorage &&
+    'exportConnections' in connectionStorage &&
+    'importConnections' in connectionStorage
+  );
 }

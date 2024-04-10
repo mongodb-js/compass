@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
+import sinon from 'sinon';
 import {
   type ConnectionInfo,
   type ConnectionStatus,
@@ -16,8 +17,8 @@ import {
   type ConnectionStorage,
   ConnectionStorageProvider,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import { useCanOpenNewConnections } from './use-can-open-new-connections';
+import { NoopConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const FAVORITE_CONNECTION_INFO: ConnectionInfo = {
   id: 'favorite',
@@ -57,15 +58,10 @@ describe('useCanOpenNewConnections', function () {
   beforeEach(async function () {
     preferencesAccess = await createSandboxFromDefaultPreferences();
     connectionManager = new ConnectionsManager({} as any);
-    connectionStorage = {
-      loadAll() {
-        return Promise.resolve([
-          FAVORITE_CONNECTION_INFO,
-          NONFAVORITE_CONNECTION_INFO,
-        ]);
-      },
-      events: new ConnectionStorageBus(),
-    } as ConnectionStorage;
+    connectionStorage = new NoopConnectionStorage();
+    sinon
+      .stub(connectionStorage, 'loadAll')
+      .resolves([FAVORITE_CONNECTION_INFO, NONFAVORITE_CONNECTION_INFO]);
 
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>

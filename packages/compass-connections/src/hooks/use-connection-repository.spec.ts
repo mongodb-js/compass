@@ -1,11 +1,11 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionRepository } from './use-connection-repository';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { stub, restore } from 'sinon';
 import {
   type ConnectionStorage,
-  ConnectionStorageBus,
   ConnectionStorageEvents,
+  NoopConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { renderHook } from '@testing-library/react-hooks';
@@ -14,29 +14,26 @@ import { createElement } from 'react';
 
 describe('useConnectionRepository', function () {
   let renderHookWithContext: typeof renderHook;
-  let mockStorage: typeof ConnectionStorage;
+  let mockStorage: ConnectionStorage;
   let saveStub: ReturnType<typeof stub>;
   let deleteStub: ReturnType<typeof stub>;
 
   function mockStorageWithConnections(
     connections: Partial<ConnectionInfo>[]
-  ): typeof ConnectionStorage {
+  ): ConnectionStorage {
     saveStub = stub();
     deleteStub = stub();
 
-    mockStorage = {
-      events: new ConnectionStorageBus(),
-      loadAll(): Promise<ConnectionInfo[]> {
-        return Promise.resolve(connections as ConnectionInfo[]);
-      },
-      async load({ id }: { id: string }): Promise<ConnectionInfo> {
-        return Promise.resolve(
-          connections.find((c) => c.id === id) as ConnectionInfo
-        );
-      },
-      save: saveStub,
-      delete: deleteStub,
-    } as any;
+    mockStorage = new NoopConnectionStorage();
+    stub(mockStorage, 'save').callsFake(saveStub);
+    stub(mockStorage, 'delete').callsFake(deleteStub);
+    stub(mockStorage, 'loadAll').resolves(connections);
+    stub(mockStorage, 'load').callsFake(({ id }: { id: string }) => {
+      return Promise.resolve(
+        connections.find((c) => c.id === id) as ConnectionInfo
+      );
+    });
+    return mockStorage;
   }
 
   beforeEach(function () {
@@ -48,6 +45,10 @@ describe('useConnectionRepository', function () {
         });
       return renderHook(callback, { wrapper, ...options });
     };
+  });
+
+  afterEach(function () {
+    restore();
   });
 
   describe('favoriteConnections', function () {
@@ -116,7 +117,7 @@ describe('useConnectionRepository', function () {
         ]);
       };
 
-      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;
@@ -195,7 +196,7 @@ describe('useConnectionRepository', function () {
         ]);
       };
 
-      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;

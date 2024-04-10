@@ -5,7 +5,10 @@ import {
   useImportExportConnectionsCommon,
 } from './common';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  getCompassRendererConnectionStorage,
+  type CompassConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
@@ -47,9 +50,7 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = ConnectionStorage.exportConnections.bind(
-    ConnectionStorage
-  )
+  exportConnections?: CompassConnectionStorage['exportConnections']
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -59,6 +60,11 @@ export function useExportConnections(
   onChangeRemoveSecrets: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   state: ExportConnectionsState;
 } {
+  const connectionStorage = getCompassRendererConnectionStorage();
+  const exportConnectionsMethod: CompassConnectionStorage['exportConnections'] =
+    exportConnections ??
+    connectionStorage.exportConnections.bind(connectionStorage);
+
   const [state, setState] = useState<ExportConnectionsState>(INITIAL_STATE);
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, connectionList, removeSecrets } = state;
@@ -100,7 +106,7 @@ export function useExportConnections(
       // in the UI, we protect users against combining them by disabling the passphrase input.
       const passphrase = removeSecrets ? '' : state.passphrase;
       try {
-        const fileContents = await exportConnections({
+        const fileContents = await exportConnectionsMethod({
           options: {
             passphrase,
             filterConnectionIds,

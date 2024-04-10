@@ -5,7 +5,6 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionStorageProvider,
-  type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
@@ -16,7 +15,10 @@ import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
 import { createInstance } from '../../../../test/helpers';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
+import {
+  NoopConnectionStorage,
+  type ConnectionStorage,
+} from '@mongodb-js/connection-storage/renderer';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -40,20 +42,16 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('<ActiveConnectionNavigation />', function () {
   let connectionsManager: ConnectionsManager;
-  let mockConnectionStorage: typeof ConnectionStorage;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
   const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
+  let mockConnectionStorage: ConnectionStorage;
 
   beforeEach(() => {
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
-    mockConnectionStorage = {
-      loadAll: Sinon.stub().resolves(mockConnections),
-      events: new ConnectionStorageBus(),
-    } as any;
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
@@ -69,6 +67,8 @@ describe('<ActiveConnectionNavigation />', function () {
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
+    mockConnectionStorage = new NoopConnectionStorage();
+    mockConnectionStorage.loadAll = Sinon.stub().resolves(mockConnections);
 
     render(
       <ConnectionStorageProvider value={mockConnectionStorage}>

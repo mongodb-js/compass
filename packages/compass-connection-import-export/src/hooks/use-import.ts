@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  getCompassRendererConnectionStorage,
+  type CompassConnectionStorage,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,
@@ -35,8 +38,14 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  deserializeConnections: typeof ConnectionStorage['deserializeConnections']
+  deserializeConnections?: CompassConnectionStorage['deserializeConnections']
 ): Promise<Partial<ImportConnectionsState>> {
+  if (!deserializeConnections) {
+    const connectionStorage = getCompassRendererConnectionStorage();
+    deserializeConnections =
+      connectionStorage.deserializeConnections.bind(connectionStorage);
+  }
+
   if (!filename) {
     return INITIAL_STATE;
   }
@@ -91,14 +100,9 @@ export function useImportConnections(
     favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
     open: boolean;
     trackingProps?: Record<string, unknown>;
-    connectionStorage?: typeof ConnectionStorage;
   },
-  importConnections = ConnectionStorage.importConnections.bind(
-    ConnectionStorage
-  ),
-  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
-    ConnectionStorage
-  )
+  importConnections?: CompassConnectionStorage['importConnections'],
+  deserializeConnections?: CompassConnectionStorage['deserializeConnections']
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -107,6 +111,14 @@ export function useImportConnections(
   onChangeConnectionList: (connectionInfos: ConnectionShortInfo[]) => void;
   state: ImportConnectionsState;
 } {
+  const connectionStorage = getCompassRendererConnectionStorage();
+  const importConnectionsMethod =
+    importConnections ??
+    connectionStorage.importConnections.bind(connectionStorage);
+  const deserializeConnectionsMethod =
+    deserializeConnections ??
+    connectionStorage.deserializeConnections.bind(connectionStorage);
+
   const [state, setState] = useState<ImportConnectionsState>(INITIAL_STATE);
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
@@ -134,7 +146,7 @@ export function useImportConnections(
         .filter((x) => x.selected)
         .map((x) => x.id);
       try {
-        await importConnections({
+        await importConnectionsMethod({
           content: fileContents,
           options: {
             passphrase,
@@ -163,7 +175,7 @@ export function useImportConnections(
       timer = undefined;
       void loadFile(
         { filename, passphrase, favoriteConnectionIds },
-        deserializeConnections
+        deserializeConnectionsMethod
       ).then((stateUpdate) => {
         setState((prevState) => {
           if (

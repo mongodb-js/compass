@@ -58,9 +58,12 @@ type State = {
   oidcDeviceAuthUserCode: string | null;
 };
 
-export function defaultConnectionsState(): State {
+export function defaultConnectionsState(
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo
+): State {
   return {
-    activeConnectionInfo: createNewConnectionInfo(),
+    activeConnectionInfo:
+      __TEST_INITIAL_CONNECTION_INFO ?? createNewConnectionInfo(),
     connectingStatusText: '',
     connectingConnectionId: null,
     connectionErrorMessage: null,
@@ -158,6 +161,7 @@ export function useConnections({
   onConnectionFailed,
   onConnectionAttemptStarted,
   getAutoConnectInfo,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
@@ -169,6 +173,7 @@ export function useConnections({
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): {
   state: State;
   recentConnections: ConnectionInfo[];
@@ -200,7 +205,7 @@ export function useConnections({
 
   const [state, dispatch]: [State, Dispatch<Action>] = useReducer(
     connectionsReducer,
-    defaultConnectionsState()
+    defaultConnectionsState(__TEST_INITIAL_CONNECTION_INFO)
   );
   const { activeConnectionId } = state;
 

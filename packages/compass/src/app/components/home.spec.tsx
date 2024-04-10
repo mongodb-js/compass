@@ -16,7 +16,8 @@ import Home from './home';
 import type { DataService } from 'mongodb-data-service';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { WithAtlasProviders, WithStorageProviders } from './entrypoint';
-import EventEmitter from 'events';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import { NoopCompassConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const createDataService = () =>
   ({
@@ -46,20 +47,6 @@ const createDataService = () =>
     removeListener() {},
   } as unknown as DataService);
 
-class MockConnectionStorage {
-  static events = new EventEmitter();
-  static importConnections() {}
-  static exportConnections() {
-    return Promise.resolve('[]');
-  }
-  static deserializeConnections() {
-    return Promise.resolve([]);
-  }
-  static getLegacyConnections() {
-    return Promise.resolve([]);
-  }
-}
-
 const HOME_PROPS = {
   appName: 'home-testing',
   createFileInputBackend: (() => {}) as any,
@@ -75,7 +62,8 @@ describe('Home [Component]', function () {
   const testAppRegistry = new AppRegistry();
   function renderHome(
     props: Partial<ComponentProps<typeof Home>> = {},
-    dataService = createDataService()
+    dataService = createDataService(),
+    connectionStorage = new NoopCompassConnectionStorage()
   ) {
     render(
       <PreferencesProvider
@@ -101,7 +89,8 @@ describe('Home [Component]', function () {
                 __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
                   return Promise.resolve(dataService);
                 }}
-                __TEST_CONNECTION_STORAGE={MockConnectionStorage as any}
+                __TEST_CONNECTION_STORAGE={connectionStorage}
+                __TEST_INITIAL_CONNECTION_INFO={TEST_CONNECTION_INFO}
                 {...props}
               />
             </WithStorageProviders>
@@ -169,12 +158,17 @@ describe('Home [Component]', function () {
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };
+        const connectionStorage = new NoopCompassConnectionStorage();
+        sinon
+          .stub(connectionStorage, 'loadAll')
+          .resolves([TEST_CONNECTION_INFO]);
         renderHome(
           {
             hideCollectionSubMenu: hideCollectionSubMenuSpy,
             onDisconnect: onDisconnectSpy,
           },
-          dataService
+          dataService,
+          connectionStorage
         );
         screen.logTestingPlaygroundURL();
         await waitForConnect();

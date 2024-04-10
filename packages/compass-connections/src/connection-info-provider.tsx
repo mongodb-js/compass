@@ -16,7 +16,7 @@ const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
 export const TEST_CONNECTION_INFO: ConnectionInfo = {
   id: 'TEST',
   connectionOptions: {
-    connectionString: 'test-connection-string',
+    connectionString: 'mongodb://localhost:27020',
   },
 };
 export function useConnectionInfo() {

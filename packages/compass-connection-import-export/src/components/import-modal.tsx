@@ -16,7 +16,7 @@ import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
 import type {
   ConnectionInfo,
-  ConnectionStorage,
+  CompassConnectionStorage,
 } from '@mongodb-js/connection-storage/renderer';
 
 const TOAST_TIMEOUT_MS = 5000;
@@ -43,7 +43,7 @@ export function ImportConnectionsModal({
   setOpen: (newOpen: boolean) => void;
   favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   trackingProps?: Record<string, unknown>;
-  connectionStorage?: typeof ConnectionStorage;
+  connectionStorage?: CompassConnectionStorage;
 }): React.ReactElement {
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
