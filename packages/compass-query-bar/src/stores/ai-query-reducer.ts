@@ -1,6 +1,7 @@
 import type { Reducer } from 'redux';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
+import { UUID } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -23,7 +24,8 @@ export type AIQueryState = {
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIQueryStatus;
-  aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
+  aiQueryRequestId: string | null; // Maps to the AbortController of the current fetch (or null).
+  lastAIQueryRequestId: string | null; // We store the last request id so we can pass it when a user provides feedback.
 };
 
 export const initialState: AIQueryState = {
@@ -32,7 +34,8 @@ export const initialState: AIQueryState = {
   errorMessage: undefined,
   errorCode: undefined,
   isInputVisible: false,
-  aiQueryFetchId: -1,
+  aiQueryRequestId: null,
+  lastAIQueryRequestId: null,
 };
 
 export const enum AIQueryActionTypes {
@@ -48,24 +51,22 @@ export const enum AIQueryActionTypes {
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
-const AIQueryAbortControllerMap = new Map<number, AbortController>();
-
-let aiQueryFetchId = 0;
+const AIQueryAbortControllerMap = new Map<string, AbortController>();
 
 function getAbortSignal() {
-  const id = ++aiQueryFetchId;
+  const id = new UUID().toString();
   const controller = new AbortController();
   AIQueryAbortControllerMap.set(id, controller);
   return { id, signal: controller.signal };
 }
 
-function abort(id: number) {
+function abort(id: string) {
   const controller = AIQueryAbortControllerMap.get(id);
   controller?.abort();
   return AIQueryAbortControllerMap.delete(id);
 }
 
-function cleanupAbortSignal(id: number) {
+function cleanupAbortSignal(id: string) {
   return AIQueryAbortControllerMap.delete(id);
 }
 
@@ -89,7 +90,7 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
 
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
-  fetchId: number;
+  requestId: string;
 };
 
 type AIQueryFailedAction = {
@@ -102,6 +103,7 @@ type AIQueryFailedAction = {
 export type AIQuerySucceededAction = {
   type: AIQueryActionTypes.AIQuerySucceeded;
   fields: QueryFormFields;
+  requestId: string;
 };
 
 type FailedResponseTrackMessage = {
@@ -111,6 +113,7 @@ type FailedResponseTrackMessage = {
   errorMessage: string;
   log: LoggerAndTelemetry['log'];
   track: LoggerAndTelemetry['track'];
+  requestId: string;
 };
 
 function trackAndLogFailed({
@@ -120,18 +123,21 @@ function trackAndLogFailed({
   errorMessage,
   log,
   track,
+  requestId,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
     statusCode,
     errorMessage,
     errorName,
     errorCode,
+    requestId,
   });
   track('AI Response Failed', () => ({
     editor_view_type: 'find',
     error_name: errorName,
     status_code: statusCode,
     error_code: errorCode ?? '',
+    request_id: requestId,
   }));
 }
 
@@ -154,29 +160,29 @@ export const runAIQuery = (
   ) => {
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
+    const abortController = new AbortController();
+    const { id: requestId, signal } = getAbortSignal();
 
     track('AI Prompt Submitted', () => ({
       editor_view_type: 'find',
       user_input_length: userInput.length,
       has_sample_documents: provideSampleDocuments,
+      request_id: requestId,
     }));
 
     const {
-      aiQuery: { aiQueryFetchId: existingFetchId },
+      aiQuery: { aiQueryRequestId: existingRequestId },
       queryBar: { namespace },
     } = getState();
 
-    if (aiQueryFetchId !== -1) {
+    if (existingRequestId !== null) {
       // Cancel the active request as this one will override.
-      abort(existingFetchId);
+      abort(existingRequestId);
     }
-
-    const abortController = new AbortController();
-    const { id: fetchId, signal } = getAbortSignal();
 
     dispatch({
       type: AIQueryActionTypes.AIQueryStarted,
-      fetchId,
+      requestId,
     });
 
     let jsonResponse;
@@ -211,6 +217,7 @@ export const runAIQuery = (
               sampleDocuments,
             }
           : undefined),
+        requestId,
       });
     } catch (err: any) {
       if (signal.aborted) {
@@ -224,6 +231,7 @@ export const runAIQuery = (
         errorMessage: (err as AtlasServiceError).message,
         log,
         track,
+        requestId,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -245,14 +253,17 @@ export const runAIQuery = (
     } finally {
       // Remove the AbortController from the Map as we either finished
       // waiting for the fetch or cancelled at this point.
-      cleanupAbortSignal(fetchId);
+      cleanupAbortSignal(requestId);
     }
 
     if (signal.aborted) {
       log.info(
         mongoLogId(1_001_000_197),
         'AIQuery',
-        'Cancelled ai query request'
+        'Cancelled ai query request',
+        {
+          requestId,
+        }
       );
       return;
     }
@@ -272,6 +283,7 @@ export const runAIQuery = (
         errorMessage: err?.message,
         log,
         track,
+        requestId,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -290,6 +302,7 @@ export const runAIQuery = (
         localAppRegistry?.emit('generate-aggregation-from-query', {
           userInput,
           aggregation,
+          requestId,
         });
         const msg =
           'Query requires stages from aggregation framework therefore an aggregation was generated.';
@@ -298,6 +311,7 @@ export const runAIQuery = (
           errorMessage: msg,
           log,
           track,
+          requestId,
         });
         return;
       }
@@ -309,6 +323,7 @@ export const runAIQuery = (
         errorMessage: msg,
         log,
         track,
+        requestId,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -330,17 +345,20 @@ export const runAIQuery = (
       'AIQuery',
       'AI query request succeeded',
       {
+        requestId,
         shape: Object.keys(generatedFields),
       }
     );
     track('AI Response Generated', () => ({
       editor_view_type: 'find',
       query_shape: Object.keys(generatedFields),
+      request_id: requestId,
     }));
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
       fields: queryFields,
+      requestId,
     });
   };
 };
@@ -355,7 +373,10 @@ export const cancelAIQuery = (): QueryBarThunkAction<
 > => {
   return (dispatch, getState) => {
     // Abort any ongoing op.
-    abort(getState().aiQuery.aiQueryFetchId);
+    const existingRequestId = getState().aiQuery.aiQueryRequestId;
+    if (existingRequestId !== null) {
+      abort(existingRequestId);
+    }
 
     dispatch({
       type: AIQueryActionTypes.CancelAIQuery,
@@ -395,7 +416,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       ...state,
       status: 'fetching',
       errorMessage: undefined,
-      aiQueryFetchId: action.fetchId,
+      aiQueryRequestId: action.requestId,
     };
   }
 
@@ -410,7 +431,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       status: 'ready',
-      aiQueryFetchId: -1,
+      aiQueryRequestId: null,
       errorMessage: action.errorMessage,
       errorCode: action.errorCode,
     };
@@ -425,7 +446,8 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       status: 'success',
-      aiQueryFetchId: -1,
+      aiQueryRequestId: null,
+      lastAIQueryRequestId: action.requestId,
     };
   }
 
@@ -433,7 +455,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       status: 'ready',
-      aiQueryFetchId: -1,
+      aiQueryRequestId: null,
     };
   }
 

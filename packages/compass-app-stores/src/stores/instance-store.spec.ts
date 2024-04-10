@@ -9,7 +9,7 @@ import {
   ConnectionsManager,
   ConnectionsManagerEvents,
 } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type MongoDBInstancesManager } from '../instances-manager';
 
 class FakeDataService extends EventEmitter {
   instanceInfo: any;
@@ -51,8 +51,8 @@ describe('InstanceStore [Store]', function () {
   let dataService: any;
   let connectionsManager: ConnectionsManager;
   let store: ReturnType<typeof createInstancesStore>;
-  let instances: Record<ConnectionInfo['id'], MongoDBInstance>;
   let connectedInstance: MongoDBInstance;
+  let instancesManager: MongoDBInstancesManager;
 
   let initialInstanceRefreshedPromise: Promise<unknown>;
   let sandbox: sinon.SinonSandbox;
@@ -89,6 +89,7 @@ describe('InstanceStore [Store]', function () {
       },
       createActivateHelpers()
     );
+    instancesManager = store.getState().instancesManager;
   });
 
   afterEach(function () {
@@ -97,7 +98,7 @@ describe('InstanceStore [Store]', function () {
   });
 
   it('should not have any MongoDBInstance if no connection is established', function () {
-    expect(Object.keys(store.getState().instances)).to.be.of.length(0);
+    expect(instancesManager.listMongoDBInstances()).to.be.of.length(0);
   });
 
   it('should have a MongodbInstance for each of the connected connection', function () {
@@ -109,7 +110,12 @@ describe('InstanceStore [Store]', function () {
       );
     }
 
-    expect(store.getState().instances).to.have.keys(['1', '2', '3']);
+    expect(instancesManager.getMongoDBInstanceForConnection('1')).to.not.be
+      .undefined;
+    expect(instancesManager.getMongoDBInstanceForConnection('2')).to.not.be
+      .undefined;
+    expect(instancesManager.getMongoDBInstanceForConnection('3')).to.not.be
+      .undefined;
   });
 
   context('when connected', function () {
@@ -119,8 +125,11 @@ describe('InstanceStore [Store]', function () {
         connectedConnectionInfoId,
         dataService
       );
-      instances = store.state.instances;
-      connectedInstance = instances[connectedConnectionInfoId];
+      const instance = instancesManager.getMongoDBInstanceForConnection(
+        connectedConnectionInfoId
+      );
+      expect(instance).to.not.be.undefined;
+      connectedInstance = instance as MongoDBInstance;
       initialInstanceRefreshedPromise =
         waitForInstanceRefresh(connectedInstance);
     });
@@ -131,14 +140,16 @@ describe('InstanceStore [Store]', function () {
           .stub(dataService, 'instance')
           .returns({ build: { version: '3.2.1' } });
         await initialInstanceRefreshedPromise;
-        const instance = store.getState().instances[connectedConnectionInfoId];
+        const instance = instancesManager.getMongoDBInstanceForConnection(
+          connectedConnectionInfoId
+        );
         expect(instance).to.have.nested.property('build.version', '1.2.3');
         globalAppRegistry.emit('refresh-data');
-        await waitForInstanceRefresh(instance);
+        await waitForInstanceRefresh(instance as MongoDBInstance);
       });
 
       it('calls instance model fetch', function () {
-        const instance = store.getState().instances['1'];
+        const instance = instancesManager.getMongoDBInstanceForConnection('1');
         expect(instance).to.have.nested.property('build.version', '3.2.1');
       });
     });

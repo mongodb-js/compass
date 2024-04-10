@@ -83,8 +83,8 @@ describe('AIPipelineReducer', function () {
         expect(args).to.not.have.property('sampleDocuments');
 
         expect(
-          store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-        ).to.equal(-1);
+          store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+        ).to.equal(null);
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
@@ -106,8 +106,8 @@ describe('AIPipelineReducer', function () {
         ).to.equal(undefined);
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(
-          store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-        ).to.equal(-1);
+          store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+        ).to.equal(null);
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal('500 Internal Server Error');
@@ -129,7 +129,8 @@ describe('AIPipelineReducer', function () {
           errorMessage: undefined,
           errorCode: undefined,
           isInputVisible: false,
-          aiPipelineFetchId: -1,
+          aiPipelineRequestId: null,
+          lastAIPipelineRequestId: null,
           isAggregationGeneratedFromQuery: false,
         });
       });
@@ -206,26 +207,26 @@ describe('AIPipelineReducer', function () {
     it('should unset the fetching id and set the status on the store', function () {
       const store = configureStore();
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
 
       store.dispatch({
         type: AIPipelineActionTypes.AIPipelineStarted,
-        fetchId: 1,
+        requestId: 'pineapples',
       });
 
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'fetching'
       );
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal('pineapples');
 
       store.dispatch(cancelAIPipelineGeneration());
 
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'ready'
       );
@@ -255,12 +256,13 @@ describe('AIPipelineReducer', function () {
           aggregation: {
             pipeline: '[{ $group: { _id: "$price" } }]',
           },
+          requestId: 'abc',
         })
       );
 
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
       expect(store.getState().pipelineBuilder.aiPipeline.errorMessage).to.equal(
         undefined
       );
@@ -273,6 +275,9 @@ describe('AIPipelineReducer', function () {
       expect(
         store.getState().pipelineBuilder.aiPipeline.isInputVisible
       ).to.equal(true);
+      expect(
+        store.getState().pipelineBuilder.aiPipeline.lastAIPipelineRequestId
+      ).to.equal('abc');
       expect(
         store.getState().pipelineBuilder.aiPipeline
           .isAggregationGeneratedFromQuery

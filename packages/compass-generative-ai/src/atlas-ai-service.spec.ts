@@ -43,7 +43,10 @@ class MockAtlasAuthService extends AtlasAuthService {
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
-  privateAtlasEndpoint = (url: string) => [BASE_URL, url].join('/');
+  privateAtlasEndpoint = (url: string, requestId?: string) =>
+    `${[BASE_URL, url].join('/')}${
+      requestId ? `?request_id=${requestId}` : ''
+    }`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
@@ -145,13 +148,16 @@ describe('AtlasAiService', function () {
             databaseName: 'peanut',
             schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
             sampleDocuments: [{ _id: 1234 }],
+            requestId: 'abc',
           });
 
           expect(fetchStub).to.have.been.calledOnce;
 
           const { args } = fetchStub.firstCall;
 
-          expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
+          expect(args[0]).to.eq(
+            `http://example.com/ai/api/v1/${aiEndpoint}?request_id=abc`
+          );
           expect(args[1].body).to.eq(
             '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
           );
@@ -171,6 +177,8 @@ describe('AtlasAiService', function () {
                 userInput: 'test',
                 collectionName: 'test',
                 databaseName: 'peanut',
+                requestId: 'abc',
+                signal: new AbortController().signal,
               });
               expect.fail(`Expected ${functionName} to throw`);
             } catch (err) {
@@ -186,6 +194,8 @@ describe('AtlasAiService', function () {
               collectionName: 'test',
               databaseName: 'peanut',
               sampleDocuments: [{ test: '4'.repeat(600000) }],
+              requestId: 'abc',
+              signal: new AbortController().signal,
             });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
@@ -213,6 +223,8 @@ describe('AtlasAiService', function () {
               { a: '3' },
               { a: '4'.repeat(500000) },
             ],
+            requestId: 'abc',
+            signal: new AbortController().signal,
           });
 
           const { args } = fetchStub.firstCall;

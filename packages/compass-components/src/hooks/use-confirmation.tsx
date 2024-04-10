@@ -25,7 +25,7 @@ interface ConfirmationModalContextData {
 }
 
 type ShowConfirmationEventDetail = {
-  props: ConfirmationProperties;
+  props: ConfirmationProperties & { confirmationId: number };
   resolve: ConfirmationCallback;
   reject: (err?: any) => void;
 };
@@ -53,18 +53,25 @@ interface GlobalConfirmation extends EventTarget {
   ): void;
 }
 
+let confirmationId = 0;
+
 class GlobalConfirmation extends EventTarget {
   showConfirmation(props: ConfirmationProperties) {
     return new Promise<boolean>((resolve, reject) => {
       this.dispatchEvent(
-        new CustomEvent('show-confirmation', {
-          detail: { props, resolve, reject },
+        new CustomEvent<ShowConfirmationEventDetail>('show-confirmation', {
+          detail: {
+            props: { ...props, confirmationId: ++confirmationId },
+            resolve,
+            reject,
+          },
         })
       );
     });
   }
 }
 const globalConfirmation = new GlobalConfirmation();
+
 export const showConfirmation =
   globalConfirmation.showConfirmation.bind(globalConfirmation);
 
@@ -74,9 +81,9 @@ const ConfirmationModalContext =
     showConfirmation,
   });
 
-type ConfirmationModalAreaProps = Partial<ConfirmationProperties> & {
-  open: boolean;
-};
+type ConfirmationModalAreaProps = Partial<
+  ShowConfirmationEventDetail['props']
+> & { open: boolean };
 
 export const ConfirmationModalArea: React.FC = ({ children }) => {
   const hasParentContext = useContext(ConfirmationModalContext).isMounted;
@@ -84,6 +91,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
   const [confirmationProps, setConfirmationProps] =
     useState<ConfirmationModalAreaProps>({
       open: false,
+      confirmationId: -1,
     });
   const callbackRef = useRef<ConfirmationCallback>();
 
@@ -142,6 +150,11 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     <ConfirmationModalContext.Provider value={contextValue}>
       {children}
       <ConfirmationModal
+        // To make sure that confirmation modal internal state is reset for
+        // every confirmation request triggered with showConfirmation method we
+        // pass `confirmationId` as a component key to force React to remount it
+        // when request starts
+        key={confirmationId}
         data-testid={confirmationProps['data-testid'] ?? 'confirmation-modal'}
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
