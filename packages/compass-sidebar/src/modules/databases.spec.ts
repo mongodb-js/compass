@@ -9,10 +9,17 @@ import databasesReducer, {
 
 import { createInstance } from '../../test/helpers';
 
+const CONNECTION_ID = 'webscale';
+
 function createGetState(dbs: any[] = []) {
   return function () {
     return {
-      instance: createInstance(dbs).toJSON(),
+      instance: {
+        [CONNECTION_ID]: createInstance(dbs).toJSON(),
+      },
+      databases: {
+        [CONNECTION_ID]: {},
+      },
       appRegistry: { localAppRegistry: null, globalAppRegistry: null },
     };
   };
@@ -38,8 +45,6 @@ function createMockStoreSlice(initialState = {}, reducer = databasesReducer) {
     },
   } as any;
 }
-
-const CONNECTION_ID = 'webscale';
 
 describe.only('sidebar databases', function () {
   describe('#reducer', function () {
@@ -75,11 +80,16 @@ describe.only('sidebar databases', function () {
           ]);
 
           expect(
-            databasesReducer(initialState, changeDatabases(dbs))
+            databasesReducer(
+              { [CONNECTION_ID]: { ...initialState } },
+              changeDatabases(CONNECTION_ID, dbs)
+            )
           ).to.deep.equal({
-            ...initialState,
-            filteredDatabases: dbs.filter((db) => db._id === 'foo'),
-            databases: dbs,
+            [CONNECTION_ID]: {
+              ...initialState,
+              filteredDatabases: dbs.filter((db) => db._id === 'foo'),
+              databases: dbs,
+            },
           });
         });
       }
@@ -96,7 +106,9 @@ describe.only('sidebar databases', function () {
         ]);
 
         const slice = createMockStoreSlice({
-          databases: dbs,
+          [CONNECTION_ID]: {
+            databases: dbs,
+          },
         });
 
         changeFilterRegex(/^foo$/)(slice.dispatch, getState as any, {
@@ -108,14 +120,17 @@ describe.only('sidebar databases', function () {
         });
 
         expect(slice.state).to.deep.eq({
-          ...INITIAL_STATE,
-          filterRegex: /^foo$/,
-          databases: dbs,
-          filteredDatabases: dbs.filter(
-            (db) =>
-              db._id === 'foo' ||
-              db.collections.find((coll) => coll._id === 'bar.foo')
-          ),
+          [CONNECTION_ID]: {
+            ...INITIAL_STATE,
+            filterRegex: /^foo$/,
+            databases: dbs,
+            expandedDbList: {},
+            filteredDatabases: dbs.filter(
+              (db) =>
+                db._id === 'foo' ||
+                db.collections.find((coll) => coll._id === 'bar.foo')
+            ),
+          },
         });
       });
     });

@@ -230,7 +230,6 @@ const mapStateToProps = (
     initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
   }
 ) => {
-  console.log(initialConnectionInfo);
   return {
     isGenuineMongoDBVisible:
       state.isGenuineMongoDBVisible[initialConnectionInfo.id],

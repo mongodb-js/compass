@@ -172,7 +172,6 @@ export const setupInstance =
     }
 
     const connectionOptions = dataService.getConnectionOptions();
-
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status
 
     instance.on('change:status', onInstanceChange);
