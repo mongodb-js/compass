@@ -10,8 +10,8 @@ import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
-import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 // Wait until a component is present that is rendered in a limited number
@@ -64,7 +64,7 @@ describe('CompassShellPlugin', function () {
         <AppRegistryProvider>
           {/* local */}
           <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider value={dummyConnectionInfo}>
+            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
               <CompassShellPlugin />
             </ConnectionInfoProvider>
           </ConnectionsManagerProvider>
@@ -89,7 +89,7 @@ describe('CompassShellPlugin', function () {
         <AppRegistryProvider>
           {/* local */}
           <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider value={dummyConnectionInfo}>
+            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
               <CompassShellPlugin />
             </ConnectionInfoProvider>
           </ConnectionsManagerProvider>

@@ -43,6 +43,9 @@ export type ConnectionRepository = {
   nonFavoriteConnections: ConnectionInfo[];
   saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
   deleteConnection: (info: ConnectionInfo) => Promise<void>;
+  getConnectionInfoById: (
+    id: ConnectionInfo['id']
+  ) => ConnectionInfo | undefined;
 };
 
 export function useConnectionRepository(): ConnectionRepository {
@@ -135,7 +138,19 @@ export function useConnectionRepository(): ConnectionRepository {
     [storage]
   );
 
+  const getConnectionInfoById = useCallback(
+    (connectionInfoId: ConnectionInfo['id']) => {
+      const allConnections = [
+        ...favoriteConnections,
+        ...nonFavoriteConnections,
+      ];
+      return allConnections.find(({ id }) => id === connectionInfoId);
+    },
+    [favoriteConnections, nonFavoriteConnections]
+  );
+
   return {
+    getConnectionInfoById,
     favoriteConnections,
     nonFavoriteConnections,
     saveConnection,

@@ -1,4 +1,4 @@
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { createContext, useContext } from 'react';

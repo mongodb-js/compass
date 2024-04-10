@@ -25,6 +25,7 @@ import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
+  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
@@ -50,7 +51,6 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
 
 resetGlobalCSS();
 
@@ -286,18 +286,20 @@ function Home({
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
-              <ConnectionInfoProvider value={connectionInfo}>
-                {isConnected && connectionInfo && (
-                  <AppRegistryProvider
-                    key={connectionInfo.id}
-                    scopeName="Connected Application"
-                  >
-                    <Workspace
-                      connectionInfo={connectionInfo}
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </AppRegistryProvider>
-                )}
+              <ConnectionInfoProvider connectionInfoId={connectionInfo?.id}>
+                {(connectionInfo) => {
+                  return (
+                    <AppRegistryProvider
+                      key={connectionInfo.id}
+                      scopeName="Connected Application"
+                    >
+                      <Workspace
+                        connectionInfo={connectionInfo}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </AppRegistryProvider>
+                  );
+                }}
               </ConnectionInfoProvider>
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
