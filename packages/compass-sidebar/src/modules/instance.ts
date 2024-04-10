@@ -3,7 +3,6 @@ import type { RootAction, SidebarThunkAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import throttle from 'lodash/throttle';
 import { type Database, changeDatabases } from './databases';
-import { setDataService } from './data-service';
 import { changeConnectionOptions } from './connection-options';
 import { toggleIsGenuineMongoDBVisible } from './is-genuine-mongodb-visible';
 import { setIsPerformanceTabSupported } from './is-performance-tab-supported';
@@ -172,8 +171,6 @@ export const setupInstance =
       return;
     }
 
-    dispatch(setDataService(connectionId, dataService));
-    // if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
     const connectionOptions = dataService.getConnectionOptions();
 
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status

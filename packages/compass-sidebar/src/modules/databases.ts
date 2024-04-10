@@ -1,13 +1,14 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { RootAction, SidebarThunkAction } from '.';
 import toNS from 'mongodb-ns';
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 /**
  * Databases actions.
  */
 export const CHANGE_FILTER_REGEX =
   'sidebar/databases/CHANGE_FILTER_REGEX' as const;
+
 interface ChangeFilterRegexAction {
   type: typeof CHANGE_FILTER_REGEX;
   connectionId: ConnectionInfo['id'];
@@ -33,10 +34,6 @@ export type DatabasesAction =
   | ChangeFilterRegexAction
   | ChangeDatabasesAction
   | ToggleDatabaseAction;
-
-const NO_REGEX = null;
-
-export const NO_ACTIVE_NAMESPACE = '';
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
 

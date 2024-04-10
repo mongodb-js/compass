@@ -39,19 +39,23 @@ function createMockStoreSlice(initialState = {}, reducer = databasesReducer) {
   } as any;
 }
 
-describe('sidebar databases', function () {
+const CONNECTION_ID = 'webscale';
+
+describe.only('sidebar databases', function () {
   describe('#reducer', function () {
     context('when changing databases and no filter is set', function () {
       it('sets databases as-is', function () {
         const dbs = createDatabases([{ _id: 'foo' }, { _id: 'bar' }]);
 
-        expect(databasesReducer(undefined, changeDatabases(dbs))).to.deep.equal(
-          {
+        expect(
+          databasesReducer(undefined, changeDatabases(CONNECTION_ID, dbs))
+        ).to.deep.equal({
+          [CONNECTION_ID]: {
             ...INITIAL_STATE,
             databases: dbs,
             filteredDatabases: dbs,
-          }
-        );
+          },
+        });
       });
     });
 

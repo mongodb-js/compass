@@ -79,3 +79,7 @@ export {
   type CanNotOpenConnectionReason,
   useCanOpenNewConnections,
 } from './hooks/use-can-open-new-connections';
+export {
+  type ConnectionRepository,
+  useConnectionRepository,
+} from './hooks/use-connection-repository';

@@ -10,6 +10,7 @@ import {
   useToast,
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 
 import SidebarTitle from './sidebar-title';
 import NavigationItems from './navigation-items';
@@ -20,7 +21,6 @@ import CSFLEMarker from './csfle-marker';
 import NonGenuineMarker from './non-genuine-marker';
 
 import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
-import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { RootState, SidebarThunkAction } from '../modules';
@@ -62,7 +62,6 @@ export function Sidebar({
   showConnectionInfo = true,
   activeWorkspace,
   initialConnectionInfo,
-  updateAndSaveConnectionInfo,
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
   setConnectionIsCSFLEEnabled,
@@ -73,7 +72,6 @@ export function Sidebar({
   showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
   initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
-  updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
   setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
@@ -81,6 +79,7 @@ export function Sidebar({
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   onSidebarAction(action: string, ...rest: any[]): void;
 }) {
+  const { saveConnection } = useConnectionRepository();
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
@@ -89,16 +88,12 @@ export function Sidebar({
     (newFavoriteInfo) => {
       setIsFavoriteModalVisible(false);
 
-      return updateAndSaveConnectionInfo({
+      return saveConnection({
         ...cloneDeep(initialConnectionInfo),
         favorite: newFavoriteInfo,
       });
     },
-    [
-      initialConnectionInfo,
-      updateAndSaveConnectionInfo,
-      setIsFavoriteModalVisible,
-    ]
+    [initialConnectionInfo, saveConnection, setIsFavoriteModalVisible]
   );
 
   const { openToast } = useToast('compass-connections');
@@ -255,7 +250,6 @@ const onSidebarAction = (
 };
 
 const MappedSidebar = connect(mapStateToProps, {
-  updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
   setConnectionIsCSFLEEnabled,
   onSidebarAction,
