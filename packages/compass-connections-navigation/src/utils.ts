@@ -10,25 +10,34 @@ export const getItemPaddingStyles = ({
   isSingleConnection?: boolean;
 }) => {
   let paddingLeft = 0;
-  switch (level) {
-    case 1:
-      if (isSingleConnection) {
+  if (isSingleConnection) {
+    /** SC version */
+    switch (level) {
+      case 1:
         paddingLeft = spacing[2];
-      }
-      break;
-    case 2:
-      paddingLeft = spacing[3];
-      if (isSingleConnection) {
+        break;
+      case 2:
         paddingLeft = spacing[6];
-      }
-      break;
-    case 3:
-      paddingLeft = spacing[3] + spacing[5];
-      break;
-  }
+        break;
+    }
 
-  if (isPlaceholder && (level === 1 || (!isSingleConnection && level === 2))) {
-    paddingLeft += spacing[2];
+    if (isPlaceholder && level === 1) {
+      paddingLeft += spacing[2];
+    }
+  } else {
+    /** MC version */
+    switch (level) {
+      case 2:
+        paddingLeft = spacing[3];
+        break;
+      case 3:
+        paddingLeft = spacing[3] + spacing[5];
+        break;
+    }
+
+    if (isPlaceholder && (level === 1 || level === 2)) {
+      paddingLeft += spacing[2];
+    }
   }
 
   return { paddingLeft };
