@@ -217,7 +217,7 @@ export class ConnectionsManager extends EventEmitter {
       // is done.
       if (isAtlasStreamsInstance(adjustedConnectionInfoForConnection)) {
         throw new Error(
-          'Atlas Streams are not yet supported on MongoDB Compass. To work with your Streams instance, connect with mongosh or MongoDB for VS Code.'
+          'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
         );
       }
 
@@ -372,7 +372,7 @@ function isAtlasStreamsInstance(
     return mongodbBuildInfo.isAtlasStream(
       adjustedConnectionInfoForConnection.connectionOptions.connectionString
     );
-  } catch (e) {
+  } catch {
     // This catch-all is not ideal, but it safe-guards regular connections
     // instead of making assumptions on the fact that the implementation
     // of `mongodbBuildInfo.isAtlasStream` would never throw.

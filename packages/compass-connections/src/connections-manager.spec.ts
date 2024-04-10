@@ -314,7 +314,7 @@ describe('ConnectionsManager', function () {
         .catch((error) => error);
 
       expect(maybeError.message).to.equal(
-        'Atlas Streams are not yet supported on MongoDB Compass. To work with your Streams instance, connect with mongosh or MongoDB for VS Code.'
+        'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
       );
     });
   });
