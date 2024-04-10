@@ -12,6 +12,7 @@ import type {
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { cloneDeep, merge } from 'lodash';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
+import mongodbBuildInfo from 'mongodb-build-info';
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -212,6 +213,14 @@ export class ConnectionsManager extends EventEmitter {
 
       this.connectionAttempts.set(connectionId, connectionAttempt);
 
+      // Temporarily disable Atlas Streams connections until https://jira.mongodb.org/browse/STREAMS-862
+      // is done.
+      if (isAtlasStreamsInstance(adjustedConnectionInfoForConnection)) {
+        throw new Error(
+          'Atlas Streams are not yet supported on MongoDB Compass. To work with your Streams instance, connect with mongosh or MongoDB for VS Code.'
+        );
+      }
+
       const dataService = await connectionAttempt.connect(
         adjustedConnectionInfoForConnection.connectionOptions
       );
@@ -353,5 +362,20 @@ export class ConnectionsManager extends EventEmitter {
     }
     this.connectionStatuses.set(connectionInfoId, nextStatus);
     this.emit(connectionEvent, ...connectionEventParams);
+  }
+}
+
+function isAtlasStreamsInstance(
+  adjustedConnectionInfoForConnection: ConnectionInfo
+) {
+  try {
+    return mongodbBuildInfo.isAtlasStream(
+      adjustedConnectionInfoForConnection.connectionOptions.connectionString
+    );
+  } catch (e) {
+    // This catch-all is not ideal, but it safe-guards regular connections
+    // instead of making assumptions on the fact that the implementation
+    // of `mongodbBuildInfo.isAtlasStream` would never throw.
+    return false;
   }
 }
