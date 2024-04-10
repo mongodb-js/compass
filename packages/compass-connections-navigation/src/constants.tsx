@@ -9,6 +9,12 @@ export const ROW_HEIGHT = spacing[5];
 
 export type Actions =
   | 'connection-options'
+  | 'connection-performance-metrics'
+  | 'connection-info'
+  | 'connection-copy-connection-string'
+  | 'connection-favorite'
+  | 'connection-unfavorite'
+  | 'connection-disconnect'
   | 'select-connection'
   | 'select-database'
   | 'drop-database'
