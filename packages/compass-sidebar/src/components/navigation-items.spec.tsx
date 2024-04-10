@@ -9,6 +9,8 @@ import reducer from '../modules';
 import { NavigationItems } from './navigation-items';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
+const CONNECTION_ID = 'webscale';
+
 function renderNavigationItems(
   props?: Partial<React.ComponentProps<typeof NavigationItems>>
 ) {
@@ -23,6 +25,7 @@ function renderNavigationItems(
       >
         <NavigationItems
           isReady
+          connectionId={CONNECTION_ID}
           onAction={() => {
             /* noop */
           }}

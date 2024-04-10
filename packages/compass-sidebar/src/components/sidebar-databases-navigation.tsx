@@ -7,6 +7,7 @@ import { Database, toggleDatabaseExpanded } from '../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -96,7 +97,7 @@ function mapStateToProps(
     filterRegex,
     filteredDatabases,
     expandedDbList: initialExpandedDbList,
-  } = state.databases[connectionId];
+  } = state.databases[connectionId] || {};
 
   const status = instance?.databasesStatus;
   const isReady =
@@ -105,7 +106,7 @@ function mapStateToProps(
 
   const expandedDbList = initialExpandedDbList ?? {};
   const expanded = Object.fromEntries(
-    (filteredDatabases as any[]).map(({ name }) => [
+    ((filteredDatabases as any[]) || []).map(({ name }) => [
       name,
       expandedDbList[name] ?? defaultExpanded,
     ])

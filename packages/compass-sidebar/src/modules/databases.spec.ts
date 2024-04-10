@@ -46,7 +46,7 @@ function createMockStoreSlice(initialState = {}, reducer = databasesReducer) {
   } as any;
 }
 
-describe.only('sidebar databases', function () {
+describe('sidebar databases', function () {
   describe('#reducer', function () {
     context('when changing databases and no filter is set', function () {
       it('sets databases as-is', function () {
