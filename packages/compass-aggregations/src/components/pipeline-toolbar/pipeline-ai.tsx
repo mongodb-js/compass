@@ -14,7 +14,7 @@ import {
 import type { RootState } from '../../modules';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
-const useOnSubmitFeedback = () => {
+const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLoggerAndTelemetry('AI-PIPELINE-UI');
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
@@ -25,12 +25,14 @@ const useOnSubmitFeedback = () => {
         'AI pipeline feedback',
         {
           feedback,
+          requestId: lastAIPipelineRequestId,
           text,
         }
       );
 
       track('PipelineAI Feedback', () => ({
         feedback,
+        request_id: lastAIPipelineRequestId,
         text,
       }));
 
@@ -40,7 +42,7 @@ const useOnSubmitFeedback = () => {
         timeout: 10_000,
       });
     },
-    [logger]
+    [logger, lastAIPipelineRequestId]
   );
 };
 
@@ -56,6 +58,7 @@ type PipelineAIProps = {
   errorCode?: string;
   onCancelRequest(): void;
   isAggregationGeneratedFromQuery: boolean;
+  lastAIPipelineRequestId: string | null;
   onResetIsAggregationGeneratedFromQuery(): void;
 };
 
@@ -71,6 +74,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   errorMessage,
   errorCode,
   isAggregationGeneratedFromQuery,
+  lastAIPipelineRequestId,
   onResetIsAggregationGeneratedFromQuery,
 }) => {
   // Don't show the feedback options if telemetry is disabled.
@@ -84,7 +88,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onResetIsAggregationGeneratedFromQueryRef.current();
     };
   }, []);
-  const onSubmitFeedback = useOnSubmitFeedback();
+  const onSubmitFeedback = useOnSubmitFeedback(lastAIPipelineRequestId);
 
   return (
     <GenerativeAIInput
@@ -114,6 +118,8 @@ const ConnectedPipelineAI = connect(
       isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
       isAggregationGeneratedFromQuery:
         state.pipelineBuilder.aiPipeline.isAggregationGeneratedFromQuery,
+      lastAIPipelineRequestId:
+        state.pipelineBuilder.aiPipeline.lastAIPipelineRequestId,
       aiPromptText: state.pipelineBuilder.aiPipeline.aiPromptText,
       isFetching: state.pipelineBuilder.aiPipeline.status === 'fetching',
       didSucceed: state.pipelineBuilder.aiPipeline.status === 'success',

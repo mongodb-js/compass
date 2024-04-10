@@ -53,15 +53,18 @@ export function createInstancesStore(
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const instancesManager = new MongoDBInstancesManager();
-  connectionsManager.on(
+  on(
+    connectionsManager,
     ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connectionInfoId) {
+    function (connectionInfoId: string) {
       instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
     }
   );
-  connectionsManager.on(
+
+  on(
+    connectionsManager,
     ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    (connectionInfoId: string, dataService: DataService) => {
+    function (connectionInfoId: string, dataService: DataService) {
       async function refreshInstance(
         refreshOptions: Omit<
           Parameters<MongoDBInstance['refresh']>[0],

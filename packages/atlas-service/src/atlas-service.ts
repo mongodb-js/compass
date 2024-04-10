@@ -26,8 +26,10 @@ export class AtlasService {
   privateUnAuthEndpoint(path: string): string {
     return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
   }
-  privateAtlasEndpoint(path: string): string {
-    return `${this.config.atlasApiBaseUrl}/${path}`;
+  privateAtlasEndpoint(path: string, requestId?: string): string {
+    return `${this.config.atlasApiBaseUrl}/${path}${
+      requestId ? `?request_id=${requestId}` : ''
+    }`;
   }
   async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
