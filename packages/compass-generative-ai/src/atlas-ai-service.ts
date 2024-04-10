@@ -16,7 +16,8 @@ type GenerativeAiInput = {
   databaseName: string;
   schema?: SimplifiedSchema;
   sampleDocuments?: Document[];
-  signal?: AbortSignal;
+  signal: AbortSignal;
+  requestId: string;
 };
 
 const AI_MAX_REQUEST_SIZE = 10000;
@@ -134,7 +135,7 @@ export class AtlasAiService {
   ): Promise<T> => {
     await this.initPromise;
     await this.throwIfAINotEnabled();
-    const { signal, ...rest } = input;
+    const { signal, requestId, ...rest } = input;
     let msgBody = JSON.stringify(rest);
     if (msgBody.length > AI_MAX_REQUEST_SIZE) {
       // When the message body is over the max size, we try
@@ -158,7 +159,7 @@ export class AtlasAiService {
       }
     }
 
-    const url = this.atlasService.privateAtlasEndpoint(uri);
+    const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
     const res = await this.atlasService.authenticatedFetch(url, {
       signal,
       method: 'POST',

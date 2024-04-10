@@ -81,7 +81,7 @@ describe('aiQueryReducer', function () {
           mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.not.have.nested.property('args[0].sampleDocuments');
 
-        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+        expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         expect(store.getState().aiQuery.status).to.equal('success');
       });
@@ -108,7 +108,7 @@ describe('aiQueryReducer', function () {
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
-        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+        expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
         expect(store.getState().aiQuery.errorMessage).to.equal(
           '500 Internal Server Error'
         );
@@ -139,28 +139,29 @@ describe('aiQueryReducer', function () {
           errorMessage: undefined,
           errorCode: undefined,
           isInputVisible: false,
-          aiQueryFetchId: -1,
+          aiQueryRequestId: null,
+          lastAIQueryRequestId: null,
         });
       });
     });
   });
 
   describe('cancelAIQuery', function () {
-    it('should unset the fetching id and set the status on the store', function () {
+    it('should unset the request id and set the status on the store', function () {
       const store = createStore({}, {} as any);
-      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+      expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
 
       store.dispatch({
         type: AIQueryActionTypes.AIQueryStarted,
-        fetchId: 1,
+        requestId: 'pineapples',
       });
 
       expect(store.getState().aiQuery.status).to.equal('fetching');
-      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(1);
+      expect(store.getState().aiQuery.aiQueryRequestId).to.equal('pineapples');
 
       store.dispatch(cancelAIQuery());
 
-      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+      expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
       expect(store.getState().aiQuery.status).to.equal('ready');
     });
   });
