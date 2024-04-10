@@ -11,3 +11,4 @@ export {
   isCompassConnectionStorage,
 } from './connection-storage';
 export * from './compass-renderer-connection-storage';
+export * from './compass-web-connection-storage';

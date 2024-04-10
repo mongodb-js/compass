@@ -53,10 +53,10 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { NoopConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
+import { CompassWebConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -247,7 +247,8 @@ const CompassWeb = ({
   );
 
   const connectionStorage =
-    __TEST_CONNECTION_STORAGE ?? new NoopConnectionStorage();
+    __TEST_CONNECTION_STORAGE ??
+    new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current);
 
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({

@@ -28,7 +28,6 @@ import type {
   CompassConnectionStorage,
   CompassConnectionStorageIPCInterface,
   ConnectionStorage,
-  ConnectionStorageEventListeners,
 } from './connection-storage';
 
 const { log, mongoLogId, track } =

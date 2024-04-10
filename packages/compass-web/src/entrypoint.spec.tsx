@@ -3,13 +3,10 @@ import { screen, render, cleanup, waitFor } from '@testing-library/react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
 import { CompassWeb } from './entrypoint';
-import Sinon, { stub } from 'sinon';
+import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
-import {
-  NoopConnectionStorage,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-storage/renderer';
+import { CompassWebConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -66,19 +63,18 @@ describe('CompassWeb', function () {
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
   ) {
-    const connectionInfo: ConnectionInfo = {
-      id: 'foo',
-      connectionOptions: {
-        connectionString: 'mongodb://localhost:27017',
-      },
+    const getAutoConnectInfo = () => {
+      return Promise.resolve({
+        id: 'foo',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      });
     };
-    const storage = stub(new NoopConnectionStorage());
-    storage.loadAll.resolves([connectionInfo]);
+    const storage = new CompassWebConnectionStorage(getAutoConnectInfo);
     return render(
       <CompassWeb
-        onAutoconnectInfoRequest={() => {
-          return Promise.resolve(connectionInfo);
-        }}
+        onAutoconnectInfoRequest={getAutoConnectInfo}
         onActiveWorkspaceTabChange={() => {}}
         renderConnecting={(connectionInfo) => {
           const [host] = new ConnectionString(
