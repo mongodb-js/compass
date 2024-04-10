@@ -1,12 +1,12 @@
 import {
   cleanup,
-  fireEvent,
   render,
   screen,
   waitFor,
   waitForElementToBeRemoved,
   within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import React from 'react';
 
@@ -46,7 +46,7 @@ describe('use-confirmation', function () {
         </ConfirmationModalArea>
       );
 
-      fireEvent.click(screen.getByText('Open Modal'));
+      userEvent.click(screen.getByText('Open Modal'));
       modal = screen.getByTestId('confirmation-modal');
       expect(modal).to.exist;
     });
@@ -61,14 +61,14 @@ describe('use-confirmation', function () {
     });
 
     it('handles cancel action', async function () {
-      fireEvent.click(within(modal).getByText('Cancel'));
+      userEvent.click(within(modal).getByText('Cancel'));
       await waitForElementToBeRemoved(() =>
         screen.getByTestId('confirmation-modal')
       );
     });
 
     it('handles confirm action', async function () {
-      fireEvent.click(within(modal).getByText('Yes'));
+      userEvent.click(within(modal).getByText('Yes'));
       await waitForElementToBeRemoved(() =>
         screen.getByTestId('confirmation-modal')
       );
@@ -104,15 +104,49 @@ describe('use-confirmation', function () {
     });
 
     it('handles cancel action', async function () {
-      fireEvent.click(within(modal).getByText('Cancel'));
+      userEvent.click(within(modal).getByText('Cancel'));
       const confirmed = await response;
       expect(confirmed).to.be.false;
     });
 
     it('handles confirm action', async function () {
-      fireEvent.click(within(modal).getByText('Yes'));
+      userEvent.click(within(modal).getByText('Yes'));
       const confirmed = await response;
       expect(confirmed).to.be.true;
     });
   });
+
+  context(
+    'when asking for confirmation multiple times with the same required input',
+    function () {
+      it('should always require to enter a confirmation input before confirming', async function () {
+        render(<ConfirmationModalArea></ConfirmationModalArea>);
+
+        // Run the confirmation flow with the same required input multiple times
+        // to make sure that buttons are initially disabled
+        for (let i = 0; i < 3; i++) {
+          const response = showConfirmation({
+            requiredInputText: 'Yes',
+          });
+
+          expect(
+            screen.getByRole('button', { name: 'Confirm' })
+          ).to.have.attribute('aria-disabled', 'true');
+
+          userEvent.type(
+            screen.getByRole('textbox', { name: /Type "Yes"/ }),
+            'Yes'
+          );
+
+          expect(
+            screen.getByRole('button', { name: 'Confirm' })
+          ).to.have.attribute('aria-disabled', 'false');
+
+          userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+          expect(await response).to.eq(true);
+        }
+      });
+    }
+  );
 });
