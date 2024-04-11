@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
-import SidebarTitle from '../sidebar-title';
+import SidebarTitle from './sidebar-title';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from '../connection-info-modal';
 import NonGenuineWarningModal from '../non-genuine-warning-modal';
