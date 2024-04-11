@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import toNS from 'mongodb-ns';
-import { Database, toggleDatabaseExpanded } from '../modules/databases';
+import { type Database, toggleDatabaseExpanded } from '../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);

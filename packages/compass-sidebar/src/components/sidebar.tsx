@@ -71,10 +71,13 @@ export function Sidebar({
 }: {
   showConnectionInfo?: boolean;
   activeWorkspace: { type: string; namespace?: string } | null;
-  initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
+  initialConnectionInfo: ConnectionInfo;
   isGenuineMongoDBVisible: boolean;
-  toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
-  setConnectionIsCSFLEEnabled: (enabled: boolean) => void;
+  toggleIsGenuineMongoDBVisible: (
+    connectionId: string,
+    isVisible: boolean
+  ) => void;
+  setConnectionIsCSFLEEnabled: (connectionId: string, enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   onSidebarAction(action: string, ...rest: any[]): void;
@@ -91,7 +94,7 @@ export function Sidebar({
       return saveConnection({
         ...cloneDeep(initialConnectionInfo),
         favorite: newFavoriteInfo,
-      });
+      }) as Promise<any> as Promise<void>;
     },
     [initialConnectionInfo, saveConnection, setIsFavoriteModalVisible]
   );
@@ -124,7 +127,7 @@ export function Sidebar({
       if (action === 'copy-connection-string') {
         void copyConnectionString(
           maybeProtectConnectionString(
-            initialConnectionInfo.connectionOptions.connectionString
+            initialConnectionInfo?.connectionOptions?.connectionString ?? ''
           )
         );
         return;
@@ -151,7 +154,7 @@ export function Sidebar({
   );
 
   const showNonGenuineModal = useCallback(() => {
-    toggleIsGenuineMongoDBVisible(true);
+    toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, true);
   }, [toggleIsGenuineMongoDBVisible]);
 
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
@@ -204,16 +207,20 @@ export function Sidebar({
         />
         <NonGenuineWarningModal
           isVisible={isGenuineMongoDBVisible}
-          toggleIsVisible={toggleIsGenuineMongoDBVisible}
+          toggleIsVisible={(visible) =>
+            toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, visible)
+          }
         />
         <CSFLEConnectionModal
           open={isCSFLEModalVisible}
           setOpen={(open: boolean) => setIsCSFLEModalVisible(open)}
           csfleMode={csfleMode}
-          setConnectionIsCSFLEEnabled={setConnectionIsCSFLEEnabled}
+          setConnectionIsCSFLEEnabled={(enabled) =>
+            setConnectionIsCSFLEEnabled(initialConnectionInfo.id, enabled)
+          }
         />
         <ConnectionInfoModal
-          initialConnectionInfo={initialConnectionInfo}
+          initialConnectionInfo={initialConnectionInfo as any}
           isVisible={isConnectionInfoModalVisible}
           close={() => setIsConnectionInfoModalVisible(false)}
         />

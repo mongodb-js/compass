@@ -5,6 +5,8 @@ import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
+import type { SingleConnectionOptionsState } from '../modules/connection-options';
+import type { SingleInstanceState } from '../modules/instance';
 
 type ConnectionInfo = {
   term: string;
@@ -42,7 +44,6 @@ function Info({
 }
 
 export function ConnectionInfoModal({
-  initialConnectionInfo,
   isVisible,
   close,
   infos,
@@ -96,7 +97,9 @@ function getVersionDistro({
   return isEnterprise ? 'Enterprise' : 'Community';
 }
 
-type InfoParameters = Pick<RootState, 'instance' | 'connectionOptions'> & {
+type InfoParameters = {
+  instance: SingleInstanceState;
+  connectionOptions: SingleConnectionOptionsState;
   databases: Database[];
   connectionInfo: Partial<ConnectionStorageConnectionInfo>;
 };

@@ -31,7 +31,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 

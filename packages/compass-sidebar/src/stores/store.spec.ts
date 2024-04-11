@@ -1,34 +1,32 @@
-import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
 import { stub, type SinonStub, spy, type SinonSpy } from 'sinon';
 import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
-import type { Database } from '../modules/databases';
-import type { MongoDBInstance } from 'mongodb-instance-model';
-import { DataService } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 
 const CONNECTION_ID = 'webscale';
 
 describe('SidebarStore [Store]', function () {
   const instance = createInstance();
   const globalAppRegistry = {};
+  let instanceOnSpy: SinonSpy;
 
-  let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
   let listMongoDBInstancesStub: SinonStub;
 
   beforeEach(function () {
-    instance.on = spy();
+    instanceOnSpy = spy();
+    instance.on = instanceOnSpy;
 
     listMongoDBInstancesStub = stub().returns(
       new Map([[CONNECTION_ID, instance]])
     );
 
-    ({ store, deactivate } = createSidebarStore(
+    ({ deactivate } = createSidebarStore(
       {
         globalAppRegistry,
         connectionsManager: {
-          getDataServiceForConnection(id: string) {
+          getDataServiceForConnection() {
             return {
               getConnectionOptions() {
                 return {};
@@ -75,7 +73,7 @@ describe('SidebarStore [Store]', function () {
     'change:genuineMongoDB.isGenuine',
   ]) {
     it(`subscribes to an existing instance event ${event}`, function () {
-      expect(instance.on).to.have.been.calledWith(event);
+      expect(instanceOnSpy).to.have.been.calledWith(event);
     });
   }
 });

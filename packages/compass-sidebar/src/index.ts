@@ -4,7 +4,7 @@ import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {
-  MongoDBInstancesManager,
+  type MongoDBInstancesManager,
   mongoDBInstancesManagerLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import {
@@ -14,7 +14,7 @@ import {
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionInfoAccessLocator } from '@mongodb-js/connection-storage/provider';
-import { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
 
 export const CompassSidebarPlugin = registerHadronPlugin<
   SidebarPluginProps,

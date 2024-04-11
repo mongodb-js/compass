@@ -1,4 +1,4 @@
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
 
 const SET_IS_PERFORMANCE_TAB_SUPPORTED =

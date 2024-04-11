@@ -81,7 +81,7 @@ describe('sidebar databases', function () {
 
           expect(
             databasesReducer(
-              { [CONNECTION_ID]: { ...initialState } },
+              { [CONNECTION_ID]: { ...initialState } as any },
               changeDatabases(CONNECTION_ID, dbs)
             )
           ).to.deep.equal({
@@ -111,13 +111,17 @@ describe('sidebar databases', function () {
           },
         });
 
-        changeFilterRegex(/^foo$/)(slice.dispatch, getState as any, {
-          globalAppRegistry: {
-            emit() {
-              // noop
+        changeFilterRegex(/^foo$/)(
+          slice.dispatch,
+          getState as any,
+          {
+            globalAppRegistry: {
+              emit() {
+                // noop
+              },
             },
-          } as any,
-        });
+          } as any
+        );
 
         expect(slice.state).to.deep.eq({
           [CONNECTION_ID]: {

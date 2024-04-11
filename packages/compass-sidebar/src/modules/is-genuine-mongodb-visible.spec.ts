@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 
 import reducer, {
-  INITIAL_STATE,
   toggleIsGenuineMongoDBVisible,
   TOGGLE_IS_GENUINE_MONGODB_VISIBLE,
 } from './is-genuine-mongodb-visible';

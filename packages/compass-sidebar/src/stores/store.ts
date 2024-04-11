@@ -5,14 +5,14 @@ import { setupInstance } from '../modules/instance';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 
 export function createSidebarStore(
   {
     globalAppRegistry,
     connectionsManager,
     instancesManager,
-    logger: { log, mongoLogId },
+    logger,
   }: {
     globalAppRegistry: AppRegistry;
     connectionsManager: ConnectionsManager;
@@ -28,7 +28,7 @@ export function createSidebarStore(
         globalAppRegistry,
         connectionsManager,
         instancesManager,
-        logger: { log, mongoLogId },
+        logger,
       })
     )
   );

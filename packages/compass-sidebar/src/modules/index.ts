@@ -15,16 +15,15 @@ import type {
 } from './connection-options';
 import connectionOptions from './connection-options';
 import type { AppRegistry } from 'hadron-app-registry';
-import type { DataServiceAction, DataServiceState } from './data-service';
 import type {
   IsPerformanceTabSupportedState,
   SetIsPerformanceTabSupportedAction,
 } from './is-performance-tab-supported';
 import isPerformanceTabSupported from './is-performance-tab-supported';
 import type { ThunkAction } from 'redux-thunk';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
-import { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
-import { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;
@@ -39,7 +38,6 @@ export type RootAction =
   | DatabasesAction
   | InstanceAction
   | IsGenuineMongoDBVisibleAction
-  | DataServiceAction
   | SetIsPerformanceTabSupportedAction;
 
 export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
