@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
@@ -17,9 +18,11 @@ import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
+import type { SidebarThunkAction } from '../../modules';
 
 type MultipleConnectionSidebarProps = {
   activeWorkspace: { type: string; namespace?: string } | null;
+  onSidebarAction(action: string, ...rest: any[]): void;
 };
 
 const sidebarStyles = css({
@@ -73,6 +76,7 @@ function ConnectionErrorToastBody({
 
 export function MultipleConnectionSidebar({
   activeWorkspace,
+  onSidebarAction,
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
@@ -259,7 +263,7 @@ export function MultipleConnectionSidebar({
   return (
     <ResizableSidebar data-testid="navigation-sidebar">
       <aside className={sidebarStyles}>
-        <SidebarHeader />
+        <SidebarHeader onAction={onSidebarAction} />
         <ActiveConnectionNavigation activeWorkspace={activeWorkspace} />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
@@ -286,3 +290,18 @@ export function MultipleConnectionSidebar({
     </ResizableSidebar>
   );
 }
+
+const onSidebarAction = (
+  action: string,
+  ...rest: any[]
+): SidebarThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit(action, ...rest);
+  };
+};
+
+const MappedMultipleConnectionSidebar = connect(undefined, {
+  onSidebarAction,
+})(MultipleConnectionSidebar);
+
+export default MappedMultipleConnectionSidebar;
