@@ -3,9 +3,7 @@ import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ActiveConnectionNavigation from './active-connection-navigation';
-import {
-  ConnectionStorageProvider,
-} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
