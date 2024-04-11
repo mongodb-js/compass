@@ -18,6 +18,26 @@ import {
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
+import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
+import toNS from 'mongodb-ns';
+import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { DataService } from 'mongodb-data-service';
+
+const WRITE_STAGE_LINK = {
+  $merge:
+    'https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/',
+  $out: 'https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/',
+};
+
+export const WriteOperation = {
+  Alter: 'altering',
+  Create: 'creating',
+  Overwrite: 'overwriting',
+} as const;
 
 export enum ActionTypes {
   RunAggregation = 'compass-aggeregations/runAggregation',
@@ -204,9 +224,110 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
+const writeOperationConfirmationHandler = async (
+  dataService: DataService,
+  namespace: string,
+  pipeline: Document[],
+  instance: MongoDBInstance
+) => {
+  const lastStage = pipeline[pipeline.length - 1];
+  const lastStageName = Object.keys(lastStage)[0];
+  let typeOfWrite;
+
+  if (!['$merge', '$out'].includes(lastStageName)) {
+    return true;
+  }
+
+  let { database, collection } = toNS(namespace);
+
+  if (typeof lastStage.$merge === 'string') {
+    collection = lastStage.$merge;
+  }
+
+  if (
+    typeof lastStage.$merge === 'object' &&
+    lastStage.$merge !== null &&
+    typeof lastStage.$merge.into === 'string'
+  ) {
+    collection = lastStage.$merge.into;
+  }
+
+  if (
+    typeof lastStage.$merge === 'object' &&
+    lastStage.$merge !== null &&
+    typeof lastStage.$merge.into === 'object' &&
+    lastStage.$merge.into !== null
+  ) {
+    database = lastStage.$merge.into.db;
+    collection = lastStage.$merge.into.coll;
+  }
+
+  if (typeof lastStage.$out === 'string') {
+    collection = lastStage.$out;
+  }
+
+  if (typeof lastStage.$out === 'object' && lastStage.$out !== null) {
+    database = lastStage.$out.db;
+    collection = lastStage.$out.coll;
+  }
+
+  const destinationNamespace = `${database}.${collection}`;
+
+  if (lastStage.$out) {
+    const isNamespaceExists = !!(await instance.getNamespace({
+      dataService,
+      database,
+      collection,
+    }));
+    typeOfWrite = isNamespaceExists
+      ? WriteOperation.Overwrite
+      : WriteOperation.Create;
+  } else {
+    typeOfWrite = WriteOperation.Alter;
+  }
+
+  const confirmed = await showConfirmation({
+    variant:
+      typeOfWrite === WriteOperation.Overwrite
+        ? ConfirmationModalVariant.Danger
+        : ConfirmationModalVariant.Default,
+    title: 'A write operation will occur',
+    description: runPipelineConfirmationDescription({
+      typeOfWrite,
+      stage: {
+        name: lastStageName,
+        link: WRITE_STAGE_LINK[lastStageName as keyof typeof WRITE_STAGE_LINK],
+      },
+      ns: destinationNamespace,
+    }),
+    buttonText: 'Yes, run pipeline',
+    'data-testid': `write-operation-confirmation-modal`,
+  });
+
+  return confirmed;
+};
+
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, logger: { track }, instance }
+  ) => {
+    const state = getState();
+    const pipeline = getPipelineFromBuilderState(state, pipelineBuilder);
+    const dataService = state.dataService.dataService;
+
+    const isConfirmReceivedOrNotRequired =
+      await writeOperationConfirmationHandler(
+        dataService,
+        state.namespace,
+        pipeline,
+        instance
+      );
+    if (!isConfirmReceivedOrNotRequired) {
+      return;
+    }
+
     void dispatch(fetchExplainForPipeline());
     dispatch({
       type: ActionTypes.RunAggregation,

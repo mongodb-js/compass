@@ -714,6 +714,11 @@ export const AggregationRestultsPrevPageButton =
 export const AggregationResultsCancelButton =
   '[data-testid="pipeline-results-loader-button"]';
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
+export const AggregationWriteOperationConfirmationModal =
+  '[data-testid="write-operation-confirmation-modal"]';
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} button:first-of-type`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} button:last-of-type`;
+export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} > div > div`;
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
