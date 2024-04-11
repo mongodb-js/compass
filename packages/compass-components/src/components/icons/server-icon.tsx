@@ -1,5 +1,7 @@
 import React from 'react';
-import { css, palette, useDarkMode } from '@mongodb-js/compass-components';
+import { useDarkMode } from '../../hooks/use-theme';
+import { palette } from '@leafygreen-ui/palette';
+import { css } from '@leafygreen-ui/emotion';
 
 const iconStyles = css({
   flex: 'none',
@@ -56,4 +58,4 @@ const ServerIcon = () => {
   );
 };
 
-export default ServerIcon;
+export { ServerIcon };
