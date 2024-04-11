@@ -158,12 +158,15 @@ export const runAIQuery = (
       logger: { log, track },
     }
   ) => {
+    const provideSampleDocuments =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
     const abortController = new AbortController();
     const { id: requestId, signal } = getAbortSignal();
 
     track('AI Prompt Submitted', () => ({
       editor_view_type: 'find',
       user_input_length: userInput.length,
+      has_sample_documents: provideSampleDocuments,
       request_id: requestId,
     }));
 
@@ -208,8 +211,13 @@ export const runAIQuery = (
         collectionName,
         databaseName,
         schema,
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
         requestId,
-        // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
     } catch (err: any) {
       if (signal.aborted) {
