@@ -21,14 +21,12 @@ import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { DatabasesPlaceholder } from './databases-placeholder';
 
 type Collection = {
-  connectionId: string;
   _id: string;
   name: string;
   type: string;
 };
 
-type Database = {
-  connectionId: string;
+export type Database = {
   _id: string;
   name: string;
   collectionsStatus: string;
@@ -154,7 +152,11 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   databases: Database[];
   expanded?: Record<string, boolean>;
   onDatabaseExpand(connectionId: string, id: string, isExpanded: boolean): void;
-  onNamespaceAction(namespace: string, action: Actions): void;
+  onNamespaceAction(
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
   activeNamespace?: string;
   isReadOnly?: boolean;
 }> = ({

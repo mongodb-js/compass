@@ -1,2 +1,5 @@
 export type { Actions } from './constants';
-export { NavigationWithPlaceholder as default } from './databases-navigation-tree';
+export {
+  type Database,
+  NavigationWithPlaceholder as default,
+} from './databases-navigation-tree';
