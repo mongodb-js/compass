@@ -54,12 +54,17 @@ class CompassRendererConnectionStorage
     return ipc;
   }
 
-  get loadAll() {
-    return this.ipc.loadAll;
+  loadAll(
+    options?: { signal?: AbortSignal | undefined } | undefined
+  ): Promise<ConnectionInfo[]> {
+    return this.ipc.loadAll(options);
   }
 
-  get load() {
-    return this.ipc.load;
+  load(options: {
+    id: string;
+    signal?: AbortSignal | undefined;
+  }): Promise<ConnectionInfo | undefined> {
+    return this.ipc.load(options);
   }
 
   async save(options: {
