@@ -43,7 +43,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-
+import type { DataService } from '../modules/data-service';
 /**
  * The main application reducer.
  *
@@ -99,6 +99,7 @@ export type PipelineBuilderExtraArgs = {
   logger: LoggerAndTelemetry;
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
+  dataService: DataService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -25,7 +25,7 @@ import {
 import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
 import toNS from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '../modules/data-service';
 
 const WRITE_STAGE_LINK = {
   $merge:
@@ -224,11 +224,11 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const writeOperationConfirmationHandler = async (
+const isConfirmReceivedOrNotRequired = async (
+  instance: MongoDBInstance,
   dataService: DataService,
   namespace: string,
-  pipeline: Document[],
-  instance: MongoDBInstance
+  pipeline: Document[]
 ) => {
   const lastStage = pipeline[pipeline.length - 1];
   const lastStageName = Object.keys(lastStage)[0];
@@ -311,20 +311,19 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, logger: { track }, instance }
+    { pipelineBuilder, logger: { track }, instance, dataService }
   ) => {
     const state = getState();
     const pipeline = getPipelineFromBuilderState(state, pipelineBuilder);
-    const dataService = state.dataService.dataService;
 
-    const isConfirmReceivedOrNotRequired =
-      await writeOperationConfirmationHandler(
+    if (
+      !(await isConfirmReceivedOrNotRequired(
+        instance,
         dataService,
         state.namespace,
-        pipeline,
-        instance
-      );
-    if (!isConfirmReceivedOrNotRequired) {
+        pipeline
+      ))
+    ) {
       return;
     }
 
