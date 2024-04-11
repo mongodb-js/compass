@@ -202,7 +202,7 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(emitSpy).to.have.been.calledWith('open-compass-settings');
     });
 
-    it('when clicking on the "My Queries", it opens the queries workspace', () => {
+    it('it shows "My Queries"', () => {
       const navItem = screen.getByText('My Queries');
       expect(navItem).to.be.visible;
     });
