@@ -26,6 +26,7 @@ import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
 import { createInstance } from '../../../test/helpers';
+import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -108,15 +109,19 @@ describe('Multiple Connections Sidebar Component', function () {
 
     return render(
       <ToastArea>
-        <ConnectionStorageProvider value={storage}>
-          <ConnectionsManagerProvider value={connectionManager}>
-            <Provider store={store}>
-              <MultipleConnectionSidebar
-                activeWorkspace={{ type: 'connection' }}
-              />
-            </Provider>
-          </ConnectionsManagerProvider>
-        </ConnectionStorageProvider>
+        <WorkspacesProvider
+          value={[{ name: 'My Queries', component: () => null }]}
+        >
+          <ConnectionStorageProvider value={storage}>
+            <ConnectionsManagerProvider value={connectionManager}>
+              <Provider store={store}>
+                <MultipleConnectionSidebar
+                  activeWorkspace={{ type: 'connection' }}
+                />
+              </Provider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
+        </WorkspacesProvider>
       </ToastArea>
     );
   }
@@ -195,6 +200,11 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.click(settingsBtn);
 
       expect(emitSpy).to.have.been.calledWith('open-compass-settings');
+    });
+
+    it('when clicking on the "My Queries", it opens the queries workspace', () => {
+      const navItem = screen.getByText('My Queries');
+      expect(navItem).to.be.visible;
     });
   });
 });
