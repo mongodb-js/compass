@@ -123,7 +123,7 @@ export const ConnectionItem: React.FunctionComponent<
     if (isFavorite) {
       actions.push({
         action: 'connection-unfavorite',
-        icon: 'Favorite', // TODO
+        icon: 'Favorite',
         label: 'Unfavorite',
       });
     } else {
@@ -138,7 +138,7 @@ export const ConnectionItem: React.FunctionComponent<
       action: 'connection-disconnect',
       icon: 'Disconnect',
       label: 'Disconnect',
-      // variant: 'destructive', // TODO
+      variant: 'destructive',
     });
 
     return actions;

@@ -8,7 +8,6 @@ export const ROW_HEIGHT = spacing[5];
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
 export type Actions =
-  | 'connection-options'
   | 'connection-performance-metrics'
   | 'connection-info'
   | 'connection-copy-connection-string'
