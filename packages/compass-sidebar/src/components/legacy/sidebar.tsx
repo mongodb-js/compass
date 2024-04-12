@@ -5,9 +5,12 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   css,
+  cx,
   spacing,
   ResizableSidebar,
   useToast,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
@@ -32,6 +35,18 @@ const sidebarStyles = css({
   // container so that the sidebar doesn't stick out in the layout z ordering
   // with other parts of the app
   zIndex: 0,
+});
+
+const sidebarStylesDark = css({
+  '--item-color-active': palette.green.base,
+  '--item-bg-color-hover': palette.gray.dark2,
+  '--item-bg-color-active': palette.black,
+});
+
+const sidebarStylesLight = css({
+  '--item-color-active': palette.green.dark2,
+  '--item-bg-color-hover': palette.gray.light2,
+  '--item-bg-color-active': palette.green.light3,
 });
 
 const connectionInfoContainerStyles = css({});
@@ -84,6 +99,8 @@ export function Sidebar({
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
+
+  const isDarkMode = useDarkMode();
 
   const onClickSaveFavorite = useCallback(
     (newFavoriteInfo) => {
@@ -164,7 +181,10 @@ export function Sidebar({
   return (
     <ResizableSidebar
       data-testid="navigation-sidebar"
-      className={sidebarStyles}
+      className={cx(
+        sidebarStyles,
+        isDarkMode ? sidebarStylesDark : sidebarStylesLight
+      )}
     >
       <>
         {showConnectionInfo && (
