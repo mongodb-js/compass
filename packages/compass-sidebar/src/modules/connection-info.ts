@@ -54,7 +54,7 @@ export type ConnectionInfoAction =
 
 async function saveConnectionInfo(
   connectionInfo: ConnectionInfo,
-  connectionStorage: ConnectionStorage
+  connectionStorage: ConnectionStorage | null
 ) {
   try {
     await connectionStorage?.save?.({ connectionInfo });
