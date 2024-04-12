@@ -1,20 +1,19 @@
-/* eslint-disable react/prop-types */
 import React, { useCallback, useMemo } from 'react';
 import {
   useHoverState,
   spacing,
   css,
-  cx,
   ItemActionControls,
   Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { DATABASE_ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT } from './constants';
 import {
   ItemContainer,
   ItemLabel,
   ItemWrapper,
   ItemButtonWrapper,
+  ExpandButton,
 } from './tree-item';
 import type {
   VirtualListItemProps,
@@ -22,60 +21,15 @@ import type {
   NamespaceItemProps,
 } from './tree-item';
 import type { Actions } from './constants';
-
-const buttonReset = css({
-  padding: 0,
-  margin: 0,
-  background: 'none',
-  border: 'none',
-});
-
-const expandButton = css({
-  display: 'flex',
-  // Not using leafygreen spacing here because none of them allow to align the
-  // button with the search bar content. This probably can go away when we are
-  // rebuilding the search also
-  padding: 7,
-  transition: 'transform .16s linear',
-  transform: 'rotate(0deg)',
-  '&:hover': {
-    cursor: 'pointer',
-  },
-});
-
-const expanded = css({
-  transform: 'rotate(90deg)',
-});
-
-const ExpandButton: React.FunctionComponent<{
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  isExpanded: boolean;
-}> = ({ onClick, isExpanded }) => {
-  return (
-    <button
-      type="button"
-      // We don't want this button to be part of the navigation sequence as
-      // this breaks the tab flow when navigating through the tree. If you
-      // are focused on a particular item in the list, you can expand /
-      // collapse it using keyboard, so the button is only valuable when
-      // using a mouse
-      tabIndex={-1}
-      onClick={onClick}
-      className={cx(buttonReset, expandButton, isExpanded && expanded)}
-    >
-      <Icon glyph="CaretRight" size="small"></Icon>
-    </button>
-  );
-};
+import { getItemPaddingStyles } from './utils';
 
 const databaseItem = css({
-  height: DATABASE_ROW_HEIGHT,
+  height: ROW_HEIGHT,
 });
 
 const itemButtonWrapper = css({
-  height: DATABASE_ROW_HEIGHT,
+  height: ROW_HEIGHT,
   paddingRight: spacing[1],
-  paddingLeft: spacing[2],
 });
 
 const databaseItemLabel = css({
@@ -97,17 +51,24 @@ export const DatabaseItem: React.FunctionComponent<
   connectionId,
   id,
   name,
+  level,
   posInSet,
   setSize,
   isExpanded,
   isActive,
   isReadOnly,
+  isSingleConnection,
   isTabbable,
   style,
   onNamespaceAction,
   onDatabaseExpand,
 }) => {
   const [hoverProps, isHovered] = useHoverState();
+
+  const itemPaddingStyles = useMemo(
+    () => getItemPaddingStyles({ level, isSingleConnection }),
+    [level, isSingleConnection]
+  );
 
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,7 +115,7 @@ export const DatabaseItem: React.FunctionComponent<
     <ItemContainer
       id={id}
       data-testid={`sidebar-database-${id}`}
-      level={1}
+      level={level}
       setSize={setSize}
       posInSet={posInSet}
       isExpanded={isExpanded}
@@ -166,7 +127,10 @@ export const DatabaseItem: React.FunctionComponent<
       {...hoverProps}
     >
       <ItemWrapper>
-        <ItemButtonWrapper className={itemButtonWrapper}>
+        <ItemButtonWrapper
+          style={itemPaddingStyles}
+          className={itemButtonWrapper}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}

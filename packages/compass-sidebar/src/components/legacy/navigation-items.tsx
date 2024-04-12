@@ -23,10 +23,10 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import DatabaseCollectionFilter from './database-collection-filter';
+import DatabaseCollectionFilter from '../database-collection-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-import { changeFilterRegex } from '../modules/databases';
-import type { RootState } from '../modules';
+import { changeFilterRegex } from '../../modules/databases';
+import type { RootState } from '../../modules';
 import {
   useOpenWorkspace,
   useWorkspacePlugins,
@@ -253,7 +253,7 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 
 export function NavigationItems({
   isReady,
-  connectionId,
+  connectionInfo,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
   onFilterChange,
@@ -263,7 +263,7 @@ export function NavigationItems({
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
-  connectionId: ConnectionInfo['id'];
+  connectionInfo: ConnectionInfo;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
@@ -359,7 +359,7 @@ export function NavigationItems({
 
       <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       <SidebarDatabasesNavigation
-        connectionId={connectionId}
+        connectionInfo={connectionInfo}
         activeNamespace={currentNamespace ?? undefined}
       />
     </>
@@ -369,10 +369,11 @@ export function NavigationItems({
 const mapStateToProps = (
   state: RootState,
   {
-    connectionId,
+    connectionInfo,
     readOnly: preferencesReadOnly,
-  }: { connectionId: ConnectionInfo['id']; readOnly: boolean }
+  }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
+  const connectionId = connectionInfo.id;
   const totalCollectionsCount = state.databases[connectionId].databases.reduce(
     (acc: number, db: { collectionsLength: number }) => {
       return acc + db.collectionsLength;

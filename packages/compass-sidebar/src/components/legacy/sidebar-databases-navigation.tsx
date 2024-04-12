@@ -1,11 +1,14 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
-import type { Actions } from '@mongodb-js/compass-databases-navigation';
+import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
+import type {
+  Actions,
+  Connection,
+} from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database, toggleDatabaseExpanded } from '../modules/databases';
+import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { RootState, SidebarThunkAction } from '../modules';
+import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
@@ -26,12 +29,13 @@ function SidebarDatabasesNavigation({
   databases,
   ...dbNavigationProps
 }: Omit<
-  React.ComponentProps<typeof DatabasesNavigationTree>,
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
   'isReadOnly' | 'databases'
 > & {
   databases: Database[];
   isDataLake?: boolean;
   isWritable?: boolean;
+  expanded?: Record<string, boolean>;
 }) {
   const {
     openCollectionsWorkspace,
@@ -79,7 +83,7 @@ function SidebarDatabasesNavigation({
   );
 
   return (
-    <DatabasesNavigationTree
+    <ConnectionsNavigationTree
       {...dbNavigationProps}
       databases={databases}
       onNamespaceAction={onNamespaceAction}
@@ -90,8 +94,12 @@ function SidebarDatabasesNavigation({
 
 function mapStateToProps(
   state: RootState,
-  { connectionId }: { connectionId: ConnectionInfo['id'] }
-) {
+  { connectionInfo }: { connectionInfo: ConnectionInfo }
+): {
+  isReady: boolean;
+  connections: Connection[];
+} {
+  const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
   const {
     filterRegex,
@@ -114,12 +122,23 @@ function mapStateToProps(
 
   const isDataLake = instance?.dataLake?.isDataLake;
   const isWritable = instance?.isWritable;
+
   return {
-    isReady,
-    isDataLake,
-    isWritable,
-    databases: filteredDatabases,
-    expanded,
+    isReady: true,
+    connections: [
+      {
+        isReady,
+        isDataLake,
+        isWritable,
+        name: '',
+        connectionInfo,
+        databasesStatus: status,
+        databases: filteredDatabases,
+      },
+    ],
+    expanded: {
+      [connectionId]: expanded,
+    },
   };
 }
 

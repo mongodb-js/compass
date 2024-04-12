@@ -61,7 +61,8 @@ const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
   : DEFAULT_ATTEMPTS_PER_TEST;
 
-const USE_SAMPLE_DOCS = process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
+const AI_TESTS_USE_SAMPLE_DOCS =
+  process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
 const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
 
@@ -203,11 +204,13 @@ const generateMQL = async ({
   databaseName,
   collectionName,
   userInput,
+  includeSampleDocuments,
 }: {
   type: string;
   databaseName: string;
   collectionName: string;
   userInput: string;
+  includeSampleDocuments?: boolean;
 }) => {
   const collection = mongoClient.db(databaseName).collection(collectionName);
   const schema = await getSimplifiedSchema(collection.find());
@@ -218,7 +221,8 @@ const generateMQL = async ({
       schema: schema,
       collectionName,
       databaseName,
-      sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
+      sampleDocuments:
+        includeSampleDocuments || AI_TESTS_USE_SAMPLE_DOCS ? sample : undefined,
       userInput,
     });
   }
@@ -227,7 +231,8 @@ const generateMQL = async ({
     schema: schema,
     collectionName,
     databaseName,
-    sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
+    sampleDocuments:
+      includeSampleDocuments || AI_TESTS_USE_SAMPLE_DOCS ? sample : undefined,
     userInput,
   });
 };
@@ -238,6 +243,7 @@ type TestOptions = {
   type: string;
   databaseName: string;
   collectionName: string;
+  includeSampleDocuments?: boolean;
   userInput: string;
   assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
@@ -251,6 +257,7 @@ const runOnce = async (
     databaseName,
     collectionName,
     userInput,
+    includeSampleDocuments,
     assertResponse,
     assertResult,
     acceptAggregationResponse,
@@ -262,6 +269,7 @@ const runOnce = async (
     databaseName,
     collectionName,
     userInput,
+    includeSampleDocuments,
   });
 
   usageStats.push({ promptTokens: 1, completionTokens: 1 });
@@ -646,6 +654,30 @@ const tests = [
             $numberDecimal: '185.00',
           },
           amenities: ['TV', 'Wifi', 'Air conditioning'],
+        },
+      ]),
+    ]),
+  },
+  {
+    // Tests that sample documents work, as the field values are relevant
+    // for building the correct query.
+    type: 'query',
+    databaseName: 'NYC',
+    collectionName: 'parking_2015',
+    userInput: 'The Plate IDs of Acura vehicles registered in New York',
+    includeSampleDocuments: true,
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          _id: {
+            $oid: '5735040085629ed4fa839504',
+          },
+          'Plate ID': 'DRW5164',
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          'Plate ID': 'DRW5164',
         },
       ]),
     ]),
