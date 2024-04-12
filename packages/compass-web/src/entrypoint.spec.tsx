@@ -6,7 +6,7 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
-import { CompassWebConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import { CompassWebConnectionStorage } from './compass-web-connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
