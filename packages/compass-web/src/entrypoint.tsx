@@ -3,6 +3,8 @@ import { AppRegistryProvider, useGlobalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  type ConnectionInfo,
+  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
@@ -51,14 +53,8 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import type {
-  ConnectionStorage,
-  ConnectionInfo,
-} from '@mongodb-js/connection-storage/provider';
-import {
-  ConnectionStorageProvider,
-  ConnectionInfoProvider,
-} from '@mongodb-js/connection-storage/provider';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 
