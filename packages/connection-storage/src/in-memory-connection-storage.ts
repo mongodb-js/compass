@@ -4,12 +4,6 @@ import {
   ConnectionStorageEvents,
   type ConnectionStorage,
 } from './connection-storage';
-import {
-  type ExportConnectionOptions,
-  type ImportConnectionOptions,
-  serializeConnections,
-  deserializeConnections,
-} from './import-export-connection';
 
 export class InMemoryConnectionStorage
   extends EventEmitter
@@ -79,52 +73,15 @@ export class InMemoryConnectionStorage
     return Promise.resolve(this.legacyConnections);
   }
 
-  async deserializeConnections({
-    content,
-    options = {},
-  }: {
-    content: string;
-    options: ImportConnectionOptions;
-  }): Promise<ConnectionInfo[]> {
-    const { passphrase, trackingProps, filterConnectionIds } = options;
-    const connections = await deserializeConnections(content, {
-      passphrase,
-      trackingProps,
-    });
-    return filterConnectionIds
-      ? connections.filter((x) => filterConnectionIds.includes(x.id))
-      : connections;
+  importConnections(): Promise<void> {
+    return Promise.resolve();
   }
 
-  async exportConnections({
-    options = {},
-  }: {
-    options?: ExportConnectionOptions;
-  } = {}): Promise<string> {
-    const { filterConnectionIds, ...restOfOptions } = options;
-    const connections = await this.loadAll();
-    const exportConnections = filterConnectionIds
-      ? connections.filter((x) => filterConnectionIds.includes(x.id))
-      : connections.filter((x) => x.favorite?.name);
-
-    return serializeConnections(exportConnections, restOfOptions);
+  exportConnections(): Promise<string> {
+    return Promise.resolve('');
   }
 
-  async importConnections({
-    content,
-    options = {},
-  }: {
-    content: string;
-    options?: ImportConnectionOptions;
-  }): Promise<void> {
-    const connections = await this.deserializeConnections({
-      content,
-      options,
-    });
-
-    await Promise.all(
-      connections.map((connectionInfo) => this._save({ connectionInfo }))
-    );
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
+  deserializeConnections() {
+    return Promise.resolve([]);
   }
 }

@@ -5,11 +5,11 @@ import {
   type ConnectionStorage,
   InMemoryConnectionStorage,
   ConnectionStorageProvider,
+  ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/provider';
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { createElement } from 'react';
-import { serializeConnections } from '../../../connection-storage/dist/import-export-connection';
 
 describe('useConnectionRepository', function () {
   let renderHookWithContext: typeof renderHook;
@@ -77,8 +77,8 @@ describe('useConnectionRepository', function () {
         return favoriteConnections;
       });
 
-      await mockStorage.importConnections?.({
-        content: await serializeConnections([
+      mockStorage.loadAll = function () {
+        return Promise.resolve([
           {
             id: '3',
             savedConnectionType: 'recent',
@@ -94,8 +94,10 @@ describe('useConnectionRepository', function () {
             savedConnectionType: 'favorite',
             favorite: { name: 'Aa' },
           },
-        ]),
-      });
+        ]);
+      };
+
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;
@@ -154,8 +156,8 @@ describe('useConnectionRepository', function () {
         return nonFavoriteConnections;
       });
 
-      await mockStorage.importConnections?.({
-        content: await serializeConnections([
+      mockStorage.loadAll = function () {
+        return Promise.resolve([
           {
             id: '3',
             savedConnectionType: 'favorite',
@@ -171,8 +173,10 @@ describe('useConnectionRepository', function () {
             savedConnectionType: 'recent',
             favorite: { name: 'Aa' },
           },
-        ]),
-      });
+        ]);
+      };
+
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;
