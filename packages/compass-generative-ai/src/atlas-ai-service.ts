@@ -20,7 +20,9 @@ type GenerativeAiInput = {
   requestId: string;
 };
 
-const AI_MAX_REQUEST_SIZE = 10000;
+// The size/token validation happens on the server, however, we do
+// want to ensure we're not uploading massive documents (some folks have documents > 1mb).
+const AI_MAX_REQUEST_SIZE = 100000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
 const USER_AI_URI = (userId: string) => `ai/api/v1/hello/${userId}`;
 const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';

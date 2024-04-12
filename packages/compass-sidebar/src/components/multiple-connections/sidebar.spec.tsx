@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { stub, spy } from 'sinon';
 import {
   render,
   screen,
@@ -9,7 +9,7 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MultipleConnectionSidebar } from './sidebar';
+import MultipleConnectionSidebar from './sidebar';
 import { ToastArea } from '@mongodb-js/compass-components';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import {
@@ -61,6 +61,7 @@ const savedConnection: ConnectionInfo = {
 describe('Multiple Connections Sidebar Component', function () {
   const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
+  const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
   let connectionStorage: ConnectionStorage;
@@ -111,6 +112,7 @@ describe('Multiple Connections Sidebar Component', function () {
   afterEach(function () {
     deactivate();
     cleanup();
+    emitSpy.resetHistory();
   });
 
   describe('opening a new connection', function () {
@@ -158,6 +160,17 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByText('Expected failure')).to.exist;
         });
       });
+    });
+  });
+
+  describe('actions', () => {
+    it('when clicking on the Settings btn, it emits open-compass-settings', () => {
+      const settingsBtn = screen.getByTitle('Compass Settings');
+      expect(settingsBtn).to.be.visible;
+
+      userEvent.click(settingsBtn);
+
+      expect(emitSpy).to.have.been.calledWith('open-compass-settings');
     });
   });
 });

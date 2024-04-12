@@ -217,8 +217,10 @@ export const runAIPipelineGeneration = (
       dataService: { dataService },
     } = getState();
 
-    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    const provideSampleDocuments =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
 
+    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
     if (existingRequestId !== null) {
       // Cancel the active request as this one will override.
       abort(existingRequestId);
@@ -231,6 +233,7 @@ export const runAIPipelineGeneration = (
       editor_view_type,
       user_input_length: userInput.length,
       request_id: requestId,
+      has_sample_documents: provideSampleDocuments,
     }));
 
     dispatch({
@@ -265,8 +268,13 @@ export const runAIPipelineGeneration = (
         collectionName,
         databaseName,
         schema,
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
         requestId,
-        // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
     } catch (err: any) {
       if (signal.aborted) {
