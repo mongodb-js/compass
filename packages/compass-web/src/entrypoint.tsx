@@ -246,9 +246,10 @@ const CompassWeb = ({
     []
   );
 
-  const connectionStorage =
+  const connectionStorage = useRef(
     __TEST_CONNECTION_STORAGE ??
-    new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current);
+      new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current)
+  );
 
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({
@@ -279,7 +280,7 @@ const CompassWeb = ({
       >
         <PreferencesProvider value={preferencesAccess.current}>
           <WithAtlasProviders>
-            <ConnectionStorageProvider value={connectionStorage}>
+            <ConnectionStorageProvider value={connectionStorage.current}>
               <ConnectionsManagerProvider value={connectionsManager.current}>
                 <CompassInstanceStorePlugin>
                   <FieldStorePlugin>
