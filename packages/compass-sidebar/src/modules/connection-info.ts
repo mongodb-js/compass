@@ -1,16 +1,20 @@
-import {
-  getCompassRendererConnectionStorage,
-  type CompassConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
+
+const SET_CONNECTION_STORAGE =
+  'sidebar/connection/SET_CONNECTION_STORAGE' as const;
+
+interface SetConnectionStorageAction {
+  type: typeof SET_CONNECTION_STORAGE;
+  connectionStorage: ConnectionStorage;
+}
 
 /**
  * Change connection action name.
  */
 const CHANGE_CONNECTION_INFO =
   'sidebar/connection/CHANGE_CONNECTION_INFO' as const;
-
 interface ChangeConnectionInfoAction {
   type: typeof CHANGE_CONNECTION_INFO;
   connectionInfo: ConnectionInfo;
@@ -35,28 +39,39 @@ export const INITIAL_STATE: ConnectionInfoState = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: getCompassRendererConnectionStorage(),
+  connectionStorage: null,
 };
 
 export interface ConnectionInfoState {
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
-  connectionStorage: CompassConnectionStorage;
+  connectionStorage: ConnectionStorage | null;
 }
 
 export type ConnectionInfoAction =
   | ChangeConnectionInfoAction
-  | SaveConnectionInfoAction;
+  | SaveConnectionInfoAction
+  | SetConnectionStorageAction;
 
 async function saveConnectionInfo(
   connectionInfo: ConnectionInfo,
-  connectionStorage: CompassConnectionStorage
+  connectionStorage: ConnectionStorage
 ) {
   try {
-    await connectionStorage.save({ connectionInfo });
+    await connectionStorage?.save?.({ connectionInfo });
   } catch {
     // Currently we silently fail if saving the favorite fails.
   }
 }
+
+const doSetConnectionStorage = (
+  state: ConnectionInfoState,
+  action: SetConnectionStorageAction
+) => {
+  return {
+    ...state,
+    connectionStorage: action.connectionStorage,
+  };
+};
 
 /**
  * Changes the connection.
@@ -101,6 +116,7 @@ const MAPPINGS: {
 } = {
   [CHANGE_CONNECTION_INFO]: doChangeConnectionInfo,
   [SAVE_CONNECTION_INFO]: doSaveConnectionInfo,
+  [SET_CONNECTION_STORAGE]: doSetConnectionStorage,
 };
 
 /**
@@ -118,6 +134,13 @@ export default function reducer(
 
   return fn ? fn(state, action as any) : state;
 }
+
+export const setConnectionStorage = (
+  connectionStorage: ConnectionStorage
+): SetConnectionStorageAction => ({
+  type: SET_CONNECTION_STORAGE,
+  connectionStorage,
+});
 
 /**
  * Change connection action creator.

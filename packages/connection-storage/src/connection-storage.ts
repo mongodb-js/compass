@@ -1,12 +1,11 @@
-import { EventEmitter } from 'events';
 import type { HadronIpcMain, HadronIpcRenderer } from 'hadron-ipc';
 import type {
   ConnectionInfo,
   AtlasClusterMetadata,
 } from '@mongodb-js/connection-info';
-import type {
-  ExportConnectionOptions,
-  ImportConnectionOptions,
+import {
+  type ExportConnectionOptions,
+  type ImportConnectionOptions,
 } from './import-export-connection';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
@@ -51,120 +50,36 @@ export interface ConnectionStorage {
   }): Promise<void>;
 
   delete?(options: { id: string; signal?: AbortSignal }): Promise<void>;
-}
 
-export interface CompassConnectionStorage extends ConnectionStorage {
-  save(options: {
-    connectionInfo: ConnectionInfo;
-    signal?: AbortSignal;
-  }): Promise<void>;
-
-  delete(options: {
-    id: ConnectionInfo['id'];
-    signal?: AbortSignal;
-  }): Promise<void>;
-
-  getLegacyConnections(options?: {
+  getLegacyConnections?(options?: {
     signal?: AbortSignal;
   }): Promise<{ name: string }[]>;
 
-  deserializeConnections(args: {
+  deserializeConnections?(args: {
     content: string;
     options: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<ConnectionInfo[]>;
 
-  exportConnections(args?: {
+  exportConnections?(args?: {
     options?: ExportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<string>;
 
-  importConnections(args: {
+  importConnections?(args: {
     content: string;
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<void>;
 }
 
-export type CompassConnectionStorageIPCInterface = Omit<
-  CompassConnectionStorage,
-  'on' | 'off' | 'emit'
+export type ConnectionStorageIPCInterface = Required<
+  Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
 >;
 
-export type CompassConnectionStorageIPCMain = Pick<
-  HadronIpcMain,
-  'createHandle'
->;
+export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 
-export type CompassConnectionStorageIPCRenderer = Pick<
+export type ConnectionStorageIPCRenderer = Pick<
   HadronIpcRenderer,
   'createInvoke'
 >;
-
-export class NoopConnectionStorage
-  extends EventEmitter
-  implements ConnectionStorage
-{
-  constructor() {
-    super();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadAll(options?: { signal?: AbortSignal }): Promise<ConnectionInfo[]> {
-    return Promise.resolve([]);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  load(options: {
-    id: string;
-    signal?: AbortSignal;
-  }): Promise<ConnectionInfo | undefined> {
-    return Promise.resolve(undefined);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  save(options: {
-    connectionInfo: ConnectionInfo;
-    signal?: AbortSignal;
-  }): Promise<void> {
-    return Promise.resolve();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  delete(options: { id: string; signal?: AbortSignal }): Promise<void> {
-    return Promise.resolve();
-  }
-}
-
-export class NoopCompassConnectionStorage
-  extends NoopConnectionStorage
-  implements CompassConnectionStorage
-{
-  constructor() {
-    super();
-  }
-
-  getLegacyConnections(): Promise<{ name: string }[]> {
-    return Promise.resolve([]);
-  }
-  deserializeConnections(): Promise<ConnectionInfo[]> {
-    return Promise.resolve([]);
-  }
-  exportConnections(): Promise<string> {
-    return Promise.resolve('');
-  }
-  importConnections(): Promise<void> {
-    return Promise.resolve();
-  }
-}
-
-export function isCompassConnectionStorage(
-  connectionStorage: ConnectionStorage | CompassConnectionStorage
-): connectionStorage is CompassConnectionStorage {
-  return (
-    'getLegacyConnections' in connectionStorage &&
-    'deserializeConnections' in connectionStorage &&
-    'exportConnections' in connectionStorage &&
-    'importConnections' in connectionStorage
-  );
-}

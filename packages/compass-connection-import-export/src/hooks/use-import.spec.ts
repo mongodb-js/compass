@@ -1,3 +1,4 @@
+import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type {
@@ -10,6 +11,12 @@ import type { ImportExportResult } from './common';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
+import {
+  type ConnectionInfo,
+  type ConnectionStorage,
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 
 type UseImportConnectionsProps = Parameters<typeof useImportConnections>[0];
 type UseImportConnectionsResult = ReturnType<typeof useImportConnections>;
@@ -19,8 +26,6 @@ describe('useImportConnections', function () {
   let sandbox: sinon.SinonSandbox;
   let finish: sinon.SinonStub;
   let finishedPromise: Promise<ImportExportResult>;
-  let importConnections: sinon.SinonStub;
-  let deserializeConnections: sinon.SinonStub;
   let defaultProps: UseImportConnectionsProps;
   let renderHookResult: RenderHookResult<
     Partial<UseImportConnectionsProps>,
@@ -30,28 +35,30 @@ describe('useImportConnections', function () {
   let rerender: (props: Partial<UseImportConnectionsProps>) => void;
   let tmpdir: string;
   let exampleFile: string;
+  let connectionStorage: ConnectionStorage;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     finishedPromise = new Promise<ImportExportResult>((resolve) => {
       finish = sinon.stub().callsFake(resolve);
     });
-    importConnections = sinon.stub();
-    deserializeConnections = sinon.stub();
     defaultProps = {
       finish,
       open: true,
       favoriteConnections: [],
       trackingProps: { context: 'Tests' },
     };
+    connectionStorage = new InMemoryConnectionStorage();
+    const wrapper: React.FC = ({ children }) =>
+      React.createElement(ConnectionStorageProvider, {
+        value: connectionStorage,
+        children,
+      });
     renderHookResult = renderHook(
       (props: Partial<UseImportConnectionsProps> = {}) => {
-        return useImportConnections(
-          { ...defaultProps, ...props },
-          importConnections,
-          deserializeConnections
-        );
-      }
+        return useImportConnections({ ...defaultProps, ...props });
+      },
+      { wrapper }
     );
     ({ result, rerender } = renderHookResult);
     tmpdir = path.join(
@@ -71,22 +78,24 @@ describe('useImportConnections', function () {
   });
 
   it('updates filename if changed', async function () {
-    deserializeConnections.callsFake(function ({
-      content,
-      options,
-    }: {
-      content: string;
-      options: any;
-    }) {
-      expect(content).to.equal(exampleFileContents);
-      expect(options.passphrase).to.equal('');
-      return [
-        {
-          id: 'id1',
-          favorite: { name: 'name1' },
-        },
-      ];
-    });
+    const deserializeStub = sandbox
+      .stub(connectionStorage, 'deserializeConnections')
+      .callsFake(function ({
+        content,
+        options,
+      }: {
+        content: string;
+        options: any;
+      }) {
+        expect(content).to.equal(exampleFileContents);
+        expect(options.passphrase).to.equal('');
+        return Promise.resolve([
+          {
+            id: 'id1',
+            favorite: { name: 'name1' },
+          } as ConnectionInfo,
+        ]);
+      });
 
     act(() => {
       result.current.onChangeFilename(exampleFile);
@@ -98,14 +107,15 @@ describe('useImportConnections', function () {
       () => result.current.state.connectionList.length
     );
 
-    expect(deserializeConnections).to.have.been.calledOnce;
+    expect(deserializeStub).to.have.been.calledOnce;
     expect(result.current.state.connectionList).to.deep.equal([
       { id: 'id1', name: 'name1', selected: true, isExistingFavorite: false },
     ]);
   });
 
   it('updates passphrase if changed', async function () {
-    deserializeConnections
+    sandbox
+      .stub(connectionStorage, 'deserializeConnections')
       .onFirstCall()
       .callsFake(function ({
         content,
@@ -130,12 +140,12 @@ describe('useImportConnections', function () {
       }) {
         expect(content).to.equal(exampleFileContents);
         expect(options.passphrase).to.equal('s3cr3t');
-        return [
+        return Promise.resolve([
           {
             id: 'id1',
             favorite: { name: 'name1' },
-          },
-        ];
+          } as ConnectionInfo,
+        ]);
       });
 
     act(() => {
@@ -166,11 +176,12 @@ describe('useImportConnections', function () {
   });
 
   it('does not select existing favorites by default', async function () {
-    deserializeConnections.callsFake(
-      ({ content, options }: { content: string; options: any }) => {
+    sandbox
+      .stub(connectionStorage, 'deserializeConnections')
+      .callsFake(({ content, options }: { content: string; options: any }) => {
         expect(content).to.equal(exampleFileContents);
         expect(options.passphrase).to.equal('');
-        return [
+        return Promise.resolve([
           {
             id: 'id1',
             favorite: { name: 'name1' },
@@ -179,9 +190,8 @@ describe('useImportConnections', function () {
             id: 'id2',
             favorite: { name: 'name2' },
           },
-        ];
-      }
-    );
+        ] as ConnectionInfo[]);
+      });
 
     rerender({
       favoriteConnections: [{ id: 'id1', favorite: { name: 'name1' } }],
@@ -221,11 +231,15 @@ describe('useImportConnections', function () {
         favorite: { name: 'name2' },
       },
     ];
-    deserializeConnections.callsFake(() => connections);
-    importConnections.callsFake(({ content }: { content: string }) => {
-      expect(content).to.equal(exampleFileContents);
-      return connections;
-    });
+    sandbox
+      .stub(connectionStorage, 'deserializeConnections')
+      .resolves(connections as ConnectionInfo[]);
+    const importConnectionsStub = sandbox
+      .stub(connectionStorage, 'importConnections')
+      .callsFake(({ content }: { content: string }) => {
+        expect(content).to.equal(exampleFileContents);
+        return Promise.resolve();
+      });
     act(() => {
       result.current.onChangeFilename(exampleFile);
     });
@@ -245,10 +259,9 @@ describe('useImportConnections', function () {
     });
 
     expect(await finishedPromise).to.equal('succeeded');
-    expect(importConnections).to.have.been.calledOnce;
-    const arg = importConnections.firstCall.args[0];
-    expect(arg.options.trackingProps).to.deep.equal({ context: 'Tests' });
-    expect(arg.options.saveConnections).to.equal(undefined);
-    expect(arg.options.filterConnectionIds).to.deep.equal(['id2']);
+    expect(importConnectionsStub).to.have.been.calledOnce;
+    const arg = importConnectionsStub.firstCall.args[0];
+    expect(arg?.options?.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
   });
 });

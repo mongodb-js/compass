@@ -1,3 +1,4 @@
+import type React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type {
@@ -13,6 +14,11 @@ import { promises as fs } from 'fs';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
+import {
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 
 type UseExportConnectionsProps = Parameters<typeof useExportConnections>[0];
 type UseExportConnectionsResult = ReturnType<typeof useExportConnections>;
@@ -21,7 +27,6 @@ describe('useExportConnections', function () {
   let sandbox: sinon.SinonSandbox;
   let finish: sinon.SinonStub;
   let finishedPromise: Promise<ImportExportResult>;
-  let exportConnections: sinon.SinonStub;
   let defaultProps: UseExportConnectionsProps;
   let renderHookResult: RenderHookResult<
     Partial<UseExportConnectionsProps>,
@@ -30,25 +35,32 @@ describe('useExportConnections', function () {
   let result: RenderResult<UseExportConnectionsResult>;
   let rerender: (props: Partial<UseExportConnectionsProps>) => void;
   let tmpdir: string;
+  let connectionStorage: ConnectionStorage;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     finishedPromise = new Promise<ImportExportResult>((resolve) => {
       finish = sinon.stub().callsFake(resolve);
     });
-    exportConnections = sinon.stub();
     defaultProps = {
       finish,
       favoriteConnections: [],
       open: true,
       trackingProps: { context: 'Tests' },
     };
+    connectionStorage = new InMemoryConnectionStorage();
+    const wrapper: React.FC = ({ children }) =>
+      createElement(ConnectionStorageProvider, {
+        value: connectionStorage,
+        children,
+      });
+
     renderHookResult = renderHook(
       (props: Partial<UseExportConnectionsProps> = {}) => {
-        return useExportConnections(
-          { ...defaultProps, ...props },
-          exportConnections
-        );
+        return useExportConnections({ ...defaultProps, ...props });
+      },
+      {
+        wrapper,
       }
     );
     ({ result, rerender } = renderHookResult);
@@ -79,7 +91,7 @@ describe('useExportConnections', function () {
     await preferences.savePreferences({ protectConnectionStrings: true });
     const resultInProtectedMode = renderHook(
       () => {
-        return useExportConnections(defaultProps, exportConnections);
+        return useExportConnections(defaultProps);
       },
       {
         wrapper: ({ children }) =>
@@ -151,7 +163,9 @@ describe('useExportConnections', function () {
 
     const filename = path.join(tmpdir, 'connections.json');
     const fileContents = '{"connections":[1,2,3]}';
-    exportConnections.resolves(fileContents);
+    const exportConnectionStub = sandbox
+      .stub(connectionStorage, 'exportConnections')
+      .resolves(fileContents);
 
     act(() => {
       result.current.onChangeFilename(filename);
@@ -164,17 +178,19 @@ describe('useExportConnections', function () {
 
     expect(await finishedPromise).to.equal('succeeded');
     expect(await fs.readFile(filename, 'utf8')).to.equal(fileContents);
-    expect(exportConnections).to.have.been.calledOnce;
-    const arg = exportConnections.firstCall.args[0];
-    expect(arg.options.passphrase).to.equal('s3cr3t');
-    expect(arg.options.filterConnectionIds).to.deep.equal(['id2']);
-    expect(arg.options.trackingProps).to.deep.equal({ context: 'Tests' });
-    expect(arg.options.removeSecrets).to.equal(false);
+    expect(exportConnectionStub).to.have.been.calledOnce;
+    const arg = exportConnectionStub.firstCall.args[0];
+    expect(arg?.options?.passphrase).to.equal('s3cr3t');
+    expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
+    expect(arg?.options?.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg?.options?.removeSecrets).to.equal(false);
   });
 
   it('resets errors if filename changes', async function () {
     const filename = path.join(tmpdir, 'nonexistent', 'connections.json');
-    exportConnections.resolves('');
+    const exportConnectionsStub = sandbox
+      .stub(connectionStorage, 'exportConnections')
+      .resolves('');
 
     act(() => {
       result.current.onChangeFilename(filename);
@@ -193,7 +209,7 @@ describe('useExportConnections', function () {
     expect(result.current.state.inProgress).to.equal(false);
     expect(result.current.state.error).to.include('ENOENT');
 
-    expect(exportConnections).to.have.been.calledOnce;
+    expect(exportConnectionsStub).to.have.been.calledOnce;
     expect(finish).to.not.have.been.called;
 
     act(() => {

@@ -10,17 +10,16 @@ import {
   resetGlobalCSS,
   showConfirmation,
 } from '@mongodb-js/compass-components';
-import Connections from '@mongodb-js/compass-connections';
+import Connections, {
+  LegacyConnectionsModal,
+} from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import {
-  type ConnectionStorage,
-  getCompassRendererConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
@@ -52,6 +51,10 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 
 resetGlobalCSS();
 
@@ -144,6 +147,46 @@ async function reauthenticationHandler() {
   }
 }
 
+function useConnectionImportExportModalRenderer() {
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  const openConnectionImportModal = useCallback(() => {
+    setImportModalOpen(true);
+  }, []);
+
+  const openConnectionExportModal = useCallback(() => {
+    setExportModalOpen(true);
+  }, []);
+
+  return {
+    renderConnectionImportExportModal({
+      connections,
+    }: {
+      connections: ConnectionInfo[];
+    }) {
+      return (
+        <>
+          <ImportConnectionsModal
+            open={importModalOpen}
+            setOpen={setImportModalOpen}
+            favoriteConnections={connections}
+            trackingProps={{ context: 'connectionsList' }}
+          />
+          <ExportConnectionsModal
+            open={exportModalOpen}
+            setOpen={setExportModalOpen}
+            favoriteConnections={connections}
+            trackingProps={{ context: 'connectionsList' }}
+          />
+        </>
+      );
+    },
+    openConnectionImportModal,
+    openConnectionExportModal,
+  };
+}
+
 export type HomeProps = {
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
@@ -153,8 +196,8 @@ export type HomeProps = {
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
   showSettings: () => void;
+  connectionStorage: ConnectionStorage;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_CONNECTION_STORAGE?: ConnectionStorage;
   __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
 
@@ -167,8 +210,8 @@ function Home({
   showCollectionSubMenu,
   hideCollectionSubMenu,
   showSettings,
+  connectionStorage,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-  __TEST_CONNECTION_STORAGE,
   __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
@@ -279,10 +322,6 @@ function Home({
     [setIsWelcomeOpen, showSettings]
   );
 
-  const connectionStorage =
-    __TEST_CONNECTION_STORAGE === undefined
-      ? getCompassRendererConnectionStorage()
-      : __TEST_CONNECTION_STORAGE;
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
@@ -323,6 +362,10 @@ function Home({
                 getAutoConnectInfo={
                   hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
                 }
+                useConnectionImportExportModalRenderer={
+                  useConnectionImportExportModalRenderer
+                }
+                renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
                 __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
               />
             </div>

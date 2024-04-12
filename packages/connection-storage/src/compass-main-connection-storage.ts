@@ -24,9 +24,8 @@ import type {
 } from './import-export-connection';
 import { UserData, z } from '@mongodb-js/compass-user-data';
 import type {
-  CompassConnectionStorageIPCMain,
-  CompassConnectionStorage,
-  CompassConnectionStorageIPCInterface,
+  ConnectionStorageIPCMain,
+  ConnectionStorageIPCInterface,
   ConnectionStorage,
 } from './connection-storage';
 
@@ -77,21 +76,21 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   })
   .passthrough();
 
-class CompassMainConnectionStorage implements CompassConnectionStorage {
+class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: UserData<typeof ConnectionSchema>;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
 
   constructor(
-    private readonly ipcMain: CompassConnectionStorageIPCMain,
+    private readonly ipcMain: ConnectionStorageIPCMain,
     basePath?: string
   ) {
     this.userData = new UserData(ConnectionSchema, {
       subdir: 'Connections',
       basePath,
     });
-    this.ipcMain.createHandle<CompassConnectionStorageIPCInterface>(
+    this.ipcMain.createHandle<ConnectionStorageIPCInterface>(
       'ConnectionStorage',
       this,
       [
@@ -534,10 +533,10 @@ let mainConnectionStorage: CompassMainConnectionStorage | null = null;
 
 export const initCompassMainConnectionStorage = (
   basePath?: string,
-  __TEST_IPC_MAIN?: CompassConnectionStorageIPCMain,
+  __TEST_IPC_MAIN?: ConnectionStorageIPCMain,
   __TEST_IGNORE_SINGLETON?: boolean
 ): CompassMainConnectionStorage => {
-  let ipcMainToBeUsed: CompassConnectionStorageIPCMain | undefined = ipcMain;
+  let ipcMainToBeUsed: ConnectionStorageIPCMain | undefined = ipcMain;
   if (process.env.NODE_ENV === 'test' && __TEST_IPC_MAIN) {
     ipcMainToBeUsed = __TEST_IPC_MAIN;
   }

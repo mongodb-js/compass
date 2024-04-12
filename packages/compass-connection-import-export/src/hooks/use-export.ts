@@ -4,11 +4,10 @@ import {
   COMMON_INITIAL_STATE,
   useImportExportConnectionsCommon,
 } from './common';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import {
-  getCompassRendererConnectionStorage,
-  type CompassConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+  type ConnectionInfo,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
@@ -38,20 +37,17 @@ function connectionInfosToConnectionShortInfos(
   }));
 }
 
-export function useExportConnections(
-  {
-    finish,
-    favoriteConnections,
-    open,
-    trackingProps,
-  }: {
-    finish: (result: ImportExportResult) => void;
-    favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
-    open: boolean;
-    trackingProps?: Record<string, unknown>;
-  },
-  exportConnections?: CompassConnectionStorage['exportConnections']
-): {
+export function useExportConnections({
+  finish,
+  favoriteConnections,
+  open,
+  trackingProps,
+}: {
+  finish: (result: ImportExportResult) => void;
+  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
+  open: boolean;
+  trackingProps?: Record<string, unknown>;
+}): {
   onCancel: () => void;
   onSubmit: () => void;
   onChangeFilename: (filename: string) => void;
@@ -60,10 +56,14 @@ export function useExportConnections(
   onChangeRemoveSecrets: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   state: ExportConnectionsState;
 } {
-  const connectionStorage = getCompassRendererConnectionStorage();
-  const exportConnectionsMethod: CompassConnectionStorage['exportConnections'] =
-    exportConnections ??
-    connectionStorage.exportConnections.bind(connectionStorage);
+  const connectionStorage = useConnectionStorageContext();
+  const exportConnectionsImpl =
+    connectionStorage.exportConnections?.bind(connectionStorage);
+  if (!exportConnectionsImpl) {
+    throw new Error(
+      'Export Connections feature requires the provided ConnectionStorage to implement exportConnections'
+    );
+  }
 
   const [state, setState] = useState<ExportConnectionsState>(INITIAL_STATE);
   useEffect(() => setState(INITIAL_STATE), [open]);
@@ -106,7 +106,7 @@ export function useExportConnections(
       // in the UI, we protect users against combining them by disabling the passphrase input.
       const passphrase = removeSecrets ? '' : state.passphrase;
       try {
-        const fileContents = await exportConnectionsMethod({
+        const fileContents = await exportConnectionsImpl({
           options: {
             passphrase,
             filterConnectionIds,

@@ -11,6 +11,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+let connectionStorage: ReturnType<typeof initCompassMainConnectionStorage>;
+
 const loadAutoConnectWithConnection = async (
   connectPreferences: Record<string, unknown> = {},
   connections: ConnectionInfo[] = [],
@@ -19,10 +21,9 @@ const loadAutoConnectWithConnection = async (
   const tmpDir = await fs.mkdtemp(
     path.join(os.tmpdir(), 'connection-storage-tests')
   );
-
   try {
     await fs.mkdir(path.join(tmpDir, 'Connections'));
-    const connectionStorage = initCompassMainConnectionStorage(
+    connectionStorage = initCompassMainConnectionStorage(
       tmpDir,
       {
         createHandle: sinon.stub(),
@@ -44,9 +45,9 @@ const loadAutoConnectWithConnection = async (
       connectionStorage.deserializeConnections.bind(connectionStorage);
 
     const fn = await loadAutoConnectInfo(
+      deserializeConnections,
       sinon.stub().resolves(connectPreferences),
-      fakeFs,
-      deserializeConnections
+      fakeFs
     );
     return fn;
   } finally {
@@ -66,20 +67,18 @@ describe('auto connection argument parsing', function () {
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({ shouldAutoConnect: false })
-    );
+    const fn = await loadAutoConnectWithConnection({
+      shouldAutoConnect: false,
+    });
     expect(fn).to.equal(undefined);
   });
 
   it('understands a connection string if one has been passed', async function () {
     const connectionString = 'mongodb://localhost/';
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({
-        shouldAutoConnect: true,
-        positionalArguments: [connectionString],
-      })
-    );
+    const fn = await loadAutoConnectWithConnection({
+      shouldAutoConnect: true,
+      positionalArguments: [connectionString],
+    });
     const info = await fn?.();
     expect(info?.id).to.be.a('string');
     expect(info?.connectionOptions).to.deep.equal({
@@ -106,7 +105,7 @@ describe('auto connection argument parsing', function () {
     });
   });
 
-  it('rejects a multi-conection file if one has been specified without an id', async function () {
+  it('rejects a multi-connection file if one has been specified without an id', async function () {
     const connectionInfo: Omit<ConnectionInfo, 'id'> = {
       connectionOptions: {
         connectionString: 'mongodb://localhost/',
@@ -130,7 +129,7 @@ describe('auto connection argument parsing', function () {
     }
   });
 
-  it('rejects a multi-conection file if one has been specified with an invalid id', async function () {
+  it('rejects a multi-connection file if one has been specified with an invalid id', async function () {
     const connectionInfo: Omit<ConnectionInfo, 'id'> = {
       connectionOptions: {
         connectionString: 'mongodb://localhost/',
@@ -158,7 +157,7 @@ describe('auto connection argument parsing', function () {
     }
   });
 
-  it('accepts a multi-conection file if an id has been specified', async function () {
+  it('accepts a multi-connection file if an id has been specified', async function () {
     const connectionInfo: Omit<ConnectionInfo, 'id'> = {
       connectionOptions: {
         connectionString: 'mongodb://localhost/',
@@ -199,7 +198,7 @@ describe('auto connection argument parsing', function () {
     }
   });
 
-  it('rejects an encrypted input file if no passphrase has been specifeid', async function () {
+  it('rejects an encrypted input file if no passphrase has been specified', async function () {
     const connectionInfo: ConnectionInfo = {
       id: 'e53a561c-142f-403e-9c2e-d591e58cf44b',
       connectionOptions: {
@@ -247,14 +246,13 @@ describe('auto connection argument parsing', function () {
 
   it('applies username and password if requested', async function () {
     const connectionString = 'mongodb://localhost/';
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({
-        shouldAutoConnect: true,
-        positionalArguments: [connectionString],
-        username: 'user',
-        password: 's€cr!t',
-      })
-    );
+    // const deserializeConnectionsImpl = storage.deserializeConnections.bind(storage);
+    const fn = await loadAutoConnectWithConnection({
+      shouldAutoConnect: true,
+      positionalArguments: [connectionString],
+      username: 'user',
+      password: 's€cr!t',
+    });
     const info = await fn?.();
     expect(info?.id).to.be.a('string');
     expect(info?.connectionOptions).to.deep.equal({

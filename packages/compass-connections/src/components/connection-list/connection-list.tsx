@@ -13,7 +13,7 @@ import {
   ItemActionControls,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 
 import Connection from './connection';
@@ -141,6 +141,27 @@ const favoriteActions: ItemAction<FavoriteAction>[] = [
   },
 ];
 
+type ConnectionListProps = {
+  activeConnectionId?: string;
+  appRegistry: AppRegistry;
+  recentConnections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
+  createNewConnection: () => void;
+  setActiveConnectionId: (connectionId: string) => void;
+  onDoubleClick: (connectionInfo: ConnectionInfo) => void;
+  removeAllRecentsConnections: () => void;
+  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void;
+} & (
+  | {
+      showConnectionImportExportAction: true;
+      openConnectionImportExportModal: (action: FavoriteAction) => void;
+    }
+  | {
+      showConnectionImportExportAction: false;
+    }
+);
+
 function ConnectionList({
   activeConnectionId,
   appRegistry,
@@ -152,20 +173,8 @@ function ConnectionList({
   removeAllRecentsConnections,
   duplicateConnection,
   removeConnection,
-  openConnectionImportExportModal,
-}: {
-  activeConnectionId?: string;
-  appRegistry: AppRegistry;
-  recentConnections: ConnectionInfo[];
-  favoriteConnections: ConnectionInfo[];
-  createNewConnection: () => void;
-  setActiveConnectionId: (connectionId: string) => void;
-  onDoubleClick: (connectionInfo: ConnectionInfo) => void;
-  removeAllRecentsConnections: () => void;
-  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
-  removeConnection: (connectionInfo: ConnectionInfo) => void;
-  openConnectionImportExportModal: (modal: FavoriteAction) => void;
-}): React.ReactElement {
+  ...restProps
+}: ConnectionListProps): React.ReactElement {
   const darkMode = useDarkMode();
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
@@ -226,13 +235,15 @@ function ConnectionList({
           >
             Saved connections
           </H3>
-          <ItemActionControls<FavoriteAction>
-            data-testid="favorites-menu"
-            onAction={openConnectionImportExportModal}
-            iconSize="small"
-            actions={favoriteActions}
-            isVisible={favoriteHeaderHover}
-          ></ItemActionControls>
+          {restProps.showConnectionImportExportAction && (
+            <ItemActionControls<FavoriteAction>
+              data-testid="favorites-menu"
+              onAction={restProps.openConnectionImportExportModal}
+              iconSize="small"
+              actions={favoriteActions}
+              isVisible={favoriteHeaderHover}
+            ></ItemActionControls>
+          )}
         </div>
         {showFilteredSavedConnections && (
           <TextInput

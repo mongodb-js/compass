@@ -3,15 +3,16 @@ import {
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '../provider';
-import { EventEmitter } from 'events';
+import type { EventEmitter } from 'events';
 import { renderHook } from '@testing-library/react-hooks';
 import { createElement } from 'react';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageEvents,
+  ConnectionStorageProvider,
+  InMemoryConnectionStorage,
   type ConnectionInfo,
   type ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+} from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { waitFor } from '@testing-library/dom';
@@ -47,8 +48,7 @@ describe('useActiveConnections', function () {
 
   beforeEach(function () {
     connectionsManager = new ConnectionsManager({} as any);
-    mockConnectionStorage = new EventEmitter() as unknown as ConnectionStorage;
-    mockConnectionStorage.loadAll = Sinon.stub().resolves([]);
+    mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
 
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
@@ -71,7 +71,6 @@ describe('useActiveConnections', function () {
   });
 
   it('should return active connections', async function () {
-    mockConnectionStorage.loadAll = Sinon.stub().resolves(mockConnections);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
 
@@ -82,7 +81,6 @@ describe('useActiveConnections', function () {
   });
 
   it('should listen to connections manager updates', async function () {
-    mockConnectionStorage.loadAll = Sinon.stub().resolves(mockConnections);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     const { result } = renderHookWithContext(() => useActiveConnections());
 

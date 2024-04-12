@@ -1,11 +1,10 @@
-import { ipcRenderer } from 'hadron-ipc';
 import { EventEmitter } from 'events';
 import {
-  type CompassConnectionStorageIPCRenderer,
-  type CompassConnectionStorage,
+  type ConnectionStorageIPCRenderer,
   type ConnectionStorageEvent,
   type ConnectionStorageEventListeners,
-  type CompassConnectionStorageIPCInterface,
+  type ConnectionStorageIPCInterface,
+  type ConnectionStorage,
   ConnectionStorageEvents,
 } from './connection-storage';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -16,12 +15,10 @@ import type {
 
 class CompassRendererConnectionStorage
   extends EventEmitter
-  implements CompassConnectionStorage
+  implements ConnectionStorage
 {
-  private _ipc: CompassConnectionStorageIPCInterface | undefined;
-  constructor(
-    private readonly ipcRenderer?: CompassConnectionStorageIPCRenderer
-  ) {
+  private _ipc: ConnectionStorageIPCInterface | undefined;
+  constructor(private readonly ipcRenderer?: ConnectionStorageIPCRenderer) {
     super();
   }
 
@@ -29,7 +26,7 @@ class CompassRendererConnectionStorage
     const ipc =
       this._ipc ??
       (this._ipc = this.ipcRenderer?.createInvoke<
-        CompassConnectionStorage,
+        ConnectionStorageIPCInterface,
         | 'loadAll'
         | 'load'
         | 'save'
@@ -153,17 +150,4 @@ class CompassRendererConnectionStorage
   }
 }
 
-export type { CompassRendererConnectionStorage };
-
-let rendererConnectionStorage: CompassRendererConnectionStorage | null = null;
-
-export const getCompassRendererConnectionStorage =
-  (): CompassRendererConnectionStorage => {
-    if (!rendererConnectionStorage) {
-      rendererConnectionStorage = new CompassRendererConnectionStorage(
-        ipcRenderer
-      );
-    }
-
-    return rendererConnectionStorage;
-  };
+export { CompassRendererConnectionStorage };

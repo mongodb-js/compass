@@ -9,11 +9,6 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
-import {
-  type ConnectionInfo,
-  type CompassConnectionStorage,
-  NoopCompassConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 import Connections from './connections';
@@ -21,10 +16,20 @@ import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import {
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { LegacyConnectionsModal } from './legacy-connections-modal';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
@@ -32,24 +37,6 @@ function getConnectionsManager(mockTestConnectFn?: typeof connect) {
     logger: log.unbound,
     __TEST_CONNECT_FN: mockTestConnectFn,
   });
-}
-
-function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
-  const mockStorage = new NoopCompassConnectionStorage();
-
-  mockStorage.loadAll = () => {
-    return Promise.resolve(mockConnections);
-  };
-  mockStorage.getLegacyConnections = () => Promise.resolve([]);
-  mockStorage.save = () => Promise.resolve();
-  mockStorage.delete = () => Promise.resolve();
-  mockStorage.load = ({ id }) =>
-    Promise.resolve(mockConnections.find((conn) => conn.id === id));
-  mockStorage.importConnections = () => Promise.resolve();
-  mockStorage.exportConnections = () => Promise.resolve('{}');
-  mockStorage.deserializeConnections = () => Promise.resolve([]);
-
-  return mockStorage;
 }
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
@@ -97,7 +84,7 @@ describe('Connections Component', function () {
   context('when rendered', function () {
     let loadConnectionsSpy: sinon.SinonSpy;
     beforeEach(function () {
-      const mockStorage = getMockConnectionStorage([]);
+      const mockStorage = new InMemoryConnectionStorage([]);
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
       render(
         <PreferencesProvider value={preferences}>
@@ -158,7 +145,7 @@ describe('Connections Component', function () {
 
   context('when rendered with saved connections in storage', function () {
     let connectSpyFn: sinon.SinonSpy;
-    let mockStorage: CompassConnectionStorage;
+    let mockStorage: ConnectionStorage;
     let savedConnectionId: string;
     let savedConnectionWithAppNameId: string;
     let saveConnectionSpy: sinon.SinonSpy;
@@ -185,7 +172,7 @@ describe('Connections Component', function () {
           },
         },
       ];
-      mockStorage = getMockConnectionStorage(connections);
+      mockStorage = new InMemoryConnectionStorage(connections);
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
       const connectionsManager = getConnectionsManager(() => {
@@ -381,7 +368,7 @@ describe('Connections Component', function () {
             },
           },
         ];
-        const mockStorage = getMockConnectionStorage(connections);
+        const mockStorage = new InMemoryConnectionStorage(connections);
         sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
         render(
@@ -513,7 +500,7 @@ describe('Connections Component', function () {
 
   context('when user has any legacy connection', function () {
     it('shows modal', async function () {
-      const mockStorage = getMockConnectionStorage([]);
+      const mockStorage = new InMemoryConnectionStorage([]);
       sinon
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection1' }]);
@@ -527,6 +514,7 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
@@ -543,7 +531,7 @@ describe('Connections Component', function () {
     });
 
     it('does not show modal when user hides it', async function () {
-      const mockStorage = getMockConnectionStorage([]);
+      const mockStorage = new InMemoryConnectionStorage([]);
       sinon
         .stub(mockStorage, 'getLegacyConnections')
         .resolves([{ name: 'Connection2' }]);
@@ -557,6 +545,7 @@ describe('Connections Component', function () {
                   onConnected={onConnectedSpy}
                   onConnectionFailed={onConnectionFailedSpy}
                   onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                  renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
                 />
               </ToastArea>
             </ConnectionsManagerProvider>
@@ -601,4 +590,64 @@ describe('Connections Component', function () {
       }).to.throw;
     });
   });
+
+  context(
+    'when connection import export modal creator is provided',
+    function () {
+      it('renders modal rendering component', async function () {
+        render(
+          <PreferencesProvider value={preferences}>
+            <ConnectionStorageProvider
+              value={new InMemoryConnectionStorage([])}
+            >
+              <ConnectionsManagerProvider value={getConnectionsManager()}>
+                <ToastArea>
+                  <Connections
+                    onConnected={onConnectedSpy}
+                    onConnectionFailed={onConnectionFailedSpy}
+                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
+                    useConnectionImportExportModalRenderer={() => {
+                      return {
+                        renderConnectionImportExportModal({ connections }) {
+                          return (
+                            <>
+                              <ImportConnectionsModal
+                                open={true}
+                                setOpen={() => {}}
+                                favoriteConnections={connections}
+                                trackingProps={{ context: 'connectionsList' }}
+                              />
+                              <ExportConnectionsModal
+                                open={true}
+                                setOpen={() => {}}
+                                favoriteConnections={connections}
+                                trackingProps={{ context: 'connectionsList' }}
+                              />
+                            </>
+                          );
+                        },
+                        openConnectionImportModal() {
+                          // noop
+                        },
+                        openConnectionExportModal() {
+                          // noop
+                        },
+                      };
+                    }}
+                  />
+                </ToastArea>
+              </ConnectionsManagerProvider>
+            </ConnectionStorageProvider>
+          </PreferencesProvider>
+        );
+
+        await waitFor(
+          () => expect(screen.getByTestId('connection-import-modal')).to.exist
+        );
+        await waitFor(
+          () => expect(screen.getByTestId('connection-export-modal')).to.exist
+        );
+      });
+    }
+  );
 });

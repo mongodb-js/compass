@@ -17,7 +17,7 @@ import type { DataService } from 'mongodb-data-service';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { WithAtlasProviders, WithStorageProviders } from './entrypoint';
 import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
-import { NoopCompassConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 const createDataService = () =>
   ({
@@ -56,14 +56,14 @@ const HOME_PROPS = {
   showSettings: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
   showWelcomeModal: false,
+  connectionStorage: new InMemoryConnectionStorage([TEST_CONNECTION_INFO]),
 } as const;
 
 describe('Home [Component]', function () {
   const testAppRegistry = new AppRegistry();
   function renderHome(
     props: Partial<ComponentProps<typeof Home>> = {},
-    dataService = createDataService(),
-    connectionStorage = new NoopCompassConnectionStorage()
+    dataService = createDataService()
   ) {
     render(
       <PreferencesProvider
@@ -89,7 +89,6 @@ describe('Home [Component]', function () {
                 __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
                   return Promise.resolve(dataService);
                 }}
-                __TEST_CONNECTION_STORAGE={connectionStorage}
                 __TEST_INITIAL_CONNECTION_INFO={TEST_CONNECTION_INFO}
                 {...props}
               />
@@ -158,17 +157,12 @@ describe('Home [Component]', function () {
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };
-        const connectionStorage = new NoopCompassConnectionStorage();
-        sinon
-          .stub(connectionStorage, 'loadAll')
-          .resolves([TEST_CONNECTION_INFO]);
         renderHome(
           {
             hideCollectionSubMenu: hideCollectionSubMenuSpy,
             onDisconnect: onDisconnectSpy,
           },
-          dataService,
-          connectionStorage
+          dataService
         );
         screen.logTestingPlaygroundURL();
         await waitForConnect();

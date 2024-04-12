@@ -91,6 +91,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
     });
@@ -153,6 +154,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
     });
@@ -193,6 +195,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
 
@@ -225,6 +228,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
 
@@ -261,6 +265,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
 
@@ -298,6 +303,7 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={() => true}
           removeAllRecentsConnections={removeAllRecentsConnectionsSpy}
           onDoubleClick={() => true}
+          showConnectionImportExportAction={false}
         />
       );
 

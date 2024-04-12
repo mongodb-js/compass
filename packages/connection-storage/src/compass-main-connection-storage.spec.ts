@@ -11,7 +11,7 @@ import {
   type CompassMainConnectionStorage,
   type ConnectionWithLegacyProps,
 } from './compass-main-connection-storage';
-import type { CompassConnectionStorageIPCMain } from './connection-storage';
+import type { ConnectionStorageIPCMain } from './connection-storage';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import Sinon from 'sinon';
 
@@ -60,7 +60,7 @@ const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
   let connectionStorage: CompassMainConnectionStorage;
-  let ipcMain: CompassConnectionStorageIPCMain;
+  let ipcMain: ConnectionStorageIPCMain;
 
   let tmpDir: string;
   beforeEach(async function () {

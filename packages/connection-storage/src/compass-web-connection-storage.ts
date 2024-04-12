@@ -1,11 +1,11 @@
 import {
   type ConnectionStorage,
-  NoopConnectionStorage,
   type ConnectionInfo,
 } from './connection-storage';
+import { InMemoryConnectionStorage } from './in-memory-connection-storage';
 
 export class CompassWebConnectionStorage
-  extends NoopConnectionStorage
+  extends InMemoryConnectionStorage
   implements ConnectionStorage
 {
   constructor(

@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import React from 'react';
 import type { ReactWrapper } from 'enzyme';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 
 import { CompassShell } from './components/compass-shell';
@@ -13,24 +14,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-
-// Wait until a component is present that is rendered in a limited number
-// of microtask queue iterations. In particular, this does *not* wait for the
-// event loop itself to progress.
-async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
-  let current = 0;
-  let result;
-  while (current++ < attempts) {
-    wrapper.update();
-    result = wrapper.find(Component);
-    // Return immediately if we found something
-    if (result.length > 0) {
-      return result;
-    }
-    await Promise.resolve(); // wait a microtask queue iteration
-  }
-  return result;
-}
+import {
+  ConnectionStorageProvider,
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 
 describe('CompassShellPlugin', function () {
   const dummyConnectionInfo = {
@@ -63,18 +50,27 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
-              <CompassShellPlugin />
-            </ConnectionInfoProvider>
-          </ConnectionsManagerProvider>
+          <ConnectionStorageProvider
+            value={new InMemoryConnectionStorage([dummyConnectionInfo])}
+          >
+            <ConnectionsManagerProvider value={connectionsManager}>
+              <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
+                <CompassShellPlugin />
+              </ConnectionInfoProvider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
 
-    const component = await waitForAsyncComponent(wrapper, CompassShell);
+    const component = await waitFor(() => {
+      wrapper?.update();
+      const component = wrapper?.find(CompassShell);
+      expect(component).to.have.lengthOf(1);
+      return component;
+    });
 
-    expect(component.exists()).to.equal(true);
+    expect(component?.exists()).to.equal(true);
   });
 
   it('emits an event on the app registry when it is expanded', async function () {
@@ -88,22 +84,28 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
-              <CompassShellPlugin />
-            </ConnectionInfoProvider>
-          </ConnectionsManagerProvider>
+          <ConnectionStorageProvider
+            value={new InMemoryConnectionStorage([dummyConnectionInfo])}
+          >
+            <ConnectionsManagerProvider value={connectionsManager}>
+              <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
+                <CompassShellPlugin />
+              </ConnectionInfoProvider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
 
-    const shellComponentWrapper = await waitForAsyncComponent(
-      wrapper,
-      CompassShell
-    );
+    const shellComponentWrapper = await waitFor(() => {
+      wrapper?.update();
+      const component = wrapper?.find(CompassShell);
+      expect(component).to.have.lengthOf(1);
+      return component;
+    });
 
-    const { emitShellPluginOpened } = shellComponentWrapper.props();
-    emitShellPluginOpened();
+    const { emitShellPluginOpened } = shellComponentWrapper?.props() ?? {};
+    emitShellPluginOpened?.();
 
     expect(eventOccured).to.equal(true);
   });

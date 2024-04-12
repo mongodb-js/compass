@@ -76,6 +76,7 @@ import {
   onAutoupdateSuccess,
 } from './utils/update-handlers';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
+import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -192,10 +193,13 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function () {
+    const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
     await defaultPreferencesInstance.refreshPreferences();
     const getAutoConnectInfo = await (
       await import('./utils/auto-connect')
-    ).loadAutoConnectInfo();
+    ).loadAutoConnectInfo(
+      connectionStorage.deserializeConnections.bind(connectionStorage)
+    );
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -228,6 +232,7 @@ const Application = View.extend({
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
+          connectionStorage={connectionStorage}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')

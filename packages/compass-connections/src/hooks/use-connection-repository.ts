@@ -3,8 +3,10 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 import isEqual from 'lodash/isEqual';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
-import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionStorageEvents,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import { useState, useEffect, useCallback } from 'react';
 import { BSON } from 'bson';
 

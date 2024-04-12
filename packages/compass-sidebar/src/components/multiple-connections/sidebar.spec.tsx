@@ -10,9 +10,13 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MultipleConnectionSidebar } from './sidebar';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionStorageProvider,
+  InMemoryConnectionStorage,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/provider';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
@@ -22,7 +26,6 @@ import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
 import { createInstance } from '../../../test/helpers';
-import { NoopCompassConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -60,7 +63,7 @@ describe('Multiple Connections Sidebar Component', function () {
   const globalAppRegistry = new AppRegistry();
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  const connectionStorage = stub(new NoopCompassConnectionStorage());
+  let connectionStorage: ConnectionStorage;
 
   const connectFn = stub();
 
@@ -101,17 +104,11 @@ describe('Multiple Connections Sidebar Component', function () {
   }
 
   beforeEach(function () {
-    connectionStorage.loadAll.resolves([savedConnection]);
-
+    connectionStorage = new InMemoryConnectionStorage([savedConnection]);
     doRender();
   });
 
   afterEach(function () {
-    connectionStorage.loadAll.reset();
-    connectionStorage.load.reset();
-    connectionStorage.save.reset();
-    connectionStorage.delete.reset();
-
     deactivate();
     cleanup();
   });
@@ -143,7 +140,6 @@ describe('Multiple Connections Sidebar Component', function () {
 
     describe('when failing to connect', function () {
       it('calls the connection function and renders the error toast', async function () {
-        connectionStorage.loadAll.resolves([savedConnection]);
         connectFn.returns(slowConnection(andFail('Expected failure')));
         parentSavedConnection = screen.getByTestId('saved-connection-12345');
 

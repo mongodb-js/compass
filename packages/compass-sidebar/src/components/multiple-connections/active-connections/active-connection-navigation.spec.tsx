@@ -1,22 +1,21 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
-import Sinon from 'sinon';
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
 import { createInstance } from '../../../../test/helpers';
 import {
-  NoopConnectionStorage,
+  InMemoryConnectionStorage,
   type ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/provider';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -65,8 +64,7 @@ describe('<ActiveConnectionNavigation />', function () {
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
-    mockConnectionStorage = new NoopConnectionStorage();
-    mockConnectionStorage.loadAll = Sinon.stub().resolves(mockConnections);
+    mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
 
     render(
       <ConnectionStorageProvider value={mockConnectionStorage}>

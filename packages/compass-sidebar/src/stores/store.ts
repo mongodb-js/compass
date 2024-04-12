@@ -6,7 +6,10 @@ import { changeInstance } from '../modules/instance';
 import type { Database } from '../modules/databases';
 import { changeDatabases } from '../modules/databases';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import { changeConnectionInfo } from '../modules/connection-info';
+import {
+  changeConnectionInfo,
+  setConnectionStorage,
+} from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { setDataService } from '../modules/data-service';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
@@ -16,18 +19,21 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { setIsPerformanceTabSupported } from '../modules/is-performance-tab-supported';
 import type { MongoServerError } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 export function createSidebarStore(
   {
     globalAppRegistry,
     instance,
     dataService,
+    connectionStorage,
     connectionInfo,
     logger: { log, mongoLogId },
   }: {
     globalAppRegistry: AppRegistry;
     instance: MongoDBInstance;
     dataService: DataService;
+    connectionStorage: ConnectionStorage;
     connectionInfo: ConnectionInfo | null | undefined;
     logger: LoggerAndTelemetry;
   },
@@ -118,6 +124,7 @@ export function createSidebarStore(
     onDatabasesChange.cancel();
   });
 
+  store.dispatch(setConnectionStorage(connectionStorage));
   store.dispatch(setDataService(dataService));
   if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
   const connectionOptions = dataService.getConnectionOptions();
