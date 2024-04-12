@@ -108,6 +108,8 @@ export function useDefaultAction<T>(
 const itemContainer = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
+  backgroundColor: 'var(--item-bg-color)',
+  backgroundRadious: 'var(--item-bg-radius)',
 
   '& .item-action-controls': {
     marginLeft: 'auto',

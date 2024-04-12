@@ -22,6 +22,7 @@ import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { TopPlaceholder } from './top-placeholder';
 import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import StyledNavigationItem from './styled-navigation-item';
 
 type Collection = {
   _id: string;
@@ -52,6 +53,7 @@ type PlaceholderTreeItem = {
   type: 'placeholder';
   level: number;
   id?: string;
+  colorCode?: string;
 };
 
 type ConnectionTreeItem = {
@@ -63,6 +65,7 @@ type ConnectionTreeItem = {
   isExpanded: boolean;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
   connectionInfo: ConnectionInfo;
 };
 
@@ -75,6 +78,7 @@ type DatabaseTreeItem = {
   isExpanded: boolean;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
 };
 
 type CollectionTreeItem = {
@@ -85,9 +89,10 @@ type CollectionTreeItem = {
   name: string;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
 };
 
-type TreeItem =
+export type TreeItem =
   | PlaceholderTreeItem
   | ConnectionTreeItem
   | DatabaseTreeItem
@@ -96,7 +101,7 @@ type TreeItem =
 type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
-  isSingleConnection?: boolean;
+  isSingleConnection: boolean;
   activeNamespace?: string;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
@@ -137,6 +142,8 @@ const connectionToItems = ({
     MAX_DATABASE_PLACEHOLDER_ITEMS
   );
 
+  const colorCode = connectionInfo.favorite?.color;
+
   const connectionTI: ConnectionTreeItem = {
     key: String(connectionIndex),
     level: 1,
@@ -147,6 +154,7 @@ const connectionToItems = ({
     setSize: connectionsLength,
     posInSet: connectionIndex + 1,
     connectionInfo,
+    colorCode,
   };
 
   if (!isExpanded) {
@@ -165,6 +173,7 @@ const connectionToItems = ({
               databasesLength: databases.length,
               expanded: dbExpanded,
               level: 2,
+              colorCode,
             });
           })
           .flat()
@@ -172,6 +181,7 @@ const connectionToItems = ({
           key: `${connectionIndex}-${index}`,
           level: 2,
           type: 'placeholder' as const,
+          colorCode,
         }))
   );
 };
@@ -189,6 +199,7 @@ const databaseToItems = ({
   databasesLength,
   expanded,
   level,
+  colorCode,
 }: {
   database: Database;
   connectionIndex?: number;
@@ -196,6 +207,7 @@ const databaseToItems = ({
   databasesLength: number;
   expanded?: Record<string, boolean>;
   level: number;
+  colorCode?: string;
 }): TreeItem[] => {
   const isExpanded = expanded ? expanded[id] : false;
   const isInConnection = typeof connectionIndex !== undefined;
@@ -211,6 +223,7 @@ const databaseToItems = ({
     isExpanded,
     setSize: databasesLength,
     posInSet: databaseIndex + 1,
+    colorCode,
   };
 
   if (!isExpanded) {
@@ -238,6 +251,7 @@ const databaseToItems = ({
           type: type as 'collection' | 'view' | 'timeseries',
           setSize: collections.length,
           posInSet: index + 1,
+          colorCode,
         }))
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: isInConnection
@@ -245,6 +259,7 @@ const databaseToItems = ({
             : `${databaseIndex}-${index}`,
           level: level + 1,
           type: 'placeholder' as const,
+          colorCode,
         }))
   );
 };
@@ -268,8 +283,10 @@ const NavigationItem = memo<{
 
   const itemData = items[index];
 
+  let Item: React.ReactElement;
+
   if (itemData.type === 'connection') {
-    return (
+    Item = (
       <ConnectionItem
         style={style}
         isReadOnly={isReadOnly}
@@ -282,10 +299,8 @@ const NavigationItem = memo<{
         {...itemData}
       ></ConnectionItem>
     );
-  }
-
-  if (itemData.type === 'database') {
-    return (
+  } else if (itemData.type === 'database') {
+    Item = (
       <DatabaseItem
         style={style}
         isReadOnly={isReadOnly}
@@ -297,36 +312,45 @@ const NavigationItem = memo<{
         {...itemData}
       ></DatabaseItem>
     );
+  } else {
+    Item = (
+      <div className={collectionItemContainer}>
+        <FadeInPlaceholder
+          isContentReady={itemData.type !== 'placeholder'}
+          contentContainerProps={{ style }}
+          fallbackContainerProps={{ style }}
+          content={() => {
+            return (
+              itemData.type !== 'placeholder' && (
+                <CollectionItem
+                  isReadOnly={isReadOnly}
+                  isSingleConnection={isSingleConnection}
+                  isActive={itemData.id === activeNamespace}
+                  isTabbable={itemData.id === currentTabbable}
+                  onNamespaceAction={onNamespaceAction}
+                  {...itemData}
+                ></CollectionItem>
+              )
+            );
+          }}
+          fallback={() => (
+            <PlaceholderItem
+              level={itemData.level}
+              isSingleConnection={isSingleConnection}
+            ></PlaceholderItem>
+          )}
+        ></FadeInPlaceholder>
+      </div>
+    );
   }
 
   return (
-    <div className={collectionItemContainer}>
-      <FadeInPlaceholder
-        isContentReady={itemData.type !== 'placeholder'}
-        contentContainerProps={{ style }}
-        fallbackContainerProps={{ style }}
-        content={() => {
-          return (
-            itemData.type !== 'placeholder' && (
-              <CollectionItem
-                isReadOnly={isReadOnly}
-                isSingleConnection={isSingleConnection}
-                isActive={itemData.id === activeNamespace}
-                isTabbable={itemData.id === currentTabbable}
-                onNamespaceAction={onNamespaceAction}
-                {...itemData}
-              ></CollectionItem>
-            )
-          );
-        }}
-        fallback={() => (
-          <PlaceholderItem
-            level={itemData.level}
-            isSingleConnection={isSingleConnection}
-          ></PlaceholderItem>
-        )}
-      ></FadeInPlaceholder>
-    </div>
+    <StyledNavigationItem
+      isSingleConnection={isSingleConnection}
+      colorCode={itemData.colorCode}
+    >
+      {Item}
+    </StyledNavigationItem>
   );
 }, areEqual);
 
