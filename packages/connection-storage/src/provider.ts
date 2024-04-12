@@ -7,7 +7,6 @@ import {
   ConnectionStorageEvents,
 } from './connection-storage';
 import { InMemoryConnectionStorage } from './in-memory-connection-storage';
-export * from './compass-web-connection-storage';
 
 export { ConnectionStorageEvents, InMemoryConnectionStorage };
 

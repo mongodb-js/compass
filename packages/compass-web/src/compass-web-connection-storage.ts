@@ -1,8 +1,8 @@
 import {
   type ConnectionStorage,
   type ConnectionInfo,
-} from './connection-storage';
-import { InMemoryConnectionStorage } from './in-memory-connection-storage';
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 
 export class CompassWebConnectionStorage
   extends InMemoryConnectionStorage
