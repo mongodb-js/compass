@@ -32,7 +32,7 @@ import {
 import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 

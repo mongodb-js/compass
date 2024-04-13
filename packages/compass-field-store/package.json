@@ -71,7 +71,6 @@
   },
   "dependencies": {
     "@mongodb-js/compass-connections": "^1.26.0",
-    "@mongodb-js/connection-storage": "^0.9.0",
     "hadron-app-registry": "^9.1.9",
     "lodash": "^4.17.21",
     "mongodb-schema": "^12.1.0",

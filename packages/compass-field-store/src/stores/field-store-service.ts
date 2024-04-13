@@ -3,7 +3,7 @@ import { createServiceLocator } from 'hadron-app-registry';
 import {
   connectionInfoAccessLocator,
   type ConnectionInfoAccess,
-} from '@mongodb-js/connection-storage/provider';
+} from '@mongodb-js/compass-connections/provider';
 import { useDispatch } from './context';
 import { documentsUpdated, schemaUpdated } from '../modules';
 
