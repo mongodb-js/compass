@@ -270,6 +270,7 @@ describe('queryBarReducer', function () {
             filter: { _id: { $exists: true } },
             collation: null,
             sort: null,
+            hint: null,
             skip: 0,
             limit: 10,
             maxTimeMS: 60000,

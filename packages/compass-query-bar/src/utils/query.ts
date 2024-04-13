@@ -1,6 +1,6 @@
 import { toJSString, validate } from 'mongodb-query-parser';
 import type { UserPreferences } from 'compass-preferences-model';
-import { isEqual, values } from 'lodash';
+import { isEqual } from 'lodash';
 import { prettify } from '@mongodb-js/compass-editor';
 
 import {
