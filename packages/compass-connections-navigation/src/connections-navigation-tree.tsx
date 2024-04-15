@@ -289,6 +289,7 @@ const NavigationItem = memo<{
   if (itemData.type === 'connection') {
     return (
       <ConnectionItem
+        connectionId={itemData.connectionInfo.id}
         style={style}
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
@@ -420,21 +421,26 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       );
     } else {
       const connection = connections[0];
-      return connection.databases.flatMap((database, databaseIndex) =>
-        databaseToItems({
+      return connection.databases.flatMap((database, databaseIndex) => {
+        let isExpanded = expanded && expanded[connection.connectionInfo.id];
+        if (!isExpanded) {
+          isExpanded = undefined;
+        }
+
+        return databaseToItems({
           connectionId: connection.connectionInfo.id, // 'TOFIX'
           database,
           databaseIndex,
           databasesLength: connection.databases.length || 0,
-          expanded: expanded[connection.connectionInfo.id],
+          expanded: isExpanded,
           level: 1,
-        })
-      );
+        });
+      });
     }
   }, [isSingleConnection, connections, expanded]);
 
   const onExpandedChange = useCallback(
-    ({ id, type, connectionId, ...props }, isExpanded: boolean) => {
+    ({ id, type, connectionId }, isExpanded: boolean) => {
       if (type === 'database') onDatabaseExpand(connectionId, id, isExpanded);
       if (type === 'connection') onConnectionExpand(id, isExpanded);
     },
@@ -548,8 +554,9 @@ const contentContainer = css({
 const NavigationWithPlaceholder: React.FunctionComponent<
   { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
 > = ({ isReady, ...props }) => {
-  const isSingleConnection = !!(props as SCConnectionsNavigationTreeProps)
-    .databases;
+  const isSingleConnection = !usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   return (
     <FadeInPlaceholder
       className={isSingleConnection ? SCContainer : MCContainer}
