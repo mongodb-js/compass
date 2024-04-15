@@ -319,7 +319,6 @@ const CompassWeb = ({
                         onConnected={onConnected}
                         onConnectionFailed={onConnectionFailed}
                         onConnectionAttemptStarted={onConnectionAttemptStarted}
-                        getAutoConnectInfo={onAutoconnectInfoRequestRef.current}
                       ></CompassConnections>
                     </div>
                   </FieldStorePlugin>
