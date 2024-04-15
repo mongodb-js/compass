@@ -15,6 +15,7 @@ import type {
   CommonImportExportState,
 } from './common';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 
 type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;
@@ -39,12 +40,10 @@ function connectionInfosToConnectionShortInfos(
 
 export function useExportConnections({
   finish,
-  favoriteConnections,
   open,
   trackingProps,
 }: {
   finish: (result: ImportExportResult) => void;
-  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   open: boolean;
   trackingProps?: Record<string, unknown>;
 }): {
@@ -56,6 +55,7 @@ export function useExportConnections({
   onChangeRemoveSecrets: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   state: ExportConnectionsState;
 } {
+  const { favoriteConnections } = useConnectionRepository();
   const connectionStorage = useConnectionStorageContext();
   const exportConnectionsImpl =
     connectionStorage.exportConnections?.bind(connectionStorage);

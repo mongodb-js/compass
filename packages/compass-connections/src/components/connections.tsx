@@ -13,7 +13,7 @@ import ConnectionForm from '@mongodb-js/connection-form';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { connect, DataService } from 'mongodb-data-service';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
 import { useConnections } from '../stores/connections-store';
@@ -81,8 +81,7 @@ function Connections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  useConnectionImportExportModalRenderer,
-  renderLegacyConnectionModal,
+  openConnectionImportExportModal,
   __TEST_INITIAL_CONNECTION_INFO,
 }: {
   appRegistry: AppRegistry;
@@ -95,14 +94,9 @@ function Connections({
     error: Error
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  useConnectionImportExportModalRenderer?: () => {
-    renderConnectionImportExportModal: React.FC<{
-      connections: ConnectionInfo[];
-    }>;
-    openConnectionImportModal: () => void;
-    openConnectionExportModal: () => void;
-  };
-  renderLegacyConnectionModal?: () => React.ReactElement | null;
+  openConnectionImportExportModal?: (
+    action: 'export-favorites' | 'import-favorites'
+  ) => void;
   __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
@@ -136,25 +130,6 @@ function Connections({
   } = state;
 
   const darkMode = useDarkMode();
-
-  const {
-    renderConnectionImportExportModal,
-    openConnectionImportModal,
-    openConnectionExportModal,
-  } = useConnectionImportExportModalRenderer?.() ?? {};
-
-  const openConnectionImportExportModal = useCallback(
-    (action: 'export-favorites' | 'import-favorites') => {
-      if (action === 'export-favorites') {
-        openConnectionExportModal?.();
-      } else {
-        openConnectionImportModal?.();
-      }
-    },
-    [openConnectionImportModal, openConnectionExportModal]
-  );
-
-  const showConnectionImportExportAction = !!renderConnectionImportExportModal;
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
@@ -210,7 +185,6 @@ function Connections({
           }}
           removeConnection={removeConnection}
           duplicateConnection={duplicateConnection}
-          showConnectionImportExportAction={showConnectionImportExportAction}
           openConnectionImportExportModal={openConnectionImportExportModal}
         />
       </ResizableSidebar>
@@ -264,14 +238,6 @@ function Connections({
           }
         />
       )}
-
-      {renderConnectionImportExportModal &&
-        React.createElement(renderConnectionImportExportModal, {
-          connections: favoriteConnections,
-        })}
-
-      {renderLegacyConnectionModal &&
-        React.createElement(renderLegacyConnectionModal)}
     </div>
   );
 }

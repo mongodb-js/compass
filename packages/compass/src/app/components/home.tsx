@@ -32,6 +32,7 @@ import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -156,31 +157,49 @@ function useConnectionImportExportModalRenderer() {
     setExportModalOpen(true);
   }, []);
 
-  return {
-    renderConnectionImportExportModal({
-      connections,
-    }: {
-      connections: ConnectionInfo[];
-    }) {
-      return (
-        <>
+  const ConnectionImportModal = useMemo(
+    () =>
+      function ConnectionImportModal() {
+        return (
           <ImportConnectionsModal
             open={importModalOpen}
             setOpen={setImportModalOpen}
-            favoriteConnections={connections}
             trackingProps={{ context: 'connectionsList' }}
           />
+        );
+      },
+    [importModalOpen]
+  );
+
+  const ConnectionExportModal = useMemo(
+    () =>
+      function ConnectionExportModal() {
+        return (
           <ExportConnectionsModal
             open={exportModalOpen}
             setOpen={setExportModalOpen}
-            favoriteConnections={connections}
             trackingProps={{ context: 'connectionsList' }}
           />
-        </>
-      );
+        );
+      },
+    [exportModalOpen]
+  );
+
+  const openConnectionImportExportModal = useCallback(
+    (action: 'export-favorites' | 'import-favorites') => {
+      if (action === 'export-favorites') {
+        openConnectionExportModal();
+      } else {
+        openConnectionImportModal();
+      }
     },
-    openConnectionImportModal,
-    openConnectionExportModal,
+    [openConnectionImportModal, openConnectionExportModal]
+  );
+
+  return {
+    ConnectionImportModal,
+    ConnectionExportModal,
+    openConnectionImportExportModal,
   };
 }
 
@@ -312,6 +331,12 @@ function Home({
     [setIsWelcomeOpen, showSettings]
   );
 
+  const {
+    ConnectionImportModal,
+    ConnectionExportModal,
+    openConnectionImportExportModal,
+  } = useConnectionImportExportModalRenderer();
+
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
@@ -349,10 +374,9 @@ function Home({
                 onConnected={onConnected}
                 onConnectionFailed={onConnectionFailed}
                 onConnectionAttemptStarted={onConnectionAttemptStarted}
-                useConnectionImportExportModalRenderer={
-                  useConnectionImportExportModalRenderer
+                openConnectionImportExportModal={
+                  openConnectionImportExportModal
                 }
-                renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
                 __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
               />
             </div>
@@ -361,6 +385,9 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
+          <ConnectionImportModal />
+          <ConnectionExportModal />
+          <LegacyConnectionsModal />
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     </FileInputBackendProvider>

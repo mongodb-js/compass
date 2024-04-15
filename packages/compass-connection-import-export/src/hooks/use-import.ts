@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   type ConnectionStorage,
-  type ConnectionInfo,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
 import { promises as fs } from 'fs';
@@ -14,6 +13,7 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingFavorite: boolean;
@@ -85,12 +85,10 @@ async function loadFile(
 
 export function useImportConnections({
   finish,
-  favoriteConnections,
   open,
   trackingProps,
 }: {
   finish: (result: ImportExportResult) => void;
-  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   open: boolean;
   trackingProps?: Record<string, unknown>;
 }): {
@@ -101,6 +99,7 @@ export function useImportConnections({
   onChangeConnectionList: (connectionInfos: ConnectionShortInfo[]) => void;
   state: ImportConnectionsState;
 } {
+  const { favoriteConnections } = useConnectionRepository();
   const connectionStorage = useConnectionStorageContext();
   const importConnectionsImpl =
     connectionStorage.importConnections?.bind(connectionStorage);

@@ -152,15 +152,8 @@ type ConnectionListProps = {
   removeAllRecentsConnections: () => void;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
-} & (
-  | {
-      showConnectionImportExportAction: true;
-      openConnectionImportExportModal: (action: FavoriteAction) => void;
-    }
-  | {
-      showConnectionImportExportAction: false;
-    }
-);
+  openConnectionImportExportModal?: (action: FavoriteAction) => void;
+};
 
 function ConnectionList({
   activeConnectionId,
@@ -173,7 +166,7 @@ function ConnectionList({
   removeAllRecentsConnections,
   duplicateConnection,
   removeConnection,
-  ...restProps
+  openConnectionImportExportModal,
 }: ConnectionListProps): React.ReactElement {
   const darkMode = useDarkMode();
   const [recentHoverProps, recentHeaderHover] = useHoverState();
@@ -235,10 +228,10 @@ function ConnectionList({
           >
             Saved connections
           </H3>
-          {restProps.showConnectionImportExportAction && (
+          {openConnectionImportExportModal && (
             <ItemActionControls<FavoriteAction>
               data-testid="favorites-menu"
-              onAction={restProps.openConnectionImportExportModal}
+              onAction={openConnectionImportExportModal}
               iconSize="small"
               actions={favoriteActions}
               isVisible={favoriteHeaderHover}

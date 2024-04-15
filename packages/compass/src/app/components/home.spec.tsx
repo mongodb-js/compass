@@ -1,6 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import {
   cleanup,
+  fireEvent,
   render,
   screen,
   waitFor,
@@ -110,7 +111,10 @@ describe('Home [Component]', function () {
     );
   }
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    sinon.restore();
+  });
 
   describe('is not connected', function () {
     it('renders the connect screen', function () {
@@ -192,7 +196,54 @@ describe('Home [Component]', function () {
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(<Home {...HOME_PROPS} />);
+      renderHome();
+    });
+
+    context('when user has any legacy connection', function () {
+      it('shows modal', async function () {
+        sinon
+          .stub(HOME_PROPS.connectionStorage, 'getLegacyConnections')
+          .resolves([{ name: 'Connection1' }]);
+
+        renderHome();
+
+        await waitFor(
+          () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
+        );
+
+        const modal = screen.getByTestId('legacy-connections-modal');
+        expect(within(modal).getByText('Connection1')).to.exist;
+      });
+
+      it('does not show modal when user hides it', async function () {
+        sinon
+          .stub(HOME_PROPS.connectionStorage, 'getLegacyConnections')
+          .resolves([{ name: 'Connection2' }]);
+
+        renderHome();
+
+        await waitFor(() => screen.getByTestId('legacy-connections-modal'));
+
+        const modal = screen.getByTestId('legacy-connections-modal');
+
+        const storageSpy = sinon.spy(Storage.prototype, 'setItem');
+
+        // Click the don't show again checkbox and close the modal
+        fireEvent.click(within(modal).getByText(/don't show this again/i));
+        fireEvent.click(within(modal).getByText(/close/i));
+
+        // rerender();
+
+        // Saves data in storage
+        expect(storageSpy.firstCall.args).to.deep.equal([
+          'hide_legacy_connections_modal',
+          'true',
+        ]);
+
+        expect(() => {
+          screen.getByTestId('legacy-connections-modal');
+        }).to.throw;
+      });
     });
   });
 });

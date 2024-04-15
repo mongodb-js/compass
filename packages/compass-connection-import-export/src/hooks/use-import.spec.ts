@@ -17,9 +17,15 @@ import {
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 
 type UseImportConnectionsProps = Parameters<typeof useImportConnections>[0];
 type UseImportConnectionsResult = ReturnType<typeof useImportConnections>;
+type UseConnectionRepositoryResult = ReturnType<typeof useConnectionRepository>;
+type HookResults = {
+  connectionRepository: UseConnectionRepositoryResult;
+  importConnections: UseImportConnectionsResult;
+};
 const exampleFileContents = '{"a":"b"}';
 
 describe('useImportConnections', function () {
@@ -29,9 +35,9 @@ describe('useImportConnections', function () {
   let defaultProps: UseImportConnectionsProps;
   let renderHookResult: RenderHookResult<
     Partial<UseImportConnectionsProps>,
-    UseImportConnectionsResult
+    HookResults
   >;
-  let result: RenderResult<UseImportConnectionsResult>;
+  let result: RenderResult<HookResults>;
   let rerender: (props: Partial<UseImportConnectionsProps>) => void;
   let tmpdir: string;
   let exampleFile: string;
@@ -45,7 +51,6 @@ describe('useImportConnections', function () {
     defaultProps = {
       finish,
       open: true,
-      favoriteConnections: [],
       trackingProps: { context: 'Tests' },
     };
     connectionStorage = new InMemoryConnectionStorage();
@@ -56,7 +61,13 @@ describe('useImportConnections', function () {
       });
     renderHookResult = renderHook(
       (props: Partial<UseImportConnectionsProps> = {}) => {
-        return useImportConnections({ ...defaultProps, ...props });
+        return {
+          connectionRepository: useConnectionRepository(),
+          importConnections: useImportConnections({
+            ...defaultProps,
+            ...props,
+          }),
+        };
       },
       { wrapper }
     );
@@ -98,19 +109,23 @@ describe('useImportConnections', function () {
       });
 
     act(() => {
-      result.current.onChangeFilename(exampleFile);
+      result.current.importConnections.onChangeFilename(exampleFile);
     });
-    expect(result.current.state.filename).to.equal(exampleFile);
-    expect(result.current.state.error).to.equal('');
-    expect(result.current.state.connectionList).to.deep.equal([]);
+    expect(result.current.importConnections.state.filename).to.equal(
+      exampleFile
+    );
+    expect(result.current.importConnections.state.error).to.equal('');
+    expect(result.current.importConnections.state.connectionList).to.deep.equal(
+      []
+    );
     await renderHookResult.waitForValueToChange(
-      () => result.current.state.connectionList.length
+      () => result.current.importConnections.state.connectionList.length
     );
 
     expect(deserializeStub).to.have.been.calledOnce;
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: true, isExistingFavorite: false },
-    ]);
+    expect(result.current.importConnections.state.connectionList).to.deep.equal(
+      [{ id: 'id1', name: 'name1', selected: true, isExistingFavorite: false }]
+    );
   });
 
   it('updates passphrase if changed', async function () {
@@ -149,30 +164,40 @@ describe('useImportConnections', function () {
       });
 
     act(() => {
-      result.current.onChangeFilename(exampleFile);
-      result.current.onChangePassphrase('wrong');
+      result.current.importConnections.onChangeFilename(exampleFile);
+      result.current.importConnections.onChangePassphrase('wrong');
     });
-    expect(result.current.state.passphrase).to.equal('wrong');
+    expect(result.current.importConnections.state.passphrase).to.equal('wrong');
 
-    expect(result.current.state.error).to.equal('');
+    expect(result.current.importConnections.state.error).to.equal('');
     await renderHookResult.waitForValueToChange(
-      () => result.current.state.error
+      () => result.current.importConnections.state.error
     );
-    expect(result.current.state.error).to.equal('wrong password');
-    expect(result.current.state.passphraseRequired).to.equal(true);
+    expect(result.current.importConnections.state.error).to.equal(
+      'wrong password'
+    );
+    expect(result.current.importConnections.state.passphraseRequired).to.equal(
+      true
+    );
 
     act(() => {
-      result.current.onChangePassphrase('s3cr3t');
+      result.current.importConnections.onChangePassphrase('s3cr3t');
     });
-    expect(result.current.state.passphrase).to.equal('s3cr3t');
-
-    await renderHookResult.waitForValueToChange(
-      () => result.current.state.error
+    expect(result.current.importConnections.state.passphrase).to.equal(
+      's3cr3t'
     );
 
-    expect(result.current.state.error).to.equal('');
-    expect(result.current.state.passphraseRequired).to.equal(true);
-    expect(result.current.state.connectionList).to.have.lengthOf(1);
+    await renderHookResult.waitForValueToChange(
+      () => result.current.importConnections.state.error
+    );
+
+    expect(result.current.importConnections.state.error).to.equal('');
+    expect(result.current.importConnections.state.passphraseRequired).to.equal(
+      true
+    );
+    expect(
+      result.current.importConnections.state.connectionList
+    ).to.have.lengthOf(1);
   });
 
   it('does not select existing favorites by default', async function () {
@@ -193,31 +218,50 @@ describe('useImportConnections', function () {
         ] as ConnectionInfo[]);
       });
 
-    rerender({
-      favoriteConnections: [{ id: 'id1', favorite: { name: 'name1' } }],
+    await act(async () => {
+      await result.current.connectionRepository.saveConnection({
+        id: 'id1',
+        connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+        favorite: {
+          name: 'name1',
+        },
+        savedConnectionType: 'favorite',
+      });
     });
+
+    rerender({});
     act(() => {
-      result.current.onChangeFilename(exampleFile);
+      result.current.importConnections.onChangeFilename(exampleFile);
     });
 
     await renderHookResult.waitForValueToChange(
-      () => result.current.state.connectionList.length
+      () => result.current.importConnections.state.connectionList.length
     );
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
-      { id: 'id2', name: 'name2', selected: true, isExistingFavorite: false },
-    ]);
+    expect(result.current.importConnections.state.connectionList).to.deep.equal(
+      [
+        { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
+        { id: 'id2', name: 'name2', selected: true, isExistingFavorite: false },
+      ]
+    );
 
-    rerender({
-      favoriteConnections: [
-        { id: 'id1', favorite: { name: 'name1' } },
-        { id: 'id2', favorite: { name: 'name2' } },
-      ],
+    await act(async () => {
+      await result.current.connectionRepository.saveConnection({
+        id: 'id2',
+        connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+        favorite: {
+          name: 'name2',
+        },
+        savedConnectionType: 'favorite',
+      });
     });
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
-      { id: 'id2', name: 'name2', selected: true, isExistingFavorite: true },
-    ]);
+
+    rerender({});
+    expect(result.current.importConnections.state.connectionList).to.deep.equal(
+      [
+        { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
+        { id: 'id2', name: 'name2', selected: true, isExistingFavorite: true },
+      ]
+    );
   });
 
   it('handles actual import', async function () {
@@ -241,21 +285,21 @@ describe('useImportConnections', function () {
         return Promise.resolve();
       });
     act(() => {
-      result.current.onChangeFilename(exampleFile);
+      result.current.importConnections.onChangeFilename(exampleFile);
     });
     await renderHookResult.waitForValueToChange(
-      () => result.current.state.fileContents
+      () => result.current.importConnections.state.fileContents
     );
 
     act(() => {
-      result.current.onChangeConnectionList([
+      result.current.importConnections.onChangeConnectionList([
         { id: 'id1', name: 'name1', selected: false },
         { id: 'id2', name: 'name2', selected: true },
       ]);
     });
 
     act(() => {
-      result.current.onSubmit();
+      result.current.importConnections.onSubmit();
     });
 
     expect(await finishedPromise).to.equal('succeeded');

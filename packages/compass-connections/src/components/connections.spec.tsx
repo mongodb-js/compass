@@ -5,7 +5,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
@@ -25,11 +24,6 @@ import {
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { LegacyConnectionsModal } from './legacy-connections-modal';
-import {
-  ImportConnectionsModal,
-  ExportConnectionsModal,
-} from '@mongodb-js/compass-connection-import-export';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLoggerAndTelemetry();
@@ -493,159 +487,6 @@ describe('Connections Component', function () {
               });
             });
           }
-        );
-      });
-    }
-  );
-
-  context('when user has any legacy connection', function () {
-    it('shows modal', async function () {
-      const mockStorage = new InMemoryConnectionStorage([]);
-      sinon
-        .stub(mockStorage, 'getLegacyConnections')
-        .resolves([{ name: 'Connection1' }]);
-
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      await waitFor(
-        () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
-      );
-
-      const modal = screen.getByTestId('legacy-connections-modal');
-      expect(within(modal).getByText('Connection1')).to.exist;
-    });
-
-    it('does not show modal when user hides it', async function () {
-      const mockStorage = new InMemoryConnectionStorage([]);
-      sinon
-        .stub(mockStorage, 'getLegacyConnections')
-        .resolves([{ name: 'Connection2' }]);
-
-      const { rerender } = render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  renderLegacyConnectionModal={() => <LegacyConnectionsModal />}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      await waitFor(() => screen.getByTestId('legacy-connections-modal'));
-
-      const modal = screen.getByTestId('legacy-connections-modal');
-
-      const storageSpy = sinon.spy(Storage.prototype, 'setItem');
-
-      // Click the don't show again checkbox and close the modal
-      fireEvent.click(within(modal).getByText(/don't show this again/i));
-      fireEvent.click(within(modal).getByText(/close/i));
-
-      rerender(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      // Saves data in storage
-      expect(storageSpy.firstCall.args).to.deep.equal([
-        'hide_legacy_connections_modal',
-        'true',
-      ]);
-
-      expect(() => {
-        screen.getByTestId('legacy-connections-modal');
-      }).to.throw;
-    });
-  });
-
-  context(
-    'when connection import export modal creator is provided',
-    function () {
-      it('renders modal rendering component', async function () {
-        render(
-          <PreferencesProvider value={preferences}>
-            <ConnectionStorageProvider
-              value={new InMemoryConnectionStorage([])}
-            >
-              <ConnectionsManagerProvider value={getConnectionsManager()}>
-                <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                    useConnectionImportExportModalRenderer={() => {
-                      return {
-                        renderConnectionImportExportModal({ connections }) {
-                          return (
-                            <>
-                              <ImportConnectionsModal
-                                open={true}
-                                setOpen={() => {}}
-                                favoriteConnections={connections}
-                                trackingProps={{ context: 'connectionsList' }}
-                              />
-                              <ExportConnectionsModal
-                                open={true}
-                                setOpen={() => {}}
-                                favoriteConnections={connections}
-                                trackingProps={{ context: 'connectionsList' }}
-                              />
-                            </>
-                          );
-                        },
-                        openConnectionImportModal() {
-                          // noop
-                        },
-                        openConnectionExportModal() {
-                          // noop
-                        },
-                      };
-                    }}
-                  />
-                </ToastArea>
-              </ConnectionsManagerProvider>
-            </ConnectionStorageProvider>
-          </PreferencesProvider>
-        );
-
-        await waitFor(
-          () => expect(screen.getByTestId('connection-import-modal')).to.exist
-        );
-        await waitFor(
-          () => expect(screen.getByTestId('connection-export-modal')).to.exist
         );
       });
     }

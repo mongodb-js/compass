@@ -14,7 +14,6 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
 
@@ -32,12 +31,10 @@ const selectTableColumns = [['displayName', 'Connection Name']] as const;
 export function ImportConnectionsModal({
   open,
   setOpen,
-  favoriteConnections,
   trackingProps,
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
-  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const { openToast } = useToast('compass-connection-import-export');
@@ -75,7 +72,6 @@ export function ImportConnectionsModal({
   } = useImportConnections({
     finish,
     open,
-    favoriteConnections,
     trackingProps,
   });
 

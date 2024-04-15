@@ -19,9 +19,15 @@ import {
   type ConnectionStorage,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 
 type UseExportConnectionsProps = Parameters<typeof useExportConnections>[0];
 type UseExportConnectionsResult = ReturnType<typeof useExportConnections>;
+type UseConnectionRepositoryResult = ReturnType<typeof useConnectionRepository>;
+type HookResults = {
+  connectionRepository: UseConnectionRepositoryResult;
+  exportConnections: UseExportConnectionsResult;
+};
 
 describe('useExportConnections', function () {
   let sandbox: sinon.SinonSandbox;
@@ -30,9 +36,9 @@ describe('useExportConnections', function () {
   let defaultProps: UseExportConnectionsProps;
   let renderHookResult: RenderHookResult<
     Partial<UseExportConnectionsProps>,
-    UseExportConnectionsResult
+    HookResults
   >;
-  let result: RenderResult<UseExportConnectionsResult>;
+  let result: RenderResult<HookResults>;
   let rerender: (props: Partial<UseExportConnectionsProps>) => void;
   let tmpdir: string;
   let connectionStorage: ConnectionStorage;
@@ -44,7 +50,6 @@ describe('useExportConnections', function () {
     });
     defaultProps = {
       finish,
-      favoriteConnections: [],
       open: true,
       trackingProps: { context: 'Tests' },
     };
@@ -57,7 +62,13 @@ describe('useExportConnections', function () {
 
     renderHookResult = renderHook(
       (props: Partial<UseExportConnectionsProps> = {}) => {
-        return useExportConnections({ ...defaultProps, ...props });
+        return {
+          connectionRepository: useConnectionRepository(),
+          exportConnections: useExportConnections({
+            ...defaultProps,
+            ...props,
+          }),
+        };
       },
       {
         wrapper,
@@ -79,13 +90,15 @@ describe('useExportConnections', function () {
   });
 
   it('sets removeSecrets if protectConnectionStrings is set', async function () {
-    expect(result.current.state.removeSecrets).to.equal(false);
+    expect(result.current.exportConnections.state.removeSecrets).to.equal(
+      false
+    );
     act(() => {
-      result.current.onChangeRemoveSecrets({
+      result.current.exportConnections.onChangeRemoveSecrets({
         target: { checked: true },
       } as any);
     });
-    expect(result.current.state.removeSecrets).to.equal(true);
+    expect(result.current.exportConnections.state.removeSecrets).to.equal(true);
 
     const preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({ protectConnectionStrings: true });
@@ -108,54 +121,93 @@ describe('useExportConnections', function () {
     expect(resultInProtectedMode.current.state.removeSecrets).to.equal(true);
   });
 
-  it('responds to changes in the connectionList specified via props', function () {
-    expect(result.current.state.connectionList).to.deep.equal([]);
+  it('responds to changes in the connectionList', async function () {
+    expect(result.current.exportConnections.state.connectionList).to.deep.equal(
+      []
+    );
 
-    rerender({
-      favoriteConnections: [{ id: 'id1', favorite: { name: 'name1' } }],
+    await act(async () => {
+      await result.current.connectionRepository.saveConnection({
+        id: 'id1',
+        connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+        favorite: {
+          name: 'name1',
+        },
+        savedConnectionType: 'favorite',
+      });
     });
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: true },
-    ]);
+    rerender({});
+    expect(result.current.exportConnections.state.connectionList).to.deep.equal(
+      [{ id: 'id1', name: 'name1', selected: true }]
+    );
 
     act(() => {
-      result.current.onChangeConnectionList([
+      result.current.exportConnections.onChangeConnectionList([
         { id: 'id1', name: 'name1', selected: false },
       ]);
     });
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: false },
-    ]);
+    expect(result.current.exportConnections.state.connectionList).to.deep.equal(
+      [{ id: 'id1', name: 'name1', selected: false }]
+    );
 
-    rerender({
-      favoriteConnections: [
-        { id: 'id1', favorite: { name: 'name1' } },
-        { id: 'id2', favorite: { name: 'name2' } },
-      ],
+    await act(async () => {
+      await result.current.connectionRepository.saveConnection({
+        id: 'id2',
+        connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+        favorite: {
+          name: 'name2',
+        },
+        savedConnectionType: 'favorite',
+      });
     });
 
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: false },
-      { id: 'id2', name: 'name2', selected: true },
-    ]);
+    expect(result.current.exportConnections.state.connectionList).to.deep.equal(
+      [
+        { id: 'id1', name: 'name1', selected: false },
+        { id: 'id2', name: 'name2', selected: true },
+      ]
+    );
   });
 
   it('updates filename if changed', function () {
     act(() => {
-      result.current.onChangeFilename('filename1234');
+      result.current.exportConnections.onChangeFilename('filename1234');
     });
-    expect(result.current.state.filename).to.equal('filename1234');
+    expect(result.current.exportConnections.state.filename).to.equal(
+      'filename1234'
+    );
   });
 
   it('handles actual export', async function () {
-    rerender({
-      favoriteConnections: [
-        { id: 'id1', favorite: { name: 'name1' } },
-        { id: 'id2', favorite: { name: 'name2' } },
-      ],
+    await act(async () => {
+      await connectionStorage.save?.({
+        connectionInfo: {
+          id: 'id1',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:2020',
+          },
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'name1',
+          },
+        },
+      });
+      await connectionStorage.save?.({
+        connectionInfo: {
+          id: 'id2',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:2021',
+          },
+          savedConnectionType: 'favorite',
+          favorite: {
+            name: 'name1',
+          },
+        },
+      });
     });
+    rerender({});
     act(() => {
-      result.current.onChangeConnectionList([
+      result.current.exportConnections.onChangeConnectionList([
         { id: 'id1', name: 'name1', selected: false },
         { id: 'id2', name: 'name2', selected: true },
       ]);
@@ -168,12 +220,12 @@ describe('useExportConnections', function () {
       .resolves(fileContents);
 
     act(() => {
-      result.current.onChangeFilename(filename);
-      result.current.onChangePassphrase('s3cr3t');
+      result.current.exportConnections.onChangeFilename(filename);
+      result.current.exportConnections.onChangePassphrase('s3cr3t');
     });
 
     act(() => {
-      result.current.onSubmit();
+      result.current.exportConnections.onSubmit();
     });
 
     expect(await finishedPromise).to.equal('succeeded');
@@ -193,29 +245,29 @@ describe('useExportConnections', function () {
       .resolves('');
 
     act(() => {
-      result.current.onChangeFilename(filename);
+      result.current.exportConnections.onChangeFilename(filename);
     });
 
-    expect(result.current.state.inProgress).to.equal(false);
+    expect(result.current.exportConnections.state.inProgress).to.equal(false);
     act(() => {
-      result.current.onSubmit();
+      result.current.exportConnections.onSubmit();
     });
 
-    expect(result.current.state.inProgress).to.equal(true);
-    expect(result.current.state.error).to.equal('');
+    expect(result.current.exportConnections.state.inProgress).to.equal(true);
+    expect(result.current.exportConnections.state.error).to.equal('');
     await renderHookResult.waitForValueToChange(
-      () => result.current.state.inProgress
+      () => result.current.exportConnections.state.inProgress
     );
-    expect(result.current.state.inProgress).to.equal(false);
-    expect(result.current.state.error).to.include('ENOENT');
+    expect(result.current.exportConnections.state.inProgress).to.equal(false);
+    expect(result.current.exportConnections.state.error).to.include('ENOENT');
 
     expect(exportConnectionsStub).to.have.been.calledOnce;
     expect(finish).to.not.have.been.called;
 
     act(() => {
-      result.current.onChangeFilename(filename + '-changed');
+      result.current.exportConnections.onChangeFilename(filename + '-changed');
     });
 
-    expect(result.current.state.error).to.equal('');
+    expect(result.current.exportConnections.state.error).to.equal('');
   });
 });
