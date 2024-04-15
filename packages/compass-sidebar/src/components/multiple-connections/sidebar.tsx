@@ -19,6 +19,7 @@ import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
 import type { SidebarThunkAction } from '../../modules';
+import { Navigation } from './navigation/navigation';
 
 type MultipleConnectionSidebarProps = {
   activeWorkspace: { type: string; namespace?: string } | null;
@@ -264,6 +265,7 @@ export function MultipleConnectionSidebar({
     <ResizableSidebar data-testid="navigation-sidebar">
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
+        <Navigation currentLocation={activeWorkspace?.type ?? null} />
         <ActiveConnectionNavigation activeWorkspace={activeWorkspace} />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
