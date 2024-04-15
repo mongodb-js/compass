@@ -15,6 +15,7 @@ import {
 import {
   getDestinationNamespaceFromStage,
   getStageOperator,
+  isOutputStage,
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
@@ -23,7 +24,6 @@ import {
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
 import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
-import toNS from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 
@@ -224,60 +224,28 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const isConfirmReceivedOrNotRequired = async (
+const confirmWriteOperationIfNeeded = async (
   instance: MongoDBInstance,
   dataService: DataService,
   namespace: string,
   pipeline: Document[]
 ) => {
   const lastStage = pipeline[pipeline.length - 1];
-  const lastStageName = Object.keys(lastStage)[0];
+  const lastStageOperator = Object.keys(lastStage)[0];
   let typeOfWrite;
 
-  if (!['$merge', '$out'].includes(lastStageName)) {
+  if (!isOutputStage(lastStageOperator)) {
     return true;
   }
 
-  let { database, collection } = toNS(namespace);
+  const destinationNamespace = getDestinationNamespaceFromStage(namespace, {
+    [lastStageOperator]: lastStage[lastStageOperator] ?? '',
+  });
 
-  if (typeof lastStage.$merge === 'string') {
-    collection = lastStage.$merge;
-  }
-
-  if (
-    typeof lastStage.$merge === 'object' &&
-    lastStage.$merge !== null &&
-    typeof lastStage.$merge.into === 'string'
-  ) {
-    collection = lastStage.$merge.into;
-  }
-
-  if (
-    typeof lastStage.$merge === 'object' &&
-    lastStage.$merge !== null &&
-    typeof lastStage.$merge.into === 'object' &&
-    lastStage.$merge.into !== null
-  ) {
-    database = lastStage.$merge.into.db;
-    collection = lastStage.$merge.into.coll;
-  }
-
-  if (typeof lastStage.$out === 'string') {
-    collection = lastStage.$out;
-  }
-
-  if (typeof lastStage.$out === 'object' && lastStage.$out !== null) {
-    database = lastStage.$out.db;
-    collection = lastStage.$out.coll;
-  }
-
-  const destinationNamespace = `${database}.${collection}`;
-
-  if (lastStage.$out) {
-    const isNamespaceExists = !!(await instance.getNamespace({
+  if (lastStageOperator === '$out') {
+    const isNamespaceExists = !!(await instance.isExistingNamespace({
       dataService,
-      database,
-      collection,
+      namespace: destinationNamespace,
     }));
     typeOfWrite = isNamespaceExists
       ? WriteOperation.Overwrite
@@ -286,7 +254,7 @@ const isConfirmReceivedOrNotRequired = async (
     typeOfWrite = WriteOperation.Alter;
   }
 
-  const confirmed = await showConfirmation({
+  return await showConfirmation({
     variant:
       typeOfWrite === WriteOperation.Overwrite
         ? ConfirmationModalVariant.Danger
@@ -295,16 +263,16 @@ const isConfirmReceivedOrNotRequired = async (
     description: runPipelineConfirmationDescription({
       typeOfWrite,
       stage: {
-        name: lastStageName,
-        link: WRITE_STAGE_LINK[lastStageName as keyof typeof WRITE_STAGE_LINK],
+        name: lastStageOperator,
+        link: WRITE_STAGE_LINK[
+          lastStageOperator as keyof typeof WRITE_STAGE_LINK
+        ],
       },
-      ns: destinationNamespace,
+      ns: destinationNamespace || 'N/A',
     }),
     buttonText: 'Yes, run pipeline',
     'data-testid': `write-operation-confirmation-modal`,
   });
-
-  return confirmed;
 };
 
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
@@ -317,7 +285,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
     const pipeline = getPipelineFromBuilderState(state, pipelineBuilder);
 
     if (
-      !(await isConfirmReceivedOrNotRequired(
+      !(await confirmWriteOperationIfNeeded(
         instance,
         dataService,
         state.namespace,

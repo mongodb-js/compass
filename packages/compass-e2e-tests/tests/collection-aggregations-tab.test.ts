@@ -631,6 +631,7 @@ describe('Collection aggregations tab', function () {
       .getText();
 
     expect(description).to.contain('creating');
+    expect(description).to.contain('test.my-out-collection');
 
     await browser.clickVisible(
       Selectors.AggregationWriteOperationConfirmButton
@@ -655,95 +656,6 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-out-collection` namespace tab to be visible',
       }
     );
-  });
-
-  it('finds $out destination as { $out: <collection> }', async function () {
-    await browser.selectStageOperator(0, '$out');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(0),
-      "'my-out-collection'"
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-
-    await browser.clickVisible(Selectors.AddStageButton);
-
-    await browser.focusStageOperator(1);
-    await browser.selectStageOperator(1, '$match');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(1),
-      `{ i: 5 }`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // delete the stage after $out
-    await deleteStage(browser, 1);
-
-    // run the $out stage
-    await browser.clickVisible(Selectors.RunPipelineButton);
-
-    // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
-      Selectors.AggregationWriteOperationConfirmationModal
-    );
-    await writeOperationConfirmationModal.waitForDisplayed();
-
-    const description = await browser
-      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
-      .getText();
-
-    expect(description).to.contain('creating');
-    expect(description).to.contain('test.my-out-collection');
-
-    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
-  });
-
-  it('finds $out destination as { $out: { db: <db>, coll: <collection> } }', async function () {
-    await browser.selectStageOperator(0, '$out');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(0),
-      `{
-  db: 'my-out-db',
-  coll: 'my-out-collection'
-}`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-
-    await browser.clickVisible(Selectors.AddStageButton);
-
-    await browser.focusStageOperator(1);
-    await browser.selectStageOperator(1, '$match');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(1),
-      `{ i: 5 }`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // delete the stage after $out
-    await deleteStage(browser, 1);
-
-    // run the $out stage
-    await browser.clickVisible(Selectors.RunPipelineButton);
-
-    // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
-      Selectors.AggregationWriteOperationConfirmationModal
-    );
-    await writeOperationConfirmationModal.waitForDisplayed();
-
-    const description = await browser
-      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
-      .getText();
-
-    expect(description).to.contain('creating');
-    expect(description).to.contain('my-out-db.my-out-collection');
-
-    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
   });
 
   it('cancels pipeline with $out as the last stage', async function () {
@@ -836,6 +748,7 @@ describe('Collection aggregations tab', function () {
       .getText();
 
     expect(description).to.contain('altering');
+    expect(description).to.contain('test.my-merge-collection');
 
     await browser.clickVisible(
       Selectors.AggregationWriteOperationConfirmButton
@@ -860,151 +773,6 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-merge-collection` namespace tab to be visible',
       }
     );
-  });
-
-  it('finds $merge destination as { $merge: <collection> }', async function () {
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
-    await browser.selectStageOperator(0, '$merge');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(0),
-      `'my-merge-collection'`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-
-    await browser.clickVisible(Selectors.AddStageButton);
-
-    await browser.focusStageOperator(1);
-    await browser.selectStageOperator(1, '$match');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(1),
-      `{ i: 5 }`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // delete the stage after $out
-    await deleteStage(browser, 1);
-
-    // run the $merge stage
-    await browser.clickVisible(Selectors.RunPipelineButton);
-
-    // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
-      Selectors.AggregationWriteOperationConfirmationModal
-    );
-    await writeOperationConfirmationModal.waitForDisplayed();
-
-    const description = await browser
-      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
-      .getText();
-
-    expect(description).to.contain('altering');
-    expect(description).to.contain('test.my-merge-collection');
-
-    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
-  });
-
-  it('finds $merge destination as { $merge: { into: <collection> } }', async function () {
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
-    await browser.selectStageOperator(0, '$merge');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(0),
-      `{
-  into: 'my-merge-collection'
-}`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-
-    await browser.clickVisible(Selectors.AddStageButton);
-
-    await browser.focusStageOperator(1);
-    await browser.selectStageOperator(1, '$match');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(1),
-      `{ i: 5 }`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // delete the stage after $out
-    await deleteStage(browser, 1);
-
-    // run the $merge stage
-    await browser.clickVisible(Selectors.RunPipelineButton);
-
-    // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
-      Selectors.AggregationWriteOperationConfirmationModal
-    );
-    await writeOperationConfirmationModal.waitForDisplayed();
-
-    const description = await browser
-      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
-      .getText();
-
-    expect(description).to.contain('altering');
-    expect(description).to.contain('test.my-merge-collection');
-
-    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
-  });
-
-  it('finds $merge destination as { $merge: { into: { db: <db>, coll: <collection> } } }', async function () {
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
-    await browser.selectStageOperator(0, '$merge');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(0),
-      `{
-  into: { db: 'my-merge-db', coll: 'my-merge-collection' }
-}`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-
-    await browser.clickVisible(Selectors.AddStageButton);
-
-    await browser.focusStageOperator(1);
-    await browser.selectStageOperator(1, '$match');
-    await browser.setCodemirrorEditorValue(
-      Selectors.stageEditor(1),
-      `{ i: 5 }`
-    );
-
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // delete the stage after $out
-    await deleteStage(browser, 1);
-
-    // run the $merge stage
-    await browser.clickVisible(Selectors.RunPipelineButton);
-
-    // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
-      Selectors.AggregationWriteOperationConfirmationModal
-    );
-    await writeOperationConfirmationModal.waitForDisplayed();
-
-    const description = await browser
-      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
-      .getText();
-
-    expect(description).to.contain('altering');
-    expect(description).to.contain('my-merge-db.my-merge-collection');
-
-    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
   });
 
   it('cancels pipeline with $merge as the last stage', async function () {

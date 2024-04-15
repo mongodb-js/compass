@@ -6,6 +6,7 @@ const TopologyType = require('./topology-type');
 const ServerType = require('./server-type');
 const Environment = require('./environment');
 const TopologyDescription = require('./topology-description');
+const toNS = require('mongodb-ns');
 
 const Inflight = new Map();
 
@@ -359,6 +360,21 @@ const InstanceModel = AmpersandModel.extend(
         return null;
       }
       return coll;
+    },
+
+    async isExistingNamespace({ dataService, namespace }) {
+      const { database, collection } = toNS(namespace);
+      await this.fetchDatabases({ dataService });
+      const db = this.databases.get(database);
+      if (!db) {
+        return false;
+      }
+      await db.fetchCollections({ dataService });
+      const coll = db.collections.get(collection, 'name');
+      if (!coll) {
+        return false;
+      }
+      return true;
     },
 
     removeAllListeners() {

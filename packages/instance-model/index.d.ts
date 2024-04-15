@@ -3,6 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 import Database from 'mongodb-database-model';
 import { CollectionCollection } from 'mongodb-collection-model';
+import type { NS } from 'mongodb-ns';
 
 declare const ServerType: {
   humanize(serverType: string): string;
@@ -127,6 +128,10 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
     database: string;
     collection: string;
   }): Promise<Collection | null>;
+  isExistingNamespace(opts: {
+    dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>;
+    namespace: string | NS;
+  });
   removeAllListeners(): void;
   on(evt: string, fn: (...args: any) => void);
   removeListener(evt: string, fn: (...args: any) => void);
