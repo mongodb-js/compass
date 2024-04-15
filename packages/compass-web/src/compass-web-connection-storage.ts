@@ -8,14 +8,26 @@ export class CompassWebConnectionStorage
   extends InMemoryConnectionStorage
   implements ConnectionStorage
 {
+  private autoConnectInfo: ConnectionInfo | null = null;
   constructor(
-    private readonly getAutoConnectInfo: () => Promise<ConnectionInfo>
+    private readonly _getAutoConnectInfo: () => Promise<ConnectionInfo>
   ) {
     super();
   }
 
   async loadAll(): Promise<ConnectionInfo[]> {
-    const connectionInfo = await this.getAutoConnectInfo();
-    return [connectionInfo];
+    if (this.autoConnectInfo === null) {
+      this.autoConnectInfo = await this._getAutoConnectInfo();
+    }
+    return [this.autoConnectInfo];
+  }
+
+  async load({ id }: { id: string }): Promise<ConnectionInfo | undefined> {
+    if (this.autoConnectInfo === null) {
+      this.autoConnectInfo = await this._getAutoConnectInfo();
+    }
+    if (id === this.autoConnectInfo.id) {
+      return this.autoConnectInfo;
+    }
   }
 }
