@@ -2,15 +2,21 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ActiveConnectionList } from './active-connection-list';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import ActiveConnectionNavigation from './active-connection-navigation';
+import {
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import Sinon from 'sinon';
-import EventEmitter from 'events';
+import { createSidebarStore } from '../../../stores';
+import { Provider } from 'react-redux';
+import AppRegistry from 'hadron-app-registry';
+import { createInstance } from '../../../../test/helpers';
+import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -32,33 +38,58 @@ const mockConnections: ConnectionInfo[] = [
   },
 ];
 
-describe('<ActiveConnectionList />', function () {
+describe('<ActiveConnectionNavigation />', function () {
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: typeof ConnectionStorage;
+  let store: ReturnType<typeof createSidebarStore>['store'];
+  let deactivate: () => void;
+  const instance = createInstance();
+  const globalAppRegistry = new AppRegistry();
 
   beforeEach(() => {
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
     mockConnectionStorage = {
-      events: new EventEmitter(),
       loadAll: Sinon.stub().resolves(mockConnections),
+      events: new ConnectionStorageBus(),
     } as any;
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        dataService: {
+          getConnectionOptions() {
+            return {};
+          },
+          currentOp() {},
+          top() {},
+        },
+        instance,
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} } as any
+    ));
 
     render(
       <ConnectionStorageProvider value={mockConnectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager}>
-          <ActiveConnectionList />
+          <Provider store={store}>
+            <ActiveConnectionNavigation
+              activeWorkspace={{ type: 'connection' }}
+            />
+          </Provider>
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     );
   });
 
-  it('Should render all active connections - using their correct titles', async function () {
+  afterEach(() => {
+    deactivate();
+  });
+
+  it('Should render the number of connections', async function () {
     await waitFor(() => {
       expect(screen.queryByText('(2)')).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
-      expect(screen.queryByText('peaches')).to.be.visible;
     });
   });
 });

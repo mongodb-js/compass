@@ -1,20 +1,39 @@
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { createContext, useContext } from 'react';
+import { type MongoDBInstancesManager } from './instances-manager';
 
-export const InstancesContext = createContext<
-  Record<ConnectionInfo['id'], MongoDBInstance>
->({});
+export {
+  MongoDBInstancesManagerEvents,
+  type MongoDBInstancesManager,
+} from './instances-manager';
 
-export const MongoDBInstanceProvider = InstancesContext.Provider;
+export const MongoDBInstancesManagerContext =
+  createContext<MongoDBInstancesManager | null>(null);
+
+export const MongoDBInstancesManagerProvider =
+  MongoDBInstancesManagerContext.Provider;
+
+export const mongoDBInstancesManagerLocator = createServiceLocator(
+  function mongoDBInstancesManagerLocator(): MongoDBInstancesManager {
+    const instancesManager = useContext(MongoDBInstancesManagerContext);
+    if (!instancesManager) {
+      throw new Error(
+        'No MongoDBInstancesManager available in this context, provider was not setup correctly'
+      );
+    }
+    return instancesManager;
+  }
+);
 
 export const mongoDBInstanceLocator = createServiceLocator(
   function mongoDBInstanceLocator(): MongoDBInstance {
     const connectionInfo = useConnectionInfo();
-    const instances = useContext(InstancesContext);
-    const instance = instances[connectionInfo.id];
+    const instancesManager = mongoDBInstancesManagerLocator();
+    const instance = instancesManager.getMongoDBInstanceForConnection(
+      connectionInfo.id
+    );
     if (!instance) {
       throw new Error('No MongoDBInstance available in this context');
     }

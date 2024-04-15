@@ -4,28 +4,27 @@ import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/pro
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { MongoDBInstance } from 'mongodb-instance-model';
-import { InstancesContext } from './provider';
+import { MongoDBInstancesManagerContext } from './provider';
 import { createInstancesStore } from './stores';
 import {
   connectionsManagerLocator,
   type ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type MongoDBInstancesManager } from './instances-manager';
 
 interface MongoDBInstancesProviderProps {
   children: React.ReactNode;
-  instances: Record<ConnectionInfo['id'], MongoDBInstance>;
+  instancesManager: MongoDBInstancesManager;
 }
 
-function MongoDBInstancesProvider({
+function MongoDBInstancesManagerProvider({
   children,
-  instances,
+  instancesManager,
 }: MongoDBInstancesProviderProps) {
   return (
-    <InstancesContext.Provider value={instances}>
+    <MongoDBInstancesManagerContext.Provider value={instancesManager}>
       {children}
-    </InstancesContext.Provider>
+    </MongoDBInstancesManagerContext.Provider>
   );
 }
 
@@ -38,8 +37,8 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
 >(
   {
     name: 'CompassInstanceStore',
-    component: MongoDBInstancesProvider as React.FunctionComponent<
-      Omit<MongoDBInstancesProviderProps, 'instances'>
+    component: MongoDBInstancesManagerProvider as React.FunctionComponent<
+      Omit<MongoDBInstancesProviderProps, 'instancesManager'>
     >,
     activate(
       _: unknown,

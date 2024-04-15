@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from './connection-info-provider';
 
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
@@ -9,6 +9,7 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './stores/connections-store';
+export { useConnectionRepository } from './hooks/use-connection-repository';
 export { useActiveConnections } from './hooks/use-active-connections';
 
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
@@ -79,3 +80,4 @@ export {
   type CanNotOpenConnectionReason,
   useCanOpenNewConnections,
 } from './hooks/use-can-open-new-connections';
+export * from './connection-info-provider';

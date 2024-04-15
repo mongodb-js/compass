@@ -133,6 +133,7 @@ describe('PipelineAI Component', function () {
         store.dispatch({
           type: AIPipelineActionTypes.LoadGeneratedPipeline,
           pipelineText: '[{$group: {_id: "$price"}}]',
+          requestId: 'pineapple',
           pipeline: [{ $group: { _id: '$price' } }],
           syntaxErrors: [],
           stages: [],
@@ -161,6 +162,7 @@ describe('PipelineAI Component', function () {
                 event: 'PipelineAI Feedback',
                 properties: {
                   feedback: 'positive',
+                  request_id: 'pineapple',
                   text: 'this is the pipeline I was looking for',
                 },
               },

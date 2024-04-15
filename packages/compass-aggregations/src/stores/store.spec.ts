@@ -124,12 +124,13 @@ describe('Aggregation Store', function () {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipelineBuilder.aiPipeline).to.deep.equal({
-            aiPipelineFetchId: -1,
+            aiPipelineRequestId: null,
             aiPromptText: 'group by price',
             errorMessage: undefined,
             errorCode: undefined,
             isAggregationGeneratedFromQuery: true,
             isInputVisible: true,
+            lastAIPipelineRequestId: 'abc',
             status: 'success',
           });
           done();
@@ -140,6 +141,7 @@ describe('Aggregation Store', function () {
           aggregation: {
             pipeline: '[{ $group: { _id: "$price" } }]',
           },
+          requestId: 'abc',
         });
       });
     });
