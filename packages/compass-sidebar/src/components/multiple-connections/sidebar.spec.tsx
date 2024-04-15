@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { stub, spy } from 'sinon';
 import {
   render,
   screen,
@@ -9,11 +9,11 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MultipleConnectionSidebar } from './sidebar';
+import MultipleConnectionSidebar from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
 import {
-  ConnectionStorageContext,
+  ConnectionStorageProvider,
   type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
@@ -22,6 +22,10 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
+import { createSidebarStore } from '../../stores';
+import { Provider } from 'react-redux';
+import AppRegistry from 'hadron-app-registry';
+import { createInstance } from '../../../test/helpers';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -72,6 +76,11 @@ describe('Multiple Connections Sidebar Component', function () {
     save: stub(),
     delete: stub(),
   };
+  const instance = createInstance();
+  const globalAppRegistry = new AppRegistry();
+  const emitSpy = spy(globalAppRegistry, 'emit');
+  let store: ReturnType<typeof createSidebarStore>['store'];
+  let deactivate: () => void;
 
   const connectFn = stub();
 
@@ -81,14 +90,33 @@ describe('Multiple Connections Sidebar Component', function () {
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
     });
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        dataService: {
+          getConnectionOptions() {
+            return {};
+          },
+          currentOp() {},
+          top() {},
+        },
+        instance,
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} } as any
+    ));
 
     return render(
       <ToastArea>
-        <ConnectionStorageContext.Provider value={storage}>
+        <ConnectionStorageProvider value={storage}>
           <ConnectionsManagerProvider value={connectionManager}>
-            <MultipleConnectionSidebar />
+            <Provider store={store}>
+              <MultipleConnectionSidebar
+                activeWorkspace={{ type: 'connection' }}
+              />
+            </Provider>
           </ConnectionsManagerProvider>
-        </ConnectionStorageContext.Provider>
+        </ConnectionStorageProvider>
       </ToastArea>
     );
   }
@@ -105,7 +133,9 @@ describe('Multiple Connections Sidebar Component', function () {
     connectionStorage.save.reset();
     connectionStorage.delete.reset();
 
+    deactivate();
     cleanup();
+    emitSpy.resetHistory();
   });
 
   describe('opening a new connection', function () {
@@ -154,6 +184,17 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByText('Expected failure')).to.exist;
         });
       });
+    });
+  });
+
+  describe('actions', () => {
+    it('when clicking on the Settings btn, it emits open-compass-settings', () => {
+      const settingsBtn = screen.getByTitle('Compass Settings');
+      expect(settingsBtn).to.be.visible;
+
+      userEvent.click(settingsBtn);
+
+      expect(emitSpy).to.have.been.calledWith('open-compass-settings');
     });
   });
 });

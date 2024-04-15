@@ -54,6 +54,7 @@ import {
 } from './components/item-action-controls';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';

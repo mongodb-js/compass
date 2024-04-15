@@ -27,10 +27,11 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[1],
+  marginBottom: spacing[300],
 });
 
 const inputBarContainerStyles = css({
-  paddingTop: spacing[2],
+  paddingTop: spacing[100],
   gap: spacing[2],
   flexGrow: 1,
   display: 'flex',

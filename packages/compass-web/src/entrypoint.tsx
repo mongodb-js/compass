@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { connect } from 'mongodb-data-service';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import React, { useCallback, useRef, useState } from 'react';
+import { AppRegistryProvider, useGlobalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  type ConnectionInfo,
+  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import WorkspacesPlugin, {
@@ -13,12 +14,7 @@ import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
-import {
-  CompassComponentsProvider,
-  SpinLoaderWithLabel,
-  css,
-} from '@mongodb-js/compass-components';
-import { ConnectionString } from 'mongodb-connection-string-url';
+import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -48,18 +44,19 @@ import {
   PreferencesProvider,
   ReadOnlyPreferenceAccess,
 } from 'compass-preferences-model/provider';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
+  AtlasAuthService,
   AtlasAuthServiceProvider,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
+import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
-import { ConnectionInfoProvider } from '@mongodb-js/connection-storage/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import CompassConnections from '@mongodb-js/compass-connections';
 
 class CloudAtlasAuthService extends AtlasAuthService {
   signIn() {
@@ -79,9 +76,59 @@ class CloudAtlasAuthService extends AtlasAuthService {
   }
 }
 
+// TODO: Make connection storage interface closer to the reality where most of
+// these methods are not something that will work or be supported in compass-web
+class NoopConnectionStorage implements ConnectionStorage {
+  static events = {
+    on() {
+      // noop
+    },
+    off() {
+      // noop
+    },
+    once() {
+      // noop
+    },
+    removeListener() {
+      // noop
+    },
+    emit() {
+      // noop
+    },
+  };
+  static importConnections() {
+    return Promise.resolve();
+  }
+  static exportConnections() {
+    return Promise.resolve('[]');
+  }
+  static deserializeConnections() {
+    return Promise.resolve([]);
+  }
+  // TODO: This seems to be what connection repository is managing now, not
+  // connection storage, move it
+  static getLegacyConnections() {
+    return Promise.resolve([]);
+  }
+  static loadAll() {
+    return Promise.resolve([]);
+  }
+  static load() {
+    return Promise.resolve();
+  }
+  static save() {
+    return Promise.resolve();
+  }
+  static delete() {
+    return Promise.resolve();
+  }
+}
+
+const atlasAuthService = new CloudAtlasAuthService();
+
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
-    <AtlasAuthServiceProvider value={new CloudAtlasAuthService()}>
+    <AtlasAuthServiceProvider value={atlasAuthService}>
       <AtlasServiceProvider>
         <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
       </AtlasServiceProvider>
@@ -92,46 +139,23 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
->;
+> & { connectionInfo: ConnectionInfo };
 
 type CompassWebProps = {
+  appName?: string;
   darkMode?: boolean;
   stackedElementsZIndex?: number;
-  connectionInfo: ConnectionInfo;
+  onAutoconnectInfoRequest: () => Promise<ConnectionInfo>;
+  renderConnecting?: (connectionInfo: ConnectionInfo) => React.ReactNode;
+  renderError?: (
+    connectionInfo: ConnectionInfo | null,
+    err: any
+  ) => React.ReactNode;
   initialPreferences?: Partial<AllPreferences>;
-} & CompassWorkspaceProps;
-
-const loadingContainerStyles = css({
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
-const spinnerStyles = css({
-  flex: 'none',
-});
-
-function LoadingScreen({ connectionString }: { connectionString: string }) {
-  const host = useMemo(() => {
-    try {
-      const url = new ConnectionString(connectionString);
-      return url.hosts[0];
-    } catch {
-      return 'cluster';
-    }
-  }, [connectionString]);
-
-  return (
-    <div data-testid="compass-web-loading" className={loadingContainerStyles}>
-      <SpinLoaderWithLabel
-        className={spinnerStyles}
-        progressText={`Connecting to ${host}…`}
-      ></SpinLoaderWithLabel>
-    </div>
-  );
-}
+} & Pick<
+  CompassWorkspaceProps,
+  'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
+>;
 
 function CompassWorkspace({
   initialWorkspaceTabs,
@@ -207,16 +231,71 @@ const connectedContainerStyles = css({
 });
 
 const CompassWeb = ({
+  appName,
   darkMode,
-  connectionInfo,
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   initialPreferences,
   stackedElementsZIndex,
+  onAutoconnectInfoRequest,
+  renderConnecting = () => null,
+  renderError = () => null,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+  // @ts-expect-error see above
+  __TEST_CONNECTION_STORAGE,
 }: CompassWebProps) => {
+  // It's imperative that this method doesn't change during render otherwise the
+  // application will be stuck in a neverending re-connect loop
+  const onAutoconnectInfoRequestRef = useRef(onAutoconnectInfoRequest);
+  const appRegistry = useGlobalAppRegistry();
+  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-WEB-UI');
+
+  const connectionsManager = useRef(
+    new ConnectionsManager({
+      appName,
+      logger: loggerAndTelemetry.log.unbound,
+      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+    })
+  );
+
+  const [{ connectionInfo, isConnected, connectionError }, setConnectedState] =
+    useState<{
+      connectionInfo: ConnectionInfo | null;
+      isConnected: boolean;
+      connectionError: any | null;
+    }>({ connectionInfo: null, isConnected: false, connectionError: null });
+
+  const onConnected = useCallback((connectionInfo: ConnectionInfo) => {
+    setConnectedState({
+      isConnected: true,
+      connectionInfo,
+      connectionError: null,
+    });
+  }, []);
+
+  const onConnectionFailed = useCallback((_connectionInfo, error: Error) => {
+    setConnectedState({
+      isConnected: false,
+      connectionInfo: null,
+      connectionError: error,
+    });
+  }, []);
+
+  const onConnectionAttemptStarted = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      setConnectedState({
+        isConnected: false,
+        connectionInfo,
+        connectionError: null,
+      });
+    },
+    []
+  );
+
+  const connectionStorage = __TEST_CONNECTION_STORAGE ?? NoopConnectionStorage;
+
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({
       maxTimeMS: 10_000,
@@ -236,78 +315,64 @@ const CompassWeb = ({
       ...initialPreferences,
     })
   );
-  const [connected, setConnected] = useState(false);
-  const [connectionError, setConnectionError] = useState<any | null>(null);
-  const { log } = useLoggerAndTelemetry('CONNECTIONS-MANAGER');
-  const connectionsManager = useRef(
-    new ConnectionsManager({
-      logger: log.unbound,
-      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN as
-        | typeof connect
-        | undefined,
-    })
-  );
-
-  useEffect(() => {
-    const connectionsManagerCurrent = connectionsManager.current;
-    void (async () => {
-      try {
-        await connectionsManagerCurrent.connect(connectionInfo);
-        setConnected(true);
-      } catch (err) {
-        setConnectionError(err);
-      }
-    })();
-    return () => {
-      void connectionsManagerCurrent.closeConnection(connectionInfo.id);
-    };
-  }, [connectionInfo, __TEST_MONGODB_DATA_SERVICE_CONNECT_FN]);
-
-  const compassComponentsProviderProps = useMemo(
-    () => ({
-      darkMode,
-      stackedElementsZIndex,
-      ...LINK_PROPS,
-    }),
-    [darkMode, stackedElementsZIndex]
-  );
-
-  // Re-throw connection error so that parent component can render an
-  // appropriate error screen with an error boundary (only relevant while we are
-  // handling a single connection)
-  if (connectionError) {
-    throw connectionError;
-  }
 
   return (
-    <CompassComponentsProvider {...compassComponentsProviderProps}>
-      <PreferencesProvider value={preferencesAccess.current}>
-        <WithAtlasProviders>
-          <AppRegistryProvider scopeName="Compass Web Root">
-            <ConnectionsManagerProvider value={connectionsManager.current}>
-              <CompassInstanceStorePlugin>
-                <ConnectionInfoProvider value={connectionInfo}>
-                  {connected ? (
-                    <FieldStorePlugin>
-                      <CompassWorkspace
-                        initialWorkspaceTabs={initialWorkspaceTabs}
-                        onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                      />
-                    </FieldStorePlugin>
-                  ) : (
-                    <LoadingScreen
-                      connectionString={
-                        connectionInfo.connectionOptions.connectionString
-                      }
-                    ></LoadingScreen>
-                  )}
-                </ConnectionInfoProvider>
-              </CompassInstanceStorePlugin>
-            </ConnectionsManagerProvider>
-          </AppRegistryProvider>
-        </WithAtlasProviders>
-      </PreferencesProvider>
-    </CompassComponentsProvider>
+    <AppRegistryProvider scopeName="Compass Web Root">
+      <CompassComponentsProvider
+        darkMode={darkMode}
+        stackedElementsZIndex={stackedElementsZIndex}
+        {...LINK_PROPS}
+      >
+        <PreferencesProvider value={preferencesAccess.current}>
+          <WithAtlasProviders>
+            <ConnectionStorageProvider value={connectionStorage}>
+              <ConnectionsManagerProvider value={connectionsManager.current}>
+                <CompassInstanceStorePlugin>
+                  <FieldStorePlugin>
+                    <ConnectionInfoProvider value={connectionInfo}>
+                      {isConnected && connectionInfo ? (
+                        <AppRegistryProvider
+                          key={connectionInfo.id}
+                          scopeName="Connected Application"
+                        >
+                          <CompassWorkspace
+                            connectionInfo={connectionInfo}
+                            initialWorkspaceTabs={initialWorkspaceTabs}
+                            onActiveWorkspaceTabChange={
+                              onActiveWorkspaceTabChange
+                            }
+                          />
+                        </AppRegistryProvider>
+                      ) : connectionError ? (
+                        renderError(connectionInfo, connectionError)
+                      ) : connectionInfo ? (
+                        renderConnecting(connectionInfo)
+                      ) : null}
+                    </ConnectionInfoProvider>
+                    {/**
+                     * Compass connections is not only handling connection, but
+                     * actually renders connection UI, we need to use it for the
+                     * connection handling business logic, but hide it visually
+                     * because this is not something that we want to be visible
+                     * in DE
+                     */}
+                    <div style={{ display: 'none' }}>
+                      <CompassConnections
+                        appRegistry={appRegistry}
+                        onConnected={onConnected}
+                        onConnectionFailed={onConnectionFailed}
+                        onConnectionAttemptStarted={onConnectionAttemptStarted}
+                        getAutoConnectInfo={onAutoconnectInfoRequestRef.current}
+                      ></CompassConnections>
+                    </div>
+                  </FieldStorePlugin>
+                </CompassInstanceStorePlugin>
+              </ConnectionsManagerProvider>
+            </ConnectionStorageProvider>
+          </WithAtlasProviders>
+        </PreferencesProvider>
+      </CompassComponentsProvider>
+    </AppRegistryProvider>
   );
 };
 

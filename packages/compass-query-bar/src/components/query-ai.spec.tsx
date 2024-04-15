@@ -130,6 +130,7 @@ describe('QueryAI Component', function () {
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
           fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          requestId: 'pineapple',
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
@@ -153,6 +154,7 @@ describe('QueryAI Component', function () {
                 event: 'AI Query Feedback',
                 properties: {
                   feedback: 'positive',
+                  request_id: 'pineapple',
                   text: 'this is the query I was looking for',
                 },
               },

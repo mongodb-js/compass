@@ -44,7 +44,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-components**](packages/compass-components): React Components used in Compass
 - [**@mongodb-js/compass-connection-import-export**](packages/compass-connection-import-export): UI for Compass connection import/export
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Manage your MongoDB connections and connect in Compass
-- [**@mongodb-js/compass-databases-navigation**](packages/compass-databases-navigation): Databases and collections sidebar navigation tree
+- [**@mongodb-js/compass-connections-navigation**](packages/compass-connections-navigation): Databases and collections sidebar navigation tree
 - [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters
 - [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Shared components and helpers for the generative ai aspects of Compass
 - [**@mongodb-js/compass-logging**](packages/compass-logging): Shared helpers for logging in Compass packages

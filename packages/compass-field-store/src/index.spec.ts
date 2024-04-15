@@ -4,7 +4,7 @@ import FieldStorePlugin from './';
 import { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import { useConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 import { useDispatch } from './stores/context';
 import { createFieldStoreService } from './stores/field-store-service';
 

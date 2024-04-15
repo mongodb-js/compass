@@ -3,6 +3,7 @@ import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
+import { UUID } from 'bson';
 
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -24,7 +25,8 @@ export type AIPipelineState = {
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIPipelineStatus;
-  aiPipelineFetchId: number; // Maps to the AbortController of the current fetch (or -1).
+  aiPipelineRequestId: string | null; // Maps to the AbortController of the current fetch (or null).
+  lastAIPipelineRequestId: string | null; // We store the last request id so we can pass it when a user provides feedback.
   isAggregationGeneratedFromQuery: boolean;
 };
 
@@ -34,7 +36,8 @@ export const initialState: AIPipelineState = {
   errorMessage: undefined,
   errorCode: undefined,
   isInputVisible: false,
-  aiPipelineFetchId: -1,
+  aiPipelineRequestId: null,
+  lastAIPipelineRequestId: null,
   isAggregationGeneratedFromQuery: false,
 };
 
@@ -53,24 +56,22 @@ export const enum AIPipelineActionTypes {
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
-const AIPipelineAbortControllerMap = new Map<number, AbortController>();
-
-let aiPipelineFetchId = 0;
+const AIPipelineAbortControllerMap = new Map<string, AbortController>();
 
 function getAbortSignal() {
-  const id = ++aiPipelineFetchId;
+  const id = new UUID().toString();
   const controller = new AbortController();
   AIPipelineAbortControllerMap.set(id, controller);
   return { id, signal: controller.signal };
 }
 
-function abort(id: number) {
+function abort(id: string) {
   const controller = AIPipelineAbortControllerMap.get(id);
   controller?.abort();
   return AIPipelineAbortControllerMap.delete(id);
 }
 
-function cleanupAbortSignal(id: number) {
+function cleanupAbortSignal(id: string) {
   return AIPipelineAbortControllerMap.delete(id);
 }
 
@@ -98,14 +99,17 @@ export type LoadGeneratedPipelineAction = {
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
   stages: Stage[];
+  requestId: string;
 };
 
 export const generateAggregationFromQuery = ({
   aggregation,
   userInput,
+  requestId,
 }: {
   aggregation: { pipeline: string };
   userInput: string;
+  requestId: string;
 }): PipelineBuilderThunkAction<void, PipelineGeneratedFromQueryAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const pipelineText = String(aggregation?.pipeline);
@@ -119,6 +123,7 @@ export const generateAggregationFromQuery = ({
       pipeline: pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError,
       text: userInput,
+      requestId,
     });
 
     dispatch(updatePipelinePreview());
@@ -127,7 +132,7 @@ export const generateAggregationFromQuery = ({
 
 type AIPipelineStartedAction = {
   type: AIPipelineActionTypes.AIPipelineStarted;
-  fetchId: number;
+  requestId: string;
 };
 
 type AIPipelineFailedAction = {
@@ -144,6 +149,7 @@ export type PipelineGeneratedFromQueryAction = {
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
+  requestId: string;
 };
 
 type FailedResponseTrackMessage = {
@@ -152,6 +158,7 @@ type FailedResponseTrackMessage = {
   errorMessage: string;
   errorName: string;
   errorCode?: string;
+  requestId: string;
 } & Pick<LoggerAndTelemetry, 'log' | 'track'>;
 
 function trackAndLogFailed({
@@ -161,6 +168,7 @@ function trackAndLogFailed({
   errorName,
   errorCode,
   log,
+  requestId,
   track,
 }: FailedResponseTrackMessage) {
   log.warn(
@@ -172,6 +180,7 @@ function trackAndLogFailed({
       errorMessage,
       errorName,
       errorCode,
+      requestId,
     }
   );
   track('AI Response Failed', {
@@ -179,6 +188,7 @@ function trackAndLogFailed({
     error_code: errorCode || '',
     status_code: statusCode,
     error_name: errorName,
+    request_id: requestId,
   });
 }
 
@@ -200,30 +210,35 @@ export const runAIPipelineGeneration = (
   ) => {
     const {
       pipelineBuilder: {
-        aiPipeline: { aiPipelineFetchId: existingFetchId },
+        aiPipeline: { aiPipelineRequestId: existingRequestId },
         pipelineMode,
       },
       namespace,
       dataService: { dataService },
     } = getState();
 
-    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
-    track('AI Prompt Submitted', () => ({
-      editor_view_type,
-      user_input_length: userInput.length,
-    }));
+    const provideSampleDocuments =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
 
-    if (aiPipelineFetchId !== -1) {
+    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    if (existingRequestId !== null) {
       // Cancel the active request as this one will override.
-      abort(existingFetchId);
+      abort(existingRequestId);
     }
 
     const abortController = new AbortController();
-    const { id: fetchId, signal } = getAbortSignal();
+    const { id: requestId, signal } = getAbortSignal();
+
+    track('AI Prompt Submitted', () => ({
+      editor_view_type,
+      user_input_length: userInput.length,
+      request_id: requestId,
+      has_sample_documents: provideSampleDocuments,
+    }));
 
     dispatch({
       type: AIPipelineActionTypes.AIPipelineStarted,
-      fetchId,
+      requestId,
     });
 
     let jsonResponse;
@@ -253,7 +268,13 @@ export const runAIPipelineGeneration = (
         collectionName,
         databaseName,
         schema,
-        // sampleDocuments, // For now we are not passing sample documents to the ai.
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
+        requestId,
       });
     } catch (err: any) {
       if (signal.aborted) {
@@ -268,6 +289,7 @@ export const runAIPipelineGeneration = (
         errorName: 'request_error',
         track,
         log,
+        requestId,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -289,14 +311,15 @@ export const runAIPipelineGeneration = (
     } finally {
       // Remove the AbortController from the Map as we either finished
       // waiting for the fetch or cancelled at this point.
-      cleanupAbortSignal(fetchId);
+      cleanupAbortSignal(requestId);
     }
 
     if (signal.aborted) {
       log.info(
         mongoLogId(1_001_000_231),
         'AIPipeline',
-        'Cancelled ai pipeline request'
+        'Cancelled ai pipeline request',
+        { requestId }
       );
       return;
     }
@@ -314,6 +337,7 @@ export const runAIPipelineGeneration = (
         errorName: 'empty_pipeline_error',
         track,
         log,
+        requestId,
       });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
@@ -332,6 +356,7 @@ export const runAIPipelineGeneration = (
         editorViewType: editor_view_type,
         syntaxErrors: !!(pipelineBuilder.syntaxError?.length > 0),
         shape: pipelineBuilder.stages.map((stage) => stage.operator),
+        requestId,
       }
     );
 
@@ -339,6 +364,7 @@ export const runAIPipelineGeneration = (
       editor_view_type,
       syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
       query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
+      request_id: requestId,
     }));
 
     dispatch({
@@ -347,6 +373,7 @@ export const runAIPipelineGeneration = (
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError,
+      requestId,
     });
 
     dispatch(updatePipelinePreview());
@@ -363,7 +390,11 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
 > => {
   return (dispatch, getState) => {
     // Abort any ongoing op.
-    abort(getState().pipelineBuilder.aiPipeline.aiPipelineFetchId);
+    const existingRequestId =
+      getState().pipelineBuilder.aiPipeline.aiPipelineRequestId;
+    if (existingRequestId !== null) {
+      abort(existingRequestId);
+    }
 
     dispatch({
       type: AIPipelineActionTypes.CancelAIPipelineGeneration,
@@ -438,7 +469,7 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
       ...state,
       status: 'fetching',
       errorMessage: undefined,
-      aiPipelineFetchId: action.fetchId,
+      aiPipelineRequestId: action.requestId,
     };
   }
 
@@ -457,7 +488,7 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
     return {
       ...state,
       status: 'ready',
-      aiPipelineFetchId: -1,
+      aiPipelineRequestId: null,
       errorMessage: action.errorMessage,
       errorCode: action.errorCode,
     };
@@ -472,7 +503,8 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
     return {
       ...state,
       status: 'success',
-      aiPipelineFetchId: -1,
+      aiPipelineRequestId: null,
+      lastAIPipelineRequestId: action.requestId,
     };
   }
 
@@ -485,9 +517,10 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
     return {
       ...state,
       status: 'success',
-      aiPipelineFetchId: -1,
+      aiPipelineRequestId: null,
       isInputVisible: true,
       isAggregationGeneratedFromQuery: true,
+      lastAIPipelineRequestId: action.requestId,
       aiPromptText: action.text,
     };
   }
@@ -501,7 +534,7 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
     return {
       ...state,
       status: 'ready',
-      aiPipelineFetchId: -1,
+      aiPipelineRequestId: null,
     };
   }
 

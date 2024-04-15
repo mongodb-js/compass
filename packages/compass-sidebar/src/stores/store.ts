@@ -167,7 +167,7 @@ export function createSidebarStore(
       log.info(
         mongoLogId(1_001_000_278),
         'Sidebar',
-        'Performance tab requied commands failed',
+        'Performance tab required commands failed',
         { error: (err as Error).message }
       );
       // Only disable performance tab if encountered Atlas error
