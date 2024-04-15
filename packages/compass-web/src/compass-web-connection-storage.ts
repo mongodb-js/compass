@@ -15,6 +15,10 @@ export class CompassWebConnectionStorage
     super();
   }
 
+  async getAutoConnectInfo(): Promise<ConnectionInfo | undefined> {
+    return await this._getAutoConnectInfo();
+  }
+
   async loadAll(): Promise<ConnectionInfo[]> {
     if (this.autoConnectInfo === null) {
       this.autoConnectInfo = await this._getAutoConnectInfo();
