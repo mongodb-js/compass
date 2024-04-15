@@ -3,9 +3,11 @@ import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
@@ -16,6 +18,7 @@ import {
   type ConnectionStorage,
   type ConnectionInfo,
 } from '@mongodb-js/connection-storage/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -58,10 +61,12 @@ describe('<ActiveConnectionNavigation />', function () {
           },
           currentOp() {},
           top() {},
-        },
+        } as DataService,
         instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        connectionStorage: new InMemoryConnectionStorage(),
+        logger: createNoopLoggerAndTelemetry(),
+        connectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);

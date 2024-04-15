@@ -21,6 +21,7 @@ import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
+  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
@@ -31,6 +32,7 @@ import {
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -88,10 +90,12 @@ describe('Multiple Connections Sidebar Component', function () {
           },
           currentOp() {},
           top() {},
-        },
+        } as DataService,
         instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        connectionStorage: new InMemoryConnectionStorage(),
+        logger: createNoopLoggerAndTelemetry(),
+        connectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     openMyQueriesWorkspaceStub = stub();
