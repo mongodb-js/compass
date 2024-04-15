@@ -76,7 +76,6 @@
     "@mongodb-js/compass-connections": "^1.26.0",
     "@mongodb-js/compass-logging": "^1.2.15",
     "@mongodb-js/connection-info": "^0.2.0",
-    "@mongodb-js/connection-storage": "^0.9.0",
     "hadron-app-registry": "^9.1.9",
     "mongodb-instance-model": "^12.19.0",
     "mongodb-ns": "^2.4.0",
