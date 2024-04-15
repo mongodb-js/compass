@@ -8,6 +8,8 @@ const placeholderItem = css({
   display: 'flex',
   alignItems: 'center',
   height: ROW_HEIGHT,
+  backgroundColor: 'var(--item-bg-color)',
+  color: 'var(--item-color)',
 });
 
 export const PlaceholderItem: React.FunctionComponent<{
@@ -26,7 +28,11 @@ export const PlaceholderItem: React.FunctionComponent<{
       className={cx(placeholderItem)}
       style={{ ...style, ...itemPaddingStyles }}
     >
-      <Placeholder />
+      <Placeholder
+        gradientStart={'var(--item-bg-color)'}
+        gradientEnd={'#DADCFF'}
+        style={{ filter: 'brightness(0.97)' }}
+      />
     </div>
   );
 };
