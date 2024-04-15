@@ -2,7 +2,6 @@ import sinon from 'sinon';
 import React from 'react';
 import type { ReactWrapper } from 'enzyme';
 import { mount } from 'enzyme';
-import { waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 
 import { CompassShell } from './components/compass-shell';
@@ -18,6 +17,24 @@ import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+
+// Wait until a component is present that is rendered in a limited number
+// of microtask queue iterations. In particular, this does *not* wait for the
+// event loop itself to progress.
+async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
+  let current = 0;
+  let result;
+  while (current++ < attempts) {
+    wrapper.update();
+    result = wrapper.find(Component);
+    // Return immediately if we found something
+    if (result.length > 0 && result.exists()) {
+      return result;
+    }
+    await new Promise((r) => setTimeout(r)); // wait a microtask queue iteration
+  }
+  return result;
+}
 
 describe('CompassShellPlugin', function () {
   const dummyConnectionInfo = {
@@ -63,12 +80,7 @@ describe('CompassShellPlugin', function () {
       </AppRegistryProvider>
     );
 
-    const component = await waitFor(() => {
-      wrapper?.update();
-      const component = wrapper?.find(CompassShell);
-      expect(component).to.have.lengthOf(1);
-      return component;
-    });
+    const component = await waitForAsyncComponent(wrapper, CompassShell);
 
     expect(component?.exists()).to.equal(true);
   });
@@ -97,12 +109,10 @@ describe('CompassShellPlugin', function () {
       </AppRegistryProvider>
     );
 
-    const shellComponentWrapper = await waitFor(() => {
-      wrapper?.update();
-      const component = wrapper?.find(CompassShell);
-      expect(component).to.have.lengthOf(1);
-      return component;
-    });
+    const shellComponentWrapper = await waitForAsyncComponent(
+      wrapper,
+      CompassShell
+    );
 
     const { emitShellPluginOpened } = shellComponentWrapper?.props() ?? {};
     emitShellPluginOpened?.();
