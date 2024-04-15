@@ -6,10 +6,7 @@ import { changeInstance } from '../modules/instance';
 import type { Database } from '../modules/databases';
 import { changeDatabases } from '../modules/databases';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import {
-  changeConnectionInfo,
-  setConnectionStorage,
-} from '../modules/connection-info';
+import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { setDataService } from '../modules/data-service';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
@@ -41,7 +38,9 @@ export function createSidebarStore(
 ) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ globalAppRegistry }))
+    applyMiddleware(
+      thunk.withExtraArgument({ globalAppRegistry, connectionStorage })
+    )
   );
 
   const onInstanceChange = throttle(
@@ -124,7 +123,6 @@ export function createSidebarStore(
     onDatabasesChange.cancel();
   });
 
-  store.dispatch(setConnectionStorage(connectionStorage));
   store.dispatch(setDataService(dataService));
   if (connectionInfo) store.dispatch(changeConnectionInfo(connectionInfo));
   const connectionOptions = dataService.getConnectionOptions();

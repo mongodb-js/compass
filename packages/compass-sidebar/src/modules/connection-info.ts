@@ -1,14 +1,6 @@
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { RootAction } from '.';
-
-const SET_CONNECTION_STORAGE =
-  'sidebar/connection/SET_CONNECTION_STORAGE' as const;
-
-interface SetConnectionStorageAction {
-  type: typeof SET_CONNECTION_STORAGE;
-  connectionStorage: ConnectionStorage;
-}
+import type { RootAction, SidebarThunkAction } from '.';
 
 /**
  * Change connection action name.
@@ -21,16 +13,6 @@ interface ChangeConnectionInfoAction {
 }
 
 /**
- * Save favorite connection action name.
- */
-const SAVE_CONNECTION_INFO = 'sidebar/connection/SAVE_CONNECTION_INFO' as const;
-
-interface SaveConnectionInfoAction {
-  type: typeof SAVE_CONNECTION_INFO;
-  connectionInfo: ConnectionInfo;
-}
-
-/**
  * The initial state of the connection.
  */
 export const INITIAL_STATE: ConnectionInfoState = {
@@ -39,18 +21,13 @@ export const INITIAL_STATE: ConnectionInfoState = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: null,
 };
 
 export interface ConnectionInfoState {
   connectionInfo: Omit<ConnectionInfo, 'id'> & Partial<ConnectionInfo>;
-  connectionStorage: ConnectionStorage | null;
 }
 
-export type ConnectionInfoAction =
-  | ChangeConnectionInfoAction
-  | SaveConnectionInfoAction
-  | SetConnectionStorageAction;
+export type ConnectionInfoAction = ChangeConnectionInfoAction;
 
 async function saveConnectionInfo(
   connectionInfo: ConnectionInfo,
@@ -62,16 +39,6 @@ async function saveConnectionInfo(
     // Currently we silently fail if saving the favorite fails.
   }
 }
-
-const doSetConnectionStorage = (
-  state: ConnectionInfoState,
-  action: SetConnectionStorageAction
-) => {
-  return {
-    ...state,
-    connectionStorage: action.connectionStorage,
-  };
-};
 
 /**
  * Changes the connection.
@@ -89,23 +56,6 @@ const doChangeConnectionInfo = (
 };
 
 /**
- * Saves the new favorite connection info.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doSaveConnectionInfo = (
-  state: ConnectionInfoState,
-  action: SaveConnectionInfoAction
-) => {
-  void saveConnectionInfo(action.connectionInfo, state.connectionStorage);
-
-  return { ...state, connectionInfo: action.connectionInfo };
-};
-
-/**
  * To not have a huge switch statement in the reducer.
  */
 const MAPPINGS: {
@@ -115,8 +65,6 @@ const MAPPINGS: {
   ) => ConnectionInfoState;
 } = {
   [CHANGE_CONNECTION_INFO]: doChangeConnectionInfo,
-  [SAVE_CONNECTION_INFO]: doSaveConnectionInfo,
-  [SET_CONNECTION_STORAGE]: doSetConnectionStorage,
 };
 
 /**
@@ -135,13 +83,6 @@ export default function reducer(
   return fn ? fn(state, action as any) : state;
 }
 
-export const setConnectionStorage = (
-  connectionStorage: ConnectionStorage
-): SetConnectionStorageAction => ({
-  type: SET_CONNECTION_STORAGE,
-  connectionStorage,
-});
-
 /**
  * Change connection action creator.
  *
@@ -156,16 +97,11 @@ export const changeConnectionInfo = (
   connectionInfo,
 });
 
-/**
- * Save connection info action creator.
- *
- * @param {Object} connectionInfo - The connection info object.
- *
- * @returns {Object} The action.
- */
 export const updateAndSaveConnectionInfo = (
   connectionInfo: ConnectionInfo
-): SaveConnectionInfoAction => ({
-  type: SAVE_CONNECTION_INFO,
-  connectionInfo,
-});
+): SidebarThunkAction<void, ChangeConnectionInfoAction> => {
+  return (dispatch, getState, { connectionStorage }) => {
+    void saveConnectionInfo(connectionInfo, connectionStorage);
+    dispatch(changeConnectionInfo(connectionInfo));
+  };
+};
