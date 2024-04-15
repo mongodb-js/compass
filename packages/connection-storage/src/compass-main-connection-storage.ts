@@ -168,7 +168,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     throwIfAborted(signal);
     if (connectionInfo.id === this.autoConnectInfo?.id) {
       log.warn(
-        mongoLogId(1_001_000_294),
+        mongoLogId(1_001_000_308),
         'Connection Storage',
         'Attempted to save autoConnectInfo, ignoring the call'
       );
@@ -227,7 +227,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     }
     if (id === this.autoConnectInfo?.id) {
       log.warn(
-        mongoLogId(1_001_000_295),
+        mongoLogId(1_001_000_309),
         'Connection Storage',
         'Attempted to save autoConnectInfo, ignoring the call'
       );
