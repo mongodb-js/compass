@@ -7,6 +7,7 @@ import {
   type ExportConnectionOptions,
   type ImportConnectionOptions,
 } from './import-export-connection';
+import type { AllPreferences } from 'compass-preferences-model';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
 
@@ -20,6 +21,18 @@ export type ConnectionStorageEvent =
 export type ConnectionStorageEventListeners = {
   [ConnectionStorageEvents.ConnectionsChanged]: () => void;
 };
+
+export type AutoConnectPreferences = Partial<
+  Pick<
+    AllPreferences,
+    | 'file'
+    | 'positionalArguments'
+    | 'passphrase'
+    | 'username'
+    | 'password'
+    | 'trustedConnectionString'
+  >
+> & { shouldAutoConnect: boolean };
 
 export interface ConnectionStorage {
   on<T extends ConnectionStorageEvent>(
@@ -51,6 +64,10 @@ export interface ConnectionStorage {
 
   delete?(options: { id: string; signal?: AbortSignal }): Promise<void>;
 
+  getAutoConnectInfo?(
+    autoConnectPreferences?: AutoConnectPreferences
+  ): Promise<ConnectionInfo | undefined>;
+
   getLegacyConnections?(options?: {
     signal?: AbortSignal;
   }): Promise<{ name: string }[]>;
@@ -81,5 +98,5 @@ export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 
 export type ConnectionStorageIPCRenderer = Pick<
   HadronIpcRenderer,
-  'createInvoke'
+  'createInvoke' | 'call'
 >;

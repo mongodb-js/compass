@@ -100,22 +100,20 @@ describe('use-connections hook', function () {
   });
 
   describe('#onMount', function () {
-    const getAutoConnectInfo = () =>
-      Promise.resolve({
+    it('allows connecting to a dynamically provided connection info object', async function () {
+      const onConnected = sinon.spy();
+      sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
         id: 'new',
         connectionOptions: {
           connectionString: 'mongodb://new-recent',
         },
       });
-    it('allows connecting to a dynamically provided connection info object', async function () {
-      const onConnected = sinon.spy();
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       renderHookWithContext(() =>
         useConnections({
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          getAutoConnectInfo,
         })
       );
 

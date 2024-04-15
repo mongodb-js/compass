@@ -69,6 +69,10 @@ export class InMemoryConnectionStorage
     return Promise.resolve();
   }
 
+  getAutoConnectInfo(): Promise<ConnectionInfo | undefined> {
+    return Promise.resolve(undefined);
+  }
+
   getLegacyConnections(): Promise<{ name: string }[]> {
     return Promise.resolve(this.legacyConnections);
   }

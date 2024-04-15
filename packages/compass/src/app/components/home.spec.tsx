@@ -174,12 +174,13 @@ describe('Home [Component]', function () {
 
       it('on `app:disconnect`', async function () {
         hadronIpc.ipcRenderer?.emit('app:disconnect');
-
-        expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
-        expect(
-          hideCollectionSubMenuSpy.called,
-          'it calls hideCollectionSubMenu'
-        ).to.be.true;
+        await waitFor(() => {
+          expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
+          expect(
+            hideCollectionSubMenuSpy.called,
+            'it calls hideCollectionSubMenu'
+          ).to.be.true;
+        });
 
         await waitFor(() => {
           expect(screen.queryByTestId('connections-wrapper')).to.be.visible;

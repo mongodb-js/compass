@@ -5,6 +5,7 @@ import {
   type ConnectionStorageEventListeners,
   type ConnectionStorageIPCInterface,
   type ConnectionStorage,
+  type AutoConnectPreferences,
   ConnectionStorageEvents,
 } from './connection-storage';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -18,7 +19,10 @@ class CompassRendererConnectionStorage
   implements ConnectionStorage
 {
   private _ipc: ConnectionStorageIPCInterface | undefined;
-  constructor(private readonly ipcRenderer?: ConnectionStorageIPCRenderer) {
+  constructor(
+    private readonly ipcRenderer?: ConnectionStorageIPCRenderer,
+    private readonly getInitialAutoConnectPreferences?: () => Promise<AutoConnectPreferences>
+  ) {
     super();
   }
 
@@ -31,6 +35,7 @@ class CompassRendererConnectionStorage
         | 'load'
         | 'save'
         | 'delete'
+        | 'getAutoConnectInfo'
         | 'getLegacyConnections'
         | 'deserializeConnections'
         | 'exportConnections'
@@ -40,6 +45,7 @@ class CompassRendererConnectionStorage
         'load',
         'save',
         'delete',
+        'getAutoConnectInfo',
         'getLegacyConnections',
         'deserializeConnections',
         'exportConnections',
@@ -78,6 +84,17 @@ class CompassRendererConnectionStorage
   }): Promise<void> {
     await this.ipc.delete(options);
     this.emit(ConnectionStorageEvents.ConnectionsChanged);
+  }
+
+  async getAutoConnectInfo(
+    autoConnectPreferences?: AutoConnectPreferences
+  ): Promise<ConnectionInfo | undefined> {
+    return await this.ipc.getAutoConnectInfo(
+      autoConnectPreferences ??
+        (await this.getInitialAutoConnectPreferences?.()) ?? {
+          shouldAutoConnect: false,
+        }
+    );
   }
 
   getLegacyConnections(

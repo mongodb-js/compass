@@ -4,13 +4,19 @@ import {
   type ConnectionStorage,
   type ConnectionInfo,
   type AtlasClusterMetadata,
+  type AutoConnectPreferences,
   ConnectionStorageEvents,
 } from './connection-storage';
 import { InMemoryConnectionStorage } from './in-memory-connection-storage';
 
 export { ConnectionStorageEvents, InMemoryConnectionStorage };
 
-export type { ConnectionStorage, ConnectionInfo, AtlasClusterMetadata };
+export type {
+  ConnectionStorage,
+  ConnectionInfo,
+  AtlasClusterMetadata,
+  AutoConnectPreferences,
+};
 
 export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null

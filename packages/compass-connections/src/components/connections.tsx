@@ -81,7 +81,6 @@ function Connections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  getAutoConnectInfo,
   useConnectionImportExportModalRenderer,
   renderLegacyConnectionModal,
   __TEST_INITIAL_CONNECTION_INFO,
@@ -96,7 +95,6 @@ function Connections({
     error: Error
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   useConnectionImportExportModalRenderer?: () => {
     renderConnectionImportExportModal: React.FC<{
       connections: ConnectionInfo[];
@@ -125,7 +123,6 @@ function Connections({
     onConnected,
     onConnectionFailed,
     onConnectionAttemptStarted,
-    getAutoConnectInfo,
     __TEST_INITIAL_CONNECTION_INFO,
   });
   const {

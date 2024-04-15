@@ -1,6 +1,9 @@
 import { ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 import { safeStorage } from 'electron';
+import { UUID } from 'bson';
+import fsPromises from 'fs/promises';
+import ConnectionString from 'mongodb-connection-string-url';
 
 import type {
   ConnectionInfo,
@@ -27,6 +30,7 @@ import type {
   ConnectionStorageIPCMain,
   ConnectionStorageIPCInterface,
   ConnectionStorage,
+  AutoConnectPreferences,
 } from './connection-storage';
 
 const { log, mongoLogId, track } =
@@ -78,6 +82,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: UserData<typeof ConnectionSchema>;
+  private autoConnectInfo: ConnectionInfo | undefined | null = null;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
@@ -98,6 +103,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         'load',
         'save',
         'delete',
+        'getAutoConnectInfo',
         'getLegacyConnections',
         'deserializeConnections',
         'exportConnections',
@@ -112,14 +118,16 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     throwIfAborted(signal);
     try {
       const connections = await this.getConnections();
-      return (
-        connections
-          // Ignore legacy connections and make sure connection has a connection string.
-          .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
-          .map((connection) =>
-            this.mapStoredConnectionToConnectionInfo(connection)
-          )
-      );
+      const loadedConnections = connections
+        // Ignore legacy connections and make sure connection has a connection string.
+        .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
+        .map((connection) =>
+          this.mapStoredConnectionToConnectionInfo(connection)
+        );
+      if (this.autoConnectInfo) {
+        return [this.autoConnectInfo, ...loadedConnections];
+      }
+      return loadedConnections;
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_101),
@@ -142,6 +150,10 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     if (!id) {
       return undefined;
     }
+    if (id === this.autoConnectInfo?.id) {
+      return this.autoConnectInfo;
+    }
+
     const connections = await this.loadAll();
     return connections.find((connection) => id === connection.id);
   }
@@ -154,6 +166,15 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     signal?: AbortSignal;
   }): Promise<void> {
     throwIfAborted(signal);
+    if (connectionInfo.id === this.autoConnectInfo?.id) {
+      log.warn(
+        mongoLogId(1_001_000_294),
+        'Connection Storage',
+        'Attempted to save autoConnectInfo, ignoring the call'
+      );
+      return;
+    }
+
     try {
       // While saving connections, we also save `_id` property
       // in order to support the downgrade of Compass to a version
@@ -204,6 +225,14 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     if (!id) {
       return;
     }
+    if (id === this.autoConnectInfo?.id) {
+      log.warn(
+        mongoLogId(1_001_000_295),
+        'Connection Storage',
+        'Attempted to save autoConnectInfo, ignoring the call'
+      );
+      return;
+    }
 
     try {
       await this.userData.delete(id);
@@ -216,6 +245,93 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       );
 
       throw err;
+    }
+  }
+
+  async getAutoConnectInfo(
+    autoConnectPreferences: AutoConnectPreferences,
+    fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
+  ): Promise<ConnectionInfo | undefined> {
+    const {
+      file,
+      positionalArguments = [],
+      passphrase,
+      username,
+      password,
+      shouldAutoConnect,
+    } = autoConnectPreferences;
+
+    if (!shouldAutoConnect) return (this.autoConnectInfo = undefined);
+
+    if (this.autoConnectInfo !== null) {
+      return this.autoConnectInfo;
+    }
+
+    const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
+
+    const applyUsernameAndPassword = (
+      connectionInfo: Readonly<ConnectionInfo>,
+      {
+        username,
+        password,
+      }: Pick<AutoConnectPreferences, 'username' | 'password'>
+    ): ConnectionInfo => {
+      const connectionString = new ConnectionString(
+        connectionInfo.connectionOptions.connectionString
+      );
+      if (username) connectionString.username = encodeURIComponent(username);
+      if (password) connectionString.password = encodeURIComponent(password);
+      return {
+        ...connectionInfo,
+        connectionOptions: {
+          ...connectionInfo.connectionOptions,
+          connectionString: connectionString.toString(),
+        },
+      };
+    };
+
+    if (file) {
+      const fileContents = await fs.readFile(file, 'utf8');
+      const connections = await this.deserializeConnections({
+        content: fileContents,
+        options: {
+          trackingProps: { context: 'Autoconnect' },
+          passphrase,
+        },
+      });
+      let id: string | undefined;
+      if (positionalArguments.length > 0) {
+        id = getConnectionStringFromArgs(positionalArguments);
+      } else if (connections.length === 1) {
+        id = connections[0].id;
+      }
+      if (!id) {
+        throw new Error(
+          `No connection id specified and connection file '${file}' contained ${connections.length} entries`
+        );
+      }
+      const connectionInfo = connections.find((c) => c.id === id);
+      if (!connectionInfo) {
+        throw new Error(
+          `Could not find connection with id '${id}' in connection file '${file}'`
+        );
+      }
+      return (this.autoConnectInfo = applyUsernameAndPassword(connectionInfo, {
+        username,
+        password,
+      }));
+    } else {
+      const connectionString = getConnectionStringFromArgs(positionalArguments);
+      if (!connectionString) {
+        throw new Error('Could not find a connection string');
+      }
+      return (this.autoConnectInfo = applyUsernameAndPassword(
+        {
+          connectionOptions: { connectionString },
+          id: new UUID().toString(),
+        },
+        { username, password }
+      ));
     }
   }
 

@@ -76,7 +76,10 @@ import {
   onAutoupdateSuccess,
 } from './utils/update-handlers';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
-import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  CompassRendererConnectionStorage,
+  type AutoConnectPreferences,
+} from '@mongodb-js/connection-storage/renderer';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -100,6 +103,10 @@ function notifyMainProcessOfDisconnect() {
 
 function showSettingsModal() {
   ipcRenderer?.emit('window:show-settings');
+}
+
+async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
+  return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
 }
 
 /**
@@ -193,19 +200,27 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function () {
-    const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+    let hasDisconnectedAtLeastOnce = false;
     await defaultPreferencesInstance.refreshPreferences();
-    const getAutoConnectInfo = await (
-      await import('./utils/auto-connect')
-    ).loadAutoConnectInfo(
-      connectionStorage.deserializeConnections.bind(connectionStorage)
+    const initialAutoConnectPreferences =
+      await getWindowAutoConnectPreferences();
+    const getInitialAutoConnectPreferences =
+      (): Promise<AutoConnectPreferences> => {
+        if (hasDisconnectedAtLeastOnce) {
+          return Promise.resolve({ shouldAutoConnect: false });
+        }
+        return Promise.resolve(initialAutoConnectPreferences);
+      };
+    const connectionStorage = new CompassRendererConnectionStorage(
+      ipcRenderer,
+      getInitialAutoConnectPreferences
     );
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
       'Rendering app container',
       {
-        autoConnectEnabled: !!getAutoConnectInfo,
+        autoConnectEnabled: initialAutoConnectPreferences.shouldAutoConnect,
       }
     );
 
@@ -225,10 +240,12 @@ const Application = View.extend({
       <React.StrictMode>
         <CompassElectron
           appName={remote.app.getName()}
-          getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
           createFileInputBackend={createElectronFileInputBackend(remote)}
-          onDisconnect={notifyMainProcessOfDisconnect}
+          onDisconnect={() => {
+            hasDisconnectedAtLeastOnce = true;
+            notifyMainProcessOfDisconnect();
+          }}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}

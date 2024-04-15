@@ -9,6 +9,7 @@ import {
   palette,
   resetGlobalCSS,
   showConfirmation,
+  useEffectOnChange,
 } from '@mongodb-js/compass-components';
 import Connections, {
   LegacyConnectionsModal,
@@ -31,7 +32,6 @@ import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useReducer,
   useRef,
   useState,
@@ -101,13 +101,11 @@ const globalDarkThemeStyles = css({
 type State = {
   connectionInfo: ConnectionInfo | null;
   isConnected: boolean;
-  hasDisconnectedAtLeastOnce: boolean;
 };
 
 const initialState: State = {
   connectionInfo: null,
   isConnected: false,
-  hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
@@ -127,9 +125,8 @@ function reducer(state: State, action: Action): State {
       };
     case 'disconnected':
       return {
-        // Reset to initial state, but do not automatically connect this time.
+        // Reset to initial state
         ...initialState,
-        hasDisconnectedAtLeastOnce: true,
       };
     default:
       return state;
@@ -189,7 +186,6 @@ function useConnectionImportExportModalRenderer() {
 
 export type HomeProps = {
   appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   showWelcomeModal?: boolean;
   createFileInputBackend: () => FileInputBackend;
   onDisconnect: () => void;
@@ -203,7 +199,6 @@ export type HomeProps = {
 
 function Home({
   appName,
-  getAutoConnectInfo,
   showWelcomeModal = false,
   createFileInputBackend,
   onDisconnect,
@@ -226,10 +221,7 @@ function Home({
     })
   );
 
-  const [
-    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
-    dispatch,
-  ] = useReducer(reducer, {
+  const [{ connectionInfo, isConnected }, dispatch] = useReducer(reducer, {
     ...initialState,
   });
 
@@ -300,15 +292,13 @@ function Home({
     [appName, connectionInfo, showCollectionSubMenu, hideCollectionSubMenu]
   );
 
-  const onDataServiceDisconnected = useCallback(() => {
+  useEffectOnChange(() => {
     if (!isConnected) {
       updateTitle(appName);
       hideCollectionSubMenu();
       onDisconnect();
     }
   }, [appName, isConnected, onDisconnect, hideCollectionSubMenu]);
-
-  useLayoutEffect(onDataServiceDisconnected);
 
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
@@ -359,9 +349,6 @@ function Home({
                 onConnected={onConnected}
                 onConnectionFailed={onConnectionFailed}
                 onConnectionAttemptStarted={onConnectionAttemptStarted}
-                getAutoConnectInfo={
-                  hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-                }
                 useConnectionImportExportModalRenderer={
                   useConnectionImportExportModalRenderer
                 }
