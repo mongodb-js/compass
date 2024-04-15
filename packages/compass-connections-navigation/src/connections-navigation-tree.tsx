@@ -392,7 +392,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   // @ts-expect-error ignoring test props so they are not part of the interface
   __TEST_REACT_WINDOW_OVERSCAN = null,
 }) => {
-  // we'll have either connections for MC version, or databases for SC version
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
   );
@@ -422,9 +421,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     } else {
       const connection = connections[0];
       return connection.databases.flatMap((database, databaseIndex) => {
-        let isExpanded = expanded && expanded[connection.connectionInfo.id];
-        if (!isExpanded) {
-          isExpanded = undefined;
+        let isExpanded: undefined | Record<string, boolean> = undefined;
+        if (expanded) {
+          isExpanded = expanded[connection.connectionInfo.id] || {};
         }
 
         return databaseToItems({
@@ -557,6 +556,7 @@ const NavigationWithPlaceholder: React.FunctionComponent<
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
   );
+
   return (
     <FadeInPlaceholder
       className={isSingleConnection ? SCContainer : MCContainer}

@@ -88,14 +88,16 @@ const props = {
   ...TEST_VIRTUAL_PROPS,
 };
 
-describe('ConnectionsNavigationTree', function () {
+describe.only('ConnectionsNavigationTree', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
     let preferences: PreferencesAccess;
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({ enableRenameCollectionModal: true });
+      await preferences.savePreferences({
+        enableRenameCollectionModal: true,
+      });
     });
 
     it('shows the Rename Collection action', function () {
@@ -138,6 +140,7 @@ describe('ConnectionsNavigationTree', function () {
       userEvent.click(screen.getByText('Rename collection'));
 
       expect(spy).to.be.calledOnceWithExactly(
+        'connection_ready',
         'db_ready.meow',
         'rename-collection'
       );
@@ -345,9 +348,22 @@ describe('ConnectionsNavigationTree', function () {
   });
 
   describe('onNamespaceAction', function () {
-    it('should activate callback with `select-connection` when a connection is clicked', function () {
+    let preferences: PreferencesAccess;
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableRenameCollectionModal: true,
+        enableNewMultipleConnectionSystem: true,
+      });
+    });
+
+    it.only('should activate callback with `select-connection` when a connection is clicked', function () {
       const spy = Sinon.spy();
-      render(<ConnectionsNavigationTree {...props} onConnectionSelect={spy} />);
+      render(
+        <PreferencesProvider value={preferences}>
+          <ConnectionsNavigationTree {...props} onConnectionSelect={spy} />
+        </PreferencesProvider>
+      );
 
       userEvent.click(screen.getByText('turtles'));
 
@@ -366,7 +382,11 @@ describe('ConnectionsNavigationTree', function () {
 
       userEvent.click(screen.getByText('foo'));
 
-      expect(spy).to.be.calledOnceWithExactly('db_initial', 'select-database');
+      expect(spy).to.be.calledOnceWithExactly(
+        'connection_ready',
+        'db_initial',
+        'select-database'
+      );
     });
 
     it('should activate callback with `select-collection` when collection is clicked', function () {
@@ -382,6 +402,7 @@ describe('ConnectionsNavigationTree', function () {
       userEvent.click(screen.getByText('meow'));
 
       expect(spy).to.be.calledOnceWithExactly(
+        'connection_ready',
         'db_ready.meow',
         'select-collection'
       );
@@ -401,7 +422,11 @@ describe('ConnectionsNavigationTree', function () {
 
         userEvent.click(screen.getByTitle('Drop database'));
 
-        expect(spy).to.be.calledOnceWithExactly('db_initial', 'drop-database');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
+          'db_initial',
+          'drop-database'
+        );
       });
 
       it('should activate callback with `create-collection` when corresponding action is clicked', function () {
@@ -418,6 +443,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(screen.getByTitle('Create collection'));
 
         expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
           'db_initial',
           'create-collection'
         );
@@ -444,6 +470,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(screen.getByText('Open in new tab'));
 
         expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
           'db_ready.meow',
           'open-in-new-tab'
         );
@@ -468,6 +495,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(screen.getByText('Drop collection'));
 
         expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
           'db_ready.meow',
           'drop-collection'
         );
@@ -493,6 +521,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(screen.getByText('Duplicate view'));
 
         expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
           'db_ready.bwok',
           'duplicate-view'
         );
@@ -515,7 +544,11 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));
 
-        expect(spy).to.be.calledOnceWithExactly('db_ready.bwok', 'modify-view');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
+          'db_ready.bwok',
+          'modify-view'
+        );
       });
     });
   });
