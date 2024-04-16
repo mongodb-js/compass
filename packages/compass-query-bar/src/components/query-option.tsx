@@ -175,7 +175,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 : queryOptionLabelStyles
             }
           >
-            {name}
+            {optionDefinition.label ?? name}
           </Label>
         </div>
       )}

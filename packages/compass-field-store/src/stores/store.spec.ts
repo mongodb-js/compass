@@ -3,13 +3,15 @@ import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import {
   type FieldStoreService,
   createFieldStoreService,
 } from './field-store-service';
 import type { Schema } from 'mongodb-schema';
-import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionInfoAccess,
+  ConnectionInfo,
+} from '@mongodb-js/compass-connections/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerEvents,

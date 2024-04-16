@@ -54,7 +54,7 @@ function ConfirmationModalContent({
     <Banner variant="warning" data-testid="rename-collection-modal-warning">
       <p className={bannerTextStyles}>
         Renaming collection will result in loss of any unsaved queries, filters
-        or aggregation pipeline.
+        or aggregation pipelines.
       </p>
       {areSavedQueriesAndAggregationsImpacted && (
         <p className={bannerTextStyles}>

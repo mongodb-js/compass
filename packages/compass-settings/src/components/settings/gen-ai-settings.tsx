@@ -21,9 +21,12 @@ export const GenAISettings: React.FunctionComponent = () => {
       <SettingsList fields={['enableGenAIFeatures']} />
 
       {aiFeatureEnabled && (
-        <div className={atlasSettingsContainerStyles}>
-          <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
-        </div>
+        <>
+          <div className={atlasSettingsContainerStyles}>
+            <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
+          </div>
+          <SettingsList fields={['enableGenAISampleDocumentPassing']} />
+        </>
       )}
     </div>
   );

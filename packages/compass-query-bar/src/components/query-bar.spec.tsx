@@ -122,7 +122,7 @@ describe('QueryBar Component', function () {
 
     it('renders the expanded inputs', function () {
       const queryInputs = screen.getAllByRole('textbox');
-      expect(queryInputs.length).to.equal(7);
+      expect(queryInputs.length).to.equal(8);
     });
   });
 

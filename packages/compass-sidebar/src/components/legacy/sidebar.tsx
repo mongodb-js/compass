@@ -13,17 +13,17 @@ import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
 import NavigationItems from './navigation-items';
-import ConnectionInfoModal from './connection-info-modal';
-import NonGenuineWarningModal from './non-genuine-warning-modal';
-import CSFLEConnectionModal from './csfle-connection-modal';
-import CSFLEMarker from './csfle-marker';
-import NonGenuineMarker from './non-genuine-marker';
+import ConnectionInfoModal from '../connection-info-modal';
+import NonGenuineWarningModal from '../non-genuine-warning-modal';
+import CSFLEConnectionModal from '../csfle-connection-modal';
+import CSFLEMarker from '../csfle-marker';
+import NonGenuineMarker from '../non-genuine-marker';
 
-import { setConnectionIsCSFLEEnabled } from '../modules/data-service';
-import { updateAndSaveConnectionInfo } from '../modules/connection-info';
-import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
+import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
+import { updateAndSaveConnectionInfo } from '../../modules/connection-info';
+import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
-import type { RootState, SidebarThunkAction } from '../modules';
+import type { RootState, SidebarThunkAction } from '../../modules';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
