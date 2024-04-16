@@ -119,7 +119,7 @@ function useSchemaConversion<T>(
         code: converter(schema, settings),
       };
     } catch (e) {
-      const errorMessage = (e as Error)?.message || '';
+      const errorMessage = (e as Error)?.message || String(e);
       return { error: `Conversion failed: ${errorMessage}` };
     }
   }, [converter, schema, ...(settings && Object.values(settings))]);
