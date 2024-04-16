@@ -4,7 +4,7 @@ import {
   MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from './instances-manager';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/connection-storage/provider';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 import { MongoDBInstance } from 'mongodb-instance-model';
 
 describe('InstancesManager', function () {

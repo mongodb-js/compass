@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from './connection-info-provider';
 
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
@@ -83,3 +83,4 @@ export {
   type ConnectionRepository,
   useConnectionRepository,
 } from './hooks/use-connection-repository';
+export * from './connection-info-provider';

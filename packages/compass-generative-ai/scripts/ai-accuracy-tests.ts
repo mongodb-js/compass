@@ -245,6 +245,8 @@ type TestOptions = {
   collectionName: string;
   includeSampleDocuments?: boolean;
   userInput: string;
+  // When supplied, this overrides the general test accuracy requirement. (0-1)
+  minAccuracyForTest?: number;
   assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
   acceptAggregationResponse?: boolean;
@@ -509,7 +511,7 @@ async function pushResultsToDB({
   }
 }
 
-const tests = [
+const tests: TestOptions[] = [
   {
     type: 'query',
     databaseName: 'netflix',
@@ -750,6 +752,106 @@ const tests = [
       },
     ]),
   },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy. gpt-3.5-turbo usually tries to
+    // use $expr in a $project stage which is not valid syntax.
+    minAccuracyForTest: 0,
+    userInput:
+      'what percentage of listings have a "Washer" in their amenities? Only consider listings with more than 2 beds. Return is as a string named "washerPercentage" like "75%", rounded to the nearest whole number.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          tvPercentage: '67%',
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          tvPercentage: '67%',
+        },
+      ]),
+    ]),
+  },
+
+  {
+    type: 'query',
+    databaseName: 'NYC',
+    collectionName: 'parking_2015',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy.
+    minAccuracyForTest: 0.5,
+    userInput:
+      'Write a query that does the following: "find all of the parking incidents that occurred on an ave (match all ways to write ave). Give me an array of all of the plate ids involved, in an object with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          'Summons Number': {
+            $numberLong: '7093881087',
+          },
+          'Plate ID': 'FPG1269',
+          'Vehicle Make': 'gmc',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7623830399',
+          },
+          'Plate ID': 'T645263C',
+          'Vehicle Make': 'chevr',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7721537642',
+          },
+          'Plate ID': 'GMX1207',
+          'Vehicle Make': 'honda',
+          'Vehicle Body Type': '4dsd',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7784786281',
+          },
+          'Plate ID': 'DRW5164',
+          'Vehicle Make': 'acura',
+          'Vehicle Body Type': '4dsd',
+        },
+      ]),
+
+      isDeepStrictEqualTo([
+        {
+          'Summons Number': 7093881087,
+          'Plate ID': 'FPG1269',
+          'Vehicle Make': 'gmc',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': 7623830399,
+          'Plate ID': 'T645263C',
+          'Vehicle Make': 'chevr',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': 7721537642,
+          'Plate ID': 'GMX1207',
+          'Vehicle Make': 'honda',
+          'Vehicle Body Type': '4dsd',
+        },
+        {
+          'Summons Number': 7784786281,
+          'Plate ID': 'DRW5164',
+          'Vehicle Make': 'acura',
+          'Vehicle Body Type': '4dsd',
+        },
+      ]),
+    ]),
+  },
 ];
 async function main() {
   try {
@@ -771,7 +873,7 @@ async function main() {
           // usageStats
         } = await runTest(test);
         const minAccuracy = DEFAULT_MIN_ACCURACY;
-        const failed = accuracy < minAccuracy;
+        const failed = accuracy < (test.minAccuracyForTest ?? minAccuracy);
 
         results.push({
           Type: test.type.slice(0, 1).toUpperCase(),

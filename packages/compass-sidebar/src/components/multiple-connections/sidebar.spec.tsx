@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { stub, spy } from 'sinon';
+import { stub, spy, type SinonStub } from 'sinon';
 import {
   render,
   screen,
@@ -30,6 +30,12 @@ import {
   createSandboxFromDefaultPreferences,
 } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createInstance } from '../../../test/helpers';
+import {
+  type WorkspacesService,
+  WorkspacesServiceProvider,
+} from '@mongodb-js/compass-workspaces/provider';
+import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -86,6 +92,7 @@ describe('Multiple Connections Sidebar Component', function () {
   const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
+  let openMyQueriesWorkspaceStub: SinonStub;
 
   const connectFn = stub();
 
@@ -107,19 +114,32 @@ describe('Multiple Connections Sidebar Component', function () {
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
+    openMyQueriesWorkspaceStub = stub();
 
     return render(
       <ToastArea>
         <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={storage}>
-            <ConnectionsManagerProvider value={connectionManager}>
-              <Provider store={store}>
-                <MultipleConnectionSidebar
-                  activeWorkspace={{ type: 'connection' }}
-                />
-              </Provider>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
+          <WorkspacesServiceProvider
+            value={
+              {
+                openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
+              } as unknown as WorkspacesService
+            }
+          >
+            <WorkspacesProvider
+              value={[{ name: 'My Queries', component: () => null }]}
+            >
+              <ConnectionStorageProvider value={storage}>
+                <ConnectionsManagerProvider value={connectionManager}>
+                  <Provider store={store}>
+                    <MultipleConnectionSidebar
+                      activeWorkspace={{ type: 'connection' }}
+                    />
+                  </Provider>
+                </ConnectionsManagerProvider>
+              </ConnectionStorageProvider>
+            </WorkspacesProvider>
+          </WorkspacesServiceProvider>
         </PreferencesProvider>
       </ToastArea>
     );
@@ -145,6 +165,7 @@ describe('Multiple Connections Sidebar Component', function () {
     deactivate();
     cleanup();
     emitSpy.resetHistory();
+    openMyQueriesWorkspaceStub.resetHistory();
   });
 
   describe('opening a new connection', function () {
@@ -204,6 +225,15 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.click(settingsBtn);
 
       expect(emitSpy).to.have.been.calledWith('open-compass-settings');
+    });
+
+    it('when clicking on "My Queries", it opens the workspace', () => {
+      const navItem = screen.getByText('My Queries');
+      expect(navItem).to.be.visible;
+
+      userEvent.click(navItem);
+
+      expect(openMyQueriesWorkspaceStub).to.have.been.called;
     });
   });
 });
