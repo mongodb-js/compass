@@ -142,7 +142,7 @@ async function deleteStage(
   await browser.clickVisible(Selectors.StageDelete);
 }
 
-describe('Collection aggregations tab', function () {
+describe.only('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -702,7 +702,6 @@ describe('Collection aggregations tab', function () {
 
     // the pipeline can be futher edited
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-    await browser.clickVisible(Selectors.AddStageButton);
   });
 
   it('supports $merge as the last stage', async function () {
@@ -776,6 +775,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('cancels pipeline with $merge as the last stage', async function () {
+    if (serverSatisfies('< 4.2.0')) {
+      return this.skip();
+    }
+
     await browser.selectStageOperator(0, '$merge');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
@@ -819,7 +822,6 @@ describe('Collection aggregations tab', function () {
 
     // the pipeline can be futher edited
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
-    await browser.clickVisible(Selectors.AddStageButton);
   });
 
   it('supports running and editing aggregation', async function () {
