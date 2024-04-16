@@ -731,8 +731,7 @@ const tests: TestOptions[] = [
     collectionName: 'movies',
     // TODO(COMPASS-7763): GPT-4 generates better results for this input.
     // When we've swapped over we can increase the accuracy for this test.
-    // For now it will be giving low accuracy. gpt-3.5-turbo usually tries to
-    // use $expr in a $project stage which is not valid syntax.
+    // For now it will be giving low accuracy.
     minAccuracyForTest: 0.4,
     userInput:
       'What are the 5 most frequent words used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
