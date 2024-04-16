@@ -15,7 +15,6 @@ import Sinon from 'sinon';
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../../test/helpers';
 import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 
 const mockConnections: ConnectionInfo[] = [
@@ -43,7 +42,6 @@ describe('<ActiveConnectionNavigation />', function () {
   let mockConnectionStorage: typeof ConnectionStorage;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
 
   beforeEach(() => {
@@ -57,14 +55,11 @@ describe('<ActiveConnectionNavigation />', function () {
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return [];
           },
-          currentOp() {},
-          top() {},
         },
-        instance,
         logger: { log: { warn() {} }, mongoLogId() {} },
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
@@ -75,6 +70,7 @@ describe('<ActiveConnectionNavigation />', function () {
         <ConnectionsManagerProvider value={connectionsManager}>
           <Provider store={store}>
             <ActiveConnectionNavigation
+              activeConnections={mockConnections}
               activeWorkspace={{ type: 'connection' }}
             />
           </Provider>

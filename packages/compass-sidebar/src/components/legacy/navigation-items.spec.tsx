@@ -25,7 +25,7 @@ function renderNavigationItems(
       >
         <NavigationItems
           isReady
-          connectionId={CONNECTION_ID}
+          connectionInfo={{ id: CONNECTION_ID } as any}
           onAction={() => {
             /* noop */
           }}

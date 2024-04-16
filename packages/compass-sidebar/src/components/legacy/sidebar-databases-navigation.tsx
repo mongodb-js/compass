@@ -135,10 +135,10 @@ function mapStateToProps(
         isWritable,
         name: '',
         connectionInfo,
-        databasesLength: filteredDatabases.length,
+        databasesLength: filteredDatabases?.length || 0,
         databasesStatus: (status ??
           'fetching') as Connection['databasesStatus'],
-        databases: filteredDatabases,
+        databases: filteredDatabases ?? [],
       },
     ],
     expanded: {

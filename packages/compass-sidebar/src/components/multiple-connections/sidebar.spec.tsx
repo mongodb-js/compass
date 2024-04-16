@@ -25,7 +25,11 @@ import {
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../test/helpers';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -64,6 +68,8 @@ type ItselfAndStub<T> = {
 };
 
 describe('Multiple Connections Sidebar Component', function () {
+  let preferences: PreferencesAccess;
+
   const connectionStorage: ItselfAndStub<
     Pick<
       typeof ConnectionStorage,
@@ -76,7 +82,6 @@ describe('Multiple Connections Sidebar Component', function () {
     save: stub(),
     delete: stub(),
   };
-  const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
   const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
@@ -93,14 +98,11 @@ describe('Multiple Connections Sidebar Component', function () {
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return [];
           },
-          currentOp() {},
-          top() {},
         },
-        instance,
         logger: { log: { warn() {} }, mongoLogId() {} },
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
@@ -108,21 +110,28 @@ describe('Multiple Connections Sidebar Component', function () {
 
     return render(
       <ToastArea>
-        <ConnectionStorageProvider value={storage}>
-          <ConnectionsManagerProvider value={connectionManager}>
-            <Provider store={store}>
-              <MultipleConnectionSidebar
-                activeWorkspace={{ type: 'connection' }}
-              />
-            </Provider>
-          </ConnectionsManagerProvider>
-        </ConnectionStorageProvider>
+        <PreferencesProvider value={preferences}>
+          <ConnectionStorageProvider value={storage}>
+            <ConnectionsManagerProvider value={connectionManager}>
+              <Provider store={store}>
+                <MultipleConnectionSidebar
+                  activeWorkspace={{ type: 'connection' }}
+                />
+              </Provider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
+        </PreferencesProvider>
       </ToastArea>
     );
   }
 
-  beforeEach(function () {
+  beforeEach(async function () {
     connectionStorage.loadAll.returns([savedConnection]);
+
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
 
     doRender();
   });

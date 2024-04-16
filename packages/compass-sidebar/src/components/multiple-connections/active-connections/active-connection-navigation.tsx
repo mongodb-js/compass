@@ -240,9 +240,9 @@ function mapStateToProps(
       isWritable,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesLength: filteredDatabases.length,
+      databasesLength: filteredDatabases?.length ?? 0,
       databasesStatus: status as Connection['databasesStatus'],
-      databases: filteredDatabases,
+      databases: filteredDatabases ?? [],
     });
 
     expandedResult[connectionId] = expanded;
