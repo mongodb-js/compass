@@ -1,4 +1,4 @@
-import { ipcMain } from 'hadron-ipc';
+import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 import { safeStorage } from 'electron';
 import { UUID } from 'bson';
@@ -27,14 +27,18 @@ import type {
 } from './import-export-connection';
 import { UserData, z } from '@mongodb-js/compass-user-data';
 import type {
-  ConnectionStorageIPCMain,
-  ConnectionStorageIPCInterface,
   ConnectionStorage,
   AutoConnectPreferences,
 } from './connection-storage';
 
 const { log, mongoLogId, track } =
   createLoggerAndTelemetry('CONNECTION-STORAGE');
+
+export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
+
+type ConnectionStorageIPCInterface = Required<
+  Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
+>;
 
 type ConnectionLegacyProps = {
   _id?: string;

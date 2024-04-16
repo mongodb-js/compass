@@ -6,7 +6,6 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
-import { CompassWebConnectionStorage } from './compass-web-connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -71,7 +70,6 @@ describe('CompassWeb', function () {
         },
       });
     };
-    const storage = new CompassWebConnectionStorage(getAutoConnectInfo);
     return render(
       <CompassWeb
         onAutoconnectInfoRequest={getAutoConnectInfo}
@@ -85,7 +83,6 @@ describe('CompassWeb', function () {
         {...props}
         // @ts-expect-error see component props description
         __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
-        __TEST_CONNECTION_STORAGE={storage}
       ></CompassWeb>
     );
   }

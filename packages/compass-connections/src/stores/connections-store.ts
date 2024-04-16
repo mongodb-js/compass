@@ -362,7 +362,7 @@ export function useConnections({
       // not resolved.
       connectionsManager.cancelAllConnectionAttempts();
     };
-  }, [persistOIDCTokens]);
+  }, []);
 
   const connect = async (
     connectionInfo: ConnectionInfo,

@@ -127,9 +127,7 @@ export function useConnectionRepository(): ConnectionRepository {
         }
       }
 
-      if (storage.save) {
-        await storage.save({ connectionInfo: infoToSave });
-      }
+      await storage.save?.({ connectionInfo: infoToSave });
       return infoToSave;
     },
     [storage, persistOIDCTokens]
@@ -137,9 +135,7 @@ export function useConnectionRepository(): ConnectionRepository {
 
   const deleteConnection = useCallback(
     async (info: ConnectionInfo) => {
-      if (storage.delete) {
-        await storage.delete(info);
-      }
+      await storage.delete?.(info);
     },
     [storage]
   );

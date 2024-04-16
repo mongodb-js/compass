@@ -195,8 +195,6 @@ const CompassWeb = ({
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-  // @ts-expect-error see above
-  __TEST_CONNECTION_STORAGE,
 }: CompassWebProps) => {
   // It's imperative that this method doesn't change during render otherwise the
   // application will be stuck in a neverending re-connect loop
@@ -247,8 +245,7 @@ const CompassWeb = ({
   );
 
   const connectionStorage = useRef(
-    __TEST_CONNECTION_STORAGE ??
-      new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current)
+    new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current)
   );
 
   const preferencesAccess = useRef(

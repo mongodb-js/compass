@@ -10,8 +10,8 @@ import {
   initCompassMainConnectionStorage,
   type CompassMainConnectionStorage,
   type ConnectionWithLegacyProps,
+  type ConnectionStorageIPCMain,
 } from './compass-main-connection-storage';
-import type { ConnectionStorageIPCMain } from './connection-storage';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import Sinon from 'sinon';
 

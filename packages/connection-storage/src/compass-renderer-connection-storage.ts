@@ -1,18 +1,26 @@
 import { EventEmitter } from 'events';
+import type { HadronIpcRenderer } from 'hadron-ipc';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
-  type ConnectionStorageIPCRenderer,
   type ConnectionStorageEvent,
   type ConnectionStorageEventListeners,
-  type ConnectionStorageIPCInterface,
   type ConnectionStorage,
   type AutoConnectPreferences,
   ConnectionStorageEvents,
 } from './connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   ExportConnectionOptions,
   ImportConnectionOptions,
 } from './import-export-connection';
+
+type ConnectionStorageIPCInterface = Required<
+  Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
+>;
+
+type ConnectionStorageIPCRenderer = Pick<
+  HadronIpcRenderer,
+  'createInvoke' | 'call'
+>;
 
 class CompassRendererConnectionStorage
   extends EventEmitter

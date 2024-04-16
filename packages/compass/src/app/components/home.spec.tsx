@@ -1,7 +1,6 @@
 import React, { type ComponentProps } from 'react';
 import {
   cleanup,
-  fireEvent,
   render,
   screen,
   waitFor,
@@ -229,10 +228,8 @@ describe('Home [Component]', function () {
         const storageSpy = sinon.spy(Storage.prototype, 'setItem');
 
         // Click the don't show again checkbox and close the modal
-        fireEvent.click(within(modal).getByText(/don't show this again/i));
-        fireEvent.click(within(modal).getByText(/close/i));
-
-        // rerender();
+        userEvent.click(within(modal).getByText(/don't show this again/i));
+        userEvent.click(within(modal).getByText(/close/i));
 
         // Saves data in storage
         expect(storageSpy.firstCall.args).to.deep.equal([

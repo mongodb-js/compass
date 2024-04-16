@@ -1,4 +1,3 @@
-import type { HadronIpcMain, HadronIpcRenderer } from 'hadron-ipc';
 import type {
   ConnectionInfo,
   AtlasClusterMetadata,
@@ -89,14 +88,3 @@ export interface ConnectionStorage {
     signal?: AbortSignal;
   }): Promise<void>;
 }
-
-export type ConnectionStorageIPCInterface = Required<
-  Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
->;
-
-export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
-
-export type ConnectionStorageIPCRenderer = Pick<
-  HadronIpcRenderer,
-  'createInvoke' | 'call'
->;
