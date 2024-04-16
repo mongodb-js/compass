@@ -13,11 +13,11 @@ import type {
   ImportConnectionOptions,
 } from './import-export-connection';
 
-type ConnectionStorageIPCInterface = Required<
+export type ConnectionStorageIPCInterface = Required<
   Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
 >;
 
-type ConnectionStorageIPCRenderer = Pick<
+export type ConnectionStorageIPCRenderer = Pick<
   HadronIpcRenderer,
   'createInvoke' | 'call'
 >;
@@ -27,6 +27,15 @@ class CompassRendererConnectionStorage
   implements ConnectionStorage
 {
   private _ipc: ConnectionStorageIPCInterface | undefined;
+  /**
+   * TODO(COMPASS-7858): We would like to avoid a situation where in the same
+   * render process there are multiple places asking for auto connect info and
+   * potentially trying to auto connect ("accidentally"). So we have this little
+   * state here tracking if the auto connect info has already been requested
+   * once and if yes the getAutoConnectInfo won't return anything for subsequent
+   * calls.
+   */
+  private hasAlreadyRequestedAutoConnectInfo = false;
   constructor(
     private readonly ipcRenderer?: ConnectionStorageIPCRenderer,
     private readonly getInitialAutoConnectPreferences?: () => Promise<AutoConnectPreferences>
@@ -97,12 +106,17 @@ class CompassRendererConnectionStorage
   async getAutoConnectInfo(
     autoConnectPreferences?: AutoConnectPreferences
   ): Promise<ConnectionInfo | undefined> {
-    return await this.ipc.getAutoConnectInfo(
+    if (this.hasAlreadyRequestedAutoConnectInfo) {
+      return;
+    }
+    const autoConnectInfo = await this.ipc.getAutoConnectInfo(
       autoConnectPreferences ??
         (await this.getInitialAutoConnectPreferences?.()) ?? {
           shouldAutoConnect: false,
         }
     );
+    this.hasAlreadyRequestedAutoConnectInfo = true;
+    return autoConnectInfo;
   }
 
   getLegacyConnections(

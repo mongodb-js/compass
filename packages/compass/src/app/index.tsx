@@ -200,15 +200,11 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function () {
-    let hasDisconnectedAtLeastOnce = false;
     await defaultPreferencesInstance.refreshPreferences();
     const initialAutoConnectPreferences =
       await getWindowAutoConnectPreferences();
     const getInitialAutoConnectPreferences =
       (): Promise<AutoConnectPreferences> => {
-        if (hasDisconnectedAtLeastOnce) {
-          return Promise.resolve({ shouldAutoConnect: false });
-        }
         return Promise.resolve(initialAutoConnectPreferences);
       };
     const connectionStorage = new CompassRendererConnectionStorage(
@@ -242,10 +238,7 @@ const Application = View.extend({
           appName={remote.app.getName()}
           showWelcomeModal={!wasNetworkOptInShown}
           createFileInputBackend={createElectronFileInputBackend(remote)}
-          onDisconnect={() => {
-            hasDisconnectedAtLeastOnce = true;
-            notifyMainProcessOfDisconnect();
-          }}
+          onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
