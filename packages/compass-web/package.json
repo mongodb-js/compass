@@ -99,7 +99,7 @@
     "compass-preferences-model": "^2.19.0",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^28.2.9",
+    "electron": "^29.3.0",
     "eslint": "^7.25.0",
     "events": "^3.3.0",
     "express": "^4.19.2",
