@@ -231,20 +231,27 @@ const confirmWriteOperationIfNeeded = async (
   namespace: string,
   pipeline: Document[]
 ) => {
-  const lastStage = pipeline[pipeline.length - 1];
-  const lastStageOperator = Object.keys(lastStage)[0];
+  if (!pipeline.length) {
+    return true;
+  }
+
+  const lastStageOperator = getStageOperator(pipeline[pipeline.length - 1]);
   let typeOfWrite;
 
-  if (!isOutputStage(lastStageOperator)) {
+  if (!lastStageOperator || !isOutputStage(lastStageOperator)) {
     return true;
   }
 
   const destinationNamespace = getDestinationNamespaceFromStage(namespace, {
-    [lastStageOperator]: lastStage[lastStageOperator] ?? '',
+    [lastStageOperator]: pipeline[pipeline.length - 1][lastStageOperator],
   });
 
+  if (!destinationNamespace) {
+    return true;
+  }
+
   if (lastStageOperator === '$out') {
-    const { database, collection } = toNS(namespace);
+    const { database, collection } = toNS(destinationNamespace);
     const isNamespaceExists = !!(await instance.getNamespace({
       dataService,
       database,
@@ -271,7 +278,7 @@ const confirmWriteOperationIfNeeded = async (
           lastStageOperator as keyof typeof WRITE_STAGE_LINK
         ],
       },
-      ns: destinationNamespace || 'N/A',
+      ns: destinationNamespace,
     }),
     buttonText: 'Yes, run pipeline',
     'data-testid': `write-operation-confirmation-modal`,
