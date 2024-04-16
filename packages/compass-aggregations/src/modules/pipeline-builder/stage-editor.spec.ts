@@ -122,6 +122,7 @@ function createStore({
         workspaces: {} as any,
         preferences,
         logger: createNoopLoggerAndTelemetry(),
+        dataService: {} as any,
       })
     )
   );

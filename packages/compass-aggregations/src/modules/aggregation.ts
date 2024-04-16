@@ -26,6 +26,7 @@ import {
 import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
+import toNS from 'mongodb-ns';
 
 const WRITE_STAGE_LINK = {
   $merge:
@@ -243,9 +244,11 @@ const confirmWriteOperationIfNeeded = async (
   });
 
   if (lastStageOperator === '$out') {
-    const isNamespaceExists = !!(await instance.isExistingNamespace({
+    const { database, collection } = toNS(namespace);
+    const isNamespaceExists = !!(await instance.getNamespace({
       dataService,
-      namespace: destinationNamespace,
+      database,
+      collection,
     }));
     typeOfWrite = isNamespaceExists
       ? WriteOperation.Overwrite
